@@ -1,0 +1,9 @@
+{
+  "extends": "@minko-fe/tsconfig/tsconfig.lib",
+  "compilerOptions": {
+    "baseUrl": ".",
+    "paths": {
+      "@root/*": ["./src/*"]
+    }
+  }
+}

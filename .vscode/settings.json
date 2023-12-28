@@ -1,0 +1,9 @@
+{
+  "eslint.experimental.useFlatConfig": true,
+  "i18n-ally.localesPaths": ["src/webview/locales"],
+  "i18n-ally.namespace": true,
+  "i18n-ally.sourceLanguage": "zh-cn",
+  "i18n-ally.keystyle": "nested",
+  "i18n-ally.enabledFrameworks": ["react", "react-i18next"],
+  "cssvar.files": ["src/webview/**/*.css"]
+}

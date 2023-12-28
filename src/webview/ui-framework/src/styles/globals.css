@@ -1,0 +1,8 @@
+#root {
+  width: 100%;
+  height: 100%;
+}
+
+body {
+  @apply p-0;
+}

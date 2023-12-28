@@ -1,0 +1,52 @@
+// See https://go.microsoft.com/fwlink/?LinkId=733558
+// for the documentation about the tasks.json format
+{
+  "version": "2.0.0",
+  "tasks": [
+    {
+      "label": "Watch Webview",
+      "type": "npm",
+      "script": "ui:dev",
+      "isBackground": true,
+      "presentation": {
+        "reveal": "always",
+        "panel": "shared",
+        "close": true
+      },
+      "problemMatcher": [
+        {
+          "base": "$ts-webpack-watch",
+          "background": {
+            "activeOnStart": true,
+            "beginsPattern": "ready in",
+            "endsPattern": "show help"
+          }
+        }
+      ],
+      "group": "build"
+    },
+    {
+      "label": "Watch Extension",
+      "type": "npm",
+      "script": "dev",
+      "dependsOn": "Watch Webview",
+      "isBackground": true,
+      "presentation": {
+        "reveal": "always",
+        "panel": "shared",
+        "close": true
+      },
+      "problemMatcher": [
+        {
+          "base": "$ts-webpack-watch",
+          "background": {
+            "activeOnStart": true,
+            "beginsPattern": "Build start",
+            "endsPattern": "Build success"
+          }
+        }
+      ],
+      "group": "build"
+    }
+  ]
+}

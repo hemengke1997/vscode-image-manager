@@ -1,0 +1,136 @@
+{
+  "publisher": "minko",
+  "name": "image-analysor",
+  "displayName": "Image Analysor",
+  "version": "0.0.0",
+  "preview": true,
+  "private": true,
+  "description": "WIP: Image Analysor",
+  "type": "module",
+  "icon": "assets/logo.png",
+  "keywords": [
+    "image",
+    "base64",
+    "svg",
+    "img",
+    "pic",
+    "png"
+  ],
+  "license": "MIT",
+  "homepage": "https://github.com/hemengke1997/vscode-image-analysor",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/hemengke1997/vscode-image-analysor"
+  },
+  "categories": [
+    "Visualization",
+    "Other"
+  ],
+  "author": "minko",
+  "main": "./dist/extension.cjs",
+  "activationEvents": [
+    "onStartupFinished"
+  ],
+  "contributes": {
+    "viewsContainers": {
+      "activitybar": [
+        {
+          "id": "imageAnalysor",
+          "title": "Image Analysor",
+          "icon": "./assets/logo.png"
+        }
+      ]
+    },
+    "views": {
+      "imageAnalysor": []
+    },
+    "commands": [
+      {
+        "command": "image-analysor.open-image-analysor",
+        "title": "Image Analysor"
+      }
+    ],
+    "menus": {
+      "editor/context": [
+        {
+          "command": "image-analysor.open-image-analysor",
+          "group": "z_commands"
+        }
+      ],
+      "explorer/context": [
+        {
+          "command": "image-analysor.open-image-analysor",
+          "group": "z_commands"
+        }
+      ]
+    }
+  },
+  "scripts": {
+    "dev": "simple-git-hooks && tsup --watch",
+    "ui:dev": "vite -c vite.config.ts -m development",
+    "ui:build": "vite build -c vite.config.ts -m production",
+    "build": "tsup",
+    "vscode:prepublish": "run-s ui:build build",
+    "publish": "vsce publish --no-dependencies",
+    "pack": "vsce package --no-dependencies",
+    "lint": "eslint .",
+    "up": "taze -I -w -r",
+    "pnpm:up": "pnpm upgrade -i -L",
+    "changelog": "conventional-changelog -p angular -i CHANGELOG.md -s -r 0",
+    "bump": "bumpp package.json -c -p -t --all -x \"pnpm run changelog\"",
+    "release": "bumpp && run-s publish"
+  },
+  "dependencies": {
+    "@ctrl/tinycolor": "^4.0.2",
+    "@minko-fe/lodash-pro": "^0.1.16",
+    "@minko-fe/react-hook": "^0.1.16",
+    "antd": "^5.12.5",
+    "classnames": "^2.3.2",
+    "context-state": "^2.1.0",
+    "framer-motion": "^10.16.16",
+    "i18next": "^23.7.11",
+    "react": "^18.2.0",
+    "react-contexify": "^6.0.0",
+    "react-copy-to-clipboard": "^5.1.0",
+    "react-detectable-overflow": "^0.7.1",
+    "react-dom": "^18.2.0",
+    "react-hotkeys-hook": "^4.4.1",
+    "react-i18next": "^13.5.0",
+    "react-icons": "^4.12.0"
+  },
+  "devDependencies": {
+    "@commitlint/cli": "^18.4.3",
+    "@minko-fe/commitlint-config": "^2.0.7",
+    "@minko-fe/eslint-config": "^2.0.7",
+    "@minko-fe/html-transform": "^0.1.16",
+    "@minko-fe/tsconfig": "^2.0.7",
+    "@types/eslint": "^8.56.0",
+    "@types/node": "^20.10.5",
+    "@types/react": "^18.2.45",
+    "@types/react-copy-to-clipboard": "^5.0.7",
+    "@types/react-dom": "^18.2.18",
+    "@types/vscode": "^1.84.1",
+    "@types/vscode-webview": "^1.57.4",
+    "@vscode/vsce": "^2.22.0",
+    "eslint": "^8.55.0",
+    "execa": "^8.0.1",
+    "fast-glob": "^3.3.2",
+    "image-size": "^1.0.2",
+    "npm-run-all": "^4.1.5",
+    "simple-git-hooks": "^2.9.0",
+    "tsup": "6.7.0",
+    "tsx": "^4.7.0",
+    "type-fest": "^4.8.3",
+    "typescript": "^5.3.3",
+    "vite": "^4.5.1",
+    "vite-plugin-html": "^3.2.0",
+    "vite-plugin-i18n-detector": "^2.2.0"
+  },
+  "engines": {
+    "vscode": "^1.84.1"
+  },
+  "simple-git-hooks": {
+    "commit-msg": "pnpm exec commitlint -e",
+    "pre-commit": "pnpm run lint"
+  }
+}

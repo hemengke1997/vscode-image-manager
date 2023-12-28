@@ -1,0 +1,26 @@
+{
+  "name": "ui-framework",
+  "version": "0.0.0",
+  "private": true,
+  "author": "minko",
+  "scripts": {
+    "ca": "tsx ./scripts/antdToTw"
+  },
+  "dependencies": {
+    "@ant-design/colors": "^7.0.0",
+    "react": "^18.2.0",
+    "react-dom": "^18.2.0",
+    "un-detector": "^0.0.6"
+  },
+  "devDependencies": {
+    "@minko-fe/vite-config": "^0.1.16",
+    "@vitejs/plugin-react": "^4.2.1",
+    "autoprefixer": "^10.4.16",
+    "execa": "^8.0.1",
+    "postcss": "^8.4.32",
+    "tailwindcss": "^3.4.0",
+    "validate-color": "^2.2.4",
+    "vite": "^4.5.1",
+    "vite-plugin-i18n-detector": "^2.2.0"
+  }
+}
