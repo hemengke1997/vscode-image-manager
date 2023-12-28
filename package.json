@@ -77,8 +77,7 @@
     "up": "taze -I -w -r",
     "pnpm:up": "pnpm upgrade -i -L",
     "changelog": "conventional-changelog -p angular -i CHANGELOG.md -s -r 0",
-    "bump": "bumpp package.json -c -p -t --all -x \"pnpm run changelog\"",
-    "release": "bumpp && run-s publish"
+    "release": "bumpp package.json -c -p -t --all -x \"pnpm run changelog\" && run-s publish"
   },
   "dependencies": {
     "@ctrl/tinycolor": "^4.0.2",
@@ -112,6 +111,8 @@
     "@types/vscode": "^1.84.1",
     "@types/vscode-webview": "^1.57.4",
     "@vscode/vsce": "^2.22.0",
+    "bumpp": "^9.2.1",
+    "conventional-changelog-cli": "^4.1.0",
     "eslint": "^8.55.0",
     "execa": "^8.0.1",
     "fast-glob": "^3.3.2",

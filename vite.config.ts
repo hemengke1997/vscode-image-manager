@@ -32,7 +32,6 @@ export default defineConfig(async (env) => {
           assetFileNames: `assets/[name].[ext]`,
         },
       },
-      minify: false,
     },
     server: {
       watch: {},
