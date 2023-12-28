@@ -2,7 +2,15 @@
 
 ⚠️ Work in progress ⚠️
 
+## Features
+
+- group
+- sort
+- filter
+- search
+- scale
+- preview
+
 
 ## Inspired
-
-[https://github.com/ZhangJian1713/vscode-image-analysor](https://github.com/ZhangJian1713/vscode-image-analysor)
+[vscode-image-viewer](https://github.com/ZhangJian1713/vscode-image-analysor)
