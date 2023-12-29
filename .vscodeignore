@@ -4,3 +4,10 @@ test
 .github
 .gitattributes
 .vscode
+eslint.config.js
+commitlint.config.cjs
+TODO.md
+**/*.html
+**/*.ts
+**/tsconfig.json
+**/*.yaml
