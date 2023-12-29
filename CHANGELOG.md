@@ -1,4 +1,8 @@
-## 0.0.1 (2023-12-28)
+## [0.0.2](https://github.com/hemengke1997/vscode-image-analysor/compare/v0.0.1...v0.0.2) (2023-12-29)
+
+
+
+## [0.0.1](https://github.com/hemengke1997/vscode-image-analysor/compare/a1149cfd6c6f840896c5a38404d99d52ba3602ba...v0.0.1) (2023-12-28)
 
 
 ### Features
