@@ -10,17 +10,20 @@
 
 **有多种方式打开插件**
 
-1. 快捷键
+### 快捷键
 
 `ctrl+shift+i`
 
-2. 命令
+### 命令
+
 `ctrl+shift+p` (macos `cmd+shift+p`)打开命令面板，输入 `Image Analysor` 打开插件
 
-3. 右键菜单
+### 右键菜单
+
 在资源管理器中右键，选择 `Image Analysor` 打开插件
 
-4. 编辑器
+### 编辑器
+
 在编辑器中右键，选择 `Image Analysor` 打开插件
 
 ## Features
