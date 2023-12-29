@@ -4,7 +4,7 @@ import GlobalContext from './contexts/GlobalContext'
 import 'antd/dist/reset.css'
 
 interface IAppProps {
-  components: Record<string, React.FunctionComponent>
+  components: Record<string, () => JSX.Element>
 }
 
 const NO_CURRENT_VIEW = '$currentView$'

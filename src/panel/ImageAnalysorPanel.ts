@@ -1,7 +1,8 @@
 import { applyHtmlTransforms } from '@minko-fe/html-transform'
 import { type Context } from '@root/Context'
-import { type MessageType, webviewBridge } from '@root/bridge'
 import { getEnvForWebview, getUri, logInfo, showError } from '@root/helper/utils'
+import { type MessageType, vscodeMessageCenter } from '@root/message'
+import { CallbackFromVscode } from '@root/message/shared'
 import fs from 'node:fs'
 import path from 'node:path'
 import { type Disposable, Uri, ViewColumn, type Webview, type WebviewPanel, window } from 'vscode'
@@ -150,11 +151,28 @@ export class ImageAnalysorPanel {
     return this._panel
   }
 
-  private _handlePanelMessage = (message: MessageType, webview: Webview) => {
+  private invokeCallback<T>(params: { message: MessageType; webview: Webview; data: T }) {
+    const { message, webview, data } = params
+    if (webview) {
+      // webview post message to webview listener
+      webview.postMessage({ cmd: CallbackFromVscode, callbackId: message.callbackId, data })
+    }
+  }
+
+  /**
+   * Handles messages passed from the webview context and executes code based on the message that is recieved.
+   *
+   * @param message The message that was passed from the webview context
+   * @param webview A reference to the extension webview
+   */
+  private _handlePanelMessage = async (message: MessageType, webview: Webview) => {
     logInfo(`receive msg: ${JSON.stringify(message)}`)
-    const handler = webviewBridge.get(message.cmd)
+    const handler = vscodeMessageCenter[message.cmd]
     if (handler) {
-      handler(message, webview)
+      const data = await handler({ message, webview })
+      if (data) {
+        this.invokeCallback({ message, webview, data })
+      }
     } else {
       showError(`Handler function "${message.cmd}" doesn't exist!`)
     }

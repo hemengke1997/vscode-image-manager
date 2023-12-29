@@ -1,17 +1,18 @@
-import { useControlledState } from '@minko-fe/react-hook'
-import { CmdToVscode } from '@root/bridge/constant'
-import { webviewToVscodeBridge } from '@root/bridge/webview-to-vscode-bridge'
+import { useControlledState, useInViewport } from '@minko-fe/react-hook'
+import { CmdToVscode } from '@root/message/shared'
+import { vscodeApi } from '@root/webview/vscode-api'
 import { App, Badge, Button, Image, type ImageProps, Tooltip } from 'antd'
 import classNames from 'classnames'
 import { motion } from 'framer-motion'
-import { memo, useState } from 'react'
+import { memo, useRef, useState } from 'react'
 import { CopyToClipboard } from 'react-copy-to-clipboard'
 import { BsCopy } from 'react-icons/bs'
 import { FaImages } from 'react-icons/fa6'
 import { ImEyePlus } from 'react-icons/im'
 import { PiFileImage } from 'react-icons/pi'
 import { type ImageType } from '../..'
-import { WARNING_MAX, bytesToKb, formatBytes } from '../../utils'
+import ImageAnalysorContext from '../../context/ImageAnalysorContext'
+import { bytesToKb, formatBytes } from '../../utils'
 
 type LazyImageProps = {
   image: ImageProps
@@ -27,6 +28,12 @@ type LazyImageProps = {
 function LazyImage(props: LazyImageProps) {
   const { image, info, preview, onPreviewChange, index } = props
 
+  const { config } = ImageAnalysorContext.usePicker(['config'])
+
+  const placeholderRef = useRef<HTMLDivElement>(null)
+  const [inViewport] = useInViewport(placeholderRef, {
+    rootMargin: '60px 0px', // 扩大相交计算的区域上下60px
+  })
   const { message } = App.useApp()
 
   const [copied, setCopied] = useState(false)
@@ -41,30 +48,42 @@ function LazyImage(props: LazyImageProps) {
 
   const handleMaskMouseOver = () => {
     if (!dimensions) {
-      webviewToVscodeBridge.postMessage(
-        { cmd: CmdToVscode.GET_IMAGE_DIMENSIONS, data: { filePath: info.path } },
-        (data) => {
-          setDimensions(data)
-        },
-      )
+      vscodeApi.postMessage({ cmd: CmdToVscode.GET_IMAGE_DIMENSIONS, data: { filePath: info.path } }, (data) => {
+        setDimensions(data)
+      })
     }
   }
 
-  const ifWarning = bytesToKb(info.stats.size) > WARNING_MAX
+  const clns = {
+    containerClassName: 'flex flex-none flex-col items-center space-y-1 transition-[width_height]',
+    imageClassName: 'rounded-md object-contain',
+    nameClassName: 'max-w-full truncate',
+  }
+
+  if (!inViewport) {
+    return (
+      <div ref={placeholderRef} className={clns.containerClassName}>
+        <div className={clns.imageClassName} style={{ width: image.width, height: image.height }}></div>
+        <div className={classNames(clns.nameClassName, 'invisible')}>{info.name}</div>
+      </div>
+    )
+  }
+
+  const ifWarning = bytesToKb(info.stats.size) > config.warningSize
 
   return (
     <motion.div
-      className={'flex flex-none flex-col items-center space-y-1 transition-[width_height]'}
-      initial={{ opacity: 0.8 }}
-      viewport={{ once: true }}
+      className={clns.containerClassName}
+      initial={{ opacity: 0 }}
+      viewport={{ once: true, margin: '20px 0px' }}
+      transition={{ duration: 0.8 }}
       whileInView={{ opacity: 1 }}
       style={{ width: image.width }}
-      transition={{ duration: 0.1 }}
     >
       <Badge status='warning' dot={ifWarning}>
         <Image
           {...image}
-          className={'rounded-md object-contain'}
+          className={clns.imageClassName}
           preview={{
             mask: (
               <div
@@ -126,7 +145,7 @@ function LazyImage(props: LazyImageProps) {
           }
         }}
       >
-        <div className={'max-w-full truncate'}>{info.name}</div>
+        <div className={clns.nameClassName}>{info.name}</div>
       </Tooltip>
     </motion.div>
   )

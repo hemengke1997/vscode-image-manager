@@ -1,29 +1,16 @@
+import { Config } from '@root/config'
 import { getProjectPath } from '@root/helper/utils'
 import fg from 'fast-glob'
 import imageSize from 'image-size'
 import path from 'node:path'
 import { Uri, type Webview } from 'vscode'
 
-class WebviewMessageListener {
+class MessageHandler {
   private readonly _imgTypes = ['svg', 'png', 'jpeg', 'jpg', 'ico', 'gif', 'webp', 'bmp', 'tif', 'apng']
 
-  getImageDimensions(imgPath: string) {
-    let dimensions = { width: 0, height: 0 }
-
-    const size = imageSize(imgPath)
-    try {
-      dimensions = {
-        width: size.width || 0,
-        height: size.height || 0,
-      }
-    } catch (err) {
-      console.log(err)
-    }
-    return dimensions
-  }
-
-  async _searchImgs(basePath: string, webview: Webview, fileTypes: Set<string>, dirs: Set<string>) {
-    // TODO: user custom search path
+  /* ------------------- 获取图片 ------------------- */
+  private async _searchImgs(basePath: string, webview: Webview, fileTypes: Set<string>, dirs: Set<string>) {
+    // TODO: user custom search path?
     const imgs = await fg([`**/*.{${this._imgTypes.join(',')}}`], {
       cwd: basePath,
       objectMode: true,
@@ -31,7 +18,7 @@ class WebviewMessageListener {
       absolute: true,
       markDirectories: true,
       stats: true,
-      // TODO: get from user vscode config
+      // TODO: get from user vscode config?
       ignore: [
         '**/node_modules/**',
         '**/.git/**',
@@ -81,6 +68,27 @@ class WebviewMessageListener {
       dirs: [...dirs],
     }
   }
+
+  /* ------------------ 获取图片尺寸 ------------------ */
+  getImageDimensions(imgPath: string) {
+    let dimensions = { width: 0, height: 0 }
+
+    const size = imageSize(imgPath)
+    try {
+      dimensions = {
+        width: size.width || 0,
+        height: size.height || 0,
+      }
+    } catch (err) {
+      console.log(err)
+    }
+    return dimensions
+  }
+
+  /* ------------ 获取extension config ------------ */
+  getExtConfig() {
+    return Config
+  }
 }
 
-export const webviewMessageListener = new WebviewMessageListener()
+export const messageHandler = new MessageHandler()

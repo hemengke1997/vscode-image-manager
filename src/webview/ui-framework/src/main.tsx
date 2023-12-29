@@ -1,5 +1,4 @@
 import i18next from 'i18next'
-import { type FC } from 'react'
 import ReactDOM from 'react-dom/client'
 import { initReactI18next } from 'react-i18next'
 import { setupI18n } from 'vite-plugin-i18n-detector/client'
@@ -10,7 +9,7 @@ import './styles/index.css'
 const root = ReactDOM.createRoot(document.querySelector('#root') as HTMLElement)
 
 interface IWebviewComponents {
-  [componentName: string]: FC
+  [componentName: string]: () => JSX.Element
 }
 
 i18next.use(initReactI18next).init({

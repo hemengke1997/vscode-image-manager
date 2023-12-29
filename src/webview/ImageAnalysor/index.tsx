@@ -1,8 +1,7 @@
 import { TinyColor } from '@ctrl/tinycolor'
 import { castArray, isNil, isObject, some } from '@minko-fe/lodash-pro'
 import { useLocalStorageState, useSetState } from '@minko-fe/react-hook'
-import { CmdToVscode } from '@root/bridge/constant'
-import { webviewToVscodeBridge } from '@root/bridge/webview-to-vscode-bridge'
+import { CmdToVscode } from '@root/message/shared'
 import {
   App,
   Badge,
@@ -20,6 +19,8 @@ import {
   theme,
 } from 'antd'
 import { type CheckboxValueType } from 'antd/es/checkbox/Group'
+import classNames from 'classnames'
+import { motion } from 'framer-motion'
 import { type Dirent, type Stats } from 'node:fs'
 import { startTransition, useEffect, useLayoutEffect, useRef, useState } from 'react'
 // import { isHotkeyPressed, useHotkeys } from 'react-hotkeys-hook'
@@ -27,9 +28,11 @@ import { MdImageSearch } from 'react-icons/md'
 import { RiFilter2Line } from 'react-icons/ri'
 import { TbLayoutNavbarExpand } from 'react-icons/tb'
 import PrimaryColorPicker from '../ui-framework/src/components/ThemeProvider/components/PrimaryColorPicker'
+import { vscodeApi } from '../vscode-api'
 import DisplayGroup, { type DisplayType } from './components/DisplayGroup'
 import DisplaySort from './components/DisplaySort'
 import LazyImage from './components/LazyImage'
+import ImageAnalysorContext from './context/ImageAnalysorContext'
 import OperationItem from './ui/OperationItem'
 import { bytesToKb } from './utils'
 import {
@@ -39,8 +42,9 @@ import {
   LOCAL_STORAGE_IMAGE_SIZE_SCALE,
   LOCAL_STORAGE_SORT,
 } from './utils/local-storage'
+import styles from './index.module.css'
 
-webviewToVscodeBridge.registerEventListener()
+vscodeApi.registerEventListener()
 
 export type ImageType = {
   path: string
@@ -64,6 +68,8 @@ export default function ImageAnalysor() {
   const { token } = theme.useToken()
   const { message } = App.useApp()
 
+  const { config } = ImageAnalysorContext.usePicker(['config'])
+
   // fetch image from vscode
   const [images, setImages] = useSetState<{
     originalList: ImageType[]
@@ -79,7 +85,7 @@ export default function ImageAnalysor() {
   const [dirs, setDirs] = useState<string[]>()
 
   useEffect(() => {
-    webviewToVscodeBridge.postMessage({ cmd: CmdToVscode.GET_ALL_IMAGES }, (data) => {
+    vscodeApi.postMessage({ cmd: CmdToVscode.GET_ALL_IMAGES }, (data) => {
       setImages({ originalList: data.imgs, list: sortImages(sort!, data.imgs), loading: false })
 
       setDirs(data.dirs.sort())
@@ -94,7 +100,7 @@ export default function ImageAnalysor() {
       })
     })
 
-    console.log(webviewToVscodeBridge.getState(), 'state')
+    console.log(vscodeApi.getState(), 'state')
   }, [])
 
   /* ------------ image type checkbox ----------- */
@@ -177,99 +183,102 @@ export default function ImageAnalysor() {
     const isDark = tinyBackgroundColor.isDark()
 
     return (
-      <Collapse
-        bordered={!hasMore}
-        activeKey={collapseActiveKeys[displayType]}
-        onChange={(activeKeys) => setCollapseActiveKeys({ [displayType]: castArray(activeKeys) })}
-        items={displayMap[displayType]
-          ?.filter((t) => t.children.length)
-          ?.map((item) => ({
-            key: item.label,
-            label: item.label,
-            children: hasMore ? (
-              nestedDisplay(all[currentIndex + 1], all)
-            ) : (
-              <div className={'mx-auto flex flex-wrap gap-6'}>
-                <ConfigProvider
-                  theme={{
-                    components: {
-                      Image: {
-                        previewOperationColor: isDark ? 'rgba(255, 255, 255, 1)' : 'rgba(0, 0, 0, 1)',
-                        previewOperationColorDisabled: isDark ? 'rgba(255, 255, 255, 0.25)' : 'rgba(0, 0, 0, 0.25)',
-                        previewOperationHoverColor: isDark ? 'rgba(255, 255, 255, 0.85)' : 'rgba(0, 0, 0, 0.85)',
-                        colorTextLightSolid: isDark ? 'rgba(255, 255, 255, 1)' : 'rgba(0, 0, 0, 1)',
+      <ConfigProvider theme={{ components: { Collapse: { contentPadding: 0 } } }}>
+        <Collapse
+          className={classNames(hasMore ? styles.collapseNested : styles.collapse)}
+          bordered={hasMore}
+          activeKey={collapseActiveKeys[displayType]}
+          onChange={(activeKeys) => setCollapseActiveKeys({ [displayType]: castArray(activeKeys) })}
+          items={displayMap[displayType]
+            ?.filter((t) => t.children.length)
+            ?.map((item) => ({
+              key: item.label,
+              label: item.label,
+              children: hasMore ? (
+                nestedDisplay(all[currentIndex + 1], all)
+              ) : (
+                <motion.div className={'mx-auto flex flex-wrap gap-6'}>
+                  <ConfigProvider
+                    theme={{
+                      components: {
+                        Image: {
+                          previewOperationColor: isDark ? 'rgba(255, 255, 255, 1)' : 'rgba(0, 0, 0, 1)',
+                          previewOperationColorDisabled: isDark ? 'rgba(255, 255, 255, 0.25)' : 'rgba(0, 0, 0, 0.25)',
+                          previewOperationHoverColor: isDark ? 'rgba(255, 255, 255, 0.85)' : 'rgba(0, 0, 0, 0.85)',
+                          colorTextLightSolid: isDark ? 'rgba(255, 255, 255, 1)' : 'rgba(0, 0, 0, 1)',
+                        },
                       },
-                    },
-                  }}
-                >
-                  <Image.PreviewGroup
-                    preview={{
-                      visible: preview?.[item.label]?.open,
-                      maskClosable: false,
-                      movable: false,
-                      style: {
-                        backgroundColor: new TinyColor(backgroundColor).setAlpha(0.9).toRgbString(),
-                      },
-                      onVisibleChange: (v, _, current) => {
-                        if (!v) {
-                          setPreview({
-                            [item.label]: { open: v },
-                          })
-                          return
-                        }
-                        if (current === preview?.[item.label]?.current) {
-                          setPreview({ [item.label]: { open: v, current } })
-                          return
-                        }
-                        if (v) return
-                      },
-                      maxScale: 10,
-                      minScale: 0.1,
-                      scaleStep: 0.3,
                     }}
                   >
-                    <ConfigProvider
-                      theme={{
-                        components: {
-                          Image: {
-                            colorTextLightSolid: token.colorTextLightSolid,
-                          },
+                    <Image.PreviewGroup
+                      preview={{
+                        visible: preview?.[item.label]?.open,
+                        maskClosable: false,
+                        movable: false,
+                        style: {
+                          backgroundColor: new TinyColor(backgroundColor).setAlpha(0.9).toRgbString(),
                         },
+                        onVisibleChange: (v, _, current) => {
+                          if (!v) {
+                            setPreview({
+                              [item.label]: { open: v },
+                            })
+                            return
+                          }
+                          if (current === preview?.[item.label]?.current) {
+                            setPreview({ [item.label]: { open: v, current } })
+                            return
+                          }
+                          if (v) return
+                        },
+                        maxScale: 10,
+                        minScale: 0.1,
+                        scaleStep: 0.3,
                       }}
                     >
-                      {item.children
-                        .filter((c) => {
-                          if (isObject(c.visible)) {
-                            return Object.keys(c.visible).every((k) => c.visible?.[k as ImageFilterType])
-                          }
-                          return true
-                        })
-                        .map((t, i) => (
-                          <LazyImage
-                            image={{
-                              style: { backgroundColor },
-                              width: BASE_SIZE * scale!,
-                              height: BASE_SIZE * scale!,
-                              src: t.vscodePath,
-                            }}
-                            preview={preview?.[item.label]}
-                            onPreviewChange={(p) => {
-                              setPreview({ [item.label]: p })
-                            }}
-                            info={t}
-                            index={i}
-                            key={t.path}
-                          />
-                        ))}
-                    </ConfigProvider>
-                  </Image.PreviewGroup>
-                </ConfigProvider>
-              </div>
-            ),
-          }))}
-        collapsible='icon'
-        size='small'
-      ></Collapse>
+                      <ConfigProvider
+                        theme={{
+                          components: {
+                            Image: {
+                              colorTextLightSolid: token.colorTextLightSolid,
+                            },
+                          },
+                        }}
+                      >
+                        {item.children
+                          .filter((c) => {
+                            if (isObject(c.visible)) {
+                              return Object.keys(c.visible).every((k) => c.visible?.[k as ImageFilterType])
+                            }
+                            return true
+                          })
+                          .map((t, i) => (
+                            <LazyImage
+                              image={{
+                                style: { backgroundColor },
+                                width: BASE_SIZE * scale!,
+                                height: BASE_SIZE * scale!,
+                                src: t.vscodePath,
+                              }}
+                              preview={preview?.[item.label]}
+                              onPreviewChange={(p) => {
+                                setPreview({ [item.label]: p })
+                              }}
+                              info={t}
+                              index={i}
+                              key={t.path}
+                            />
+                          ))}
+                      </ConfigProvider>
+                    </Image.PreviewGroup>
+                  </ConfigProvider>
+                </motion.div>
+              ),
+            }))}
+          collapsible='icon'
+          size='small'
+        ></Collapse>
+      </ConfigProvider>
     )
   }
 
@@ -310,8 +319,7 @@ export default function ImageAnalysor() {
   })
 
   /* ---------------- image scale --------------- */
-  // TODO: user custom
-  const BASE_SIZE = 100
+  const BASE_SIZE = config.imageDefaultWidth
   const [scale, setScale] = useLocalStorageState<number>(LOCAL_STORAGE_IMAGE_SIZE_SCALE, { defaultValue: 1 })
 
   const closeDefault = (e: Event) => {
@@ -327,8 +335,7 @@ export default function ImageAnalysor() {
 
       const delta = event.deltaY
 
-      // TODO: user custom?
-      const scaleStep = 0.1
+      const scaleStep = config.scaleStep
 
       if (delta > 0) {
         setScale((prevScale) => Math.max(0.3, prevScale! - scaleStep))
@@ -351,7 +358,7 @@ export default function ImageAnalysor() {
     const { min, max } = value
     if (isNil(min) && isNil(max)) {
       setImages((img) => ({
-        list: img.list.map((t) => ({ ...t, visible: { size: true } })),
+        list: img.list.map((t) => ({ ...t, visible: { ...t.visible, size: true } })),
       }))
     } else {
       setImages((img) => ({
@@ -440,8 +447,14 @@ export default function ImageAnalysor() {
                     >
                       <InputNumber placeholder='max(kb)' min={0} onPressEnter={sizeForm.submit} />
                     </Form.Item>
-                    <Form.Item noStyle>
+                  </Space.Compact>
+                  <Form.Item noStyle>
+                    <Button.Group>
+                      <Button size='small' type='primary' onClick={() => sizeForm.submit()}>
+                        Submit
+                      </Button>
                       <Button
+                        size='small'
                         type='default'
                         onClick={() => {
                           sizeForm.resetFields()
@@ -450,8 +463,8 @@ export default function ImageAnalysor() {
                       >
                         Reset
                       </Button>
-                    </Form.Item>
-                  </Space.Compact>
+                    </Button.Group>
+                  </Form.Item>
                 </div>
               </Form>
             </>

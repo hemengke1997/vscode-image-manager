@@ -10,13 +10,17 @@
 
 **有多种方式打开插件**
 
-1. 命令
+1. 快捷键
+
+`ctrl+shift+i`
+
+2. 命令
 `ctrl+shift+p` (macos `cmd+shift+p`)打开命令面板，输入 `Image Analysor` 打开插件
 
-2. 右键菜单
+3. 右键菜单
 在资源管理器中右键，选择 `Image Analysor` 打开插件
 
-3. 编辑器
+4. 编辑器
 在编辑器中右键，选择 `Image Analysor` 打开插件
 
 ## Features
@@ -35,8 +39,9 @@
 - deplicate image 相似图片去重
 - tiny 图片压缩
 - OCR 图片文字识别
-- vscode configuration
+- [x] vscode configuration
 
 
 ## Inspired
-[vscode-image-viewer](https://github.com/ZhangJian1713/vscode-image-analysor)
+
+❤️ [vscode-image-viewer](https://github.com/ZhangJian1713/vscode-image-viewer)

@@ -47,7 +47,7 @@
     "commands": [
       {
         "command": "image-analysor.open-image-analysor",
-        "title": "Image Analysor"
+        "title": "Open Image Analysor"
       }
     ],
     "menus": {
@@ -63,6 +63,35 @@
           "group": "z_commands"
         }
       ]
+    },
+    "keybindings": [
+      {
+        "command": "image-analysor.open-image-analysor",
+        "key": "ctrl+shift+i"
+      }
+    ],
+    "configuration": {
+      "title": "Image Analysor Settings",
+      "properties": {
+        "image-analysor.warningSize": {
+          "type": [
+            "number",
+            "boolean"
+          ],
+          "default": 500,
+          "description": "show warning dot if image size is larger than this value (KB)"
+        },
+        "image-analysor.imageDefaultWidth": {
+          "type": "number",
+          "default": 100,
+          "description": "default width of image (px)"
+        },
+        "image-analysor.scaleStep": {
+          "type": "number",
+          "default": 0.1,
+          "description": "scale step when zooming image list"
+        }
+      }
     }
   },
   "scripts": {

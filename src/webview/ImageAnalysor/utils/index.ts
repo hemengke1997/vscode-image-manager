@@ -1,6 +1,3 @@
-// TODO: user custom
-export const WARNING_MAX = 100
-
 export function formatBytes(bytes: number, decimals: number = 1): string {
   if (bytes === 0) {
     return '0 Bytes'

@@ -1,6 +1,6 @@
+import { type MessageType } from '@root/message'
+import { CallbackFromVscode } from '@root/message/shared'
 import { type WebviewApi } from 'vscode-webview'
-import { type MessageType } from '.'
-import { CallbackFromVscode } from './constant'
 
 type CallbackFn = (data: any) => void
 
@@ -13,7 +13,7 @@ type CallbackFn = (data: any) => void
  * dev server by using native web browser features that mock the functionality
  * enabled by acquireVsCodeApi.
  */
-class WebviewToVscodeBridge {
+class VscodeApi {
   private readonly vsCodeApi: WebviewApi<unknown> | undefined
   private _callbacks: Record<string, (data: any) => void> = {}
 
@@ -26,7 +26,7 @@ class WebviewToVscodeBridge {
   }
 
   public registerEventListener() {
-    // call this in webview context
+    // webview listener
     window.addEventListener('message', (event) => {
       const message = event.data
       switch (message.cmd) {
@@ -47,7 +47,7 @@ class WebviewToVscodeBridge {
   private _getRandomId = () => `${Date.now()}_${Math.round(Math.random() * 100000)}`
 
   /**
-   * Post a message (i.e. send arbitrary data) to the owner of the webview.
+   * Post a message (i.e. send arbitrary data) to the owner of the webview (i.e. vscode extension).
    *
    * @remarks When running webview code inside a web browser, postMessage will instead
    * log the given message to the console.
@@ -63,6 +63,7 @@ class WebviewToVscodeBridge {
       message.callbackId = callbackId
     }
     if (this.vsCodeApi) {
+      // vscode post message to vscode listener
       this.vsCodeApi.postMessage(message)
     } else {
       console.log(message)
@@ -108,4 +109,4 @@ class WebviewToVscodeBridge {
 }
 
 // Exports class singleton to prevent multiple invocations of acquireVsCodeApi.
-export const webviewToVscodeBridge = new WebviewToVscodeBridge()
+export const vscodeApi = new VscodeApi()
