@@ -108,10 +108,11 @@
     "@types/react": "^18.2.45",
     "@types/react-copy-to-clipboard": "^5.0.7",
     "@types/react-dom": "^18.2.18",
-    "@types/vscode": "^1.84.1",
+    "@types/vscode": "^1.60.0",
     "@types/vscode-webview": "^1.57.4",
     "@vscode/vsce": "^2.22.0",
     "bumpp": "^9.2.1",
+    "clipboardy": "^4.0.0",
     "conventional-changelog-cli": "^4.1.0",
     "eslint": "^8.55.0",
     "execa": "^8.0.1",
@@ -128,7 +129,7 @@
     "vite-plugin-i18n-detector": "^2.2.0"
   },
   "engines": {
-    "vscode": "^1.84.1"
+    "vscode": "^1.60.0"
   },
   "simple-git-hooks": {
     "commit-msg": "pnpm exec commitlint -e",
