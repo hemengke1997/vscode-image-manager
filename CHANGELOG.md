@@ -1,3 +1,12 @@
+## [0.0.3](https://github.com/hemengke1997/vscode-image-analysor/compare/v0.0.2...v0.0.3) (2023-12-29)
+
+
+### Features
+
+* support vscode configuration ([4ef4593](https://github.com/hemengke1997/vscode-image-analysor/commit/4ef4593ebfe2e126385a73218c4c98a9afddf08c))
+
+
+
 ## [0.0.2](https://github.com/hemengke1997/vscode-image-analysor/compare/v0.0.1...v0.0.2) (2023-12-29)
 
 
