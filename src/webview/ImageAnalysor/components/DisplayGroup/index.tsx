@@ -2,7 +2,7 @@ import { useControlledState } from '@minko-fe/react-hook'
 import { Checkbox, type CheckboxOptionType } from 'antd'
 import { memo, startTransition } from 'react'
 
-export type DisplayType = 'dir' | 'type'
+export type GroupType = 'dir' | 'type'
 
 type DisplayGroupProps<T> = {
   options: CheckboxOptionType[]
@@ -10,7 +10,7 @@ type DisplayGroupProps<T> = {
   onChange?: (checked: T[]) => void
 }
 
-function DisplayGroup<T extends string = DisplayType>(props: DisplayGroupProps<T>) {
+function DisplayGroup<T extends string = GroupType>(props: DisplayGroupProps<T>) {
   const { options, value, onChange } = props
 
   const [groups, setGroups] = useControlledState<T[]>({

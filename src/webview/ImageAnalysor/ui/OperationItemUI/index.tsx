@@ -5,7 +5,7 @@ type OperationItemProps = {
   title: ReactNode
 }
 
-function OperationItem(props: OperationItemProps) {
+function OperationItemUI(props: OperationItemProps) {
   const { children, title } = props
   return (
     <div className={'flex items-center space-x-4'}>
@@ -15,4 +15,4 @@ function OperationItem(props: OperationItemProps) {
   )
 }
 
-export default memo(OperationItem)
+export default memo(OperationItemUI)

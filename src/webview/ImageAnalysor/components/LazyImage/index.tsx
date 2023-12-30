@@ -11,7 +11,7 @@ import { FaImages } from 'react-icons/fa6'
 import { ImEyePlus } from 'react-icons/im'
 import { PiFileImage } from 'react-icons/pi'
 import { type ImageType } from '../..'
-import ImageAnalysorContext from '../../context/ImageAnalysorContext'
+import ImageAnalysorContext from '../../contexts/ImageAnalysorContext'
 import { bytesToKb, formatBytes } from '../../utils'
 
 type LazyImageProps = {
@@ -56,7 +56,7 @@ function LazyImage(props: LazyImageProps) {
 
   const clns = {
     containerClassName: 'flex flex-none flex-col items-center space-y-1 transition-[width_height]',
-    imageClassName: 'rounded-md object-contain',
+    imageClassName: 'rounded-md object-contain transition-colors',
     nameClassName: 'max-w-full truncate',
   }
 
@@ -83,7 +83,7 @@ function LazyImage(props: LazyImageProps) {
       <Badge status='warning' dot={ifWarning}>
         <Image
           {...image}
-          className={clns.imageClassName}
+          className={classNames(clns.imageClassName)}
           preview={{
             mask: (
               <div
@@ -92,7 +92,10 @@ function LazyImage(props: LazyImageProps) {
               >
                 <div
                   className={'flex-center cursor-pointer space-x-1'}
-                  onClick={() => setPreview({ open: true, current: index })}
+                  onClick={(e) => {
+                    e.stopPropagation()
+                    setPreview({ open: true, current: index })
+                  }}
                 >
                   <ImEyePlus />
                   <span>Preview</span>

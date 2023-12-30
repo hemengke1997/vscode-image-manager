@@ -21,7 +21,7 @@ const AntdConfigProvider: FC<PropsWithChildren> = ({ children }) => {
       <App
         className={'bg-ant-color-bg-layout'}
         message={{
-          top: 64,
+          top: 70,
           maxCount: 3,
         }}
       >

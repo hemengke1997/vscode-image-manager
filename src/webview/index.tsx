@@ -1,5 +1,5 @@
 import ImageAnalysor from './ImageAnalysor'
-import ImageAnalysorContext from './ImageAnalysor/context/ImageAnalysorContext'
+import ImageAnalysorContext from './ImageAnalysor/contexts/ImageAnalysorContext'
 import { registerApp } from './ui-framework/src/main'
 
 const webviewComponents = {

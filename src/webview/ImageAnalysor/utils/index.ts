@@ -12,3 +12,13 @@ export function formatBytes(bytes: number, decimals: number = 1): string {
 export function bytesToKb(bytes: number): number {
   return bytes / 1024
 }
+
+export function flattenKeys<T>(list: T[], resolveValue: (current: T) => string[]) {
+  return list.reduce(
+    (acc, current) => {
+      const values = resolveValue(current)
+      return acc.flatMap((item) => values.map((value) => (item ? `${item}/${value}` : value)))
+    },
+    [''],
+  )
+}
