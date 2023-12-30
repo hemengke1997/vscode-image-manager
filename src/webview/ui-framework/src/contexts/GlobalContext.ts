@@ -12,16 +12,21 @@ const useGlobalContext = () => {
     },
   )
 
+  const [localTheme, setLocalTheme] = useLocalStorageState(localStorageEnum.LOCAL_STORAGE_THEME_KEY, {
+    defaultValue: getTheme(),
+  })
+
   const [appearance, setAppearance] = useSetState<{
     theme: ThemeType
     primaryColor: string
   }>(() => ({
-    theme: getTheme(),
+    theme: localTheme!,
     primaryColor: localPrimaryColor!,
   }))
 
   useEffect(() => {
     switchTheme(appearance.theme)
+    setLocalTheme(appearance.theme)
   }, [appearance.theme])
 
   useEffect(() => {

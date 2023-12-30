@@ -4,6 +4,7 @@ import { type ConfigType } from '@root/config'
 import { defaultConfig } from '@root/config/default'
 import { CmdToVscode } from '@root/message/shared'
 import { localStorageEnum } from '@root/webview/local-storage'
+import GlobalContext from '@root/webview/ui-framework/src/contexts/GlobalContext'
 import { vscodeApi } from '@root/webview/vscode-api'
 import { createContainer } from 'context-state'
 import { useEffect, useReducer, useState } from 'react'
@@ -16,6 +17,8 @@ export type ImageStateType = {
 }
 
 function useImageAnalysorContext() {
+  const { appearance } = GlobalContext.usePicker(['appearance'])
+
   /* ------------- extension config ------------- */
   const [config, setConfig] = useState<ConfigType>(defaultConfig)
   useEffect(() => {
@@ -38,7 +41,7 @@ function useImageAnalysorContext() {
   const [backgroundColor, setBackgroundColor] = useLocalStorageState<string>(
     localStorageEnum.LOCAL_STORAGE_BACKGROUND_COLOR_KEY,
     {
-      defaultValue: '#fff',
+      defaultValue: appearance.theme === 'dark' ? '#fff' : '#000',
     },
   )
 
