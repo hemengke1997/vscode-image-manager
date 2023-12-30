@@ -3,8 +3,10 @@ import { CmdToVscode } from '@root/message/shared'
 import { App, Card, Modal } from 'antd'
 import { type Dirent, type Stats } from 'node:fs'
 import { startTransition, useEffect } from 'react'
+import { useTranslation } from 'react-i18next'
+import { localStorageEnum } from '../local-storage'
 // import { isHotkeyPressed, useHotkeys } from 'react-hotkeys-hook'
-import PrimaryColorPicker from '../ui-framework/src/components/ThemeProvider/components/PrimaryColorPicker'
+import PrimaryColorPicker from '../ui-framework/src/components/CustomConfigProvider/components/PrimaryColorPicker'
 import { vscodeApi } from '../vscode-api'
 import CollapseTree from './components/CollapseTree'
 import DisplayGroup, { type GroupType } from './components/DisplayGroup'
@@ -14,11 +16,6 @@ import ImageActions from './components/ImageActions'
 import ImageAnalysorContext from './contexts/ImageAnalysorContext'
 import useWheelScaleEvent from './hooks/useWheelScaleEvent'
 import OperationItemUI from './ui/OperationItemUI'
-import {
-  LOCAL_STORAGE_BACKGROUND_RECENT_COLORS_KEY,
-  LOCAL_STORAGE_DISPLAY_TYPE,
-  LOCAL_STORAGE_SORT,
-} from './utils/local-storage'
 
 vscodeApi.registerEventListener()
 
@@ -43,6 +40,7 @@ export type ImageType = {
 
 export default function ImageAnalysor() {
   const { message } = App.useApp()
+  const { t } = useTranslation()
 
   const { images, setImages, imageRefreshTimes, setCollapseOpen } = ImageAnalysorContext.usePicker([
     'images',
@@ -58,7 +56,7 @@ export default function ImageAnalysor() {
   useEffect(() => {
     if (imageRefreshTimes) {
       message.open({
-        content: 'Refreshing images...',
+        content: t('ns.img_refreshing'),
         type: 'loading',
       })
     }
@@ -77,7 +75,7 @@ export default function ImageAnalysor() {
       if (imageRefreshTimes) {
         message.destroy()
         message.open({
-          content: 'Images refreshed!',
+          content: t('ns.img_refreshed'),
           type: 'success',
         })
       }
@@ -97,20 +95,23 @@ export default function ImageAnalysor() {
   /* ---------------- image group --------------- */
   const groupType: { label: string; value: GroupType; priority: number }[] = [
     {
-      label: 'Group by dir',
+      label: t('ns.group_by_dir'),
       value: 'dir',
       priority: 1, // highest
     },
     {
-      label: 'Group by type',
+      label: t('ns.group_by_type'),
       value: 'type',
       priority: 2,
     },
   ]
 
-  const [_displayGroup, _setDisplayGroup] = useLocalStorageState<GroupType[]>(LOCAL_STORAGE_DISPLAY_TYPE, {
-    defaultValue: ['dir'],
-  })
+  const [_displayGroup, _setDisplayGroup] = useLocalStorageState<GroupType[]>(
+    localStorageEnum.LOCAL_STORAGE_DISPLAY_TYPE,
+    {
+      defaultValue: ['dir'],
+    },
+  )
 
   const [displayGroup, setDisplayGroup] = useControlledState({
     defaultValue: _displayGroup,
@@ -137,16 +138,18 @@ export default function ImageAnalysor() {
   /* ---------------- image sort ---------------- */
   const sortOptions = [
     {
-      label: 'name',
+      label: t('ns.name_sort'),
       value: 'name',
     },
     {
-      label: 'size',
+      label: t('ns.size_sort'),
       value: 'size',
     },
   ]
 
-  const [sort, setSort] = useLocalStorageState<string[]>(LOCAL_STORAGE_SORT, { defaultValue: ['size', 'asc'] })
+  const [sort, setSort] = useLocalStorageState<string[]>(localStorageEnum.LOCAL_STORAGE_SORT, {
+    defaultValue: ['size', 'asc'],
+  })
   const onSortChange = (value: string[]) => {
     setSort(value)
     setImages((t) => ({ list: [...sortImages(value, t.list)] }))
@@ -170,13 +173,13 @@ export default function ImageAnalysor() {
 
   return (
     <div className={'space-y-6'} ref={containerRef}>
-      <Card size='small' title='Settings'>
+      <Card size='small' title={t('ns.settings')}>
         <div className={'flex flex-col space-y-4'}>
-          <OperationItemUI title='Type'>
+          <OperationItemUI title={t('ns.type')}>
             <DisplayType imageTypes={imageTypes} images={images} onImageTypeChange={onImageTypeChange} />
           </OperationItemUI>
 
-          <OperationItemUI title='Group'>
+          <OperationItemUI title={t('ns.group')}>
             <DisplayGroup
               options={groupType.map((item) => ({ label: item.label, value: item.value }))}
               value={displayGroup}
@@ -185,15 +188,15 @@ export default function ImageAnalysor() {
           </OperationItemUI>
 
           <div className={'flex space-x-6'}>
-            <OperationItemUI title='Sort'>
+            <OperationItemUI title={t('ns.sort')}>
               <DisplaySort options={sortOptions} value={sort} onChange={onSortChange} />
             </OperationItemUI>
 
-            <OperationItemUI title='BackgroundColor'>
+            <OperationItemUI title={t('ns.background_color')}>
               <PrimaryColorPicker
                 color={backgroundColor}
                 onColorChange={setBackgroundColor}
-                localKey={LOCAL_STORAGE_BACKGROUND_RECENT_COLORS_KEY}
+                localKey={localStorageEnum.LOCAL_STORAGE_BACKGROUND_RECENT_COLORS_KEY}
                 extraColors={['#fff', '#000']}
               />
             </OperationItemUI>
@@ -206,7 +209,7 @@ export default function ImageAnalysor() {
           loading={images.loading}
           headStyle={{ borderBottom: 'none' }}
           bodyStyle={{ padding: 0 }}
-          title='Images'
+          title={t('ns.images')}
           extra={<ImageActions />}
         >
           <CollapseTree allDirs={dirs.all} allImageTypes={imageTypes.all} displayGroup={displayGroup} />

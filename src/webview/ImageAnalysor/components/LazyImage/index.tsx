@@ -6,6 +6,7 @@ import classNames from 'classnames'
 import { motion } from 'framer-motion'
 import { memo, useRef, useState } from 'react'
 import { CopyToClipboard } from 'react-copy-to-clipboard'
+import { useTranslation } from 'react-i18next'
 import { BsCopy } from 'react-icons/bs'
 import { FaImages } from 'react-icons/fa6'
 import { ImEyePlus } from 'react-icons/im'
@@ -27,6 +28,8 @@ type LazyImageProps = {
 
 function LazyImage(props: LazyImageProps) {
   const { image, info, preview, onPreviewChange, index } = props
+
+  const { t } = useTranslation()
 
   const { config } = ImageAnalysorContext.usePicker(['config'])
 
@@ -98,7 +101,7 @@ function LazyImage(props: LazyImageProps) {
                   }}
                 >
                   <ImEyePlus />
-                  <span>Preview</span>
+                  <span>{t('ns.preview')}</span>
                 </div>
                 <div className={'flex-center space-x-1'}>
                   <PiFileImage />

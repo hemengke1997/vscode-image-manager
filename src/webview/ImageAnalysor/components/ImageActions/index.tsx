@@ -1,6 +1,7 @@
 import { isNil } from '@minko-fe/lodash-pro'
 import { App, Button, Form, InputNumber, Popover, Space } from 'antd'
 import { memo, useState } from 'react'
+import { useTranslation } from 'react-i18next'
 import { MdImageSearch } from 'react-icons/md'
 import { RiFilter2Line } from 'react-icons/ri'
 import { TbLayoutNavbarExpand, TbRefresh } from 'react-icons/tb'
@@ -8,6 +9,7 @@ import ImageAnalysorContext from '../../contexts/ImageAnalysorContext'
 import { bytesToKb } from '../../utils'
 
 function ImageActions() {
+  const { t } = useTranslation()
   const { setImages, setCollapseOpen, refreshImages } = ImageAnalysorContext.usePicker([
     'setImages',
     'setCollapseOpen',
@@ -83,7 +85,7 @@ function ImageActions() {
               }}
             >
               <div className={'flex-center space-x-2'}>
-                <div>Size</div>
+                <div>{t('ns.size')}</div>
                 <Space.Compact>
                   <Form.Item
                     noStyle
@@ -125,7 +127,7 @@ function ImageActions() {
                 <Form.Item noStyle>
                   <Button.Group>
                     <Button size='small' type='primary' onClick={() => sizeForm.submit()}>
-                      Submit
+                      {t('ns.submit')}
                     </Button>
                     <Button
                       size='small'
@@ -135,7 +137,7 @@ function ImageActions() {
                         sizeForm.submit()
                       }}
                     >
-                      Reset
+                      {t('ns.reset')}
                     </Button>
                   </Button.Group>
                 </Form.Item>
@@ -165,14 +167,14 @@ function ImageActions() {
                     setCollapseOpen(true)
                   }}
                 >
-                  Expand
+                  {t('ns.expand')}
                 </Button>
                 <Button
                   onClick={() => {
                     setCollapseOpen(false)
                   }}
                 >
-                  Collapse
+                  {t('ns.collapse')}
                 </Button>
               </Button.Group>
             </div>

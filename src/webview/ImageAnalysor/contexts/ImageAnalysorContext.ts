@@ -3,11 +3,11 @@ import { useLocalStorageState, useSetState } from '@minko-fe/react-hook'
 import { type ConfigType } from '@root/config'
 import { defaultConfig } from '@root/config/default'
 import { CmdToVscode } from '@root/message/shared'
+import { localStorageEnum } from '@root/webview/local-storage'
 import { vscodeApi } from '@root/webview/vscode-api'
 import { createContainer } from 'context-state'
 import { useEffect, useReducer, useState } from 'react'
 import { type ImageType } from '..'
-import { LOCAL_STORAGE_BACKGROUND_COLOR_KEY, LOCAL_STORAGE_IMAGE_SIZE_SCALE } from '../utils/local-storage'
 
 export type ImageStateType = {
   originalList: ImageType[]
@@ -30,12 +30,17 @@ function useImageAnalysorContext() {
   const [imageRefreshTimes, refreshImages] = useReducer((s: number) => s + 1, 0)
 
   /* ---------------- image scale --------------- */
-  const [scale, setScale] = useLocalStorageState<number>(LOCAL_STORAGE_IMAGE_SIZE_SCALE, { defaultValue: 1 })
+  const [scale, setScale] = useLocalStorageState<number>(localStorageEnum.LOCAL_STORAGE_IMAGE_SIZE_SCALE, {
+    defaultValue: 1,
+  })
 
   /* ----------- image backgroundColor ---------- */
-  const [backgroundColor, setBackgroundColor] = useLocalStorageState<string>(LOCAL_STORAGE_BACKGROUND_COLOR_KEY, {
-    defaultValue: '#fff',
-  })
+  const [backgroundColor, setBackgroundColor] = useLocalStorageState<string>(
+    localStorageEnum.LOCAL_STORAGE_BACKGROUND_COLOR_KEY,
+    {
+      defaultValue: '#fff',
+    },
+  )
 
   const tinyBackgroundColor = new TinyColor(backgroundColor)
   const isDarkBackground = tinyBackgroundColor.isDark()

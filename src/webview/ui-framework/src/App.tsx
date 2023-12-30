@@ -1,5 +1,5 @@
 import AntdConfigProvider from './components/AntdConfigProvider'
-import ThemeProvider from './components/ThemeProvider'
+import ThemeProvider from './components/CustomConfigProvider'
 import GlobalContext from './contexts/GlobalContext'
 import 'antd/dist/reset.css'
 

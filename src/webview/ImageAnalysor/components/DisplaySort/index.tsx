@@ -2,6 +2,7 @@ import { useControlledState } from '@minko-fe/react-hook'
 import { Cascader, ConfigProvider } from 'antd'
 import { type PropsWithChildren, type ReactNode, memo, startTransition } from 'react'
 import { BsSortDown, BsSortDownAlt } from 'react-icons/bs'
+import { MdOutlineKeyboardDoubleArrowRight } from 'react-icons/md'
 
 type DisplaySortProps = {
   options: { label: ReactNode; value: string }[]
@@ -67,9 +68,11 @@ function DisplaySort(props: DisplaySortProps) {
           displayRender={(label) => {
             return (
               <div className={'flex items-center'}>
+                <div>{label[0]}</div>
+                <div className={'mx-1 flex items-baseline'}>
+                  <MdOutlineKeyboardDoubleArrowRight />
+                </div>
                 {label[1]}
-                <span className={'mx-1'}> by </span>
-                {label[0]}
               </div>
             )
           }}

@@ -2,8 +2,10 @@ import i18next from 'i18next'
 import ReactDOM from 'react-dom/client'
 import { initReactI18next } from 'react-i18next'
 import { setupI18n } from 'vite-plugin-i18n-detector/client'
+import { localStorageEnum } from '../../local-storage'
 import App from './App'
 import { FALLBACKLANG } from './locales'
+import { parseJson } from './utils/json'
 import './styles/index.css'
 
 const root = ReactDOM.createRoot(document.querySelector('#root') as HTMLElement)
@@ -31,7 +33,10 @@ i18next.use(initReactI18next).init({
 export function registerApp(webviewComponents: IWebviewComponents) {
   const vscodeEnv = window.vscodeEnv
 
-  const lng = vscodeEnv?.language || FALLBACKLANG
+  const lng =
+    parseJson(localStorage.getItem(localStorageEnum.LOCAL_STORAGE_LOCALE_KEY)) || vscodeEnv?.language || FALLBACKLANG
+
+  i18next.changeLanguage(lng)
 
   const { loadResourceByLang } = setupI18n({
     language: lng,

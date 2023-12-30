@@ -1,13 +1,16 @@
 import { useLocalStorageState, useSetState } from '@minko-fe/react-hook'
+import { localStorageEnum } from '@root/webview/local-storage'
 import { createContainer } from 'context-state'
 import { useEffect } from 'react'
-import { LOCAL_STORAGE_PRIMARY_COLOR_KEY } from '@/utils/local-storage'
 import { type ThemeType, builtInColors, getTheme, switchTheme } from '@/utils/theme'
 
 const useGlobalContext = () => {
-  const [localPrimaryColor, setLocalPrimaryColor] = useLocalStorageState(LOCAL_STORAGE_PRIMARY_COLOR_KEY, {
-    defaultValue: builtInColors[0].primary,
-  })
+  const [localPrimaryColor, setLocalPrimaryColor] = useLocalStorageState(
+    localStorageEnum.LOCAL_STORAGE_PRIMARY_COLOR_KEY,
+    {
+      defaultValue: builtInColors[0].primary,
+    },
+  )
 
   const [appearance, setAppearance] = useSetState<{
     theme: ThemeType

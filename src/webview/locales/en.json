@@ -1,0 +1,25 @@
+{
+  "ns": {
+    "img_refreshing": "Refreshing images...",
+    "img_refreshed": "Images refreshed!",
+    "name_sort": "name",
+    "size_sort": "size",
+    "desc": "desc",
+    "asc": "acs",
+    "settings": "Settings",
+    "type": "Type",
+    "group": "Group",
+    "sort": "Sort",
+    "background_color": "BackgroundColor",
+    "images": "Images",
+    "size": "Size",
+    "submit": "Submit",
+    "reset": "Reset",
+    "layout": "Layout",
+    "expand": "Expand",
+    "collapse": "Collapse",
+    "preview": "Preview",
+    "group_by_dir": "Group by dir",
+    "group_by_type": "Group by type"
+  }
+}
