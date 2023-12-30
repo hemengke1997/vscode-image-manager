@@ -22,6 +22,8 @@
     "group_by_dir": "按目录分组",
     "group_by_type": "按类型分组",
     "min": "最小值",
-    "max": "最大值"
+    "max": "最大值",
+    "bulit_in": "内置",
+    "recent": "最近使用"
   }
 }

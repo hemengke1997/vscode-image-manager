@@ -14,7 +14,7 @@ function CustomConfigProvider(props: PropsWithChildren) {
     <div className={'min-w-screen min-h-screen space-y-2 p-4'}>
       <header className={'flex justify-between'}>
         <a href='https://github.com/hemengke1997/vscode-image-analysor'>
-          <Logo className='text-5xl' />
+          <Logo className='fill-ant-color-primary text-5xl' />
         </a>
         <div className={'flex-center space-x-2'}>
           <LocaleSelector />

@@ -51,12 +51,6 @@
       }
     ],
     "menus": {
-      "editor/context": [
-        {
-          "command": "image-analysor.open-image-analysor",
-          "group": "z_commands"
-        }
-      ],
       "explorer/context": [
         {
           "command": "image-analysor.open-image-analysor",
@@ -118,6 +112,7 @@
     "@ctrl/tinycolor": "^4.0.2",
     "@minko-fe/lodash-pro": "^0.1.16",
     "@minko-fe/react-hook": "^0.1.16",
+    "@vscode/webview-ui-toolkit": "^1.2.2",
     "antd": "^5.12.5",
     "classnames": "^2.3.2",
     "context-state": "^2.1.0",

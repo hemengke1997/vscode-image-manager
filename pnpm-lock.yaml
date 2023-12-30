@@ -17,6 +17,9 @@ importers:
       '@minko-fe/react-hook':
         specifier: ^0.1.16
         version: 0.1.16(react-dom@18.2.0)(react@18.2.0)
+      '@vscode/webview-ui-toolkit':
+        specifier: ^1.2.2
+        version: 1.2.2(react@18.2.0)
       antd:
         specifier: ^5.12.5
         version: 5.12.5(react-dom@18.2.0)(react@18.2.0)
@@ -2409,6 +2412,35 @@ packages:
       type-detect: 4.0.8
     dev: true
 
+  /@microsoft/fast-element@1.12.0:
+    resolution: {integrity: sha512-gQutuDHPKNxUEcQ4pypZT4Wmrbapus+P9s3bR/SEOLsMbNqNoXigGImITygI5zhb+aA5rzflM6O8YWkmRbGkPA==}
+    dev: false
+
+  /@microsoft/fast-foundation@2.49.4:
+    resolution: {integrity: sha512-5I2tSPo6bnOfVAIX7XzX+LhilahwvD7h+yzl3jW0t5IYmMX9Lci9VUVyx5f8hHdb1O9a8Y9Atb7Asw7yFO/u+w==}
+    dependencies:
+      '@microsoft/fast-element': 1.12.0
+      '@microsoft/fast-web-utilities': 5.4.1
+      tabbable: 5.3.3
+      tslib: 1.14.1
+    dev: false
+
+  /@microsoft/fast-react-wrapper@0.1.48(react@18.2.0):
+    resolution: {integrity: sha512-9NvEjru9Kn5ZKjomAMX6v+eF0DR+eDkxKDwDfi+Wb73kTbrNzcnmlwd4diN15ygH97kldgj2+lpvI4CKLQQWLg==}
+    peerDependencies:
+      react: '>=16.9.0'
+    dependencies:
+      '@microsoft/fast-element': 1.12.0
+      '@microsoft/fast-foundation': 2.49.4
+      react: 18.2.0
+    dev: false
+
+  /@microsoft/fast-web-utilities@5.4.1:
+    resolution: {integrity: sha512-ReWYncndjV3c8D8iq9tp7NcFNc1vbVHvcBFPME2nNFKNbS1XCesYZGlIlf3ot5EmuOXPlrzUHOWzQ2vFpIkqDg==}
+    dependencies:
+      exenv-es6: 1.1.1
+    dev: false
+
   /@minko-fe/commitlint-config@2.0.7:
     resolution: {integrity: sha512-jJtSZFHBk+uF+EXOAcyC/Ijy3AKlqyGuVeuTEf0ZuWjJ6EmL1py1hEnRbqbxA3BAQyZJN9gEwYkxn72AVl6Ltw==}
     dependencies:
@@ -3158,6 +3190,17 @@ packages:
     optionalDependencies:
       keytar: 7.9.0
     dev: true
+
+  /@vscode/webview-ui-toolkit@1.2.2(react@18.2.0):
+    resolution: {integrity: sha512-xIQoF4FC3Xh6d7KNKIoIezSiFWYFuf6gQMdDyKueKBFGeKwaHWEn+dY2g3makvvEsNMEDji/woEwvg9QSbuUsw==}
+    peerDependencies:
+      react: '>=16.9.0'
+    dependencies:
+      '@microsoft/fast-element': 1.12.0
+      '@microsoft/fast-foundation': 2.49.4
+      '@microsoft/fast-react-wrapper': 0.1.48(react@18.2.0)
+      react: 18.2.0
+    dev: false
 
   /@xobotyi/scrollbar-width@1.9.5:
     resolution: {integrity: sha512-N8tkAACJx2ww8vFMneJmaAgmjAG1tnVBZJRLRcx061tmsLRZHSEZSLuGWnwPtunsSLvSqXQ2wfp7Mgqg1I+2dQ==}
@@ -5250,6 +5293,10 @@ packages:
       signal-exit: 4.1.0
       strip-final-newline: 3.0.0
     dev: true
+
+  /exenv-es6@1.1.1:
+    resolution: {integrity: sha512-vlVu3N8d6yEMpMsEm+7sUBAI81aqYYuEvfK0jNqmdb/OPXzzH7QWDDnVjMvDSY47JdHEqx/dfC/q8WkfoTmpGQ==}
+    dev: false
 
   /expand-template@2.0.3:
     resolution: {integrity: sha512-XYfuKMvj4O35f/pOXLObndIRvyQ+/+6AhODh+OKWj9S9498pHHn/IMszH+gt0fBCRWMNfk1ZSp5x3AifmnI2vg==}
@@ -8847,6 +8894,10 @@ packages:
     resolution: {integrity: sha512-1TlOwvKWdXxAY9vba+huLu99zrQURDWA8pUTYsRIYDZYQbGyK+pyEP4h4dlySsqo7ozyJBmYD20F+iUHhAltEg==}
     dev: true
 
+  /tabbable@5.3.3:
+    resolution: {integrity: sha512-QD9qKY3StfbZqWOPLp0++pOrAVb/HbUi5xCc8cUo4XjP19808oaMiDzn0leBY5mCespIBM0CIZePzZjgzR83kA==}
+    dev: false
+
   /tailwindcss@3.4.0:
     resolution: {integrity: sha512-VigzymniH77knD1dryXbyxR+ePHihHociZbXnLZHUyzf2MMs2ZVqlUrZ3FvpXP8pno9JzmILt1sZPD19M3IxtA==}
     engines: {node: '>=14.0.0'}
@@ -9059,6 +9110,10 @@ packages:
       minimist: 1.2.8
       strip-bom: 3.0.0
     dev: true
+
+  /tslib@1.14.1:
+    resolution: {integrity: sha512-Xni35NKzjgMrwevysHTCArtLDpPvye8zV/0E4EyYn43P7/7qvQwPh9BGkHewbMulVntbigmcT7rdX3BNo9wRJg==}
+    dev: false
 
   /tslib@2.6.2:
     resolution: {integrity: sha512-AEYxH93jGFPn/a2iVAwW87VuUIkR1FVUKB77NwMF7nBTDkDrrT/Hpt/IrCJ0QXhW27jTBDcf5ZY7w6RiqTMw2Q==}

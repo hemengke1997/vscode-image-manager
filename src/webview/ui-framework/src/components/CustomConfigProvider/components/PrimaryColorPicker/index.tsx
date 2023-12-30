@@ -3,7 +3,8 @@ import { uniq } from '@minko-fe/lodash-pro'
 import { useControlledState, useLocalStorageState } from '@minko-fe/react-hook'
 import { ColorPicker, type ColorPickerProps } from 'antd'
 import { memo, startTransition } from 'react'
-import { builtInColors } from '@/utils/theme'
+import { useTranslation } from 'react-i18next'
+import { builtInColors, getCssVar } from '@/utils/theme'
 
 type PrimaryColorPickerProps = {
   color?: string
@@ -13,6 +14,8 @@ type PrimaryColorPickerProps = {
 }
 
 function PrimaryColorPicker(props: PrimaryColorPickerProps) {
+  const { t } = useTranslation()
+
   const { color: colorProp, onColorChange, localKey, extraColors } = props
 
   const color = new TinyColor(colorProp).toHexString()
@@ -52,11 +55,15 @@ function PrimaryColorPicker(props: PrimaryColorPickerProps) {
         format='hex'
         presets={[
           {
-            label: 'Built-in',
+            label: 'vscode',
+            colors: [getCssVar('--vscode-button-background')],
+          },
+          {
+            label: t('ns.bulit_in'),
             colors: [...(formattedExtraColors || []), ...builtInColors.map((t) => t.primary)],
           },
           {
-            label: 'Recent',
+            label: t('ns.recent'),
             colors: recentColorsQueue || [],
           },
         ]}

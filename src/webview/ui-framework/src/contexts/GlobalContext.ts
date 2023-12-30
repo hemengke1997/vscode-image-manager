@@ -2,13 +2,13 @@ import { useLocalStorageState, useSetState } from '@minko-fe/react-hook'
 import { localStorageEnum } from '@root/webview/local-storage'
 import { createContainer } from 'context-state'
 import { useEffect } from 'react'
-import { type ThemeType, builtInColors, getTheme, switchTheme } from '@/utils/theme'
+import { type ThemeType, getCssVar, getTheme, switchTheme } from '@/utils/theme'
 
 const useGlobalContext = () => {
   const [localPrimaryColor, setLocalPrimaryColor] = useLocalStorageState(
     localStorageEnum.LOCAL_STORAGE_PRIMARY_COLOR_KEY,
     {
-      defaultValue: builtInColors[0].primary,
+      defaultValue: getCssVar('--vscode-button-background'),
     },
   )
 

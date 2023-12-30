@@ -1,4 +1,4 @@
-import { Badge, Checkbox, theme } from 'antd'
+import { Badge, Checkbox, ConfigProvider, theme } from 'antd'
 import { memo } from 'react'
 import { type ImageStateType } from '../../contexts/ImageAnalysorContext'
 
@@ -23,13 +23,22 @@ function DisplayType(props: DisplayTypeProps) {
         label: (
           <div className={'space-x-2'}>
             <span>{item}</span>
-            <Badge
-              overflowCount={Number.POSITIVE_INFINITY}
-              status='success'
-              color={token.colorPrimary}
-              count={images?.originalList.filter((t) => t.fileType === item).length}
-              showZero
-            />
+            <ConfigProvider
+              theme={{
+                components: {
+                  Badge: {
+                    colorBgContainer: token.colorText,
+                  },
+                },
+              }}
+            >
+              <Badge
+                overflowCount={Number.POSITIVE_INFINITY}
+                color={token.colorPrimary}
+                count={images?.originalList.filter((t) => t.fileType === item).length}
+                showZero
+              />
+            </ConfigProvider>
           </div>
         ),
         value: item,

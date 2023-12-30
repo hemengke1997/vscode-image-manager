@@ -5,7 +5,7 @@
     "name_sort": "name",
     "size_sort": "size",
     "desc": "desc",
-    "asc": "acs",
+    "asc": "asc",
     "settings": "Settings",
     "type": "Type",
     "group": "Group",
@@ -22,6 +22,8 @@
     "group_by_dir": "Group by dir",
     "group_by_type": "Group by type",
     "min": "min",
-    "max": "max"
+    "max": "max",
+    "bulit_in": "Bulit-in",
+    "recent": "Recent-used"
   }
 }

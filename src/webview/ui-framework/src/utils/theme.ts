@@ -23,6 +23,10 @@ export function switchTheme(theme: ThemeType) {
   document.documentElement.setAttribute('data-theme', theme)
 }
 
+export function getCssVar(target: string) {
+  return getComputedStyle(document.documentElement).getPropertyValue(target)
+}
+
 export const builtInColors = [blue, cyan, geekblue, gold, green, grey, lime, magenta, purple, red, volcano, yellow] as {
   primary: string
 }[]

@@ -24,9 +24,6 @@
 
 在资源管理器中右键，选择 `Image Analysor` 打开插件
 
-### 编辑器
-
-在编辑器中右键，选择 `Image Analysor` 打开插件
 
 ## Features
 
