@@ -1,8 +1,18 @@
+## [0.0.5](https://github.com/hemengke1997/vscode-image-analysor/compare/v0.0.4...v0.0.5) (2023-12-30)
+
+
+### fix
+
+* sync theme to localstorage ([a2e3df2](https://github.com/hemengke1997/vscode-image-analysor/commit/a2e3df2543420eae57e6f92b8b2c022bfc938ec0))
+
+
+
 ## [0.0.4](https://github.com/hemengke1997/vscode-image-analysor/compare/v0.0.3...v0.0.4) (2023-12-30)
 
 
 ### chore
 
+* release v0.0.4 ([8c961d7](https://github.com/hemengke1997/vscode-image-analysor/commit/8c961d72281e70635d402e39038723e7859a3e44))
 * use `eslint` preset changelog ([5234923](https://github.com/hemengke1997/vscode-image-analysor/commit/52349232ef3980382fdcce577ae96910ac72b2e5))
 
 ### ci
