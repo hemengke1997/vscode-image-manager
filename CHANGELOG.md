@@ -1,3 +1,30 @@
+## [0.0.4](https://github.com/hemengke1997/vscode-image-analysor/compare/v0.0.3...v0.0.4) (2023-12-30)
+
+
+### chore
+
+* use `eslint` preset changelog ([5234923](https://github.com/hemengke1997/vscode-image-analysor/commit/52349232ef3980382fdcce577ae96910ac72b2e5))
+
+### ci
+
+* add lint workflow ([d903aef](https://github.com/hemengke1997/vscode-image-analysor/commit/d903aef8d9d4cb01b52c2d5eed0452522577c18e))
+* fix lint ([f7bec83](https://github.com/hemengke1997/vscode-image-analysor/commit/f7bec8379033073f4670f602a98f4d95d36c5b46))
+
+### docs
+
+* format README ([a581db7](https://github.com/hemengke1997/vscode-image-analysor/commit/a581db752d15d1361d50ddcc32184740f683068d))
+
+### feat
+
+* i18n, support English and Chinese ([b8f0352](https://github.com/hemengke1997/vscode-image-analysor/commit/b8f0352e4f2cca38e24bfcf935863495501d9ff3))
+
+### fix
+
+* display wrong when type filter change ([92b701d](https://github.com/hemengke1997/vscode-image-analysor/commit/92b701ddb0275154130da94f0c33cce7c19b829d))
+* duplicate image types when multiple dirs ([538cb7d](https://github.com/hemengke1997/vscode-image-analysor/commit/538cb7d32b7e6314fe3341cc09ea05b68ac2bc60))
+
+
+
 ## [0.0.3](https://github.com/hemengke1997/vscode-image-analysor/compare/v0.0.2...v0.0.3) (2023-12-29)
 
 
