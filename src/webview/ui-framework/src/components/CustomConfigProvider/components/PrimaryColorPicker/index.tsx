@@ -34,10 +34,8 @@ function PrimaryColorPicker(props: PrimaryColorPickerProps) {
 
   const onOpenChange: ColorPickerProps['onOpenChange'] = (open) => {
     if (!open) {
-      // store recent 5 colors
       let newRecentColorsQueue = [...(recentColorsQueue || [])]
       newRecentColorsQueue.unshift(selectedColor)
-      // remove duplicate colors
       newRecentColorsQueue = uniq(newRecentColorsQueue)
 
       if (newRecentColorsQueue.length > 5) {
@@ -65,6 +63,8 @@ function PrimaryColorPicker(props: PrimaryColorPickerProps) {
         value={selectedColor}
         onChange={_onColorChange}
         onOpenChange={onOpenChange}
+        placement='bottom'
+        arrow={false}
       />
     </div>
   )

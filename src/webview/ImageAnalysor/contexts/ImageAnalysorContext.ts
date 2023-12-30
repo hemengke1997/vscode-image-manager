@@ -9,6 +9,7 @@ import { vscodeApi } from '@root/webview/vscode-api'
 import { createContainer } from 'context-state'
 import { useEffect, useReducer, useState } from 'react'
 import { type ImageType } from '..'
+import { Colors } from '../utils/color'
 
 export type ImageStateType = {
   originalList: ImageType[]
@@ -17,7 +18,7 @@ export type ImageStateType = {
 }
 
 function useImageAnalysorContext() {
-  const { appearance } = GlobalContext.usePicker(['appearance'])
+  const { theme } = GlobalContext.useSelector((ctx) => ctx.appearance.theme)
 
   /* ------------- extension config ------------- */
   const [config, setConfig] = useState<ConfigType>(defaultConfig)
@@ -41,7 +42,7 @@ function useImageAnalysorContext() {
   const [backgroundColor, setBackgroundColor] = useLocalStorageState<string>(
     localStorageEnum.LOCAL_STORAGE_BACKGROUND_COLOR_KEY,
     {
-      defaultValue: appearance.theme === 'dark' ? '#fff' : '#000',
+      defaultValue: theme === 'dark' ? Colors.warmWhite : Colors.warmBlack,
     },
   )
 

@@ -16,6 +16,7 @@ import ImageActions from './components/ImageActions'
 import ImageAnalysorContext from './contexts/ImageAnalysorContext'
 import useWheelScaleEvent from './hooks/useWheelScaleEvent'
 import OperationItemUI from './ui/OperationItemUI'
+import { Colors } from './utils/color'
 
 vscodeApi.registerEventListener()
 
@@ -197,7 +198,7 @@ export default function ImageAnalysor() {
                 color={backgroundColor}
                 onColorChange={setBackgroundColor}
                 localKey={localStorageEnum.LOCAL_STORAGE_BACKGROUND_RECENT_COLORS_KEY}
-                extraColors={['#fff', '#000']}
+                extraColors={[Colors.warmWhite, Colors.warmBlack]}
               />
             </OperationItemUI>
           </div>

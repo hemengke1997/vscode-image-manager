@@ -91,6 +91,11 @@
           "type": "number",
           "default": 0.1,
           "description": "scale step when zooming image list"
+        },
+        "image-analysor.excludePath": {
+          "type": "array",
+          "default": [],
+          "description": "scan images not in excludePath (pattern syntax of fast-glob)"
         }
       }
     }

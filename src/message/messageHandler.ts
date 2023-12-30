@@ -10,7 +10,6 @@ class MessageHandler {
 
   /* ------------------- 获取图片 ------------------- */
   private async _searchImgs(basePath: string, webview: Webview, fileTypes: Set<string>, dirs: Set<string>) {
-    // TODO: user custom search path?
     const imgs = await fg([`**/*.{${this._imgTypes.join(',')}}`], {
       cwd: basePath,
       objectMode: true,
@@ -18,11 +17,9 @@ class MessageHandler {
       absolute: true,
       markDirectories: true,
       stats: true,
-      // TODO: get from user vscode config?
       ignore: [
         '**/node_modules/**',
         '**/.git/**',
-        '**/public/**',
         '**/dist/**',
         '**/build/**',
         '**/out/**',
@@ -30,6 +27,8 @@ class MessageHandler {
         '**/.next/**',
         '**/.nuxt/**',
         '**/.vercel/**',
+        // https://www.npmjs.com/package/fast-glob#pattern-syntax
+        ...Config.excludePath,
       ],
     })
 

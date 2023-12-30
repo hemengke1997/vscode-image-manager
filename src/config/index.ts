@@ -6,20 +6,24 @@ export function getConfig<T>(key: string, v?: T) {
 }
 
 export const Config = {
-  get root() {
+  get root(): string {
     return workspace.workspaceFolders?.[0]?.uri?.fsPath || ''
   },
 
-  get warningSize() {
+  get warningSize(): number {
     return getConfig('warningSize')
   },
 
-  get imageDefaultWidth() {
+  get imageDefaultWidth(): number {
     return getConfig('imageDefaultWidth')
   },
 
-  get scaleStep() {
+  get scaleStep(): number {
     return getConfig('scaleStep')
+  },
+
+  get excludePath(): string[] {
+    return getConfig('excludePath')
   },
 }
 
