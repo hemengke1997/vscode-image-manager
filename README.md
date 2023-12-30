@@ -12,7 +12,9 @@
 
 ### 快捷键
 
-`ctrl+shift+i`
+- windows: `shift+alt+i`
+- macos: `cmd+option+i`
+
 
 ### 命令
 

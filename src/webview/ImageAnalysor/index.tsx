@@ -70,7 +70,7 @@ export default function ImageAnalysor() {
         checked: data.fileTypes,
       })
 
-      !imageRefreshTimes && setCollapseOpen(true)
+      !imageRefreshTimes && setCollapseOpen((t) => t + 1)
 
       if (imageRefreshTimes) {
         message.destroy()
@@ -208,7 +208,7 @@ export default function ImageAnalysor() {
           size='small'
           loading={images.loading}
           headStyle={{ borderBottom: 'none' }}
-          bodyStyle={{ padding: 0 }}
+          bodyStyle={images.loading ? {} : { padding: 0 }}
           title={t('ns.images')}
           extra={<ImageActions />}
         >

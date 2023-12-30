@@ -1,3 +1,4 @@
+import { isObject } from '@minko-fe/lodash-pro'
 import { memo } from 'react'
 import { type ImageType } from '../..'
 import ImageAnalysorContext from '../../contexts/ImageAnalysorContext'
@@ -34,9 +35,15 @@ function CollapseTree(props: CollapseTreeProps) {
   } as const
 
   const checkVaild = (fullpath: string[], fullGroup: GroupType[], image: ImageType) => {
+    // check visible first
+    if (isObject(image.visible) && Object.keys(image.visible).some((k) => image.visible?.[k] === false)) {
+      return false
+    }
+
     if (fullpath.length !== fullGroup.length) {
       return false
     }
+
     if (fullGroup.length === 0) {
       // flatten, always true
       return true

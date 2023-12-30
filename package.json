@@ -67,7 +67,8 @@
     "keybindings": [
       {
         "command": "image-analysor.open-image-analysor",
-        "key": "ctrl+shift+i"
+        "key": "shift+alt+i",
+        "mac": "cmd+alt+i"
       }
     ],
     "configuration": {

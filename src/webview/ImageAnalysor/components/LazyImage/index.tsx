@@ -94,7 +94,7 @@ function LazyImage(props: LazyImageProps) {
                 onMouseOver={handleMaskMouseOver}
               >
                 <div
-                  className={'flex-center cursor-pointer space-x-1'}
+                  className={'flex-center cursor-pointer space-x-1 truncate'}
                   onClick={(e) => {
                     e.stopPropagation()
                     setPreview({ open: true, current: index })
@@ -103,16 +103,16 @@ function LazyImage(props: LazyImageProps) {
                   <ImEyePlus />
                   <span>{t('ns.preview')}</span>
                 </div>
-                <div className={'flex-center space-x-1'}>
+                <div className={'flex-center space-x-1 truncate'}>
                   <PiFileImage />
                   <span className={classNames(ifWarning && 'text-ant-color-warning-text')}>
                     {formatBytes(info.stats.size)}
                   </span>
                 </div>
-                <div className={'flex-center space-x-1'}>
+                <div className={'flex-center space-x-1 truncate'}>
                   <FaImages />
                   <span>
-                    {dimensions?.width} x {dimensions?.height}
+                    {dimensions?.width}x{dimensions?.height}
                   </span>
                 </div>
               </div>

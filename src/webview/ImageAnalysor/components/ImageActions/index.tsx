@@ -1,4 +1,5 @@
 import { isNil } from '@minko-fe/lodash-pro'
+import { useMemoizedFn } from '@minko-fe/react-hook'
 import { App, Button, Form, InputNumber, Popover, Space } from 'antd'
 import { memo, useState } from 'react'
 import { useTranslation } from 'react-i18next'
@@ -42,6 +43,10 @@ function ImageActions() {
       }))
     }
   }
+
+  const toggleAllCollapse = useMemoizedFn((b: boolean) => {
+    setCollapseOpen((t) => t + (b ? 1 : -1))
+  })
 
   return (
     <div className={'space-x-2'}>
@@ -103,7 +108,7 @@ function ImageActions() {
                     dependencies={['max']}
                     name={'min'}
                   >
-                    <InputNumber placeholder='min(kb)' min={0} onPressEnter={sizeForm.submit} />
+                    <InputNumber placeholder={`${t('ns.min')}(kb)`} min={0} onPressEnter={sizeForm.submit} />
                   </Form.Item>
                   <Form.Item
                     noStyle
@@ -121,7 +126,7 @@ function ImageActions() {
                     ]}
                     dependencies={['min']}
                   >
-                    <InputNumber placeholder='max(kb)' min={0} onPressEnter={sizeForm.submit} />
+                    <InputNumber placeholder={`${t('ns.max')}(kb)`} min={0} onPressEnter={sizeForm.submit} />
                   </Form.Item>
                 </Space.Compact>
                 <Form.Item noStyle>
@@ -160,18 +165,18 @@ function ImageActions() {
         content={
           <div>
             <div className={'flex-center space-x-2'}>
-              <div>Layout</div>
+              <div>{t('ns.layout')}</div>
               <Button.Group>
                 <Button
                   onClick={() => {
-                    setCollapseOpen(true)
+                    toggleAllCollapse(true)
                   }}
                 >
                   {t('ns.expand')}
                 </Button>
                 <Button
                   onClick={() => {
-                    setCollapseOpen(false)
+                    toggleAllCollapse(false)
                   }}
                 >
                   {t('ns.collapse')}

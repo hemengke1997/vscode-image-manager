@@ -21,7 +21,7 @@ function ImageCollapse(props: ImageCollapseProps) {
   }
 
   useEffect(() => {
-    if (collapseOpen) {
+    if (collapseOpen > 0) {
       setActiveKeys([group.label])
     } else {
       setActiveKeys([])

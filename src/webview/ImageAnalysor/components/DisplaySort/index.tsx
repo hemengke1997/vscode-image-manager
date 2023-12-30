@@ -1,7 +1,8 @@
 import { useControlledState } from '@minko-fe/react-hook'
 import { Cascader, ConfigProvider } from 'antd'
 import { type PropsWithChildren, type ReactNode, memo, startTransition } from 'react'
-import { BsSortDown, BsSortDownAlt } from 'react-icons/bs'
+import { useTranslation } from 'react-i18next'
+import { BsSortDown, BsSortUpAlt } from 'react-icons/bs'
 import { MdOutlineKeyboardDoubleArrowRight } from 'react-icons/md'
 
 type DisplaySortProps = {
@@ -15,6 +16,8 @@ type SortType = 'desc' | 'asc'
 function DisplaySort(props: DisplaySortProps) {
   const { options, value, onChange } = props
 
+  const { t } = useTranslation()
+
   const [sort, setSort] = useControlledState({
     defaultValue: value,
     value,
@@ -25,8 +28,8 @@ function DisplaySort(props: DisplaySortProps) {
     asc: {
       label: (
         <SortLabelUI>
-          <BsSortDownAlt />
-          <span>asc</span>
+          <BsSortUpAlt />
+          <span>{t('ns.asc')}</span>
         </SortLabelUI>
       ),
     },
@@ -34,7 +37,7 @@ function DisplaySort(props: DisplaySortProps) {
       label: (
         <SortLabelUI>
           <BsSortDown />
-          <span>desc</span>
+          <span>{t('ns.desc')}</span>
         </SortLabelUI>
       ),
     },

@@ -1,5 +1,5 @@
 import { TinyColor } from '@ctrl/tinycolor'
-import { useLocalStorageState, useSetState } from '@minko-fe/react-hook'
+import { useControlledState, useLocalStorageState, useSetState } from '@minko-fe/react-hook'
 import { type ConfigType } from '@root/config'
 import { defaultConfig } from '@root/config/default'
 import { CmdToVscode } from '@root/message/shared'
@@ -46,7 +46,16 @@ function useImageAnalysorContext() {
   const isDarkBackground = tinyBackgroundColor.isDark()
 
   /* -------------- image collapse -------------- */
-  const [collapseOpen, setCollapseOpen] = useState<boolean>(false)
+  const [collapseOpen, setCollapseOpen] = useControlledState<number>({
+    defaultValue: 0,
+    beforeValue(value, prevValue) {
+      if (value > prevValue) {
+        return Math.abs(value) || 1
+      } else {
+        return -Math.abs(value)
+      }
+    },
+  })
 
   return {
     config,

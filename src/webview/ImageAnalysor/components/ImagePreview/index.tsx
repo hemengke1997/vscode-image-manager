@@ -1,4 +1,3 @@
-import { isObject } from '@minko-fe/lodash-pro'
 import { ConfigProvider, Image, theme } from 'antd'
 import { motion } from 'framer-motion'
 import { memo, useState } from 'react'
@@ -80,30 +79,23 @@ function ImagePreview(props: ImagePreviewProps) {
               },
             }}
           >
-            {group?.children
-              ?.filter((c) => {
-                if (isObject(c.visible)) {
-                  return Object.keys(c.visible).every((k) => c.visible?.[k])
-                }
-                return true
-              })
-              .map((t, i) => (
-                <LazyImage
-                  image={{
-                    style: { backgroundColor },
-                    width: BASE_SIZE * scale!,
-                    height: BASE_SIZE * scale!,
-                    src: t.vscodePath,
-                  }}
-                  preview={preview}
-                  onPreviewChange={(p) => {
-                    setPreview(p)
-                  }}
-                  info={t}
-                  index={i}
-                  key={t.path}
-                />
-              ))}
+            {group?.children.map((t, i) => (
+              <LazyImage
+                image={{
+                  style: { backgroundColor },
+                  width: BASE_SIZE * scale!,
+                  height: BASE_SIZE * scale!,
+                  src: t.vscodePath,
+                }}
+                preview={preview}
+                onPreviewChange={(p) => {
+                  setPreview(p)
+                }}
+                info={t}
+                index={i}
+                key={t.path}
+              />
+            ))}
           </ConfigProvider>
         </Image.PreviewGroup>
       </ConfigProvider>

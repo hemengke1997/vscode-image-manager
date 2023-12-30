@@ -20,6 +20,8 @@
     "collapse": "Collapse",
     "preview": "Preview",
     "group_by_dir": "Group by dir",
-    "group_by_type": "Group by type"
+    "group_by_type": "Group by type",
+    "min": "min",
+    "max": "max"
   }
 }
