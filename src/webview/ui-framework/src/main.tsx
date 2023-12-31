@@ -4,7 +4,6 @@ import { initReactI18next } from 'react-i18next'
 import { setupI18n } from 'vite-plugin-i18n-detector/client'
 import { localStorageEnum } from '../../local-storage'
 import App from './App'
-import { FALLBACKLANG } from './locales'
 import { parseJson } from './utils/json'
 import './styles/index.css'
 
@@ -13,6 +12,8 @@ const root = ReactDOM.createRoot(document.querySelector('#root') as HTMLElement)
 interface IWebviewComponents {
   [componentName: string]: () => JSX.Element
 }
+
+const FALLBACKLANG = 'en'
 
 i18next.use(initReactI18next).init({
   returnNull: false,

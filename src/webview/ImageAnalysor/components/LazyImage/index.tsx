@@ -59,7 +59,7 @@ function LazyImage(props: LazyImageProps) {
 
   const clns = {
     containerClassName: 'flex flex-none flex-col items-center space-y-1 transition-[width_height]',
-    imageClassName: 'rounded-md object-contain transition-colors',
+    imageClassName: 'rounded-md object-contain transition-colors p-1',
     nameClassName: 'max-w-full truncate',
   }
 

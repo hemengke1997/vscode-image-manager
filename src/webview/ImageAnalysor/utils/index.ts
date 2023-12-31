@@ -1,3 +1,6 @@
+import { isObject } from '@minko-fe/lodash-pro'
+import { type ImageType } from '..'
+
 export function formatBytes(bytes: number, decimals: number = 1): string {
   if (bytes === 0) {
     return '0 Bytes'
@@ -21,4 +24,11 @@ export function flattenKeys<T>(list: T[], resolveValue: (current: T) => string[]
     },
     [''],
   )
+}
+
+export function shouldShowImage(image: ImageType) {
+  if (isObject(image.visible) && Object.keys(image.visible).some((k) => image.visible?.[k] === false)) {
+    return false
+  }
+  return true
 }

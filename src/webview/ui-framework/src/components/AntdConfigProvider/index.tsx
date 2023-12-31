@@ -21,6 +21,8 @@ const AntdConfigProvider: FC<PropsWithChildren> = ({ children }) => {
           colorPrimary: appearance.primaryColor,
         },
       }}
+      componentSize='small'
+      warning={{ strict: false }}
     >
       <App
         className={'bg-ant-color-bg-container'}

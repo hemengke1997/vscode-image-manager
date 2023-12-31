@@ -1,6 +1,6 @@
 import { applyHtmlTransforms } from '@minko-fe/html-transform'
 import { type Context } from '@root/Context'
-import { getEnvForWebview, getUri, logInfo, showError } from '@root/helper/utils'
+import { getEnvForWebview, getUri, logInfo, removeUrlProtocol, showError } from '@root/helper/utils'
 import { type MessageType, vscodeMessageCenter } from '@root/message'
 import { CallbackFromVscode } from '@root/message/shared'
 import fs from 'node:fs'
@@ -51,21 +51,6 @@ export class ImageAnalysorPanel {
       return `${$1 + vscodeResourcePath}"`
     })
 
-    html = applyHtmlTransforms(html, [
-      {
-        injectTo: 'head',
-        tag: 'script',
-        attrs: { type: 'text/javascript' },
-        children: `window.currentView = '${ImageAnalysorPanel.viewType}'`,
-      },
-      {
-        injectTo: 'head',
-        tag: 'script',
-        attrs: { type: 'text/javascript' },
-        children: `window.vscodeEnv = ${JSON.stringify(getEnvForWebview())}`,
-      },
-    ])
-
     return html
   }
 
@@ -82,17 +67,15 @@ export class ImageAnalysorPanel {
   private _getWebviewContent(webview: Webview, ctx: Context) {
     const isProd = ctx.isProductionMode
 
+    const localPort = 9527
+    const localServerUrl = `http://localhost:${localPort}`
+
+    let html = ''
     if (isProd) {
-      const html = this._transformHtml(
-        getUri(webview, ctx.ext.extensionUri, ['dist-webview', 'index.html']).fsPath,
-        webview,
-      )
-      return html
+      html = this._transformHtml(getUri(webview, ctx.ext.extensionUri, ['dist-webview', 'index.html']).fsPath, webview)
     } else {
       // html string
       const entry = 'src/webview/index.tsx'
-      const localPort = 9527
-      const localServerUrl = `http://localhost:${localPort}`
 
       const scriptUri = `${localServerUrl}/${entry}`
 
@@ -106,7 +89,7 @@ export class ImageAnalysorPanel {
         </script>
       `
 
-      return /*html*/ `<!DOCTYPE html>
+      html = /*html*/ `<!DOCTYPE html>
       <html lang="en" data-theme="${ctx.theme}">
         <head>
           ${reactRefresh}
@@ -115,8 +98,6 @@ export class ImageAnalysorPanel {
           <meta name="viewport" content="width=device-width, initial-scale=1.0" />
           <meta name="renderer" content="webkit">
           <title>vscode-image-analysor</title>
-          <script type="text/javascript"> window.currentView = '${ImageAnalysorPanel.viewType}' </script>
-          <script type="text/javascript"> window.vscodeEnv = ${JSON.stringify(getEnvForWebview())} </script>
         </head>
         <body>
           <div id="root"></div>
@@ -124,6 +105,42 @@ export class ImageAnalysorPanel {
         </body>
       </html>`
     }
+
+    html = applyHtmlTransforms(html, [
+      {
+        injectTo: 'head',
+        tag: 'script',
+        attrs: { type: 'text/javascript' },
+        children: `window.currentView = '${ImageAnalysorPanel.viewType}'`,
+      },
+      {
+        injectTo: 'head',
+        tag: 'script',
+        attrs: { type: 'text/javascript' },
+        children: `window.vscodeEnv = ${JSON.stringify(getEnvForWebview())}`,
+      },
+      {
+        injectTo: 'head-prepend',
+        tag: 'meta',
+        attrs: {
+          'http-equiv': 'Content-Security-Policy',
+          'content': [
+            `default-src 'self' https://*`,
+            `connect-src 'self' https://* http://* wss://* ws://${removeUrlProtocol(
+              localServerUrl,
+            )} ws://0.0.0.0:${localPort} ${localServerUrl}`,
+            `font-src 'self' https://* blob: data:`,
+            `frame-src ${webview.cspSource} 'self' https://* blob: data:`,
+            `media-src 'self' https://* blob: data:`,
+            `img-src ${webview.cspSource} 'self' https://* http://* blob: data:`,
+            `script-src 'self' 'unsafe-inline' 'unsafe-eval' https://* ${localServerUrl} http://0.0.0.0:${localPort}`,
+            `style-src ${webview.cspSource} 'self' 'unsafe-inline' https://* blob: data: http://*`,
+          ].join('; '),
+        },
+      },
+    ])
+
+    return html
   }
 
   public static render(ctx: Context) {

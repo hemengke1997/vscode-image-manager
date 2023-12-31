@@ -50,12 +50,12 @@ function ImagePreview(props: ImagePreviewProps) {
             visible: preview?.open,
             current: preview?.current,
             maskClosable: false,
-            movable: false,
+            movable: true,
             style: {
               backgroundColor: tinyBackgroundColor.setAlpha(0.9).toRgbString(),
             },
             onChange(current) {
-              setPreview({ current })
+              setPreview({ current, open: true })
             },
             onVisibleChange: (v, _) => {
               if (!v) {

@@ -55,7 +55,7 @@ function PrimaryColorPicker(props: PrimaryColorPickerProps) {
         format='hex'
         presets={[
           {
-            label: 'vscode',
+            label: 'VSCode',
             colors: [getCssVar('--vscode-button-background')],
           },
           {

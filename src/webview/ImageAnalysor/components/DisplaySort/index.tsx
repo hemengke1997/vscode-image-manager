@@ -1,5 +1,5 @@
 import { useControlledState } from '@minko-fe/react-hook'
-import { Cascader, ConfigProvider } from 'antd'
+import { Cascader, ConfigProvider, theme } from 'antd'
 import { type PropsWithChildren, type ReactNode, memo, startTransition } from 'react'
 import { useTranslation } from 'react-i18next'
 import { BsSortDown, BsSortUpAlt } from 'react-icons/bs'
@@ -15,6 +15,7 @@ type SortType = 'desc' | 'asc'
 
 function DisplaySort(props: DisplaySortProps) {
   const { options, value, onChange } = props
+  const { token } = theme.useToken()
 
   const { t } = useTranslation()
 
@@ -57,7 +58,7 @@ function DisplaySort(props: DisplaySortProps) {
           components: {
             Cascader: {
               dropdownHeight: 'auto' as any,
-              optionSelectedBg: 'var(--ant-color-primary-active)',
+              optionSelectedBg: token.colorPrimaryActive,
             },
           },
         }}

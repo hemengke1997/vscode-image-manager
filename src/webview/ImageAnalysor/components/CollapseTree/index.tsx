@@ -2,6 +2,7 @@ import { isObject } from '@minko-fe/lodash-pro'
 import { memo } from 'react'
 import { type ImageType } from '../..'
 import ImageAnalysorContext from '../../contexts/ImageAnalysorContext'
+import { shouldShowImage } from '../../utils'
 import { type GroupType } from '../DisplayGroup'
 import ImageCollapse from '../ImageCollapse'
 
@@ -39,6 +40,9 @@ function CollapseTree(props: CollapseTreeProps) {
     if (isObject(image.visible) && Object.keys(image.visible).some((k) => image.visible?.[k] === false)) {
       return false
     }
+    if (!shouldShowImage(image)) {
+      return false
+    }
 
     if (fullpath.length !== fullGroup.length) {
       return false
@@ -69,7 +73,6 @@ function CollapseTree(props: CollapseTreeProps) {
               collapseProps={{
                 bordered: !isLast,
                 collapsible: 'icon',
-                size: 'small',
               }}
               group={{
                 label: child.path,

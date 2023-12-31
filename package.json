@@ -5,7 +5,7 @@
   "version": "0.0.5",
   "preview": true,
   "private": true,
-  "description": "WIP: Image Analysor",
+  "description": "Image Analysor, a powerful yet simple image viewer and analyser for VSCode",
   "type": "module",
   "icon": "assets/logo.png",
   "keywords": [
