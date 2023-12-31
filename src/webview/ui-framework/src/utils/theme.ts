@@ -30,3 +30,5 @@ export function getCssVar(target: string) {
 export const builtInColors = [blue, cyan, geekblue, gold, green, grey, lime, magenta, purple, red, volcano, yellow] as {
   primary: string
 }[]
+
+export const vscodeColors = [getCssVar('--vscode-activityBarBadge-background'), getCssVar('--vscode-button-background')]

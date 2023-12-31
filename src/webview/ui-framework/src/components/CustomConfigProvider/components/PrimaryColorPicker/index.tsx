@@ -4,7 +4,7 @@ import { useControlledState, useLocalStorageState } from '@minko-fe/react-hook'
 import { ColorPicker, type ColorPickerProps } from 'antd'
 import { memo, startTransition } from 'react'
 import { useTranslation } from 'react-i18next'
-import { builtInColors, getCssVar } from '@/utils/theme'
+import { builtInColors, vscodeColors } from '@/utils/theme'
 
 type PrimaryColorPickerProps = {
   color?: string
@@ -56,7 +56,7 @@ function PrimaryColorPicker(props: PrimaryColorPickerProps) {
         presets={[
           {
             label: 'VSCode',
-            colors: [getCssVar('--vscode-button-background')],
+            colors: [...vscodeColors],
           },
           {
             label: t('ns.bulit_in'),
