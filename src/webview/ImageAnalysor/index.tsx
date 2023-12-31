@@ -43,10 +43,11 @@ export default function ImageAnalysor() {
   const { message } = App.useApp()
   const { t } = useTranslation()
 
-  const { images, setImages, imageRefreshTimes, setCollapseOpen } = ImageAnalysorContext.usePicker([
+  const { images, setImages, imageRefreshedState, refreshImages, setCollapseOpen } = ImageAnalysorContext.usePicker([
     'images',
     'setImages',
-    'imageRefreshTimes',
+    'imageRefreshedState',
+    'refreshImages',
     'setCollapseOpen',
   ])
 
@@ -54,11 +55,15 @@ export default function ImageAnalysor() {
 
   const [dirs, setDirs] = useSetState<{ all: string[] }>({ all: [] })
 
+  const { refreshTimes, refreshType } = imageRefreshedState
+
   useEffect(() => {
-    if (imageRefreshTimes) {
-      message.open({
+    const isRefresh = refreshTimes && refreshType === 'refresh'
+    const messageKey = 'REFRESH_IMAGES'
+    if (isRefresh) {
+      message.loading({
         content: t('ns.img_refreshing'),
-        type: 'loading',
+        key: messageKey,
       })
     }
 
@@ -71,17 +76,14 @@ export default function ImageAnalysor() {
         checked: data.fileTypes,
       })
 
-      !imageRefreshTimes && setCollapseOpen((t) => t + 1)
+      !refreshTimes && setCollapseOpen((t) => t + 1)
 
-      if (imageRefreshTimes) {
-        message.destroy()
-        message.open({
-          content: t('ns.img_refreshed'),
-          type: 'success',
-        })
+      if (isRefresh) {
+        message.destroy(messageKey)
+        message.success(t('ns.img_refreshed'))
       }
     })
-  }, [imageRefreshTimes])
+  }, [refreshTimes])
 
   /* ------------ image type checkbox ----------- */
   const onImageTypeChange = (checked: string[]) => {
@@ -151,9 +153,13 @@ export default function ImageAnalysor() {
   const [sort, setSort] = useLocalStorageState<string[]>(localStorageEnum.LOCAL_STORAGE_SORT, {
     defaultValue: ['size', 'asc'],
   })
+
   const onSortChange = (value: string[]) => {
     setSort(value)
     setImages((t) => ({ list: [...sortImages(value, t.list)] }))
+
+    // refresh images to make sure preview index is correct
+    refreshImages({ type: 'sort' })
   }
 
   const sortImages = (sort: string[], images: ImageType[]) => {

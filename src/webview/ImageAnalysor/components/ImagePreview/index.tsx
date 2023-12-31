@@ -17,16 +17,18 @@ function ImagePreview(props: ImagePreviewProps) {
 
   const { token } = theme.useToken()
 
-  const { config, scale, isDarkBackground, tinyBackgroundColor, backgroundColor } = ImageAnalysorContext.usePicker([
-    'config',
-    'scale',
-    'isDarkBackground',
-    'tinyBackgroundColor',
-    'backgroundColor',
-  ])
+  const { config, scale, isDarkBackground, tinyBackgroundColor, backgroundColor, imageRefreshedState } =
+    ImageAnalysorContext.usePicker([
+      'config',
+      'scale',
+      'isDarkBackground',
+      'tinyBackgroundColor',
+      'backgroundColor',
+      'imageRefreshedState',
+    ])
   const BASE_SIZE = config.imageDefaultWidth
 
-  const [preview, setPreview] = useState<{ open?: boolean; current?: number }>()
+  const [preview, setPreview] = useState<{ open?: boolean; current?: number }>({})
 
   return (
     <motion.div className={'mx-auto flex flex-wrap gap-6'}>
@@ -43,6 +45,7 @@ function ImagePreview(props: ImagePreviewProps) {
         }}
       >
         <Image.PreviewGroup
+          key={imageRefreshedState.refreshTimes}
           preview={{
             visible: preview?.open,
             current: preview?.current,
@@ -52,15 +55,11 @@ function ImagePreview(props: ImagePreviewProps) {
               backgroundColor: tinyBackgroundColor.setAlpha(0.9).toRgbString(),
             },
             onChange(current) {
-              setPreview({ open: true, current })
+              setPreview({ current })
             },
-            onVisibleChange: (v, _, current) => {
+            onVisibleChange: (v, _) => {
               if (!v) {
                 setPreview({ open: v })
-                return
-              }
-              if (current === preview?.current) {
-                setPreview({ open: v, current })
                 return
               }
               if (v) return

@@ -57,7 +57,7 @@ function ImageActions() {
             <TbRefresh />
           </div>
         }
-        onClick={refreshImages}
+        onClick={() => refreshImages({ type: 'refresh' })}
       ></Button>
       <Button
         type='text'

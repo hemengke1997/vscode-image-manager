@@ -37,10 +37,11 @@
 
 ## TODO
 
-- copy,paste,delete,move 图片操作
-- deplicate image 相似图片去重
-- tiny 图片压缩
-- OCR 图片文字识别
+- [ ] 图片裁剪
+- [ ] copy,paste,delete,move 图片操作
+- [ ] deplicate image 相似图片去重
+- [ ] tiny 图片压缩
+- [ ] OCR 图片文字识别
 - [x] vscode configuration
 
 

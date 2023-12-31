@@ -1,5 +1,5 @@
 import { TinyColor } from '@ctrl/tinycolor'
-import { useControlledState, useLocalStorageState, useSetState } from '@minko-fe/react-hook'
+import { useControlledState, useLocalStorageState, useMemoizedFn, useSetState } from '@minko-fe/react-hook'
 import { type ConfigType } from '@root/config'
 import { defaultConfig } from '@root/config/default'
 import { CmdToVscode } from '@root/message/shared'
@@ -31,7 +31,18 @@ function useImageAnalysorContext() {
   /* --------------- images state --------------- */
   const [images, setImages] = useSetState<ImageStateType>({ originalList: [], list: [], loading: true })
 
-  const [imageRefreshTimes, refreshImages] = useReducer((s: number) => s + 1, 0)
+  const refreshImageReducer = useMemoizedFn(
+    (state: { refreshTimes: number }, action: { type: 'refresh' | 'sort' | undefined }) => {
+      return {
+        refreshTimes: state.refreshTimes + 1,
+        refreshType: action?.type,
+      }
+    },
+  )
+  const [imageRefreshedState, refreshImages] = useReducer(refreshImageReducer, {
+    refreshTimes: 0,
+    refreshType: undefined,
+  })
 
   /* ---------------- image scale --------------- */
   const [scale, setScale] = useLocalStorageState<number>(localStorageEnum.LOCAL_STORAGE_IMAGE_SIZE_SCALE, {
@@ -50,6 +61,9 @@ function useImageAnalysorContext() {
   const isDarkBackground = tinyBackgroundColor.isDark()
 
   /* -------------- image collapse -------------- */
+
+  // negative number means close collapse
+  // conversely, open collapse
   const [collapseOpen, setCollapseOpen] = useControlledState<number>({
     defaultValue: 0,
     beforeValue(value, prevValue) {
@@ -65,7 +79,7 @@ function useImageAnalysorContext() {
     config,
     images,
     setImages,
-    imageRefreshTimes,
+    imageRefreshedState,
     refreshImages,
     scale,
     setScale,
