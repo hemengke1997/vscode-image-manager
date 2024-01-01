@@ -54,7 +54,7 @@ function treeify(
         if (!resultMap[name]) {
           resultMap[name] = {
             label: name,
-            value: item,
+            value: itemArr.slice(0, index + 1).join('/'),
             children: [],
           }
           if (index !== 0) {

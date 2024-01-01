@@ -6,5 +6,6 @@
   "i18n-ally.sourceLanguage": "en",
   "i18n-ally.keystyle": "nested",
   "i18n-ally.enabledFrameworks": ["react", "react-i18next"],
-  "cssvar.files": ["src/webview/**/*.css"]
+  "cssvar.files": ["src/webview/**/*.css"],
+  "image-analysor.excludePath": ["dist-webview"]
 }
