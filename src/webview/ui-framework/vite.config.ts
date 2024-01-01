@@ -11,11 +11,11 @@ export default defineConfig((env) => {
       plugins: [react()],
       server: {
         host: '0.0.0.0',
-        port: 9527,
+        port: 4433,
       },
       preview: {
         host: '0.0.0.0',
-        port: 9527,
+        port: 4433,
       },
       css: {
         postcss: path.resolve(__dirname, './postcss.config.cjs'),

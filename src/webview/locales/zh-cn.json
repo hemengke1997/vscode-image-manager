@@ -10,6 +10,9 @@
     "type": "类型",
     "group": "分组",
     "sort": "排序",
+    "style": "展示",
+    "flat": "平铺",
+    "nested": "嵌套",
     "background_color": "背景色",
     "images": "图片",
     "size": "大小",
@@ -24,6 +27,7 @@
     "min": "最小值",
     "max": "最大值",
     "bulit_in": "内置",
-    "recent": "最近使用"
+    "recent": "最近使用",
+    "all": "全部"
   }
 }

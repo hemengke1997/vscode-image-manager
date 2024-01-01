@@ -1,16 +1,18 @@
 import { Collapse, type CollapseProps } from 'antd'
-import { memo, useEffect, useState } from 'react'
+import { type ReactNode, memo, useEffect, useState } from 'react'
 import ImageAnalysorContext from '../../contexts/ImageAnalysorContext'
 import ImagePreview, { type ImagePreviewProps } from '../ImagePreview'
 
 type ImageCollapseProps = {
   collapseProps: CollapseProps
-  group: ImagePreviewProps['group']
+  label: ReactNode
+  images: ImagePreviewProps['images']
   nestedChildren: JSX.Element | null
+  id: string
 }
 
 function ImageCollapse(props: ImageCollapseProps) {
-  const { collapseProps, nestedChildren, group } = props
+  const { collapseProps, nestedChildren, label, images, id } = props
 
   const { collapseOpen } = ImageAnalysorContext.usePicker(['collapseOpen'])
 
@@ -22,13 +24,13 @@ function ImageCollapse(props: ImageCollapseProps) {
 
   useEffect(() => {
     if (collapseOpen > 0) {
-      setActiveKeys([group.label])
+      setActiveKeys([id])
     } else {
       setActiveKeys([])
     }
   }, [collapseOpen])
 
-  if (!group.children.length) return null
+  if (!images.length && !nestedChildren) return null
 
   return (
     <Collapse
@@ -38,9 +40,16 @@ function ImageCollapse(props: ImageCollapseProps) {
       onChange={(keys) => onCollapseChange(keys as string[])}
       items={[
         {
-          key: group.label,
-          label: group.label,
-          children: nestedChildren || <ImagePreview group={group} />,
+          key: id,
+          label,
+          children: images.length ? (
+            <div className={'space-y-2'}>
+              <ImagePreview images={images} />
+              {nestedChildren}
+            </div>
+          ) : (
+            nestedChildren
+          ),
         },
       ]}
     ></Collapse>

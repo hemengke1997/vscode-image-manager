@@ -63,7 +63,7 @@ function useImageAnalysorContext() {
   /* -------------- image collapse -------------- */
 
   // negative number means close collapse
-  // conversely, open collapse
+  // otherwise, open collapse
   const [collapseOpen, setCollapseOpen] = useControlledState<number>({
     defaultValue: 0,
     beforeValue(value, prevValue) {

@@ -56,15 +56,15 @@ function PrimaryColorPicker(props: PrimaryColorPickerProps) {
         presets={[
           {
             label: 'VSCode',
-            colors: [...vscodeColors],
+            colors: uniq([...vscodeColors]),
           },
           {
             label: t('ns.bulit_in'),
-            colors: [...(formattedExtraColors || []), ...builtInColors.map((t) => t.primary)],
+            colors: uniq([...(formattedExtraColors || []), ...builtInColors.map((t) => t.primary)]),
           },
           {
             label: t('ns.recent'),
-            colors: recentColorsQueue || [],
+            colors: uniq(recentColorsQueue || []),
           },
         ]}
         value={selectedColor}

@@ -13,7 +13,6 @@
     "un-detector": "^0.0.6"
   },
   "devDependencies": {
-    "@minko-fe/vite-config": "^0.1.16",
     "@vitejs/plugin-react": "^4.2.1",
     "autoprefixer": "^10.4.16",
     "execa": "^8.0.1",

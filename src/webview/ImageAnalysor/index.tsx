@@ -11,6 +11,7 @@ import { vscodeApi } from '../vscode-api'
 import CollapseTree from './components/CollapseTree'
 import DisplayGroup, { type GroupType } from './components/DisplayGroup'
 import DisplaySort from './components/DisplaySort'
+import DisplayStyle from './components/DisplayStyle'
 import DisplayType, { type DisplayImageTypes } from './components/DisplayType'
 import ImageActions from './components/ImageActions'
 import ImageAnalysorContext from './contexts/ImageAnalysorContext'
@@ -38,6 +39,8 @@ export type ImageType = {
   // extra
   visible: Partial<Record<ImageVisibleFilterType | string, boolean>> | undefined
 }
+
+export type DisplayStyleType = 'flat' | 'nested'
 
 export default function ImageAnalysor() {
   const { message } = App.useApp()
@@ -68,6 +71,7 @@ export default function ImageAnalysor() {
     }
 
     vscodeApi.postMessage({ cmd: CmdToVscode.GET_ALL_IMAGES }, (data) => {
+      console.log(data, 'data')
       setImages({ originalList: data.imgs, list: sortImages(sort!, data.imgs), loading: false })
 
       setDirs({ all: data.dirs.sort() })
@@ -116,20 +120,23 @@ export default function ImageAnalysor() {
     },
   )
 
-  const [displayGroup, setDisplayGroup] = useControlledState({
-    defaultValue: _displayGroup,
-    value: _displayGroup,
-    onChange: (value) => {
-      // sort by priority
-      if (value.length > 1) {
-        const findPriority = (v: GroupType) => {
-          return groupType.find((item) => item.value === v)!.priority
-        }
-        value = value.sort((a, b) => {
-          return findPriority(a) - findPriority(b)
-        })
+  const sortGroup = (group: GroupType[]) => {
+    if (group.length > 1) {
+      const findPriority = (v: GroupType) => {
+        return groupType.find((item) => item.value === v)!.priority
       }
-      _setDisplayGroup(value)
+      group = group.sort((a, b) => {
+        return findPriority(b) - findPriority(a)
+      })
+    }
+    return group
+  }
+  const [displayGroup, setDisplayGroup] = useControlledState({
+    defaultValue: sortGroup(_displayGroup!),
+    value: sortGroup(_displayGroup!),
+    onChange: (group) => {
+      group = sortGroup(group)
+      _setDisplayGroup(group)
     },
   })
 
@@ -175,6 +182,14 @@ export default function ImageAnalysor() {
     return images
   }
 
+  /* ------ display style (flat | neseted) ------ */
+  const [displayStyle, setDisplayStyle] = useLocalStorageState<DisplayStyleType>(
+    localStorageEnum.LOCAL_STORAGE_DISPLAY_STYLE,
+    {
+      defaultValue: 'nested',
+    },
+  )
+
   /* ---------------- image scale --------------- */
   const [containerRef] = useWheelScaleEvent()
 
@@ -186,19 +201,23 @@ export default function ImageAnalysor() {
             <DisplayType imageTypes={imageTypes} images={images} onImageTypeChange={onImageTypeChange} />
           </OperationItemUI>
 
-          <OperationItemUI title={t('ns.group')}>
-            <DisplayGroup
-              options={groupType.map((item) => ({ label: item.label, value: item.value }))}
-              value={displayGroup}
-              onChange={setDisplayGroup}
-            ></DisplayGroup>
-          </OperationItemUI>
+          <div className={'flex space-x-6'}>
+            <OperationItemUI title={t('ns.group')}>
+              <DisplayGroup
+                options={groupType.map((item) => ({ label: item.label, value: item.value }))}
+                value={displayGroup}
+                onChange={setDisplayGroup}
+              ></DisplayGroup>
+            </OperationItemUI>
+            <OperationItemUI title={t('ns.style')}>
+              <DisplayStyle value={displayStyle} onChange={setDisplayStyle} />
+            </OperationItemUI>
+          </div>
 
           <div className={'flex space-x-6'}>
             <OperationItemUI title={t('ns.sort')}>
               <DisplaySort options={sortOptions} value={sort} onChange={onSortChange} />
             </OperationItemUI>
-
             <OperationItemUI title={t('ns.background_color')}>
               <PrimaryColorPicker
                 color={backgroundColor}
@@ -219,7 +238,12 @@ export default function ImageAnalysor() {
           title={t('ns.images')}
           extra={<ImageActions />}
         >
-          <CollapseTree allDirs={dirs.all} allImageTypes={imageTypes.all} displayGroup={displayGroup} />
+          <CollapseTree
+            displayStyle={displayStyle!}
+            allDirs={dirs.all}
+            allImageTypes={imageTypes.all}
+            displayGroup={displayGroup}
+          />
         </Card>
       </div>
       <Modal></Modal>

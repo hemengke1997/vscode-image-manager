@@ -10,6 +10,9 @@
     "type": "Type",
     "group": "Group",
     "sort": "Sort",
+    "style": "Style",
+    "flat": "Flat",
+    "nested": "Nested",
     "background_color": "BackgroundColor",
     "images": "Images",
     "size": "Size",
@@ -24,6 +27,7 @@
     "min": "min",
     "max": "max",
     "bulit_in": "Bulit-in",
-    "recent": "Recent-used"
+    "recent": "Recent-used",
+    "all": "All"
   }
 }

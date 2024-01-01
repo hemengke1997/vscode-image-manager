@@ -67,7 +67,7 @@ export class ImageAnalysorPanel {
   private _getWebviewContent(webview: Webview, ctx: Context) {
     const isProd = ctx.isProductionMode
 
-    const localPort = 9527
+    const localPort = 4433
     const localServerUrl = `http://localhost:${localPort}`
 
     let html = ''

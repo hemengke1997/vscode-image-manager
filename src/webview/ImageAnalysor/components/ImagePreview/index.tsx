@@ -1,3 +1,4 @@
+import { isDev } from '@minko-fe/vite-config/client'
 import { ConfigProvider, Image, theme } from 'antd'
 import { motion } from 'framer-motion'
 import { memo, useState } from 'react'
@@ -6,14 +7,11 @@ import ImageAnalysorContext from '../../contexts/ImageAnalysorContext'
 import LazyImage from '../LazyImage'
 
 export type ImagePreviewProps = {
-  group: {
-    label: string
-    children: ImageType[]
-  }
+  images: ImageType[]
 }
 
 function ImagePreview(props: ImagePreviewProps) {
-  const { group } = props
+  const { images } = props
 
   const { token } = theme.useToken()
 
@@ -50,7 +48,7 @@ function ImagePreview(props: ImagePreviewProps) {
             visible: preview?.open,
             current: preview?.current,
             maskClosable: false,
-            movable: true,
+            movable: isDev() ? false : true,
             style: {
               backgroundColor: tinyBackgroundColor.setAlpha(0.9).toRgbString(),
             },
@@ -64,7 +62,7 @@ function ImagePreview(props: ImagePreviewProps) {
               }
               if (v) return
             },
-            maxScale: 10,
+            maxScale: 30,
             minScale: 0.1,
             scaleStep: 0.3,
           }}
@@ -78,7 +76,7 @@ function ImagePreview(props: ImagePreviewProps) {
               },
             }}
           >
-            {group?.children.map((t, i) => (
+            {images.map((t, i) => (
               <LazyImage
                 image={{
                   style: { backgroundColor },
