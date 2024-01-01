@@ -62,7 +62,7 @@ function ImagePreview(props: ImagePreviewProps) {
               }
               if (v) return
             },
-            maxScale: 30,
+            maxScale: 50,
             minScale: 0.1,
             scaleStep: 0.3,
           }}
