@@ -1,5 +1,35 @@
+## [0.0.6](https://github.com/hemengke1997/vscode-image-analysor/compare/v0.0.5...v0.0.6) (2024-01-01)
+
+
+### chore
+
+* more vscode colors ([a9d7793](https://github.com/hemengke1997/vscode-image-analysor/commit/a9d7793199f267c1e0a463e31a4ba225fa0fb7d6))
+
+### feat
+
+* support `excludePath` config ([663b002](https://github.com/hemengke1997/vscode-image-analysor/commit/663b002365f37d9f927496fc5b6ca309a9ef5319))
+* support display style(nested or flat) for  visual ([55d3130](https://github.com/hemengke1997/vscode-image-analysor/commit/55d3130bdc0010abae3c5c2ac6bb3350f8c41eb4))
+* support vscode primary-color ([bc85039](https://github.com/hemengke1997/vscode-image-analysor/commit/bc85039b14613f36cc6ad7967f8544ff2f507909))
+
+### fix
+
+* csp ([c6e460e](https://github.com/hemengke1997/vscode-image-analysor/commit/c6e460eb514c7791d92538b7a45d2452b3a788d1))
+* duplicate folder names in the file path leading to display bug ([b70d94a](https://github.com/hemengke1997/vscode-image-analysor/commit/b70d94a721bf6915a9adbee806cde257ce3a7998))
+* empty dir display duplicate images ([30e8096](https://github.com/hemengke1997/vscode-image-analysor/commit/30e80969875f80ed0ae00ae8ff20dfa807339926))
+* preview index incorrect after sorting ([7f3b0a3](https://github.com/hemengke1997/vscode-image-analysor/commit/7f3b0a359066bcbfd254cfd813c43875795b0173))
+
+### update
+
+* preview max scale value ([593d52a](https://github.com/hemengke1997/vscode-image-analysor/commit/593d52a9442fabfa3dc16b882aafe94fc51bfeb0))
+
+
+
 ## [0.0.5](https://github.com/hemengke1997/vscode-image-analysor/compare/v0.0.4...v0.0.5) (2023-12-30)
 
+
+### chore
+
+* release v0.0.5 ([3c8142e](https://github.com/hemengke1997/vscode-image-analysor/commit/3c8142eba3d173ec305c72520ebac9ee2ec3bb76))
 
 ### fix
 
