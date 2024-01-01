@@ -10,3 +10,4 @@ TODO.md
 **/*.ts
 **/tsconfig.json
 **/*.yaml
+temp.*

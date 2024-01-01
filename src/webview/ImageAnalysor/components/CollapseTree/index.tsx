@@ -1,4 +1,4 @@
-import { omit } from '@minko-fe/lodash-pro'
+import { type CollapseProps } from 'antd'
 import { memo } from 'react'
 import { useTranslation } from 'react-i18next'
 import { FaRegFolderOpen, FaRegImages } from 'react-icons/fa'
@@ -21,7 +21,6 @@ type FileNode = {
   value: string
   children: FileNode[]
   renderConditions?: Record<string, string>[]
-  parent?: Omit<FileNode, 'children' | 'parent'>
   type?: GroupType
 }
 
@@ -34,7 +33,6 @@ function treeify(
 ) {
   const { flatten = false, onGenerate } = options
   const resultTree: FileNode[] = []
-  const resultMap: Record<string, FileNode> = {}
 
   if (flatten) {
     list.forEach((item) => {
@@ -47,26 +45,25 @@ function treeify(
       resultTree.push(node)
     })
   } else {
-    list.forEach((item) => {
-      const itemArr = item.split('/')
-      let parent = resultTree
-      itemArr.forEach((name, index) => {
-        if (!resultMap[name]) {
-          resultMap[name] = {
-            label: name,
-            value: itemArr.slice(0, index + 1).join('/'),
+    for (const file of list) {
+      const paths = file.split('/')
+      let currentNodes = resultTree
+      paths.forEach((path, index) => {
+        const find = currentNodes.find((item) => item.label === path)
+        if (find) {
+          currentNodes = find.children
+        } else {
+          const node = {
+            label: path,
+            value: paths.slice(0, index + 1).join('/'),
             children: [],
           }
-          if (index !== 0) {
-            resultMap[name].parent = omit(resultMap[itemArr[index - 1]], 'children', 'parent')
-          }
-          onGenerate?.(resultMap[name])
-
-          parent.push(resultMap[name])
+          onGenerate?.(node)
+          currentNodes.push(node)
+          currentNodes = node.children
         }
-        parent = resultMap[name].children
       })
-    })
+    }
   }
 
   return resultTree
@@ -131,13 +128,13 @@ function CollapseTree(props: CollapseTreeProps) {
     })
   }
 
-  const nestedDisplay = (tree: FileNode[]) => {
+  const nestedDisplay = (tree: FileNode[], collapseProps?: CollapseProps) => {
     if (!tree.length) return null
 
     return (
       <div className={'space-y-2'}>
         {tree.map((node) => {
-          const isLast = !node.children.length && Object.keys(node.renderConditions || []).length > 1
+          // const _isLast = !node.children.length && Object.keys(node.renderConditions || []).length > 1
           const renderList = images.list.filter((img) => checkVaild(node, img)) || []
 
           return (
@@ -145,8 +142,10 @@ function CollapseTree(props: CollapseTreeProps) {
               key={node.value}
               id={node.value}
               collapseProps={{
-                bordered: !isLast,
                 collapsible: 'icon',
+                // bordered: !isLast,
+                bordered: false,
+                ...collapseProps,
               }}
               label={
                 <div className={'flex items-center space-x-2'}>
@@ -180,7 +179,8 @@ function CollapseTree(props: CollapseTreeProps) {
     }
 
     // render tree
-    return nestedDisplay(tree)
+    console.log(tree, 'tree')
+    return nestedDisplay(tree, { bordered: true })
   }
 
   return <>{displayByPriority()}</>
