@@ -1,7 +1,6 @@
 import AntdConfigProvider from './components/AntdConfigProvider'
 import ThemeProvider from './components/CustomConfigProvider'
 import GlobalContext from './contexts/GlobalContext'
-import 'antd/dist/reset.css'
 
 interface IAppProps {
   components: Record<string, () => JSX.Element>
