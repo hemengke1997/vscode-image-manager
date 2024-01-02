@@ -1,5 +1,7 @@
+import { ErrorBoundary } from 'react-error-boundary'
 import AntdConfigProvider from './components/AntdConfigProvider'
 import ThemeProvider from './components/CustomConfigProvider'
+import Fallback from './components/Fallback'
 import GlobalContext from './contexts/GlobalContext'
 
 interface IAppProps {
@@ -18,9 +20,11 @@ function App(props: IAppProps) {
   return (
     <GlobalContext.Provider value={{ theme }}>
       <AntdConfigProvider>
-        <ThemeProvider>
-          <CurrentComponent />
-        </ThemeProvider>
+        <ErrorBoundary onReset={() => console.log('reset')} FallbackComponent={Fallback}>
+          <ThemeProvider>
+            <CurrentComponent />
+          </ThemeProvider>
+        </ErrorBoundary>
       </AntdConfigProvider>
     </GlobalContext.Provider>
   )

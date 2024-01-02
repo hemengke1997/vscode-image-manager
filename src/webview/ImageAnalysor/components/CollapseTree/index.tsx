@@ -165,7 +165,7 @@ function CollapseTree(props: CollapseTreeProps) {
     if (!tree.length) {
       tree = [
         {
-          label: t('ns.all'),
+          label: t('ia.all'),
           value: 'all',
           children: [],
         },

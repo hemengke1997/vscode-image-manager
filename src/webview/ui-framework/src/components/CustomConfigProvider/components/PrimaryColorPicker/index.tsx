@@ -59,11 +59,11 @@ function PrimaryColorPicker(props: PrimaryColorPickerProps) {
             colors: uniq([...vscodeColors]),
           },
           {
-            label: t('ns.bulit_in'),
+            label: t('ia.bulit_in'),
             colors: uniq([...(formattedExtraColors || []), ...builtInColors.map((t) => t.primary)]),
           },
           {
-            label: t('ns.recent'),
+            label: t('ia.recent'),
             colors: uniq(recentColorsQueue || []),
           },
         ]}

@@ -62,7 +62,7 @@ function ImageActions() {
           </div>
         }
         onClick={() => refreshImages({ type: 'refresh' })}
-        title={t('ns.refresh')}
+        title={t('ia.refresh')}
       ></Button>
       <Button
         type='text'
@@ -72,7 +72,7 @@ function ImageActions() {
           </div>
         }
         onClick={() => message.info('Working in progress 🙌')}
-        title={t('ns.find')}
+        title={t('ia.find')}
       ></Button>
       <Popover
         trigger={'click'}
@@ -101,7 +101,7 @@ function ImageActions() {
               }}
             >
               <div className={'flex-center space-x-2'}>
-                <div>{t('ns.size')}</div>
+                <div>{t('ia.size')}</div>
                 <Space.Compact>
                   <Form.Item
                     noStyle
@@ -118,7 +118,7 @@ function ImageActions() {
                     ]}
                     name={'min'}
                   >
-                    <InputNumber placeholder={`${t('ns.min')}(kb)`} min={0} onPressEnter={sizeForm.submit} />
+                    <InputNumber placeholder={`${t('ia.min')}(kb)`} min={0} onPressEnter={sizeForm.submit} />
                   </Form.Item>
                   <Form.Item
                     noStyle
@@ -135,13 +135,13 @@ function ImageActions() {
                       }),
                     ]}
                   >
-                    <InputNumber placeholder={`${t('ns.max')}(kb)`} min={0} onPressEnter={sizeForm.submit} />
+                    <InputNumber placeholder={`${t('ia.max')}(kb)`} min={0} onPressEnter={sizeForm.submit} />
                   </Form.Item>
                 </Space.Compact>
                 <Form.Item noStyle>
                   <Button.Group>
                     <Button size='small' type='primary' onClick={sizeForm.submit}>
-                      {t('ns.submit')}
+                      {t('ia.submit')}
                     </Button>
                     <Button
                       size='small'
@@ -151,7 +151,7 @@ function ImageActions() {
                         sizeForm.submit()
                       }}
                     >
-                      {t('ns.reset')}
+                      {t('ia.reset')}
                     </Button>
                   </Button.Group>
                 </Form.Item>
@@ -167,7 +167,7 @@ function ImageActions() {
               <RiFilter2Line />
             </div>
           }
-          title={t('ns.filter')}
+          title={t('ia.filter')}
         />
       </Popover>
       <Popover
@@ -175,21 +175,21 @@ function ImageActions() {
         content={
           <div>
             <div className={'flex-center space-x-2'}>
-              <div>{t('ns.layout')}</div>
+              <div>{t('ia.layout')}</div>
               <Button.Group>
                 <Button
                   onClick={() => {
                     toggleAllCollapse(true)
                   }}
                 >
-                  {t('ns.expand')}
+                  {t('ia.expand')}
                 </Button>
                 <Button
                   onClick={() => {
                     toggleAllCollapse(false)
                   }}
                 >
-                  {t('ns.collapse')}
+                  {t('ia.collapse')}
                 </Button>
               </Button.Group>
             </div>
@@ -203,7 +203,7 @@ function ImageActions() {
               <TbLayoutNavbarExpand />
             </div>
           }
-          title={t('ns.action')}
+          title={t('ia.action')}
         />
       </Popover>
     </div>

@@ -30,7 +30,7 @@ function DisplaySort(props: DisplaySortProps) {
       label: (
         <SortLabelUI>
           <BsSortUpAlt />
-          <span>{t('ns.asc')}</span>
+          <span>{t('ia.asc')}</span>
         </SortLabelUI>
       ),
     },
@@ -38,7 +38,7 @@ function DisplaySort(props: DisplaySortProps) {
       label: (
         <SortLabelUI>
           <BsSortDown />
-          <span>{t('ns.desc')}</span>
+          <span>{t('ia.desc')}</span>
         </SortLabelUI>
       ),
     },

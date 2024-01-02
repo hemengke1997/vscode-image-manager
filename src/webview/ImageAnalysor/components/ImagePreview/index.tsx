@@ -15,15 +15,13 @@ function ImagePreview(props: ImagePreviewProps) {
 
   const { token } = theme.useToken()
 
-  const { config, scale, isDarkBackground, tinyBackgroundColor, backgroundColor, imageRefreshedState } =
-    ImageAnalysorContext.usePicker([
-      'config',
-      'scale',
-      'isDarkBackground',
-      'tinyBackgroundColor',
-      'backgroundColor',
-      'imageRefreshedState',
-    ])
+  const { config, scale, isDarkBackground, tinyBackgroundColor, backgroundColor } = ImageAnalysorContext.usePicker([
+    'config',
+    'scale',
+    'isDarkBackground',
+    'tinyBackgroundColor',
+    'backgroundColor',
+  ])
   const BASE_SIZE = config.imageDefaultWidth
 
   const [preview, setPreview] = useState<{ open?: boolean; current?: number }>({})
@@ -43,7 +41,6 @@ function ImagePreview(props: ImagePreviewProps) {
         }}
       >
         <Image.PreviewGroup
-          key={imageRefreshedState.refreshTimes}
           preview={{
             visible: preview?.open,
             current: preview?.current,
@@ -60,12 +57,14 @@ function ImagePreview(props: ImagePreviewProps) {
                 setPreview({ open: v })
                 return
               }
-              if (v) return
             },
             maxScale: 50,
             minScale: 0.1,
             scaleStep: 0.3,
           }}
+          items={images.map((t) => ({
+            src: t.vscodePath,
+          }))}
         >
           <ConfigProvider
             theme={{

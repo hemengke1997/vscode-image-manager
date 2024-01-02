@@ -1,5 +1,5 @@
 {
-  "ns": {
+  "ia": {
     "img_refreshing": "Refreshing images...",
     "img_refreshed": "Images refreshed!",
     "name_sort": "name",
@@ -33,5 +33,15 @@
     "find": "find",
     "filter": "filter",
     "action": "action"
+  },
+  "fallback": {
+    "internal_error": "Internal Error",
+    "error_msg": "Error message",
+    "reset_tip": "Restore to initial settings and restart",
+    "restart": "Restart",
+    "thx_report": "Thanks for helping to improve!",
+    "report": "Copy and report",
+    "sorry": "Sorry for something went wrong",
+    "show_more": " more"
   }
 }

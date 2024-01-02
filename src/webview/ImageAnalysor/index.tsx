@@ -81,7 +81,7 @@ export default function ImageAnalysor() {
     const messageKey = 'REFRESH_IMAGES'
     if (isRefresh) {
       message.loading({
-        content: t('ns.img_refreshing'),
+        content: t('ia.img_refreshing'),
         key: messageKey,
       })
     }
@@ -94,7 +94,7 @@ export default function ImageAnalysor() {
 
       if (isRefresh) {
         message.destroy(messageKey)
-        message.success(t('ns.img_refreshed'))
+        message.success(t('ia.img_refreshed'))
       }
     })
   }, [refreshTimes])
@@ -112,12 +112,12 @@ export default function ImageAnalysor() {
   /* ---------------- image group --------------- */
   const groupType: { label: string; value: GroupType; priority: number }[] = [
     {
-      label: t('ns.group_by_dir'),
+      label: t('ia.group_by_dir'),
       value: 'dir',
       priority: 1, // highest
     },
     {
-      label: t('ns.group_by_type'),
+      label: t('ia.group_by_type'),
       value: 'type',
       priority: 2,
     },
@@ -131,9 +131,11 @@ export default function ImageAnalysor() {
   )
 
   const sortGroup = (group: GroupType[]) => {
+    const allGroupType = groupType.map((item) => item.value)
+    group = uniq(group.filter((item) => allGroupType.includes(item)))
     if (group.length > 1) {
       const findPriority = (v: GroupType) => {
-        return groupType.find((item) => item.value === v)!.priority
+        return groupType.find((item) => item.value === v)?.priority || 0
       }
       group = group.sort((a, b) => {
         return findPriority(b) - findPriority(a)
@@ -158,11 +160,11 @@ export default function ImageAnalysor() {
   /* ---------------- image sort ---------------- */
   const sortOptions = [
     {
-      label: t('ns.name_sort'),
+      label: t('ia.name_sort'),
       value: 'name',
     },
     {
-      label: t('ns.size_sort'),
+      label: t('ia.size_sort'),
       value: 'size',
     },
   ]
@@ -205,9 +207,9 @@ export default function ImageAnalysor() {
 
   return (
     <div className={'space-y-6'} ref={containerRef}>
-      <Card size='small' title={t('ns.settings')}>
+      <Card size='small' title={t('ia.settings')}>
         <div className={'flex flex-col space-y-4'}>
-          <OperationItemUI title={t('ns.type')}>
+          <OperationItemUI title={t('ia.type')}>
             <DisplayType
               imageTypes={{
                 all: allImageTypes,
@@ -219,23 +221,23 @@ export default function ImageAnalysor() {
           </OperationItemUI>
 
           <div className={'flex space-x-6'}>
-            <OperationItemUI title={t('ns.group')}>
+            <OperationItemUI title={t('ia.group')}>
               <DisplayGroup
                 options={groupType.map((item) => ({ label: item.label, value: item.value }))}
                 value={displayGroup}
                 onChange={setDisplayGroup}
               ></DisplayGroup>
             </OperationItemUI>
-            <OperationItemUI title={t('ns.style')}>
+            <OperationItemUI title={t('ia.style')}>
               <DisplayStyle value={displayStyle} onChange={setDisplayStyle} />
             </OperationItemUI>
           </div>
 
           <div className={'flex space-x-6'}>
-            <OperationItemUI title={t('ns.sort')}>
+            <OperationItemUI title={t('ia.sort')}>
               <DisplaySort options={sortOptions} value={sort} onChange={onSortChange} />
             </OperationItemUI>
-            <OperationItemUI title={t('ns.background_color')}>
+            <OperationItemUI title={t('ia.background_color')}>
               <PrimaryColorPicker
                 color={backgroundColor}
                 onColorChange={setBackgroundColor}
@@ -252,7 +254,7 @@ export default function ImageAnalysor() {
           loading={images.loading}
           headStyle={{ borderBottom: 'none' }}
           bodyStyle={images.loading ? {} : { padding: 0 }}
-          title={t('ns.images')}
+          title={t('ia.images')}
           extra={<ImageActions />}
         >
           <CollapseTree displayStyle={displayStyle!} dirs={dirs} imageTypes={imageTypes} displayGroup={displayGroup} />

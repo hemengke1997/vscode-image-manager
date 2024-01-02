@@ -101,7 +101,7 @@ function LazyImage(props: LazyImageProps) {
                   }}
                 >
                   <ImEyePlus />
-                  <span>{t('ns.preview')}</span>
+                  <span>{t('ia.preview')}</span>
                 </div>
                 <div className={'flex-center space-x-1 truncate'}>
                   <PiFileImage />

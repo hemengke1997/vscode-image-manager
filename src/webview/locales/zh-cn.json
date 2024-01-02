@@ -33,5 +33,15 @@
     "find": "查找",
     "filter": "筛选",
     "action": "操作"
+  },
+  "fallback": {
+    "internal_error": "内部错误",
+    "error_msg": "报错信息",
+    "reset_tip": "恢复至初始设置并重启",
+    "restart": "重启",
+    "thx_report": "感谢帮助改进！",
+    "report": "复制并提交",
+    "sorry": "抱歉，出了点问题",
+    "show_more": " 更多"
   }
 }
