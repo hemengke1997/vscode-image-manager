@@ -1,5 +1,11 @@
 # CHANGELOG
 
+## [0.0.8](https://github.com/hemengke1997/vscode-image-analysor/compare/v0.0.7...v0.0.8) (2024-01-02)
+
+### fix
+
+* filter action reset to previous values if user didn't trigger form submit real([206f06c](https://github.com/hemengke1997/vscode-image-analysor/commit/206f06cdbd7a79857a64764e9071fc0edf2a05b1))
+
 ## [0.0.7](https://github.com/hemengke1997/vscode-image-analysor/compare/v0.0.6...v0.0.7) (2024-01-02)
 
 ### chore

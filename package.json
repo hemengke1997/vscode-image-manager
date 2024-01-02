@@ -105,7 +105,7 @@
     "up": "taze -I -w -r",
     "pnpm:up": "pnpm upgrade -i -L",
     "changelog": "conventional-changelog -p eslint -i CHANGELOG-CODE.md -s -r 0",
-    "release": "bumpp package.json -c -p -t --all -x \"pnpm run changelog\"",
+    "release": "bumpp package.json -c -t --all -x \"pnpm run changelog\"",
     "publish": "vsce publish --no-dependencies"
   },
   "dependencies": {
