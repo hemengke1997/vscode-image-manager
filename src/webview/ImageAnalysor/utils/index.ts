@@ -1,4 +1,4 @@
-import { isObject } from '@minko-fe/lodash-pro'
+import { isObject, uniq } from '@minko-fe/lodash-pro'
 import { type ImageType } from '..'
 
 export function formatBytes(bytes: number, decimals: number = 1): string {
@@ -31,4 +31,8 @@ export function shouldShowImage(image: ImageType) {
     return false
   }
   return true
+}
+
+export function filterVisibleImages(images: ImageType[], filterValue: (image: ImageType) => string) {
+  return uniq(images.map((item) => filterValue(item))).sort()
 }

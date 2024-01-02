@@ -1,5 +1,11 @@
 import { TinyColor } from '@ctrl/tinycolor'
-import { useControlledState, useLocalStorageState, useMemoizedFn, useSetState } from '@minko-fe/react-hook'
+import {
+  useControlledState,
+  useLocalStorageState,
+  useMemoizedFn,
+  useSetState,
+  useUpdateEffect,
+} from '@minko-fe/react-hook'
 import { type ConfigType } from '@root/config'
 import { defaultConfig } from '@root/config/default'
 import { CmdToVscode } from '@root/message/shared'
@@ -9,11 +15,13 @@ import { vscodeApi } from '@root/webview/vscode-api'
 import { createContainer } from 'context-state'
 import { useEffect, useReducer, useState } from 'react'
 import { type ImageType } from '..'
+import { shouldShowImage } from '../utils'
 import { Colors } from '../utils/color'
 
 export type ImageStateType = {
   originalList: ImageType[]
   list: ImageType[]
+  visibleList: ImageType[]
   loading: boolean
 }
 
@@ -29,7 +37,16 @@ function useImageAnalysorContext() {
   }, [])
 
   /* --------------- images state --------------- */
-  const [images, setImages] = useSetState<ImageStateType>({ originalList: [], list: [], loading: true })
+  const [images, setImages] = useSetState<ImageStateType>({
+    originalList: [],
+    list: [],
+    visibleList: [],
+    loading: true,
+  })
+
+  useUpdateEffect(() => {
+    setImages((t) => ({ visibleList: t.list.filter(shouldShowImage) }))
+  }, [images.list])
 
   const refreshImageReducer = useMemoizedFn(
     (state: { refreshTimes: number }, action: { type: 'refresh' | 'sort' | undefined }) => {

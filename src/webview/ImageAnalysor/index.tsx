@@ -1,8 +1,9 @@
-import { useControlledState, useLocalStorageState, useSetState } from '@minko-fe/react-hook'
+import { uniq } from '@minko-fe/lodash-pro'
+import { useControlledState, useLocalStorageState } from '@minko-fe/react-hook'
 import { CmdToVscode } from '@root/message/shared'
 import { App, Card, Modal } from 'antd'
 import { type Dirent, type Stats } from 'node:fs'
-import { startTransition, useEffect } from 'react'
+import { startTransition, useEffect, useMemo } from 'react'
 import { useTranslation } from 'react-i18next'
 import { localStorageEnum } from '../local-storage'
 // import { isHotkeyPressed, useHotkeys } from 'react-hotkeys-hook'
@@ -12,11 +13,12 @@ import CollapseTree from './components/CollapseTree'
 import DisplayGroup, { type GroupType } from './components/DisplayGroup'
 import DisplaySort from './components/DisplaySort'
 import DisplayStyle from './components/DisplayStyle'
-import DisplayType, { type DisplayImageTypes } from './components/DisplayType'
+import DisplayType from './components/DisplayType'
 import ImageActions from './components/ImageActions'
 import ImageAnalysorContext from './contexts/ImageAnalysorContext'
 import useWheelScaleEvent from './hooks/useWheelScaleEvent'
 import OperationItemUI from './ui/OperationItemUI'
+import { filterVisibleImages } from './utils'
 import { Colors } from './utils/color'
 
 vscodeApi.registerEventListener()
@@ -55,9 +57,22 @@ export default function ImageAnalysor() {
     'setCollapseOpen',
   ])
 
-  const [imageTypes, setImageTypes] = useSetState<DisplayImageTypes>({ all: [], checked: [] })
+  const [displayImageTypes, setDisplayImageTypes] = useLocalStorageState<string[]>(
+    localStorageEnum.LOCAL_STORAGE_DISPLAY_TYPE,
+    { defaultValue: [] },
+  )
 
-  const [dirs, setDirs] = useSetState<{ all: string[] }>({ all: [] })
+  const dirs = useMemo(() => filterVisibleImages(images.visibleList, (image) => image.dirPath), [images.visibleList])
+  // const allDirs = useMemo(() => uniq(images.originalList.map((item) => item.dirPath)).sort(), [images.originalList])
+  const imageTypes = useMemo(
+    () => filterVisibleImages(images.visibleList, (image) => image.fileType),
+    [images.visibleList],
+  )
+
+  const allImageTypes = useMemo(
+    () => uniq(images.originalList.map((item) => item.fileType)).sort(),
+    [images.originalList],
+  )
 
   const { refreshTimes, refreshType } = imageRefreshedState
 
@@ -74,13 +89,7 @@ export default function ImageAnalysor() {
     vscodeApi.postMessage({ cmd: CmdToVscode.GET_ALL_IMAGES }, (data) => {
       console.log(data, 'data')
       setImages({ originalList: data.imgs, list: sortImages(sort!, data.imgs), loading: false })
-
-      setDirs({ all: data.dirs.sort() })
-      setImageTypes({
-        all: data.fileTypes,
-        checked: data.fileTypes,
-      })
-
+      onImageTypeChange(data.fileTypes)
       !refreshTimes && setCollapseOpen((t) => t + 1)
 
       if (isRefresh) {
@@ -92,7 +101,7 @@ export default function ImageAnalysor() {
 
   /* ------------ image type checkbox ----------- */
   const onImageTypeChange = (checked: string[]) => {
-    setImageTypes({ checked })
+    setDisplayImageTypes(checked)
     startTransition(() => {
       setImages((img) => ({
         list: img.list.map((t) => ({ ...t, visible: { ...t.visible, type: checked.includes(t.fileType) } })),
@@ -115,7 +124,7 @@ export default function ImageAnalysor() {
   ]
 
   const [_displayGroup, _setDisplayGroup] = useLocalStorageState<GroupType[]>(
-    localStorageEnum.LOCAL_STORAGE_DISPLAY_TYPE,
+    localStorageEnum.LOCAL_STORAGE_DISPLAY_GROUP,
     {
       defaultValue: ['dir'],
     },
@@ -199,7 +208,14 @@ export default function ImageAnalysor() {
       <Card size='small' title={t('ns.settings')}>
         <div className={'flex flex-col space-y-4'}>
           <OperationItemUI title={t('ns.type')}>
-            <DisplayType imageTypes={imageTypes} images={images} onImageTypeChange={onImageTypeChange} />
+            <DisplayType
+              imageTypes={{
+                all: allImageTypes,
+                checked: displayImageTypes!,
+              }}
+              images={images}
+              onImageTypeChange={onImageTypeChange}
+            />
           </OperationItemUI>
 
           <div className={'flex space-x-6'}>
@@ -239,12 +255,7 @@ export default function ImageAnalysor() {
           title={t('ns.images')}
           extra={<ImageActions />}
         >
-          <CollapseTree
-            displayStyle={displayStyle!}
-            allDirs={dirs.all}
-            allImageTypes={imageTypes.all}
-            displayGroup={displayGroup}
-          />
+          <CollapseTree displayStyle={displayStyle!} dirs={dirs} imageTypes={imageTypes} displayGroup={displayGroup} />
         </Card>
       </div>
       <Modal></Modal>

@@ -1,4 +1,4 @@
-import { isNil } from '@minko-fe/lodash-pro'
+import { cloneDeep, isNil } from '@minko-fe/lodash-pro'
 import { useMemoizedFn } from '@minko-fe/react-hook'
 import { App, Button, Form, InputNumber, Popover, Space } from 'antd'
 import { memo, useState } from 'react'
@@ -19,18 +19,22 @@ function ImageActions() {
 
   const { message } = App.useApp()
   const [sizeForm] = Form.useForm()
-  const [sizeFiltered, setSizeFiltered] = useState(false)
+  const [sizeFilter, setSizeFilter] = useState<{
+    flag: boolean
+    value: { min?: number; max?: number }
+  }>()
 
   const filterImagesBySize = (value: { min?: number; max?: number }) => {
     const { min, max } = value
+
     if (isNil(min) && isNil(max)) {
-      setSizeFiltered(false)
+      setSizeFilter({ flag: false, value })
 
       setImages((img) => ({
         list: img.list.map((t) => ({ ...t, visible: { ...t.visible, size: true } })),
       }))
     } else {
-      setSizeFiltered(true)
+      setSizeFilter({ flag: true, value })
 
       setImages((img) => ({
         list: img.list.map((t) => ({
@@ -72,6 +76,11 @@ function ImageActions() {
       ></Button>
       <Popover
         trigger={'click'}
+        afterOpenChange={(open) => {
+          if (!open) {
+            sizeForm.setFieldsValue(cloneDeep(sizeFilter?.value))
+          }
+        }}
         content={
           <>
             <Form
@@ -107,7 +116,6 @@ function ImageActions() {
                         },
                       }),
                     ]}
-                    dependencies={['max']}
                     name={'min'}
                   >
                     <InputNumber placeholder={`${t('ns.min')}(kb)`} min={0} onPressEnter={sizeForm.submit} />
@@ -126,14 +134,13 @@ function ImageActions() {
                         },
                       }),
                     ]}
-                    dependencies={['min']}
                   >
                     <InputNumber placeholder={`${t('ns.max')}(kb)`} min={0} onPressEnter={sizeForm.submit} />
                   </Form.Item>
                 </Space.Compact>
                 <Form.Item noStyle>
                   <Button.Group>
-                    <Button size='small' type='primary' onClick={() => sizeForm.submit()}>
+                    <Button size='small' type='primary' onClick={sizeForm.submit}>
                       {t('ns.submit')}
                     </Button>
                     <Button
@@ -154,7 +161,7 @@ function ImageActions() {
         }
       >
         <Button
-          type={sizeFiltered ? 'dashed' : 'text'}
+          type={sizeFilter?.flag ? 'primary' : 'text'}
           icon={
             <div className={'flex-center text-xl'}>
               <RiFilter2Line />

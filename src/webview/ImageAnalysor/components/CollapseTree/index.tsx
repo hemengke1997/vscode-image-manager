@@ -5,13 +5,12 @@ import { FaRegFolderOpen, FaRegImages } from 'react-icons/fa'
 import { PiFileImage } from 'react-icons/pi'
 import { type DisplayStyleType, type ImageType } from '../..'
 import ImageAnalysorContext from '../../contexts/ImageAnalysorContext'
-import { shouldShowImage } from '../../utils'
 import { type GroupType } from '../DisplayGroup'
 import ImageCollapse from '../ImageCollapse'
 
 type CollapseTreeProps = {
-  allDirs: string[]
-  allImageTypes: string[]
+  dirs: string[]
+  imageTypes: string[]
   displayGroup: GroupType[]
   displayStyle: DisplayStyleType
 }
@@ -98,29 +97,24 @@ function buildRenderTree(options: BuildRenderOption) {
 }
 
 function CollapseTree(props: CollapseTreeProps) {
-  const { allDirs, allImageTypes, displayGroup, displayStyle } = props
+  const { dirs, imageTypes, displayGroup, displayStyle } = props
   const { images } = ImageAnalysorContext.usePicker(['images'])
   const { t } = useTranslation()
 
   const displayMap = {
     dir: {
       imagePrototype: 'dirPath',
-      list: allDirs,
+      list: dirs,
       icon: <FaRegFolderOpen />,
     },
     type: {
       imagePrototype: 'fileType',
-      list: allImageTypes,
+      list: imageTypes,
       icon: <PiFileImage />,
     },
   } as const
 
   const checkVaild = (childNode: FileNode, image: ImageType) => {
-    // TODO: 统一处理visible
-    if (!shouldShowImage(image)) {
-      return false
-    }
-
     return displayGroup.every((g) => {
       return childNode.renderConditions?.some((c) => {
         return c[g] === image[displayMap[g].imagePrototype]
@@ -135,7 +129,7 @@ function CollapseTree(props: CollapseTreeProps) {
       <div className={'space-y-2'}>
         {tree.map((node) => {
           // const _isLast = !node.children.length && Object.keys(node.renderConditions || []).length > 1
-          const renderList = images.list.filter((img) => checkVaild(node, img)) || []
+          const renderList = images.visibleList.filter((img) => checkVaild(node, img)) || []
 
           return (
             <ImageCollapse
@@ -179,7 +173,6 @@ function CollapseTree(props: CollapseTreeProps) {
     }
 
     // render tree
-    console.log(tree, 'tree')
     return nestedDisplay(tree, { bordered: true })
   }
 

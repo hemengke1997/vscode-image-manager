@@ -4,5 +4,5 @@
 }
 
 body {
-  @apply p-0;
+  @apply p-0 overflow-y-scroll;
 }

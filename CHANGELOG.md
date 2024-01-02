@@ -1,5 +1,10 @@
 # CHANGELOG
 
+## [0.0.7](https://github.com/hemengke1997/vscode-image-analysor/compare/v0.0.6...v0.0.7) (2024-01-02)
+
+### chore
+* improve UX, show tip when hover on icons ([88eeb48](https://github.com/hemengke1997/vscode-image-analysor/commit/88eeb4830696f754f128179df185f5b18c2e2394))
+
 ## [0.0.6](https://github.com/hemengke1997/vscode-image-analysor/compare/v0.0.5...v0.0.6) (2024-01-01)
 
 ### feat
