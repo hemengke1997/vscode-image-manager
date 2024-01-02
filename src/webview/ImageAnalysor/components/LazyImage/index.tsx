@@ -35,7 +35,7 @@ function LazyImage(props: LazyImageProps) {
 
   const placeholderRef = useRef<HTMLDivElement>(null)
   const [inViewport] = useInViewport(placeholderRef, {
-    rootMargin: '60px 0px', // 扩大相交计算的区域上下60px
+    rootMargin: '60px 0px', // expand 60px area of vertical intersection calculation
   })
   const { message } = App.useApp()
 

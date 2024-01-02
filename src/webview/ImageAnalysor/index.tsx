@@ -21,9 +21,10 @@ import { Colors } from './utils/color'
 
 vscodeApi.registerEventListener()
 
-// image 显隐由visible决定，目前有两个筛选条件
-// 1. type 筛选图片类型
-// 2. size 筛选图片大小
+// the visible of image is determined by 'visible' prop.
+// at present, there are two filetr condition
+// 1. type - image type (i.e png, jpg, gif)
+// 2. size - image size (i.e 1kb)
 type ImageVisibleFilterType = 'type' | 'size'
 
 export type ImageType = {
