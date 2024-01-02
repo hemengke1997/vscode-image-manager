@@ -12,7 +12,7 @@ function LocaleSelector() {
     defaultValue: i18n.language,
   })
 
-  // 对应 webview/locales/*.json
+  // webview/locales/*.json
   const locales: MenuProps['items'] = [
     {
       key: 'en',

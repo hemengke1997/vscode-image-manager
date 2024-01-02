@@ -2,9 +2,26 @@
 
 ## Warning
 
-⚠️ Work in progress ⚠️
-
 目前正在快速迭代中，功能可能不稳定，如遇到问题请提[issue](https://github.com/hemengke1997/vscode-image-analysor/issues)
+
+## Screenshot
+
+### overview
+
+![overview](./screenshots/overview.png)
+
+### i18n 
+![i18n](./screenshots/i18n.png)
+
+### primary color
+![primary color](./screenshots/primary-color.png)
+
+### preview
+![preview](./screenshots/preview.png)
+
+### theme
+![theme](./screenshots/theme.png)
+
 
 ## Usage
 
@@ -18,11 +35,11 @@
 
 ### 命令
 
-`ctrl+shift+p` (macos `cmd+shift+p`)打开命令面板，输入 `Image Analysor` 打开插件
+`ctrl+shift+p` (macos `cmd+shift+p`)打开命令面板，输入 `Open Image Analysor` 打开插件
 
 ### 右键菜单
 
-在资源管理器中右键，选择 `Image Analysor` 打开插件
+在资源管理器中右键，选择 `Open Image Analysor` 打开插件
 
 
 ## Features
