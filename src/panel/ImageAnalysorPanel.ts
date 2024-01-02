@@ -90,7 +90,7 @@ export class ImageAnalysorPanel {
       `
 
       html = /*html*/ `<!DOCTYPE html>
-      <html lang="en" data-theme="${ctx.theme}">
+      <html lang="" data-theme="">
         <head>
           ${reactRefresh}
           <meta charset="UTF-8" />
@@ -107,6 +107,12 @@ export class ImageAnalysorPanel {
     }
 
     html = applyHtmlTransforms(html, [
+      {
+        injectTo: 'head-prepend',
+        tag: 'script',
+        attrs: { type: 'text/javascript' },
+        children: `window.vscodeTheme = '${ctx.theme}'`,
+      },
       {
         injectTo: 'head',
         tag: 'script',

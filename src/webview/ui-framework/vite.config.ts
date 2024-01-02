@@ -30,6 +30,7 @@ export default defineConfig((env) => {
       publicTypescript: false,
       compress: false,
       legacy: false,
+      splitVendorChunk: true,
     },
   )
 })

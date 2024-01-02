@@ -5,10 +5,11 @@ import 'antd/dist/reset.css'
 
 interface IAppProps {
   components: Record<string, () => JSX.Element>
+  theme: Window['vscodeTheme']
 }
 
 function App(props: IAppProps) {
-  const { components } = props
+  const { components, theme } = props
   let currentView = window?.currentView
   if (!currentView) {
     currentView = Object.keys(components)[0]
@@ -16,7 +17,7 @@ function App(props: IAppProps) {
   const CurrentComponent = components[currentView]
 
   return (
-    <GlobalContext.Provider>
+    <GlobalContext.Provider value={{ theme }}>
       <AntdConfigProvider>
         <ThemeProvider>
           <CurrentComponent />

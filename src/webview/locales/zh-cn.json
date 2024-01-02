@@ -28,6 +28,10 @@
     "max": "最大值",
     "bulit_in": "内置",
     "recent": "最近使用",
-    "all": "全部"
+    "all": "全部",
+    "refresh": "刷新",
+    "find": "查找",
+    "filter": "筛选",
+    "action": "操作"
   }
 }

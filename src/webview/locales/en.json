@@ -28,6 +28,10 @@
     "max": "max",
     "bulit_in": "Bulit-in",
     "recent": "Recent-used",
-    "all": "All"
+    "all": "All",
+    "refresh": "refresh",
+    "find": "find",
+    "filter": "filter",
+    "action": "action"
   }
 }

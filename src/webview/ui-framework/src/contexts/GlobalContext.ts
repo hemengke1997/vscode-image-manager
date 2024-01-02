@@ -4,7 +4,7 @@ import { createContainer } from 'context-state'
 import { useEffect } from 'react'
 import { type ThemeType, getTheme, switchTheme, vscodeColors } from '@/utils/theme'
 
-const useGlobalContext = () => {
+const useGlobalContext = (initial: { theme?: Window['vscodeTheme'] }) => {
   const [localPrimaryColor, setLocalPrimaryColor] = useLocalStorageState(
     localStorageEnum.LOCAL_STORAGE_PRIMARY_COLOR_KEY,
     {
@@ -13,7 +13,7 @@ const useGlobalContext = () => {
   )
 
   const [localTheme, setLocalTheme] = useLocalStorageState(localStorageEnum.LOCAL_STORAGE_THEME_KEY, {
-    defaultValue: getTheme(),
+    defaultValue: initial.theme || getTheme(),
   })
 
   const [appearance, setAppearance] = useSetState<{

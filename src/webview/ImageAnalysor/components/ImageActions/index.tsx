@@ -58,6 +58,7 @@ function ImageActions() {
           </div>
         }
         onClick={() => refreshImages({ type: 'refresh' })}
+        title={t('ns.refresh')}
       ></Button>
       <Button
         type='text'
@@ -67,6 +68,7 @@ function ImageActions() {
           </div>
         }
         onClick={() => message.info('Working in progress 🙌')}
+        title={t('ns.find')}
       ></Button>
       <Popover
         trigger={'click'}
@@ -158,6 +160,7 @@ function ImageActions() {
               <RiFilter2Line />
             </div>
           }
+          title={t('ns.filter')}
         />
       </Popover>
       <Popover
@@ -193,6 +196,7 @@ function ImageActions() {
               <TbLayoutNavbarExpand />
             </div>
           }
+          title={t('ns.action')}
         />
       </Popover>
     </div>

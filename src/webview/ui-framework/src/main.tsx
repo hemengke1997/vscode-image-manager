@@ -37,12 +37,14 @@ export function registerApp(webviewComponents: IWebviewComponents) {
   const lng =
     parseJson(localStorage.getItem(localStorageEnum.LOCAL_STORAGE_LOCALE_KEY)) || vscodeEnv?.language || FALLBACKLANG
 
+  const vscodeTheme = parseJson(localStorage.getItem(localStorageEnum.LOCAL_STORAGE_THEME_KEY)) || window.vscodeTheme
+
   i18next.changeLanguage(lng)
 
   const { loadResourceByLang } = setupI18n({
     language: lng,
     onInited() {
-      root.render(<App components={webviewComponents} />)
+      root.render(<App theme={vscodeTheme} components={webviewComponents} />)
     },
     onResourceLoaded: (langs, currentLang) => {
       Object.keys(langs).forEach((ns) => {
