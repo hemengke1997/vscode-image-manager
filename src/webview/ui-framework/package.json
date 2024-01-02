@@ -9,8 +9,7 @@
   "dependencies": {
     "@ant-design/colors": "^7.0.0",
     "react": "^18.2.0",
-    "react-dom": "^18.2.0",
-    "un-detector": "^0.0.6"
+    "react-dom": "^18.2.0"
   },
   "devDependencies": {
     "@vitejs/plugin-react": "^4.2.1",

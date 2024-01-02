@@ -11,5 +11,6 @@ logs
 node_modules
 temp
 dist-webview
-TODO.md
 temp.*
+TODO.md
+CHANGELOG-CODE.md

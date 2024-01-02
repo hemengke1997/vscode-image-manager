@@ -105,8 +105,8 @@
     "lint": "eslint .",
     "up": "taze -I -w -r",
     "pnpm:up": "pnpm upgrade -i -L",
-    "changelog": "conventional-changelog -p eslint -i CHANGELOG.md -s -r 0",
-    "release": "bumpp package.json -c -p -t --all -x \"pnpm run changelog\" && run-s publish"
+    "changelog": "conventional-changelog -p eslint -i CHANGELOG-CODE.md -s -r 0",
+    "release": "bumpp package.json -c -p -t --all"
   },
   "dependencies": {
     "@ctrl/tinycolor": "^4.0.2",
@@ -126,7 +126,8 @@
     "react-dom": "^18.2.0",
     "react-hotkeys-hook": "^4.4.1",
     "react-i18next": "^13.5.0",
-    "react-icons": "^4.12.0"
+    "react-icons": "^4.12.0",
+    "un-detector": "^0.0.6"
   },
   "devDependencies": {
     "@commitlint/cli": "^18.4.3",
