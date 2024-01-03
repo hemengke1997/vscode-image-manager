@@ -1,5 +1,17 @@
 # CHANGELOG
 
+## [0.0.9](https://github.com/hemengke1997/vscode-image-manager/compare/v0.0.8...v0.0.9) (2024-01-03)
+
+### Break Change
+
+* rename extension to `Image Manager`
+
+### feat
+
+* error boundary ([9a214d5](https://github.com/hemengke1997/vscode-image-manager/commit/9a214d53ac129e2b9b5a6933f0a08b0c189bdacf))
+
+If any internal error occurs, the extension will display a friendly error message instead of crashing. Furthermore, user could report the error to the author or choose to restart.
+
 ## [0.0.8](https://github.com/hemengke1997/vscode-image-manager/compare/v0.0.7...v0.0.8) (2024-01-02)
 
 ### fix
