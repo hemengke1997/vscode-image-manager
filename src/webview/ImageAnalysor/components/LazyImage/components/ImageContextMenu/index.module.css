@@ -1,0 +1,4 @@
+.contextify {
+  --contexify-activeItem-color: var(--ant-color-text);
+  --contexify-activeItem-bgColor: var(--ant-color-primary-hover);
+}

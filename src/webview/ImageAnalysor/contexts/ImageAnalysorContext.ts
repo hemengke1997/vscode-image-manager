@@ -92,6 +92,9 @@ function useImageAnalysorContext() {
     },
   })
 
+  /* --------------- image select --------------- */
+  const [selectedImage, setSelectedImage] = useState<ImageType>()
+
   return {
     config,
     images,
@@ -106,6 +109,8 @@ function useImageAnalysorContext() {
     isDarkBackground,
     collapseOpen,
     setCollapseOpen,
+    selectedImage,
+    setSelectedImage,
   }
 }
 

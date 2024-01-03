@@ -24,10 +24,12 @@ function ImagePreview(props: ImagePreviewProps) {
   ])
   const BASE_SIZE = config.imageDefaultWidth
 
-  const [preview, setPreview] = useState<{ open?: boolean; current?: number }>({})
+  const [preview, setPreview] = useState<{ open?: boolean; current?: number }>({ open: false, current: -1 })
+
+  console.log(preview?.open, 'preview?.open')
 
   return (
-    <motion.div className={'mx-auto flex flex-wrap gap-6'}>
+    <motion.div className={'mx-auto flex flex-wrap gap-2'}>
       <ConfigProvider
         theme={{
           components: {
@@ -57,6 +59,7 @@ function ImagePreview(props: ImagePreviewProps) {
                 setPreview({ open: v })
                 return
               }
+              if (v) return
             },
             maxScale: 50,
             minScale: 0.1,

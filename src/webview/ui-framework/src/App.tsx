@@ -18,15 +18,17 @@ function App(props: IAppProps) {
   const CurrentComponent = components[currentView]
 
   return (
-    <GlobalContext.Provider value={{ theme }}>
-      <AntdConfigProvider>
-        <ErrorBoundary onReset={() => console.log('reset')} FallbackComponent={Fallback}>
-          <ThemeProvider>
-            <CurrentComponent />
-          </ThemeProvider>
-        </ErrorBoundary>
-      </AntdConfigProvider>
-    </GlobalContext.Provider>
+    <div onContextMenu={(e) => e.preventDefault()}>
+      <GlobalContext.Provider value={{ theme }}>
+        <AntdConfigProvider>
+          <ErrorBoundary FallbackComponent={Fallback}>
+            <ThemeProvider>
+              <CurrentComponent />
+            </ThemeProvider>
+          </ErrorBoundary>
+        </AntdConfigProvider>
+      </GlobalContext.Provider>
+    </div>
   )
 }
 

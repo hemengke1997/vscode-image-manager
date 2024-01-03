@@ -32,7 +32,8 @@
     "refresh": "刷新",
     "find": "查找",
     "filter": "筛选",
-    "action": "操作"
+    "action": "操作",
+    "copy_success": "复制成功"
   },
   "fallback": {
     "internal_error": "内部错误",
