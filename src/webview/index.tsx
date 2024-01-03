@@ -1,13 +1,13 @@
-import ImageAnalysor from './ImageAnalysor'
-import ImageAnalysorContext from './ImageAnalysor/contexts/ImageAnalysorContext'
+import ImageManager from './ImageManager'
+import ImageManagerContext from './ImageManager/contexts/ImageManagerContext'
 import { registerApp } from './ui-framework/src/main'
 
 const webviewComponents = {
   // key <===> viewType
-  ImageAnalysorPanel: () => (
-    <ImageAnalysorContext.Provider>
-      <ImageAnalysor />
-    </ImageAnalysorContext.Provider>
+  ImageManagerPanel: () => (
+    <ImageManagerContext.Provider>
+      <ImageManager />
+    </ImageManagerContext.Provider>
   ),
 }
 

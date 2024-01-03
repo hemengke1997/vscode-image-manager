@@ -6,12 +6,12 @@ import { useTranslation } from 'react-i18next'
 import { MdImageSearch } from 'react-icons/md'
 import { RiFilter2Line } from 'react-icons/ri'
 import { TbLayoutNavbarExpand, TbRefresh } from 'react-icons/tb'
-import ImageAnalysorContext from '../../contexts/ImageAnalysorContext'
+import ImageManagerContext from '../../contexts/ImageManagerContext'
 import { bytesToKb } from '../../utils'
 
 function ImageActions() {
   const { t } = useTranslation()
-  const { setImages, setCollapseOpen, refreshImages } = ImageAnalysorContext.usePicker([
+  const { setImages, setCollapseOpen, refreshImages } = ImageManagerContext.usePicker([
     'setImages',
     'setCollapseOpen',
     'refreshImages',

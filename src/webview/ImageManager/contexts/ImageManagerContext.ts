@@ -25,7 +25,7 @@ export type ImageStateType = {
   loading: boolean
 }
 
-function useImageAnalysorContext() {
+function useImageManagerContext() {
   const { theme } = GlobalContext.useSelector((ctx) => ctx.appearance.theme)
 
   /* ------------- extension config ------------- */
@@ -109,6 +109,6 @@ function useImageAnalysorContext() {
   }
 }
 
-const ImageAnalysorContext = createContainer(useImageAnalysorContext)
+const ImageManagerContext = createContainer(useImageManagerContext)
 
-export default ImageAnalysorContext
+export default ImageManagerContext

@@ -1,8 +1,8 @@
 import { useLayoutEffect, useRef } from 'react'
-import ImageAnalysorContext from '../contexts/ImageAnalysorContext'
+import ImageManagerContext from '../contexts/ImageManagerContext'
 
 function useWheelScaleEvent() {
-  const { config, setScale } = ImageAnalysorContext.usePicker(['config', 'setScale'])
+  const { config, setScale } = ImageManagerContext.usePicker(['config', 'setScale'])
 
   const ref = useRef<HTMLDivElement>(null)
 

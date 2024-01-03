@@ -1,6 +1,6 @@
 import { Collapse, type CollapseProps } from 'antd'
 import { type ReactNode, memo, useEffect, useState } from 'react'
-import ImageAnalysorContext from '../../contexts/ImageAnalysorContext'
+import ImageManagerContext from '../../contexts/ImageManagerContext'
 import ImagePreview, { type ImagePreviewProps } from '../ImagePreview'
 
 type ImageCollapseProps = {
@@ -14,7 +14,7 @@ type ImageCollapseProps = {
 function ImageCollapse(props: ImageCollapseProps) {
   const { collapseProps, nestedChildren, label, images, id } = props
 
-  const { collapseOpen } = ImageAnalysorContext.usePicker(['collapseOpen'])
+  const { collapseOpen } = ImageManagerContext.usePicker(['collapseOpen'])
 
   const [activeKeys, setActiveKeys] = useState<string[]>([])
 

@@ -15,7 +15,7 @@ import DisplaySort from './components/DisplaySort'
 import DisplayStyle from './components/DisplayStyle'
 import DisplayType from './components/DisplayType'
 import ImageActions from './components/ImageActions'
-import ImageAnalysorContext from './contexts/ImageAnalysorContext'
+import ImageManagerContext from './contexts/ImageManagerContext'
 import useWheelScaleEvent from './hooks/useWheelScaleEvent'
 import OperationItemUI from './ui/OperationItemUI'
 import { filterVisibleImages } from './utils'
@@ -45,11 +45,11 @@ export type ImageType = {
 
 export type DisplayStyleType = 'flat' | 'nested'
 
-export default function ImageAnalysor() {
+export default function ImageManager() {
   const { message } = App.useApp()
   const { t } = useTranslation()
 
-  const { images, setImages, imageRefreshedState, refreshImages, setCollapseOpen } = ImageAnalysorContext.usePicker([
+  const { images, setImages, imageRefreshedState, refreshImages, setCollapseOpen } = ImageManagerContext.usePicker([
     'images',
     'setImages',
     'imageRefreshedState',
@@ -152,7 +152,7 @@ export default function ImageAnalysor() {
     },
   })
 
-  const { backgroundColor, setBackgroundColor } = ImageAnalysorContext.usePicker([
+  const { backgroundColor, setBackgroundColor } = ImageManagerContext.usePicker([
     'backgroundColor',
     'setBackgroundColor',
   ])

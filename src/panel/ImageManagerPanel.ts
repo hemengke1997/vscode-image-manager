@@ -8,20 +8,20 @@ import path from 'node:path'
 import { type Disposable, Uri, ViewColumn, type Webview, type WebviewPanel, window } from 'vscode'
 
 /**
- * This class manages the state and behavior of ImageAnalysorPanel webview panels.
+ * This class manages the state and behavior of ImageManagerPanel webview panels.
  *
  * It contains all the data and methods for:
  *
- * - Creating and rendering ImageAnalysorPanel webview panels
+ * - Creating and rendering ImageManagerPanel webview panels
  * - Properly cleaning up and disposing of webview resources when the panel is closed
  * - Setting the HTML (and by proxy CSS/JavaScript) content of the webview panel
  * - Setting message listeners so data can be passed between the webview and extension
  */
-export class ImageAnalysorPanel {
-  static currentPanel: ImageAnalysorPanel | undefined
+export class ImageManagerPanel {
+  static currentPanel: ImageManagerPanel | undefined
 
-  static readonly viewType = 'ImageAnalysorPanel'
-  static readonly panelTitle = 'Images Analysor'
+  static readonly viewType = 'ImageManagerPanel'
+  static readonly panelTitle = 'Image Manager'
 
   private readonly _panel: WebviewPanel
   private _disposables: Disposable[] = []
@@ -97,7 +97,7 @@ export class ImageAnalysorPanel {
           <meta http-equiv="X-UA-Compatible" content="IE=edge">
           <meta name="viewport" content="width=device-width, initial-scale=1.0" />
           <meta name="renderer" content="webkit">
-          <title>vscode-image-analysor</title>
+          <title>vscode-image-manager</title>
         </head>
         <body>
           <div id="root"></div>
@@ -117,7 +117,7 @@ export class ImageAnalysorPanel {
         injectTo: 'head',
         tag: 'script',
         attrs: { type: 'text/javascript' },
-        children: `window.currentView = '${ImageAnalysorPanel.viewType}'`,
+        children: `window.currentView = '${ImageManagerPanel.viewType}'`,
       },
       {
         injectTo: 'head',
@@ -150,13 +150,13 @@ export class ImageAnalysorPanel {
   }
 
   public static render(ctx: Context) {
-    if (ImageAnalysorPanel.currentPanel) {
+    if (ImageManagerPanel.currentPanel) {
       // If the webview panel already exists reveal it
-      ImageAnalysorPanel.currentPanel._panel.reveal(ViewColumn.One)
+      ImageManagerPanel.currentPanel._panel.reveal(ViewColumn.One)
     } else {
       const panel = window.createWebviewPanel(
-        ImageAnalysorPanel.viewType,
-        ImageAnalysorPanel.panelTitle,
+        ImageManagerPanel.viewType,
+        ImageManagerPanel.panelTitle,
         ViewColumn.One,
         {
           enableScripts: true,
@@ -165,9 +165,9 @@ export class ImageAnalysorPanel {
       )
       panel.iconPath = Uri.file(ctx.ext.asAbsolutePath('assets/logo.png'))
 
-      ImageAnalysorPanel.currentPanel = new ImageAnalysorPanel(panel, ctx)
+      ImageManagerPanel.currentPanel = new ImageManagerPanel(panel, ctx)
     }
-    return ImageAnalysorPanel.currentPanel
+    return ImageManagerPanel.currentPanel
   }
 
   get panel() {
@@ -216,7 +216,7 @@ export class ImageAnalysorPanel {
    * Cleans up and disposes of webview resources when the webview panel is closed.
    */
   public dispose() {
-    ImageAnalysorPanel.currentPanel = undefined
+    ImageManagerPanel.currentPanel = undefined
 
     // Dispose of the current webview panel
     this._panel.dispose()

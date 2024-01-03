@@ -2,7 +2,7 @@ import { workspace } from 'vscode'
 import { defaultConfig } from './default'
 
 export function getConfig<T>(key: string, v?: T) {
-  return workspace.getConfiguration().get(`image-analysor.${key}`, (defaultConfig as Record<string, any>)[key] || v)
+  return workspace.getConfiguration().get(`image-manager.${key}`, (defaultConfig as Record<string, any>)[key] || v)
 }
 
 export const Config = {

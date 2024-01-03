@@ -12,7 +12,7 @@ import { FaImages } from 'react-icons/fa6'
 import { ImEyePlus } from 'react-icons/im'
 import { PiFileImage } from 'react-icons/pi'
 import { type ImageType } from '../..'
-import ImageAnalysorContext from '../../contexts/ImageAnalysorContext'
+import ImageManagerContext from '../../contexts/ImageManagerContext'
 import { bytesToKb, formatBytes } from '../../utils'
 
 type LazyImageProps = {
@@ -31,7 +31,7 @@ function LazyImage(props: LazyImageProps) {
 
   const { t } = useTranslation()
 
-  const { config } = ImageAnalysorContext.usePicker(['config'])
+  const { config } = ImageManagerContext.usePicker(['config'])
 
   const placeholderRef = useRef<HTMLDivElement>(null)
   const [inViewport] = useInViewport(placeholderRef, {

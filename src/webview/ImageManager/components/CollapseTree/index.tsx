@@ -4,7 +4,7 @@ import { useTranslation } from 'react-i18next'
 import { FaRegFolderOpen, FaRegImages } from 'react-icons/fa'
 import { PiFileImage } from 'react-icons/pi'
 import { type DisplayStyleType, type ImageType } from '../..'
-import ImageAnalysorContext from '../../contexts/ImageAnalysorContext'
+import ImageManagerContext from '../../contexts/ImageManagerContext'
 import { type GroupType } from '../DisplayGroup'
 import ImageCollapse from '../ImageCollapse'
 
@@ -98,7 +98,7 @@ function buildRenderTree(options: BuildRenderOption) {
 
 function CollapseTree(props: CollapseTreeProps) {
   const { dirs, imageTypes, displayGroup, displayStyle } = props
-  const { images } = ImageAnalysorContext.usePicker(['images'])
+  const { images } = ImageManagerContext.usePicker(['images'])
   const { t } = useTranslation()
 
   const displayMap = {

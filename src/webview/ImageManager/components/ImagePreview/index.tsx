@@ -3,7 +3,7 @@ import { ConfigProvider, Image, theme } from 'antd'
 import { motion } from 'framer-motion'
 import { memo, useState } from 'react'
 import { type ImageType } from '../..'
-import ImageAnalysorContext from '../../contexts/ImageAnalysorContext'
+import ImageManagerContext from '../../contexts/ImageManagerContext'
 import LazyImage from '../LazyImage'
 
 export type ImagePreviewProps = {
@@ -15,7 +15,7 @@ function ImagePreview(props: ImagePreviewProps) {
 
   const { token } = theme.useToken()
 
-  const { config, scale, isDarkBackground, tinyBackgroundColor, backgroundColor } = ImageAnalysorContext.usePicker([
+  const { config, scale, isDarkBackground, tinyBackgroundColor, backgroundColor } = ImageManagerContext.usePicker([
     'config',
     'scale',
     'isDarkBackground',

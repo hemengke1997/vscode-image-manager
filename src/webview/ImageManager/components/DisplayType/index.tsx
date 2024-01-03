@@ -1,6 +1,6 @@
 import { Badge, Checkbox, ConfigProvider, theme } from 'antd'
 import { memo } from 'react'
-import { type ImageStateType } from '../../contexts/ImageAnalysorContext'
+import { type ImageStateType } from '../../contexts/ImageManagerContext'
 
 export type DisplayImageTypes = {
   checked: string[]

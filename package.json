@@ -1,11 +1,11 @@
 {
   "publisher": "minko",
-  "name": "image-analysor",
-  "displayName": "Image Analysor",
+  "name": "image-manager",
+  "displayName": "Image Manager",
   "version": "0.0.8",
   "preview": true,
   "private": true,
-  "description": "Image Analysor, a powerful yet simple image viewer and analyser for VSCode",
+  "description": "Image Manager, a powerful yet simple image viewer and analyser for VSCode",
   "type": "module",
   "icon": "assets/logo.png",
   "keywords": [
@@ -17,10 +17,10 @@
     "png"
   ],
   "license": "MIT",
-  "homepage": "https://github.com/hemengke1997/vscode-image-analysor",
+  "homepage": "https://github.com/hemengke1997/vscode-image-manager",
   "repository": {
     "type": "git",
-    "url": "https://github.com/hemengke1997/vscode-image-analysor"
+    "url": "https://github.com/hemengke1997/vscode-image-manager"
   },
   "categories": [
     "Visualization",
@@ -35,40 +35,40 @@
     "viewsContainers": {
       "activitybar": [
         {
-          "id": "imageAnalysor",
-          "title": "Image Analysor",
+          "id": "imageManager",
+          "title": "Image Manager",
           "icon": "./assets/logo.png"
         }
       ]
     },
     "views": {
-      "imageAnalysor": []
+      "imageManager": []
     },
     "commands": [
       {
-        "command": "image-analysor.open-image-analysor",
-        "title": "Open Image Analysor"
+        "command": "image-manager.open-image-manager",
+        "title": "Open Image Manager"
       }
     ],
     "menus": {
       "explorer/context": [
         {
-          "command": "image-analysor.open-image-analysor",
+          "command": "image-manager.open-image-manager",
           "group": "z_commands"
         }
       ]
     },
     "keybindings": [
       {
-        "command": "image-analysor.open-image-analysor",
+        "command": "image-manager.open-image-manager",
         "key": "shift+alt+i",
         "mac": "cmd+alt+i"
       }
     ],
     "configuration": {
-      "title": "Image Analysor Settings",
+      "title": "Image Manager Settings",
       "properties": {
-        "image-analysor.warningSize": {
+        "image-manager.warningSize": {
           "type": [
             "number",
             "boolean"
@@ -76,17 +76,17 @@
           "default": 500,
           "description": "show warning dot if image size is larger than this value (KB)"
         },
-        "image-analysor.imageDefaultWidth": {
+        "image-manager.imageDefaultWidth": {
           "type": "number",
           "default": 100,
           "description": "default width of image (px)"
         },
-        "image-analysor.scaleStep": {
+        "image-manager.scaleStep": {
           "type": "number",
           "default": 0.1,
           "description": "scale step when zooming image list"
         },
-        "image-analysor.excludePath": {
+        "image-manager.excludePath": {
           "type": "array",
           "default": [],
           "description": "scan images not in excludePath (pattern syntax of fast-glob)"
