@@ -1,7 +1,7 @@
-import { isObject, uniq } from '@minko-fe/lodash-pro'
+import { isObject, round, uniq } from '@minko-fe/lodash-pro'
 import { type ImageType } from '..'
 
-export function formatBytes(bytes: number, decimals: number = 1): string {
+export function formatBytes(bytes: number, decimals: number = 2): string {
   if (bytes === 0) {
     return '0 B'
   }
@@ -9,11 +9,11 @@ export function formatBytes(bytes: number, decimals: number = 1): string {
   const dm = decimals < 0 ? 0 : decimals
   const sizes = ['B', 'KB', 'MB', 'GB', 'TB', 'PB', 'EB', 'ZB', 'YB']
   const i = Math.floor(Math.log(bytes) / Math.log(k))
-  return `${Number.parseFloat((bytes / k ** i).toFixed(dm))} ${sizes[i]}`
+  return `${round(bytes / k ** i, dm)} ${sizes[i]}`
 }
 
 export function bytesToKb(bytes: number): number {
-  return bytes / 1024
+  return round(bytes / 1024, 2)
 }
 
 export function flattenKeys<T>(list: T[], resolveValue: (current: T) => string[]) {
