@@ -32,18 +32,15 @@ function Fallback(props: FallbackProps) {
         </div>
 
         <div className={'flex justify-center space-x-4'}>
-          <Tooltip title={t('fallback.reset_tip')}>
-            <Button
-              size='middle'
-              type='primary'
-              onClick={() => {
-                localStorage.clear()
-                resetErrorBoundary()
-              }}
-            >
-              {t('fallback.restart')}
-            </Button>
-          </Tooltip>
+          <Button
+            size='middle'
+            type='primary'
+            onClick={() => {
+              resetErrorBoundary()
+            }}
+          >
+            {t('fallback.restart')}
+          </Button>
 
           <Tooltip title={`${t('fallback.thx_report')}🙏`}>
             <a href='https://github.com/hemengke1997/vscode-image-manager/issues/new'>

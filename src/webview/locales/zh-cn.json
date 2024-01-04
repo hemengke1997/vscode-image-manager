@@ -1,5 +1,5 @@
 {
-  "ns": {
+  "ia": {
     "img_refreshing": "刷新图片中...",
     "img_refreshed": "图片已刷新！",
     "name_sort": "名称",
@@ -10,8 +10,8 @@
     "type": "类型",
     "group": "分组",
     "sort": "排序",
-    "style": "展示",
-    "flat": "平铺",
+    "style": "目录展示",
+    "compact": "紧凑",
     "nested": "嵌套",
     "background_color": "背景色",
     "images": "图片",

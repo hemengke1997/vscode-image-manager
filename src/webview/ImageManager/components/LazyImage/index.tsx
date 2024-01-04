@@ -22,24 +22,25 @@ import ImageContextMenu, { IMAGE_CONTEXT_MENU_ID } from './components/ImageConte
 type LazyImageProps = {
   imageProp: ImageProps
   image: ImageType
-  index: number
+  index?: number
   preview?: {
     open?: boolean
     current?: number
   }
-  onPreviewChange: (preview: { open?: boolean; current?: number }) => void
+  onPreviewChange?: (preview: { open?: boolean; current?: number }) => void
+  lazy?: boolean
 }
 
 function LazyImage(props: LazyImageProps) {
-  const { imageProp, image, preview, onPreviewChange, index } = props
+  const { imageProp, image, preview, onPreviewChange, index, lazy = true } = props
 
   const { t } = useTranslation()
 
-  const { config } = ImageManagerContext.usePicker(['config'])
+  const { config, imagePlaceholderSize } = ImageManagerContext.usePicker(['config', 'imagePlaceholderSize'])
 
   const placeholderRef = useRef<HTMLDivElement>(null)
   const [inViewport] = useInViewport(placeholderRef, {
-    rootMargin: '60px 0px', // expand 60px area of vertical intersection calculation
+    rootMargin: '200px 0px', // expand 200px area of vertical intersection calculation
   })
   const { message } = App.useApp()
 
@@ -76,7 +77,7 @@ function LazyImage(props: LazyImageProps) {
   const keybindRef = useHotkeys<HTMLDivElement>(
     `mod+c`,
     () => {
-      copyImage(image.vscodePath)
+      copyImage(image.path)
     },
     {
       enabled: inViewport,
@@ -84,8 +85,9 @@ function LazyImage(props: LazyImageProps) {
   )
 
   const isCurrentActive = () => selectedImage?.vscodePath === image.vscodePath
+  const ifWarning = bytesToKb(image.stats.size) > config.warningSize
 
-  const { show } = useContextMenu({ id: IMAGE_CONTEXT_MENU_ID })
+  const { show } = useContextMenu({ id: IMAGE_CONTEXT_MENU_ID, props: { image } })
 
   const clns = {
     containerClassName: 'flex flex-none flex-col items-center p-2 space-y-1 transition-colors',
@@ -93,23 +95,24 @@ function LazyImage(props: LazyImageProps) {
     nameClassName: 'max-w-full truncate',
   }
 
-  if (!inViewport) {
+  if (!inViewport && lazy) {
     return (
-      <div ref={placeholderRef} className={clns.containerClassName}>
-        <div className={clns.imageClassName} style={{ width: imageProp.width, height: imageProp.height }}></div>
-        <div className={classNames(clns.nameClassName, 'invisible')}>{image.name}</div>
-      </div>
+      <div
+        ref={placeholderRef}
+        style={{
+          width: imagePlaceholderSize?.width,
+          height: imagePlaceholderSize?.height,
+        }}
+      ></div>
     )
   }
-
-  const ifWarning = bytesToKb(image.stats.size) > config.warningSize
 
   return (
     <div tabIndex={-1} ref={keybindRef}>
       <motion.div
         className={classNames(
           clns.containerClassName,
-          'border-[1px] border-solid border-transparent rounded-md hover:border-ant-color-primary',
+          'overflow-hidden border-[1px] border-solid border-transparent rounded-md hover:border-ant-color-primary',
           isCurrentActive() && 'border-ant-color-primary',
         )}
         initial={{ opacity: 0 }}
@@ -122,45 +125,49 @@ function LazyImage(props: LazyImageProps) {
         }}
         onContextMenu={(e) => {
           setSelectedImage(image)
-          show({ event: e, props: { image } })
+          show({ event: e })
         }}
       >
         <Badge status='warning' dot={ifWarning}>
           <Image
             {...imageProp}
             className={classNames(clns.imageClassName)}
-            preview={{
-              mask: (
-                <div
-                  className={'flex-col-center h-full w-full justify-center space-y-1 text-xs'}
-                  onMouseOver={handleMaskMouseOver}
-                >
-                  <div
-                    className={'flex-center cursor-pointer space-x-1 truncate'}
-                    onClick={(e) => {
-                      e.stopPropagation()
-                      setPreview({ open: true, current: index })
-                    }}
-                  >
-                    <ImEyePlus />
-                    <span>{t('ia.preview')}</span>
-                  </div>
-                  <div className={'flex-center space-x-1 truncate'}>
-                    <PiFileImage />
-                    <span className={classNames(ifWarning && 'text-ant-color-warning-text')}>
-                      {formatBytes(image.stats.size)}
-                    </span>
-                  </div>
-                  <div className={'flex-center space-x-1 truncate'}>
-                    <FaImages />
-                    <span>
-                      {dimensions?.width}x{dimensions?.height}
-                    </span>
-                  </div>
-                </div>
-              ),
-              maskClassName: 'rounded-md !cursor-auto',
-            }}
+            preview={
+              lazy
+                ? {
+                    mask: (
+                      <div
+                        className={'flex-col-center h-full w-full justify-center space-y-1 text-xs'}
+                        onMouseOver={handleMaskMouseOver}
+                      >
+                        <div
+                          className={'flex-center cursor-pointer space-x-1 truncate'}
+                          onClick={(e) => {
+                            e.stopPropagation()
+                            setPreview({ open: true, current: index })
+                          }}
+                        >
+                          <ImEyePlus />
+                          <span>{t('ia.preview')}</span>
+                        </div>
+                        <div className={'flex-center space-x-1 truncate'}>
+                          <PiFileImage />
+                          <span className={classNames(ifWarning && 'text-ant-color-warning-text')}>
+                            {formatBytes(image.stats.size)}
+                          </span>
+                        </div>
+                        <div className={'flex-center space-x-1 truncate'}>
+                          <FaImages />
+                          <span>
+                            {dimensions?.width}x{dimensions?.height}
+                          </span>
+                        </div>
+                      </div>
+                    ),
+                    maskClassName: 'rounded-md !cursor-auto',
+                  }
+                : false
+            }
             rootClassName='transition-all'
             style={{ width: imageProp.width, height: imageProp.height, ...imageProp.style }}
           ></Image>
