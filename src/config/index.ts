@@ -22,8 +22,12 @@ export const Config = {
     return getConfig('scaleStep')
   },
 
-  get excludePath(): string[] {
-    return getConfig('excludePath')
+  get exclude(): string[] {
+    return getConfig('exclude')
+  },
+
+  get imageType(): string[] {
+    return getConfig('imageType')
   },
 }
 

@@ -3,9 +3,11 @@ import { Radio } from 'antd'
 import { memo } from 'react'
 import { useTranslation } from 'react-i18next'
 
+export type DisplayStyleType = 'compact' | 'nested'
+
 type DisplayStyleProps = {
-  value?: 'flat' | 'nested'
-  onChange: (style: 'flat' | 'nested') => void
+  value?: DisplayStyleType
+  onChange: (style: DisplayStyleType) => void
 }
 
 function DisplayStyle(props: DisplayStyleProps) {
@@ -23,12 +25,12 @@ function DisplayStyle(props: DisplayStyleProps) {
     <Radio.Group
       options={[
         {
-          label: t('ia.nested'),
-          value: 'nested',
+          label: t('ia.compact'),
+          value: 'compact',
         },
         {
-          label: t('ia.flat'),
-          value: 'flat',
+          label: t('ia.nested'),
+          value: 'nested',
         },
       ]}
       value={displayStyle}

@@ -1,13 +1,14 @@
 import { type CollapseProps } from 'antd'
 import { memo } from 'react'
 import { useTranslation } from 'react-i18next'
-import { FaRegFolderOpen, FaRegImages } from 'react-icons/fa'
+import { FaRegImages } from 'react-icons/fa'
+import { IoMdFolderOpen } from 'react-icons/io'
 import { PiFileImage } from 'react-icons/pi'
-import { type DisplayStyleType, type ImageType } from '../..'
+import { type ImageType } from '../..'
 import ImageManagerContext from '../../contexts/ImageManagerContext'
 import { type GroupType } from '../DisplayGroup'
+import { type DisplayStyleType } from '../DisplayStyle'
 import ImageCollapse from '../ImageCollapse'
-
 type CollapseTreeProps = {
   dirs: string[]
   imageTypes: string[]
@@ -21,6 +22,8 @@ type FileNode = {
   children: FileNode[]
   renderConditions?: Record<string, string>[]
   type?: GroupType
+  // for compactFolders
+  renderList?: ImageType[]
 }
 
 function treeify(
@@ -105,7 +108,7 @@ function CollapseTree(props: CollapseTreeProps) {
     dir: {
       imagePrototype: 'dirPath',
       list: dirs,
-      icon: <FaRegFolderOpen />,
+      icon: <IoMdFolderOpen />,
     },
     type: {
       imagePrototype: 'fileType',
@@ -129,21 +132,20 @@ function CollapseTree(props: CollapseTreeProps) {
       <div className={'space-y-2'}>
         {tree.map((node) => {
           // const _isLast = !node.children.length && Object.keys(node.renderConditions || []).length > 1
-          const renderList = images.visibleList.filter((img) => checkVaild(node, img)) || []
+          const renderList = node.renderList || images.visibleList.filter((img) => checkVaild(node, img)) || []
 
           return (
             <ImageCollapse
               key={node.value}
               id={node.value}
               collapseProps={{
-                collapsible: 'icon',
                 // bordered: !isLast,
                 bordered: false,
                 ...collapseProps,
               }}
               label={
                 <div className={'flex items-center space-x-2'}>
-                  <span className={'flex-center'}>{node.type ? displayMap[node.type].icon : <FaRegImages />}</span>{' '}
+                  <span className={'flex-center'}>{node.type ? displayMap[node.type].icon : <FaRegImages />}</span>
                   <span>{node.label}</span>
                 </div>
               }
@@ -161,7 +163,7 @@ function CollapseTree(props: CollapseTreeProps) {
     displayGroup.forEach((g) => {
       toBeBuild[g] = displayMap[g].list
     })
-    let tree = buildRenderTree({ toBeBuild, flatten: displayStyle === 'flat' })
+    let tree = buildRenderTree({ toBeBuild, flatten: false })
     if (!tree.length) {
       tree = [
         {
@@ -172,8 +174,37 @@ function CollapseTree(props: CollapseTreeProps) {
       ]
     }
 
+    if (displayStyle === 'compact') {
+      compactFolders(tree)
+    }
+
     // render tree
     return nestedDisplay(tree, { bordered: true })
+  }
+
+  const compactFolders = (tree: FileNode[]) => {
+    tree.forEach((node) => {
+      const { children } = node
+      if (children.length === 1) {
+        const child = children[0]
+        const renderList = images.visibleList.filter((img) => checkVaild(node, img)) || undefined
+
+        if (!renderList?.length) {
+          Object.assign(node, {
+            ...child,
+            label: `${node.label}/${child.label}`,
+          })
+          compactFolders(tree)
+        } else {
+          node.renderList = renderList
+          if (child.children.length) {
+            compactFolders(child.children)
+          }
+        }
+      } else if (children.length > 1) {
+        compactFolders(children)
+      }
+    })
   }
 
   return <>{displayByPriority()}</>

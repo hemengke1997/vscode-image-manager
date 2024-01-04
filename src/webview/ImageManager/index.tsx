@@ -2,7 +2,7 @@ import { uniq } from '@minko-fe/lodash-pro'
 import { useControlledState, useLocalStorageState } from '@minko-fe/react-hook'
 import { type ReturnOfMessageCenter } from '@root/message'
 import { CmdToVscode } from '@root/message/shared'
-import { App, Card, Modal } from 'antd'
+import { App, Card, ConfigProvider, Modal, theme } from 'antd'
 import { type Stats } from 'node:fs'
 import { startTransition, useEffect, useMemo } from 'react'
 import { useTranslation } from 'react-i18next'
@@ -12,9 +12,10 @@ import { vscodeApi } from '../vscode-api'
 import CollapseTree from './components/CollapseTree'
 import DisplayGroup, { type GroupType } from './components/DisplayGroup'
 import DisplaySort from './components/DisplaySort'
-import DisplayStyle from './components/DisplayStyle'
+import DisplayStyle, { type DisplayStyleType } from './components/DisplayStyle'
 import DisplayType from './components/DisplayType'
 import ImageActions from './components/ImageActions'
+import ImageForSize from './components/ImageForSize'
 import ImageManagerContext from './contexts/ImageManagerContext'
 import useWheelScaleEvent from './hooks/useWheelScaleEvent'
 import OperationItemUI from './ui/OperationItemUI'
@@ -35,18 +36,16 @@ export type ImageType = Omit<ReturnOfMessageCenter<CmdToVscode.GET_ALL_IMAGES>['
   visible?: Partial<Record<ImageVisibleFilterType | string, boolean>>
 }
 
-export type DisplayStyleType = 'flat' | 'nested'
-
 export default function ImageManager() {
+  const { token } = theme.useToken()
   const { message } = App.useApp()
   const { t } = useTranslation()
 
-  const { images, setImages, imageRefreshedState, refreshImages, setCollapseOpen } = ImageManagerContext.usePicker([
+  const { images, setImages, imageRefreshedState, refreshImages } = ImageManagerContext.usePicker([
     'images',
     'setImages',
     'imageRefreshedState',
     'refreshImages',
-    'setCollapseOpen',
   ])
 
   const [displayImageTypes, setDisplayImageTypes] = useLocalStorageState<string[]>(
@@ -85,8 +84,8 @@ export default function ImageManager() {
         list: sortImages(sort!, data.imgs as ImageType[]),
         loading: false,
       })
+
       onImageTypeChange(data.fileTypes)
-      !refreshTimes && setCollapseOpen((t) => t + 1)
 
       if (isRefresh) {
         message.destroy(messageKey)
@@ -194,7 +193,7 @@ export default function ImageManager() {
   const [displayStyle, setDisplayStyle] = useLocalStorageState<DisplayStyleType>(
     localStorageEnum.LOCAL_STORAGE_DISPLAY_STYLE,
     {
-      defaultValue: 'nested',
+      defaultValue: 'compact',
     },
   )
 
@@ -253,9 +252,26 @@ export default function ImageManager() {
           title={t('ia.images')}
           extra={<ImageActions />}
         >
-          <CollapseTree displayStyle={displayStyle!} dirs={dirs} imageTypes={imageTypes} displayGroup={displayGroup} />
+          <ConfigProvider
+            theme={{
+              components: {
+                Collapse: {
+                  motionDurationMid: token.motionDurationFast,
+                },
+              },
+            }}
+          >
+            <CollapseTree
+              displayStyle={displayStyle!}
+              dirs={dirs}
+              imageTypes={imageTypes}
+              displayGroup={displayGroup}
+            />
+          </ConfigProvider>
         </Card>
       </div>
+
+      <ImageForSize />
       <Modal></Modal>
     </div>
   )
