@@ -2,7 +2,7 @@
 
 ## Warning
 
-目前正在快速迭代中，功能可能不稳定，如遇到问题请提[issue](https://github.com/hemengke1997/vscode-image-manager/issues)
+Currently in a rapid iteration, may be unstable. If you encounter problems, please report [issue].(https://github.com/hemengke1997/vscode-image-manager/issues)
 
 ## Screenshot
 
@@ -25,40 +25,39 @@
 
 ## Usage
 
-**有多种方式打开插件**
+**Several ways open extension**
 
-### 快捷键
+### Shortcut
 
 - windows: `shift+alt+i`
 - macos: `cmd+option+i`
 
 
-### 命令
+### Command
 
-`ctrl+shift+p` (macos `cmd+shift+p`)打开命令面板，输入 `Open Image Manager` 打开插件
+`ctrl+shift+p` (macos `cmd+shift+p`), input `Open Image Manager` to open.
 
-### 右键菜单
+### Context Menu
 
-在资源管理器中右键，选择 `Open Image Manager` 打开插件
+Right click in Explorer, select `Open Image Manager` to open extension.
 
 
 ## Features
 
-- group 图片分组
-- sort 图片排序
-- filter 图片筛选
-- search 图片搜索
-- scale 图片缩放（ctrl or cmd + 鼠标滚轮）
-- preview 图片预览
-- theme 动态主题
+- group image
+- sort image (by size or name)
+- filter image (by size)
+- scale image（ctrl or cmd + mousewheel）
+- preview image
+- dynamic theme
 
 ## TODO
 
-- [ ] 图片裁剪
-- [ ] copy,paste,delete,move 图片操作
-- [ ] deplicate image 相似图片去重
-- [ ] tiny 图片压缩
-- [ ] OCR 图片文字识别
+- [ ] image crop
+- [ ] copy,paste,delete,move
+- [ ] deplicate image
+- [ ] tiny
+- [ ] OCR
 - [x] vscode configuration
 
 
