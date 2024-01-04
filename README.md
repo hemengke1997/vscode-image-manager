@@ -2,7 +2,7 @@
 
 ## Warning
 
-Currently in a rapid iteration, may be unstable. If you encounter problems, please report [issue].(https://github.com/hemengke1997/vscode-image-manager/issues)
+Currently in a rapid iteration, may be unstable. If you encounter problems, please report [issue](https://github.com/hemengke1997/vscode-image-manager/issues)
 
 ## Screenshot
 
