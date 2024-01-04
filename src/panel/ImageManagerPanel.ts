@@ -1,7 +1,7 @@
 import { applyHtmlTransforms } from '@minko-fe/html-transform'
 import { type Context } from '@root/Context'
-import { getEnvForWebview, getUri, logInfo, removeUrlProtocol, showError } from '@root/helper/utils'
-import { type MessageType, vscodeMessageCenter } from '@root/message'
+import { Log, getEnvForWebview, getUri, removeUrlProtocol, showError } from '@root/helper/utils'
+import { type MessageParams, type MessageType, VscodeMessageCenter } from '@root/message'
 import { CallbackFromVscode } from '@root/message/shared'
 import fs from 'node:fs'
 import path from 'node:path'
@@ -45,7 +45,7 @@ export class ImageManagerPanel {
     const dirPath = path.dirname(resourcePath)
     let html = fs.readFileSync(resourcePath, 'utf-8')
     html = html.replace(/(<link.+?href="|<script.+?src="|<img.+?src=")(.+?)"/g, (_, $1: string, $2: string) => {
-      logInfo(`webview-replace resourcePath:${resourcePath} dirPath:${dirPath} $1:${$1} $2:${$2}`)
+      Log.info(`webview-replace resourcePath:${resourcePath} dirPath:${dirPath} $1:${$1} $2:${$2}`)
       $2 = $2.startsWith('.') ? $2 : `.${$2}`
       const vscodeResourcePath = webview.asWebviewUri(Uri.file(path.resolve(dirPath, $2))).toString()
       return `${$1 + vscodeResourcePath}"`
@@ -94,7 +94,6 @@ export class ImageManagerPanel {
         <head>
           ${reactRefresh}
           <meta charset="UTF-8" />
-          <meta http-equiv="X-UA-Compatible" content="IE=edge">
           <meta name="viewport" content="width=device-width, initial-scale=1.0" />
           <meta name="renderer" content="webkit">
           <title>vscode-image-manager</title>
@@ -189,13 +188,11 @@ export class ImageManagerPanel {
    * @param webview A reference to the extension webview
    */
   private _handlePanelMessage = async (message: MessageType, webview: Webview) => {
-    logInfo(`receive msg: ${JSON.stringify(message)}`)
-    const handler = vscodeMessageCenter[message.cmd]
+    // Log.info(`receive msg: ${JSON.stringify(message)}`)
+    const handler: (params: MessageParams) => Promise<any> = VscodeMessageCenter[message.cmd]
     if (handler) {
       const data = await handler({ message, webview })
-      if (data) {
-        this.invokeCallback({ message, webview, data })
-      }
+      this.invokeCallback({ message, webview, data })
     } else {
       showError(`Handler function "${message.cmd}" doesn't exist!`)
     }

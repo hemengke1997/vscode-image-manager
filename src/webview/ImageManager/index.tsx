@@ -1,12 +1,12 @@
 import { uniq } from '@minko-fe/lodash-pro'
 import { useControlledState, useLocalStorageState } from '@minko-fe/react-hook'
+import { type ReturnOfMessageCenter } from '@root/message'
 import { CmdToVscode } from '@root/message/shared'
 import { App, Card, Modal } from 'antd'
-import { type Dirent, type Stats } from 'node:fs'
+import { type Stats } from 'node:fs'
 import { startTransition, useEffect, useMemo } from 'react'
 import { useTranslation } from 'react-i18next'
 import { localStorageEnum } from '../local-storage'
-// import { isHotkeyPressed, useHotkeys } from 'react-hotkeys-hook'
 import PrimaryColorPicker from '../ui-framework/src/components/CustomConfigProvider/components/PrimaryColorPicker'
 import { vscodeApi } from '../vscode-api'
 import CollapseTree from './components/CollapseTree'
@@ -29,18 +29,10 @@ vscodeApi.registerEventListener()
 // 2. size - image size (i.e 1kb)
 type ImageVisibleFilterType = 'type' | 'size'
 
-export type ImageType = {
-  path: string
-  fileType: string
-  dirPath: string
-  relativePath: string
-  vscodePath: string
-  name: string
-  dirent: Dirent
+export type ImageType = Omit<ReturnOfMessageCenter<CmdToVscode.GET_ALL_IMAGES>['imgs'][number], 'stats'> & {
   stats: Stats
-
   // extra
-  visible: Partial<Record<ImageVisibleFilterType | string, boolean>> | undefined
+  visible?: Partial<Record<ImageVisibleFilterType | string, boolean>>
 }
 
 export type DisplayStyleType = 'flat' | 'nested'
@@ -88,7 +80,11 @@ export default function ImageManager() {
 
     vscodeApi.postMessage({ cmd: CmdToVscode.GET_ALL_IMAGES }, (data) => {
       console.log(data, 'data')
-      setImages({ originalList: data.imgs, list: sortImages(sort!, data.imgs), loading: false })
+      setImages({
+        originalList: data.imgs as ImageType[],
+        list: sortImages(sort!, data.imgs as ImageType[]),
+        loading: false,
+      })
       onImageTypeChange(data.fileTypes)
       !refreshTimes && setCollapseOpen((t) => t + 1)
 

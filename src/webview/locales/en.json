@@ -32,7 +32,9 @@
     "refresh": "refresh",
     "find": "find",
     "filter": "filter",
-    "action": "action"
+    "action": "action",
+    "copy": "Copy",
+    "copy_success": "Copy Success"
   },
   "fallback": {
     "internal_error": "Internal Error",

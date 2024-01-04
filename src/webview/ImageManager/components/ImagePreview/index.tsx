@@ -24,10 +24,10 @@ function ImagePreview(props: ImagePreviewProps) {
   ])
   const BASE_SIZE = config.imageDefaultWidth
 
-  const [preview, setPreview] = useState<{ open?: boolean; current?: number }>({})
+  const [preview, setPreview] = useState<{ open?: boolean; current?: number }>({ open: false, current: -1 })
 
   return (
-    <motion.div className={'mx-auto flex flex-wrap gap-6'}>
+    <motion.div className={'mx-auto flex flex-wrap gap-2'}>
       <ConfigProvider
         theme={{
           components: {
@@ -57,6 +57,7 @@ function ImagePreview(props: ImagePreviewProps) {
                 setPreview({ open: v })
                 return
               }
+              if (v) return
             },
             maxScale: 50,
             minScale: 0.1,
@@ -75,21 +76,21 @@ function ImagePreview(props: ImagePreviewProps) {
               },
             }}
           >
-            {images.map((t, i) => (
+            {images.map((image, i) => (
               <LazyImage
-                image={{
+                imageProp={{
                   style: { backgroundColor },
                   width: BASE_SIZE * scale!,
                   height: BASE_SIZE * scale!,
-                  src: t.vscodePath,
+                  src: image.vscodePath,
                 }}
                 preview={preview}
                 onPreviewChange={(p) => {
                   setPreview(p)
                 }}
-                info={t}
+                image={image}
                 index={i}
-                key={t.path}
+                key={image.path}
               />
             ))}
           </ConfigProvider>

@@ -2,7 +2,6 @@ import { type ExtensionContext, ExtensionMode, window } from 'vscode'
 
 export class Context {
   private static instance: Context
-  static _inited = false
   theme: 'light' | 'dark' = 'dark'
 
   constructor(public ext: ExtensionContext) {
@@ -19,11 +18,13 @@ export class Context {
           break
       }
     }
+  }
 
-    if (!Context.instance && !Context._inited && ext) {
-      Context._inited = true
+  public static getInstance(ext?: ExtensionContext) {
+    if (!Context.instance && ext) {
       Context.instance = new Context(ext)
     }
+
     return Context.instance
   }
 

@@ -92,6 +92,9 @@ function useImageManagerContext() {
     },
   })
 
+  /* --------------- image select --------------- */
+  const [selectedImage, setSelectedImage] = useState<ImageType>()
+
   return {
     config,
     images,
@@ -106,6 +109,8 @@ function useImageManagerContext() {
     isDarkBackground,
     collapseOpen,
     setCollapseOpen,
+    selectedImage,
+    setSelectedImage,
   }
 }
 
