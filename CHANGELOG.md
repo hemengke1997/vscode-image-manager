@@ -1,5 +1,17 @@
 # CHANGELOG
 
+## [0.0.11](https://github.com/hemengke1997/vscode-image-manager/compare/v0.0.10...v0.0.11) (2024-01-04)
+
+### feat
+
+* support compact dir style just like vscode, user friendly ([8db6d09](https://github.com/hemengke1997/vscode-image-manager/commit/8db6d098497ea137ced0c96f82caa689c0e2464f))
+
+* introduce `imageType` config, user can choose which type of image to display ([831ea1f](https://github.com/hemengke1997/vscode-image-manager/commit/831ea1f58156017aec056ea76e4a875a59b7908c))
+
+### Break Change
+
+* **rename `image-manager.excludePath` to `image-manager.exclude`**
+
 ## [0.0.10](https://github.com/hemengke1997/vscode-image-manager/compare/v0.0.9...v0.0.10) (2024-01-04)
 
 ### feat
