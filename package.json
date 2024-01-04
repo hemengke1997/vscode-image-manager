@@ -87,10 +87,38 @@
           "default": 0.1,
           "description": "scale step when zooming image list"
         },
-        "image-manager.excludePath": {
-          "type": "array",
+        "image-manager.exclude": {
+          "type": [
+            "array"
+          ],
+          "items": {
+            "type": "string"
+          },
           "default": [],
-          "description": "scan images not in excludePath (pattern syntax of fast-glob)"
+          "examples": [
+            "some-dist",
+            "**/*.ico"
+          ],
+          "description": "scan images not in exclude (pattern syntax of fast-glob)"
+        },
+        "image-manager.imageType": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "default": [
+            "svg",
+            "png",
+            "jpeg",
+            "jpg",
+            "ico",
+            "gif",
+            "webp",
+            "bmp",
+            "tif",
+            "apng"
+          ],
+          "description": "scan images with imageType"
         }
       }
     }

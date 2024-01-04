@@ -7,8 +7,6 @@ import path from 'node:path'
 import { Uri, type Webview, commands } from 'vscode'
 
 class MessageHandler {
-  private readonly _imgTypes = ['svg', 'png', 'jpeg', 'jpg', 'ico', 'gif', 'webp', 'bmp', 'tif', 'apng']
-
   /* -------------- reload webview -------------- */
   reloadWebview() {
     commands.executeCommand('workbench.action.webview.reloadWebviewAction')
@@ -16,7 +14,7 @@ class MessageHandler {
 
   /* --------------- search images -------------- */
   private async _searchImgs(basePath: string, webview: Webview, fileTypes: Set<string>, dirs: Set<string>) {
-    const imgs = await fg([`**/*.{${this._imgTypes.join(',')}}`], {
+    const imgs = await fg([`**/*.{${Config.imageType.join(',')}}`], {
       cwd: basePath,
       objectMode: true,
       dot: false,
@@ -34,7 +32,7 @@ class MessageHandler {
         '**/.nuxt/**',
         '**/.vercel/**',
         // https://www.npmjs.com/package/fast-glob#pattern-syntax
-        ...Config.excludePath,
+        ...Config.exclude,
       ],
     })
 
@@ -104,10 +102,7 @@ class MessageHandler {
   /* ---------------- paste image --------------- */
   async pasteImage(dest: string) {
     const cb = await getClipboard()
-    const res = await cb.paste({ cwd: dest })
-
-    console.log(res, 'res')
-    return res
+    return await cb.paste({ cwd: dest })
   }
 }
 
