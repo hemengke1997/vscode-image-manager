@@ -1,14 +1,20 @@
+import { getClipboard } from '@root/clipboard'
 import { Config } from '@root/config'
 import { getProjectPath } from '@root/helper/utils'
 import fg from 'fast-glob'
 import imageSize from 'image-size'
 import path from 'node:path'
-import { Uri, type Webview } from 'vscode'
+import { Uri, type Webview, commands } from 'vscode'
 
 class MessageHandler {
   private readonly _imgTypes = ['svg', 'png', 'jpeg', 'jpg', 'ico', 'gif', 'webp', 'bmp', 'tif', 'apng']
 
-  /* ------------------- 获取图片 ------------------- */
+  /* -------------- reload webview -------------- */
+  reloadWebview() {
+    commands.executeCommand('workbench.action.webview.reloadWebviewAction')
+  }
+
+  /* --------------- search images -------------- */
   private async _searchImgs(basePath: string, webview: Webview, fileTypes: Set<string>, dirs: Set<string>) {
     const imgs = await fg([`**/*.{${this._imgTypes.join(',')}}`], {
       cwd: basePath,
@@ -68,7 +74,7 @@ class MessageHandler {
     }
   }
 
-  /* ------------------ 获取图片尺寸 ------------------ */
+  /* ----------- get image dimensions ----------- */
   getImageDimensions(imgPath: string) {
     let dimensions = { width: 0, height: 0 }
 
@@ -84,9 +90,24 @@ class MessageHandler {
     return dimensions
   }
 
-  /* ------------ 获取extension config ------------ */
+  /* ----------- get extension config ----------- */
   getExtConfig() {
     return Config
+  }
+
+  /* ---------- copy image to clipboard --------- */
+  async copyImage(imgPath: string) {
+    const cb = await getClipboard()
+    return await cb.copy(imgPath)
+  }
+
+  /* ---------------- paste image --------------- */
+  async pasteImage(dest: string) {
+    const cb = await getClipboard()
+    const res = await cb.paste({ cwd: dest })
+
+    console.log(res, 'res')
+    return res
   }
 }
 

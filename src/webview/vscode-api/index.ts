@@ -1,8 +1,8 @@
-import { type MessageType } from '@root/message'
+import { type KeyofMessage, type MessageType, type ReturnOfMessageCenter } from '@root/message'
 import { CallbackFromVscode } from '@root/message/shared'
 import { type WebviewApi } from 'vscode-webview'
 
-type CallbackFn = (data: any) => void
+export type MessageCallbackFn<T extends KeyofMessage> = (data: ReturnOfMessageCenter<T>) => void
 
 /**
  * A utility wrapper around the acquireVsCodeApi() function, which enables
@@ -54,7 +54,13 @@ class VscodeApi {
    *
    * @param message Abitrary data (must be JSON serializable) to send to the extension context.
    */
-  public postMessage(message: MakeRequired<MessageType, 'cmd'>, callback?: CallbackFn) {
+  public postMessage<T extends KeyofMessage, D>(
+    message: Partial<MessageType> & {
+      cmd: T
+      data?: D
+    },
+    callback?: MessageCallbackFn<T>,
+  ) {
     message.msgId = this._getRandomId()
     message.postTime = new Date().toLocaleString()
     if (callback) {

@@ -13,7 +13,7 @@ function CustomConfigProvider(props: PropsWithChildren) {
   return (
     <div className={'min-w-screen min-h-screen space-y-2 p-4'} onContextMenu={(e) => e.preventDefault()}>
       <header className={'flex justify-between'}>
-        <a href='https://github.com/hemengke1997/vscode-image-analysor'>
+        <a href='https://github.com/hemengke1997/vscode-image-manager'>
           <Logo className='fill-ant-color-primary text-5xl' />
         </a>
         <div className={'flex-center space-x-2'}>

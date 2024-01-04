@@ -19,7 +19,7 @@ function Fallback(props: FallbackProps) {
           </Text>
         </Paragraph>
         <div className={'flex space-x-2'}>
-          <MdOutlineError className='text-ant-color-error text-lg' />
+          <MdOutlineError className='text-ant-color-error mt-0.5 text-lg' />
           <Paragraph
             ellipsis={{
               rows: 5,
@@ -46,7 +46,7 @@ function Fallback(props: FallbackProps) {
           </Tooltip>
 
           <Tooltip title={`${t('fallback.thx_report')}🙏`}>
-            <a href='https://github.com/hemengke1997/vscode-image-analysor/issues/new'>
+            <a href='https://github.com/hemengke1997/vscode-image-manager/issues/new'>
               <Button
                 size='middle'
                 type='default'

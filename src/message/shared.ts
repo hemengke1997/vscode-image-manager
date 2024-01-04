@@ -1,7 +1,10 @@
-export const CallbackFromVscode = 'callbackFromVscode'
+export const CallbackFromVscode = 'CallbackFromVscode'
 
 export enum CmdToVscode {
-  GET_ALL_IMAGES = 'getAllImages',
-  GET_IMAGE_DIMENSIONS = 'getImageDimensions',
-  GET_EXT_CONFIG = 'getExtConfig',
+  RELOAD_WEBVIEW = 'RELOAD_WEBVIEW',
+  GET_ALL_IMAGES = 'GET_ALL_IMAGES',
+  GET_IMAGE_DIMENSIONS = 'GET_IMAGE_DIMENSIONS',
+  GET_EXT_CONFIG = 'GET_EXT_CONFIG',
+  COPY_IMAGE = 'COPY_IMAGE',
+  PASTE_IMAGE = 'PASTE_IMAGE',
 }

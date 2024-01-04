@@ -33,7 +33,8 @@
     "find": "find",
     "filter": "filter",
     "action": "action",
-    "copy_success": "Copy Successfully"
+    "copy": "Copy",
+    "copy_success": "Copy Success"
   },
   "fallback": {
     "internal_error": "Internal Error",

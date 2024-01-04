@@ -33,6 +33,7 @@
     "find": "查找",
     "filter": "筛选",
     "action": "操作",
+    "copy": "复制",
     "copy_success": "复制成功"
   },
   "fallback": {

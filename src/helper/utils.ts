@@ -18,10 +18,7 @@ export const getProjectPath = () => {
 
 let lastLogTimestamp = 0
 
-/**
- * log to file
- */
-const log = (text: any) => {
+const logMsg = (text: any) => {
   const now = new Date()
   const gap = now.getTime() - lastLogTimestamp
   // add some blank rows
@@ -34,16 +31,20 @@ const log = (text: any) => {
   lastLogTimestamp = now.getTime()
   console.log(`${new Date().toISOString()} ${text}`)
 }
-export const logInfo = (text: any, ...args: any[]) => log(`[Info] ${text} ${args.join('')}`)
-export const logWarn = (text: any) => log(`[Warn] ${text}`)
-export const logError = (text: any) => log(`[Error] ${text}`)
+
+export const Log = {
+  info: (text: any, ...args: any[]) => logMsg(`[Info] ${text} ${args.join('')}`),
+  warn: (text: any) => logMsg(`[Warn] ${text}`),
+  error: (text: any) => logMsg(`[Error] ${text}`),
+}
+
 export const showInfo = (text: any) => {
   window.showInformationMessage(text)
-  logInfo(text)
+  Log.info(text)
 }
 export const showError = (text: any) => {
   window.showErrorMessage(text)
-  logError(text)
+  Log.error(text)
 }
 
 export function getUri(webview: Webview, extensionUri: Uri, pathList: string[]) {

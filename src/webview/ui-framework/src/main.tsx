@@ -5,6 +5,7 @@ import { setupI18n } from 'vite-plugin-i18n-detector/client'
 import { localStorageEnum } from '../../local-storage'
 import App from './App'
 import { parseJson } from './utils/json'
+import '../hmr'
 import 'antd/dist/reset.css'
 import './styles/index.css'
 

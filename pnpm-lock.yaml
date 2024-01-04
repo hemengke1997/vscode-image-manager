@@ -11,9 +11,6 @@ importers:
       '@ctrl/tinycolor':
         specifier: ^4.0.2
         version: 4.0.2
-      '@minko-fe/lodash-pro':
-        specifier: ^0.1.16
-        version: 0.1.16
       '@minko-fe/react-hook':
         specifier: ^0.1.16
         version: 0.1.16(react-dom@18.2.0)(react@18.2.0)
@@ -62,6 +59,9 @@ importers:
       react-icons:
         specifier: ^4.12.0
         version: 4.12.0(react@18.2.0)
+      ts-key-enum:
+        specifier: ^2.0.12
+        version: 2.0.12
       un-detector:
         specifier: ^0.0.6
         version: 0.0.6
@@ -76,6 +76,9 @@ importers:
         specifier: ^2.0.7
         version: 2.0.7(@types/eslint@8.56.0)(eslint@8.55.0)(tailwindcss@3.4.0)
       '@minko-fe/html-transform':
+        specifier: ^0.1.16
+        version: 0.1.16
+      '@minko-fe/lodash-pro':
         specifier: ^0.1.16
         version: 0.1.16
       '@minko-fe/tsconfig':
@@ -97,7 +100,7 @@ importers:
         specifier: ^18.2.18
         version: 18.2.18
       '@types/vscode':
-        specifier: ^1.60.0
+        specifier: ^1.80.0
         version: 1.85.0
       '@types/vscode-webview':
         specifier: ^1.57.4
@@ -126,6 +129,9 @@ importers:
       image-size:
         specifier: ^1.0.2
         version: 1.0.2
+      is-wsl:
+        specifier: ^3.1.0
+        version: 3.1.0
       npm-run-all:
         specifier: ^4.1.5
         version: 4.1.5
@@ -2438,7 +2444,6 @@ packages:
       deepmerge: 4.3.1
       lodash: 4.17.21
       lodash-es: 4.17.21
-    dev: false
 
   /@minko-fe/prettier-config@2.0.7(prettier@3.1.1):
     resolution: {integrity: sha512-G/qp32KAvZkp7aewprS2ddcGAH6nSc6fEwcuVe7NVrDyIdFNJhcbAq79tGUWcyAGoCPQLhfqbz3eKw73r6WtFQ==}
@@ -2840,11 +2845,9 @@ packages:
     resolution: {integrity: sha512-0NgftHUcV4v34VhXm8QBSftKVXtbkBG3ViCjs6+eJ5a6y6Mi/jiFGPc1sC7QK+9BFhWrURE3EOggmWaSxL9OzQ==}
     dependencies:
       '@types/lodash': 4.14.202
-    dev: false
 
   /@types/lodash@4.14.202:
     resolution: {integrity: sha512-OvlIYQK9tNneDlS0VN54LLd5uiPCBOp7gS5Z0f1mjoJYBrtStzgmJBxONW3U6OZqdtNzZPmn9BS/7WI7BFFcFQ==}
-    dev: false
 
   /@types/mdast@3.0.15:
     resolution: {integrity: sha512-LnwD+mUEfxWMa1QpDraczIn6k0Ee3SMicuYSSzS6ZYl2gKS09EClnJYGd8Du6rfc5r/GZEk5o1mRb8TaTj03sQ==}
@@ -4206,7 +4209,6 @@ packages:
   /deepmerge@4.3.1:
     resolution: {integrity: sha512-3sUqbMEc77XqpdNO7FRyRog+eW3ph+GYCbj+rK+uYyRMuwsVy0rMiVtPn+QJlKFvWP/1PYpapqYn0Me2knFn+A==}
     engines: {node: '>=0.10.0'}
-    dev: false
 
   /default-browser-id@3.0.0:
     resolution: {integrity: sha512-OZ1y3y0SqSICtE8DE4S8YOE9UZOJ8wO16fKWVP5J1Qz42kV9jcnMVFrEE/noXb/ss3Q4pZIH79kxofzyNNtUNA==}
@@ -6307,7 +6309,6 @@ packages:
 
   /lodash-es@4.17.21:
     resolution: {integrity: sha512-mKnC+QJ9pWVzv+C4/U3rRsHapFfHvQFoFB92e52xeyGMcX6/OlIl78je1u8vePzYZSkkogMPJ2yjxxsb89cxyw==}
-    dev: false
 
   /lodash.camelcase@4.3.0:
     resolution: {integrity: sha512-TwuEnCnxbc3rAvhf/LbG7tJUDzhqXyFnv3dtzLOPgCG/hODL7WFnsbwktkD7yUV0RrreP/l1PALq/YSg6VvjlA==}
@@ -8906,6 +8907,10 @@ packages:
   /ts-interface-checker@0.1.13:
     resolution: {integrity: sha512-Y/arvbn+rrz3JCKl9C4kVNfTfSm2/mEp5FSz5EsZSANGPSlQrpRI5M4PKF+mJnE52jOO90PnPSc3Ur3bTQw0gA==}
     dev: true
+
+  /ts-key-enum@2.0.12:
+    resolution: {integrity: sha512-Ety4IvKMaeG34AyXMp5r11XiVZNDRL+XWxXbVVJjLvq2vxKRttEANBE7Za1bxCAZRdH2/sZT6jFyyTWxXz28hw==}
+    dev: false
 
   /tsconfig-paths@3.14.2:
     resolution: {integrity: sha512-o/9iXgCYc5L/JxCHPe3Hvh8Q/2xm5Z+p18PESBU6Ff33695QnCHBEjcytY2q19ua7Mbl/DavtBOLq+oG0RCL+g==}

@@ -1,18 +1,16 @@
 {
   "publisher": "minko",
-  "name": "image-analysor",
-  "displayName": "Image Analysor",
-  "version": "0.0.8",
-  "preview": true,
+  "name": "image-manager",
+  "displayName": "Image Manager",
+  "version": "0.0.9",
   "private": true,
-  "description": "Image Analysor, a powerful yet simple image viewer and analyser for VSCode",
+  "description": "Image Manager, a powerful yet simple image manager and viewer for VSCode",
   "type": "module",
   "icon": "assets/logo.png",
   "keywords": [
     "image",
     "viewer",
     "manager",
-    "analysor",
     "base64",
     "svg",
     "img",
@@ -20,10 +18,10 @@
     "png"
   ],
   "license": "MIT",
-  "homepage": "https://github.com/hemengke1997/vscode-image-analysor",
+  "homepage": "https://github.com/hemengke1997/vscode-image-manager",
   "repository": {
     "type": "git",
-    "url": "https://github.com/hemengke1997/vscode-image-analysor"
+    "url": "https://github.com/hemengke1997/vscode-image-manager"
   },
   "categories": [
     "Visualization",
@@ -38,40 +36,40 @@
     "viewsContainers": {
       "activitybar": [
         {
-          "id": "imageAnalysor",
-          "title": "Image Analysor",
+          "id": "imageManager",
+          "title": "Image Manager",
           "icon": "./assets/logo.png"
         }
       ]
     },
     "views": {
-      "imageAnalysor": []
+      "imageManager": []
     },
     "commands": [
       {
-        "command": "image-analysor.open-image-analysor",
-        "title": "Open Image Analysor"
+        "command": "image-manager.open-image-manager",
+        "title": "Open Image Manager"
       }
     ],
     "menus": {
       "explorer/context": [
         {
-          "command": "image-analysor.open-image-analysor",
+          "command": "image-manager.open-image-manager",
           "group": "z_commands"
         }
       ]
     },
     "keybindings": [
       {
-        "command": "image-analysor.open-image-analysor",
+        "command": "image-manager.open-image-manager",
         "key": "shift+alt+i",
         "mac": "cmd+alt+i"
       }
     ],
     "configuration": {
-      "title": "Image Analysor Settings",
+      "title": "Image Manager Settings",
       "properties": {
-        "image-analysor.warningSize": {
+        "image-manager.warningSize": {
           "type": [
             "number",
             "boolean"
@@ -79,17 +77,17 @@
           "default": 500,
           "description": "show warning dot if image size is larger than this value (KB)"
         },
-        "image-analysor.imageDefaultWidth": {
+        "image-manager.imageDefaultWidth": {
           "type": "number",
           "default": 100,
           "description": "default width of image (px)"
         },
-        "image-analysor.scaleStep": {
+        "image-manager.scaleStep": {
           "type": "number",
           "default": 0.1,
           "description": "scale step when zooming image list"
         },
-        "image-analysor.excludePath": {
+        "image-manager.excludePath": {
           "type": "array",
           "default": [],
           "description": "scan images not in excludePath (pattern syntax of fast-glob)"
@@ -101,7 +99,7 @@
     "dev": "simple-git-hooks && tsup --watch",
     "ui:dev": "vite -c vite.config.ts -m development",
     "ui:build": "vite build -c vite.config.ts -m production",
-    "build": "tsup",
+    "build": "rm -rf dist && tsup",
     "vscode:prepublish": "run-s ui:build build",
     "pack": "vsce package --no-dependencies",
     "lint": "eslint .",
@@ -113,7 +111,6 @@
   },
   "dependencies": {
     "@ctrl/tinycolor": "^4.0.2",
-    "@minko-fe/lodash-pro": "^0.1.16",
     "@minko-fe/react-hook": "^0.1.16",
     "@minko-fe/vite-config": "^0.1.16",
     "@vscode/webview-ui-toolkit": "^1.2.2",
@@ -130,6 +127,7 @@
     "react-hotkeys-hook": "^4.4.1",
     "react-i18next": "^13.5.0",
     "react-icons": "^4.12.0",
+    "ts-key-enum": "^2.0.12",
     "un-detector": "^0.0.6"
   },
   "devDependencies": {
@@ -137,13 +135,14 @@
     "@minko-fe/commitlint-config": "^2.0.7",
     "@minko-fe/eslint-config": "^2.0.7",
     "@minko-fe/html-transform": "^0.1.16",
+    "@minko-fe/lodash-pro": "^0.1.16",
     "@minko-fe/tsconfig": "^2.0.7",
     "@types/eslint": "^8.56.0",
     "@types/node": "^20.10.5",
     "@types/react": "^18.2.45",
     "@types/react-copy-to-clipboard": "^5.0.7",
     "@types/react-dom": "^18.2.18",
-    "@types/vscode": "^1.60.0",
+    "@types/vscode": "^1.80.0",
     "@types/vscode-webview": "^1.57.4",
     "@vscode/vsce": "^2.22.0",
     "bumpp": "^9.2.1",
@@ -153,6 +152,7 @@
     "execa": "^8.0.1",
     "fast-glob": "^3.3.2",
     "image-size": "^1.0.2",
+    "is-wsl": "^3.1.0",
     "npm-run-all": "^4.1.5",
     "simple-git-hooks": "^2.9.0",
     "tsup": "6.7.0",
@@ -164,7 +164,7 @@
     "vite-plugin-i18n-detector": "^2.2.0"
   },
   "engines": {
-    "vscode": "^1.60.0"
+    "vscode": "^1.80.0"
   },
   "simple-git-hooks": {
     "commit-msg": "pnpm exec commitlint -e",
