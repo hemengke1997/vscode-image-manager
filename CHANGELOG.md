@@ -1,5 +1,11 @@
 # CHANGELOG
 
+## [0.0.10](https://github.com/hemengke1997/vscode-image-manager/compare/v0.0.9...v0.0.10) (2024-01-04)
+
+### feat
+
+* context-menu copy image(mod+c for shortcut), then you can paste it to other place  ([457f2b1](https://github.com/hemengke1997/vscode-image-manager/commit/457f2b1aacb73c7ca86363236f67e92494752550))
+
 ## [0.0.9](https://github.com/hemengke1997/vscode-image-manager/compare/v0.0.8...v0.0.9) (2024-01-03)
 
 ### Break Change
