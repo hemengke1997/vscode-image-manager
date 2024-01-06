@@ -1,11 +1,22 @@
 # CHANGELOG
 
+## [0.0.12](https://github.com/hemengke1997/vscode-image-manager/compare/v0.0.11...v0.0.12) (2024-01-06)
+
+### feat
+
+* support dir context-menu to open folder or highlight vscode explorer ([9e4f3a1](https://github.com/hemengke1997/vscode-image-manager/commit/9e4f3a1121f05ed0b297455d6c3c05fb0a028bea))
+* add copy image as base64 to context-menu ([8b7eab7](https://github.com/hemengke1997/vscode-image-manager/commit/8b7eab78eb434a7437b38baa4718ef154233eb44))
+* add simple mode for clear layout, you can click left-top icon to change mode ([e297381](https://github.com/hemengke1997/vscode-image-manager/commit/e297381cb7c979d6dca3c27546f9e57ed230ef9f))
+
+### fix
+
+* compact dir display wrong
+
 ## [0.0.11](https://github.com/hemengke1997/vscode-image-manager/compare/v0.0.10...v0.0.11) (2024-01-04)
 
 ### feat
 
 * support compact dir style just like vscode, user friendly ([8db6d09](https://github.com/hemengke1997/vscode-image-manager/commit/8db6d098497ea137ced0c96f82caa689c0e2464f))
-
 * introduce `imageType` config, user can choose which type of image to display ([831ea1f](https://github.com/hemengke1997/vscode-image-manager/commit/831ea1f58156017aec056ea76e4a875a59b7908c))
 
 ### Break Change
