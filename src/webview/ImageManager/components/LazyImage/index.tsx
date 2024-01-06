@@ -139,7 +139,7 @@ function LazyImage(props: LazyImageProps) {
                         </div>
                       </div>
                     ),
-                    maskClassName: 'rounded-md !cursor-auto',
+                    maskClassName: 'rounded-md !cursor-default',
                   }
                 : false
             }
@@ -147,7 +147,7 @@ function LazyImage(props: LazyImageProps) {
             style={{ width: imageProp.width, height: imageProp.height, ...imageProp.style }}
           ></Image>
         </Badge>
-        <div className='max-w-full truncate' style={{ maxWidth: imageProp.width }}>
+        <div className='max-w-full cursor-default truncate' style={{ maxWidth: imageProp.width }}>
           {image.name}
         </div>
       </motion.div>
