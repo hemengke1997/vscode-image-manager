@@ -5,6 +5,6 @@ if (import.meta.hot) {
   // aviod empty webview on full reload
   import.meta.hot.on('vite:beforeFullReload', () => {
     vscodeApi.postMessage({ cmd: CmdToVscode.RELOAD_WEBVIEW })
-    throw new Error('ignore  vite:beforeFullReload')
+    throw new Error('prevent vite invoke `window.location.reload`')
   })
 }

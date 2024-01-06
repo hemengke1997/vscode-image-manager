@@ -58,7 +58,9 @@ function ImageCollapse(props: ImageCollapseProps) {
             },
           })
         }}
-        className={"relative after:absolute after:-inset-x-0 after:-inset-y-1.5 after:content-['']"}
+        className={
+          "relative transition-all after:absolute after:-inset-x-0 after:-inset-y-1.5 after:content-[''] hover:underline"
+        }
       >
         {label}
       </div>

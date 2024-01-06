@@ -37,7 +37,10 @@
     "copy_success": "Copy Success",
     "reveal_in_os_windows": "Reveal in File Explorer",
     "reveal_in_os_mac": "Reveal in Finder",
-    "reveal_in_explorer": "Reveal in Explorer View"
+    "reveal_in_explorer": "Reveal in Explorer View",
+    "simple_mode": "Simple Mode",
+    "standard_mode": "Standard Mode",
+    "change_mode": "Change Mode"
   },
   "fallback": {
     "internal_error": "Internal Error",

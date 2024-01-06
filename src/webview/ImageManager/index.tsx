@@ -3,11 +3,13 @@ import { useControlledState, useLocalStorageState } from '@minko-fe/react-hook'
 import { type ReturnOfMessageCenter } from '@rootSrc/message'
 import { CmdToVscode, CmdToWebview } from '@rootSrc/message/shared'
 import { App, Card, ConfigProvider, Modal, theme } from 'antd'
+import { AnimatePresence, motion } from 'framer-motion'
 import { type Stats } from 'node:fs'
-import { startTransition, useEffect, useMemo } from 'react'
+import { startTransition, useCallback, useEffect, useMemo, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { localStorageEnum } from '../local-storage'
 import PrimaryColorPicker from '../ui-framework/src/components/CustomConfigProvider/components/PrimaryColorPicker'
+import GlobalContext from '../ui-framework/src/contexts/GlobalContext'
 import { vscodeApi } from '../vscode-api'
 import CollapseTree from './components/CollapseTree'
 import DisplayGroup, { type GroupType } from './components/DisplayGroup'
@@ -21,8 +23,8 @@ import useWheelScaleEvent from './hooks/useWheelScaleEvent'
 import OperationItemUI from './ui/OperationItemUI'
 import { filterVisibleImages } from './utils'
 import { Colors } from './utils/color'
-import 'react-contexify/ReactContexify.css'
 import './index.css'
+import 'react-contexify/ReactContexify.css'
 
 vscodeApi.registerEventListener()
 
@@ -42,6 +44,8 @@ export default function ImageManager() {
   const { token } = theme.useToken()
   const { message } = App.useApp()
   const { t } = useTranslation()
+
+  const { mode } = GlobalContext.usePicker(['mode'])
 
   const { images, setImages, imageRefreshedState, refreshImages } = ImageManagerContext.usePicker([
     'images',
@@ -126,18 +130,21 @@ export default function ImageManager() {
   }
 
   /* ---------------- image group --------------- */
-  const groupType: { label: string; value: GroupType; priority: number }[] = [
-    {
-      label: t('ia.group_by_dir'),
-      value: 'dir',
-      priority: 1, // highest
-    },
-    {
-      label: t('ia.group_by_type'),
-      value: 'type',
-      priority: 2,
-    },
-  ]
+  const groupType: { label: string; value: GroupType; priority: number }[] = useMemo(
+    () => [
+      {
+        label: t('ia.group_by_dir'),
+        value: 'dir',
+        priority: 1, // highest
+      },
+      {
+        label: t('ia.group_by_type'),
+        value: 'type',
+        priority: 2,
+      },
+    ],
+    [],
+  )
 
   const [_displayGroup, _setDisplayGroup] = useLocalStorageState<GroupType[]>(
     localStorageEnum.LOCAL_STORAGE_DISPLAY_GROUP,
@@ -146,22 +153,31 @@ export default function ImageManager() {
     },
   )
 
-  const sortGroup = (group: GroupType[]) => {
-    const allGroupType = groupType.map((item) => item.value)
-    group = uniq(group.filter((item) => allGroupType.includes(item)))
-    if (group.length > 1) {
-      const findPriority = (v: GroupType) => {
-        return groupType.find((item) => item.value === v)?.priority || 0
+  // ensure the group is sorted by priority
+  useEffect(() => {
+    _setDisplayGroup(sortGroup(_displayGroup!))
+  }, [])
+
+  const sortGroup = useCallback(
+    (group: GroupType[]) => {
+      const allGroupType = groupType.map((item) => item.value)
+      group = uniq(group.filter((item) => allGroupType.includes(item)))
+      if (group.length > 1) {
+        const findPriority = (v: GroupType) => {
+          return groupType.find((item) => item.value === v)?.priority || 0
+        }
+        group = group.sort((a, b) => {
+          return findPriority(b) - findPriority(a)
+        })
       }
-      group = group.sort((a, b) => {
-        return findPriority(b) - findPriority(a)
-      })
-    }
-    return group
-  }
+      return group
+    },
+    [groupType],
+  )
+
   const [displayGroup, setDisplayGroup] = useControlledState({
     defaultValue: sortGroup(_displayGroup!),
-    value: sortGroup(_displayGroup!),
+    value: _displayGroup!,
     onChange: (group) => {
       group = sortGroup(group)
       _setDisplayGroup(group)
@@ -192,9 +208,6 @@ export default function ImageManager() {
   const onSortChange = (value: string[]) => {
     setSort(value)
     setImages((t) => ({ list: [...sortImages(value, t.list)] }))
-
-    // refresh images to make sure preview index is correct
-    refreshImages({ type: 'sort' })
   }
 
   const sortImages = (sort: string[], images: ImageType[]) => {
@@ -222,75 +235,80 @@ export default function ImageManager() {
   const [containerRef] = useWheelScaleEvent()
 
   return (
-    <div className={'space-y-6'} ref={containerRef}>
-      <Card size='small' title={t('ia.settings')}>
-        <div className={'flex flex-col space-y-4'}>
-          <OperationItemUI title={t('ia.type')}>
-            <DisplayType
-              imageTypes={{
-                all: allImageTypes,
-                checked: displayImageTypes!,
-              }}
-              images={images}
-              onImageTypeChange={onImageTypeChange}
-            />
-          </OperationItemUI>
-
-          <div className={'flex space-x-6'}>
-            <OperationItemUI title={t('ia.group')}>
-              <DisplayGroup
-                options={groupType.map((item) => ({ label: item.label, value: item.value }))}
-                value={displayGroup}
-                onChange={setDisplayGroup}
-              ></DisplayGroup>
-            </OperationItemUI>
-            <OperationItemUI title={t('ia.style')}>
-              <DisplayStyle value={displayStyle} onChange={setDisplayStyle} />
-            </OperationItemUI>
-          </div>
-
-          <div className={'flex space-x-6'}>
-            <OperationItemUI title={t('ia.sort')}>
-              <DisplaySort options={sortOptions} value={sort} onChange={onSortChange} />
-            </OperationItemUI>
-            <OperationItemUI title={t('ia.background_color')}>
-              <PrimaryColorPicker
-                color={backgroundColor}
-                onColorChange={setBackgroundColor}
-                localKey={localStorageEnum.LOCAL_STORAGE_BACKGROUND_RECENT_COLORS_KEY}
-                extraColors={[Colors.warmWhite, Colors.warmBlack]}
-              />
-            </OperationItemUI>
-          </div>
-        </div>
-      </Card>
-      <div>
-        <Card
-          size='small'
-          loading={images.loading}
-          headStyle={{ borderBottom: 'none' }}
-          bodyStyle={images.loading ? {} : { padding: 0 }}
-          title={t('ia.images')}
-          extra={<ImageActions />}
-        >
-          <ConfigProvider
-            theme={{
-              components: {
-                Collapse: {
-                  motionDurationMid: token.motionDurationFast,
-                },
-              },
-            }}
+    <div ref={containerRef} className={'space-y-4'}>
+      <AnimatePresence>
+        {mode === 'standard' && (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            transition={{ duration: 0.1 }}
           >
-            <CollapseTree
-              displayStyle={displayStyle!}
-              dirs={dirs}
-              imageTypes={imageTypes}
-              displayGroup={displayGroup}
-            />
-          </ConfigProvider>
-        </Card>
-      </div>
+            <Card size='small' title={t('ia.settings')}>
+              <div className={'flex flex-col space-y-4'}>
+                <OperationItemUI title={t('ia.type')}>
+                  <DisplayType
+                    imageTypes={{
+                      all: allImageTypes,
+                      checked: displayImageTypes!,
+                    }}
+                    images={images}
+                    onImageTypeChange={onImageTypeChange}
+                  />
+                </OperationItemUI>
+
+                <div className={'flex space-x-6'}>
+                  <OperationItemUI title={t('ia.group')}>
+                    <DisplayGroup
+                      options={groupType.map((item) => ({ label: item.label, value: item.value }))}
+                      value={displayGroup}
+                      onChange={setDisplayGroup}
+                    ></DisplayGroup>
+                  </OperationItemUI>
+                  <OperationItemUI title={t('ia.style')}>
+                    <DisplayStyle value={displayStyle} onChange={setDisplayStyle} />
+                  </OperationItemUI>
+                </div>
+
+                <div className={'flex space-x-6'}>
+                  <OperationItemUI title={t('ia.sort')}>
+                    <DisplaySort options={sortOptions} value={sort} onChange={onSortChange} />
+                  </OperationItemUI>
+                  <OperationItemUI title={t('ia.background_color')}>
+                    <PrimaryColorPicker
+                      color={backgroundColor}
+                      onColorChange={setBackgroundColor}
+                      localKey={localStorageEnum.LOCAL_STORAGE_BACKGROUND_RECENT_COLORS_KEY}
+                      extraColors={[Colors.warmWhite, Colors.warmBlack]}
+                    />
+                  </OperationItemUI>
+                </div>
+              </div>
+            </Card>
+          </motion.div>
+        )}
+      </AnimatePresence>
+
+      <Card
+        size='small'
+        loading={images.loading}
+        headStyle={{ borderBottom: 'none' }}
+        bodyStyle={images.loading ? {} : { padding: 0 }}
+        title={t('ia.images')}
+        extra={<ImageActions />}
+      >
+        <ConfigProvider
+          theme={{
+            components: {
+              Collapse: {
+                motionDurationMid: token.motionDurationFast,
+              },
+            },
+          }}
+        >
+          <CollapseTree displayStyle={displayStyle!} dirs={dirs} imageTypes={imageTypes} displayGroup={displayGroup} />
+        </ConfigProvider>
+      </Card>
 
       <ImageForSize />
       <Modal></Modal>

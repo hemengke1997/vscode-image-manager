@@ -27,7 +27,7 @@ export type ImageStateType = {
 }
 
 function useImageManagerContext() {
-  const { theme } = GlobalContext.useSelector((ctx) => ctx.appearance.theme)
+  const { theme } = GlobalContext.usePicker(['theme'])
 
   /* ------------- extension config ------------- */
   const [config, setConfig] = useState<ConfigType>(defaultConfig)

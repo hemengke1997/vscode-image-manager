@@ -11,7 +11,7 @@ export const IMAGE_CONTEXT_MENU_ID = 'IMAGE_CONTEXT_MENU_ID'
 
 function ImageContextMenu() {
   const { t } = useTranslation()
-  const theme = GlobalContext.useSelector((ctx) => ctx.appearance.theme)
+  const { theme } = GlobalContext.usePicker(['theme'])
 
   const { copyImage, openInOsExplorer, openInVscodeExplorer, testVscodeBuiltInCmd } = useImageOperation()
 

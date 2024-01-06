@@ -8,7 +8,7 @@ import { os } from 'un-detector'
 export const COLLAPSE_CONTEXT_MENU_ID = 'COLLAPSE_CONTEXT_MENU_ID'
 
 function CollapseContextMenu() {
-  const theme = GlobalContext.useSelector((ctx) => ctx.appearance.theme)
+  const { theme } = GlobalContext.usePicker(['theme'])
   const { t } = useTranslation()
 
   const { openInOsExplorer, openInVscodeExplorer } = useImageOperation()
