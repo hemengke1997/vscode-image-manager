@@ -83,7 +83,7 @@ export class ImageManagerPanel {
       html = this._transformHtml(getUri(webview, ctx.ext.extensionUri, ['dist-webview', 'index.html']).fsPath, webview)
     } else {
       // html string
-      const entry = 'src/webview/index.tsx'
+      const entry = 'src/webview/main.tsx'
 
       const scriptUri = `${localServerUrl}/${entry}`
 

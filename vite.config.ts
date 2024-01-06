@@ -14,7 +14,7 @@ export default defineConfig(async (env) => {
     },
     plugins: [
       createHtmlPlugin({
-        entry: path.resolve(__dirname, './src/webview/index.tsx'),
+        entry: path.resolve(__dirname, './src/webview/main.tsx'),
         minify: false,
       }),
       i18nDetector({

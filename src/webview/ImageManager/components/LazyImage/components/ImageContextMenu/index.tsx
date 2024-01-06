@@ -27,10 +27,10 @@ function ImageContextMenu() {
     openInVscodeExplorer(e.props?.image.path || '')
   }
 
-  const _test = (e: ItemParams) => {
+  const _test = (e: ItemParams<{ image: ImageType }>) => {
     testVscodeBuiltInCmd({
       cmd: 'revealFileInOS',
-      path: (e.props.image as ImageType).path,
+      path: e.props?.image.path || '',
     })
   }
 

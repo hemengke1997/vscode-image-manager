@@ -1,21 +1,5 @@
 import { Uri, type Webview, env, window, workspace } from 'vscode'
 
-export const getProjectPath = () => {
-  try {
-    const workspaceFolders = workspace.workspaceFolders
-    if (!workspaceFolders || workspaceFolders.length === 0) {
-      return ''
-    }
-    if (workspaceFolders.length > 1) {
-      console.error('more than one workspaceFolders')
-    }
-    return workspaceFolders[0].uri.fsPath
-  } catch (error) {
-    showError('workspace not found')
-  }
-  return ''
-}
-
 let lastLogTimestamp = 0
 
 const logMsg = (text: any) => {
@@ -61,23 +45,10 @@ export function getEnvForWebview() {
   }
 }
 
-/**
- * A helper function that returns a unique alphanumeric identifier called a nonce.
- *
- * @remarks This function is primarily used to help enforce content security
- * policies for resources/scripts being executed in a webview context.
- *
- * @returns A nonce
- */
-export function getNonce() {
-  let text = ''
-  const possible = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789'
-  for (let i = 0; i < 32; i++) {
-    text += possible.charAt(Math.floor(Math.random() * possible.length))
-  }
-  return text
-}
-
 export function removeUrlProtocol(url: string) {
   return url.replace(/https?:\/\//, '')
+}
+
+export function getWorkspaceFolder() {
+  return workspace.workspaceFolders?.[0] || undefined
 }

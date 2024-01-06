@@ -1,3 +1,4 @@
+import { getWorkspaceFolder } from '@rootSrc/helper/utils'
 import { workspace } from 'vscode'
 import { defaultConfig } from './default'
 
@@ -7,7 +8,7 @@ export function getConfig<T>(key: string, v?: T) {
 
 export const Config = {
   get root(): string {
-    return workspace.workspaceFolders?.[0]?.uri?.fsPath || ''
+    return getWorkspaceFolder()?.uri?.fsPath || ''
   },
 
   get warningSize(): number {

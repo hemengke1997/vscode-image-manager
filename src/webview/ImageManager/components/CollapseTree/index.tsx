@@ -1,15 +1,17 @@
+import { isNumber } from '@minko-fe/lodash-pro'
+import { useMemoizedFn } from '@minko-fe/react-hook'
 import { type CollapseProps } from 'antd'
-import { memo } from 'react'
+import { memo, useMemo } from 'react'
 import { useTranslation } from 'react-i18next'
 import { FaRegImages } from 'react-icons/fa'
 import { IoMdFolderOpen } from 'react-icons/io'
 import { PiFileImage } from 'react-icons/pi'
 import { type ImageType } from '../..'
 import ImageManagerContext from '../../contexts/ImageManagerContext'
-import useImageOperation from '../../hooks/useImageOperation'
 import { type GroupType } from '../DisplayGroup'
 import { type DisplayStyleType } from '../DisplayStyle'
 import ImageCollapse from '../ImageCollapse'
+import OpenFolder from './components/OpenFolder'
 type CollapseTreeProps = {
   dirs: string[]
   imageTypes: string[]
@@ -17,12 +19,14 @@ type CollapseTreeProps = {
   displayStyle: DisplayStyleType
 }
 
-type FileNode = {
+type Flatten = 'all'
+
+export type FileNode = {
   label: string
   value: string
   children: FileNode[]
   renderConditions?: Record<string, string>[]
-  type?: GroupType
+  type?: GroupType | Flatten
   // for compactFolders
   renderList?: ImageType[]
 }
@@ -105,28 +109,45 @@ function CollapseTree(props: CollapseTreeProps) {
   const { images } = ImageManagerContext.usePicker(['images'])
   const { t } = useTranslation()
 
-  const displayMap = {
-    dir: {
-      imagePrototype: 'dirPath',
-      list: dirs,
-      icon: (props: FileNode) => <OpenFolderIcon {...props} />,
-    },
-    type: {
-      imagePrototype: 'fileType',
-      list: imageTypes,
-      icon: () => <PiFileImage />,
-    },
-  } as const
+  const displayMap = useMemo(
+    () => ({
+      dir: {
+        imagePrototype: 'dirPath',
+        list: dirs,
+        icon: (props: { path: string }) => (
+          <OpenFolder {...props}>
+            <IoMdFolderOpen />
+          </OpenFolder>
+        ),
+        contextMenu: true,
+      },
+      type: {
+        imagePrototype: 'fileType',
+        list: imageTypes,
+        icon: () => <PiFileImage />,
+        contextMenu: false,
+      },
+      all: {
+        icon: () => (
+          <OpenFolder path=''>
+            <FaRegImages />
+          </OpenFolder>
+        ),
+        contextMenu: true,
+      },
+    }),
+    [dirs, imageTypes],
+  )
 
-  const checkVaild = (childNode: FileNode, image: ImageType) => {
+  const checkVaild = useMemoizedFn((childNode: FileNode, image: ImageType) => {
     return displayGroup.every((g) => {
       return childNode.renderConditions?.some((c) => {
         return c[g] === image[displayMap[g].imagePrototype]
       })
     })
-  }
+  })
 
-  const nestedDisplay = (tree: FileNode[], collapseProps?: CollapseProps) => {
+  const nestedDisplay = useMemoizedFn((tree: FileNode[], collapseProps?: CollapseProps) => {
     if (!tree.length) return null
 
     return (
@@ -144,12 +165,14 @@ function CollapseTree(props: CollapseTreeProps) {
                 bordered: false,
                 ...collapseProps,
               }}
-              label={
+              labelContainer={(label) => (
                 <div className={'flex items-center space-x-2'}>
-                  <div className={'flex-center'}>{node.type ? displayMap[node.type].icon(node) : <FaRegImages />}</div>
-                  <span>{node.label}</span>
+                  <div className={'flex-center'}>{displayMap[node.type!].icon({ path: node.value })}</div>
+                  {label}
                 </div>
-              }
+              )}
+              contextMenu={displayMap[node.type!].contextMenu}
+              label={node.label}
               images={renderList}
               nestedChildren={nestedDisplay(node.children)}
             ></ImageCollapse>
@@ -157,9 +180,9 @@ function CollapseTree(props: CollapseTreeProps) {
         })}
       </div>
     )
-  }
+  })
 
-  const displayByPriority = () => {
+  const displayByPriority = useMemoizedFn(() => {
     const toBeBuild: BuildRenderOption['toBeBuild'] = {}
     displayGroup.forEach((g) => {
       toBeBuild[g] = displayMap[g].list
@@ -169,7 +192,8 @@ function CollapseTree(props: CollapseTreeProps) {
       tree = [
         {
           label: t('ia.all'),
-          value: 'all',
+          type: 'all',
+          value: '',
           children: [],
         },
       ]
@@ -179,53 +203,40 @@ function CollapseTree(props: CollapseTreeProps) {
       compactFolders(tree)
     }
 
+    console.log('render tree', tree)
     // render tree
     return nestedDisplay(tree, { bordered: true })
-  }
+  })
 
-  const compactFolders = (tree: FileNode[]) => {
+  const compactFolders = useMemoizedFn((tree: FileNode[]) => {
     tree.forEach((node) => {
       const { children } = node
-      if (children.length === 1) {
-        const child = children[0]
+      if (children.length > 1) {
+        compactFolders(children)
+      } else if (isNumber(children.length)) {
+        const child = children[0] as FileNode | undefined
         const renderList = images.visibleList.filter((img) => checkVaild(node, img)) || undefined
 
         if (!renderList?.length) {
           Object.assign(node, {
             ...child,
-            label: `${node.label}/${child.label}`,
+            label: child ? `${node.label}/${child.label}` : node.label,
           })
-          compactFolders(tree)
+
+          if (child?.children.length) {
+            compactFolders(tree)
+          }
         } else {
           node.renderList = renderList
-          if (child.children.length) {
-            compactFolders(child.children)
+          if (node?.children.length) {
+            compactFolders(node.children)
           }
         }
-      } else if (children.length > 1) {
-        compactFolders(children)
       }
     })
-  }
+  })
 
   return <>{displayByPriority()}</>
-}
-
-function OpenFolderIcon(props: FileNode) {
-  const { openInOsExplorer } = useImageOperation()
-  const { images } = ImageManagerContext.usePicker(['images'])
-
-  return (
-    <i
-      className={'flex-center hover:text-ant-color-primary transition-colors'}
-      onClick={(e) => {
-        e.stopPropagation()
-        openInOsExplorer(`${images.basePath}/${props.value}/`)
-      }}
-    >
-      <IoMdFolderOpen />
-    </i>
-  )
 }
 
 export default memo(CollapseTree)

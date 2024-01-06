@@ -1,13 +1,15 @@
 import { Context } from '@rootSrc/Context'
 import { getClipboard } from '@rootSrc/clipboard'
 import { globImages } from '@rootSrc/helper/glob'
-import { getProjectPath } from '@rootSrc/helper/utils'
 import fg from 'fast-glob'
 import imageSize from 'image-size'
+import fs from 'node:fs'
 import path from 'node:path'
 import { Uri, type Webview, commands } from 'vscode'
 
 class MessageHandler {
+  private config: Context['config'] | undefined
+
   /* -------------- reload webview -------------- */
   reloadWebview() {
     commands.executeCommand('workbench.action.webview.reloadWebviewAction')
@@ -24,8 +26,10 @@ class MessageHandler {
       stats: true,
     })
 
+    const workspaceFolder = Context.getInstance().config.root
+
     return imgs.map((img) => {
-      const relativePath = img.path.replace(`${getProjectPath()}/`, '')
+      const relativePath = img.path.replace(`${workspaceFolder}/`, '')
 
       const vscodePath = webview.asWebviewUri(Uri.file(img.path)).toString()
 
@@ -46,15 +50,15 @@ class MessageHandler {
     })
   }
   async getAllImgs(webview: Webview) {
-    const projectPath = getProjectPath()
+    const workspaceFolder = Context.getInstance().config.root
     const fileTypes: Set<string> = new Set()
     const dirs: Set<string> = new Set()
 
-    const imgs = await this._searchImgs(projectPath, webview, fileTypes, dirs)
+    const imgs = await this._searchImgs(workspaceFolder, webview, fileTypes, dirs)
 
     return {
       imgs,
-      projectPath,
+      workspaceFolder,
       fileTypes: [...fileTypes],
       dirs: [...dirs],
     }
@@ -78,7 +82,10 @@ class MessageHandler {
 
   /* ----------- get extension config ----------- */
   getExtConfig() {
-    return Context.getInstance().config
+    if (!this.config) {
+      this.config = Context.getInstance().config
+    }
+    return this.config
   }
 
   /* ---------- copy image to clipboard --------- */
@@ -93,14 +100,28 @@ class MessageHandler {
     return cb.pasteSync({ cwd: dest })
   }
 
-  /* ------- open image in vscode explorer ------ */
-  openImageInVscodeExplorer(imgPath: string) {
-    commands.executeCommand('revealInExplorer', Uri.file(imgPath))
+  /* ------- open path in vscode explorer ------ */
+  openImageInVscodeExplorer(targetPath: string) {
+    if (!targetPath.startsWith(this.getExtConfig().root)) {
+      targetPath = path.join(this.getExtConfig().root, targetPath)
+    }
+    commands.executeCommand('revealInExplorer', Uri.file(targetPath))
   }
 
-  /* --------- open image in os explorer -------- */
-  openImageInOsExplorer(imgPath: string) {
-    commands.executeCommand('revealFileInOS', Uri.file(imgPath))
+  /* --------- open path in os explorer -------- */
+  openImageInOsExplorer(targetPath: string, deep: boolean = true) {
+    if (!targetPath.startsWith(this.getExtConfig().root)) {
+      targetPath = `${path.join(this.getExtConfig().root, targetPath)}`
+    }
+
+    if (deep) {
+      try {
+        const files = fs.readdirSync(targetPath)
+        targetPath = path.join(targetPath, files[0])
+      } catch {}
+    }
+
+    commands.executeCommand('revealFileInOS', Uri.file(targetPath))
   }
 
   /* ----------- test buit-in command ----------- */

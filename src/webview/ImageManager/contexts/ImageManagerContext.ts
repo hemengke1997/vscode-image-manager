@@ -83,13 +83,14 @@ function useImageManagerContext() {
 
   // negative number means close collapse
   // otherwise, open collapse
+  // zero means no change
   const [collapseOpen, setCollapseOpen] = useControlledState<number>({
     defaultValue: 0,
     beforeValue(value, prevValue) {
       if (value > prevValue) {
         return Math.abs(value) || 1
       } else {
-        return -Math.abs(value)
+        return -Math.abs(value) || -1
       }
     },
   })

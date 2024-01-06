@@ -1,4 +1,4 @@
-import { type ExtensionContext, ExtensionMode, type WorkspaceFolder, window, workspace } from 'vscode'
+import { type ExtensionContext, ExtensionMode, window } from 'vscode'
 import { Config } from './config'
 import Watcher from './watcher'
 
@@ -34,10 +34,6 @@ export class Context {
 
   public get watcher() {
     return new Watcher(this)
-  }
-
-  public get workspaceRootPath(): WorkspaceFolder | undefined {
-    return workspace.workspaceFolders?.[0]
   }
 
   public get isProductionMode(): boolean {

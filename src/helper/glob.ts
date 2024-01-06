@@ -18,20 +18,21 @@ function convertToNegativePattern(pattern: Pattern): Pattern {
   return `!${pattern}`
 }
 
+const BUILT_IN_EXCLUDE = [
+  '**/node_modules/**',
+  '**/.git/**',
+  '**/dist/**',
+  '**/build/**',
+  '**/out/**',
+  '**/coverage/**',
+  '**/.next/**',
+  '**/.nuxt/**',
+  '**/.vercel/**',
+]
+
 export function globImages() {
   const { imageType, exclude } = Context.getInstance().config
   const patterns = `**/*.{${imageType.join(',')}}`
-  const BUILT_IN_EXCLUDE = [
-    '**/node_modules/**',
-    '**/.git/**',
-    '**/dist/**',
-    '**/build/**',
-    '**/out/**',
-    '**/coverage/**',
-    '**/.next/**',
-    '**/.nuxt/**',
-    '**/.vercel/**',
-  ]
 
   const ignore = [...exclude, ...BUILT_IN_EXCLUDE].map((pattern) => {
     if (isPositivePattern(pattern)) {

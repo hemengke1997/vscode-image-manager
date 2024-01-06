@@ -10,10 +10,8 @@ class Watcher {
   public webview: Webview | undefined
 
   constructor(private _ctx: Context) {
-    if (!this._ctx.workspaceRootPath) return
-    this.watcher = workspace.createFileSystemWatcher(
-      new RelativePattern(this._ctx.workspaceRootPath, globImages().patterns),
-    )
+    if (!this._ctx.config.root) return
+    this.watcher = workspace.createFileSystemWatcher(new RelativePattern(this._ctx.config.root, globImages().patterns))
   }
 
   private _isIgnored(e: Uri) {

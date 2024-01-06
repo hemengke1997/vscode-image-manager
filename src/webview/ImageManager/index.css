@@ -5,6 +5,7 @@
   --contexify-menu-padding: var(--ant-padding-xxs);
   --contexify-itemContent-padding: var(--ant-margin-xxs) var(--ant-padding-xxs);
   --contexify-separator-margin: var(--ant-margin-xxs);
+  --contexify-menu-shadow: var(--ant-box-shadow-popover-arrow);
 
   @apply text-xxs;
 

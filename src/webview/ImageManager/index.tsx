@@ -85,7 +85,7 @@ export default function ImageManager() {
         originalList: data.imgs as ImageType[],
         list: sortImages(sort!, data.imgs as ImageType[]),
         loading: false,
-        basePath: data.projectPath,
+        basePath: data.workspaceFolder,
       })
 
       onImageTypeChange(data.fileTypes)
