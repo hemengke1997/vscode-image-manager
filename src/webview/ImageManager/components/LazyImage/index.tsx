@@ -1,15 +1,13 @@
-import { useClickAway, useControlledState, useInViewport } from '@minko-fe/react-hook'
+import { useControlledState, useInViewport } from '@minko-fe/react-hook'
 import { CmdToVscode } from '@rootSrc/message/shared'
 import { vscodeApi } from '@rootSrc/webview/vscode-api'
-import { App, Badge, Button, Image, type ImageProps, Tooltip } from 'antd'
+import { Badge, Image, type ImageProps } from 'antd'
 import classNames from 'classnames'
 import { motion } from 'framer-motion'
 import { memo, useRef, useState } from 'react'
 import { useContextMenu } from 'react-contexify'
-import { CopyToClipboard } from 'react-copy-to-clipboard'
 import { useHotkeys } from 'react-hotkeys-hook'
 import { useTranslation } from 'react-i18next'
-import { BsCopy } from 'react-icons/bs'
 import { FaImages } from 'react-icons/fa6'
 import { ImEyePlus } from 'react-icons/im'
 import { PiFileImage } from 'react-icons/pi'
@@ -40,11 +38,8 @@ function LazyImage(props: LazyImageProps) {
 
   const placeholderRef = useRef<HTMLDivElement>(null)
   const [inViewport] = useInViewport(placeholderRef, {
-    rootMargin: '200px 0px', // expand 200px area of vertical intersection calculation
+    rootMargin: '100px 0px', // expand 100px area of vertical intersection calculation
   })
-  const { message } = App.useApp()
-
-  const [copied, setCopied] = useState(false)
 
   const [, setPreview] = useControlledState({
     defaultValue: preview,
@@ -62,16 +57,6 @@ function LazyImage(props: LazyImageProps) {
     }
   }
 
-  const { selectedImage, setSelectedImage } = ImageManagerContext.usePicker(['selectedImage', 'setSelectedImage'])
-  const boxRef = useRef<HTMLDivElement>(null)
-  useClickAway(
-    () => {
-      setSelectedImage(undefined)
-    },
-    boxRef,
-    ['click', 'contextmenu'],
-  )
-
   const { copyImage } = useImageOperation()
 
   const keybindRef = useHotkeys<HTMLDivElement>(
@@ -84,16 +69,9 @@ function LazyImage(props: LazyImageProps) {
     },
   )
 
-  const isCurrentActive = () => selectedImage?.vscodePath === image.vscodePath
   const ifWarning = bytesToKb(image.stats.size) > config.warningSize
 
   const { show } = useContextMenu<{ image: ImageType }>()
-
-  const clns = {
-    containerClassName: 'flex flex-none flex-col items-center p-2 space-y-1 transition-colors',
-    imageClassName: 'rounded-md object-contain p-1 will-change-auto',
-    nameClassName: 'max-w-full truncate',
-  }
 
   if (!inViewport && lazy) {
     return (
@@ -108,30 +86,27 @@ function LazyImage(props: LazyImageProps) {
   }
 
   return (
-    <div tabIndex={-1} ref={keybindRef}>
+    <>
       <motion.div
+        ref={keybindRef}
+        tabIndex={-1}
         className={classNames(
-          clns.containerClassName,
-          'overflow-hidden border-[1px] border-solid border-transparent rounded-md hover:border-ant-color-primary',
-          isCurrentActive() && 'border-ant-color-primary',
+          'flex flex-none flex-col items-center p-2 space-y-1 transition-colors',
+          'overflow-hidden border-[1px] border-solid border-transparent rounded-md hover:border-ant-color-primary focus:border-ant-color-primary',
         )}
         initial={{ opacity: 0 }}
         viewport={{ once: true, margin: '20px 0px' }}
         transition={{ duration: 0.8 }}
         whileInView={{ opacity: 1 }}
-        ref={boxRef}
-        onClick={() => {
-          setSelectedImage(image)
-        }}
+        onClick={() => {}}
         onContextMenu={(e) => {
-          setSelectedImage(image)
           show({ event: e, id: IMAGE_CONTEXT_MENU_ID, props: { image } })
         }}
       >
         <Badge status='warning' dot={ifWarning}>
           <Image
             {...imageProp}
-            className={classNames(clns.imageClassName)}
+            className='rounded-md object-contain p-1 will-change-auto'
             preview={
               lazy
                 ? {
@@ -172,44 +147,12 @@ function LazyImage(props: LazyImageProps) {
             style={{ width: imageProp.width, height: imageProp.height, ...imageProp.style }}
           ></Image>
         </Badge>
-        <Tooltip
-          mouseEnterDelay={0.03}
-          mouseLeaveDelay={0.05}
-          trigger={['click']}
-          overlayClassName={'max-w-full'}
-          title={
-            <div className={'flex w-full items-center space-x-2'}>
-              <span className={'flex-none'}>{image.name}</span>
-              <CopyToClipboard
-                text={image.name}
-                onCopy={() => {
-                  if (copied) return
-                  setCopied(true)
-                  message.success(t('ia.copy_success'))
-                }}
-              >
-                <Button type={'primary'} disabled={copied} size='small' className={'flex-center cursor-pointer'}>
-                  <BsCopy />
-                </Button>
-              </CopyToClipboard>
-            </div>
-          }
-          arrow={false}
-          placement='bottom'
-          destroyTooltipOnHide={false}
-          afterOpenChange={(open) => {
-            if (!open) {
-              setCopied(false)
-            }
-          }}
-        >
-          <div className={classNames(clns.nameClassName, 'cursor-pointer')} style={{ maxWidth: imageProp.width }}>
-            {image.name}
-          </div>
-        </Tooltip>
+        <div className='max-w-full truncate' style={{ maxWidth: imageProp.width }}>
+          {image.name}
+        </div>
       </motion.div>
       <ImageContextMenu />
-    </div>
+    </>
   )
 }
 

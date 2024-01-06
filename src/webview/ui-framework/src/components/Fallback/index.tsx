@@ -42,6 +42,19 @@ function Fallback(props: FallbackProps) {
             {t('fallback.restart')}
           </Button>
 
+          <Tooltip title={t('fallback.reset_tip')}>
+            <Button
+              size='middle'
+              danger
+              onClick={() => {
+                localStorage.clear()
+                resetErrorBoundary()
+              }}
+            >
+              {t('fallback.reset')}
+            </Button>
+          </Tooltip>
+
           <Tooltip title={`${t('fallback.thx_report')}🙏`}>
             <a href='https://github.com/hemengke1997/vscode-image-manager/issues/new'>
               <Button

@@ -95,9 +95,6 @@ function useImageManagerContext() {
     },
   })
 
-  /* --------------- image select --------------- */
-  const [selectedImage, setSelectedImage] = useState<ImageType>()
-
   /* ---------- image placeholder size ---------- */
   const [imagePlaceholderSize, setImagePlaceholderSize] = useState<{ width: number; height: number }>()
 
@@ -115,8 +112,6 @@ function useImageManagerContext() {
     isDarkBackground,
     collapseOpen,
     setCollapseOpen,
-    selectedImage,
-    setSelectedImage,
     imagePlaceholderSize,
     setImagePlaceholderSize,
   }

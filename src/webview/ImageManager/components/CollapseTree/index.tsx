@@ -1,5 +1,5 @@
 import { isNumber } from '@minko-fe/lodash-pro'
-import { useMemoizedFn, useWhyDidYouUpdate } from '@minko-fe/react-hook'
+import { useMemoizedFn } from '@minko-fe/react-hook'
 import { type CollapseProps } from 'antd'
 import { memo, useMemo } from 'react'
 import { useTranslation } from 'react-i18next'
@@ -108,8 +108,6 @@ function CollapseTree(props: CollapseTreeProps) {
   const { dirs, imageTypes, displayGroup, displayStyle } = props
   const { images } = ImageManagerContext.usePicker(['images'])
   const { t } = useTranslation()
-
-  useWhyDidYouUpdate('CollapseTree', props)
 
   const displayMap = useMemo(
     () => ({

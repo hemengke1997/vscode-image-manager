@@ -26,6 +26,14 @@ function useImageOperation() {
     vscodeApi.postMessage({ cmd: CmdToVscode.OPEN_IMAGE_IN_OS_EXPLORER, data: { filePath: imagePath } })
   })
 
+  const copyImageAsBase64 = useMemoizedFn((imagePath: string): Promise<string> => {
+    return new Promise((resolve) => {
+      vscodeApi.postMessage({ cmd: CmdToVscode.COPY_IMAGE_AS_BASE64, data: { filePath: imagePath } }, (data) => {
+        resolve(data)
+      })
+    })
+  })
+
   const testVscodeBuiltInCmd = useMemoizedFn(({ cmd, path }: { cmd: string; path: string }) => {
     vscodeApi.postMessage({ cmd: CmdToVscode.TEMP_TEST_CMD, data: { cmd, path } })
   })
@@ -34,6 +42,7 @@ function useImageOperation() {
     copyImage,
     openInVscodeExplorer,
     openInOsExplorer,
+    copyImageAsBase64,
     testVscodeBuiltInCmd,
   }
 }

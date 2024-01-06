@@ -124,6 +124,19 @@ class MessageHandler {
     commands.executeCommand('revealFileInOS', Uri.file(targetPath))
   }
 
+  /* ------------ copy image as base64 --------- */
+  copyImageAsBase64(filePath: string) {
+    const bitmap = fs.readFileSync(filePath)
+    let imgType = filePath.substring(filePath.lastIndexOf('.') + 1)
+    const map = {
+      svg: 'svg+xml',
+      tif: 'tiff',
+    }
+    imgType = map[imgType] ?? imgType
+    const imgBase64 = `data: image/${imgType};base64,${Buffer.from(bitmap).toString('base64')}`
+    return imgBase64
+  }
+
   /* ----------- test buit-in command ----------- */
   async testBuiltInCmd({ cmd, path }: { cmd: string; path: string }) {
     const uri = Uri.file(path)

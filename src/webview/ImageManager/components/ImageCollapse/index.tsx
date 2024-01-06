@@ -58,8 +58,9 @@ function ImageCollapse(props: ImageCollapseProps) {
             },
           })
         }}
+        tabIndex={-1}
         className={
-          "relative transition-all after:absolute after:-inset-x-0 after:-inset-y-1.5 after:content-[''] hover:underline"
+          "relative transition-all after:absolute after:-inset-x-0 after:-inset-y-1.5 after:content-[''] hover:underline focus:underline"
         }
       >
         {label}

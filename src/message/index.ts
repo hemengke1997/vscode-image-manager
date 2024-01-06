@@ -43,6 +43,9 @@ export const VscodeMessageCenter = {
   [CmdToVscode.OPEN_IMAGE_IN_OS_EXPLORER]: ({ message }: MessageParams<{ filePath: string }>) => {
     messageHandler.openImageInOsExplorer(message.data.filePath)
   },
+  [CmdToVscode.COPY_IMAGE_AS_BASE64]: ({ message }: MessageParams<{ filePath: string }>) => {
+    return messageHandler.copyImageAsBase64(message.data.filePath)
+  },
   [CmdToVscode.TEMP_TEST_CMD]: ({ message }: MessageParams<{ cmd: string; path: string }>) => {
     messageHandler.testBuiltInCmd({
       cmd: message.data.cmd,
