@@ -1,5 +1,5 @@
 import { useLocalStorageState, useSetState } from '@minko-fe/react-hook'
-import { localStorageEnum } from '@root/webview/local-storage'
+import { localStorageEnum } from '@rootSrc/webview/local-storage'
 import { createContainer } from 'context-state'
 import { useEffect } from 'react'
 import { type ThemeType, getTheme, switchTheme, vscodeColors } from '@/utils/theme'

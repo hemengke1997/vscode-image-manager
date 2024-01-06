@@ -9,7 +9,7 @@ export default defineConfig(async (env) => {
   const config = defineConfig({
     resolve: {
       alias: {
-        '@root': path.resolve(__dirname, './src'),
+        '@rootSrc': path.resolve(__dirname, './src'),
       },
     },
     plugins: [

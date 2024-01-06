@@ -1,5 +1,5 @@
-import { type KeyofMessage, type MessageType, type ReturnOfMessageCenter } from '@root/message'
-import { CallbackFromVscode } from '@root/message/shared'
+import { type KeyofMessage, type MessageType, type ReturnOfMessageCenter } from '@rootSrc/message'
+import { CmdToWebview } from '@rootSrc/message/shared'
 import { type WebviewApi } from 'vscode-webview'
 
 export type MessageCallbackFn<T extends KeyofMessage> = (data: ReturnOfMessageCenter<T>) => void
@@ -30,7 +30,7 @@ class VscodeApi {
     window.addEventListener('message', (event) => {
       const message = event.data
       switch (message.cmd) {
-        case CallbackFromVscode: {
+        case CmdToWebview.CallbackFromVscode: {
           const callback = this._callbacks[message.callbackId]
           if (callback && typeof callback === 'function') {
             callback(message.data)
@@ -69,7 +69,7 @@ class VscodeApi {
       message.callbackId = callbackId
     }
     if (this.vsCodeApi) {
-      // vscode post message to vscode listener
+      // Post message to vscode listener
       this.vsCodeApi.postMessage(message)
     } else {
       console.log(message)

@@ -6,12 +6,12 @@ import {
   useSetState,
   useUpdateEffect,
 } from '@minko-fe/react-hook'
-import { type ConfigType } from '@root/config'
-import { defaultConfig } from '@root/config/default'
-import { CmdToVscode } from '@root/message/shared'
-import { localStorageEnum } from '@root/webview/local-storage'
-import GlobalContext from '@root/webview/ui-framework/src/contexts/GlobalContext'
-import { vscodeApi } from '@root/webview/vscode-api'
+import { type ConfigType } from '@rootSrc/config'
+import { defaultConfig } from '@rootSrc/config/default'
+import { CmdToVscode } from '@rootSrc/message/shared'
+import { localStorageEnum } from '@rootSrc/webview/local-storage'
+import GlobalContext from '@rootSrc/webview/ui-framework/src/contexts/GlobalContext'
+import { vscodeApi } from '@rootSrc/webview/vscode-api'
 import { createContainer } from 'context-state'
 import { useEffect, useReducer, useState } from 'react'
 import { type ImageType } from '..'
@@ -22,6 +22,7 @@ export type ImageStateType = {
   originalList: ImageType[]
   list: ImageType[]
   visibleList: ImageType[]
+  basePath: string
   loading: boolean
 }
 
@@ -41,6 +42,7 @@ function useImageManagerContext() {
     originalList: [],
     list: [],
     visibleList: [],
+    basePath: '',
     loading: true,
   })
 
@@ -49,7 +51,7 @@ function useImageManagerContext() {
   }, [images.list])
 
   const refreshImageReducer = useMemoizedFn(
-    (state: { refreshTimes: number }, action: { type: 'refresh' | 'sort' | undefined }) => {
+    (state: { refreshTimes: number }, action: { type: 'refresh' | 'sort' | 'slientRefresh' | undefined }) => {
       return {
         refreshTimes: state.refreshTimes + 1,
         refreshType: action?.type,

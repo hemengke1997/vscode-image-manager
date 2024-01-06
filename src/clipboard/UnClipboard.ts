@@ -8,7 +8,7 @@ class UnClipboard {
   ) {
     this._options = {
       ..._options,
-      stdio: 'inherit',
+      stdout: 'inherit',
     }
   }
   async copy(args: string | string[], options?: Options) {
@@ -24,7 +24,10 @@ class UnClipboard {
     return execaSync(this._binarayPath, ['copy', ...castArray(args)], { ...options, ...this._options })
   }
   pasteSync(options: SyncOptions, args?: string | string[]) {
-    return execaSync(this._binarayPath, ['paste', ...castArray(args)], { ...options, ...this._options })
+    return execaSync(this._binarayPath, ['paste', ...castArray(args)], {
+      ...options,
+      ...this._options,
+    })
   }
 }
 

@@ -1,7 +1,7 @@
 import { uniq } from '@minko-fe/lodash-pro'
 import { useControlledState, useLocalStorageState } from '@minko-fe/react-hook'
-import { type ReturnOfMessageCenter } from '@root/message'
-import { CmdToVscode } from '@root/message/shared'
+import { type ReturnOfMessageCenter } from '@rootSrc/message'
+import { CmdToVscode, CmdToWebview } from '@rootSrc/message/shared'
 import { App, Card, ConfigProvider, Modal, theme } from 'antd'
 import { type Stats } from 'node:fs'
 import { startTransition, useEffect, useMemo } from 'react'
@@ -21,6 +21,8 @@ import useWheelScaleEvent from './hooks/useWheelScaleEvent'
 import OperationItemUI from './ui/OperationItemUI'
 import { filterVisibleImages } from './utils'
 import { Colors } from './utils/color'
+import 'react-contexify/ReactContexify.css'
+import './index.css'
 
 vscodeApi.registerEventListener()
 
@@ -83,6 +85,7 @@ export default function ImageManager() {
         originalList: data.imgs as ImageType[],
         list: sortImages(sort!, data.imgs as ImageType[]),
         loading: false,
+        basePath: data.projectPath,
       })
 
       onImageTypeChange(data.fileTypes)
@@ -93,6 +96,24 @@ export default function ImageManager() {
       }
     })
   }, [refreshTimes])
+
+  useEffect(() => {
+    function onMessage(e: MessageEvent) {
+      const message = e.data
+      switch (message.cmd) {
+        case CmdToWebview.IMAGES_CHANGED: {
+          refreshImages({ type: 'slientRefresh' })
+          break
+        }
+        default:
+          break
+      }
+    }
+    window.addEventListener('message', onMessage)
+    return () => {
+      window.removeEventListener('message', onMessage)
+    }
+  }, [])
 
   /* ------------ image type checkbox ----------- */
   const onImageTypeChange = (checked: string[]) => {

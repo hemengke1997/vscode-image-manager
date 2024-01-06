@@ -1,8 +1,8 @@
 import { applyHtmlTransforms } from '@minko-fe/html-transform'
-import { type Context } from '@root/Context'
-import { Log, getEnvForWebview, getUri, removeUrlProtocol, showError } from '@root/helper/utils'
-import { type MessageParams, type MessageType, VscodeMessageCenter } from '@root/message'
-import { CallbackFromVscode } from '@root/message/shared'
+import { type Context } from '@rootSrc/Context'
+import { Log, getEnvForWebview, getUri, removeUrlProtocol, showError } from '@rootSrc/helper/utils'
+import { type MessageParams, type MessageType, VscodeMessageCenter } from '@rootSrc/message'
+import { CmdToWebview } from '@rootSrc/message/shared'
 import fs from 'node:fs'
 import path from 'node:path'
 import { type Disposable, Uri, ViewColumn, type Webview, type WebviewPanel, window } from 'vscode'
@@ -28,10 +28,18 @@ export class ImageManagerPanel {
 
   constructor(panel: WebviewPanel, ctx: Context) {
     this._panel = panel
+    const watcher = ctx.watcher.start(this._panel.webview)
 
     // Set an event listener to listen for when the panel is disposed (i.e. when the user closes
     // the panel or when the panel is closed programmatically)
-    this._panel.onDidDispose(() => this.dispose(), null, this._disposables)
+    this._panel.onDidDispose(
+      () => {
+        this.dispose()
+        watcher.stop()
+      },
+      null,
+      this._disposables,
+    )
 
     // Set the HTML content for the webview panel
     this._panel.webview.html = this._getWebviewContent(this._panel.webview, ctx)
@@ -176,8 +184,8 @@ export class ImageManagerPanel {
   private invokeCallback<T>(params: { message: MessageType; webview: Webview; data: T }) {
     const { message, webview, data } = params
     if (webview) {
-      // webview post message to webview listener
-      webview.postMessage({ cmd: CallbackFromVscode, callbackId: message.callbackId, data })
+      // Post a message to the webview content.
+      webview.postMessage({ cmd: CmdToWebview.CallbackFromVscode, callbackId: message.callbackId, data })
     }
   }
 

@@ -1,4 +1,8 @@
-export const CallbackFromVscode = 'CallbackFromVscode'
+export enum CmdToWebview {
+  CallbackFromVscode = 'CallbackFromVscode',
+
+  IMAGES_CHANGED = 'IMAGES_CHANGED',
+}
 
 export enum CmdToVscode {
   RELOAD_WEBVIEW = 'RELOAD_WEBVIEW',
@@ -6,5 +10,9 @@ export enum CmdToVscode {
   GET_IMAGE_DIMENSIONS = 'GET_IMAGE_DIMENSIONS',
   GET_EXT_CONFIG = 'GET_EXT_CONFIG',
   COPY_IMAGE = 'COPY_IMAGE',
-  PASTE_IMAGE = 'PASTE_IMAGE',
+  OPEN_IMAGE_IN_VSCODE_EXPLORER = 'OPEN_IMAGE_IN_VSCODE_EXPLORER',
+  OPEN_IMAGE_IN_OS_EXPLORER = 'OPEN_IMAGE_IN_OS_EXPLORER',
+
+  // 测试 vscode 内置命令 for dev convenience
+  TEMP_TEST_CMD = 'TEMP_TEST_CMD',
 }

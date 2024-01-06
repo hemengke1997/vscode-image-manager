@@ -13,8 +13,8 @@ module.exports = {
   presets: [require('./tailwind-antd.cjs')],
   plugins: [
     require('./tailwind-vscode.cjs'),
-    plugin(function ({ addComponents }) {
-      addComponents({
+    plugin(function ({ addUtilities }) {
+      addUtilities({
         '.flex-center': {
           display: 'flex',
           alignItems: 'center',
@@ -23,6 +23,11 @@ module.exports = {
           display: 'flex',
           flexDirection: 'column',
           alignItems: 'center',
+        },
+      })
+      addUtilities({
+        '.text-xxs': {
+          fontSize: '0.625rem',
         },
       })
     }),

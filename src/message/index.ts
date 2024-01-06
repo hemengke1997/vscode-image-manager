@@ -37,8 +37,16 @@ export const VscodeMessageCenter = {
     const data = await messageHandler.copyImage(message.data.filePath)
     return data
   },
-  [CmdToVscode.PASTE_IMAGE]: async ({ message }: MessageParams<{ dest: string }>) => {
-    const data = await messageHandler.pasteImage(message.data.dest)
-    return data
+  [CmdToVscode.OPEN_IMAGE_IN_VSCODE_EXPLORER]: ({ message }: MessageParams<{ filePath: string }>) => {
+    messageHandler.openImageInVscodeExplorer(message.data.filePath)
+  },
+  [CmdToVscode.OPEN_IMAGE_IN_OS_EXPLORER]: ({ message }: MessageParams<{ filePath: string }>) => {
+    messageHandler.openImageInOsExplorer(message.data.filePath)
+  },
+  [CmdToVscode.TEMP_TEST_CMD]: ({ message }: MessageParams<{ cmd: string; path: string }>) => {
+    messageHandler.testBuiltInCmd({
+      cmd: message.data.cmd,
+      path: message.data.path,
+    })
   },
 }

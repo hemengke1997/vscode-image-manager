@@ -1,7 +1,9 @@
 import { Collapse, type CollapseProps } from 'antd'
 import { type ReactNode, memo, useEffect, useState } from 'react'
+import { useContextMenu } from 'react-contexify'
 import ImageManagerContext from '../../contexts/ImageManagerContext'
 import ImagePreview, { type ImagePreviewProps } from '../ImagePreview'
+import CollapseContextMenu, { COLLAPSE_CONTEXT_MENU_ID } from './components/CollapseContextMenu'
 
 type ImageCollapseProps = {
   collapseProps: CollapseProps
@@ -22,6 +24,9 @@ function ImageCollapse(props: ImageCollapseProps) {
     setActiveKeys(keys)
   }
 
+  // id: COLLAPSE_CONTEXT_MENU_ID,
+  const { show } = useContextMenu({ props: { dirPath: '' } })
+
   useEffect(() => {
     if (collapseOpen > 0) {
       setActiveKeys([id])
@@ -33,26 +38,29 @@ function ImageCollapse(props: ImageCollapseProps) {
   if (!images.length && !nestedChildren) return null
 
   return (
-    <Collapse
-      destroyInactivePanel={false}
-      {...collapseProps}
-      activeKey={activeKeys}
-      onChange={(keys) => onCollapseChange(keys as string[])}
-      items={[
-        {
-          key: id,
-          label,
-          children: images.length ? (
-            <div className={'space-y-2'}>
-              <ImagePreview images={images} />
-              {nestedChildren}
-            </div>
-          ) : (
-            nestedChildren
-          ),
-        },
-      ]}
-    ></Collapse>
+    <>
+      <Collapse
+        destroyInactivePanel={false}
+        {...collapseProps}
+        activeKey={activeKeys}
+        onChange={(keys) => onCollapseChange(keys as string[])}
+        items={[
+          {
+            key: id,
+            label,
+            children: images.length ? (
+              <div className={'space-y-2'}>
+                <ImagePreview images={images} />
+                {nestedChildren}
+              </div>
+            ) : (
+              nestedChildren
+            ),
+          },
+        ]}
+      ></Collapse>
+      <CollapseContextMenu />
+    </>
   )
 }
 

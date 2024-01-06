@@ -1,50 +1,50 @@
-import { type ImageType } from '@root/webview/ImageManager'
-import useImageOperation from '@root/webview/ImageManager/hooks/useImageOperation'
-import { Keybinding } from '@root/webview/keybinding'
-import GlobalContext from '@root/webview/ui-framework/src/contexts/GlobalContext'
-import classNames from 'classnames'
+import { type ImageType } from '@rootSrc/webview/ImageManager'
+import useImageOperation from '@rootSrc/webview/ImageManager/hooks/useImageOperation'
+import { Keybinding } from '@rootSrc/webview/keybinding'
+import GlobalContext from '@rootSrc/webview/ui-framework/src/contexts/GlobalContext'
 import { memo } from 'react'
-import { Item, type ItemParams, Menu, RightSlot } from 'react-contexify'
+import { Item, type ItemParams, Menu, RightSlot, Separator } from 'react-contexify'
 import { useTranslation } from 'react-i18next'
-import './index.css'
-import 'react-contexify/ReactContexify.css'
+import { os } from 'un-detector'
 
-export const IMAGE_CONTEXT_MENU_ID = 'ImageContextMenu'
+export const IMAGE_CONTEXT_MENU_ID = 'IMAGE_CONTEXT_MENU_ID'
 
 function ImageContextMenu() {
   const { t } = useTranslation()
   const theme = GlobalContext.useSelector((ctx) => ctx.appearance.theme)
 
-  const { copyImage } = useImageOperation()
+  const { copyImage, openInOsExplorer, openInVscodeExplorer, testVscodeBuiltInCmd } = useImageOperation()
 
-  const handleCopy = (e: ItemParams) => {
-    copyImage((e.props.image as ImageType).path)
+  const handleCopy = (e: ItemParams<{ image: ImageType }>) => {
+    copyImage(e.props?.image.path || '')
+  }
+
+  const handleOpenInOsExplorer = (e: ItemParams<{ image: ImageType }>) => {
+    openInOsExplorer(e.props?.image.path || '')
+  }
+
+  const handleOpenInVscodeExplorer = (e: ItemParams<{ image: ImageType }>) => {
+    openInVscodeExplorer(e.props?.image.path || '')
+  }
+
+  const _test = (e: ItemParams) => {
+    testVscodeBuiltInCmd({
+      cmd: 'revealFileInOS',
+      path: (e.props.image as ImageType).path,
+    })
   }
 
   return (
-    <Menu className={classNames('image-menu-context', 'text-xs')} id={IMAGE_CONTEXT_MENU_ID} theme={theme}>
-      <Item
-        onClick={(e) => {
-          handleCopy(e)
-        }}
-      >
+    <Menu id={IMAGE_CONTEXT_MENU_ID} theme={theme}>
+      <Item onClick={handleCopy}>
         {t('ia.copy')}
         <RightSlot>{Keybinding.Copy}</RightSlot>
       </Item>
-      {/* <Item
-        onClick={(e) => {
-          handlePaste(e)
-        }}
-      >
-        Paste
-        <RightSlot>{Keybinding.Paste}</RightSlot>
-      </Item> */}
-      {/* <Separator /> */}
-
-      {/* <Submenu label='Submenu'>
-        <Item onClick={handleItemClick}>Sub Item 1</Item>
-        <Item onClick={handleItemClick}>Sub Item 2</Item>
-      </Submenu> */}
+      <Separator />
+      <Item onClick={handleOpenInOsExplorer}>
+        {os.isMac() ? t('ia.reveal_in_os_mac') : t('ia.reveal_in_os_windows')}
+      </Item>
+      <Item onClick={handleOpenInVscodeExplorer}>{t('ia.reveal_in_explorer')}</Item>
     </Menu>
   )
 }

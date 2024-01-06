@@ -1,10 +1,12 @@
-.image-menu-context {
+.contexify {
   --contexify-activeItem-color: var(--ant-color-text);
   --contexify-activeItem-bgColor: var(--ant-color-primary-hover);
   --contexify-menu-minWidth: 140px;
   --contexify-menu-padding: var(--ant-padding-xxs);
   --contexify-itemContent-padding: var(--ant-margin-xxs) var(--ant-padding-xxs);
   --contexify-separator-margin: var(--ant-margin-xxs);
+
+  @apply text-xxs;
 
   @keyframes contexify_quickFadeIn {
     from {

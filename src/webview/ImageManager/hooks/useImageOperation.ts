@@ -1,6 +1,6 @@
 import { useMemoizedFn } from '@minko-fe/react-hook'
-import { CmdToVscode } from '@root/message/shared'
-import { vscodeApi } from '@root/webview/vscode-api'
+import { CmdToVscode } from '@rootSrc/message/shared'
+import { vscodeApi } from '@rootSrc/webview/vscode-api'
 import { App } from 'antd'
 import { useTranslation } from 'react-i18next'
 
@@ -18,19 +18,23 @@ function useImageOperation() {
     })
   })
 
-  const pasteImage = useMemoizedFn((dest: string) => {
-    vscodeApi.postMessage({ cmd: CmdToVscode.PASTE_IMAGE, data: { dest } }, (data) => {
-      if (!data.failed) {
-        message.success('Paste success')
-      } else {
-        message.error(data.stderr)
-      }
-    })
+  const openInVscodeExplorer = useMemoizedFn((imagePath: string) => {
+    vscodeApi.postMessage({ cmd: CmdToVscode.OPEN_IMAGE_IN_VSCODE_EXPLORER, data: { filePath: imagePath } })
+  })
+
+  const openInOsExplorer = useMemoizedFn((imagePath: string) => {
+    vscodeApi.postMessage({ cmd: CmdToVscode.OPEN_IMAGE_IN_OS_EXPLORER, data: { filePath: imagePath } })
+  })
+
+  const testVscodeBuiltInCmd = useMemoizedFn(({ cmd, path }: { cmd: string; path: string }) => {
+    vscodeApi.postMessage({ cmd: CmdToVscode.TEMP_TEST_CMD, data: { cmd, path } })
   })
 
   return {
     copyImage,
-    pasteImage,
+    openInVscodeExplorer,
+    openInOsExplorer,
+    testVscodeBuiltInCmd,
   }
 }
 

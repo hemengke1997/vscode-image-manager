@@ -1,6 +1,7 @@
-import { getClipboard } from '@root/clipboard'
-import { Config } from '@root/config'
-import { getProjectPath } from '@root/helper/utils'
+import { Context } from '@rootSrc/Context'
+import { getClipboard } from '@rootSrc/clipboard'
+import { globImages } from '@rootSrc/helper/glob'
+import { getProjectPath } from '@rootSrc/helper/utils'
 import fg from 'fast-glob'
 import imageSize from 'image-size'
 import path from 'node:path'
@@ -14,26 +15,13 @@ class MessageHandler {
 
   /* --------------- search images -------------- */
   private async _searchImgs(basePath: string, webview: Webview, fileTypes: Set<string>, dirs: Set<string>) {
-    const imgs = await fg([`**/*.{${Config.imageType.join(',')}}`], {
+    const imgs = await fg(globImages().all, {
       cwd: basePath,
       objectMode: true,
       dot: false,
       absolute: true,
       markDirectories: true,
       stats: true,
-      ignore: [
-        '**/node_modules/**',
-        '**/.git/**',
-        '**/dist/**',
-        '**/build/**',
-        '**/out/**',
-        '**/coverage/**',
-        '**/.next/**',
-        '**/.nuxt/**',
-        '**/.vercel/**',
-        // https://www.npmjs.com/package/fast-glob#pattern-syntax
-        ...Config.exclude,
-      ],
     })
 
     return imgs.map((img) => {
@@ -90,7 +78,7 @@ class MessageHandler {
 
   /* ----------- get extension config ----------- */
   getExtConfig() {
-    return Config
+    return Context.getInstance().config
   }
 
   /* ---------- copy image to clipboard --------- */
@@ -102,7 +90,23 @@ class MessageHandler {
   /* ---------------- paste image --------------- */
   async pasteImage(dest: string) {
     const cb = await getClipboard()
-    return await cb.paste({ cwd: dest })
+    return cb.pasteSync({ cwd: dest })
+  }
+
+  /* ------- open image in vscode explorer ------ */
+  openImageInVscodeExplorer(imgPath: string) {
+    commands.executeCommand('revealInExplorer', Uri.file(imgPath))
+  }
+
+  /* --------- open image in os explorer -------- */
+  openImageInOsExplorer(imgPath: string) {
+    commands.executeCommand('revealFileInOS', Uri.file(imgPath))
+  }
+
+  /* ----------- test buit-in command ----------- */
+  async testBuiltInCmd({ cmd, path }: { cmd: string; path: string }) {
+    const uri = Uri.file(path)
+    commands.executeCommand(cmd, uri)
   }
 }
 

@@ -1,5 +1,5 @@
 import { useLocalStorageState } from '@minko-fe/react-hook'
-import { localStorageEnum } from '@root/webview/local-storage'
+import { localStorageEnum } from '@rootSrc/webview/local-storage'
 import { Button, Dropdown, type MenuProps } from 'antd'
 import { memo } from 'react'
 import { useTranslation } from 'react-i18next'

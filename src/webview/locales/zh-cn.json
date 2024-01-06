@@ -34,7 +34,10 @@
     "filter": "筛选",
     "action": "操作",
     "copy": "复制",
-    "copy_success": "复制成功"
+    "copy_success": "复制成功",
+    "reveal_in_os_windows": "在文件资源管理器中显示",
+    "reveal_in_os_mac": "在 Finder 中显示",
+    "reveal_in_explorer": "在资源管理器视图中显示"
   },
   "fallback": {
     "internal_error": "内部错误",

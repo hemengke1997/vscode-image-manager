@@ -1,4 +1,4 @@
-import { localStorageEnum } from '@root/webview/local-storage'
+import { localStorageEnum } from '@rootSrc/webview/local-storage'
 import { type PropsWithChildren, memo } from 'react'
 import GlobalContext from '@/contexts/GlobalContext'
 import { ReactComponent as Logo } from '@/images/logo.svg'

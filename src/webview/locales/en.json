@@ -34,7 +34,10 @@
     "filter": "filter",
     "action": "action",
     "copy": "Copy",
-    "copy_success": "Copy Success"
+    "copy_success": "Copy Success",
+    "reveal_in_os_windows": "Reveal in File Explorer",
+    "reveal_in_os_mac": "Reveal in Finder",
+    "reveal_in_explorer": "Reveal in Explorer View"
   },
   "fallback": {
     "internal_error": "Internal Error",

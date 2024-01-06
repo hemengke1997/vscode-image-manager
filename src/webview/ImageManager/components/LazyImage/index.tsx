@@ -1,6 +1,6 @@
 import { useClickAway, useControlledState, useInViewport } from '@minko-fe/react-hook'
-import { CmdToVscode } from '@root/message/shared'
-import { vscodeApi } from '@root/webview/vscode-api'
+import { CmdToVscode } from '@rootSrc/message/shared'
+import { vscodeApi } from '@rootSrc/webview/vscode-api'
 import { App, Badge, Button, Image, type ImageProps, Tooltip } from 'antd'
 import classNames from 'classnames'
 import { motion } from 'framer-motion'
@@ -87,7 +87,7 @@ function LazyImage(props: LazyImageProps) {
   const isCurrentActive = () => selectedImage?.vscodePath === image.vscodePath
   const ifWarning = bytesToKb(image.stats.size) > config.warningSize
 
-  const { show } = useContextMenu({ id: IMAGE_CONTEXT_MENU_ID, props: { image } })
+  const { show } = useContextMenu<{ image: ImageType }>()
 
   const clns = {
     containerClassName: 'flex flex-none flex-col items-center p-2 space-y-1 transition-colors',
@@ -125,7 +125,7 @@ function LazyImage(props: LazyImageProps) {
         }}
         onContextMenu={(e) => {
           setSelectedImage(image)
-          show({ event: e })
+          show({ event: e, id: IMAGE_CONTEXT_MENU_ID, props: { image } })
         }}
       >
         <Badge status='warning' dot={ifWarning}>
@@ -178,7 +178,7 @@ function LazyImage(props: LazyImageProps) {
           trigger={['click']}
           overlayClassName={'max-w-full'}
           title={
-            <div className={'flex items-center space-x-2'}>
+            <div className={'flex w-full items-center space-x-2'}>
               <span className={'flex-none'}>{image.name}</span>
               <CopyToClipboard
                 text={image.name}

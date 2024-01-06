@@ -6,6 +6,7 @@ import { IoMdFolderOpen } from 'react-icons/io'
 import { PiFileImage } from 'react-icons/pi'
 import { type ImageType } from '../..'
 import ImageManagerContext from '../../contexts/ImageManagerContext'
+import useImageOperation from '../../hooks/useImageOperation'
 import { type GroupType } from '../DisplayGroup'
 import { type DisplayStyleType } from '../DisplayStyle'
 import ImageCollapse from '../ImageCollapse'
@@ -108,12 +109,12 @@ function CollapseTree(props: CollapseTreeProps) {
     dir: {
       imagePrototype: 'dirPath',
       list: dirs,
-      icon: <IoMdFolderOpen />,
+      icon: (props: FileNode) => <OpenFolderIcon {...props} />,
     },
     type: {
       imagePrototype: 'fileType',
       list: imageTypes,
-      icon: <PiFileImage />,
+      icon: () => <PiFileImage />,
     },
   } as const
 
@@ -145,7 +146,7 @@ function CollapseTree(props: CollapseTreeProps) {
               }}
               label={
                 <div className={'flex items-center space-x-2'}>
-                  <span className={'flex-center'}>{node.type ? displayMap[node.type].icon : <FaRegImages />}</span>
+                  <div className={'flex-center'}>{node.type ? displayMap[node.type].icon(node) : <FaRegImages />}</div>
                   <span>{node.label}</span>
                 </div>
               }
@@ -208,6 +209,23 @@ function CollapseTree(props: CollapseTreeProps) {
   }
 
   return <>{displayByPriority()}</>
+}
+
+function OpenFolderIcon(props: FileNode) {
+  const { openInOsExplorer } = useImageOperation()
+  const { images } = ImageManagerContext.usePicker(['images'])
+
+  return (
+    <i
+      className={'flex-center hover:text-ant-color-primary transition-colors'}
+      onClick={(e) => {
+        e.stopPropagation()
+        openInOsExplorer(`${images.basePath}/${props.value}/`)
+      }}
+    >
+      <IoMdFolderOpen />
+    </i>
+  )
 }
 
 export default memo(CollapseTree)
