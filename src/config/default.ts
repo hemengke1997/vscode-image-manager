@@ -1,7 +1,7 @@
 import { type ConfigType } from '.'
 
 export const defaultConfig: ConfigType = {
-  root: '',
+  root: [],
   warningSize: 500,
   imageDefaultWidth: 100,
   scaleStep: 0.1,

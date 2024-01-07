@@ -15,7 +15,7 @@ import { type ImageType } from '../..'
 import ImageManagerContext from '../../contexts/ImageManagerContext'
 import useImageOperation from '../../hooks/useImageOperation'
 import { bytesToKb, formatBytes } from '../../utils'
-import ImageContextMenu, { IMAGE_CONTEXT_MENU_ID } from './components/ImageContextMenu'
+import { IMAGE_CONTEXT_MENU_ID } from './components/ImageContextMenu'
 
 type LazyImageProps = {
   imageProp: ImageProps
@@ -151,7 +151,6 @@ function LazyImage(props: LazyImageProps) {
           {image.name}
         </div>
       </motion.div>
-      <ImageContextMenu />
     </>
   )
 }

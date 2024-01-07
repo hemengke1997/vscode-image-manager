@@ -13,12 +13,12 @@ function CollapseContextMenu() {
 
   const { openInOsExplorer, openInVscodeExplorer } = useImageOperation()
 
-  const handleOpenInOsExplorer = (e: ItemParams<{ dirPath: string }>) => {
-    openInOsExplorer(e.props?.dirPath || '')
+  const handleOpenInOsExplorer = (e: ItemParams<{ targetPath: string }>) => {
+    openInOsExplorer(e.props?.targetPath || '')
   }
 
-  const handleOpenInVscodeExplorer = (e: ItemParams<{ dirPath: string }>) => {
-    openInVscodeExplorer(e.props?.dirPath || '')
+  const handleOpenInVscodeExplorer = (e: ItemParams<{ targetPath: string }>) => {
+    openInVscodeExplorer(e.props?.targetPath || '')
   }
 
   return (

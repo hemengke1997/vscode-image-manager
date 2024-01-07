@@ -49,6 +49,7 @@ export function removeUrlProtocol(url: string) {
   return url.replace(/https?:\/\//, '')
 }
 
-export function getWorkspaceFolder() {
-  return workspace.workspaceFolders?.[0] || undefined
+export function getWorkspaceFolders() {
+  console.log(workspace.workspaceFolders, 'workspace.workspaceFolders')
+  return workspace.workspaceFolders
 }

@@ -1,11 +1,5 @@
 import { TinyColor } from '@ctrl/tinycolor'
-import {
-  useControlledState,
-  useLocalStorageState,
-  useMemoizedFn,
-  useSetState,
-  useUpdateEffect,
-} from '@minko-fe/react-hook'
+import { useControlledState, useLocalStorageState, useMemoizedFn, useSetState } from '@minko-fe/react-hook'
 import { type ConfigType } from '@rootSrc/config'
 import { defaultConfig } from '@rootSrc/config/default'
 import { CmdToVscode } from '@rootSrc/message/shared'
@@ -15,16 +9,7 @@ import { vscodeApi } from '@rootSrc/webview/vscode-api'
 import { createContainer } from 'context-state'
 import { useEffect, useReducer, useState } from 'react'
 import { type ImageType } from '..'
-import { shouldShowImage } from '../utils'
 import { Colors } from '../utils/color'
-
-export type ImageStateType = {
-  originalList: ImageType[]
-  list: ImageType[]
-  visibleList: ImageType[]
-  basePath: string
-  loading: boolean
-}
 
 function useImageManagerContext() {
   const { theme } = GlobalContext.usePicker(['theme'])
@@ -38,17 +23,20 @@ function useImageManagerContext() {
   }, [])
 
   /* --------------- images state --------------- */
-  const [images, setImages] = useSetState<ImageStateType>({
-    originalList: [],
-    list: [],
-    visibleList: [],
-    basePath: '',
+  const [imageState, setImageState] = useSetState<{
+    loading: boolean
+    workspaceFolders: string[]
+    data: {
+      imgs: ImageType[]
+      workspaceFolder: string
+      fileTypes: string[]
+      dirs: string[]
+    }[]
+  }>({
     loading: true,
+    workspaceFolders: [],
+    data: [],
   })
-
-  useUpdateEffect(() => {
-    setImages((t) => ({ visibleList: t.list.filter(shouldShowImage) }))
-  }, [images.list])
 
   const refreshImageReducer = useMemoizedFn(
     (state: { refreshTimes: number }, action: { type: 'refresh' | 'sort' | 'slientRefresh' | undefined }) => {
@@ -58,6 +46,7 @@ function useImageManagerContext() {
       }
     },
   )
+
   const [imageRefreshedState, refreshImages] = useReducer(refreshImageReducer, {
     refreshTimes: 0,
     refreshType: undefined,
@@ -100,8 +89,8 @@ function useImageManagerContext() {
 
   return {
     config,
-    images,
-    setImages,
+    imageState,
+    setImageState,
     imageRefreshedState,
     refreshImages,
     scale,

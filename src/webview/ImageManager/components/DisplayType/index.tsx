@@ -1,6 +1,6 @@
 import { Badge, Checkbox, ConfigProvider, theme } from 'antd'
 import { memo } from 'react'
-import { type ImageStateType } from '../../contexts/ImageManagerContext'
+import { type ImageType } from '../..'
 
 export type DisplayImageTypes = {
   checked: string[]
@@ -8,7 +8,7 @@ export type DisplayImageTypes = {
 }
 
 type DisplayTypeProps = {
-  images: ImageStateType
+  images: ImageType[]
   imageTypes: DisplayImageTypes
   onImageTypeChange: (checked: string[]) => void
 }
@@ -35,7 +35,7 @@ function DisplayType(props: DisplayTypeProps) {
               <Badge
                 overflowCount={Number.POSITIVE_INFINITY}
                 color={token.colorPrimary}
-                count={images?.visibleList.filter((t) => t.fileType === item).length}
+                count={images.filter((t) => t.fileType === item).length}
                 showZero
               />
             </ConfigProvider>

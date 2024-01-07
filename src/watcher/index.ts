@@ -6,12 +6,21 @@ import micromatch from 'micromatch'
 import { type FileSystemWatcher, RelativePattern, type Uri, type Webview, workspace } from 'vscode'
 
 class Watcher {
-  private watcher: FileSystemWatcher | undefined
+  private watchers: FileSystemWatcher[] | undefined
   public webview: Webview | undefined
 
   constructor(private _ctx: Context) {
-    if (!this._ctx.config.root) return
-    this.watcher = workspace.createFileSystemWatcher(new RelativePattern(this._ctx.config.root, globImages().patterns))
+    if (!this._ctx.config.root.length) return
+
+    const imageWatchers = this._ctx.config.root.map((r) => {
+      return workspace.createFileSystemWatcher(new RelativePattern(r, globImages().patterns))
+    })
+
+    const folderWatchers = this._ctx.config.root.map((r) => {
+      return workspace.createFileSystemWatcher(new RelativePattern(r, '**/*'), false, false, false)
+    })
+
+    this.watchers = [...imageWatchers, ...folderWatchers]
   }
 
   private _isIgnored(e: Uri) {
@@ -45,15 +54,15 @@ class Watcher {
   public start(webview: Webview) {
     this.webview = webview
 
-    this.watcher?.onDidChange(this._onDidChange, this)
-    this.watcher?.onDidCreate(this._onDidCreate, this)
-    this.watcher?.onDidDelete(this._onDidDelete, this)
+    this.watchers?.forEach((w) => w.onDidChange(this._onDidChange, this))
+    this.watchers?.forEach((w) => w.onDidCreate(this._onDidCreate, this))
+    this.watchers?.forEach((w) => w.onDidDelete(this._onDidDelete, this))
 
     return this
   }
 
   public stop() {
-    this.watcher?.dispose()
+    this.watchers?.forEach((w) => w.dispose())
   }
 }
 

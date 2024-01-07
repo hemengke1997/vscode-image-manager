@@ -1,4 +1,4 @@
-import { isObject, round, uniq } from '@minko-fe/lodash-pro'
+import { isObject, round, sortBy, uniqBy } from '@minko-fe/lodash-pro'
 import { type ImageType } from '..'
 
 export function formatBytes(bytes: number, decimals: number = 2): string {
@@ -34,6 +34,12 @@ export function shouldShowImage(image: ImageType) {
   return true
 }
 
-export function filterVisibleImages(images: ImageType[], filterValue: (image: ImageType) => string) {
-  return uniq(images.map((item) => filterValue(item))).sort()
+export function filterImages<T>(images: ImageType[], filterValue: (image: ImageType) => T, key: keyof T) {
+  return sortBy(
+    uniqBy(
+      images.map((item) => filterValue(item)),
+      key,
+    ),
+    key,
+  )
 }

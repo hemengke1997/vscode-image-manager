@@ -1,14 +1,16 @@
 import { isUndefined } from '@minko-fe/lodash-pro'
 import { Collapse, type CollapseProps } from 'antd'
+import classNames from 'classnames'
 import { type ReactNode, memo, useEffect, useMemo, useState } from 'react'
 import { useContextMenu } from 'react-contexify'
 import ImageManagerContext from '../../contexts/ImageManagerContext'
 import ImagePreview, { type ImagePreviewProps } from '../ImagePreview'
-import CollapseContextMenu, { COLLAPSE_CONTEXT_MENU_ID } from './components/CollapseContextMenu'
+import { COLLAPSE_CONTEXT_MENU_ID } from './components/CollapseContextMenu'
 
 type ImageCollapseProps = {
   collapseProps: CollapseProps
   label: string
+  joinLabel: boolean
   labelContainer: (children: ReactNode) => ReactNode
   images: ImagePreviewProps['images']
   nestedChildren: JSX.Element | null
@@ -17,7 +19,7 @@ type ImageCollapseProps = {
 }
 
 function ImageCollapse(props: ImageCollapseProps) {
-  const { collapseProps, nestedChildren, labelContainer, label, images, id, contextMenu } = props
+  const { collapseProps, nestedChildren, labelContainer, label, joinLabel, images, id, contextMenu } = props
 
   const { collapseOpen } = ImageManagerContext.usePicker(['collapseOpen'])
 
@@ -27,9 +29,9 @@ function ImageCollapse(props: ImageCollapseProps) {
     setActiveKeys(keys)
   }
 
-  const { show } = useContextMenu({ props: { dirPath: '' } })
+  const { show } = useContextMenu({ props: { targetPath: '' } })
 
-  const basePath = useMemo(() => id.slice(0, id.lastIndexOf(label)), [id, label])
+  const basePath = useMemo(() => (joinLabel ? id.slice(0, id.lastIndexOf(label)) : id), [id, label, joinLabel])
   const labels = useMemo(() => label.split('/'), [label])
 
   useEffect(() => {
@@ -54,14 +56,15 @@ function ImageCollapse(props: ImageCollapseProps) {
             event: e,
             id: COLLAPSE_CONTEXT_MENU_ID,
             props: {
-              dirPath: index ? getCurrentPath(index) : '',
+              targetPath: getCurrentPath(index) || '',
             },
           })
         }}
         tabIndex={-1}
-        className={
-          "relative transition-all after:absolute after:-inset-x-0 after:-inset-y-1.5 after:content-[''] hover:underline focus:underline"
-        }
+        className={classNames(
+          "relative transition-all after:absolute after:-inset-x-0 after:-inset-y-1.5 after:content-['']",
+          contextMenu && 'hover:underline focus:underline',
+        )}
       >
         {label}
       </div>
@@ -109,7 +112,6 @@ function ImageCollapse(props: ImageCollapseProps) {
           },
         ]}
       ></Collapse>
-      <CollapseContextMenu />
     </>
   )
 }

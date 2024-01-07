@@ -1,20 +1,25 @@
-import { isNumber } from '@minko-fe/lodash-pro'
+import { isNumber, uniq } from '@minko-fe/lodash-pro'
 import { useMemoizedFn } from '@minko-fe/react-hook'
 import { type CollapseProps } from 'antd'
 import { memo, useMemo } from 'react'
 import { useTranslation } from 'react-i18next'
 import { FaRegImages } from 'react-icons/fa'
+import { FaRegObjectGroup } from 'react-icons/fa6'
 import { IoMdFolderOpen } from 'react-icons/io'
 import { PiFileImage } from 'react-icons/pi'
 import { type ImageType } from '../..'
-import ImageManagerContext from '../../contexts/ImageManagerContext'
+import TreeContext from '../../contexts/TreeContext'
 import { type GroupType } from '../DisplayGroup'
 import { type DisplayStyleType } from '../DisplayStyle'
 import ImageCollapse from '../ImageCollapse'
 import OpenFolder from './components/OpenFolder'
+
+type GroupOption = Option
+
 type CollapseTreeProps = {
-  dirs: string[]
-  imageTypes: string[]
+  workspaceFolders: GroupOption[]
+  dirs: GroupOption[]
+  imageTypes: GroupOption[]
   displayGroup: GroupType[]
   displayStyle: DisplayStyleType
 }
@@ -32,60 +37,60 @@ export type FileNode = {
 }
 
 function treeify(
-  list: string[],
+  list: Option[],
   options: {
-    flatten?: boolean
     onGenerate?: (node: FileNode) => void
   },
 ) {
-  const { flatten = false, onGenerate } = options
+  const { onGenerate } = options
   const resultTree: FileNode[] = []
 
-  if (flatten) {
-    list.forEach((item) => {
-      const node = {
-        label: item,
-        value: item,
-        children: [],
-      }
-      onGenerate?.(node)
-      resultTree.push(node)
-    })
-  } else {
-    for (const file of list) {
-      const paths = file.split('/')
-      let currentNodes = resultTree
-      paths.forEach((path, index) => {
-        const find = currentNodes.find((item) => item.label === path)
-        if (find) {
-          currentNodes = find.children
-        } else {
-          const node = {
-            label: path,
-            value: paths.slice(0, index + 1).join('/'),
-            children: [],
-          }
-          onGenerate?.(node)
-          currentNodes.push(node)
-          currentNodes = node.children
+  for (const file of list) {
+    const paths = file.label.split('/')
+    let currentNodes = resultTree
+    paths.forEach((path) => {
+      const find = currentNodes.find((item) => item.label === path)
+      if (find) {
+        currentNodes = find.children
+      } else {
+        const node = {
+          label: path,
+          value: file.value,
+          children: [],
         }
-      })
-    }
+        onGenerate?.(node)
+        currentNodes.push(node)
+        currentNodes = node.children
+      }
+    })
   }
 
   return resultTree
 }
 
 type BuildRenderOption = {
-  flatten?: boolean
-  toBeBuild: Record<string, string[]>
+  toBeBuild: Record<string, Option[]>
 }
+
+function traverseTreeToSetRenderConditions(previousTree: FileNode[], renderConditions: Record<string, string>[]) {
+  const resultTree: FileNode[] = []
+  previousTree.forEach((node) => {
+    node = { ...node }
+    if (node.children.length) {
+      node.children = traverseTreeToSetRenderConditions(node.children, renderConditions)
+    } else {
+      node.renderConditions = [...(node.renderConditions || []), ...renderConditions]
+    }
+    resultTree.push(node)
+  })
+  return resultTree
+}
+
 function buildRenderTree(options: BuildRenderOption) {
-  const { flatten, toBeBuild } = options
+  const { toBeBuild } = options
   let previousTree = [] as FileNode[]
   Object.keys(toBeBuild).forEach((d) => {
     previousTree = treeify(toBeBuild[d], {
-      flatten,
       onGenerate: (n) => {
         n.type = d as GroupType
 
@@ -93,10 +98,8 @@ function buildRenderTree(options: BuildRenderOption) {
           n.renderConditions = [{ [d]: n.value }]
         }
 
-        const p = previousTree.map((item) => ({
-          ...item,
-          renderConditions: [...(item.renderConditions || []), ...(n.renderConditions || [])],
-        }))
+        const p = traverseTreeToSetRenderConditions(previousTree, n.renderConditions)
+
         n.children.push(...p)
       },
     })
@@ -105,14 +108,25 @@ function buildRenderTree(options: BuildRenderOption) {
 }
 
 function CollapseTree(props: CollapseTreeProps) {
-  const { dirs, imageTypes, displayGroup, displayStyle } = props
-  const { images } = ImageManagerContext.usePicker(['images'])
+  const { workspaceFolders, dirs, imageTypes, displayGroup, displayStyle } = props
+  const { imageSingleTree } = TreeContext.usePicker(['imageSingleTree'])
   const { t } = useTranslation()
 
   const displayMap = useMemo(
     () => ({
+      workspace: {
+        imagePrototype: 'absWorkspaceFolder',
+        list: workspaceFolders,
+        icon: (props: { path: string }) => (
+          <OpenFolder {...props}>
+            <FaRegObjectGroup />
+          </OpenFolder>
+        ),
+        contextMenu: true,
+        priority: 1,
+      },
       dir: {
-        imagePrototype: 'dirPath',
+        imagePrototype: 'absDirPath',
         list: dirs,
         icon: (props: { path: string }) => (
           <OpenFolder {...props}>
@@ -120,24 +134,41 @@ function CollapseTree(props: CollapseTreeProps) {
           </OpenFolder>
         ),
         contextMenu: true,
+        priority: 2,
       },
       type: {
         imagePrototype: 'fileType',
         list: imageTypes,
         icon: () => <PiFileImage />,
         contextMenu: false,
+        priority: 3,
       },
       all: {
-        icon: () => (
-          <OpenFolder path=''>
+        icon: (props: { path: string }) => (
+          <OpenFolder {...props}>
             <FaRegImages />
           </OpenFolder>
         ),
         contextMenu: true,
+        priority: null,
       },
     }),
-    [dirs, imageTypes],
+    [workspaceFolders, dirs, imageTypes],
   )
+
+  const sortGroup = useMemoizedFn((group: GroupType[] | undefined) => {
+    const allGroupType = Object.keys(displayMap).filter((k) => displayMap[k].priority)
+    group = uniq(group?.filter((item) => allGroupType.includes(item)))
+    if (group.length > 1) {
+      const findPriority = (v: GroupType) => {
+        return displayMap[allGroupType.find((item) => item === v) || ''].priority || 0
+      }
+      group = group.sort((a, b) => {
+        return findPriority(b) - findPriority(a)
+      })
+    }
+    return group
+  })
 
   const checkVaild = useMemoizedFn((childNode: FileNode, image: ImageType) => {
     return displayGroup.every((g) => {
@@ -153,15 +184,13 @@ function CollapseTree(props: CollapseTreeProps) {
     return (
       <div className={'space-y-2'}>
         {tree.map((node) => {
-          // const _isLast = !node.children.length && Object.keys(node.renderConditions || []).length > 1
-          const renderList = node.renderList || images.visibleList.filter((img) => checkVaild(node, img)) || []
+          const renderList = node.renderList || imageSingleTree.visibleList.filter((img) => checkVaild(node, img)) || []
 
           return (
             <ImageCollapse
               key={node.value}
               id={node.value}
               collapseProps={{
-                // bordered: !isLast,
                 bordered: false,
                 ...collapseProps,
               }}
@@ -173,6 +202,7 @@ function CollapseTree(props: CollapseTreeProps) {
               )}
               contextMenu={displayMap[node.type!].contextMenu}
               label={node.label}
+              joinLabel={!!displayMap[node.type!].priority}
               images={renderList}
               nestedChildren={nestedDisplay(node.children)}
             ></ImageCollapse>
@@ -184,16 +214,17 @@ function CollapseTree(props: CollapseTreeProps) {
 
   const displayByPriority = useMemoizedFn(() => {
     const toBeBuild: BuildRenderOption['toBeBuild'] = {}
-    displayGroup.forEach((g) => {
+    sortGroup(displayGroup).forEach((g) => {
       toBeBuild[g] = displayMap[g].list
     })
-    let tree = buildRenderTree({ toBeBuild, flatten: false })
+
+    let tree = buildRenderTree({ toBeBuild })
     if (!tree.length) {
       tree = [
         {
           label: t('ia.all'),
           type: 'all',
-          value: '',
+          value: workspaceFolders[0].value,
           children: [],
         },
       ]
@@ -215,7 +246,7 @@ function CollapseTree(props: CollapseTreeProps) {
         compactFolders(children)
       } else if (isNumber(children.length)) {
         const child = children[0] as FileNode | undefined
-        const renderList = images.visibleList.filter((img) => checkVaild(node, img)) || undefined
+        const renderList = imageSingleTree.visibleList.filter((img) => checkVaild(node, img)) || undefined
 
         if (!renderList?.length) {
           Object.assign(node, {
