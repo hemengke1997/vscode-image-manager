@@ -3,11 +3,6 @@ import { filterImages } from '@rootSrc/webview/ImageManager/utils'
 import { DirTree, type TreeParams } from '@rootSrc/webview/ImageManager/utils/DirTree'
 import { describe, expect, it } from 'vitest'
 
-declare module 'vitest' {
-  export interface TestContext {
-    tree: DirTree
-  }
-}
 const visibleListFixture = [
   {
     name: 'blender.png',
@@ -104,8 +99,8 @@ const displayMapFixture = {
 }
 
 /**
- * test render tree
- * there are a variety of rendering scenarios consisting of groupings and dir display options
+ * Test render tree
+ * There are a variety of rendering scenarios consisting of groupings and dir display options
  *
  * 1. group by dir + nested
  * 2. group by dir + compact

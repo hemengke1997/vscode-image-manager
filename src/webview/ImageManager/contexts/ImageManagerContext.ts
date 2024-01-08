@@ -70,9 +70,9 @@ function useImageManagerContext() {
 
   /* -------------- image collapse -------------- */
 
-  // negative number means close collapse
+  // Negative number means close collapse
   // otherwise, open collapse
-  // zero means no change
+  // Zero means no change
   const [collapseOpen, setCollapseOpen] = useControlledState<number>({
     defaultValue: 0,
     beforeValue(value, prevValue) {

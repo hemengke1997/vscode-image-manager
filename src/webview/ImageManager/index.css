@@ -7,7 +7,7 @@
   --contexify-separator-margin: var(--ant-margin-xxs);
   --contexify-menu-shadow: var(--ant-box-shadow-popover-arrow);
 
-  @apply text-xxs;
+  @apply text-xs;
 
   @keyframes contexify_quickFadeIn {
     from {

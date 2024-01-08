@@ -62,7 +62,7 @@ function useTreeContext(props: { imageList: ImageType[] }) {
       ),
     [imageSingleTree.originalList],
   )
-  const imageTypes = useMemo(
+  const imageType = useMemo(
     () =>
       filterImages(
         imageSingleTree.visibleList,
@@ -87,7 +87,7 @@ function useTreeContext(props: { imageList: ImageType[] }) {
     [imageSingleTree.originalList],
   )
 
-  // everytime list changed, update visibleList
+  // Everytime list changed, update visibleList
   // the only entry to update visibleList
   useUpdateEffect(() => {
     setImageSingleTree((t) => ({ visibleList: t.list.filter(shouldShowImage) }))
@@ -114,7 +114,7 @@ function useTreeContext(props: { imageList: ImageType[] }) {
     workspaceFolders,
     dirs,
     allDirs,
-    imageTypes,
+    imageType,
     allImageTypes,
   }
 }

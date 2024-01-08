@@ -1,6 +1,6 @@
 import { Context } from '@rootSrc/Context'
 import { getClipboard } from '@rootSrc/clipboard'
-import { globImages } from '@rootSrc/helper/glob'
+import { imageGlob } from '@rootSrc/helper/glob'
 import fg from 'fast-glob'
 import imageSize from 'image-size'
 import fs from 'node:fs'
@@ -17,7 +17,15 @@ class MessageHandler {
 
   /* --------------- search images -------------- */
   private async _searchImgs(absWorkspaceFolder: string, webview: Webview, fileTypes: Set<string>, dirs: Set<string>) {
-    const imgs = await fg(globImages().all, {
+    const { config } = Context.getInstance()
+    const { all } = imageGlob({
+      cwd: absWorkspaceFolder,
+      imageType: config.imageType,
+      exclude: config.exclude,
+      root: config.root,
+    })
+
+    const imgs = await fg(all, {
       cwd: absWorkspaceFolder,
       objectMode: true,
       dot: false,

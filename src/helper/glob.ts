@@ -1,5 +1,10 @@
-import { Context } from '@rootSrc/Context'
-import { addLastSlash } from './utils'
+//  function removeLastSlash(path: string) {
+//   return path.replace(/\/$/g, '')
+// }
+
+function addLastSlash(path: string) {
+  return path.replace(/\/?$/g, '/')
+}
 
 export type Pattern = string
 
@@ -23,23 +28,24 @@ const BUILT_IN_EXCLUDE = [
   '**/node_modules/**',
   '**/.git/**',
   '**/dist/**',
-  '**/build/**',
-  '**/out/**',
   '**/coverage/**',
   '**/.next/**',
   '**/.nuxt/**',
   '**/.vercel/**',
 ]
 
-export function globImages() {
-  const { imageType, exclude, root } = Context.getInstance().config
+export function imageGlob(options: { imageType: string[]; exclude: string[]; root: string[]; cwd?: string }) {
+  const { imageType, exclude, root, cwd } = options
 
   const pattern = `**/*.{${imageType.join(',')}}`
 
-  const patterns = root.map((r) => `${addLastSlash(r)}${pattern}`)
+  const patterns = cwd ? [`${addLastSlash(cwd)}${pattern}`] : root.map((r) => `${addLastSlash(r)}${pattern}`)
 
   const ignore = [...exclude, ...BUILT_IN_EXCLUDE].map((pattern) => {
     if (isPositivePattern(pattern)) {
+      if (!pattern.startsWith('*')) {
+        return convertToNegativePattern(`**/${pattern}`)
+      }
       return convertToNegativePattern(pattern)
     }
     return convertToPositivePattern(pattern)

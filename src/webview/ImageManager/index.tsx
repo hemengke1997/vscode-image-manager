@@ -30,7 +30,7 @@ import 'react-contexify/ReactContexify.css'
 
 vscodeApi.registerEventListener()
 
-// the visible of image is determined by 'visible' prop.
+// The visible of image is determined by 'visible' prop.
 // at present, there are two filetr condition
 // 1. type - image type (i.e png, jpg, gif)
 // 2. size - image size (i.e 1kb)
@@ -191,7 +191,7 @@ export default function ImageManager() {
               <div className={'flex flex-col space-y-4'}>
                 <OperationItemUI title={t('ia.type')}>
                   <DisplayType
-                    imageTypes={{
+                    imageType={{
                       all: allImageTypes,
                       checked: displayImageTypes!,
                     }}
@@ -259,12 +259,12 @@ export default function ImageManager() {
                 }}
               >
                 <TreeContext.Consumer>
-                  {({ dirs, imageTypes, workspaceFolders }) => (
+                  {({ dirs, imageType, workspaceFolders }) => (
                     <CollapseTree
                       workspaceFolders={workspaceFolders}
                       displayStyle={displayStyle!}
                       dirs={dirs}
-                      imageTypes={imageTypes}
+                      imageType={imageType}
                       displayGroup={displayGroup}
                     />
                   )}

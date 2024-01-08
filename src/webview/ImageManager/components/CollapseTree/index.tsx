@@ -18,13 +18,13 @@ type GroupOption = Option
 type CollapseTreeProps = {
   workspaceFolders: GroupOption[]
   dirs: GroupOption[]
-  imageTypes: GroupOption[]
+  imageType: GroupOption[]
   displayGroup: GroupType[]
   displayStyle: DisplayStyleType
 }
 
 function CollapseTree(props: CollapseTreeProps) {
-  const { workspaceFolders, dirs, imageTypes, displayGroup, displayStyle } = props
+  const { workspaceFolders, dirs, imageType, displayGroup, displayStyle } = props
   const { imageSingleTree } = TreeContext.usePicker(['imageSingleTree'])
   const { t } = useTranslation()
 
@@ -65,12 +65,12 @@ function CollapseTree(props: CollapseTreeProps) {
           absolutePath: 'fileType',
           relativePath: 'fileType',
         },
-        list: imageTypes,
+        list: imageType,
         icon: () => <PiFileImage />,
         contextMenu: false,
         priority: 3,
       },
-      // special case, when no group checked, show all images
+      // Special case, when no group checked, show all images
       all: {
         icon: (props: { path: string }) => (
           <OpenFolder {...props}>
@@ -81,7 +81,7 @@ function CollapseTree(props: CollapseTreeProps) {
         priority: null,
       },
     }),
-    [workspaceFolders, dirs, imageTypes],
+    [workspaceFolders, dirs, imageType],
   )
 
   const nestedDisplay = useMemoizedFn((tree: FileNode[], collapseProps?: CollapseProps) => {
@@ -91,10 +91,6 @@ function CollapseTree(props: CollapseTreeProps) {
       <div className={'space-y-2'}>
         {tree.map((node) => {
           const renderList = node.renderList || []
-          // ||
-          // imageSingleTree.visibleList.filter((img) => dirTree.current?.shouldShowImage(node, img)) ||
-          // []
-
           return (
             <ImageCollapse
               key={node.value}

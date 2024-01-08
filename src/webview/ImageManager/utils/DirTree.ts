@@ -73,7 +73,7 @@ export class DirTree {
 
     const tree = previousTree[previousTree.length - 1]
 
-    // maybe we should do this in arrangeIntoTree
+    // Maybe we should do this in arrangeIntoTree
     this.renderTree(tree)
 
     return tree

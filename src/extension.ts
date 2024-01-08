@@ -11,13 +11,13 @@ export function activate(context: ExtensionContext) {
   const showImageManagerCmd = commands.registerCommand('image-manager.open-image-manager', (uri: Uri | undefined) => {
     const ctx = Context.getInstance(context)
     if (uri?.fsPath) {
-      // open via context menu
-      // higher priority `Config.root()`
+      // Open via context menu
+      // Higher priority `Config.root()`
       ctx.setConfig({
         root: [uri.fsPath],
       })
     } else {
-      // open via command palette or shortcut
+      // Open via command palette or shortcut
     }
 
     const restart = !isEqual(previousRoot, ctx.config.root)

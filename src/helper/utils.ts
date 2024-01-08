@@ -5,7 +5,7 @@ let lastLogTimestamp = 0
 const logMsg = (text: any) => {
   const now = new Date()
   const gap = now.getTime() - lastLogTimestamp
-  // add some blank rows
+  // Add some blank rows
   if (gap > 5 * 1000) {
     if (gap > 120 * 1000) {
       console.log('\n\n')
@@ -33,14 +33,6 @@ export const showError = (text: any) => {
 
 export function getUri(webview: Webview, extensionUri: Uri, pathList: string[]) {
   return webview.asWebviewUri(Uri.joinPath(extensionUri, ...pathList))
-}
-
-export function removeLastSlash(path: string) {
-  return path.replace(/\/$/g, '')
-}
-
-export function addLastSlash(path: string) {
-  return path.replace(/\/?$/g, '/')
 }
 
 export function getEnvForWebview() {
