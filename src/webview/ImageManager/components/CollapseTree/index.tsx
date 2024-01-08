@@ -84,38 +84,48 @@ function CollapseTree(props: CollapseTreeProps) {
     [workspaceFolders, dirs, imageType],
   )
 
-  const nestedDisplay = useMemoizedFn((tree: FileNode[], collapseProps?: CollapseProps) => {
-    if (!tree.length) return null
+  const nestedDisplay = useMemoizedFn(
+    (
+      tree: FileNode[],
+      collapseProps?: CollapseProps,
+      options?: {
+        defaultOpen?: boolean
+      },
+    ) => {
+      if (!tree.length) return null
 
-    return (
-      <div className={'space-y-2'}>
-        {tree.map((node) => {
-          const renderList = node.renderList || []
-          return (
-            <ImageCollapse
-              key={node.value}
-              id={node.value}
-              collapseProps={{
-                bordered: false,
-                ...collapseProps,
-              }}
-              labelContainer={(label) => (
-                <div className={'flex items-center space-x-2'}>
-                  <div className={'flex-center'}>{displayMap[node.type!].icon({ path: node.value })}</div>
-                  {label}
-                </div>
-              )}
-              contextMenu={displayMap[node.type!].contextMenu}
-              label={node.label}
-              joinLabel={!!displayMap[node.type!].priority}
-              images={renderList}
-              nestedChildren={node.label ? nestedDisplay(node.children) : null}
-            ></ImageCollapse>
-          )
-        })}
-      </div>
-    )
-  })
+      const { defaultOpen } = options || {}
+
+      return (
+        <div className={'space-y-2'}>
+          {tree.map((node) => {
+            return (
+              <ImageCollapse
+                key={node.value}
+                id={node.value}
+                collapseProps={{
+                  bordered: false,
+                  defaultActiveKey: defaultOpen ? [node.value] : undefined,
+                  ...collapseProps,
+                }}
+                labelContainer={(label) => (
+                  <div className={'flex items-center space-x-2'}>
+                    <div className={'flex-center'}>{displayMap[node.type!].icon({ path: node.value })}</div>
+                    {label}
+                  </div>
+                )}
+                contextMenu={displayMap[node.type!].contextMenu}
+                label={node.label}
+                joinLabel={!!displayMap[node.type!].priority}
+                images={node.renderList || []}
+                nestedChildren={node.label ? nestedDisplay(node.children) : null}
+              ></ImageCollapse>
+            )
+          })}
+        </div>
+      )
+    },
+  )
 
   const displayByPriority = useMemoizedFn(() => {
     dirTree.current = new DirTree({
@@ -145,7 +155,7 @@ function CollapseTree(props: CollapseTreeProps) {
     console.log('render tree', tree)
 
     // render tree
-    return nestedDisplay(tree, { bordered: true })
+    return nestedDisplay(tree, { bordered: true }, { defaultOpen: true })
   })
 
   return <>{displayByPriority()}</>

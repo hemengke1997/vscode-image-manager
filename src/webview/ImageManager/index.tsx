@@ -1,6 +1,6 @@
 import { uniq } from '@minko-fe/lodash-pro'
 import { CmdToVscode, CmdToWebview } from '@rootSrc/message/shared'
-import { App, Card, ConfigProvider, theme } from 'antd'
+import { App, Card, ConfigProvider, Skeleton, theme } from 'antd'
 import { AnimatePresence, motion } from 'framer-motion'
 import { type Stats } from 'node:fs'
 import { type ParsedPath } from 'node:path'
@@ -235,9 +235,8 @@ export default function ImageManager() {
       </AnimatePresence>
 
       <Card
-        loading={imageState.loading}
         headStyle={{ borderBottom: 'none' }}
-        bodyStyle={imageState.loading ? {} : { padding: 0 }}
+        bodyStyle={{ padding: 0 }}
         title={t('ia.images')}
         extra={<ImageActions />}
       >
@@ -250,30 +249,37 @@ export default function ImageManager() {
             },
           }}
         >
-          <div className={'space-y-4'}>
-            {imageState.data.map((item, index) => (
-              <TreeContext.Provider
-                key={index}
-                value={{
-                  imageList: item.imgs,
-                }}
-              >
-                <TreeContext.Consumer>
-                  {({ dirs, imageType, workspaceFolders }) => (
-                    <CollapseTree
-                      workspaceFolders={workspaceFolders}
-                      displayStyle={displayStyle!}
-                      dirs={dirs}
-                      imageType={imageType}
-                      displayGroup={displayGroup}
-                    />
-                  )}
-                </TreeContext.Consumer>
-              </TreeContext.Provider>
-            ))}
-          </div>
+          {imageState.loading ? (
+            <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ duration: 0.2, delay: 1 }}>
+              <Skeleton className={'p-4'} active paragraph={{ rows: 20 }} />
+            </motion.div>
+          ) : (
+            <div className={'space-y-4'}>
+              {imageState.data.map((item, index) => (
+                <TreeContext.Provider
+                  key={index}
+                  value={{
+                    imageList: item.imgs,
+                  }}
+                >
+                  <TreeContext.Consumer>
+                    {({ dirs, imageType, workspaceFolders }) => (
+                      <CollapseTree
+                        workspaceFolders={workspaceFolders}
+                        displayStyle={displayStyle!}
+                        dirs={dirs}
+                        imageType={imageType}
+                        displayGroup={displayGroup}
+                      />
+                    )}
+                  </TreeContext.Consumer>
+                </TreeContext.Provider>
+              ))}
+            </div>
+          )}
         </ConfigProvider>
       </Card>
+
       <ImageContextMenu />
       <CollapseContextMenu />
       <ImageForSize />
