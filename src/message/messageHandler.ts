@@ -115,20 +115,11 @@ class MessageHandler {
 
   /* ------- open path in vscode explorer ------ */
   openImageInVscodeExplorer(targetPath: string) {
-    // TODO
-    // if (!targetPath.startsWith(this.getExtConfig().root)) {
-    //   targetPath = path.join(this.getExtConfig().root, targetPath)
-    // }
     commands.executeCommand('revealInExplorer', Uri.file(targetPath))
   }
 
   /* --------- open path in os explorer -------- */
   openImageInOsExplorer(targetPath: string, deep: boolean = true) {
-    // TODO
-    // if (!targetPath.startsWith(this.getExtConfig().root)) {
-    //   targetPath = `${path.join(this.getExtConfig().root, targetPath)}`
-    // }
-
     if (deep) {
       try {
         const files = fs.readdirSync(targetPath)
