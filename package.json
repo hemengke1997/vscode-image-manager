@@ -37,6 +37,7 @@
     "ui:dev": "vite -c vite.config.ts -m development",
     "ui:build": "vite build -c vite.config.ts -m production",
     "build": "rm -rf dist && tsup",
+    "test": "run-s test:unit",
     "test:unit": "vitest",
     "vscode:prepublish": "run-s ui:build build",
     "pack": "vsce package --no-dependencies",
