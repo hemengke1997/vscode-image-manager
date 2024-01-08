@@ -1,11 +1,10 @@
 import { uniq } from '@minko-fe/lodash-pro'
-import { useControlledState, useLocalStorageState } from '@minko-fe/react-hook'
-import { type ReturnOfMessageCenter } from '@rootSrc/message'
 import { CmdToVscode, CmdToWebview } from '@rootSrc/message/shared'
-import { App, Card, ConfigProvider, Modal, theme } from 'antd'
+import { App, Card, ConfigProvider, theme } from 'antd'
 import { AnimatePresence, motion } from 'framer-motion'
 import { type Stats } from 'node:fs'
-import { startTransition, useCallback, useEffect, useMemo } from 'react'
+import { type ParsedPath } from 'node:path'
+import { useEffect, useMemo } from 'react'
 import { useTranslation } from 'react-i18next'
 import { localStorageEnum } from '../local-storage'
 import PrimaryColorPicker from '../ui-framework/src/components/CustomConfigProvider/components/PrimaryColorPicker'
@@ -14,14 +13,17 @@ import { vscodeApi } from '../vscode-api'
 import CollapseTree from './components/CollapseTree'
 import DisplayGroup, { type GroupType } from './components/DisplayGroup'
 import DisplaySort from './components/DisplaySort'
-import DisplayStyle, { type DisplayStyleType } from './components/DisplayStyle'
+import DisplayStyle from './components/DisplayStyle'
 import DisplayType from './components/DisplayType'
 import ImageActions from './components/ImageActions'
+import CollapseContextMenu from './components/ImageCollapse/components/CollapseContextMenu'
 import ImageForSize from './components/ImageForSize'
+import ImageContextMenu from './components/LazyImage/components/ImageContextMenu'
 import ImageManagerContext from './contexts/ImageManagerContext'
+import SettingsContext from './contexts/SettingsContext'
+import TreeContext from './contexts/TreeContext'
 import useWheelScaleEvent from './hooks/useWheelScaleEvent'
 import OperationItemUI from './ui/OperationItemUI'
-import { filterVisibleImages } from './utils'
 import { Colors } from './utils/color'
 import './index.css'
 import 'react-contexify/ReactContexify.css'
@@ -34,8 +36,19 @@ vscodeApi.registerEventListener()
 // 2. size - image size (i.e 1kb)
 type ImageVisibleFilterType = 'type' | 'size'
 
-export type ImageType = Omit<ReturnOfMessageCenter<CmdToVscode.GET_ALL_IMAGES>['imgs'][number], 'stats'> & {
+export type ImageType = {
+  name: string
+  path: string
   stats: Stats
+  dirPath: string
+  fileType: string
+  vscodePath: string
+  workspaceFolder: string
+  absWorkspaceFolder: string
+  absDirPath: string
+  basePath: string
+  extraPathInfo: ParsedPath
+} & {
   // extra
   visible?: Partial<Record<ImageVisibleFilterType | string, boolean>>
 }
@@ -47,29 +60,23 @@ export default function ImageManager() {
 
   const { mode } = GlobalContext.usePicker(['mode'])
 
-  const { images, setImages, imageRefreshedState, refreshImages } = ImageManagerContext.usePicker([
-    'images',
-    'setImages',
+  const { imageState, setImageState, imageRefreshedState, refreshImages } = ImageManagerContext.usePicker([
+    'imageState',
+    'setImageState',
     'imageRefreshedState',
     'refreshImages',
   ])
 
-  const [displayImageTypes, setDisplayImageTypes] = useLocalStorageState<string[]>(
-    localStorageEnum.LOCAL_STORAGE_DISPLAY_TYPE,
-    { defaultValue: [] },
-  )
-
-  const dirs = useMemo(() => filterVisibleImages(images.visibleList, (image) => image.dirPath), [images.visibleList])
-  // const allDirs = useMemo(() => uniq(images.originalList.map((item) => item.dirPath)).sort(), [images.originalList])
-  const imageTypes = useMemo(
-    () => filterVisibleImages(images.visibleList, (image) => image.fileType),
-    [images.visibleList],
-  )
-
-  const allImageTypes = useMemo(
-    () => uniq(images.originalList.map((item) => item.fileType)).sort(),
-    [images.originalList],
-  )
+  const {
+    sort,
+    setSort,
+    displayStyle,
+    setDisplayStyle,
+    displayGroup,
+    setDisplayGroup,
+    displayImageTypes,
+    setDisplayImageTypes,
+  } = SettingsContext.useSelector((ctx) => ctx)
 
   const { refreshTimes, refreshType } = imageRefreshedState
 
@@ -83,16 +90,15 @@ export default function ImageManager() {
       })
     }
 
-    vscodeApi.postMessage({ cmd: CmdToVscode.GET_ALL_IMAGES }, (data) => {
+    vscodeApi.postMessage({ cmd: CmdToVscode.GET_ALL_IMAGES }, ({ data, workspaceFolders }) => {
       console.log(data, 'data')
-      setImages({
-        originalList: data.imgs as ImageType[],
-        list: sortImages(sort!, data.imgs as ImageType[]),
+      setImageState({
+        data,
+        workspaceFolders,
         loading: false,
-        basePath: data.workspaceFolder,
       })
 
-      onImageTypeChange(data.fileTypes)
+      onImageTypeChange(data.flatMap((item) => item.fileTypes))
 
       if (isRefresh) {
         message.destroy(messageKey)
@@ -120,69 +126,32 @@ export default function ImageManager() {
   }, [])
 
   /* ------------ image type checkbox ----------- */
+  const allImageTypes = useMemo(() => uniq(imageState.data.flatMap((item) => item.fileTypes)), [imageState.data])
+  const allImageFiles = useMemo(() => imageState.data.flatMap((item) => item.imgs), [imageState.data])
+
   const onImageTypeChange = (checked: string[]) => {
     setDisplayImageTypes(checked)
-    startTransition(() => {
-      setImages((img) => ({
-        list: img.list.map((t) => ({ ...t, visible: { ...t.visible, type: checked.includes(t.fileType) } })),
-      }))
-    })
   }
 
   /* ---------------- image group --------------- */
-  const groupType: { label: string; value: GroupType; priority: number }[] = useMemo(
+  const groupType: { label: string; value: GroupType; hidden?: boolean }[] = useMemo(
     () => [
+      {
+        label: 'TODO: workspace',
+        value: 'workspace',
+        hidden: true,
+      },
       {
         label: t('ia.group_by_dir'),
         value: 'dir',
-        priority: 1, // highest
       },
       {
         label: t('ia.group_by_type'),
         value: 'type',
-        priority: 2,
       },
     ],
     [],
   )
-
-  const [_displayGroup, _setDisplayGroup] = useLocalStorageState<GroupType[]>(
-    localStorageEnum.LOCAL_STORAGE_DISPLAY_GROUP,
-    {
-      defaultValue: ['dir'],
-    },
-  )
-
-  // ensure the group is sorted by priority
-  useEffect(() => {
-    _setDisplayGroup(sortGroup(_displayGroup!))
-  }, [])
-
-  const sortGroup = useCallback(
-    (group: GroupType[]) => {
-      const allGroupType = groupType.map((item) => item.value)
-      group = uniq(group.filter((item) => allGroupType.includes(item)))
-      if (group.length > 1) {
-        const findPriority = (v: GroupType) => {
-          return groupType.find((item) => item.value === v)?.priority || 0
-        }
-        group = group.sort((a, b) => {
-          return findPriority(b) - findPriority(a)
-        })
-      }
-      return group
-    },
-    [groupType],
-  )
-
-  const [displayGroup, setDisplayGroup] = useControlledState({
-    defaultValue: sortGroup(_displayGroup!),
-    value: _displayGroup!,
-    onChange: (group) => {
-      group = sortGroup(group)
-      _setDisplayGroup(group)
-    },
-  })
 
   const { backgroundColor, setBackgroundColor } = ImageManagerContext.usePicker([
     'backgroundColor',
@@ -201,35 +170,9 @@ export default function ImageManager() {
     },
   ]
 
-  const [sort, setSort] = useLocalStorageState<string[]>(localStorageEnum.LOCAL_STORAGE_SORT, {
-    defaultValue: ['size', 'asc'],
-  })
-
   const onSortChange = (value: string[]) => {
     setSort(value)
-    setImages((t) => ({ list: [...sortImages(value, t.list)] }))
   }
-
-  const sortImages = (sort: string[], images: ImageType[]) => {
-    images.sort((a, b) => {
-      if (sort[0] === 'size') {
-        return sort[1] === 'desc' ? b.stats.size - a.stats.size : a.stats.size - b.stats.size
-      }
-      if (sort[0] === 'name') {
-        return sort[1] === 'desc' ? b.name.localeCompare(a.name) : a.name.localeCompare(b.name)
-      }
-      return 0
-    })
-    return images
-  }
-
-  /* ------ display style (flat | neseted) ------ */
-  const [displayStyle, setDisplayStyle] = useLocalStorageState<DisplayStyleType>(
-    localStorageEnum.LOCAL_STORAGE_DISPLAY_STYLE,
-    {
-      defaultValue: 'compact',
-    },
-  )
 
   /* ---------------- image scale --------------- */
   const [containerRef] = useWheelScaleEvent()
@@ -242,7 +185,7 @@ export default function ImageManager() {
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
-            transition={{ duration: 0.1 }}
+            transition={{ duration: 0.15 }}
           >
             <Card size='small' title={t('ia.settings')}>
               <div className={'flex flex-col space-y-4'}>
@@ -252,7 +195,7 @@ export default function ImageManager() {
                       all: allImageTypes,
                       checked: displayImageTypes!,
                     }}
-                    images={images}
+                    images={allImageFiles}
                     onImageTypeChange={onImageTypeChange}
                   />
                 </OperationItemUI>
@@ -260,7 +203,9 @@ export default function ImageManager() {
                 <div className={'flex space-x-6'}>
                   <OperationItemUI title={t('ia.group')}>
                     <DisplayGroup
-                      options={groupType.map((item) => ({ label: item.label, value: item.value }))}
+                      options={groupType
+                        .filter((t) => !t.hidden)
+                        .map((item) => ({ label: item.label, value: item.value }))}
                       value={displayGroup}
                       onChange={setDisplayGroup}
                     ></DisplayGroup>
@@ -290,10 +235,9 @@ export default function ImageManager() {
       </AnimatePresence>
 
       <Card
-        size='small'
-        loading={images.loading}
+        loading={imageState.loading}
         headStyle={{ borderBottom: 'none' }}
-        bodyStyle={images.loading ? {} : { padding: 0 }}
+        bodyStyle={imageState.loading ? {} : { padding: 0 }}
         title={t('ia.images')}
         extra={<ImageActions />}
       >
@@ -306,12 +250,33 @@ export default function ImageManager() {
             },
           }}
         >
-          <CollapseTree displayStyle={displayStyle!} dirs={dirs} imageTypes={imageTypes} displayGroup={displayGroup} />
+          <div className={'space-y-4'}>
+            {imageState.data.map((item, index) => (
+              <TreeContext.Provider
+                key={index}
+                value={{
+                  imageList: item.imgs,
+                }}
+              >
+                <TreeContext.Consumer>
+                  {({ dirs, imageTypes, workspaceFolders }) => (
+                    <CollapseTree
+                      workspaceFolders={workspaceFolders}
+                      displayStyle={displayStyle!}
+                      dirs={dirs}
+                      imageTypes={imageTypes}
+                      displayGroup={displayGroup}
+                    />
+                  )}
+                </TreeContext.Consumer>
+              </TreeContext.Provider>
+            ))}
+          </div>
         </ConfigProvider>
       </Card>
-
+      <ImageContextMenu />
+      <CollapseContextMenu />
       <ImageForSize />
-      <Modal></Modal>
     </div>
   )
 }

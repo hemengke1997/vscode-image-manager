@@ -2,7 +2,7 @@ import { useControlledState } from '@minko-fe/react-hook'
 import { Checkbox, type CheckboxOptionType } from 'antd'
 import { memo, startTransition } from 'react'
 
-export type GroupType = 'dir' | 'type'
+export type GroupType = 'workspace' | 'dir' | 'type'
 
 type DisplayGroupProps<T> = {
   options: CheckboxOptionType[]

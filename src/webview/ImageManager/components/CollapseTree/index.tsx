@@ -1,118 +1,56 @@
-import { isNumber } from '@minko-fe/lodash-pro'
 import { useMemoizedFn } from '@minko-fe/react-hook'
 import { type CollapseProps } from 'antd'
-import { memo, useMemo } from 'react'
+import { memo, useMemo, useRef } from 'react'
 import { useTranslation } from 'react-i18next'
 import { FaRegImages } from 'react-icons/fa'
+import { FaRegObjectGroup } from 'react-icons/fa6'
 import { IoMdFolderOpen } from 'react-icons/io'
 import { PiFileImage } from 'react-icons/pi'
-import { type ImageType } from '../..'
-import ImageManagerContext from '../../contexts/ImageManagerContext'
+import TreeContext from '../../contexts/TreeContext'
+import { DirTree, type FileNode } from '../../utils/DirTree'
 import { type GroupType } from '../DisplayGroup'
 import { type DisplayStyleType } from '../DisplayStyle'
 import ImageCollapse from '../ImageCollapse'
 import OpenFolder from './components/OpenFolder'
+
+type GroupOption = Option
+
 type CollapseTreeProps = {
-  dirs: string[]
-  imageTypes: string[]
+  workspaceFolders: GroupOption[]
+  dirs: GroupOption[]
+  imageTypes: GroupOption[]
   displayGroup: GroupType[]
   displayStyle: DisplayStyleType
 }
 
-type Flatten = 'all'
-
-export type FileNode = {
-  label: string
-  value: string
-  children: FileNode[]
-  renderConditions?: Record<string, string>[]
-  type?: GroupType | Flatten
-  // for compactFolders
-  renderList?: ImageType[]
-}
-
-function treeify(
-  list: string[],
-  options: {
-    flatten?: boolean
-    onGenerate?: (node: FileNode) => void
-  },
-) {
-  const { flatten = false, onGenerate } = options
-  const resultTree: FileNode[] = []
-
-  if (flatten) {
-    list.forEach((item) => {
-      const node = {
-        label: item,
-        value: item,
-        children: [],
-      }
-      onGenerate?.(node)
-      resultTree.push(node)
-    })
-  } else {
-    for (const file of list) {
-      const paths = file.split('/')
-      let currentNodes = resultTree
-      paths.forEach((path, index) => {
-        const find = currentNodes.find((item) => item.label === path)
-        if (find) {
-          currentNodes = find.children
-        } else {
-          const node = {
-            label: path,
-            value: paths.slice(0, index + 1).join('/'),
-            children: [],
-          }
-          onGenerate?.(node)
-          currentNodes.push(node)
-          currentNodes = node.children
-        }
-      })
-    }
-  }
-
-  return resultTree
-}
-
-type BuildRenderOption = {
-  flatten?: boolean
-  toBeBuild: Record<string, string[]>
-}
-function buildRenderTree(options: BuildRenderOption) {
-  const { flatten, toBeBuild } = options
-  let previousTree = [] as FileNode[]
-  Object.keys(toBeBuild).forEach((d) => {
-    previousTree = treeify(toBeBuild[d], {
-      flatten,
-      onGenerate: (n) => {
-        n.type = d as GroupType
-
-        if (!n.renderConditions) {
-          n.renderConditions = [{ [d]: n.value }]
-        }
-
-        const p = previousTree.map((item) => ({
-          ...item,
-          renderConditions: [...(item.renderConditions || []), ...(n.renderConditions || [])],
-        }))
-        n.children.push(...p)
-      },
-    })
-  })
-  return previousTree
-}
-
 function CollapseTree(props: CollapseTreeProps) {
-  const { dirs, imageTypes, displayGroup, displayStyle } = props
-  const { images } = ImageManagerContext.usePicker(['images'])
+  const { workspaceFolders, dirs, imageTypes, displayGroup, displayStyle } = props
+  const { imageSingleTree } = TreeContext.usePicker(['imageSingleTree'])
   const { t } = useTranslation()
+
+  const dirTree = useRef<DirTree>()
 
   const displayMap = useMemo(
     () => ({
+      workspace: {
+        imageKeys: {
+          absolutePath: 'absWorkspaceFolder',
+          relativePath: 'workspaceFolder',
+        },
+        list: workspaceFolders,
+        icon: (props: { path: string }) => (
+          <OpenFolder {...props}>
+            <FaRegObjectGroup />
+          </OpenFolder>
+        ),
+        contextMenu: true,
+        priority: 1,
+      },
       dir: {
-        imagePrototype: 'dirPath',
+        imageKeys: {
+          absolutePath: 'absDirPath',
+          relativePath: 'dirPath',
+        },
         list: dirs,
         icon: (props: { path: string }) => (
           <OpenFolder {...props}>
@@ -120,32 +58,31 @@ function CollapseTree(props: CollapseTreeProps) {
           </OpenFolder>
         ),
         contextMenu: true,
+        priority: 2,
       },
       type: {
-        imagePrototype: 'fileType',
+        imageKeys: {
+          absolutePath: 'fileType',
+          relativePath: 'fileType',
+        },
         list: imageTypes,
         icon: () => <PiFileImage />,
         contextMenu: false,
+        priority: 3,
       },
+      // special case, when no group checked, show all images
       all: {
-        icon: () => (
-          <OpenFolder path=''>
+        icon: (props: { path: string }) => (
+          <OpenFolder {...props}>
             <FaRegImages />
           </OpenFolder>
         ),
         contextMenu: true,
+        priority: null,
       },
     }),
-    [dirs, imageTypes],
+    [workspaceFolders, dirs, imageTypes],
   )
-
-  const checkVaild = useMemoizedFn((childNode: FileNode, image: ImageType) => {
-    return displayGroup.every((g) => {
-      return childNode.renderConditions?.some((c) => {
-        return c[g] === image[displayMap[g].imagePrototype]
-      })
-    })
-  })
 
   const nestedDisplay = useMemoizedFn((tree: FileNode[], collapseProps?: CollapseProps) => {
     if (!tree.length) return null
@@ -153,15 +90,16 @@ function CollapseTree(props: CollapseTreeProps) {
     return (
       <div className={'space-y-2'}>
         {tree.map((node) => {
-          // const _isLast = !node.children.length && Object.keys(node.renderConditions || []).length > 1
-          const renderList = node.renderList || images.visibleList.filter((img) => checkVaild(node, img)) || []
+          const renderList = node.renderList || []
+          // ||
+          // imageSingleTree.visibleList.filter((img) => dirTree.current?.shouldShowImage(node, img)) ||
+          // []
 
           return (
             <ImageCollapse
               key={node.value}
               id={node.value}
               collapseProps={{
-                // bordered: !isLast,
                 bordered: false,
                 ...collapseProps,
               }}
@@ -173,8 +111,9 @@ function CollapseTree(props: CollapseTreeProps) {
               )}
               contextMenu={displayMap[node.type!].contextMenu}
               label={node.label}
+              joinLabel={!!displayMap[node.type!].priority}
               images={renderList}
-              nestedChildren={nestedDisplay(node.children)}
+              nestedChildren={node.label ? nestedDisplay(node.children) : null}
             ></ImageCollapse>
           )
         })}
@@ -183,57 +122,34 @@ function CollapseTree(props: CollapseTreeProps) {
   })
 
   const displayByPriority = useMemoizedFn(() => {
-    const toBeBuild: BuildRenderOption['toBeBuild'] = {}
-    displayGroup.forEach((g) => {
-      toBeBuild[g] = displayMap[g].list
+    dirTree.current = new DirTree({
+      displayGroup,
+      displayMap,
+      visibleList: imageSingleTree.visibleList,
     })
-    let tree = buildRenderTree({ toBeBuild, flatten: false })
+
+    let tree = dirTree.current.buildRenderTree()
+
     if (!tree.length) {
       tree = [
         {
           label: t('ia.all'),
           type: 'all',
-          value: '',
+          fullLabel: '',
+          value: workspaceFolders[0].value,
           children: [],
         },
       ]
     }
 
     if (displayStyle === 'compact') {
-      compactFolders(tree)
+      dirTree.current.compactFolders(tree)
     }
 
     console.log('render tree', tree)
+
     // render tree
     return nestedDisplay(tree, { bordered: true })
-  })
-
-  const compactFolders = useMemoizedFn((tree: FileNode[]) => {
-    tree.forEach((node) => {
-      const { children } = node
-      if (children.length > 1) {
-        compactFolders(children)
-      } else if (isNumber(children.length)) {
-        const child = children[0] as FileNode | undefined
-        const renderList = images.visibleList.filter((img) => checkVaild(node, img)) || undefined
-
-        if (!renderList?.length) {
-          Object.assign(node, {
-            ...child,
-            label: child ? `${node.label}/${child.label}` : node.label,
-          })
-
-          if (child?.children.length) {
-            compactFolders(tree)
-          }
-        } else {
-          node.renderList = renderList
-          if (node?.children.length) {
-            compactFolders(node.children)
-          }
-        }
-      }
-    })
   })
 
   return <>{displayByPriority()}</>

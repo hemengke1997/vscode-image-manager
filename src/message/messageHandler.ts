@@ -16,9 +16,9 @@ class MessageHandler {
   }
 
   /* --------------- search images -------------- */
-  private async _searchImgs(basePath: string, webview: Webview, fileTypes: Set<string>, dirs: Set<string>) {
+  private async _searchImgs(absWorkspaceFolder: string, webview: Webview, fileTypes: Set<string>, dirs: Set<string>) {
     const imgs = await fg(globImages().all, {
-      cwd: basePath,
+      cwd: absWorkspaceFolder,
       objectMode: true,
       dot: false,
       absolute: true,
@@ -26,41 +26,54 @@ class MessageHandler {
       stats: true,
     })
 
-    const workspaceFolder = Context.getInstance().config.root
-
     return imgs.map((img) => {
-      const relativePath = img.path.replace(`${workspaceFolder}/`, '')
-
       const vscodePath = webview.asWebviewUri(Uri.file(img.path)).toString()
 
       const fileType = path.extname(img.path).replace('.', '')
       fileTypes.add(fileType)
-
-      const dirPath = path.dirname(relativePath)
+      const dirPath = path.relative(absWorkspaceFolder, path.dirname(img.path))
       dirs.add(dirPath)
 
+      const workspaceFolder = path.basename(absWorkspaceFolder)
+
       return {
-        ...img,
-        relativePath,
-        vscodePath,
-        fileType,
+        name: img.name,
+        path: img.path,
+        stats: img.stats!,
         dirPath,
-        extraPathInfo: path.parse(relativePath),
+        absDirPath: path.dirname(img.path),
+        fileType,
+        vscodePath,
+        workspaceFolder,
+        absWorkspaceFolder,
+        basePath: path.dirname(absWorkspaceFolder),
+        extraPathInfo: path.parse(img.path),
       }
     })
   }
-  async getAllImgs(webview: Webview) {
-    const workspaceFolder = Context.getInstance().config.root
-    const fileTypes: Set<string> = new Set()
-    const dirs: Set<string> = new Set()
 
-    const imgs = await this._searchImgs(workspaceFolder, webview, fileTypes, dirs)
+  async getAllImgs(webview: Webview) {
+    const workspaceFolders = Context.getInstance().config.root
+
+    const data = await Promise.all(
+      workspaceFolders.map(async (workspaceFolder) => {
+        const fileTypes: Set<string> = new Set()
+        const dirs: Set<string> = new Set()
+
+        const imgs = await this._searchImgs(workspaceFolder, webview, fileTypes, dirs)
+        return {
+          imgs,
+          workspaceFolder: path.basename(workspaceFolder),
+          absWorkspaceFolder: workspaceFolder,
+          fileTypes: [...fileTypes].filter(Boolean),
+          dirs: [...dirs].filter(Boolean),
+        }
+      }),
+    )
 
     return {
-      imgs,
-      workspaceFolder,
-      fileTypes: [...fileTypes],
-      dirs: [...dirs],
+      data,
+      workspaceFolders,
     }
   }
 
@@ -102,18 +115,11 @@ class MessageHandler {
 
   /* ------- open path in vscode explorer ------ */
   openImageInVscodeExplorer(targetPath: string) {
-    if (!targetPath.startsWith(this.getExtConfig().root)) {
-      targetPath = path.join(this.getExtConfig().root, targetPath)
-    }
     commands.executeCommand('revealInExplorer', Uri.file(targetPath))
   }
 
   /* --------- open path in os explorer -------- */
   openImageInOsExplorer(targetPath: string, deep: boolean = true) {
-    if (!targetPath.startsWith(this.getExtConfig().root)) {
-      targetPath = `${path.join(this.getExtConfig().root, targetPath)}`
-    }
-
     if (deep) {
       try {
         const files = fs.readdirSync(targetPath)

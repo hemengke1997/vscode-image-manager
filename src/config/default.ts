@@ -1,7 +1,7 @@
-import { type ConfigType } from '.'
+import { type Config } from '.'
 
-export const defaultConfig: ConfigType = {
-  root: '',
+export const defaultConfig: Config = {
+  root: [],
   warningSize: 500,
   imageDefaultWidth: 100,
   scaleStep: 0.1,

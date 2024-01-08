@@ -4,14 +4,14 @@ import ImageManagerContext from '../../contexts/ImageManagerContext'
 import LazyImage from '../LazyImage'
 
 function ImageForSize() {
-  const { config, scale, images, setImagePlaceholderSize } = ImageManagerContext.usePicker([
+  const { config, scale, imageState, setImagePlaceholderSize } = ImageManagerContext.usePicker([
     'config',
     'scale',
-    'images',
     'setImagePlaceholderSize',
+    'imageState',
   ])
   const BASE_SIZE = config.imageDefaultWidth
-  const imageForSize = useMemo(() => images.list[0], [images.list])
+  const imageForSize = useMemo(() => imageState.data[0]?.imgs[0], [imageState.data])
   const imageForSizeRef = useRef<HTMLDivElement>(null)
 
   const size = useSize(imageForSizeRef)

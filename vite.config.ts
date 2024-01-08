@@ -1,3 +1,5 @@
+/// <reference types="vitest" />
+
 import path from 'node:path'
 import { defineConfig, loadConfigFromFile, mergeConfig } from 'vite'
 import { createHtmlPlugin } from 'vite-plugin-html'
@@ -39,6 +41,9 @@ export default defineConfig(async (env) => {
         host: 'localhost',
         protocol: 'ws',
       },
+    },
+    test: {
+      include: ['**/__test__/**/*.test.ts'],
     },
   })
 

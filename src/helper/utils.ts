@@ -35,8 +35,12 @@ export function getUri(webview: Webview, extensionUri: Uri, pathList: string[]) 
   return webview.asWebviewUri(Uri.joinPath(extensionUri, ...pathList))
 }
 
-export function slash(path: string) {
-  return path.replace(/\\/g, '/')
+export function removeLastSlash(path: string) {
+  return path.replace(/\/$/g, '')
+}
+
+export function addLastSlash(path: string) {
+  return path.replace(/\/?$/g, '/')
 }
 
 export function getEnvForWebview() {
@@ -49,6 +53,6 @@ export function removeUrlProtocol(url: string) {
   return url.replace(/https?:\/\//, '')
 }
 
-export function getWorkspaceFolder() {
-  return workspace.workspaceFolders?.[0] || undefined
+export function getWorkspaceFolders() {
+  return workspace.workspaceFolders
 }
