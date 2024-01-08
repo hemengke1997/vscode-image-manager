@@ -1,5 +1,5 @@
 import { useMemoizedFn } from '@minko-fe/react-hook'
-import { type CollapseProps } from 'antd'
+import { type CollapseProps, ConfigProvider } from 'antd'
 import { memo, useMemo, useRef } from 'react'
 import { useTranslation } from 'react-i18next'
 import { FaRegImages } from 'react-icons/fa'
@@ -158,7 +158,11 @@ function CollapseTree(props: CollapseTreeProps) {
     return nestedDisplay(tree, { bordered: true }, { defaultOpen: true })
   })
 
-  return <>{displayByPriority()}</>
+  return (
+    <>
+      <ConfigProvider>{displayByPriority()}</ConfigProvider>
+    </>
+  )
 }
 
 export default memo(CollapseTree)

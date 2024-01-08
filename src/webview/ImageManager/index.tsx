@@ -1,6 +1,6 @@
 import { uniq } from '@minko-fe/lodash-pro'
 import { CmdToVscode, CmdToWebview } from '@rootSrc/message/shared'
-import { App, Card, ConfigProvider, Skeleton, theme } from 'antd'
+import { App, Card, Skeleton } from 'antd'
 import { AnimatePresence, motion } from 'framer-motion'
 import { type Stats } from 'node:fs'
 import { type ParsedPath } from 'node:path'
@@ -54,7 +54,6 @@ export type ImageType = {
 }
 
 export default function ImageManager() {
-  const { token } = theme.useToken()
   const { message } = App.useApp()
   const { t } = useTranslation()
 
@@ -240,44 +239,34 @@ export default function ImageManager() {
         title={t('ia.images')}
         extra={<ImageActions />}
       >
-        <ConfigProvider
-          theme={{
-            components: {
-              Collapse: {
-                motionDurationMid: token.motionDurationFast,
-              },
-            },
-          }}
-        >
-          {imageState.loading ? (
-            <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ duration: 0.2, delay: 1 }}>
-              <Skeleton className={'p-4'} active paragraph={{ rows: 20 }} />
-            </motion.div>
-          ) : (
-            <div className={'space-y-4'}>
-              {imageState.data.map((item, index) => (
-                <TreeContext.Provider
-                  key={index}
-                  value={{
-                    imageList: item.imgs,
-                  }}
-                >
-                  <TreeContext.Consumer>
-                    {({ dirs, imageType, workspaceFolders }) => (
-                      <CollapseTree
-                        workspaceFolders={workspaceFolders}
-                        displayStyle={displayStyle!}
-                        dirs={dirs}
-                        imageType={imageType}
-                        displayGroup={displayGroup}
-                      />
-                    )}
-                  </TreeContext.Consumer>
-                </TreeContext.Provider>
-              ))}
-            </div>
-          )}
-        </ConfigProvider>
+        {imageState.loading ? (
+          <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ duration: 0.2, delay: 1 }}>
+            <Skeleton className={'p-4'} active paragraph={{ rows: 20 }} />
+          </motion.div>
+        ) : (
+          <div className={'space-y-4'}>
+            {imageState.data.map((item, index) => (
+              <TreeContext.Provider
+                key={index}
+                value={{
+                  imageList: item.imgs,
+                }}
+              >
+                <TreeContext.Consumer>
+                  {({ dirs, imageType, workspaceFolders }) => (
+                    <CollapseTree
+                      workspaceFolders={workspaceFolders}
+                      displayStyle={displayStyle!}
+                      dirs={dirs}
+                      imageType={imageType}
+                      displayGroup={displayGroup}
+                    />
+                  )}
+                </TreeContext.Consumer>
+              </TreeContext.Provider>
+            ))}
+          </div>
+        )}
       </Card>
 
       <ImageContextMenu />

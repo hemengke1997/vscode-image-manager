@@ -54,7 +54,7 @@ Right click in Explorer, select `Open Image Manager` to open extension.
 ## TODO
 
 - [ ] image crop
-- [ ] copy,paste,delete,move
+- [x] copy image, copy base64 etc.
 - [ ] deplicate image
 - [ ] tiny
 - [ ] OCR

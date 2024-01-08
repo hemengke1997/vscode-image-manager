@@ -91,7 +91,7 @@ function LazyImage(props: LazyImageProps) {
         ref={keybindRef}
         tabIndex={-1}
         className={classNames(
-          'flex flex-none flex-col items-center p-2 space-y-1 transition-colors',
+          'flex flex-none flex-col items-center p-1.5 space-y-1 transition-colors',
           'overflow-hidden border-[1px] border-solid border-transparent rounded-md hover:border-ant-color-primary focus:border-ant-color-primary',
         )}
         initial={{ opacity: 0 }}
