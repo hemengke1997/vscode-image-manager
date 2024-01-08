@@ -31,3 +31,39 @@ jobs:
 
       - name: Lint
         run: pnpm lint
+
+  test:
+    timeout-minutes: 5
+    runs-on: ${{ matrix.os }}
+    strategy:
+      matrix:
+        os: [ubuntu-latest]
+        node_version: [16, 18, 20]
+        include:
+          # Active LTS + other OS
+          - os: macos-latest
+            node_version: 18
+          - os: windows-latest
+            node_version: 18
+      fail-fast: false
+
+    name: 'Test: node-${{ matrix.node_version }}, ${{ matrix.os }}'
+    steps:
+      - uses: actions/checkout@v3
+
+      - name: Install pnpm
+        uses: pnpm/action-setup@v2
+        with:
+          version: 8.6.2
+
+      - name: Set node
+        uses: actions/setup-node@v3
+        with:
+          node-version: ${{ matrix.node_version }}
+          cache: pnpm
+
+      - name: Install
+        run: pnpm install --frozen-lockfile --prefer-offline --ignore-scripts
+
+      - name: Test
+        run: pnpm test

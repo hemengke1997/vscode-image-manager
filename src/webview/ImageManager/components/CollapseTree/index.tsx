@@ -7,7 +7,7 @@ import { FaRegObjectGroup } from 'react-icons/fa6'
 import { IoMdFolderOpen } from 'react-icons/io'
 import { PiFileImage } from 'react-icons/pi'
 import TreeContext from '../../contexts/TreeContext'
-import { type BuildRenderOption, DirTree, type FileNode } from '../../utils/DirTree'
+import { DirTree, type FileNode } from '../../utils/DirTree'
 import { type GroupType } from '../DisplayGroup'
 import { type DisplayStyleType } from '../DisplayStyle'
 import ImageCollapse from '../ImageCollapse'
@@ -90,10 +90,10 @@ function CollapseTree(props: CollapseTreeProps) {
     return (
       <div className={'space-y-2'}>
         {tree.map((node) => {
-          const renderList =
-            node.renderList ||
-            imageSingleTree.visibleList.filter((img) => dirTree.current?.shouldShowImage(node, img)) ||
-            []
+          const renderList = node.renderList || []
+          // ||
+          // imageSingleTree.visibleList.filter((img) => dirTree.current?.shouldShowImage(node, img)) ||
+          // []
 
           return (
             <ImageCollapse
@@ -122,18 +122,14 @@ function CollapseTree(props: CollapseTreeProps) {
   })
 
   const displayByPriority = useMemoizedFn(() => {
-    const toBeBuild: BuildRenderOption['toBeBuild'] = {}
-    displayGroup.forEach((g) => {
-      toBeBuild[g] = displayMap[g].list.filter((t) => !!t.label)
-    })
-
     dirTree.current = new DirTree({
       displayGroup,
       displayMap,
       visibleList: imageSingleTree.visibleList,
     })
 
-    let tree = dirTree.current.buildRenderTree({ toBeBuild })
+    let tree = dirTree.current.buildRenderTree()
+
     if (!tree.length) {
       tree = [
         {

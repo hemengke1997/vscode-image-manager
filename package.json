@@ -32,6 +32,21 @@
   "activationEvents": [
     "onStartupFinished"
   ],
+  "scripts": {
+    "dev": "simple-git-hooks && tsup --watch",
+    "ui:dev": "vite -c vite.config.ts -m development",
+    "ui:build": "vite build -c vite.config.ts -m production",
+    "build": "rm -rf dist && tsup",
+    "test:unit": "vitest",
+    "vscode:prepublish": "run-s ui:build build",
+    "pack": "vsce package --no-dependencies",
+    "lint": "eslint .",
+    "up": "taze -I -w -r",
+    "pnpm:up": "pnpm upgrade -i -L",
+    "changelog": "conventional-changelog -p eslint -i CHANGELOG-CODE.md -s -r 0",
+    "release": "bumpp package.json --commit --tag --no-push --all -x \"pnpm run changelog\"",
+    "publish": "vsce publish --no-dependencies"
+  },
   "contributes": {
     "viewsContainers": {
       "activitybar": [
@@ -123,20 +138,6 @@
       }
     }
   },
-  "scripts": {
-    "dev": "simple-git-hooks && tsup --watch",
-    "ui:dev": "vite -c vite.config.ts -m development",
-    "ui:build": "vite build -c vite.config.ts -m production",
-    "build": "rm -rf dist && tsup",
-    "vscode:prepublish": "run-s ui:build build",
-    "pack": "vsce package --no-dependencies",
-    "lint": "eslint .",
-    "up": "taze -I -w -r",
-    "pnpm:up": "pnpm upgrade -i -L",
-    "changelog": "conventional-changelog -p eslint -i CHANGELOG-CODE.md -s -r 0",
-    "release": "bumpp package.json --commit --tag --no-push --all -x \"pnpm run changelog\"",
-    "publish": "vsce publish --no-dependencies"
-  },
   "dependencies": {
     "@ctrl/tinycolor": "^4.0.2",
     "@minko-fe/react-hook": "^0.1.16",
@@ -190,7 +191,7 @@
     "vite": "^4.5.1",
     "vite-plugin-html": "^3.2.0",
     "vite-plugin-i18n-detector": "^2.2.0",
-    "vitest": "^1.1.3"
+    "vitest": "^0.34.6"
   },
   "engines": {
     "vscode": "^1.80.0"

@@ -9,6 +9,7 @@ type DisplayMapType = {
       absolutePath: string
       relativePath: string
     }
+    list: Option[]
   }
 }
 type VisibleList = ImageType[]
@@ -22,27 +23,29 @@ export type FileNode = {
   children: FileNode[]
   renderConditions?: Record<string, string>[]
   type?: GroupType | Flatten
-  // for compactFolders
   renderList?: ImageType[]
 }
 
-export type BuildRenderOption = {
-  toBeBuild: Record<string, Option[]>
-}
+export type TreeParams = { displayGroup: DisplayGroupType; displayMap: DisplayMapType; visibleList: VisibleList }
 
 export class DirTree {
   displayGroup: DisplayGroupType
   displayMap: DisplayMapType
   visibleList: VisibleList
 
-  constructor(params: { displayGroup: DisplayGroupType; displayMap: DisplayMapType; visibleList: VisibleList }) {
+  constructor(params: TreeParams) {
     this.displayGroup = params.displayGroup
     this.displayMap = params.displayMap
     this.visibleList = params.visibleList
   }
 
-  buildRenderTree(options: BuildRenderOption) {
-    const { toBeBuild } = options
+  buildRenderTree() {
+    const toBeBuild = {} as Record<string, Option[]>
+
+    this.displayGroup.forEach((g) => {
+      toBeBuild[g] = this.displayMap[g].list.filter((t) => !!t.label)
+    })
+
     const previousTree = [] as FileNode[][]
     const sortedKeys = this.sortGroup(this.displayGroup)
 
@@ -68,7 +71,28 @@ export class DirTree {
       previousTree.push(resultTree)
     })
 
-    return previousTree[previousTree.length - 1]
+    const tree = previousTree[previousTree.length - 1]
+
+    // maybe we should do this in arrangeIntoTree
+    this.renderTree(tree)
+
+    return tree
+  }
+
+  renderTree(tree: FileNode[]) {
+    const stack = [...tree]
+    while (stack.length) {
+      const node = stack.pop()
+      if (node?.children.length) {
+        stack.push(...node.children)
+      }
+      if (node?.renderConditions?.length) {
+        const renderList = this.visibleList.filter((img) => this._shouldShowImage(node, img)) || []
+        if (renderList.length) {
+          node.renderList = renderList
+        }
+      }
+    }
   }
 
   traverseTreeToSetRenderConditions(previousTree: FileNode[], renderConditions: Record<string, string>[]) {
@@ -174,7 +198,7 @@ export class DirTree {
 
         const nonPathChildren = children.filter((c) => !this.isPath(c.value))
         const noNonPathRenderList = nonPathChildren.every((child) => {
-          const renderLinst = this.visibleList.filter((img) => this.shouldShowImage(child, img)) || []
+          const renderLinst = child.renderList || []
           if (renderLinst.length) {
             child.renderList = renderLinst
             return false
@@ -205,8 +229,8 @@ export class DirTree {
 
   compact(node: FileNode, tree: FileNode[]) {
     const child = node.children.filter((c) => this.isPath(c.value))[0]
-    const renderList = this.visibleList.filter((img) => this.shouldShowImage(node, img)) || []
-    if (!renderList?.length) {
+    const renderList = node.renderList || []
+    if (!renderList.length) {
       Object.assign(node, {
         ...child,
         label: `${node.label}/${child.label}`,
@@ -222,7 +246,7 @@ export class DirTree {
     }
   }
 
-  shouldShowImage(node: FileNode, image: ImageType) {
+  private _shouldShowImage(node: FileNode, image: ImageType) {
     return this.displayGroup.every((g) => {
       const imageValue = image[this.displayMap[g].imageKeys.absolutePath]
       return node.renderConditions?.some((condition) => {
