@@ -20,6 +20,14 @@ function useTreeContext(props: { imageList: ImageType[] }) {
     visibleList: imageList,
   })
 
+  useUpdateEffect(() => {
+    setImageSingleTree({
+      originalList: imageList,
+      list: imageList,
+      visibleList: imageList,
+    })
+  }, [imageList])
+
   const workspaceFolders = useMemo(
     () =>
       filterImages(

@@ -156,7 +156,10 @@ export class ImageManagerPanel {
     return html
   }
 
-  public static render(ctx: Context) {
+  public static render(ctx: Context, restartFlag = false) {
+    if (restartFlag) {
+      ImageManagerPanel.currentPanel?.dispose()
+    }
     if (ImageManagerPanel.currentPanel) {
       // If the webview panel already exists reveal it
       ImageManagerPanel.currentPanel._panel.reveal(ViewColumn.One)

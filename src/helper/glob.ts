@@ -1,4 +1,5 @@
 import { Context } from '@rootSrc/Context'
+import { addLastSlash } from './utils'
 
 export type Pattern = string
 
@@ -31,8 +32,11 @@ const BUILT_IN_EXCLUDE = [
 ]
 
 export function globImages() {
-  const { imageType, exclude } = Context.getInstance().config
-  const patterns = `**/*.{${imageType.join(',')}}`
+  const { imageType, exclude, root } = Context.getInstance().config
+
+  const pattern = `**/*.{${imageType.join(',')}}`
+
+  const patterns = root.map((r) => `${addLastSlash(r)}${pattern}`)
 
   const ignore = [...exclude, ...BUILT_IN_EXCLUDE].map((pattern) => {
     if (isPositivePattern(pattern)) {
@@ -42,8 +46,9 @@ export function globImages() {
   })
 
   return {
+    pattern,
     patterns,
     ignore,
-    all: [patterns].concat(ignore),
+    all: patterns.concat(ignore),
   }
 }

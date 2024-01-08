@@ -13,7 +13,7 @@ class Watcher {
     if (!this._ctx.config.root.length) return
 
     const imageWatchers = this._ctx.config.root.map((r) => {
-      return workspace.createFileSystemWatcher(new RelativePattern(r, globImages().patterns))
+      return workspace.createFileSystemWatcher(new RelativePattern(r, globImages().pattern))
     })
 
     const folderWatchers = this._ctx.config.root.map((r) => {

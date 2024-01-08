@@ -32,7 +32,7 @@ function ImageCollapse(props: ImageCollapseProps) {
   const { show } = useContextMenu({ props: { targetPath: '' } })
 
   const basePath = useMemo(() => (joinLabel ? id.slice(0, id.lastIndexOf(label)) : id), [id, label, joinLabel])
-  const labels = useMemo(() => label.split('/'), [label])
+  const labels = useMemo(() => label.split('/').filter(Boolean), [label])
 
   useEffect(() => {
     if (collapseOpen > 0) {
@@ -47,11 +47,12 @@ function ImageCollapse(props: ImageCollapseProps) {
     return basePath + labels.slice(0, index + 1).join('/')
   }
 
-  const singleLabelNode = (label: string, index?: number) => {
+  const singleLabelNode = (label: string, index: number) => {
     return (
       <div
         onContextMenu={(e) => {
           if (!contextMenu) return
+
           show({
             event: e,
             id: COLLAPSE_CONTEXT_MENU_ID,
@@ -84,7 +85,8 @@ function ImageCollapse(props: ImageCollapseProps) {
         </div>
       )
     } else {
-      return singleLabelNode(labels[0])
+      // TODO: 哪些情况下，index 传 0 会出问题？
+      return singleLabelNode(labels[0], 0)
     }
   }
 

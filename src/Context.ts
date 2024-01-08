@@ -1,9 +1,11 @@
 import { type ExtensionContext, ExtensionMode, window } from 'vscode'
-import { Config } from './config'
+import { Config, type ConfigType } from './config'
 import Watcher from './watcher'
 
 export class Context {
   private static instance: Context
+
+  private _config: ConfigType = Config
   public theme: 'light' | 'dark' = 'dark'
 
   constructor(public ext: ExtensionContext) {
@@ -28,8 +30,15 @@ export class Context {
     return Context.instance
   }
 
+  public setConfig(config: Partial<ConfigType>) {
+    this._config = {
+      ...this._config,
+      ...config,
+    }
+  }
+
   public get config() {
-    return Config
+    return this._config
   }
 
   public get watcher() {

@@ -65,8 +65,8 @@ class MessageHandler {
           imgs,
           workspaceFolder: path.basename(workspaceFolder),
           absWorkspaceFolder: workspaceFolder,
-          fileTypes: [...fileTypes],
-          dirs: [...dirs],
+          fileTypes: [...fileTypes].filter(Boolean),
+          dirs: [...dirs].filter(Boolean),
         }
       }),
     )
