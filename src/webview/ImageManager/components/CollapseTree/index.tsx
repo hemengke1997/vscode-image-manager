@@ -1,20 +1,13 @@
 import { useMemoizedFn } from '@minko-fe/react-hook'
 import { type CollapseProps } from 'antd'
-import { memo, useMemo } from 'react'
+import { memo, useMemo, useRef } from 'react'
 import { useTranslation } from 'react-i18next'
 import { FaRegImages } from 'react-icons/fa'
 import { FaRegObjectGroup } from 'react-icons/fa6'
 import { IoMdFolderOpen } from 'react-icons/io'
 import { PiFileImage } from 'react-icons/pi'
 import TreeContext from '../../contexts/TreeContext'
-import {
-  type BuildRenderOption,
-  type FileNode,
-  buildRenderTree,
-  callBeforeTreeify,
-  compactFolders,
-  shouldShowImage,
-} from '../../utils/tree'
+import { type BuildRenderOption, DirTree, type FileNode } from '../../utils/DirTree'
 import { type GroupType } from '../DisplayGroup'
 import { type DisplayStyleType } from '../DisplayStyle'
 import ImageCollapse from '../ImageCollapse'
@@ -35,11 +28,15 @@ function CollapseTree(props: CollapseTreeProps) {
   const { imageSingleTree } = TreeContext.usePicker(['imageSingleTree'])
   const { t } = useTranslation()
 
+  const dirTree = useRef<DirTree>()
+
   const displayMap = useMemo(
     () => ({
       workspace: {
-        absolutePath: 'absWorkspaceFolder',
-        relativePath: 'workspaceFolder',
+        imageKeys: {
+          absolutePath: 'absWorkspaceFolder',
+          relativePath: 'workspaceFolder',
+        },
         list: workspaceFolders,
         icon: (props: { path: string }) => (
           <OpenFolder {...props}>
@@ -50,8 +47,10 @@ function CollapseTree(props: CollapseTreeProps) {
         priority: 1,
       },
       dir: {
-        absolutePath: 'absDirPath',
-        relativePath: 'dirPath',
+        imageKeys: {
+          absolutePath: 'absDirPath',
+          relativePath: 'dirPath',
+        },
         list: dirs,
         icon: (props: { path: string }) => (
           <OpenFolder {...props}>
@@ -62,13 +61,16 @@ function CollapseTree(props: CollapseTreeProps) {
         priority: 2,
       },
       type: {
-        absolutePath: 'fileType',
-        relativePath: 'fileType',
+        imageKeys: {
+          absolutePath: 'fileType',
+          relativePath: 'fileType',
+        },
         list: imageTypes,
         icon: () => <PiFileImage />,
         contextMenu: false,
         priority: 3,
       },
+      // special case, when no group checked, show all images
       all: {
         icon: (props: { path: string }) => (
           <OpenFolder {...props}>
@@ -89,7 +91,9 @@ function CollapseTree(props: CollapseTreeProps) {
       <div className={'space-y-2'}>
         {tree.map((node) => {
           const renderList =
-            node.renderList || imageSingleTree.visibleList.filter((img) => shouldShowImage(node, img)) || []
+            node.renderList ||
+            imageSingleTree.visibleList.filter((img) => dirTree.current?.shouldShowImage(node, img)) ||
+            []
 
           return (
             <ImageCollapse
@@ -122,14 +126,14 @@ function CollapseTree(props: CollapseTreeProps) {
     displayGroup.forEach((g) => {
       toBeBuild[g] = displayMap[g].list.filter((t) => !!t.label)
     })
-    // const sortedKeys = sortGroup(displayGroup)
 
-    callBeforeTreeify({
+    dirTree.current = new DirTree({
       displayGroup,
       displayMap,
       visibleList: imageSingleTree.visibleList,
     })
-    let tree = buildRenderTree({ toBeBuild })
+
+    let tree = dirTree.current.buildRenderTree({ toBeBuild })
     if (!tree.length) {
       tree = [
         {
@@ -143,7 +147,7 @@ function CollapseTree(props: CollapseTreeProps) {
     }
 
     if (displayStyle === 'compact') {
-      compactFolders(tree)
+      dirTree.current.compactFolders(tree)
     }
 
     console.log('render tree', tree)
