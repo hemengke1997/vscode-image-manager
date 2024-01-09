@@ -30,6 +30,17 @@ export const Config = {
   get imageType(): string[] {
     return getConfig('imageType')
   },
+
+  get compress() {
+    return {
+      get replace(): boolean {
+        return getConfig('compress.replace')
+      },
+      get quality(): number {
+        return getConfig('compress.quality')
+      },
+    }
+  },
 }
 
 export type ConfigType = typeof Config

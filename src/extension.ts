@@ -1,4 +1,6 @@
 import { isEqual } from '@minko-fe/lodash-pro'
+import fs from 'node:fs'
+import path from 'node:path'
 import { type ExtensionContext, type Uri, commands } from 'vscode'
 import { Context } from './Context'
 import { ImageManagerPanel } from './panel/ImageManagerPanel'
@@ -13,8 +15,12 @@ export function activate(context: ExtensionContext) {
     if (uri?.fsPath) {
       // Open via context menu
       // Higher priority `Config.root()`
+      let fsPath = uri.fsPath
+      if (!fs.statSync(fsPath).isDirectory()) {
+        fsPath ||= path.dirname(fsPath)
+      }
       ctx.setConfig({
-        root: [uri.fsPath],
+        root: [fsPath],
       })
     } else {
       // Open via command palette or shortcut

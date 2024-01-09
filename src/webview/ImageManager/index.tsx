@@ -177,101 +177,103 @@ export default function ImageManager() {
   const [containerRef] = useWheelScaleEvent()
 
   return (
-    <div ref={containerRef} className={'space-y-4'}>
-      <AnimatePresence>
-        {mode === 'standard' && (
-          <motion.div
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            exit={{ opacity: 0 }}
-            transition={{ duration: 0.15 }}
-          >
-            <Card size='small' title={t('ia.settings')}>
-              <div className={'flex flex-col space-y-4'}>
-                <OperationItemUI title={t('ia.type')}>
-                  <DisplayType
-                    imageType={{
-                      all: allImageTypes,
-                      checked: displayImageTypes!,
-                    }}
-                    images={allImageFiles}
-                    onImageTypeChange={onImageTypeChange}
-                  />
-                </OperationItemUI>
-
-                <div className={'flex space-x-6'}>
-                  <OperationItemUI title={t('ia.group')}>
-                    <DisplayGroup
-                      options={groupType
-                        .filter((t) => !t.hidden)
-                        .map((item) => ({ label: item.label, value: item.value }))}
-                      value={displayGroup}
-                      onChange={setDisplayGroup}
-                    ></DisplayGroup>
-                  </OperationItemUI>
-                  <OperationItemUI title={t('ia.style')}>
-                    <DisplayStyle value={displayStyle} onChange={setDisplayStyle} />
-                  </OperationItemUI>
-                </div>
-
-                <div className={'flex space-x-6'}>
-                  <OperationItemUI title={t('ia.sort')}>
-                    <DisplaySort options={sortOptions} value={sort} onChange={onSortChange} />
-                  </OperationItemUI>
-                  <OperationItemUI title={t('ia.background_color')}>
-                    <PrimaryColorPicker
-                      color={backgroundColor}
-                      onColorChange={setBackgroundColor}
-                      localKey={localStorageEnum.LOCAL_STORAGE_BACKGROUND_RECENT_COLORS_KEY}
-                      extraColors={[Colors.warmWhite, Colors.warmBlack]}
-                    />
-                  </OperationItemUI>
-                </div>
-              </div>
-            </Card>
-          </motion.div>
-        )}
-      </AnimatePresence>
-
-      <Card
-        headStyle={{ borderBottom: 'none' }}
-        bodyStyle={{ padding: 0 }}
-        title={t('ia.images')}
-        extra={<ImageActions />}
-      >
-        {imageState.loading ? (
-          <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ duration: 0.2, delay: 1 }}>
-            <Skeleton className={'p-4'} active paragraph={{ rows: 20 }} />
-          </motion.div>
-        ) : (
-          <div className={'space-y-4'}>
-            {imageState.data.map((item, index) => (
-              <TreeContext.Provider
-                key={index}
-                value={{
-                  imageList: item.imgs,
-                }}
-              >
-                <TreeContext.Consumer>
-                  {({ dirs, imageType, workspaceFolders }) => (
-                    <CollapseTree
-                      workspaceFolders={workspaceFolders}
-                      displayStyle={displayStyle!}
-                      dirs={dirs}
-                      imageType={imageType}
-                      displayGroup={displayGroup}
-                    />
-                  )}
-                </TreeContext.Consumer>
-              </TreeContext.Provider>
-            ))}
-          </div>
-        )}
-      </Card>
-
+    <>
       <ImageContextMenu />
       <CollapseContextMenu />
-      <ImageForSize />
-    </div>
+      <div ref={containerRef} className={'space-y-4'}>
+        <AnimatePresence>
+          {mode === 'standard' && (
+            <motion.div
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              transition={{ duration: 0.15 }}
+            >
+              <Card size='small' title={t('ia.settings')}>
+                <div className={'flex flex-col space-y-4'}>
+                  <OperationItemUI title={t('ia.type')}>
+                    <DisplayType
+                      imageType={{
+                        all: allImageTypes,
+                        checked: displayImageTypes!,
+                      }}
+                      images={allImageFiles}
+                      onImageTypeChange={onImageTypeChange}
+                    />
+                  </OperationItemUI>
+
+                  <div className={'flex space-x-6'}>
+                    <OperationItemUI title={t('ia.group')}>
+                      <DisplayGroup
+                        options={groupType
+                          .filter((t) => !t.hidden)
+                          .map((item) => ({ label: item.label, value: item.value }))}
+                        value={displayGroup}
+                        onChange={setDisplayGroup}
+                      ></DisplayGroup>
+                    </OperationItemUI>
+                    <OperationItemUI title={t('ia.style')}>
+                      <DisplayStyle value={displayStyle} onChange={setDisplayStyle} />
+                    </OperationItemUI>
+                  </div>
+
+                  <div className={'flex space-x-6'}>
+                    <OperationItemUI title={t('ia.sort')}>
+                      <DisplaySort options={sortOptions} value={sort} onChange={onSortChange} />
+                    </OperationItemUI>
+                    <OperationItemUI title={t('ia.background_color')}>
+                      <PrimaryColorPicker
+                        color={backgroundColor}
+                        onColorChange={setBackgroundColor}
+                        localKey={localStorageEnum.LOCAL_STORAGE_BACKGROUND_RECENT_COLORS_KEY}
+                        extraColors={[Colors.warmWhite, Colors.warmBlack]}
+                      />
+                    </OperationItemUI>
+                  </div>
+                </div>
+              </Card>
+            </motion.div>
+          )}
+        </AnimatePresence>
+
+        <Card
+          headStyle={{ borderBottom: 'none' }}
+          bodyStyle={{ padding: 0 }}
+          title={t('ia.images')}
+          extra={<ImageActions />}
+        >
+          {imageState.loading ? (
+            <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ duration: 0.2, delay: 1 }}>
+              <Skeleton className={'p-4'} active paragraph={{ rows: 20 }} />
+            </motion.div>
+          ) : (
+            <div className={'space-y-4'}>
+              {imageState.data.map((item, index) => (
+                <TreeContext.Provider
+                  key={index}
+                  value={{
+                    imageList: item.imgs,
+                  }}
+                >
+                  <TreeContext.Consumer>
+                    {({ dirs, imageType, workspaceFolders }) => (
+                      <CollapseTree
+                        workspaceFolders={workspaceFolders}
+                        displayStyle={displayStyle!}
+                        dirs={dirs}
+                        imageType={imageType}
+                        displayGroup={displayGroup}
+                      />
+                    )}
+                  </TreeContext.Consumer>
+                </TreeContext.Provider>
+              ))}
+            </div>
+          )}
+        </Card>
+
+        <ImageForSize />
+      </div>
+    </>
   )
 }
