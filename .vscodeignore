@@ -1,8 +1,8 @@
 src
-node_modules
 screenshots
 test
 .github
+.gitignore
 .gitattributes
 .vscode
 eslint.config.js
@@ -10,6 +10,9 @@ commitlint.config.cjs
 *.ts
 tsconfig.json
 *.yaml
+temp
 temp*
 TODO.md
 CHANGELOG-CODE.md
+index.html
+.npmrc

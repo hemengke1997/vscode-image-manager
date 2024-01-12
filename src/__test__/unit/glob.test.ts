@@ -1,6 +1,6 @@
-import { imageGlob } from '@rootSrc/helper/glob'
+import { imageGlob } from '@rootSrc/utils/glob'
 import fg from 'fast-glob'
-import path from 'node:path'
+import path from 'pathe'
 import { describe, expect, it } from 'vitest'
 
 type Config = Parameters<typeof imageGlob>[0]
@@ -8,7 +8,7 @@ const workspaceFolder = path.resolve(__dirname, './fixture')
 
 async function glob(pattern: string[], cwd?: string) {
   return await fg(pattern, {
-    cwd,
+    cwd: path.normalize(cwd || process.cwd()),
     objectMode: false,
     dot: false,
     absolute: true,

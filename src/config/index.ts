@@ -1,4 +1,4 @@
-import { getWorkspaceFolders } from '@rootSrc/helper/utils'
+import path from 'pathe'
 import { workspace } from 'vscode'
 import { defaultConfig } from './default'
 
@@ -8,7 +8,7 @@ export function getConfig<T>(key: string, v?: T) {
 
 export const Config = {
   get root(): string[] {
-    return getWorkspaceFolders()?.map((t) => t.uri.fsPath) || []
+    return workspace.workspaceFolders?.map((t) => path.normalize(t.uri.fsPath)) || []
   },
 
   get warningSize(): number {
@@ -36,6 +36,12 @@ export const Config = {
       get replace(): boolean {
         return getConfig('compress.replace')
       },
+      get method(): 'tinypng' | 'sharp' {
+        return getConfig('compress.method')
+      },
+      get tinypngKey(): string {
+        return getConfig('compress.tinypngKey')
+      },
       get quality(): number {
         return getConfig('compress.quality')
       },
@@ -44,3 +50,4 @@ export const Config = {
 }
 
 export type ConfigType = typeof Config
+export { watchConfig } from './watch-config'

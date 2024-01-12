@@ -31,6 +31,9 @@ const AntdConfigProvider: FC<PropsWithChildren> = ({ children }) => {
           top: 70,
           maxCount: 3,
         }}
+        notification={{
+          maxCount: 3,
+        }}
       >
         {children}
       </App>

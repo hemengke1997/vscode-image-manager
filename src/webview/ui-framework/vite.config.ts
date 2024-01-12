@@ -1,6 +1,6 @@
 import { overrideConfig } from '@minko-fe/vite-config'
 import react from '@vitejs/plugin-react'
-import path from 'node:path'
+import path from 'pathe'
 import { defineConfig } from 'vite'
 
 // https://vitejs.dev/config/

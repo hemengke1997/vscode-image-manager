@@ -62,6 +62,7 @@ function ImageCollapse(props: ImageCollapseProps) {
             id: COLLAPSE_CONTEXT_MENU_ID,
             props: {
               targetPath: getCurrentPath(index) || '',
+              images,
             },
           })
         }}
@@ -70,6 +71,13 @@ function ImageCollapse(props: ImageCollapseProps) {
           "relative transition-all after:absolute after:-inset-x-0 after:-inset-y-1.5 after:content-['']",
           contextMenu && 'hover:underline focus:underline',
         )}
+        onClick={() => {
+          if (activeKeys?.length) {
+            setActiveKeys([])
+          } else {
+            setActiveKeys([id])
+          }
+        }}
       >
         {label}
       </div>

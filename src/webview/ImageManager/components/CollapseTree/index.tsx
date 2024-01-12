@@ -6,6 +6,7 @@ import { FaRegImages } from 'react-icons/fa'
 import { FaRegObjectGroup } from 'react-icons/fa6'
 import { IoMdFolderOpen } from 'react-icons/io'
 import { PiFileImage } from 'react-icons/pi'
+import ImageManagerContext from '../../contexts/ImageManagerContext'
 import TreeContext from '../../contexts/TreeContext'
 import { DirTree, type FileNode } from '../../utils/DirTree'
 import { type GroupType } from '../DisplayGroup'
@@ -26,6 +27,8 @@ type CollapseTreeProps = {
 function CollapseTree(props: CollapseTreeProps) {
   const { workspaceFolders, dirs, imageType, displayGroup, displayStyle } = props
   const { imageSingleTree } = TreeContext.usePicker(['imageSingleTree'])
+  const allWorkspaceFolders = ImageManagerContext.useSelector((ctx) => ctx.imageState.workspaceFolders)
+
   const { t } = useTranslation()
 
   const dirTree = useRef<DirTree>()
@@ -106,6 +109,7 @@ function CollapseTree(props: CollapseTreeProps) {
                 collapseProps={{
                   bordered: false,
                   defaultActiveKey: defaultOpen ? [node.value] : undefined,
+                  collapsible: 'icon',
                   ...collapseProps,
                 }}
                 labelContainer={(label) => (
@@ -142,8 +146,9 @@ function CollapseTree(props: CollapseTreeProps) {
           label: t('ia.all'),
           type: 'all',
           fullLabel: '',
-          value: workspaceFolders[0].value,
+          value: workspaceFolders.length ? workspaceFolders[0].value : allWorkspaceFolders[0],
           children: [],
+          renderCondition: {},
         },
       ]
     }
@@ -151,8 +156,6 @@ function CollapseTree(props: CollapseTreeProps) {
     if (displayStyle === 'compact') {
       dirTree.current.compactFolders(tree)
     }
-
-    console.log('render tree', tree)
 
     // render tree
     return nestedDisplay(tree, { bordered: true }, { defaultOpen: true })

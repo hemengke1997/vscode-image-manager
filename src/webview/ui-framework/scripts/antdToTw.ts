@@ -1,5 +1,5 @@
 import fs from 'node:fs'
-import path from 'node:path'
+import path from 'pathe'
 import { type Declaration, type Rule } from 'postcss'
 import validate from 'validate-color'
 

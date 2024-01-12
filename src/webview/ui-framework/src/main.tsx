@@ -22,7 +22,7 @@ i18next.use(initReactI18next).init({
   react: {
     useSuspense: true,
   },
-  debug: import.meta.env.DEV,
+  debug: false,
   resources: {},
   nsSeparator: '.',
   keySeparator: false,

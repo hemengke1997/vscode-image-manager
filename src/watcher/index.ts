@@ -1,7 +1,7 @@
 import { debounce } from '@minko-fe/lodash-pro'
 import { type Context } from '@rootSrc/Context'
-import { imageGlob } from '@rootSrc/helper/glob'
 import { CmdToWebview } from '@rootSrc/message/shared'
+import { imageGlob } from '@rootSrc/utils/glob'
 import micromatch from 'micromatch'
 import { type FileSystemWatcher, RelativePattern, type Uri, type Webview, workspace } from 'vscode'
 

@@ -44,7 +44,14 @@
     "reveal_in_explorer": "Reveal in Explorer View",
     "simple_mode": "Simple Mode",
     "standard_mode": "Standard Mode",
-    "change_mode": "Change Mode"
+    "change_mode": "Change Mode",
+    "compress": "Compress",
+    "compress_success": "Compress Success",
+    "compress_fail": "Compress Fail",
+    "compressing": "Compressing...",
+    "compress_under_folder": "Compress images in this Folder",
+    "retry": "Retry",
+    "compressor_not_found": "Image compressor not found"
   },
   "fallback": {
     "internal_error": "Internal Error",

@@ -76,7 +76,6 @@ export class DirTree {
 
     const tree = previousTree[previousTree.length - 1]
 
-    console.log(previousTree, 'previousTree')
     // Maybe we should do this in arrangeIntoTree
     this.renderTree(tree)
 

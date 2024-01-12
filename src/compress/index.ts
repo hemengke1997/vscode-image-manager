@@ -1,12 +1,18 @@
-import path from 'node:path'
-import { fileURLToPath } from 'node:url'
-import { tiny_compress } from './tinypng'
+import { type Context } from '@rootSrc/Context'
+import { Compressor } from './Compressos'
 
-const __dirname = path.dirname(fileURLToPath(import.meta.url))
+export function initCompressor(ctx: Context) {
+  const {
+    config: { compress },
+  } = ctx
 
-const IMAGE = path.resolve(__dirname, '../../screenshots/overview.png')
-
-tiny_compress(IMAGE)
-console.log(path.parse(IMAGE))
-
-export { tiny_compress }
+  new Compressor(compress.method, {
+    quality: compress.quality,
+    replace: compress.replace,
+    tinypngKey: compress.tinypngKey,
+  })
+    .init()
+    .then((compressor) => {
+      ctx.setCompressor(compressor)
+    })
+}

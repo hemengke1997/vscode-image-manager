@@ -1,6 +1,6 @@
 /// <reference types="vitest" />
 
-import path from 'node:path'
+import path from 'pathe'
 import { defineConfig, loadConfigFromFile, mergeConfig } from 'vite'
 import { createHtmlPlugin } from 'vite-plugin-html'
 import { i18nDetector } from 'vite-plugin-i18n-detector'
@@ -27,6 +27,7 @@ export default defineConfig(async (env) => {
     build: {
       outDir: path.resolve(__dirname, './dist-webview/'),
       emptyOutDir: true,
+      minify: true,
       rollupOptions: {
         output: {
           entryFileNames: `assets/[name].js`,

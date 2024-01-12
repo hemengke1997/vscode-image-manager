@@ -13,7 +13,6 @@ import { ImEyePlus } from 'react-icons/im'
 import { PiFileImage } from 'react-icons/pi'
 import { type ImageType } from '../..'
 import ImageManagerContext from '../../contexts/ImageManagerContext'
-import useImageOperation from '../../hooks/useImageOperation'
 import { bytesToKb, formatBytes } from '../../utils'
 import { IMAGE_CONTEXT_MENU_ID } from './components/ImageContextMenu'
 
@@ -57,17 +56,9 @@ function LazyImage(props: LazyImageProps) {
     }
   }
 
-  const { copyImage } = useImageOperation()
-
-  const keybindRef = useHotkeys<HTMLDivElement>(
-    `mod+c`,
-    () => {
-      copyImage(image.path)
-    },
-    {
-      enabled: inViewport,
-    },
-  )
+  const keybindRef = useHotkeys<HTMLDivElement>(`mod+c`, () => {}, {
+    enabled: inViewport,
+  })
 
   const ifWarning = bytesToKb(image.stats.size) > config.warningSize
 

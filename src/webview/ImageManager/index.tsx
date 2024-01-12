@@ -90,7 +90,8 @@ export default function ImageManager() {
     }
 
     vscodeApi.postMessage({ cmd: CmdToVscode.GET_ALL_IMAGES }, ({ data, workspaceFolders }) => {
-      console.log(data, 'data')
+      console.log('GET_ALL_IMAGES', data, workspaceFolders)
+
       setImageState({
         data,
         workspaceFolders,
@@ -180,6 +181,7 @@ export default function ImageManager() {
     <>
       <ImageContextMenu />
       <CollapseContextMenu />
+
       <div ref={containerRef} className={'space-y-4'}>
         <AnimatePresence>
           {mode === 'standard' && (

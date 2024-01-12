@@ -1,11 +1,11 @@
 import { applyHtmlTransforms } from '@minko-fe/html-transform'
 import { type Context } from '@rootSrc/Context'
-import { Log, getEnvForWebview, getUri, removeUrlProtocol, showError } from '@rootSrc/helper/utils'
 import { type MessageParams, type MessageType, VscodeMessageCenter } from '@rootSrc/message'
 import { CmdToWebview } from '@rootSrc/message/shared'
+import { Log } from '@rootSrc/utils/Log'
 import fs from 'node:fs'
-import path from 'node:path'
-import { type Disposable, Uri, ViewColumn, type Webview, type WebviewPanel, window } from 'vscode'
+import path from 'pathe'
+import { type Disposable, Uri, ViewColumn, type Webview, type WebviewPanel, env, window } from 'vscode'
 
 /**
  * This class manages the state and behavior of ImageManagerPanel webview panels.
@@ -53,7 +53,7 @@ export class ImageManagerPanel {
     const dirPath = path.dirname(resourcePath)
     let html = fs.readFileSync(resourcePath, 'utf-8')
     html = html.replace(/(<link.+?href="|<script.+?src="|<img.+?src=")(.+?)"/g, (_, $1: string, $2: string) => {
-      Log.info(`webview-replace resourcePath:${resourcePath} dirPath:${dirPath} $1:${$1} $2:${$2}`)
+      console.log(`webview-replace resourcePath:${resourcePath} dirPath:${dirPath} $1:${$1} $2:${$2}`)
       $2 = $2.startsWith('.') ? $2 : `.${$2}`
       const vscodeResourcePath = webview.asWebviewUri(Uri.file(path.resolve(dirPath, $2))).toString()
       return `${$1 + vscodeResourcePath}"`
@@ -80,7 +80,10 @@ export class ImageManagerPanel {
 
     let html = ''
     if (isProd) {
-      html = this._transformHtml(getUri(webview, ctx.ext.extensionUri, ['dist-webview', 'index.html']).fsPath, webview)
+      html = this._transformHtml(
+        this._getUri(webview, ctx.ext.extensionUri, ['dist-webview', 'index.html']).fsPath,
+        webview,
+      )
     } else {
       // html string
       const entry = 'src/webview/main.tsx'
@@ -130,7 +133,7 @@ export class ImageManagerPanel {
         injectTo: 'head',
         tag: 'script',
         attrs: { type: 'text/javascript' },
-        children: `window.vscodeEnv = ${JSON.stringify(getEnvForWebview())}`,
+        children: `window.vscodeEnv = ${JSON.stringify(this._getEnvForWebview())}`,
       },
       {
         injectTo: 'head-prepend',
@@ -139,7 +142,7 @@ export class ImageManagerPanel {
           'http-equiv': 'Content-Security-Policy',
           'content': [
             `default-src 'self' https://*`,
-            `connect-src 'self' https://* http://* wss://* ws://${removeUrlProtocol(
+            `connect-src 'self' https://* http://* wss://* ws://${this._removeUrlProtocol(
               localServerUrl,
             )} ws://0.0.0.0:${localPort} ${localServerUrl}`,
             `font-src 'self' https://* blob: data:`,
@@ -199,13 +202,14 @@ export class ImageManagerPanel {
    * @param webview A reference to the extension webview
    */
   private _handlePanelMessage = async (message: MessageType, webview: Webview) => {
-    // Log.info(`receive msg: ${JSON.stringify(message)}`)
+    Log.info(`receive msg: ${JSON.stringify(message)}`)
     const handler: (params: MessageParams) => Promise<any> = VscodeMessageCenter[message.cmd]
     if (handler) {
       const data = await handler({ message, webview })
+      Log.info(`${message.cmd} return data: ${JSON.stringify(data)}`)
       this.invokeCallback({ message, webview, data })
     } else {
-      showError(`Handler function "${message.cmd}" doesn't exist!`)
+      Log.error(`Handler function "${message.cmd}" doesn't exist!`, true)
     }
   }
 
@@ -235,6 +239,20 @@ export class ImageManagerPanel {
       if (disposable) {
         disposable.dispose()
       }
+    }
+  }
+
+  private _removeUrlProtocol(url: string) {
+    return url.replace(/https?:\/\//, '')
+  }
+
+  private _getUri(webview: Webview, extensionUri: Uri, pathList: string[]) {
+    return webview.asWebviewUri(Uri.joinPath(extensionUri, ...pathList))
+  }
+
+  private _getEnvForWebview() {
+    return {
+      language: env.language,
     }
   }
 }
