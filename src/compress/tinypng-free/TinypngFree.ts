@@ -1,6 +1,5 @@
 import fs from 'node:fs'
 import https from 'node:https'
-import UserAgent from 'user-agents'
 import { AbsCompressor, type CompressOptions } from '../AbsCompressor'
 
 type PostInfo = {
@@ -75,7 +74,8 @@ class TinypngFree extends AbsCompressor {
           headers: {
             'Cache-Control': 'no-cache',
             'Content-Type': 'application/x-www-form-urlencoded',
-            'User-Agent': new UserAgent().toString(),
+            'User-Agent':
+              'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36',
             'X-Forwarded-For': this._genRandomIP(),
           },
           agent: new https.Agent({ rejectUnauthorized: false }),

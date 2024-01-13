@@ -194,7 +194,6 @@
     "tsup": "6.7.0",
     "tsx": "^4.7.0",
     "typescript": "^5.3.3",
-    "user-agents": "^1.1.79",
     "vite": "^4.5.1",
     "vite-plugin-html": "^3.2.0",
     "vite-plugin-i18n-detector": "^2.2.0",
