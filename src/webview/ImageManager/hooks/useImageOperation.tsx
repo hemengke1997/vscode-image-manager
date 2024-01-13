@@ -93,7 +93,7 @@ function useImageOperation() {
           description: (
             <div className={'flex flex-col space-y-2'}>
               <div>
-                {t('ia.compress_fail')}: {_error}
+                {t('im.compress_fail')}: {_error}
               </div>
               <div>
                 <Button
@@ -102,7 +102,7 @@ function useImageOperation() {
                     onRetryClick?.(filePath)
                   }}
                 >
-                  {t('ia.retry')}
+                  {t('im.retry')}
                 </Button>
               </div>
             </div>

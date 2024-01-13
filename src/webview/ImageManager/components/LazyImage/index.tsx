@@ -12,7 +12,7 @@ import { FaImages } from 'react-icons/fa6'
 import { ImEyePlus } from 'react-icons/im'
 import { PiFileImage } from 'react-icons/pi'
 import { type ImageType } from '../..'
-import ImageManagerContext from '../../contexts/ImageManagerContext'
+import GlobalContext from '../../contexts/GlobalContext'
 import { bytesToKb, formatBytes } from '../../utils'
 import { IMAGE_CONTEXT_MENU_ID } from './components/ImageContextMenu'
 
@@ -33,7 +33,7 @@ function LazyImage(props: LazyImageProps) {
 
   const { t } = useTranslation()
 
-  const { config, imagePlaceholderSize } = ImageManagerContext.usePicker(['config', 'imagePlaceholderSize'])
+  const { config, imagePlaceholderSize } = GlobalContext.usePicker(['config', 'imagePlaceholderSize'])
 
   const placeholderRef = useRef<HTMLDivElement>(null)
   const [inViewport] = useInViewport(placeholderRef, {
@@ -62,7 +62,7 @@ function LazyImage(props: LazyImageProps) {
 
   const ifWarning = bytesToKb(image.stats.size) > config.warningSize
 
-  const { show } = useContextMenu<{ image: ImageType }>()
+  const { show } = useContextMenu<{ image: ImageType; dimensions: { width: number; height: number } }>()
 
   if (!inViewport && lazy) {
     return (
@@ -91,8 +91,9 @@ function LazyImage(props: LazyImageProps) {
         whileInView={{ opacity: 1 }}
         onClick={() => {}}
         onContextMenu={(e) => {
-          show({ event: e, id: IMAGE_CONTEXT_MENU_ID, props: { image } })
+          show({ event: e, id: IMAGE_CONTEXT_MENU_ID, props: { image, dimensions } })
         }}
+        onMouseOver={handleMaskMouseOver}
       >
         <Badge status='warning' dot={ifWarning}>
           <Image
@@ -102,10 +103,7 @@ function LazyImage(props: LazyImageProps) {
               lazy
                 ? {
                     mask: (
-                      <div
-                        className={'flex-col-center h-full w-full justify-center space-y-1 text-xs'}
-                        onMouseOver={handleMaskMouseOver}
-                      >
+                      <div className={'flex-col-center h-full w-full justify-center space-y-1 text-xs'}>
                         <div
                           className={'flex-center cursor-pointer space-x-1 truncate'}
                           onClick={(e) => {
@@ -114,7 +112,7 @@ function LazyImage(props: LazyImageProps) {
                           }}
                         >
                           <ImEyePlus />
-                          <span>{t('ia.preview')}</span>
+                          <span>{t('im.preview')}</span>
                         </div>
                         <div className={'flex-center space-x-1 truncate'}>
                           <PiFileImage />
@@ -139,7 +137,7 @@ function LazyImage(props: LazyImageProps) {
           ></Image>
         </Badge>
         <div className='max-w-full cursor-default truncate' style={{ maxWidth: imageProp.width }}>
-          {image.name}
+          {image.nameElement || image.name}
         </div>
       </motion.div>
     </>

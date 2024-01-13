@@ -1,10 +1,10 @@
 import { useSize } from '@minko-fe/react-hook'
 import { memo, useEffect, useMemo, useRef } from 'react'
-import ImageManagerContext from '../../contexts/ImageManagerContext'
+import GlobalContext from '../../contexts/GlobalContext'
 import LazyImage from '../LazyImage'
 
 function ImageForSize() {
-  const { config, scale, imageState, setImagePlaceholderSize } = ImageManagerContext.usePicker([
+  const { config, scale, imageState, setImagePlaceholderSize } = GlobalContext.usePicker([
     'config',
     'scale',
     'setImagePlaceholderSize',

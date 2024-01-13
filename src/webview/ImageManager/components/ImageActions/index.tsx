@@ -1,56 +1,55 @@
-import { cloneDeep, isNil } from '@minko-fe/lodash-pro'
+import { isNil } from '@minko-fe/lodash-pro'
 import { useMemoizedFn } from '@minko-fe/react-hook'
 import { App, Button, Form, InputNumber, Popover, Space } from 'antd'
-import { memo, useState } from 'react'
+import { memo } from 'react'
+import { useHotkeys } from 'react-hotkeys-hook'
 import { useTranslation } from 'react-i18next'
 import { MdImageSearch } from 'react-icons/md'
 import { RiFilter2Line } from 'react-icons/ri'
 import { TbLayoutNavbarExpand, TbRefresh } from 'react-icons/tb'
-import ImageManagerContext from '../../contexts/ImageManagerContext'
-import { bytesToKb } from '../../utils'
+import ActionContext from '../../contexts/ActionContext'
+import { Keybinding } from '../../keybinding'
 
 function ImageActions() {
   const { t } = useTranslation()
-  const { setImages, setCollapseOpen, refreshImages } = ImageManagerContext.usePicker([
-    'setImages',
-    'setCollapseOpen',
-    'refreshImages',
-  ])
+  const { setCollapseOpen, refreshImages, sizeFilter, setSizeFilter, searchModalOpen, setSearchModalOpen } =
+    ActionContext.usePicker([
+      'setCollapseOpen',
+      'refreshImages',
+      'sizeFilter',
+      'setSizeFilter',
+      'searchModalOpen',
+      'setSearchModalOpen',
+    ])
 
   const { message } = App.useApp()
   const [sizeForm] = Form.useForm()
-  const [sizeFilter, setSizeFilter] = useState<{
-    flag: boolean
-    value: { min?: number; max?: number }
-  }>()
 
   const filterImagesBySize = (value: { min?: number; max?: number }) => {
     const { min, max } = value
 
     if (isNil(min) && isNil(max)) {
-      setSizeFilter({ flag: false, value })
-
-      setImages((img) => ({
-        list: img.list.map((t) => ({ ...t, visible: { ...t.visible, size: true } })),
-      }))
+      setSizeFilter({ active: false, value })
     } else {
-      setSizeFilter({ flag: true, value })
-
-      setImages((img) => ({
-        list: img.list.map((t) => ({
-          ...t,
-          visible: {
-            ...t.visible,
-            size: bytesToKb(t.stats.size) >= (min || 0) && bytesToKb(t.stats.size) <= (max || Number.POSITIVE_INFINITY),
-          },
-        })),
-      }))
+      setSizeFilter({ active: true, value })
     }
   }
 
   const toggleAllCollapse = useMemoizedFn((b: boolean) => {
     setCollapseOpen((t) => t + (b ? 1 : -1))
   })
+
+  useHotkeys<HTMLDivElement>(
+    `mod+f`,
+    () => {
+      if (!searchModalOpen) {
+        setSearchModalOpen(true)
+      }
+    },
+    {
+      enabled: true,
+    },
+  )
 
   return (
     <div className={'space-x-2'}>
@@ -62,7 +61,7 @@ function ImageActions() {
           </div>
         }
         onClick={() => refreshImages({ type: 'refresh' })}
-        title={t('ia.refresh')}
+        title={t('im.refresh')}
       ></Button>
       <Button
         type='text'
@@ -71,14 +70,14 @@ function ImageActions() {
             <MdImageSearch />
           </div>
         }
-        onClick={() => message.info('Working in progress 🙌')}
-        title={t('ia.find')}
+        onClick={() => setSearchModalOpen(true)}
+        title={`${t('im.search')} (${Keybinding.Search})`}
       ></Button>
       <Popover
         trigger={'click'}
         afterOpenChange={(open) => {
           if (!open) {
-            sizeForm.setFieldsValue(cloneDeep(sizeFilter?.value))
+            sizeForm.setFieldsValue(sizeFilter?.value)
           }
         }}
         content={
@@ -101,7 +100,7 @@ function ImageActions() {
               }}
             >
               <div className={'flex-center space-x-2'}>
-                <div>{t('ia.size')}</div>
+                <div>{t('im.size')}</div>
                 <Space.Compact>
                   <Form.Item
                     noStyle
@@ -118,7 +117,7 @@ function ImageActions() {
                     ]}
                     name={'min'}
                   >
-                    <InputNumber placeholder={`${t('ia.min')}(kb)`} min={0} onPressEnter={sizeForm.submit} />
+                    <InputNumber placeholder={`${t('im.min')}(kb)`} min={0} onPressEnter={sizeForm.submit} />
                   </Form.Item>
                   <Form.Item
                     noStyle
@@ -135,13 +134,13 @@ function ImageActions() {
                       }),
                     ]}
                   >
-                    <InputNumber placeholder={`${t('ia.max')}(kb)`} min={0} onPressEnter={sizeForm.submit} />
+                    <InputNumber placeholder={`${t('im.max')}(kb)`} min={0} onPressEnter={sizeForm.submit} />
                   </Form.Item>
                 </Space.Compact>
                 <Form.Item noStyle>
                   <Button.Group>
                     <Button size='small' type='primary' onClick={sizeForm.submit}>
-                      {t('ia.submit')}
+                      {t('im.submit')}
                     </Button>
                     <Button
                       size='small'
@@ -151,7 +150,7 @@ function ImageActions() {
                         sizeForm.submit()
                       }}
                     >
-                      {t('ia.reset')}
+                      {t('im.reset')}
                     </Button>
                   </Button.Group>
                 </Form.Item>
@@ -161,13 +160,13 @@ function ImageActions() {
         }
       >
         <Button
-          type={sizeFilter?.flag ? 'primary' : 'text'}
+          type={sizeFilter?.active ? 'primary' : 'text'}
           icon={
             <div className={'flex-center text-xl'}>
               <RiFilter2Line />
             </div>
           }
-          title={t('ia.filter')}
+          title={t('im.filter')}
         />
       </Popover>
       <Popover
@@ -175,21 +174,21 @@ function ImageActions() {
         content={
           <div>
             <div className={'flex-center space-x-2'}>
-              <div>{t('ia.layout')}</div>
+              <div>{t('im.layout')}</div>
               <Button.Group>
                 <Button
                   onClick={() => {
                     toggleAllCollapse(true)
                   }}
                 >
-                  {t('ia.expand')}
+                  {t('im.expand')}
                 </Button>
                 <Button
                   onClick={() => {
                     toggleAllCollapse(false)
                   }}
                 >
-                  {t('ia.collapse')}
+                  {t('im.collapse')}
                 </Button>
               </Button.Group>
             </div>
@@ -203,7 +202,7 @@ function ImageActions() {
               <TbLayoutNavbarExpand />
             </div>
           }
-          title={t('ia.action')}
+          title={t('im.action')}
         />
       </Popover>
     </div>

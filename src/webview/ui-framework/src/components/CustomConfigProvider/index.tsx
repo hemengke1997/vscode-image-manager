@@ -3,7 +3,7 @@ import { Button, Tooltip } from 'antd'
 import { AnimatePresence, motion } from 'framer-motion'
 import { type PropsWithChildren, memo } from 'react'
 import { useTranslation } from 'react-i18next'
-import GlobalContext from '@/contexts/GlobalContext'
+import FrameworkContext from '@/contexts/FrameworkContext'
 import { ReactComponent as Logo } from '@/images/logo.svg'
 import LocaleSelector from './components/LocaleSelector'
 import PrimaryColorPicker from './components/PrimaryColorPicker'
@@ -11,7 +11,7 @@ import ThemeSwitcher from './components/ThemeSwitcher'
 
 function CustomConfigProvider(props: PropsWithChildren) {
   const { children } = props
-  const { primaryColor, theme, setPrimaryColor, setTheme, mode, setMode } = GlobalContext.usePicker([
+  const { primaryColor, theme, setPrimaryColor, setTheme, mode, setMode } = FrameworkContext.usePicker([
     'primaryColor',
     'theme',
     'setPrimaryColor',
@@ -30,7 +30,7 @@ function CustomConfigProvider(props: PropsWithChildren) {
     <div className={'min-w-screen min-h-screen space-y-2 p-4'}>
       <header className={'flex justify-between'}>
         <Tooltip
-          title={isSimpleMode(mode) ? t('ia.standard_mode') : t('ia.simple_mode')}
+          title={isSimpleMode(mode) ? t('im.standard_mode') : t('im.simple_mode')}
           arrow={false}
           placement='right'
         >

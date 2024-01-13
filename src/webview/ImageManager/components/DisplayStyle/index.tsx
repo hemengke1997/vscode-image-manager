@@ -25,11 +25,11 @@ function DisplayStyle(props: DisplayStyleProps) {
     <Radio.Group
       options={[
         {
-          label: t('ia.compact'),
+          label: t('im.compact'),
           value: 'compact',
         },
         {
-          label: t('ia.nested'),
+          label: t('im.nested'),
           value: 'nested',
         },
       ]}

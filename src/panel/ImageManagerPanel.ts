@@ -187,7 +187,7 @@ export class ImageManagerPanel {
     const { message, webview, data } = params
     if (webview) {
       // Post a message to the webview content.
-      webview.postMessage({ cmd: CmdToWebview.CallbackFromVscode, callbackId: message.callbackId, data })
+      webview.postMessage({ cmd: CmdToWebview.CALLBACK_FROM_VSCODE, callbackId: message.callbackId, data })
     }
   }
 

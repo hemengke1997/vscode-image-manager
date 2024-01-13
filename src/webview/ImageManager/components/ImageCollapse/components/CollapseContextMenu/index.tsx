@@ -1,7 +1,7 @@
 import { useLockFn } from '@minko-fe/react-hook'
 import { type ImageType } from '@rootSrc/webview/ImageManager'
 import useImageOperation from '@rootSrc/webview/ImageManager/hooks/useImageOperation'
-import GlobalContext from '@rootSrc/webview/ui-framework/src/contexts/GlobalContext'
+import FrameworkContext from '@rootSrc/webview/ui-framework/src/contexts/FrameworkContext'
 import { App } from 'antd'
 import { memo } from 'react'
 import { Item, type ItemParams, Menu, Separator } from 'react-contexify'
@@ -11,7 +11,7 @@ import { os } from 'un-detector'
 export const COLLAPSE_CONTEXT_MENU_ID = 'COLLAPSE_CONTEXT_MENU_ID'
 
 function CollapseContextMenu() {
-  const { theme } = GlobalContext.usePicker(['theme'])
+  const { theme } = FrameworkContext.usePicker(['theme'])
   const { t } = useTranslation()
   const { message } = App.useApp()
 
@@ -26,12 +26,15 @@ function CollapseContextMenu() {
   }
 
   const handleCompressImage = useLockFn(async (images: ImageType[] | undefined) => {
-    if (!images?.length) return
+    if (!images?.length) {
+      message.info(t('im.no_image_to_compress'))
+      return
+    }
 
     const LoadingKey = `${images[0].path}-compressing`
 
     message.loading({
-      content: t('ia.compressing'),
+      content: t('im.compressing'),
       duration: 0,
       key: LoadingKey,
     })
@@ -51,13 +54,13 @@ function CollapseContextMenu() {
       <Item
         onClick={(e: ItemParams<{ targetPath: string; images: ImageType[] }>) => handleCompressImage(e.props?.images)}
       >
-        {t('ia.compress_under_folder')}
+        {t('im.compress_under_folder')}
       </Item>
       <Separator />
       <Item onClick={handleOpenInOsExplorer}>
-        {os.isMac() ? t('ia.reveal_in_os_mac') : t('ia.reveal_in_os_windows')}
+        {os.isMac() ? t('im.reveal_in_os_mac') : t('im.reveal_in_os_windows')}
       </Item>
-      <Item onClick={handleOpenInVscodeExplorer}>{t('ia.reveal_in_explorer')}</Item>
+      <Item onClick={handleOpenInVscodeExplorer}>{t('im.reveal_in_explorer')}</Item>
     </Menu>
   )
 }

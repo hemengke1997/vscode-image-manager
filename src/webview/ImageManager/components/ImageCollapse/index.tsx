@@ -4,7 +4,7 @@ import { Collapse, type CollapseProps } from 'antd'
 import classNames from 'classnames'
 import { type ReactNode, memo, useEffect, useMemo } from 'react'
 import { useContextMenu } from 'react-contexify'
-import ImageManagerContext from '../../contexts/ImageManagerContext'
+import ActionContext from '../../contexts/ActionContext'
 import ImagePreview, { type ImagePreviewProps } from '../ImagePreview'
 import { COLLAPSE_CONTEXT_MENU_ID } from './components/CollapseContextMenu'
 
@@ -22,7 +22,7 @@ type ImageCollapseProps = {
 function ImageCollapse(props: ImageCollapseProps) {
   const { collapseProps, nestedChildren, labelContainer, label, joinLabel, images, id, contextMenu } = props
 
-  const { collapseOpen } = ImageManagerContext.usePicker(['collapseOpen'])
+  const { collapseOpen } = ActionContext.usePicker(['collapseOpen'])
 
   const [activeKeys, setActiveKeys] = useControlledState<string[]>({
     defaultValue: collapseProps.defaultActiveKey as string[],
@@ -68,7 +68,7 @@ function ImageCollapse(props: ImageCollapseProps) {
         }}
         tabIndex={-1}
         className={classNames(
-          "relative transition-all after:absolute after:-inset-x-0 after:-inset-y-1.5 after:content-['']",
+          "relative cursor-pointer transition-all after:absolute after:-inset-x-0 after:-inset-y-1.5 after:content-['']",
           contextMenu && 'hover:underline focus:underline',
         )}
         onClick={() => {

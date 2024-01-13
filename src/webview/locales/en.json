@@ -1,5 +1,7 @@
 {
-  "ia": {
+  "im": {
+    "ok": "OK",
+    "cancel": "Cancel",
     "img_refreshing": "Refreshing images...",
     "img_refreshed": "Images refreshed!",
     "name_sort": "name",
@@ -30,7 +32,7 @@
     "recent": "Recent-used",
     "all": "All",
     "refresh": "refresh",
-    "find": "find",
+    "search": "search",
     "filter": "filter",
     "action": "action",
     "copy": "Copy",
@@ -51,7 +53,21 @@
     "compressing": "Compressing...",
     "compress_under_folder": "Compress images in this Folder",
     "retry": "Retry",
-    "compressor_not_found": "Image compressor not found"
+    "compressor_not_found": "Image compressor not found",
+    "search_image": "Search",
+    "search_placeholder": "Search images by name",
+    "casesensitive": "Case Sensitive",
+    "wholeword": "Whole Word",
+    "detail": "Detail",
+    "image_detail": "Image Detail",
+    "include_glob_placeholder": "e.g. src/**/include",
+    "name": "Name",
+    "workspace": "Workspace",
+    "folder": "Folder",
+    "dimensions": "Dimensions",
+    "birth_time": "Birth Time",
+    "last_status_changed_time": "Status Change Time",
+    "no_image_to_compress": "No image to compress"
   },
   "fallback": {
     "internal_error": "Internal Error",

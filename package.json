@@ -15,7 +15,11 @@
     "svg",
     "img",
     "pic",
-    "png"
+    "png",
+    "cropper",
+    "compress",
+    "tinypng",
+    "sharp"
   ],
   "license": "MIT",
   "homepage": "https://github.com/hemengke1997/vscode-image-manager",

@@ -30,7 +30,7 @@ class VscodeApi {
     window.addEventListener('message', (event) => {
       const message = event.data
       switch (message.cmd) {
-        case CmdToWebview.CallbackFromVscode: {
+        case CmdToWebview.CALLBACK_FROM_VSCODE: {
           const callback = this._callbacks[message.callbackId]
           if (callback && typeof callback === 'function') {
             callback(message.data)

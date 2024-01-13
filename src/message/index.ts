@@ -1,4 +1,5 @@
 import { Log } from '@rootSrc/utils/Log'
+import micromatch from 'micromatch'
 import { type Webview } from 'vscode'
 import { messageHandler } from './messageHandler'
 import { CmdToVscode } from './shared'
@@ -63,8 +64,13 @@ export const VscodeMessageCenter = {
       Log.info(`Compress result: ${JSON.stringify(res)}`)
       return res
     } catch (e: any) {
+      Log.error(`Compress error: ${e}`)
       return e
     }
+  },
+  [CmdToVscode.MICROMATCH_ISMATCH]: ({ message }: MessageParams<{ filePaths: string[]; globs: string[] }>) => {
+    const { filePaths, globs } = message.data
+    return micromatch(filePaths, globs)
   },
   [CmdToVscode.TEMP_TEST_CMD]: ({ message }: MessageParams<{ cmd: string; path: string }>) => {
     messageHandler.testBuiltInCmd({
