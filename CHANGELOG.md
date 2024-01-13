@@ -1,5 +1,13 @@
 # CHANGELOG
 
+## [0.0.14](https://github.com/hemengke1997/vscode-image-manager/compare/v0.0.13...v0.0.14) (2024-01-13)
+
+### Feat
+
+* Support compress image! Please refer to [README](./README.md) for more details
+* Windows compatibility, though it's not perfect, but it works. (I don't have a windows machine, so I can't test it. If you get any problems, please submit an issue)
+
+
 ## [0.0.13](https://github.com/hemengke1997/vscode-image-manager/compare/v0.0.12...v0.0.13) (2024-01-08)
 
 ### Feat
