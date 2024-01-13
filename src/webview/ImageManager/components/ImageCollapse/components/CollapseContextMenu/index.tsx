@@ -32,7 +32,7 @@ function CollapseContextMenu() {
 
     message.loading({
       content: t('ia.compressing'),
-      duration: 10,
+      duration: 0,
       key: LoadingKey,
     })
     const res = await compressImage(images.map((t) => t.path) || [])

@@ -2,7 +2,7 @@
 
 ## Notice
 
-Currently extension may be unstable (windows). If you encounter problems, please report [issue](https://github.com/hemengke1997/vscode-image-manager/issues)
+Extension maybe unstable on windows. If you encounter any problem, please report [issue](https://github.com/hemengke1997/vscode-image-manager/issues)
 
 ## Screenshot
 
@@ -10,15 +10,8 @@ Currently extension may be unstable (windows). If you encounter problems, please
 
 ![overview](./screenshots/overview.png)
 
-### i18n 
-![i18n](./screenshots/i18n.png)
-
 ### preview
 ![preview](./screenshots/preview.png)
-
-### theme
-![theme](./screenshots/theme.png)
-
 
 ## Usage
 
@@ -32,18 +25,19 @@ Currently extension may be unstable (windows). If you encounter problems, please
 
 ### Command
 
-`ctrl+shift+p` (macos `cmd+shift+p`), input `Open Image Manager` to open.
+`ctrl+shift+p` (macos `cmd+shift+p`), input `Open Image Manager` to open. (Open workspace root folder)
 
 ### Context Menu
 
-Right click in Explorer, select `Open Image Manager` to open extension.
+Right click in Explorer, select `Open Image Manager` to open extension. (Open current folder)
 
 
 ## Features
 
-- **Compress Images** (magic happens with right-click)
+- **Compress Images** (magic happens on right-click 🤩)
 - Image Viewer
 - Dynamic Theme
+- I18n. Currently support `english` and `简体中文`
 
 ## Extension Settings
 
@@ -59,33 +53,36 @@ Right click in Explorer, select `Open Image Manager` to open extension.
 | image-manager.compress.tinypngKey | `string`            | tinypng key. If choose tinypng, you should set this key which can be get from https://tinypng.com/developers. If not set, it will use unstable key | ''                                                                                                                 |
 | image-manager.compress.quality    | `number`            | quality of compressed image used in sharp which is between 0 and 100                                                                               | 60                                                                                                                 |
 
-## 关于图片压缩功能
+## About image compress
 
-### 目前支持三种压缩方式 (`image-manager.compress.method`)
+### Three compression methods are supported at present (`image-manager.compress.method`)
 
 #### sharp
 
-这是默认的压缩方式。前提需要你已经安装 node，并且设置了系统环境变量 (node -v 成功即可) 
-安装扩展时，会自动安装sharp，需要耐心等待 (跟你的网络环境有关)
+This is the default compression method. You need to install `node` and set the system environment variable (node -v is successful)
 
-#### tinypng api 模式
+When installing the extension, sharp will be installed automatically, please be patient (depending on your network environment)
 
-需要你已经申请了 tinypng 的 api key。可以在 https://tinypng.com/developers 申请，个人模式每个月可以压缩 500 张图片
+#### tinypng api mode
 
-需要设置 `image-manager.compress.tinypngKey`，否则会使用免费模式
+You need to apply for the tinypng api key. If not, You can apply at https://tinypng.com/developers. The personal mode can compress 500 images per month
 
-#### tinypng 无 api 模式
+You need to set `image-manager.compress.tinypngKey`, otherwise the free mode will be used
 
-若不设置 apikey(`image-manager.compress.tinypngKey`)，则自动切换为此模式。免费，但是可能不稳定
+#### tinypng free mode
 
-### 如何压缩
+If you don't set tinypngKey(`image-manager.compress.tinypngKey`), extension will automatically switch to this mode. Free, but may be unstable
 
-#### 右键图片
-![右键图片](./screenshots/compress-1.png)
+### How to compress
 
-#### 右键文件夹
-![右键文件夹](./screenshots/compress-2.png)
+#### Right click on the image
+![compress-right-click-image](./screenshots/compress-1.png)
+
+#### Right click on the folder name
+![compress-right-click-folder](./screenshots/compress-2.png)
+
+
 
 ## Inspired
 
-❤️ [vscode-image-viewer](https://github.com/ZhangJian1713/vscode-image-viewer)
+❤️ Big thanks for [vscode-image-viewer](https://github.com/ZhangJian1713/vscode-image-viewer)

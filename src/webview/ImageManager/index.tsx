@@ -86,6 +86,7 @@ export default function ImageManager() {
       message.loading({
         content: t('ia.img_refreshing'),
         key: messageKey,
+        duration: 0,
       })
     }
 

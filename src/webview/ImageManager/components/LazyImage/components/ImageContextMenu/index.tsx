@@ -63,7 +63,7 @@ function ImageContextMenu() {
     const LoadingKey = `${filePath}-compressing`
     message.loading({
       content: t('ia.compressing'),
-      duration: 10,
+      duration: 0,
       key: LoadingKey,
     })
     const res = await compressImage([filePath])
