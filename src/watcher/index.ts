@@ -1,6 +1,7 @@
 import { debounce } from '@minko-fe/lodash-pro'
 import { type Context } from '@rootSrc/Context'
 import { CmdToWebview } from '@rootSrc/message/shared'
+import { Log } from '@rootSrc/utils/Log'
 import { imageGlob } from '@rootSrc/utils/glob'
 import micromatch from 'micromatch'
 import { type FileSystemWatcher, RelativePattern, type Uri, type Webview, workspace } from 'vscode'
@@ -19,6 +20,8 @@ class Watcher {
       root: this._ctx.config.root,
     })
 
+    Log.info(this._ctx.config.root.join(','))
+
     const imageWatchers = this._ctx.config.root.map((r) => {
       const { pattern } = this.glob!
       return workspace.createFileSystemWatcher(new RelativePattern(r, pattern))
@@ -32,7 +35,8 @@ class Watcher {
   }
 
   private _isIgnored(e: Uri) {
-    return !micromatch.all(e.path, this.glob?.all || [])
+    const gs = this.glob?.patterns.map((p) => [p, ...(this.glob?.ignore || [])])
+    return gs?.every((g) => !micromatch.all(e.fsPath, g))
   }
 
   private debouncedHandleEvent = debounce(this._handleEvent, 200, {

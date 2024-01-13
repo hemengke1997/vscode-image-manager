@@ -3,7 +3,7 @@ import { Context } from '@rootSrc/Context'
 import { Log } from '@rootSrc/utils/Log'
 import { execa } from 'execa'
 import jsonfile from 'jsonfile'
-import path from 'pathe'
+import path from 'node:path'
 import * as vscode from 'vscode'
 
 async function checkNpmInstalled() {
@@ -28,7 +28,7 @@ async function npmInstall(extUri: string) {
   }
 
   if (res.stdout) {
-    const pkgJson = jsonfile.readFileSync(path.join(extUri, './package.json')) as Record<string, any>
+    const pkgJson = jsonfile.readFileSync(path.posix.join(extUri, './package.json')) as Record<string, any>
     Log.info(`Dependencies: ${JSON.stringify(pkgJson.dependencies)}`)
     Log.info(`npm install: ${res.stdout}`)
   }
@@ -37,7 +37,7 @@ async function npmInstall(extUri: string) {
 }
 
 function updatePackgeJson(extUri: string) {
-  const originalPkgJson = jsonfile.readFileSync(path.join(extUri, './package.json')) as Record<string, any>
+  const originalPkgJson = jsonfile.readFileSync(path.posix.join(extUri, './package.json')) as Record<string, any>
   const pkgJson = cloneDeep(originalPkgJson)
 
   if (pkgJson) {
@@ -48,7 +48,7 @@ function updatePackgeJson(extUri: string) {
     }
     pkgJson.devDependencies = {}
 
-    jsonfile.writeFileSync(path.join(extUri, './package.json'), pkgJson)
+    jsonfile.writeFileSync(path.posix.join(extUri, './package.json'), pkgJson)
   }
 
   return originalPkgJson
@@ -80,7 +80,7 @@ async function installSharp(extUri: string): Promise<'success' | 'fail' | 'insta
 }
 
 function recoverPkgJson(extUri: string, pkgJson: Record<string, any>) {
-  jsonfile.writeFileSync(path.join(extUri, './package.json'), pkgJson)
+  jsonfile.writeFileSync(path.posix.join(extUri, './package.json'), pkgJson)
 }
 
 export async function initSharp(): Promise<boolean> {

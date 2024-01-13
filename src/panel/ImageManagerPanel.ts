@@ -4,7 +4,7 @@ import { type MessageParams, type MessageType, VscodeMessageCenter } from '@root
 import { CmdToWebview } from '@rootSrc/message/shared'
 import { Log } from '@rootSrc/utils/Log'
 import fs from 'node:fs'
-import path from 'pathe'
+import path from 'node:path'
 import { type Disposable, Uri, ViewColumn, type Webview, type WebviewPanel, env, window } from 'vscode'
 
 /**
@@ -50,12 +50,12 @@ export class ImageManagerPanel {
 
   private _transformHtml(htmlPath: string, webview: Webview) {
     const resourcePath = Uri.file(htmlPath).fsPath
-    const dirPath = path.dirname(resourcePath)
+    const dirPath = path.posix.dirname(resourcePath)
     let html = fs.readFileSync(resourcePath, 'utf-8')
     html = html.replace(/(<link.+?href="|<script.+?src="|<img.+?src=")(.+?)"/g, (_, $1: string, $2: string) => {
       console.log(`webview-replace resourcePath:${resourcePath} dirPath:${dirPath} $1:${$1} $2:${$2}`)
       $2 = $2.startsWith('.') ? $2 : `.${$2}`
-      const vscodeResourcePath = webview.asWebviewUri(Uri.file(path.resolve(dirPath, $2))).toString()
+      const vscodeResourcePath = webview.asWebviewUri(Uri.file(path.posix.resolve(dirPath, $2))).toString()
       return `${$1 + vscodeResourcePath}"`
     })
 
@@ -67,10 +67,6 @@ export class ImageManagerPanel {
    *
    * @remarks This is also the place where references to the React webview build files
    * are created and inserted into the webview HTML.
-   *
-   * @param webview A reference to the extension webview
-   * @returns A template string literal containing the HTML that should be
-   * rendered within the webview panel
    */
   private _getWebviewContent(webview: Webview, ctx: Context) {
     const isProd = ctx.isProductionMode
@@ -197,9 +193,6 @@ export class ImageManagerPanel {
 
   /**
    * Handles messages passed from the webview context and executes code based on the message that is recieved.
-   *
-   * @param message The message that was passed from the webview context
-   * @param webview A reference to the extension webview
    */
   private _handlePanelMessage = async (message: MessageType, webview: Webview) => {
     Log.info(`receive msg: ${JSON.stringify(message)}`)
@@ -216,9 +209,6 @@ export class ImageManagerPanel {
   /**
    * Sets up an event listener to listen for messages passed from the webview context and
    * executes code based on the message that is recieved.
-   *
-   * @param webview A reference to the extension webview
-   * @param context A reference to the extension context
    */
   private _setWebviewMessageListener(webview: Webview) {
     webview.onDidReceiveMessage((msg) => this._handlePanelMessage(msg, webview), undefined, this._disposables)

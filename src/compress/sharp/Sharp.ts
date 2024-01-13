@@ -1,6 +1,6 @@
 import type SharpType from 'sharp'
 import fs from 'node:fs'
-import path from 'pathe'
+import path from 'node:path'
 import { AbsCompressor, type CompressOptions } from '../AbsCompressor'
 
 class Sharp extends AbsCompressor {
@@ -48,7 +48,7 @@ class Sharp extends AbsCompressor {
       const ouputPath = this.getOutputPath(filePath)
       const fileWritableStream = fs.createWriteStream(ouputPath)
 
-      const ext = path.extname(filePath).slice(1)
+      const ext = path.posix.extname(filePath).slice(1)
       const pipeline = sharp(filePath)
         .toFormat(ext as keyof SharpType.FormatEnum, {
           quality: this.compressOptions.quality,

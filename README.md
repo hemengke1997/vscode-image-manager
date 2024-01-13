@@ -1,8 +1,8 @@
 # Image Manager
 
-## Warning
+## Notice
 
-Currently in a rapid iteration, may be unstable. If you encounter problems, please report [issue](https://github.com/hemengke1997/vscode-image-manager/issues)
+Currently extension may be unstable (windows). If you encounter problems, please report [issue](https://github.com/hemengke1997/vscode-image-manager/issues)
 
 ## Screenshot
 
@@ -12,9 +12,6 @@ Currently in a rapid iteration, may be unstable. If you encounter problems, plea
 
 ### i18n 
 ![i18n](./screenshots/i18n.png)
-
-### primary color
-![primary color](./screenshots/primary-color.png)
 
 ### preview
 ![preview](./screenshots/preview.png)
@@ -57,6 +54,7 @@ Right click in Explorer, select `Open Image Manager` to open extension.
 | image-manager.scaleStep           | `number`            | scale step when zooming image list                                                                                                                 | 0.1                                                                                                                |
 | image-manager.exclude             | `string[]`          | scan images not in exclude (pattern syntax of micromatch)                                                                                          | `['**/node_modules/**', '**/.git/**''**/dist/**','**/coverage/**', '**/.next/**',  '**/.nuxt/**','**/.vercel/**']` |
 | image-manager.imageTypes          | `string[]`          | scan images with imageType                                                                                                                         | `['svg', 'png', 'jpeg', 'ico', 'gif', 'webp', 'bmp', 'tif', 'apng']`                                               |
+| image-manager.compress.replace    | `boolean`           | replace original image with compressed image                                                                                                       | true                                                                                                               |
 | image-manager.compress.method     | `sharp \| tinypng`  | compress method. If sharp installed, use sharp, else use tinypng                                                                                   | `sharp`                                                                                                            |
 | image-manager.compress.tinypngKey | `string`            | tinypng key. If choose tinypng, you should set this key which can be get from https://tinypng.com/developers. If not set, it will use unstable key | ''                                                                                                                 |
 | image-manager.compress.quality    | `number`            | quality of compressed image used in sharp which is between 0 and 100                                                                               | 60                                                                                                                 |
@@ -67,8 +65,8 @@ Right click in Explorer, select `Open Image Manager` to open extension.
 
 #### sharp
 
-默认的压缩方式。需要你已经安装 node，并且设置了系统环境变量 (node -v 成功即可) 
-首次安装扩展时，会自动安装图片压缩相关依赖，需要耐心等待
+这是默认的压缩方式。前提需要你已经安装 node，并且设置了系统环境变量 (node -v 成功即可) 
+安装扩展时，会自动安装sharp，需要耐心等待 (跟你的网络环境有关)
 
 #### tinypng api 模式
 

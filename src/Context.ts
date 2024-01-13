@@ -36,7 +36,7 @@ export class Context {
   }
 
   public setConfig(config: Partial<ConfigType>) {
-    this._config = deepMerge(this._config, config)
+    this._config = deepMerge(this._config, config, { arrayMerge: (_, s) => s })
   }
 
   public get config() {

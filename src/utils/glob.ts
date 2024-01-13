@@ -2,6 +2,8 @@
 //   return path.replace(/\/$/g, '')
 // }
 
+import { normalizePath } from '.'
+
 function addLastSlash(path: string) {
   return path.replace(/\/?$/g, '/')
 }
@@ -39,7 +41,8 @@ export function imageGlob(options: { imageType: string[]; exclude: string[]; roo
 
   const pattern = `**/*.{${imageType.join(',')}}`
 
-  const patterns = cwd ? [`${addLastSlash(cwd)}${pattern}`] : root.map((r) => `${addLastSlash(r)}${pattern}`)
+  let patterns = cwd ? [`${addLastSlash(cwd)}${pattern}`] : root.map((r) => `${addLastSlash(r)}${pattern}`)
+  patterns = patterns.map((p) => normalizePath(p))
 
   const ignore = [...exclude, ...BUILT_IN_EXCLUDE].map((pattern) => {
     if (isPositivePattern(pattern)) {

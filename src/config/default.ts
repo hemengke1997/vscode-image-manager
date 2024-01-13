@@ -8,9 +8,9 @@ export const defaultConfig: ConfigType = {
   exclude: [],
   imageType: ['svg', 'png', 'jpeg', 'jpg', 'ico', 'gif', 'webp', 'bmp', 'tif', 'apng'],
   compress: {
+    replace: true,
     quality: 60,
     method: 'sharp',
     tinypngKey: '',
-    replace: false,
   },
 }

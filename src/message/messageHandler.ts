@@ -3,7 +3,7 @@ import { imageGlob } from '@rootSrc/utils/glob'
 import fg from 'fast-glob'
 import imageSize from 'image-size'
 import fs from 'node:fs'
-import path from 'pathe'
+import path from 'node:path'
 import { Uri, type Webview, commands } from 'vscode'
 
 class MessageHandler {
@@ -25,7 +25,7 @@ class MessageHandler {
     })
 
     const imgs = await fg(all, {
-      cwd: path.normalize(absWorkspaceFolder),
+      cwd: path.posix.normalize(absWorkspaceFolder),
       objectMode: true,
       dot: false,
       absolute: true,
@@ -36,25 +36,25 @@ class MessageHandler {
     return imgs.map((img) => {
       const vscodePath = webview.asWebviewUri(Uri.file(img.path)).toString()
 
-      const fileType = path.extname(img.path).replace('.', '')
+      const fileType = path.posix.extname(img.path).replace('.', '')
       fileTypes.add(fileType)
-      const dirPath = path.relative(absWorkspaceFolder, path.dirname(img.path))
+      const dirPath = path.posix.relative(absWorkspaceFolder, path.posix.dirname(img.path))
       dirs.add(dirPath)
 
-      const workspaceFolder = path.basename(absWorkspaceFolder)
+      const workspaceFolder = path.posix.basename(absWorkspaceFolder)
 
       return {
         name: img.name,
         path: img.path,
         stats: img.stats!,
         dirPath,
-        absDirPath: path.dirname(img.path),
+        absDirPath: path.posix.dirname(img.path),
         fileType,
         vscodePath,
         workspaceFolder,
         absWorkspaceFolder,
-        basePath: path.dirname(absWorkspaceFolder),
-        extraPathInfo: path.parse(img.path),
+        basePath: path.posix.dirname(absWorkspaceFolder),
+        extraPathInfo: path.posix.parse(img.path),
       }
     })
   }
@@ -70,7 +70,7 @@ class MessageHandler {
         const imgs = await this._searchImgs(workspaceFolder, webview, fileTypes, dirs)
         return {
           imgs,
-          workspaceFolder: path.basename(workspaceFolder),
+          workspaceFolder: path.posix.basename(workspaceFolder),
           absWorkspaceFolder: workspaceFolder,
           fileTypes: [...fileTypes].filter(Boolean),
           dirs: [...dirs].filter(Boolean),
@@ -81,7 +81,7 @@ class MessageHandler {
     return {
       data,
       absWorkspaceFolders: workspaceFolders,
-      workspaceFolders: workspaceFolders.map((ws) => path.basename(ws)),
+      workspaceFolders: workspaceFolders.map((ws) => path.posix.basename(ws)),
     }
   }
 
@@ -125,7 +125,7 @@ class MessageHandler {
     if (deep) {
       try {
         const files = fs.readdirSync(targetPath)
-        targetPath = path.join(targetPath, files[0])
+        targetPath = path.posix.join(targetPath, files[0])
       } catch {}
     }
 
@@ -151,7 +151,7 @@ class MessageHandler {
   async compressImage(filePaths: string[]) {
     const { compressor } = Context.instance
     filePaths = filePaths.filter((file) => {
-      return compressor?.config.exts.includes(path.extname(file))
+      return compressor?.config.exts.includes(path.posix.extname(file))
     })
     const res = await compressor?.compress(filePaths)
     return res

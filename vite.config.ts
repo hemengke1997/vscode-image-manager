@@ -1,22 +1,25 @@
 /// <reference types="vitest" />
 
-import path from 'pathe'
+import path from 'node:path'
 import { defineConfig, loadConfigFromFile, mergeConfig } from 'vite'
 import { createHtmlPlugin } from 'vite-plugin-html'
 import { i18nDetector } from 'vite-plugin-i18n-detector'
 
 export default defineConfig(async (env) => {
-  const loadResult = await loadConfigFromFile(env, path.resolve(__dirname, './src/webview/ui-framework/vite.config.ts'))
+  const loadResult = await loadConfigFromFile(
+    env,
+    path.posix.resolve(__dirname, './src/webview/ui-framework/vite.config.ts'),
+  )
 
   const config = defineConfig({
     resolve: {
       alias: {
-        '@rootSrc': path.resolve(__dirname, './src'),
+        '@rootSrc': path.posix.resolve(__dirname, './src'),
       },
     },
     plugins: [
       createHtmlPlugin({
-        entry: path.resolve(__dirname, './src/webview/main.tsx'),
+        entry: path.posix.resolve(__dirname, './src/webview/main.tsx'),
         minify: false,
       }),
       i18nDetector({
@@ -25,7 +28,7 @@ export default defineConfig(async (env) => {
       }),
     ],
     build: {
-      outDir: path.resolve(__dirname, './dist-webview/'),
+      outDir: path.posix.resolve(__dirname, './dist-webview/'),
       emptyOutDir: true,
       minify: true,
       rollupOptions: {

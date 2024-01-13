@@ -1,4 +1,4 @@
-const path = require('pathe')
+const path = require('node:path')
 
 module.exports = {
   plugins: [

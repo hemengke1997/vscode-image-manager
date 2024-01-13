@@ -1,4 +1,4 @@
-import path from 'pathe'
+import { normalizePath } from '@rootSrc/utils'
 import { workspace } from 'vscode'
 import { defaultConfig } from './default'
 
@@ -8,7 +8,7 @@ export function getConfig<T>(key: string, v?: T) {
 
 export const Config = {
   get root(): string[] {
-    return workspace.workspaceFolders?.map((t) => path.normalize(t.uri.fsPath)) || []
+    return workspace.workspaceFolders?.map((t) => normalizePath(t.uri.fsPath)) || []
   },
 
   get warningSize(): number {

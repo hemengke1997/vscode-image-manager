@@ -1,5 +1,5 @@
 import fs from 'node:fs'
-import path from 'pathe'
+import path from 'node:path'
 
 export type CompressOptions = {
   quality: number
@@ -36,7 +36,7 @@ export abstract class AbsCompressor {
   }
 
   getFilename(filePath: string) {
-    const { name } = path.parse(filePath)
+    const { name } = path.posix.parse(filePath)
     return name
   }
 
@@ -57,12 +57,14 @@ export abstract class AbsCompressor {
   private _isCompressable(filePath: string) {
     const fileStat = fs.statSync(filePath)
     return (
-      fileStat.isFile() && this.config.exts.includes(path.extname(filePath)) && fileStat.size <= this.config.sizeLimit
+      fileStat.isFile() &&
+      this.config.exts.includes(path.posix.extname(filePath)) &&
+      fileStat.size <= this.config.sizeLimit
     )
   }
 
   private _generateOutputPath(filePath: string, suffix = this.compressOptions.fileSuffix || '.min') {
-    const { name, ext, dir } = path.parse(filePath)
+    const { name, ext, dir } = path.posix.parse(filePath)
     const filename = `${name}${suffix}`
     const outputPath = `${dir}/${filename}${ext}`
 
