@@ -20,14 +20,6 @@ function useTreeContext(props: { imageList: ImageType[] }) {
     visibleList: imageList,
   })
 
-  useUpdateEffect(() => {
-    setImageSingleTree({
-      originalList: imageList,
-      list: imageList,
-      visibleList: imageList,
-    })
-  }, [imageList])
-
   const workspaceFolders = useMemo(
     () =>
       filterImages(
@@ -62,7 +54,7 @@ function useTreeContext(props: { imageList: ImageType[] }) {
       ),
     [imageSingleTree.originalList],
   )
-  const imageTypes = useMemo(
+  const imageType = useMemo(
     () =>
       filterImages(
         imageSingleTree.visibleList,
@@ -87,11 +79,19 @@ function useTreeContext(props: { imageList: ImageType[] }) {
     [imageSingleTree.originalList],
   )
 
-  // everytime list changed, update visibleList
+  // Everytime list changed, update visibleList
   // the only entry to update visibleList
   useUpdateEffect(() => {
     setImageSingleTree((t) => ({ visibleList: t.list.filter(shouldShowImage) }))
   }, [imageSingleTree.list])
+
+  useUpdateEffect(() => {
+    setImageSingleTree({
+      originalList: imageList,
+      list: sort ? [...sortImages(sort, imageList)] : imageList,
+      visibleList: imageList,
+    })
+  }, [imageList])
 
   const { sort, displayImageTypes } = SettingsContext.usePicker(['sort', 'displayImageTypes'])
   useEffect(() => {
@@ -114,7 +114,7 @@ function useTreeContext(props: { imageList: ImageType[] }) {
     workspaceFolders,
     dirs,
     allDirs,
-    imageTypes,
+    imageType,
     allImageTypes,
   }
 }

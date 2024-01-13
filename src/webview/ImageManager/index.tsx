@@ -1,6 +1,6 @@
 import { uniq } from '@minko-fe/lodash-pro'
 import { CmdToVscode, CmdToWebview } from '@rootSrc/message/shared'
-import { App, Card, ConfigProvider, theme } from 'antd'
+import { App, Card, Skeleton } from 'antd'
 import { AnimatePresence, motion } from 'framer-motion'
 import { type Stats } from 'node:fs'
 import { type ParsedPath } from 'node:path'
@@ -30,7 +30,7 @@ import 'react-contexify/ReactContexify.css'
 
 vscodeApi.registerEventListener()
 
-// the visible of image is determined by 'visible' prop.
+// The visible of image is determined by 'visible' prop.
 // at present, there are two filetr condition
 // 1. type - image type (i.e png, jpg, gif)
 // 2. size - image size (i.e 1kb)
@@ -54,7 +54,6 @@ export type ImageType = {
 }
 
 export default function ImageManager() {
-  const { token } = theme.useToken()
   const { message } = App.useApp()
   const { t } = useTranslation()
 
@@ -91,7 +90,8 @@ export default function ImageManager() {
     }
 
     vscodeApi.postMessage({ cmd: CmdToVscode.GET_ALL_IMAGES }, ({ data, workspaceFolders }) => {
-      console.log(data, 'data')
+      console.log('GET_ALL_IMAGES', data, workspaceFolders)
+
       setImageState({
         data,
         workspaceFolders,
@@ -178,105 +178,104 @@ export default function ImageManager() {
   const [containerRef] = useWheelScaleEvent()
 
   return (
-    <div ref={containerRef} className={'space-y-4'}>
-      <AnimatePresence>
-        {mode === 'standard' && (
-          <motion.div
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            exit={{ opacity: 0 }}
-            transition={{ duration: 0.15 }}
-          >
-            <Card size='small' title={t('ia.settings')}>
-              <div className={'flex flex-col space-y-4'}>
-                <OperationItemUI title={t('ia.type')}>
-                  <DisplayType
-                    imageTypes={{
-                      all: allImageTypes,
-                      checked: displayImageTypes!,
-                    }}
-                    images={allImageFiles}
-                    onImageTypeChange={onImageTypeChange}
-                  />
-                </OperationItemUI>
-
-                <div className={'flex space-x-6'}>
-                  <OperationItemUI title={t('ia.group')}>
-                    <DisplayGroup
-                      options={groupType
-                        .filter((t) => !t.hidden)
-                        .map((item) => ({ label: item.label, value: item.value }))}
-                      value={displayGroup}
-                      onChange={setDisplayGroup}
-                    ></DisplayGroup>
-                  </OperationItemUI>
-                  <OperationItemUI title={t('ia.style')}>
-                    <DisplayStyle value={displayStyle} onChange={setDisplayStyle} />
-                  </OperationItemUI>
-                </div>
-
-                <div className={'flex space-x-6'}>
-                  <OperationItemUI title={t('ia.sort')}>
-                    <DisplaySort options={sortOptions} value={sort} onChange={onSortChange} />
-                  </OperationItemUI>
-                  <OperationItemUI title={t('ia.background_color')}>
-                    <PrimaryColorPicker
-                      color={backgroundColor}
-                      onColorChange={setBackgroundColor}
-                      localKey={localStorageEnum.LOCAL_STORAGE_BACKGROUND_RECENT_COLORS_KEY}
-                      extraColors={[Colors.warmWhite, Colors.warmBlack]}
-                    />
-                  </OperationItemUI>
-                </div>
-              </div>
-            </Card>
-          </motion.div>
-        )}
-      </AnimatePresence>
-
-      <Card
-        loading={imageState.loading}
-        headStyle={{ borderBottom: 'none' }}
-        bodyStyle={imageState.loading ? {} : { padding: 0 }}
-        title={t('ia.images')}
-        extra={<ImageActions />}
-      >
-        <ConfigProvider
-          theme={{
-            components: {
-              Collapse: {
-                motionDurationMid: token.motionDurationFast,
-              },
-            },
-          }}
-        >
-          <div className={'space-y-4'}>
-            {imageState.data.map((item, index) => (
-              <TreeContext.Provider
-                key={index}
-                value={{
-                  imageList: item.imgs,
-                }}
-              >
-                <TreeContext.Consumer>
-                  {({ dirs, imageTypes, workspaceFolders }) => (
-                    <CollapseTree
-                      workspaceFolders={workspaceFolders}
-                      displayStyle={displayStyle!}
-                      dirs={dirs}
-                      imageTypes={imageTypes}
-                      displayGroup={displayGroup}
-                    />
-                  )}
-                </TreeContext.Consumer>
-              </TreeContext.Provider>
-            ))}
-          </div>
-        </ConfigProvider>
-      </Card>
+    <>
       <ImageContextMenu />
       <CollapseContextMenu />
-      <ImageForSize />
-    </div>
+
+      <div ref={containerRef} className={'space-y-4'}>
+        <AnimatePresence>
+          {mode === 'standard' && (
+            <motion.div
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              transition={{ duration: 0.15 }}
+            >
+              <Card size='small' title={t('ia.settings')}>
+                <div className={'flex flex-col space-y-4'}>
+                  <OperationItemUI title={t('ia.type')}>
+                    <DisplayType
+                      imageType={{
+                        all: allImageTypes,
+                        checked: displayImageTypes!,
+                      }}
+                      images={allImageFiles}
+                      onImageTypeChange={onImageTypeChange}
+                    />
+                  </OperationItemUI>
+
+                  <div className={'flex space-x-6'}>
+                    <OperationItemUI title={t('ia.group')}>
+                      <DisplayGroup
+                        options={groupType
+                          .filter((t) => !t.hidden)
+                          .map((item) => ({ label: item.label, value: item.value }))}
+                        value={displayGroup}
+                        onChange={setDisplayGroup}
+                      ></DisplayGroup>
+                    </OperationItemUI>
+                    <OperationItemUI title={t('ia.style')}>
+                      <DisplayStyle value={displayStyle} onChange={setDisplayStyle} />
+                    </OperationItemUI>
+                  </div>
+
+                  <div className={'flex space-x-6'}>
+                    <OperationItemUI title={t('ia.sort')}>
+                      <DisplaySort options={sortOptions} value={sort} onChange={onSortChange} />
+                    </OperationItemUI>
+                    <OperationItemUI title={t('ia.background_color')}>
+                      <PrimaryColorPicker
+                        color={backgroundColor}
+                        onColorChange={setBackgroundColor}
+                        localKey={localStorageEnum.LOCAL_STORAGE_BACKGROUND_RECENT_COLORS_KEY}
+                        extraColors={[Colors.warmWhite, Colors.warmBlack]}
+                      />
+                    </OperationItemUI>
+                  </div>
+                </div>
+              </Card>
+            </motion.div>
+          )}
+        </AnimatePresence>
+
+        <Card
+          headStyle={{ borderBottom: 'none' }}
+          bodyStyle={{ padding: 0 }}
+          title={t('ia.images')}
+          extra={<ImageActions />}
+        >
+          {imageState.loading ? (
+            <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ duration: 0.2, delay: 1 }}>
+              <Skeleton className={'p-4'} active paragraph={{ rows: 20 }} />
+            </motion.div>
+          ) : (
+            <div className={'space-y-4'}>
+              {imageState.data.map((item, index) => (
+                <TreeContext.Provider
+                  key={index}
+                  value={{
+                    imageList: item.imgs,
+                  }}
+                >
+                  <TreeContext.Consumer>
+                    {({ dirs, imageType, workspaceFolders }) => (
+                      <CollapseTree
+                        workspaceFolders={workspaceFolders}
+                        displayStyle={displayStyle!}
+                        dirs={dirs}
+                        imageType={imageType}
+                        displayGroup={displayGroup}
+                      />
+                    )}
+                  </TreeContext.Consumer>
+                </TreeContext.Provider>
+              ))}
+            </div>
+          )}
+        </Card>
+
+        <ImageForSize />
+      </div>
+    </>
   )
 }

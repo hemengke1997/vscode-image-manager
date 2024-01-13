@@ -9,16 +9,16 @@ export type DisplayImageTypes = {
 
 type DisplayTypeProps = {
   images: ImageType[]
-  imageTypes: DisplayImageTypes
+  imageType: DisplayImageTypes
   onImageTypeChange: (checked: string[]) => void
 }
 
 function DisplayType(props: DisplayTypeProps) {
   const { token } = theme.useToken()
-  const { imageTypes, images, onImageTypeChange } = props
+  const { imageType, images, onImageTypeChange } = props
 
   const imageTypeOptions = () => {
-    return imageTypes.all.map((item) => {
+    return imageType.all.map((item) => {
       return {
         label: (
           <div className={'space-x-2'}>
@@ -48,7 +48,7 @@ function DisplayType(props: DisplayTypeProps) {
 
   return (
     <Checkbox.Group
-      value={imageTypes.checked}
+      value={imageType.checked}
       onChange={(checked) => onImageTypeChange(checked as string[])}
       options={imageTypeOptions()}
     ></Checkbox.Group>

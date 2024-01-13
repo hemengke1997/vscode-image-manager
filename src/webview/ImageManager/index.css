@@ -7,7 +7,11 @@
   --contexify-separator-margin: var(--ant-margin-xxs);
   --contexify-menu-shadow: var(--ant-box-shadow-popover-arrow);
 
-  @apply text-xxs;
+  @apply text-xs border-ant-color-border border-solid border;
+
+  .contexify_itemContent {
+    @apply rounded-[var(--contexify-menu-radius)];
+  }
 
   @keyframes contexify_quickFadeIn {
     from {

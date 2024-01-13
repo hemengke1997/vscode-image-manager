@@ -1,19 +1,30 @@
 import { debounce } from '@minko-fe/lodash-pro'
 import { type Context } from '@rootSrc/Context'
-import { globImages } from '@rootSrc/helper/glob'
 import { CmdToWebview } from '@rootSrc/message/shared'
+import { Log } from '@rootSrc/utils/Log'
+import { imageGlob } from '@rootSrc/utils/glob'
 import micromatch from 'micromatch'
 import { type FileSystemWatcher, RelativePattern, type Uri, type Webview, workspace } from 'vscode'
 
 class Watcher {
   private watchers: FileSystemWatcher[] | undefined
   public webview: Webview | undefined
+  public glob: ReturnType<typeof imageGlob> | undefined
 
   constructor(private _ctx: Context) {
     if (!this._ctx.config.root.length) return
 
+    this.glob = imageGlob({
+      imageType: this._ctx.config.imageType,
+      exclude: this._ctx.config.exclude,
+      root: this._ctx.config.root,
+    })
+
+    Log.info(this._ctx.config.root.join(','))
+
     const imageWatchers = this._ctx.config.root.map((r) => {
-      return workspace.createFileSystemWatcher(new RelativePattern(r, globImages().pattern))
+      const { pattern } = this.glob!
+      return workspace.createFileSystemWatcher(new RelativePattern(r, pattern))
     })
 
     const folderWatchers = this._ctx.config.root.map((r) => {
@@ -24,7 +35,8 @@ class Watcher {
   }
 
   private _isIgnored(e: Uri) {
-    return !micromatch.all(e.path, globImages().all)
+    const gs = this.glob?.patterns.map((p) => [p, ...(this.glob?.ignore || [])])
+    return gs?.every((g) => !micromatch.all(e.fsPath, g))
   }
 
   private debouncedHandleEvent = debounce(this._handleEvent, 200, {

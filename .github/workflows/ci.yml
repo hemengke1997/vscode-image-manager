@@ -15,22 +15,17 @@ jobs:
     steps:
       - uses: actions/checkout@v3
 
-      - name: Install pnpm
-        uses: pnpm/action-setup@v2
-        with:
-          version: 8.6.2
-
       - name: Set node
         uses: actions/setup-node@v3
         with:
           node-version: lts/*
-          cache: pnpm
+          cache: npm
 
       - name: Install
-        run: pnpm install --frozen-lockfile --prefer-offline --ignore-scripts
+        run: npm install --frozen-lockfile --prefer-offline --ignore-scripts
 
       - name: Lint
-        run: pnpm lint
+        run: npm run lint
 
   test:
     timeout-minutes: 5
@@ -50,19 +45,14 @@ jobs:
     steps:
       - uses: actions/checkout@v3
 
-      - name: Install pnpm
-        uses: pnpm/action-setup@v2
-        with:
-          version: 8.6.2
-
       - name: Set node
         uses: actions/setup-node@v3
         with:
           node-version: ${{ matrix.node_version }}
-          cache: pnpm
+          cache: npm
 
       - name: Install
-        run: pnpm install --frozen-lockfile --prefer-offline --ignore-scripts
+        run: npm install --frozen-lockfile --prefer-offline --ignore-scripts
 
       - name: Test
-        run: pnpm test
+        run: npm run test

@@ -17,8 +17,9 @@ const AntdConfigProvider: FC<PropsWithChildren> = ({ children }) => {
         cssVar: true,
         algorithm: theme === 'dark' ? antdTheme.darkAlgorithm : antdTheme.defaultAlgorithm,
         token: {
-          fontSize: Number(vscodeFontSize) || 12,
+          fontSize: Number(vscodeFontSize) - 1 || 12,
           colorPrimary: primaryColor,
+          motionUnit: 0.05, // ==> --ant-motion-duration-fast: 0.1s; --ant-motion-duration-mid: 0.1s; --ant-motion-duration-slow: 0.2s;
         },
       }}
       componentSize='small'
@@ -28,6 +29,9 @@ const AntdConfigProvider: FC<PropsWithChildren> = ({ children }) => {
         className={'bg-ant-color-bg-container'}
         message={{
           top: 70,
+          maxCount: 3,
+        }}
+        notification={{
           maxCount: 3,
         }}
       >

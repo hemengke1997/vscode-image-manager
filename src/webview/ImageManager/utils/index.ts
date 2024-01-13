@@ -34,7 +34,12 @@ export function shouldShowImage(image: ImageType) {
   return true
 }
 
+export function getFilenameFromPath(path: string) {
+  return path.split('/').pop()
+}
+
 export function filterImages<T>(images: ImageType[], filterValue: (image: ImageType) => T, key: keyof T) {
+  if (!images.length) return []
   return sortBy(
     uniqBy(
       images.map((item) => filterValue(item)),

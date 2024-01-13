@@ -1,7 +1,8 @@
 import { isUndefined } from '@minko-fe/lodash-pro'
+import { useControlledState } from '@minko-fe/react-hook'
 import { Collapse, type CollapseProps } from 'antd'
 import classNames from 'classnames'
-import { type ReactNode, memo, useEffect, useMemo, useState } from 'react'
+import { type ReactNode, memo, useEffect, useMemo } from 'react'
 import { useContextMenu } from 'react-contexify'
 import ImageManagerContext from '../../contexts/ImageManagerContext'
 import ImagePreview, { type ImagePreviewProps } from '../ImagePreview'
@@ -23,7 +24,10 @@ function ImageCollapse(props: ImageCollapseProps) {
 
   const { collapseOpen } = ImageManagerContext.usePicker(['collapseOpen'])
 
-  const [activeKeys, setActiveKeys] = useState<string[]>([])
+  const [activeKeys, setActiveKeys] = useControlledState<string[]>({
+    defaultValue: collapseProps.defaultActiveKey as string[],
+    onChange: collapseProps.onChange,
+  })
 
   const onCollapseChange = (keys: string[]) => {
     setActiveKeys(keys)
@@ -58,6 +62,7 @@ function ImageCollapse(props: ImageCollapseProps) {
             id: COLLAPSE_CONTEXT_MENU_ID,
             props: {
               targetPath: getCurrentPath(index) || '',
+              images,
             },
           })
         }}
@@ -66,6 +71,13 @@ function ImageCollapse(props: ImageCollapseProps) {
           "relative transition-all after:absolute after:-inset-x-0 after:-inset-y-1.5 after:content-['']",
           contextMenu && 'hover:underline focus:underline',
         )}
+        onClick={() => {
+          if (activeKeys?.length) {
+            setActiveKeys([])
+          } else {
+            setActiveKeys([id])
+          }
+        }}
       >
         {label}
       </div>

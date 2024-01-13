@@ -1,3 +1,4 @@
+import { Log } from '@rootSrc/utils/Log'
 import { type Webview } from 'vscode'
 import { messageHandler } from './messageHandler'
 import { CmdToVscode } from './shared'
@@ -33,8 +34,8 @@ export const VscodeMessageCenter = {
     const data = messageHandler.getExtConfig()
     return data
   },
-  [CmdToVscode.COPY_IMAGE]: async ({ message }: MessageParams<{ filePath: string }>) => {
-    const data = await messageHandler.copyImage(message.data.filePath)
+  [CmdToVscode.GET_COMPRESSOR]: () => {
+    const data = messageHandler.getCompressor()
     return data
   },
   [CmdToVscode.OPEN_IMAGE_IN_VSCODE_EXPLORER]: ({ message }: MessageParams<{ filePath: string }>) => {
@@ -45,6 +46,25 @@ export const VscodeMessageCenter = {
   },
   [CmdToVscode.COPY_IMAGE_AS_BASE64]: ({ message }: MessageParams<{ filePath: string }>) => {
     return messageHandler.copyImageAsBase64(message.data.filePath)
+  },
+  [CmdToVscode.COMPRESS_IMAGE]: async ({
+    message,
+  }: MessageParams<{ filePaths: string[] }>): Promise<
+    | {
+        filePath: string
+        originSize?: number | undefined
+        compressedSize?: number | undefined
+        error?: any
+      }[]
+    | undefined
+  > => {
+    try {
+      const res = await messageHandler.compressImage(message.data.filePaths)
+      Log.info(`Compress result: ${JSON.stringify(res)}`)
+      return res
+    } catch (e: any) {
+      return e
+    }
   },
   [CmdToVscode.TEMP_TEST_CMD]: ({ message }: MessageParams<{ cmd: string; path: string }>) => {
     messageHandler.testBuiltInCmd({

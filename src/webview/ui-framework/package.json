@@ -6,17 +6,15 @@
   "scripts": {
     "ca": "tsx ./scripts/antdToTw"
   },
-  "dependencies": {
-    "@ant-design/colors": "^7.0.0",
-    "react": "^18.2.0",
-    "react-dom": "^18.2.0",
-    "react-error-boundary": "^4.0.11"
-  },
   "devDependencies": {
+    "@ant-design/colors": "^7.0.0",
     "@vitejs/plugin-react": "^4.2.1",
     "execa": "^8.0.1",
     "postcss": "^8.4.32",
-    "tailwindcss": "^3.4.0",
+    "react": "^18.2.0",
+    "react-dom": "^18.2.0",
+    "react-error-boundary": "^4.0.11",
+    "tailwindcss": "^3.3.6",
     "validate-color": "^2.2.4",
     "vite": "^4.5.1",
     "vite-plugin-i18n-detector": "^2.2.0"

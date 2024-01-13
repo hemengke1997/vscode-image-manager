@@ -1,11 +1,12 @@
 import { useMemoizedFn } from '@minko-fe/react-hook'
-import { type CollapseProps } from 'antd'
+import { type CollapseProps, ConfigProvider } from 'antd'
 import { memo, useMemo, useRef } from 'react'
 import { useTranslation } from 'react-i18next'
 import { FaRegImages } from 'react-icons/fa'
 import { FaRegObjectGroup } from 'react-icons/fa6'
 import { IoMdFolderOpen } from 'react-icons/io'
 import { PiFileImage } from 'react-icons/pi'
+import ImageManagerContext from '../../contexts/ImageManagerContext'
 import TreeContext from '../../contexts/TreeContext'
 import { DirTree, type FileNode } from '../../utils/DirTree'
 import { type GroupType } from '../DisplayGroup'
@@ -18,14 +19,16 @@ type GroupOption = Option
 type CollapseTreeProps = {
   workspaceFolders: GroupOption[]
   dirs: GroupOption[]
-  imageTypes: GroupOption[]
+  imageType: GroupOption[]
   displayGroup: GroupType[]
   displayStyle: DisplayStyleType
 }
 
 function CollapseTree(props: CollapseTreeProps) {
-  const { workspaceFolders, dirs, imageTypes, displayGroup, displayStyle } = props
+  const { workspaceFolders, dirs, imageType, displayGroup, displayStyle } = props
   const { imageSingleTree } = TreeContext.usePicker(['imageSingleTree'])
+  const allWorkspaceFolders = ImageManagerContext.useSelector((ctx) => ctx.imageState.workspaceFolders)
+
   const { t } = useTranslation()
 
   const dirTree = useRef<DirTree>()
@@ -65,12 +68,12 @@ function CollapseTree(props: CollapseTreeProps) {
           absolutePath: 'fileType',
           relativePath: 'fileType',
         },
-        list: imageTypes,
+        list: imageType,
         icon: () => <PiFileImage />,
         contextMenu: false,
         priority: 3,
       },
-      // special case, when no group checked, show all images
+      // Special case, when no group checked, show all images
       all: {
         icon: (props: { path: string }) => (
           <OpenFolder {...props}>
@@ -81,45 +84,52 @@ function CollapseTree(props: CollapseTreeProps) {
         priority: null,
       },
     }),
-    [workspaceFolders, dirs, imageTypes],
+    [workspaceFolders, dirs, imageType],
   )
 
-  const nestedDisplay = useMemoizedFn((tree: FileNode[], collapseProps?: CollapseProps) => {
-    if (!tree.length) return null
+  const nestedDisplay = useMemoizedFn(
+    (
+      tree: FileNode[],
+      collapseProps?: CollapseProps,
+      options?: {
+        defaultOpen?: boolean
+      },
+    ) => {
+      if (!tree.length) return null
 
-    return (
-      <div className={'space-y-2'}>
-        {tree.map((node) => {
-          const renderList = node.renderList || []
-          // ||
-          // imageSingleTree.visibleList.filter((img) => dirTree.current?.shouldShowImage(node, img)) ||
-          // []
+      const { defaultOpen } = options || {}
 
-          return (
-            <ImageCollapse
-              key={node.value}
-              id={node.value}
-              collapseProps={{
-                bordered: false,
-                ...collapseProps,
-              }}
-              labelContainer={(label) => (
-                <div className={'flex items-center space-x-2'}>
-                  <div className={'flex-center'}>{displayMap[node.type!].icon({ path: node.value })}</div>
-                  {label}
-                </div>
-              )}
-              contextMenu={displayMap[node.type!].contextMenu}
-              label={node.label}
-              joinLabel={!!displayMap[node.type!].priority}
-              images={renderList}
-              nestedChildren={node.label ? nestedDisplay(node.children) : null}
-            ></ImageCollapse>
-          )
-        })}
-      </div>
-    )
-  })
+      return (
+        <div className={'space-y-2'}>
+          {tree.map((node) => {
+            return (
+              <ImageCollapse
+                key={node.value}
+                id={node.value}
+                collapseProps={{
+                  bordered: false,
+                  defaultActiveKey: defaultOpen ? [node.value] : undefined,
+                  collapsible: 'icon',
+                  ...collapseProps,
+                }}
+                labelContainer={(label) => (
+                  <div className={'flex items-center space-x-2'}>
+                    <div className={'flex-center'}>{displayMap[node.type!].icon({ path: node.value })}</div>
+                    {label}
+                  </div>
+                )}
+                contextMenu={displayMap[node.type!].contextMenu}
+                label={node.label}
+                joinLabel={!!displayMap[node.type!].priority}
+                images={node.renderList || []}
+                nestedChildren={node.label ? nestedDisplay(node.children) : null}
+              ></ImageCollapse>
+            )
+          })}
+        </div>
+      )
+    },
+  )
 
   const displayByPriority = useMemoizedFn(() => {
     dirTree.current = new DirTree({
@@ -136,8 +146,9 @@ function CollapseTree(props: CollapseTreeProps) {
           label: t('ia.all'),
           type: 'all',
           fullLabel: '',
-          value: workspaceFolders[0].value,
+          value: workspaceFolders.length ? workspaceFolders[0].value : allWorkspaceFolders[0],
           children: [],
+          renderCondition: {},
         },
       ]
     }
@@ -146,13 +157,15 @@ function CollapseTree(props: CollapseTreeProps) {
       dirTree.current.compactFolders(tree)
     }
 
-    console.log('render tree', tree)
-
     // render tree
-    return nestedDisplay(tree, { bordered: true })
+    return nestedDisplay(tree, { bordered: true }, { defaultOpen: true })
   })
 
-  return <>{displayByPriority()}</>
+  return (
+    <>
+      <ConfigProvider>{displayByPriority()}</ConfigProvider>
+    </>
+  )
 }
 
 export default memo(CollapseTree)

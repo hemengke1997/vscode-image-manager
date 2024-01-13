@@ -1,4 +1,4 @@
-import { isNumber, uniq } from '@minko-fe/lodash-pro'
+import { isEmpty, isNumber, mergeWith, uniq } from '@minko-fe/lodash-pro'
 import { type ImageType } from '..'
 import { type GroupType } from '../components/DisplayGroup'
 
@@ -21,7 +21,7 @@ export type FileNode = {
   fullLabel: string
   value: string
   children: FileNode[]
-  renderConditions?: Record<string, string>[]
+  renderCondition: Record<string, string>
   type?: GroupType | Flatten
   renderList?: ImageType[]
 }
@@ -57,12 +57,15 @@ export class DirTree {
         })),
         (n) => {
           n.type = d
-          if (!n.renderConditions) {
-            n.renderConditions = sortedKeys.map((k) => ({ [k]: k === d ? n.value : '' }))
+          if (isEmpty(n.renderCondition)) {
+            sortedKeys.forEach((k) => {
+              Object.assign(n.renderCondition)
+              n.renderCondition[k] = k === d ? n.value : ''
+            })
           }
           if (i > 0) {
             for (let j = 0; j < i; j++) {
-              const tree = this.traverseTreeToSetRenderConditions(previousTree[j], n.renderConditions)
+              const tree = this.traverseTreeToSetRenderConditions(previousTree[j], n.renderCondition)
               n.children.push(...tree)
             }
           }
@@ -73,7 +76,7 @@ export class DirTree {
 
     const tree = previousTree[previousTree.length - 1]
 
-    // maybe we should do this in arrangeIntoTree
+    // Maybe we should do this in arrangeIntoTree
     this.renderTree(tree)
 
     return tree
@@ -86,7 +89,7 @@ export class DirTree {
       if (node?.children.length) {
         stack.push(...node.children)
       }
-      if (node?.renderConditions?.length) {
+      if (!isEmpty(node?.renderCondition)) {
         const renderList = this.visibleList.filter((img) => this._shouldShowImage(node, img)) || []
         if (renderList.length) {
           node.renderList = renderList
@@ -95,30 +98,19 @@ export class DirTree {
     }
   }
 
-  traverseTreeToSetRenderConditions(previousTree: FileNode[], renderConditions: Record<string, string>[]) {
+  mergeRenderCondition(prev: FileNode['renderCondition'], add: FileNode['renderCondition']) {
+    return mergeWith(prev, add, (prevValue, addValue) => {
+      return addValue || prevValue
+    })
+  }
+
+  traverseTreeToSetRenderConditions(previousTree: FileNode[], renderCondition: FileNode['renderCondition']) {
     const resultTree: FileNode[] = []
     previousTree.forEach((node) => {
       node = { ...node }
+      node.renderCondition = this.mergeRenderCondition(node.renderCondition, renderCondition)
       if (node.children.length) {
-        node.children = this.traverseTreeToSetRenderConditions(node.children, renderConditions)
-      } else {
-        function pushRenderCondition(prev: FileNode['renderConditions'], add: FileNode['renderConditions']) {
-          const result = [...(prev || [])]
-          add?.forEach((a) => {
-            const k = Object.keys(a)[0]
-            const index = result.findIndex((p) => Object.keys(p)[0] === k)
-            if (index !== -1) {
-              if (a[k]) {
-                result.splice(index, 1)
-                result.push(a)
-              }
-            } else {
-              result.push(a)
-            }
-          })
-          return result
-        }
-        node.renderConditions = [...(pushRenderCondition(node.renderConditions, renderConditions) || [])]
+        node.children = this.traverseTreeToSetRenderConditions(node.children, renderCondition)
       }
       resultTree.push(node)
     })
@@ -144,6 +136,7 @@ export class DirTree {
             label: part,
             fullLabel,
             value: basePath + fullLabel,
+            renderCondition: {},
             children: [],
           }
           onGenerate?.(newPart)
@@ -249,14 +242,16 @@ export class DirTree {
   private _shouldShowImage(node: FileNode, image: ImageType) {
     return this.displayGroup.every((g) => {
       const imageValue = image[this.displayMap[g].imageKeys.absolutePath]
-      return node.renderConditions?.some((condition) => {
-        // e.g. condition.dir = '' && image.dirPath = ''
-        // means that the image belongs to the parent node
-        if (condition[g] === '' && image[this.displayMap[g].imageKeys.relativePath] === '') {
-          return true
-        }
-        return condition[g] === imageValue
-      })
+
+      const condition = node.renderCondition[g]
+
+      // e.g. condition.dir = '' && image.dirPath = ''
+      // means that the image belongs to the parent node
+      if (condition === '' && image[this.displayMap[g].imageKeys.relativePath] === '') {
+        return true
+      }
+
+      return condition === imageValue
     })
   }
 }

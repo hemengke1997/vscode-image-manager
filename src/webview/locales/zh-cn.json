@@ -44,7 +44,13 @@
     "reveal_in_explorer": "在资源管理器视图中显示",
     "simple_mode": "简洁模式",
     "standard_mode": "标准模式",
-    "change_mode": "切换模式"
+    "change_mode": "切换模式",
+    "compress": "压缩",
+    "compress_success": "压缩成功",
+    "compress_fail": "压缩失败",
+    "compressing": "压缩中...",
+    "compress_under_folder": "压缩当前文件夹下图片",
+    "compressor_not_found": "图片压缩功能丢失"
   },
   "fallback": {
     "internal_error": "内部错误",

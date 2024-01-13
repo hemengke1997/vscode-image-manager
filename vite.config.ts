@@ -27,6 +27,7 @@ export default defineConfig(async (env) => {
     build: {
       outDir: path.resolve(__dirname, './dist-webview/'),
       emptyOutDir: true,
+      minify: true,
       rollupOptions: {
         output: {
           entryFileNames: `assets/[name].js`,
