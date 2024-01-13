@@ -4,26 +4,26 @@ import { App, Card, Skeleton } from 'antd'
 import { AnimatePresence, motion } from 'framer-motion'
 import { type Stats } from 'node:fs'
 import { type ParsedPath } from 'node:path'
-import { useEffect, useMemo } from 'react'
+import { type ReactElement, type ReactNode, useEffect, useMemo } from 'react'
 import { useTranslation } from 'react-i18next'
 import { localStorageEnum } from '../local-storage'
 import PrimaryColorPicker from '../ui-framework/src/components/CustomConfigProvider/components/PrimaryColorPicker'
-import GlobalContext from '../ui-framework/src/contexts/GlobalContext'
+import FrameworkContext from '../ui-framework/src/contexts/FrameworkContext'
 import { vscodeApi } from '../vscode-api'
 import CollapseTree from './components/CollapseTree'
+import ContextMenus from './components/ContextMenus'
 import DisplayGroup, { type GroupType } from './components/DisplayGroup'
 import DisplaySort from './components/DisplaySort'
 import DisplayStyle from './components/DisplayStyle'
 import DisplayType from './components/DisplayType'
 import ImageActions from './components/ImageActions'
-import CollapseContextMenu from './components/ImageCollapse/components/CollapseContextMenu'
 import ImageForSize from './components/ImageForSize'
-import ImageContextMenu from './components/LazyImage/components/ImageContextMenu'
-import ImageManagerContext from './contexts/ImageManagerContext'
+import SearchModal from './components/SearchModal'
+import ActionContext from './contexts/ActionContext'
+import GlobalContext from './contexts/GlobalContext'
 import SettingsContext from './contexts/SettingsContext'
 import TreeContext from './contexts/TreeContext'
 import useWheelScaleEvent from './hooks/useWheelScaleEvent'
-import OperationItemUI from './ui/OperationItemUI'
 import { Colors } from './utils/color'
 import './index.css'
 import 'react-contexify/ReactContexify.css'
@@ -50,20 +50,26 @@ export type ImageType = {
   extraPathInfo: ParsedPath
 } & {
   // extra
+
+  // image visible
   visible?: Partial<Record<ImageVisibleFilterType | string, boolean>>
+  // image name for display
+  nameElement?: ReactElement
 }
 
 export default function ImageManager() {
   const { message } = App.useApp()
   const { t } = useTranslation()
 
-  const { mode } = GlobalContext.usePicker(['mode'])
+  const { mode } = FrameworkContext.usePicker(['mode'])
 
-  const { imageState, setImageState, imageRefreshedState, refreshImages } = ImageManagerContext.usePicker([
-    'imageState',
-    'setImageState',
+  const { imageState, setImageState } = GlobalContext.usePicker(['imageState', 'setImageState'])
+
+  const { imageRefreshedState, refreshImages, searchModalOpen, setSearchModalOpen } = ActionContext.usePicker([
     'imageRefreshedState',
     'refreshImages',
+    'searchModalOpen',
+    'setSearchModalOpen',
   ])
 
   const {
@@ -84,7 +90,7 @@ export default function ImageManager() {
     const messageKey = 'REFRESH_IMAGES'
     if (isRefresh) {
       message.loading({
-        content: t('ia.img_refreshing'),
+        content: t('im.img_refreshing'),
         key: messageKey,
         duration: 0,
       })
@@ -103,7 +109,7 @@ export default function ImageManager() {
 
       if (isRefresh) {
         message.destroy(messageKey)
-        message.success(t('ia.img_refreshed'))
+        message.success(t('im.img_refreshed'))
       }
     })
   }, [refreshTimes])
@@ -143,30 +149,27 @@ export default function ImageManager() {
         hidden: true,
       },
       {
-        label: t('ia.group_by_dir'),
+        label: t('im.group_by_dir'),
         value: 'dir',
       },
       {
-        label: t('ia.group_by_type'),
+        label: t('im.group_by_type'),
         value: 'type',
       },
     ],
     [],
   )
 
-  const { backgroundColor, setBackgroundColor } = ImageManagerContext.usePicker([
-    'backgroundColor',
-    'setBackgroundColor',
-  ])
+  const { backgroundColor, setBackgroundColor } = SettingsContext.usePicker(['backgroundColor', 'setBackgroundColor'])
 
   /* ---------------- image sort ---------------- */
   const sortOptions = [
     {
-      label: t('ia.name_sort'),
+      label: t('im.name_sort'),
       value: 'name',
     },
     {
-      label: t('ia.size_sort'),
+      label: t('im.size_sort'),
       value: 'size',
     },
   ]
@@ -180,9 +183,7 @@ export default function ImageManager() {
 
   return (
     <>
-      <ImageContextMenu />
-      <CollapseContextMenu />
-
+      <ContextMenus />
       <div ref={containerRef} className={'space-y-4'}>
         <AnimatePresence>
           {mode === 'standard' && (
@@ -192,9 +193,9 @@ export default function ImageManager() {
               exit={{ opacity: 0 }}
               transition={{ duration: 0.15 }}
             >
-              <Card size='small' title={t('ia.settings')}>
+              <Card size='small' title={t('im.settings')}>
                 <div className={'flex flex-col space-y-4'}>
-                  <OperationItemUI title={t('ia.type')}>
+                  <OperationItemUI title={t('im.type')}>
                     <DisplayType
                       imageType={{
                         all: allImageTypes,
@@ -206,7 +207,7 @@ export default function ImageManager() {
                   </OperationItemUI>
 
                   <div className={'flex space-x-6'}>
-                    <OperationItemUI title={t('ia.group')}>
+                    <OperationItemUI title={t('im.group')}>
                       <DisplayGroup
                         options={groupType
                           .filter((t) => !t.hidden)
@@ -215,16 +216,16 @@ export default function ImageManager() {
                         onChange={setDisplayGroup}
                       ></DisplayGroup>
                     </OperationItemUI>
-                    <OperationItemUI title={t('ia.style')}>
+                    <OperationItemUI title={t('im.style')}>
                       <DisplayStyle value={displayStyle} onChange={setDisplayStyle} />
                     </OperationItemUI>
                   </div>
 
                   <div className={'flex space-x-6'}>
-                    <OperationItemUI title={t('ia.sort')}>
+                    <OperationItemUI title={t('im.sort')}>
                       <DisplaySort options={sortOptions} value={sort} onChange={onSortChange} />
                     </OperationItemUI>
-                    <OperationItemUI title={t('ia.background_color')}>
+                    <OperationItemUI title={t('im.background_color')}>
                       <PrimaryColorPicker
                         color={backgroundColor}
                         onColorChange={setBackgroundColor}
@@ -242,7 +243,7 @@ export default function ImageManager() {
         <Card
           headStyle={{ borderBottom: 'none' }}
           bodyStyle={{ padding: 0 }}
-          title={t('ia.images')}
+          title={t('im.images')}
           extra={<ImageActions />}
         >
           {imageState.loading ? (
@@ -276,7 +277,23 @@ export default function ImageManager() {
         </Card>
 
         <ImageForSize />
+        <SearchModal open={searchModalOpen} onOpenChange={setSearchModalOpen} />
       </div>
     </>
+  )
+}
+
+type OperationItemProps = {
+  children: ReactNode
+  title: ReactNode
+}
+
+function OperationItemUI(props: OperationItemProps) {
+  const { children, title } = props
+  return (
+    <div className={'flex items-center space-x-4'}>
+      <div className={'font-semibold'}>{title}</div>
+      {children}
+    </div>
   )
 }

@@ -1,10 +1,10 @@
 import { App, ConfigProvider, theme as antdTheme } from 'antd'
 import { type FC, type PropsWithChildren } from 'react'
-import GlobalContext from '@/contexts/GlobalContext'
+import FrameworkContext from '@/contexts/FrameworkContext'
 import { getCssVar } from '@/utils/theme'
 
 const AntdConfigProvider: FC<PropsWithChildren> = ({ children }) => {
-  const { theme, primaryColor } = GlobalContext.usePicker(['theme', 'primaryColor'])
+  const { theme, primaryColor } = FrameworkContext.usePicker(['theme', 'primaryColor'])
 
   const vscodeFontSize = getCssVar('--vscode-font-size').split('px')[0]
 

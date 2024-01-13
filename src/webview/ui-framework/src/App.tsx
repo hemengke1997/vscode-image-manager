@@ -2,7 +2,7 @@ import { ErrorBoundary } from 'react-error-boundary'
 import AntdConfigProvider from './components/AntdConfigProvider'
 import ThemeProvider from './components/CustomConfigProvider'
 import Fallback from './components/Fallback'
-import GlobalContext from './contexts/GlobalContext'
+import FrameworkContext from './contexts/FrameworkContext'
 
 interface IAppProps {
   components: Record<string, () => JSX.Element>
@@ -19,7 +19,7 @@ function App(props: IAppProps) {
 
   return (
     <div onContextMenu={(e) => e.preventDefault()}>
-      <GlobalContext.Provider value={{ theme }}>
+      <FrameworkContext.Provider value={{ theme }}>
         <AntdConfigProvider>
           <ErrorBoundary FallbackComponent={Fallback}>
             <ThemeProvider>
@@ -27,7 +27,7 @@ function App(props: IAppProps) {
             </ThemeProvider>
           </ErrorBoundary>
         </AntdConfigProvider>
-      </GlobalContext.Provider>
+      </FrameworkContext.Provider>
     </div>
   )
 }

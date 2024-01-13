@@ -59,7 +59,7 @@ export class DirTree {
           n.type = d
           if (isEmpty(n.renderCondition)) {
             sortedKeys.forEach((k) => {
-              Object.assign(n.renderCondition)
+              Object.assign({}, n.renderCondition)
               n.renderCondition[k] = k === d ? n.value : ''
             })
           }
@@ -99,7 +99,7 @@ export class DirTree {
   }
 
   mergeRenderCondition(prev: FileNode['renderCondition'], add: FileNode['renderCondition']) {
-    return mergeWith(prev, add, (prevValue, addValue) => {
+    return mergeWith(Object.assign({}, prev), add, (prevValue, addValue) => {
       return addValue || prevValue
     })
   }
@@ -191,9 +191,9 @@ export class DirTree {
 
         const nonPathChildren = children.filter((c) => !this.isPath(c.value))
         const noNonPathRenderList = nonPathChildren.every((child) => {
-          const renderLinst = child.renderList || []
-          if (renderLinst.length) {
-            child.renderList = renderLinst
+          const renderList = child.renderList || []
+          if (renderList.length) {
+            child.renderList = renderList
             return false
           }
           return true

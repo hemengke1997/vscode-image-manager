@@ -3,7 +3,8 @@ import { ConfigProvider, Image, theme } from 'antd'
 import { motion } from 'framer-motion'
 import { memo, useState } from 'react'
 import { type ImageType } from '../..'
-import ImageManagerContext from '../../contexts/ImageManagerContext'
+import GlobalContext from '../../contexts/GlobalContext'
+import SettingsContext from '../../contexts/SettingsContext'
 import LazyImage from '../LazyImage'
 
 export type ImagePreviewProps = {
@@ -15,19 +16,18 @@ function ImagePreview(props: ImagePreviewProps) {
 
   const { token } = theme.useToken()
 
-  const { config, scale, isDarkBackground, tinyBackgroundColor, backgroundColor } = ImageManagerContext.usePicker([
-    'config',
-    'scale',
+  const { config, scale } = GlobalContext.usePicker(['config', 'scale'])
+  const { isDarkBackground, backgroundColor, tinyBackgroundColor } = SettingsContext.usePicker([
     'isDarkBackground',
-    'tinyBackgroundColor',
     'backgroundColor',
+    'tinyBackgroundColor',
   ])
   const BASE_SIZE = config.imageDefaultWidth
 
   const [preview, setPreview] = useState<{ open?: boolean; current?: number }>({ open: false, current: -1 })
 
   return (
-    <motion.div className={'mx-auto flex flex-wrap gap-2'}>
+    <motion.div className={'flex flex-wrap gap-2'}>
       <ConfigProvider
         theme={{
           components: {

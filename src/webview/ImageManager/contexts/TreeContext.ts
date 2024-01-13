@@ -2,7 +2,8 @@ import { useSetState, useUpdateEffect } from '@minko-fe/react-hook'
 import { createContainer } from 'context-state'
 import { startTransition, useEffect, useMemo } from 'react'
 import { type ImageType } from '..'
-import { filterImages, shouldShowImage } from '../utils'
+import { bytesToKb, filterImages, shouldShowImage } from '../utils'
+import ActionContext from './ActionContext'
 import SettingsContext from './SettingsContext'
 
 export type ImageStateType = {
@@ -100,6 +101,7 @@ function useTreeContext(props: { imageList: ImageType[] }) {
     }
   }, [sort])
 
+  // display image type setting change
   useUpdateEffect(() => {
     startTransition(() => {
       setImageSingleTree((img) => ({
@@ -107,6 +109,28 @@ function useTreeContext(props: { imageList: ImageType[] }) {
       }))
     })
   }, [displayImageTypes])
+
+  // filter action triggerd
+  const { sizeFilter } = ActionContext.usePicker(['sizeFilter'])
+  useUpdateEffect(() => {
+    if (sizeFilter?.active) {
+      setImageSingleTree((t) => ({
+        list: t.list.map((t) => ({
+          ...t,
+          visible: {
+            ...t.visible,
+            size:
+              bytesToKb(t.stats.size) >= (sizeFilter.value.min || 0) &&
+              bytesToKb(t.stats.size) <= (sizeFilter.value.max || Number.POSITIVE_INFINITY),
+          },
+        })),
+      }))
+    } else {
+      setImageSingleTree((t) => ({
+        list: t.list.map((t) => ({ ...t, visible: { ...t.visible, size: true } })),
+      }))
+    }
+  }, [sizeFilter])
 
   return {
     imageSingleTree,
