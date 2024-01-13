@@ -1,5 +1,11 @@
 # CHANGELOG
 
+## [0.0.15](https://github.com/hemengke1997/vscode-image-manager/compare/v0.0.14...v0.0.15) (2024-01-13)
+
+### Feat
+
+* Support search image. Just use `cmd + f` or `ctrl + f`! ([22ae37d](https://github.com/hemengke1997/vscode-image-manager/commit/22ae37d1e0012fc2d7349749e46112543c85b55a))
+
 ## [0.0.14](https://github.com/hemengke1997/vscode-image-manager/compare/v0.0.13...v0.0.14) (2024-01-13)
 
 ### Feat
