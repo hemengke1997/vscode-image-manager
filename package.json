@@ -34,7 +34,6 @@
   ],
   "scripts": {
     "dev": "simple-git-hooks && tsup --watch",
-    "rebuild": "electron-rebuild",
     "ui:dev": "vite -c vite.config.ts -m development",
     "ui:build": "vite build -c vite.config.ts -m production",
     "build": "rm -rf dist && tsup",
@@ -44,7 +43,6 @@
     "pack": "vsce package",
     "lint": "eslint .",
     "commitlint": "commitlint --edit",
-    "up": "taze -I -w -r",
     "changelog": "conventional-changelog -p eslint -i CHANGELOG-CODE.md -s -r 0",
     "release": "bumpp package.json --commit --tag --no-push --all -x \"npm run changelog\"",
     "publish": "vsce publish"
