@@ -70,13 +70,13 @@ Right click in Explorer, select `Open Image Manager` to open extension.
 
 #### tinypng api 模式
 
-需要你已经申请了 tinypng 的 api key，可以在 https://tinypng.com/developers 申请，个人模式每个月可以压缩 500 张图片
+需要你已经申请了 tinypng 的 api key。可以在 https://tinypng.com/developers 申请，个人模式每个月可以压缩 500 张图片
 
 需要设置 `image-manager.compress.tinypngKey`，否则会使用免费模式
 
 #### tinypng 无 api 模式
 
-不需要 tinypng 的 api key，免费，但是可能不稳定
+若不设置 apikey(`image-manager.compress.tinypngKey`)，则自动切换为此模式。免费，但是可能不稳定
 
 ### 如何压缩
 
