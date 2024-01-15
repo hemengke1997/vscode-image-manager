@@ -1,6 +1,6 @@
 # Image Manager
 
-## Notice
+## Warm Prompt
 
 Extension maybe unstable on windows. If you encounter any problem, please report [issue](https://github.com/hemengke1997/vscode-image-manager/issues)
 
@@ -35,9 +35,12 @@ Right click in Explorer, select `Open Image Manager` to open extension. (Open cu
 ## Features
 
 - **Compress Images** (magic happens on right-click 🤩)
+- **Crop Images**
 - Image Viewer
 - Dynamic Theme
+- Image Scale (`cmd + wheel` or `ctrl + wheel`)
 - I18n. Currently support `english` and `简体中文`
+- And so on waiting for you to discover...
 
 ## Extension Settings
 

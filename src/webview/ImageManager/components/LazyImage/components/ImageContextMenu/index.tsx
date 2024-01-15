@@ -24,6 +24,7 @@ function ImageContextMenu() {
     copyImageAsBase64,
     compressImage,
     onCompressEnd,
+    cropImage,
     _testVscodeBuiltInCmd,
   } = useImageOperation()
 
@@ -163,6 +164,13 @@ function ImageContextMenu() {
     },
   )
 
+  const handleCropImage = useLockFn(async (e: ItemParams<{ image: ImageType }>) => {
+    if (!e.props?.image) {
+      return message.error(t('im.no_image'))
+    }
+    cropImage(e.props.image)
+  })
+
   const _test = (e: ItemParams<{ image: ImageType }>) => {
     _testVscodeBuiltInCmd({
       cmd: 'revealFileInOS',
@@ -183,6 +191,7 @@ function ImageContextMenu() {
         >
           {t('im.compress')}
         </Item>
+        <Item onClick={(e) => handleCropImage(e)}>{t('im.crop')}</Item>
         <Separator />
         <Item onClick={handleOpenInOsExplorer}>
           {os.isMac() ? t('im.reveal_in_os_mac') : t('im.reveal_in_os_windows')}

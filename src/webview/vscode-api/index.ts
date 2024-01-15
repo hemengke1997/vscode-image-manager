@@ -1,5 +1,5 @@
 import { type KeyofMessage, type MessageType, type ReturnOfMessageCenter } from '@rootSrc/message'
-import { CmdToWebview } from '@rootSrc/message/shared'
+import { CmdToWebview } from '@rootSrc/message/constant'
 import { type WebviewApi } from 'vscode-webview'
 
 export type MessageCallbackFn<T extends KeyofMessage> = (data: ReturnOfMessageCenter<T>) => void

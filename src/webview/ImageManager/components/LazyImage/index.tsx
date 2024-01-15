@@ -1,5 +1,5 @@
 import { useControlledState, useInViewport } from '@minko-fe/react-hook'
-import { CmdToVscode } from '@rootSrc/message/shared'
+import { CmdToVscode } from '@rootSrc/message/constant'
 import { vscodeApi } from '@rootSrc/webview/vscode-api'
 import { Badge, Image, type ImageProps } from 'antd'
 import classNames from 'classnames'
@@ -136,7 +136,7 @@ function LazyImage(props: LazyImageProps) {
             style={{ width: imageProp.width, height: imageProp.height, ...imageProp.style }}
           ></Image>
         </Badge>
-        <div className='max-w-full cursor-default truncate' style={{ maxWidth: imageProp.width }}>
+        <div className='max-w-full cursor-default truncate' title={image.name} style={{ maxWidth: imageProp.width }}>
           {image.nameElement || image.name}
         </div>
       </motion.div>

@@ -12,6 +12,7 @@
     "antd": "^5.12.8",
     "classnames": "^2.3.2",
     "context-state": "^2.1.0",
+    "cropperjs": "^1.6.1",
     "framer-motion": "^10.16.16",
     "fuse.js": "^7.0.0",
     "i18next": "^23.7.11",

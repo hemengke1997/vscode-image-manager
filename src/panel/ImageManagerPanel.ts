@@ -1,7 +1,7 @@
 import { applyHtmlTransforms } from '@minko-fe/html-transform'
 import { type Context } from '@rootSrc/Context'
 import { type MessageParams, type MessageType, VscodeMessageCenter } from '@rootSrc/message'
-import { CmdToWebview } from '@rootSrc/message/shared'
+import { CmdToWebview } from '@rootSrc/message/constant'
 import { Log } from '@rootSrc/utils/Log'
 import fs from 'node:fs'
 import path from 'node:path'

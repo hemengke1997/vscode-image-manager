@@ -27,7 +27,7 @@ function CollapseContextMenu() {
 
   const handleCompressImage = useLockFn(async (images: ImageType[] | undefined) => {
     if (!images?.length) {
-      message.info(t('im.no_image_to_compress'))
+      message.info(t('im.no_image'))
       return
     }
 
