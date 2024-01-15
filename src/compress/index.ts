@@ -1,4 +1,5 @@
 import { type Context } from '@rootSrc/Context'
+import { Log } from '@rootSrc/utils/Log'
 import { Compressor } from './Compressos'
 
 export function initCompressor(ctx: Context) {
@@ -13,6 +14,7 @@ export function initCompressor(ctx: Context) {
   })
     .init()
     .then((compressor) => {
-      ctx.setCompressor(compressor)
+      Log.info(`Use [${compressor.method}] as compressor`)
+      ctx.setCompressor(compressor.getInstance())
     })
 }

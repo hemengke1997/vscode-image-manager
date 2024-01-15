@@ -31,7 +31,20 @@ class Compressor {
       await this._ifApiKeyValid()
     }
 
-    return this._getInstance()
+    return this
+  }
+
+  public getInstance() {
+    switch (this.method) {
+      case 'sharp':
+        return new Sharp(this.compressOptions)
+      case 'tinypng':
+        return new TinyPng(this.compressOptions, { apiKey: this.compressOptions.tinypngKey! })
+      case 'tinypngFree':
+        return new TinypngFree(this.compressOptions)
+      default:
+        return new TinypngFree(this.compressOptions)
+    }
   }
 
   private async _ifApiKeyValid() {
@@ -49,19 +62,6 @@ class Compressor {
       } else {
         this.method = 'tinypngFree'
       }
-    }
-  }
-
-  private _getInstance() {
-    switch (this.method) {
-      case 'sharp':
-        return new Sharp(this.compressOptions)
-      case 'tinypng':
-        return new TinyPng(this.compressOptions, { apiKey: this.compressOptions.tinypngKey! })
-      case 'tinypngFree':
-        return new TinypngFree(this.compressOptions)
-      default:
-        return new TinypngFree(this.compressOptions)
     }
   }
 }

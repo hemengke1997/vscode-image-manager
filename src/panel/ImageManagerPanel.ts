@@ -199,7 +199,7 @@ export class ImageManagerPanel {
     const handler: (params: MessageParams) => Promise<any> = VscodeMessageCenter[message.cmd]
     if (handler) {
       const data = await handler({ message, webview })
-      Log.info(`${message.cmd} return data: ${JSON.stringify(data)}`)
+      Log.info(`Trigger ${message.cmd}`)
       this.invokeCallback({ message, webview, data })
     } else {
       Log.error(`Handler function "${message.cmd}" doesn't exist!`, true)
