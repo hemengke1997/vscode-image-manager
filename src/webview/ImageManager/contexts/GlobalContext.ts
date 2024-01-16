@@ -5,16 +5,11 @@ import { defaultConfig } from '@rootSrc/config/default'
 import { CmdToVscode } from '@rootSrc/message/constant'
 import { localStorageEnum } from '@rootSrc/webview/local-storage'
 import { vscodeApi } from '@rootSrc/webview/vscode-api'
-import { App } from 'antd'
 import { createContainer } from 'context-state'
-import { useEffect, useState } from 'react'
-import { useTranslation } from 'react-i18next'
+import { useEffect, useRef, useState } from 'react'
 import { type ImageType } from '..'
 
 function useGlobalContext() {
-  const { message } = App.useApp()
-  const { t } = useTranslation()
-
   /* ------------- extension config ------------- */
   const [config, setConfig] = useState<ConfigType>(defaultConfig)
   useEffect(() => {
@@ -25,13 +20,23 @@ function useGlobalContext() {
 
   /* ------------- image compressor ------------ */
   const [compressor, setCompressor] = useState<AbsCompressor>()
-  useEffect(() => {
+  const compressorTimer = useRef<NodeJS.Timeout>()
+  const getCompressor = () => {
     vscodeApi.postMessage({ cmd: CmdToVscode.GET_COMPRESSOR }, (data) => {
       if (!data) {
-        message.error(t('im.compressor_not_found'))
+        // polling
+        compressorTimer.current = setTimeout(() => {
+          getCompressor()
+        }, 1000)
+      } else {
+        compressorTimer.current && clearTimeout(compressorTimer.current)
+        setCompressor(data)
       }
-      setCompressor(data)
     })
+  }
+
+  useEffect(() => {
+    getCompressor()
   }, [])
 
   /* --------------- images state --------------- */

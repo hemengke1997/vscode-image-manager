@@ -3,7 +3,7 @@ import { useSetState } from '@minko-fe/react-hook'
 import { isDev } from '@minko-fe/vite-config/client'
 import { ConfigProvider, Image, theme } from 'antd'
 import { motion } from 'framer-motion'
-import { type ReactNode, memo, useState } from 'react'
+import { type ReactNode, memo, useEffect, useState } from 'react'
 import { type ImageType } from '../..'
 import GlobalContext from '../../contexts/GlobalContext'
 import SettingsContext from '../../contexts/SettingsContext'
@@ -30,6 +30,12 @@ function ImagePreview(props: ImagePreviewProps) {
   const [preview, setPreview] = useState<{ open?: boolean; current?: number }>({ open: false, current: -1 })
 
   const [scaleToast, setScaleToast] = useSetState<{ open: boolean; content: ReactNode }>({ open: false, content: null })
+
+  useEffect(() => {
+    if (!preview.open) {
+      setScaleToast({ open: false })
+    }
+  }, [preview.open])
 
   return (
     <>

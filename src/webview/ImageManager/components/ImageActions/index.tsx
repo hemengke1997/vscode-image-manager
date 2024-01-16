@@ -12,14 +12,14 @@ import { Keybinding } from '../../keybinding'
 
 function ImageActions() {
   const { t } = useTranslation()
-  const { setCollapseOpen, refreshImages, sizeFilter, setSizeFilter, searchModalOpen, setSearchModalOpen } =
+  const { setCollapseOpen, refreshImages, sizeFilter, setSizeFilter, imageSearchOpen, setImageSearchOpen } =
     ActionContext.usePicker([
       'setCollapseOpen',
       'refreshImages',
       'sizeFilter',
       'setSizeFilter',
-      'searchModalOpen',
-      'setSearchModalOpen',
+      'imageSearchOpen',
+      'setImageSearchOpen',
     ])
 
   const { message } = App.useApp()
@@ -42,8 +42,8 @@ function ImageActions() {
   useHotkeys<HTMLDivElement>(
     `mod+f`,
     () => {
-      if (!searchModalOpen) {
-        setSearchModalOpen(true)
+      if (!imageSearchOpen) {
+        setImageSearchOpen(true)
       }
     },
     {
@@ -70,7 +70,7 @@ function ImageActions() {
             <MdImageSearch />
           </div>
         }
-        onClick={() => setSearchModalOpen(true)}
+        onClick={() => setImageSearchOpen(true)}
         title={`${t('im.search')} (${Keybinding.Search})`}
       ></Button>
       <Popover

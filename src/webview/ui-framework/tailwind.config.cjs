@@ -10,7 +10,7 @@ module.exports = {
   corePlugins: {
     preflight: false,
   },
-  presets: [require('./tailwind-antd.cjs')],
+  presets: [require('tailwind-antd-preset')],
   plugins: [
     require('./tailwind-vscode.cjs'),
     plugin(function ({ addUtilities }) {

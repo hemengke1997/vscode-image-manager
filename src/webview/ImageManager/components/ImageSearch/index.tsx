@@ -13,12 +13,12 @@ import { type ImageType } from '../..'
 import GlobalContext from '../../contexts/GlobalContext'
 import ImagePreview from '../ImagePreview'
 
-type SearchModalProps = {
+type ImageSearchProps = {
   open: boolean
   onOpenChange: (open: boolean) => void
 }
 
-function SearchModal(props: SearchModalProps) {
+function ImageSearch(props: ImageSearchProps) {
   const { open: openProp, onOpenChange } = props
   const { t } = useTranslation()
 
@@ -86,6 +86,8 @@ function SearchModal(props: SearchModalProps) {
         result.map((t) => generateFullPath(t.item)),
         includeGlob,
       )
+    } else {
+      filterResult = []
     }
 
     if (filterResult.length) {
@@ -155,9 +157,7 @@ function SearchModal(props: SearchModalProps) {
           onChange={(e) => setIncludeGlob(e.target.value)}
           allowClear
           onPressEnter={() => {
-            if (includeGlob) {
-              onSearch(searchValue)
-            }
+            onSearch(searchValue)
           }}
         />
       </div>
@@ -192,7 +192,7 @@ function SearchModal(props: SearchModalProps) {
   )
 }
 
-export default memo(SearchModal)
+export default memo(ImageSearch)
 
 function IconUI(
   props: {

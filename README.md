@@ -76,9 +76,9 @@ When installing the extension, sharp will be installed automatically, please be 
 
 #### tinypng api mode
 
-You need to apply for the tinypng api key. If not, You can apply at https://tinypng.com/developers. The personal mode can compress 500 images per month
+You need to apply for the tinypng api key at https://tinypng.com/developers. The personal mode can compress 500 images per month
 
-You need to set `image-manager.compress.tinypngKey`, otherwise the free mode will be used
+Of course you need to set `image-manager.compress.tinypngKey`, otherwise the free mode will be used
 
 #### tinypng free mode
 

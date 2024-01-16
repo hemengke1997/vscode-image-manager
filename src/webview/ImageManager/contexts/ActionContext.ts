@@ -41,7 +41,7 @@ function useActionContext() {
   })
 
   /* ------------- search modal open ------------ */
-  const [searchModalOpen, setSearchModalOpen] = useState(false)
+  const [imageSearchOpen, setImageSearchOpen] = useState(false)
 
   return {
     imageRefreshedState,
@@ -50,8 +50,8 @@ function useActionContext() {
     setCollapseOpen,
     sizeFilter,
     setSizeFilter,
-    searchModalOpen,
-    setSearchModalOpen,
+    imageSearchOpen,
+    setImageSearchOpen,
   }
 }
 

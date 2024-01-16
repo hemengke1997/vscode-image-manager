@@ -19,7 +19,7 @@ import DisplayType from './components/DisplayType'
 import ImageActions from './components/ImageActions'
 import ImageCropper from './components/ImageCropper'
 import ImageForSize from './components/ImageForSize'
-import SearchModal from './components/SearchModal'
+import ImageSearch from './components/ImageSearch'
 import ActionContext from './contexts/ActionContext'
 import CroppoerContext from './contexts/CropperContext'
 import GlobalContext from './contexts/GlobalContext'
@@ -67,11 +67,11 @@ export default function ImageManager() {
 
   const { imageState, setImageState } = GlobalContext.usePicker(['imageState', 'setImageState'])
 
-  const { imageRefreshedState, refreshImages, searchModalOpen, setSearchModalOpen } = ActionContext.usePicker([
+  const { imageRefreshedState, refreshImages, imageSearchOpen, setImageSearchOpen } = ActionContext.usePicker([
     'imageRefreshedState',
     'refreshImages',
-    'searchModalOpen',
-    'setSearchModalOpen',
+    'imageSearchOpen',
+    'setImageSearchOpen',
   ])
 
   const {
@@ -283,7 +283,7 @@ export default function ImageManager() {
         </Card>
 
         <ImageForSize />
-        <SearchModal open={searchModalOpen} onOpenChange={setSearchModalOpen} />
+        <ImageSearch open={imageSearchOpen} onOpenChange={setImageSearchOpen} />
       </div>
       <ImageCropper
         {...cropperProps}

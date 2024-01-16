@@ -50,12 +50,14 @@ export class ImageManagerPanel {
 
   private _transformHtml(htmlPath: string, webview: Webview) {
     const resourcePath = Uri.file(htmlPath).fsPath
-    const dirPath = path.posix.dirname(resourcePath)
+    // Can't use path.posix here, windows will be wrong
+    const dirPath = path.dirname(resourcePath)
     let html = fs.readFileSync(resourcePath, 'utf-8')
     html = html.replace(/(<link.+?href="|<script.+?src="|<img.+?src=")(.+?)"/g, (_, $1: string, $2: string) => {
-      console.log(`webview-replace resourcePath:${resourcePath} dirPath:${dirPath} $1:${$1} $2:${$2}`)
       $2 = $2.startsWith('.') ? $2 : `.${$2}`
-      const vscodeResourcePath = webview.asWebviewUri(Uri.file(path.posix.resolve(dirPath, $2))).toString()
+
+      // Can't use path.posix here, windows will be wrong
+      const vscodeResourcePath = webview.asWebviewUri(Uri.file(path.resolve(dirPath, $2))).toString()
       return `${$1 + vscodeResourcePath}"`
     })
 
@@ -199,7 +201,6 @@ export class ImageManagerPanel {
     const handler: (params: MessageParams) => Promise<any> = VscodeMessageCenter[message.cmd]
     if (handler) {
       const data = await handler({ message, webview })
-      Log.info(`Trigger ${message.cmd}`)
       this.invokeCallback({ message, webview, data })
     } else {
       Log.error(`Handler function "${message.cmd}" doesn't exist!`, true)
