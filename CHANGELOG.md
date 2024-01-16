@@ -1,5 +1,20 @@
 # CHANGELOG
 
+## [0.0.16](https://github.com/hemengke1997/vscode-image-manager/compare/v0.0.15...v0.0.16) (2024-01-16)
+
+### Feat
+
+* Support crop image! ([e198f86](https://github.com/hemengke1997/vscode-image-manager/commit/e198f861a69570e34b831a1870e19df665687689))
+
+### Fix
+
+* Install sharp failed ([256a0d7](https://github.com/hemengke1997/vscode-image-manager/commit/256a0d7ce3bbe212d3efd3d5c6d2a90264dae85a))
+
+### Performance
+
+* Remove `user-agent` lib to reduce pack size ([713caed](https://github.com/hemengke1997/vscode-image-manager/commit/713caedc766e87931f7a6c8ba1eb06fb6ecbeb5e))
+
+
 ## [0.0.15](https://github.com/hemengke1997/vscode-image-manager/compare/v0.0.14...v0.0.15) (2024-01-13)
 
 ### Feat
