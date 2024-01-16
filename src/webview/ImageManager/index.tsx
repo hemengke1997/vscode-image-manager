@@ -1,5 +1,5 @@
 import { uniq } from '@minko-fe/lodash-pro'
-import { CmdToVscode, CmdToWebview } from '@rootSrc/message/shared'
+import { CmdToVscode, CmdToWebview } from '@rootSrc/message/constant'
 import { App, Card, Skeleton } from 'antd'
 import { AnimatePresence, motion } from 'framer-motion'
 import { type Stats } from 'node:fs'
@@ -17,9 +17,11 @@ import DisplaySort from './components/DisplaySort'
 import DisplayStyle from './components/DisplayStyle'
 import DisplayType from './components/DisplayType'
 import ImageActions from './components/ImageActions'
+import ImageCropper from './components/ImageCropper'
 import ImageForSize from './components/ImageForSize'
 import SearchModal from './components/SearchModal'
 import ActionContext from './contexts/ActionContext'
+import CroppoerContext from './contexts/CropperContext'
 import GlobalContext from './contexts/GlobalContext'
 import SettingsContext from './contexts/SettingsContext'
 import TreeContext from './contexts/TreeContext'
@@ -181,9 +183,13 @@ export default function ImageManager() {
   /* ---------------- image scale --------------- */
   const [containerRef] = useWheelScaleEvent()
 
+  /* --------------- image cropper -------------- */
+  const { cropperProps, setCropperProps } = CroppoerContext.usePicker(['cropperProps', 'setCropperProps'])
+
   return (
     <>
       <ContextMenus />
+
       <div ref={containerRef} className={'space-y-4'}>
         <AnimatePresence>
           {mode === 'standard' && (
@@ -194,7 +200,7 @@ export default function ImageManager() {
               transition={{ duration: 0.15 }}
             >
               <Card size='small' title={t('im.settings')}>
-                <div className={'flex flex-col space-y-4'}>
+                <div className={'flex flex-col space-y-2.5'}>
                   <OperationItemUI title={t('im.type')}>
                     <DisplayType
                       imageType={{
@@ -279,6 +285,15 @@ export default function ImageManager() {
         <ImageForSize />
         <SearchModal open={searchModalOpen} onOpenChange={setSearchModalOpen} />
       </div>
+      <ImageCropper
+        {...cropperProps}
+        onOpenChange={(open) =>
+          setCropperProps((t) => ({
+            ...t,
+            open,
+          }))
+        }
+      />
     </>
   )
 }

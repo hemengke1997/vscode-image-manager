@@ -8,7 +8,8 @@ import * as vscode from 'vscode'
 
 async function checkNpmInstalled() {
   try {
-    const { stdout } = await execa('npm', ['--version'])
+    const { stdout } = await execa('npm', ['-v'])
+    Log.info(`npm version: ${stdout}`)
     if (stdout) return true
   } catch {
     return false
@@ -61,7 +62,6 @@ async function installSharp(extUri: string): Promise<'success' | 'fail' | 'insta
       if (sharp) return 'installed'
     } catch (e) {
       Log.error(`sharp not installed: ${e}`)
-      return 'fail'
     }
 
     const pkgJson = updatePackgeJson(extUri)
@@ -86,11 +86,16 @@ function recoverPkgJson(extUri: string, pkgJson: Record<string, any>) {
 export async function initSharp(): Promise<boolean> {
   const npmInstalled = await checkNpmInstalled()
 
+  Log.info(`npmInstalled: ${npmInstalled}`)
+
   if (!npmInstalled) return false
 
   const statusBarItem = vscode.window.createStatusBarItem(vscode.StatusBarAlignment.Left)
 
   statusBarItem.text = 'Image Compressor installing...'
+
+  Log.info('Image Compressor installing...')
+
   statusBarItem.show()
 
   const extensionLocaltion = Context.instance.ext.extensionUri.fsPath
@@ -98,9 +103,11 @@ export async function initSharp(): Promise<boolean> {
   const res = await installSharp(extensionLocaltion)
   statusBarItem.hide()
 
+  Log.info(`install sharp result: ${res}`)
+
   switch (res) {
     case 'success':
-      Log.info('Ready to work')
+      Log.info('sharp ready to work')
       vscode.window
         .showInformationMessage('Image Compressor installed successfully, Please reload VSCode', 'Reload')
         .then((res) => {

@@ -1,17 +1,25 @@
-# Image Manager
+<p align='center'>
+  <a href='https://github.com/hemengke1997/vscode-image-manager' target="_blank" rel='noopener noreferrer'>
+    <img width='140' src='./assets/logo.png' alt='logo' />
+  </a>
+</p>
 
-## Notice
+<h1 align='center'>Image Manager</h1>
 
-Extension maybe unstable on windows. If you encounter any problem, please report [issue](https://github.com/hemengke1997/vscode-image-manager/issues)
+> [!WARNING]
+> Extension maybe unstable on windows. If you encounter any problem, please report [issue](https://github.com/hemengke1997/vscode-image-manager/issues)
 
 ## Screenshot
 
-### overview
+### Overview
 
 ![overview](./screenshots/overview.png)
 
-### preview
+### Preview
 ![preview](./screenshots/preview.png)
+
+### Crop
+![crop](./screenshots/crop.png)
 
 ## Usage
 
@@ -35,9 +43,12 @@ Right click in Explorer, select `Open Image Manager` to open extension. (Open cu
 ## Features
 
 - **Compress Images** (magic happens on right-click 🤩)
-- Image Viewer
+- **Crop Images**
+- **Image Viewer**
 - Dynamic Theme
+- Image Scale (`cmd + wheel` or `ctrl + wheel`)
 - I18n. Currently support `english` and `简体中文`
+- And so on waiting for you to discover...🤗
 
 ## Extension Settings
 

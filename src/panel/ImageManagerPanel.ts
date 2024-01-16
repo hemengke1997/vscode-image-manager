@@ -1,7 +1,7 @@
 import { applyHtmlTransforms } from '@minko-fe/html-transform'
 import { type Context } from '@rootSrc/Context'
 import { type MessageParams, type MessageType, VscodeMessageCenter } from '@rootSrc/message'
-import { CmdToWebview } from '@rootSrc/message/shared'
+import { CmdToWebview } from '@rootSrc/message/constant'
 import { Log } from '@rootSrc/utils/Log'
 import fs from 'node:fs'
 import path from 'node:path'
@@ -199,7 +199,7 @@ export class ImageManagerPanel {
     const handler: (params: MessageParams) => Promise<any> = VscodeMessageCenter[message.cmd]
     if (handler) {
       const data = await handler({ message, webview })
-      Log.info(`${message.cmd} return data: ${JSON.stringify(data)}`)
+      Log.info(`Trigger ${message.cmd}`)
       this.invokeCallback({ message, webview, data })
     } else {
       Log.error(`Handler function "${message.cmd}" doesn't exist!`, true)

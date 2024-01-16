@@ -1,4 +1,4 @@
-import { CmdToVscode } from '../../message/shared'
+import { CmdToVscode } from '../../message/constant'
 import { vscodeApi } from '../vscode-api'
 
 if (import.meta.hot) {

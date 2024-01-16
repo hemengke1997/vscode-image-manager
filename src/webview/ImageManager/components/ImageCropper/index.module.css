@@ -1,0 +1,5 @@
+.canvas_box {
+  > canvas {
+    @apply max-w-full max-h-full;
+  }
+}

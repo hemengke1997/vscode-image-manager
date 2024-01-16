@@ -1,6 +1,6 @@
 import { debounce } from '@minko-fe/lodash-pro'
 import { type Context } from '@rootSrc/Context'
-import { CmdToWebview } from '@rootSrc/message/shared'
+import { CmdToWebview } from '@rootSrc/message/constant'
 import { Log } from '@rootSrc/utils/Log'
 import { imageGlob } from '@rootSrc/utils/glob'
 import micromatch from 'micromatch'

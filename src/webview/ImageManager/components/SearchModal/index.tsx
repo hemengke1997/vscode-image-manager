@@ -1,5 +1,5 @@
 import { useControlledState, useUpdateEffect } from '@minko-fe/react-hook'
-import { CmdToVscode } from '@rootSrc/message/shared'
+import { CmdToVscode } from '@rootSrc/message/constant'
 import { vscodeApi } from '@rootSrc/webview/vscode-api'
 import { Input, Modal } from 'antd'
 import { type InputRef } from 'antd/es/input'
@@ -204,7 +204,7 @@ function IconUI(
     <div
       className={classNames(
         'flex-center text-sm h-full p-0.5 border-solid border-transparent rounded-md transition-all cursor-pointer hover:bg-ant-color-bg-text-hover',
-        active && 'text-ant-color-primary border-ant-color-primary hover:bg-transparent',
+        active && '!text-ant-color-primary !border-ant-color-primary hover:bg-transparent',
       )}
       {...rest}
     >

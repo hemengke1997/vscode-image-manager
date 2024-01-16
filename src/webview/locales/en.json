@@ -67,7 +67,17 @@
     "dimensions": "Dimensions",
     "birth_time": "Birth Time",
     "last_status_changed_time": "Status Change Time",
-    "no_image_to_compress": "No image to compress"
+    "no_image": "No image",
+    "none": "None",
+    "restrict": "Restrict",
+    "free": "Free",
+    "save": "Save",
+    "crop": "Crop",
+    "filename": "Filename:",
+    "saving": "Saving...",
+    "save_success": "Save Success",
+    "save_fail": "Save Fail",
+    "save_fallback": "<0>{{currentType}}</0> <p>is not supported, converted to</p> <1>{{fallbackType}}</1>"
   },
   "fallback": {
     "internal_error": "Internal Error",

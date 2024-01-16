@@ -1,10 +1,12 @@
 import { ceil, isObject } from '@minko-fe/lodash-pro'
 import { useMemoizedFn } from '@minko-fe/react-hook'
-import { CmdToVscode } from '@rootSrc/message/shared'
+import { CmdToVscode } from '@rootSrc/message/constant'
 import { vscodeApi } from '@rootSrc/webview/vscode-api'
 import { App, Button } from 'antd'
 import { useTranslation } from 'react-i18next'
 import { IoMdTrendingDown } from 'react-icons/io'
+import { type ImageType } from '..'
+import CroppoerContext from '../contexts/CropperContext'
 import { formatBytes, getFilenameFromPath } from '../utils'
 
 function useImageOperation() {
@@ -112,6 +114,11 @@ function useImageOperation() {
     },
   )
 
+  const { setCropperProps } = CroppoerContext.usePicker(['setCropperProps'])
+  const cropImage = useMemoizedFn((image: ImageType) => {
+    setCropperProps({ open: true, image })
+  })
+
   const _testVscodeBuiltInCmd = useMemoizedFn(({ cmd, path }: { cmd: string; path: string }) => {
     vscodeApi.postMessage({ cmd: CmdToVscode.TEMP_TEST_CMD, data: { cmd, path } })
   })
@@ -122,6 +129,7 @@ function useImageOperation() {
     copyImageAsBase64,
     compressImage,
     onCompressEnd,
+    cropImage,
     _testVscodeBuiltInCmd,
   }
 }
