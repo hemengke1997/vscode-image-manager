@@ -8,7 +8,7 @@ import * as vscode from 'vscode'
 
 async function checkNpmInstalled() {
   try {
-    const { stdout } = await execa('npm', ['--version'])
+    const { stdout } = await execa('npm', ['-v'])
     Log.info(`npm version: ${stdout}`)
     if (stdout) return true
   } catch {
@@ -103,11 +103,11 @@ export async function initSharp(): Promise<boolean> {
   const res = await installSharp(extensionLocaltion)
   statusBarItem.hide()
 
-  Log.info(`install sharp res: ${res}`)
+  Log.info(`install sharp result: ${res}`)
 
   switch (res) {
     case 'success':
-      Log.info('Ready to work')
+      Log.info('sharp ready to work')
       vscode.window
         .showInformationMessage('Image Compressor installed successfully, Please reload VSCode', 'Reload')
         .then((res) => {
@@ -118,7 +118,7 @@ export async function initSharp(): Promise<boolean> {
         })
       return true
     case 'fail':
-      Log.error('Failed to install sharp', true)
+      Log.error('Failed to install sharp')
       return false
     case 'installed':
       Log.info('sharp already installed')

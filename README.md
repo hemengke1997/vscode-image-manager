@@ -1,19 +1,24 @@
-# Image Manager
+<p align='center'>
+  <a href='https://github.com/hemengke1997/vscode-image-manager' target="_blank" rel='noopener noreferrer'>
+    <img width='140' src='./assets/logo.png' alt='logo' />
+  </a>
+</p>
 
-## Warm Prompt
+<h1 align='center'>Image Manager</h1>
 
-Extension maybe unstable on windows. If you encounter any problem, please report [issue](https://github.com/hemengke1997/vscode-image-manager/issues)
+> [!WARNING]
+> Extension maybe unstable on windows. If you encounter any problem, please report [issue](https://github.com/hemengke1997/vscode-image-manager/issues)
 
 ## Screenshot
 
-### overview
+### Overview
 
 ![overview](./screenshots/overview.png)
 
-### preview
+### Preview
 ![preview](./screenshots/preview.png)
 
-### crop
+### Crop
 ![crop](./screenshots/crop.png)
 
 ## Usage

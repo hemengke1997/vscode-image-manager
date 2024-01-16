@@ -107,7 +107,7 @@ function ImageCollapse(props: ImageCollapseProps) {
   return (
     <>
       <Collapse
-        destroyInactivePanel
+        destroyInactivePanel={false}
         {...collapseProps}
         activeKey={activeKeys}
         onChange={(keys) => onCollapseChange(keys as string[])}
