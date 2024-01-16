@@ -2,7 +2,7 @@
   "publisher": "minko",
   "name": "image-manager",
   "displayName": "Image Manager",
-  "version": "0.0.16",
+  "version": "0.0.17",
   "private": true,
   "description": "Image Manager, a powerful yet simple image manager and viewer for VSCode",
   "type": "module",
