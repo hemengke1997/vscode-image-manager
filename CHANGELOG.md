@@ -1,5 +1,11 @@
 # CHANGELOG
 
+## [0.0.17](https://github.com/hemengke1997/vscode-image-manager/compare/v0.0.16...v0.0.17) (2024-01-16)
+
+### Fix
+
+* windows open extension fail ([183170e](https://github.com/hemengke1997/vscode-image-manager/commit/183170e846a193141702282b3c8cf3c7535df909))
+
 ## [0.0.16](https://github.com/hemengke1997/vscode-image-manager/compare/v0.0.15...v0.0.16) (2024-01-16)
 
 ### Feat
