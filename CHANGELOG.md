@@ -1,10 +1,16 @@
 # CHANGELOG
 
+## [0.0.18](https://github.com/hemengke1997/vscode-image-manager/compare/v0.0.17...v0.0.18) (2024-01-17)
+
+### Fix
+
+* Windows compress fail ([1fc2cd2](https://github.com/hemengke1997/vscode-image-manager/commit/1fc2cd28c114adcf17391a8eb9ee8a594b72d7d3))
+
 ## [0.0.17](https://github.com/hemengke1997/vscode-image-manager/compare/v0.0.16...v0.0.17) (2024-01-16)
 
 ### Fix
 
-* windows open extension fail ([183170e](https://github.com/hemengke1997/vscode-image-manager/commit/183170e846a193141702282b3c8cf3c7535df909))
+* Windows open extension fail ([183170e](https://github.com/hemengke1997/vscode-image-manager/commit/183170e846a193141702282b3c8cf3c7535df909))
 
 ## [0.0.16](https://github.com/hemengke1997/vscode-image-manager/compare/v0.0.15...v0.0.16) (2024-01-16)
 
