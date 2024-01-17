@@ -1,6 +1,6 @@
 import fs from 'node:fs'
 import https from 'node:https'
-import { AbsCompressor, type CompressOptions } from '../AbsCompressor'
+import { AbsCompressor, type CompressOptions, type CompressorMethod } from '../AbsCompressor'
 
 type PostInfo = {
   error?: any
@@ -15,6 +15,8 @@ type PostInfo = {
 }
 
 class TinypngFree extends AbsCompressor {
+  name: CompressorMethod = 'tinypngFree'
+
   public static DEFAULT_CONFIG = {
     exts: ['.png', '.jpg', '.jpeg', '.webp'],
     max: 5 * 1024 * 1024, // 5MB
@@ -25,6 +27,10 @@ class TinypngFree extends AbsCompressor {
       exts: TinypngFree.DEFAULT_CONFIG.exts,
       sizeLimit: TinypngFree.DEFAULT_CONFIG.max,
     })
+  }
+
+  validate(): Promise<boolean> {
+    return Promise.resolve(true)
   }
 
   async compress(filePaths: string[]): Promise<

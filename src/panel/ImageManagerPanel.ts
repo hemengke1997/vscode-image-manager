@@ -50,13 +50,13 @@ export class ImageManagerPanel {
 
   private _transformHtml(htmlPath: string, webview: Webview) {
     const resourcePath = Uri.file(htmlPath).fsPath
-    // Can't use path.posix here, windows will be wrong
+
+    Log.info(`ResourcePath: ${resourcePath}`)
     const dirPath = path.dirname(resourcePath)
     let html = fs.readFileSync(resourcePath, 'utf-8')
     html = html.replace(/(<link.+?href="|<script.+?src="|<img.+?src=")(.+?)"/g, (_, $1: string, $2: string) => {
       $2 = $2.startsWith('.') ? $2 : `.${$2}`
 
-      // Can't use path.posix here, windows will be wrong
       const vscodeResourcePath = webview.asWebviewUri(Uri.file(path.resolve(dirPath, $2))).toString()
       return `${$1 + vscodeResourcePath}"`
     })
@@ -197,7 +197,7 @@ export class ImageManagerPanel {
    * Handles messages passed from the webview context and executes code based on the message that is recieved.
    */
   private _handlePanelMessage = async (message: MessageType, webview: Webview) => {
-    Log.info(`receive msg: ${JSON.stringify(message)}`)
+    Log.info(`Receive cmd: ${JSON.stringify(message.cmd)}`)
     const handler: (params: MessageParams) => Promise<any> = VscodeMessageCenter[message.cmd]
     if (handler) {
       const data = await handler({ message, webview })

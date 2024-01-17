@@ -5,6 +5,7 @@ import { vscodeApi } from '@rootSrc/webview/vscode-api'
 import { App, Button } from 'antd'
 import { useTranslation } from 'react-i18next'
 import { IoMdTrendingDown } from 'react-icons/io'
+import { VscWarning } from 'react-icons/vsc'
 import { type ImageType } from '..'
 import CroppoerContext from '../contexts/CropperContext'
 import { formatBytes, getFilenameFromPath } from '../utils'
@@ -66,22 +67,38 @@ function useImageOperation() {
       const filename = getFilenameFromPath(filePath)
       if (originSize && compressedSize) {
         const percent = ceil(((originSize - compressedSize) / originSize) * 100)
-        notification.success({
-          duration: 10,
-          message: filename,
-          description: (
-            <div className={'flex items-center space-x-2'}>
-              <div className={'text-ant-color-error font-bold'}>-{percent}%</div>
-              <div className={'flex-center text-ant-color-text-secondary'}>
-                <span>({formatBytes(originSize)}</span>
-                <div className={'flex-center'}>
-                  <IoMdTrendingDown />
+        if (percent < 0) {
+          notification.warning({
+            duration: 0,
+            message: filename,
+            description: (
+              <div className={'flex items-center space-x-2'}>
+                <div className='flex-center'>
+                  <VscWarning />
                 </div>
-                <span>{formatBytes(compressedSize)})</span>
+                <div>{t('im.size_increase')}</div>
+                <div className={'text-ant-color-warning font-bold'}>+{percent}%</div>
               </div>
-            </div>
-          ),
-        })
+            ),
+          })
+        } else {
+          notification.success({
+            duration: 10,
+            message: filename,
+            description: (
+              <div className={'flex items-center space-x-2'}>
+                <div className={'text-ant-color-error font-bold'}>-{percent}%</div>
+                <div className={'flex-center text-ant-color-text-secondary'}>
+                  <span>({formatBytes(originSize)}</span>
+                  <div className={'flex-center'}>
+                    <IoMdTrendingDown />
+                  </div>
+                  <span>{formatBytes(compressedSize)})</span>
+                </div>
+              </div>
+            ),
+          })
+        }
       } else {
         const { onError, onRetryClick } = options
         const _error = isObject(error) ? JSON.stringify(error) : error

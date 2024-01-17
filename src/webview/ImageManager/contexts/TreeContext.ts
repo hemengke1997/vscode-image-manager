@@ -102,7 +102,7 @@ function useTreeContext(props: { imageList: ImageType[] }) {
   }, [sort])
 
   // display image type setting change
-  useUpdateEffect(() => {
+  useEffect(() => {
     startTransition(() => {
       setImageSingleTree((img) => ({
         list: img.list.map((t) => ({ ...t, visible: { ...t.visible, type: displayImageTypes?.includes(t.fileType) } })),

@@ -1,4 +1,4 @@
-import { uniq } from '@minko-fe/lodash-pro'
+import { intersection, uniq } from '@minko-fe/lodash-pro'
 import { CmdToVscode, CmdToWebview } from '@rootSrc/message/constant'
 import { App, Card, Skeleton } from 'antd'
 import { AnimatePresence, motion } from 'framer-motion'
@@ -107,7 +107,9 @@ export default function ImageManager() {
         loading: false,
       })
 
-      onImageTypeChange(data.flatMap((item) => item.fileTypes))
+      const allTypes = data.flatMap((item) => item.fileTypes)
+      const imageTypes = displayImageTypes?.length ? intersection(displayImageTypes, allTypes) : allTypes
+      onImageTypeChange(imageTypes)
 
       if (isRefresh) {
         message.destroy(messageKey)
@@ -236,7 +238,7 @@ export default function ImageManager() {
                         color={backgroundColor}
                         onColorChange={setBackgroundColor}
                         localKey={localStorageEnum.LOCAL_STORAGE_BACKGROUND_RECENT_COLORS_KEY}
-                        extraColors={[Colors.warmWhite, Colors.warmBlack]}
+                        extraColors={[Colors.warmBlack]}
                       />
                     </OperationItemUI>
                   </div>
@@ -254,7 +256,7 @@ export default function ImageManager() {
         >
           {imageState.loading ? (
             <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ duration: 0.2, delay: 1 }}>
-              <Skeleton className={'p-4'} active paragraph={{ rows: 20 }} />
+              <Skeleton className={'p-4'} active paragraph={{ rows: 14 }} />
             </motion.div>
           ) : (
             <div className={'space-y-4'}>

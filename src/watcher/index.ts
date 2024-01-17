@@ -20,7 +20,7 @@ class Watcher {
       root: this._ctx.config.root,
     })
 
-    Log.info(this._ctx.config.root.join(','))
+    Log.info(`Root: ${this._ctx.config.root}`)
 
     const imageWatchers = this._ctx.config.root.map((r) => {
       const { pattern } = this.glob!

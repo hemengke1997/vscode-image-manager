@@ -1,4 +1,6 @@
 import { Context } from '@rootSrc/Context'
+import { initCompressor } from '@rootSrc/compress'
+import { normalizePath } from '@rootSrc/utils'
 import { Log } from '@rootSrc/utils/Log'
 import { imageGlob } from '@rootSrc/utils/glob'
 import { type ImageType } from '@rootSrc/webview/ImageManager'
@@ -34,7 +36,8 @@ export const VscodeMessageCenter = {
 
   /* -------------- get all images -------------- */
   [CmdToVscode.GET_ALL_IMAGES]: async ({ webview }: MessageParams) => {
-    const workspaceFolders = Context.instance.config.root
+    const absWorkspaceFolders = Context.instance.config.root
+    const workspaceFolders = absWorkspaceFolders.map((ws) => path.basename(ws))
 
     async function _searchImgs(
       absWorkspaceFolder: string,
@@ -43,6 +46,9 @@ export const VscodeMessageCenter = {
       dirs: Set<string>,
     ) {
       const { config } = Context.instance
+
+      absWorkspaceFolder = normalizePath(absWorkspaceFolder)
+
       const { all } = imageGlob({
         cwd: absWorkspaceFolder,
         imageType: config.imageType,
@@ -51,7 +57,7 @@ export const VscodeMessageCenter = {
       })
 
       const imgs = await fg(all, {
-        cwd: path.posix.normalize(absWorkspaceFolder),
+        cwd: absWorkspaceFolder,
         objectMode: true,
         dot: false,
         absolute: true,
@@ -60,51 +66,61 @@ export const VscodeMessageCenter = {
       })
 
       return imgs.map((img) => {
+        img.path = normalizePath(img.path)
+
         const vscodePath = webview.asWebviewUri(Uri.file(img.path)).toString()
 
-        const fileType = path.posix.extname(img.path).replace('.', '')
+        const fileType = path.extname(img.path).replace('.', '')
         fileTypes.add(fileType)
-        const dirPath = path.posix.relative(absWorkspaceFolder, path.posix.dirname(img.path))
-        dirs.add(dirPath)
 
-        const workspaceFolder = path.posix.basename(absWorkspaceFolder)
+        const dirPath = normalizePath(path.relative(absWorkspaceFolder, path.dirname(img.path)))
+
+        dirs.add(dirPath)
 
         return {
           name: img.name,
           path: img.path,
           stats: img.stats!,
           dirPath,
-          absDirPath: path.posix.dirname(img.path),
+          absDirPath: normalizePath(path.dirname(img.path)),
           fileType,
           vscodePath,
-          workspaceFolder,
-          absWorkspaceFolder,
-          basePath: path.posix.dirname(absWorkspaceFolder),
-          extraPathInfo: path.posix.parse(img.path),
+          workspaceFolder: normalizePath(path.basename(absWorkspaceFolder)),
+          absWorkspaceFolder: normalizePath(absWorkspaceFolder),
+          basePath: normalizePath(path.dirname(absWorkspaceFolder)),
+          extraPathInfo: path.parse(img.path),
         }
       })
     }
 
-    const data = await Promise.all(
-      workspaceFolders.map(async (workspaceFolder) => {
-        const fileTypes: Set<string> = new Set()
-        const dirs: Set<string> = new Set()
+    try {
+      const data = await Promise.all(
+        absWorkspaceFolders.map(async (workspaceFolder) => {
+          const fileTypes: Set<string> = new Set()
+          const dirs: Set<string> = new Set()
 
-        const imgs = await _searchImgs(workspaceFolder, webview, fileTypes, dirs)
-        return {
-          imgs,
-          workspaceFolder: path.posix.basename(workspaceFolder),
-          absWorkspaceFolder: workspaceFolder,
-          fileTypes: [...fileTypes].filter(Boolean),
-          dirs: [...dirs].filter(Boolean),
-        }
-      }),
-    )
+          const imgs = await _searchImgs(workspaceFolder, webview, fileTypes, dirs)
+          return {
+            imgs,
+            workspaceFolder: path.basename(workspaceFolder),
+            absWorkspaceFolder: workspaceFolder,
+            fileTypes: [...fileTypes].filter(Boolean),
+            dirs: [...dirs].filter(Boolean),
+          }
+        }),
+      )
 
-    return {
-      data,
-      absWorkspaceFolders: workspaceFolders,
-      workspaceFolders: workspaceFolders.map((ws) => path.posix.basename(ws)),
+      return {
+        data,
+        absWorkspaceFolders,
+        workspaceFolders,
+      }
+    } catch {
+      return {
+        data: [],
+        absWorkspaceFolders,
+        workspaceFolders,
+      }
     }
   },
 
@@ -130,8 +146,18 @@ export const VscodeMessageCenter = {
   },
 
   /* ----------- get compressor ---------- */
-  [CmdToVscode.GET_COMPRESSOR]: () => {
-    return Context.instance.compressor
+  [CmdToVscode.GET_COMPRESSOR]: async () => {
+    let compressor = Context.instance.compressor
+    if (!compressor) {
+      try {
+        compressor = await initCompressor(Context.instance)
+      } catch (e) {
+        Log.info(`GET_COMPRESSOR ERROR: ${e as string}`)
+        return null
+      }
+    }
+    Log.info(`Use [${compressor.name}] as Compressor`)
+    return compressor
   },
 
   /* ------- open path in vscode explorer ------ */
@@ -147,7 +173,7 @@ export const VscodeMessageCenter = {
     if (deep) {
       try {
         const files = fs.readdirSync(targetPath)
-        targetPath = path.posix.join(targetPath, files[0])
+        targetPath = path.join(targetPath, files[0])
       } catch {}
     }
 
@@ -183,9 +209,11 @@ export const VscodeMessageCenter = {
 
       const { compressor } = Context.instance
       filePaths = filePaths.filter((file) => {
-        return compressor?.config.exts.includes(path.posix.extname(file))
+        return compressor?.config.exts.includes(path.extname(file))
       })
+
       const res = await compressor?.compress(filePaths)
+      Log.info(`Compress result: ${JSON.stringify(res)}`)
       return res
     } catch (e: any) {
       Log.error(`Compress error: ${e}`)
@@ -214,7 +242,7 @@ export const VscodeMessageCenter = {
     // TODO: custom suffix
     const filename = `${image.extraPathInfo.name}.crop.${outputFileType}`
     try {
-      const newPath = path.posix.join(image.absDirPath, filename)
+      const newPath = path.join(image.absDirPath, filename)
       await fs.promises.writeFile(newPath, imageBuffer)
     } catch (e) {
       Log.error(`SAVE_CROPPER_IMAGE ${e}`)

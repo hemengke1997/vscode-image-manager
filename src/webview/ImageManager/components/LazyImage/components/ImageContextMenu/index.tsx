@@ -69,17 +69,22 @@ function ImageContextMenu() {
       duration: 0,
       key: LoadingKey,
     })
-    const res = await compressImage([filePath])
-    message.destroy(LoadingKey)
+    try {
+      const res = await compressImage([filePath])
+      message.destroy(LoadingKey)
 
-    if (Array.isArray(res)) {
-      res.forEach((item) => {
-        onCompressEnd(item, {
-          onRetryClick: (filePath) => {
-            handleCompressImage(filePath)
-          },
+      if (Array.isArray(res)) {
+        res.forEach((item) => {
+          onCompressEnd(item, {
+            onRetryClick: (filePath) => {
+              handleCompressImage(filePath)
+            },
+          })
         })
-      })
+      }
+    } catch (e) {
+      console.error(e)
+      message.destroy(LoadingKey)
     }
   })
 

@@ -74,7 +74,8 @@
     "saving": "保存中...",
     "save_success": "保存成功",
     "save_fail": "保存失败",
-    "save_fallback": "<p>不支持</p><0>{{currentType}}</0>，已转为<1>{{fallbackType}}</1>"
+    "save_fallback": "<p>不支持</p><0>{{currentType}}</0>，已转为<1>{{fallbackType}}</1>",
+    "size_increase": "体积增加："
   },
   "fallback": {
     "internal_error": "内部错误",

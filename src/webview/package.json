@@ -9,7 +9,7 @@
     "@minko-fe/react-hook": "^0.1.16",
     "@minko-fe/vite-config": "^0.1.16",
     "@types/react-highlight-words": "^0.16.7",
-    "antd": "^5.12.8",
+    "antd": "^5.13.1",
     "classnames": "^2.3.2",
     "context-state": "^2.1.0",
     "cropperjs": "^1.6.1",

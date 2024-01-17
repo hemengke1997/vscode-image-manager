@@ -38,14 +38,19 @@ function CollapseContextMenu() {
       duration: 0,
       key: LoadingKey,
     })
-    const res = await compressImage(images.map((t) => t.path) || [])
-    message.destroy(LoadingKey)
-    if (Array.isArray(res)) {
-      res.forEach((item) => {
-        onCompressEnd(item, {
-          onRetryClick: (filePath) => handleCompressImage([{ path: filePath }] as ImageType[]),
+    try {
+      const res = await compressImage(images.map((t) => t.path) || [])
+      message.destroy(LoadingKey)
+      if (Array.isArray(res)) {
+        res.forEach((item) => {
+          onCompressEnd(item, {
+            onRetryClick: (filePath) => handleCompressImage([{ path: filePath }] as ImageType[]),
+          })
         })
-      })
+      }
+    } catch (e) {
+      message.destroy(LoadingKey)
+      console.error(e)
     }
   })
 

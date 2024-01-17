@@ -3,7 +3,7 @@ import { useSetState } from '@minko-fe/react-hook'
 import { isDev } from '@minko-fe/vite-config/client'
 import { ConfigProvider, Image, theme } from 'antd'
 import { motion } from 'framer-motion'
-import { type ReactNode, memo, useEffect, useState } from 'react'
+import { type ReactNode, memo, startTransition, useEffect, useState } from 'react'
 import { type ImageType } from '../..'
 import GlobalContext from '../../contexts/GlobalContext'
 import SettingsContext from '../../contexts/SettingsContext'
@@ -77,14 +77,18 @@ function ImagePreview(props: ImagePreviewProps) {
               onTransform(info) {
                 if (['wheel', 'zoomIn', 'zoomOut'].includes(info.action)) {
                   const sclalePercent = round(info.transform.scale * 100)
-                  setScaleToast({
-                    open: true,
-                    content: (
-                      <div className={'flex items-center'}>
-                        <span>{sclalePercent}%</span>
-                      </div>
-                    ),
-                  })
+                  try {
+                    startTransition(() => {
+                      setScaleToast({
+                        open: true,
+                        content: (
+                          <div className={'flex items-center'}>
+                            <span>{sclalePercent}%</span>
+                          </div>
+                        ),
+                      })
+                    })
+                  } catch {}
                 }
               },
             }}

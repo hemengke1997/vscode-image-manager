@@ -1,6 +1,7 @@
+import { Log } from '@rootSrc/utils/Log'
 import fs from 'node:fs'
 import tinify from 'tinify'
-import { AbsCompressor, type CompressOptions } from '../AbsCompressor'
+import { AbsCompressor, type CompressOptions, type CompressorMethod } from '../AbsCompressor'
 
 type TinypngOptions = {
   apiKey: string
@@ -19,6 +20,8 @@ type PostInfo = {
 }
 
 class TinyPng extends AbsCompressor {
+  name: CompressorMethod = 'tinypng'
+
   public static DEFAULT_CONFIG = {
     exts: ['.png', '.jpg', '.jpeg', '.webp'],
     max: 10 * 1024 * 1024, // 10MB
@@ -34,6 +37,19 @@ class TinyPng extends AbsCompressor {
     })
 
     tinify.key = options.apiKey
+  }
+
+  validate(): Promise<boolean> {
+    return new Promise((resolve) => {
+      tinify.validate((err: Error | null) => {
+        if (err) {
+          Log.error(`Tinypng key is invalid: ${err.message}`)
+          resolve(false)
+        } else {
+          resolve(true)
+        }
+      })
+    })
   }
 
   compress(filePaths: string[]): Promise<
@@ -94,18 +110,6 @@ class TinyPng extends AbsCompressor {
             const postInfo = JSON.parse(buffer.toString()) as PostInfo
             resolve(postInfo)
           })
-        }
-      })
-    })
-  }
-
-  validateApiKey(): Promise<boolean> {
-    return new Promise((resolve, reject) => {
-      tinify.validate((err: Error | null) => {
-        if (err) {
-          reject(err)
-        } else {
-          resolve(true)
         }
       })
     })

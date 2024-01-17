@@ -1,8 +1,8 @@
-import { cloneDeep } from '@minko-fe/lodash-pro'
 import { Context } from '@rootSrc/Context'
 import { Log } from '@rootSrc/utils/Log'
 import { execa } from 'execa'
 import jsonfile from 'jsonfile'
+import fs from 'node:fs'
 import path from 'node:path'
 import * as vscode from 'vscode'
 
@@ -16,30 +16,47 @@ async function checkNpmInstalled() {
   }
 }
 
-async function npmInstall(extUri: string) {
-  const res = await execa('npm', ['install'], {
-    cwd: extUri,
-    stdio: 'pipe',
-  })
+async function npmInstall(extUri: string, pkgJson: Record<string, any>) {
+  Log.info(`Install Dependencies: ${JSON.stringify(pkgJson.dependencies)}`)
+  Log.info(`Install DevDependencies: ${JSON.stringify(pkgJson.devDependencies)}`)
 
-  Log.info(`npm install: ${JSON.stringify(res)}`)
+  try {
+    const res = await execa('npm', ['install'], {
+      cwd: extUri,
+      stdio: 'pipe',
+    })
 
-  if (res.stderr) {
-    Log.error(`npm install error: ${res.stderr}`)
+    if (res.stderr) {
+      Log.error(`npm install error: ${res.stderr}`)
+    }
+
+    if (res.stdout) {
+      Log.info(`npm install: ${res.stdout}`)
+    }
+
+    return res
+  } catch (e) {
+    Log.error(`npm install error: ${e}`)
+
+    const res = await vscode.window.showErrorMessage('Image Compressor install failed, Please try again', 'Retry')
+
+    if (res === 'Retry') {
+      return npmInstall(extUri, pkgJson)
+    }
+
+    return undefined
   }
-
-  if (res.stdout) {
-    const pkgJson = jsonfile.readFileSync(path.posix.join(extUri, './package.json')) as Record<string, any>
-    Log.info(`Dependencies: ${JSON.stringify(pkgJson.dependencies)}`)
-    Log.info(`npm install: ${res.stdout}`)
-  }
-
-  return res
 }
 
 function updatePackgeJson(extUri: string) {
-  const originalPkgJson = jsonfile.readFileSync(path.posix.join(extUri, './package.json')) as Record<string, any>
-  const pkgJson = cloneDeep(originalPkgJson)
+  const pkgJsonPath = path.join(extUri, './package.json')
+  const pkgJsonBakPath = path.join(extUri, './package.json.bak')
+
+  if (fs.existsSync(pkgJsonPath)) {
+    fs.copyFileSync(pkgJsonPath, pkgJsonBakPath)
+  }
+
+  const pkgJson = jsonfile.readFileSync(pkgJsonPath) as Record<string, any>
 
   if (pkgJson) {
     const sharp = pkgJson.devDependencies.sharp
@@ -49,24 +66,30 @@ function updatePackgeJson(extUri: string) {
     }
     pkgJson.devDependencies = {}
 
-    jsonfile.writeFileSync(path.posix.join(extUri, './package.json'), pkgJson)
+    Log.info(`Updated Dependencies: ${JSON.stringify(pkgJson.dependencies)}`)
+
+    writePkgJson(extUri, pkgJson)
   }
 
-  return originalPkgJson
+  return { updatedPkgJson: pkgJson, pkgJsonBakPath }
 }
 
 async function installSharp(extUri: string): Promise<'success' | 'fail' | 'installed'> {
   try {
     try {
       const sharp = require('sharp')
-      if (sharp) return 'installed'
+      if (sharp) {
+        Log.info('require sharp success')
+        return 'installed'
+      }
     } catch (e) {
       Log.error(`sharp not installed: ${e}`)
     }
 
-    const pkgJson = updatePackgeJson(extUri)
-    const { stdout, failed } = await npmInstall(extUri)
-    recoverPkgJson(extUri, pkgJson)
+    const { pkgJsonBakPath, updatedPkgJson } = updatePackgeJson(extUri)
+    const { stdout, failed } = (await npmInstall(extUri, updatedPkgJson)) || { stdout: '', failed: true }
+    pkgJsonBakPath && fs.copyFileSync(pkgJsonBakPath, path.join(extUri, './package.json'))
+    fs.unlinkSync(pkgJsonBakPath)
 
     if (stdout && !failed) {
       if (stdout.includes('up to date')) return 'installed'
@@ -79,8 +102,11 @@ async function installSharp(extUri: string): Promise<'success' | 'fail' | 'insta
   }
 }
 
-function recoverPkgJson(extUri: string, pkgJson: Record<string, any>) {
-  jsonfile.writeFileSync(path.posix.join(extUri, './package.json'), pkgJson)
+function writePkgJson(extUri: string, pkgJson: Record<string, any>) {
+  jsonfile.writeFileSync(path.join(extUri, './package.json'), pkgJson, {
+    encoding: 'utf-8',
+    spaces: 2,
+  })
 }
 
 export async function initSharp(): Promise<boolean> {
@@ -102,8 +128,6 @@ export async function initSharp(): Promise<boolean> {
   Log.info(`extension location: ${extensionLocaltion}`)
   const res = await installSharp(extensionLocaltion)
   statusBarItem.hide()
-
-  Log.info(`install sharp result: ${res}`)
 
   switch (res) {
     case 'success':

@@ -22,7 +22,7 @@ export function activate(context: ExtensionContext) {
         // Higher priority `Config.root()`
         let fsPath = uri.fsPath
         if (!fs.statSync(fsPath).isDirectory()) {
-          fsPath ||= path.posix.dirname(fsPath)
+          fsPath = path.dirname(fsPath) || fsPath
         }
         ctx.setConfig({
           root: [normalizePath(fsPath)],
