@@ -10,7 +10,13 @@ import { os } from 'un-detector'
 
 export const COLLAPSE_CONTEXT_MENU_ID = 'COLLAPSE_CONTEXT_MENU_ID'
 
-function CollapseContextMenu() {
+type CollapseContextMenuProps = {
+  onVisibilityChange: (visible: boolean) => void
+}
+
+function CollapseContextMenu(props: CollapseContextMenuProps) {
+  const { onVisibilityChange } = props
+
   const { theme } = FrameworkContext.usePicker(['theme'])
   const { t } = useTranslation()
   const { message } = App.useApp()
@@ -55,18 +61,20 @@ function CollapseContextMenu() {
   })
 
   return (
-    <Menu id={COLLAPSE_CONTEXT_MENU_ID} theme={theme}>
-      <Item
-        onClick={(e: ItemParams<{ targetPath: string; images: ImageType[] }>) => handleCompressImage(e.props?.images)}
-      >
-        {t('im.compress_under_folder')}
-      </Item>
-      <Separator />
-      <Item onClick={handleOpenInOsExplorer}>
-        {os.isMac() ? t('im.reveal_in_os_mac') : t('im.reveal_in_os_windows')}
-      </Item>
-      <Item onClick={handleOpenInVscodeExplorer}>{t('im.reveal_in_explorer')}</Item>
-    </Menu>
+    <>
+      <Menu id={COLLAPSE_CONTEXT_MENU_ID} theme={theme} onVisibilityChange={onVisibilityChange}>
+        <Item
+          onClick={(e: ItemParams<{ targetPath: string; images: ImageType[] }>) => handleCompressImage(e.props?.images)}
+        >
+          {t('im.compress_under_folder')}
+        </Item>
+        <Separator />
+        <Item onClick={handleOpenInOsExplorer}>
+          {os.isMac() ? t('im.reveal_in_os_mac') : t('im.reveal_in_os_windows')}
+        </Item>
+        <Item onClick={handleOpenInVscodeExplorer}>{t('im.reveal_in_explorer')}</Item>
+      </Menu>
+    </>
   )
 }
 

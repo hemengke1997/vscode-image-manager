@@ -13,7 +13,13 @@ import styles from './index.module.css'
 
 export const IMAGE_CONTEXT_MENU_ID = 'IMAGE_CONTEXT_MENU_ID'
 
-function ImageContextMenu() {
+type ImageContextMenuProps = {
+  onVisibilityChange: (visible: boolean) => void
+}
+
+function ImageContextMenu(props: ImageContextMenuProps) {
+  const { onVisibilityChange } = props
+
   const { t } = useTranslation()
   const { theme } = FrameworkContext.usePicker(['theme'])
   const { message, modal } = App.useApp()
@@ -185,7 +191,7 @@ function ImageContextMenu() {
 
   return (
     <>
-      <Menu id={IMAGE_CONTEXT_MENU_ID} theme={theme}>
+      <Menu id={IMAGE_CONTEXT_MENU_ID} theme={theme} onVisibilityChange={onVisibilityChange}>
         <Item onClick={(e) => handleCopyString(e, 'name')}>{t('im.copy_image_name')}</Item>
         <Item onClick={(e) => handleCopyString(e, 'path')}>{t('im.copy_image_path')}</Item>
         <Item onClick={(e) => handleCopyString(e, 'path', copyImageAsBase64)}>{t('im.copy_image_base64')}</Item>

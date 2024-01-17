@@ -11,7 +11,7 @@ function OpenFolder(
 
   return (
     <i
-      className={'flex-center hover:text-ant-color-primary transition-colors'}
+      className={'flex-center hover:text-ant-color-primary cursor-pointer transition-colors'}
       onClick={(e) => {
         e.stopPropagation()
         openInOsExplorer(path)

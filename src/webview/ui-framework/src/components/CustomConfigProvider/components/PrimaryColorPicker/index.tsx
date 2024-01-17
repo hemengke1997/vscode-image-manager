@@ -18,7 +18,8 @@ function PrimaryColorPicker(props: PrimaryColorPickerProps) {
 
   const { color: colorProp, onColorChange, localKey, extraColors } = props
 
-  const color = new TinyColor(colorProp).toHexString()
+  const color = new TinyColor(colorProp).toHex8String()
+
   const formattedExtraColors = extraColors?.map((t) => new TinyColor(t).toHexString())
 
   const [selectedColor, setSelectedColor] = useControlledState({
@@ -51,8 +52,7 @@ function PrimaryColorPicker(props: PrimaryColorPickerProps) {
   return (
     <div>
       <ColorPicker
-        disabledAlpha
-        format='hex'
+        disabledAlpha={false}
         presets={[
           {
             label: 'VSCode',

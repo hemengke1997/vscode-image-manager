@@ -67,24 +67,22 @@ class Sharp extends AbsCompressor {
         })
         .toBuffer()
         .then(async (buffer) => {
-          if (this.compressOptions.replace) {
-            try {
-              const fileWritableStream = fs.createWriteStream(this.getOutputPath(filePath))
+          try {
+            const fileWritableStream = fs.createWriteStream(this.getOutputPath(filePath))
 
-              fileWritableStream.on('finish', () => {
-                const compressedSize = fs.statSync(ouputPath).size
+            fileWritableStream.on('finish', () => {
+              const compressedSize = fs.statSync(ouputPath).size
 
-                resolve({
-                  originSize,
-                  compressedSize,
-                })
+              resolve({
+                originSize,
+                compressedSize,
               })
+            })
 
-              fileWritableStream.write(buffer)
-              fileWritableStream.end()
-            } catch (e) {
-              reject(e)
-            }
+            fileWritableStream.write(buffer)
+            fileWritableStream.end()
+          } catch (e) {
+            reject(e)
           }
         })
         .catch((e) => {

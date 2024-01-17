@@ -53,33 +53,34 @@ function ImageCollapse(props: ImageCollapseProps) {
 
   const singleLabelNode = (label: string, index: number) => {
     return (
-      <div
-        onContextMenu={(e) => {
-          if (!contextMenu) return
-
-          show({
-            event: e,
-            id: COLLAPSE_CONTEXT_MENU_ID,
-            props: {
-              targetPath: getCurrentPath(index) || '',
-              images,
-            },
-          })
-        }}
-        tabIndex={-1}
-        className={classNames(
-          "relative cursor-pointer transition-all after:absolute after:-inset-x-0 after:-inset-y-1.5 after:content-['']",
-          contextMenu && 'hover:underline focus:underline',
-        )}
-        onClick={() => {
-          if (activeKeys?.length) {
-            setActiveKeys([])
-          } else {
-            setActiveKeys([id])
-          }
-        }}
-      >
-        {label}
+      <div className={'w-full'}>
+        <div
+          onContextMenu={(e) => {
+            if (!contextMenu) return
+            show({
+              event: e,
+              id: COLLAPSE_CONTEXT_MENU_ID,
+              props: {
+                targetPath: getCurrentPath(index) || '',
+                images,
+              },
+            })
+          }}
+          tabIndex={-1}
+          className={classNames(
+            "w-fit relative cursor-pointer transition-all after:absolute after:-inset-x-0 after:-inset-y-1.5 after:content-['']",
+            contextMenu && 'hover:underline focus:underline',
+          )}
+          onClick={() => {
+            if (activeKeys?.length) {
+              setActiveKeys([])
+            } else {
+              setActiveKeys([id])
+            }
+          }}
+        >
+          {label}
+        </div>
       </div>
     )
   }

@@ -109,7 +109,7 @@ function CollapseTree(props: CollapseTreeProps) {
                 collapseProps={{
                   bordered: false,
                   defaultActiveKey: defaultOpen ? [node.value] : undefined,
-                  collapsible: 'icon',
+                  collapsible: 'header',
                   ...collapseProps,
                 }}
                 labelContainer={(label) => (

@@ -27,8 +27,6 @@ import SettingsContext from './contexts/SettingsContext'
 import TreeContext from './contexts/TreeContext'
 import useWheelScaleEvent from './hooks/useWheelScaleEvent'
 import { Colors } from './utils/color'
-import './index.css'
-import 'react-contexify/ReactContexify.css'
 
 vscodeApi.registerEventListener()
 
