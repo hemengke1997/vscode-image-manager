@@ -1,4 +1,4 @@
-import { intersection, uniq } from '@minko-fe/lodash-pro'
+import { intersection, isEqual, uniq } from '@minko-fe/lodash-pro'
 import { CmdToVscode, CmdToWebview } from '@rootSrc/message/constant'
 import { App, Card, Skeleton } from 'antd'
 import { AnimatePresence, motion } from 'framer-motion'
@@ -99,15 +99,19 @@ export default function ImageManager() {
     vscodeApi.postMessage({ cmd: CmdToVscode.GET_ALL_IMAGES }, ({ data, workspaceFolders }) => {
       console.log('GET_ALL_IMAGES', data, workspaceFolders)
 
+      const allTypes = data.flatMap((item) => item.fileTypes)
+      const imageTypes = displayImageTypes?.length ? intersection(displayImageTypes, allTypes) : allTypes
+
+      // avoid images flash
+      if (!isEqual(imageTypes, displayImageTypes)) {
+        onImageTypeChange(imageTypes)
+      }
+
       setImageState({
         data,
         workspaceFolders,
         loading: false,
       })
-
-      const allTypes = data.flatMap((item) => item.fileTypes)
-      const imageTypes = displayImageTypes?.length ? intersection(displayImageTypes, allTypes) : allTypes
-      onImageTypeChange(imageTypes)
 
       if (isRefresh) {
         message.destroy(messageKey)
@@ -135,8 +139,8 @@ export default function ImageManager() {
   }, [])
 
   /* ------------ image type checkbox ----------- */
-  const allImageTypes = useMemo(() => uniq(imageState.data.flatMap((item) => item.fileTypes)), [imageState.data])
-  const allImageFiles = useMemo(() => imageState.data.flatMap((item) => item.imgs), [imageState.data])
+  const allImageTypes = useMemo(() => uniq(imageState.data.flatMap((item) => item.fileTypes)).sort(), [imageState.data])
+  const allImageFiles = useMemo(() => imageState.data.flatMap((item) => item.imgs).sort(), [imageState.data])
 
   const onImageTypeChange = (checked: string[]) => {
     setDisplayImageTypes(checked)

@@ -1,9 +1,9 @@
-import { useSetState, useUpdateEffect } from '@minko-fe/react-hook'
+import { useMemoizedFn, useSetState, useUpdateEffect } from '@minko-fe/react-hook'
 import { createContainer } from 'context-state'
-import { startTransition, useEffect, useMemo } from 'react'
+import { useEffect, useMemo } from 'react'
 import { type ImageType } from '..'
 import { bytesToKb, filterImages, shouldShowImage } from '../utils'
-import ActionContext from './ActionContext'
+import ActionContext, { type SizeFilterType } from './ActionContext'
 import SettingsContext from './SettingsContext'
 
 export type ImageStateType = {
@@ -16,9 +16,9 @@ function useTreeContext(props: { imageList: ImageType[] }) {
   const { imageList } = props
 
   const [imageSingleTree, setImageSingleTree] = useSetState<ImageStateType>({
-    originalList: imageList,
-    list: imageList,
-    visibleList: imageList,
+    originalList: [],
+    list: [],
+    visibleList: [],
   })
 
   const workspaceFolders = useMemo(
@@ -86,55 +86,76 @@ function useTreeContext(props: { imageList: ImageType[] }) {
     setImageSingleTree((t) => ({ visibleList: t.list.filter(shouldShowImage) }))
   }, [imageSingleTree.list])
 
-  useUpdateEffect(() => {
+  // sort
+  // size filter
+  // display image type
+  const generateImageList = useMemoizedFn((imageList: ImageType[]) => {
+    const s = onSortChange(imageList, sort)
+    const d = onDisplayImageTypeChange(s, displayImageTypes)
+    return onSizeFilterChange(d, sizeFilter)
+  })
+
+  useEffect(() => {
     setImageSingleTree({
       originalList: imageList,
-      list: sort ? [...sortImages(sort, imageList)] : imageList,
+      list: generateImageList(imageList),
       visibleList: imageList,
     })
   }, [imageList])
 
   const { sort, displayImageTypes } = SettingsContext.usePicker(['sort', 'displayImageTypes'])
-  useEffect(() => {
+
+  const onSortChange = useMemoizedFn((imageList: ImageType[], sort: string[] | undefined) => {
     if (sort) {
-      setImageSingleTree((t) => ({ list: [...sortImages(sort, t.list)] }))
+      return [...sortImages(sort, imageList)]
     }
+    return imageList
+  })
+
+  useUpdateEffect(() => {
+    const list = onSortChange(imageSingleTree.list, sort)
+    setImageSingleTree({ list })
   }, [sort])
 
+  const onDisplayImageTypeChange = useMemoizedFn((imageList: ImageType[], displayImageTypes: string[] | undefined) => {
+    if (displayImageTypes) {
+      return imageList.map((t) => ({ ...t, visible: { ...t.visible, type: displayImageTypes?.includes(t.fileType) } }))
+    }
+    return imageList.map((t) => ({ ...t, visible: { ...t.visible, type: true } }))
+  })
+
   // display image type setting change
-  useEffect(() => {
-    startTransition(() => {
-      setImageSingleTree((img) => ({
-        list: img.list.map((t) => ({ ...t, visible: { ...t.visible, type: displayImageTypes?.includes(t.fileType) } })),
-      }))
-    })
+  useUpdateEffect(() => {
+    const list = onDisplayImageTypeChange(imageSingleTree.list, displayImageTypes)
+    setImageSingleTree({ list })
   }, [displayImageTypes])
 
   // filter action triggerd
   const { sizeFilter } = ActionContext.usePicker(['sizeFilter'])
-  useUpdateEffect(() => {
+
+  const onSizeFilterChange = useMemoizedFn((imageList: ImageType[], sizeFilter: SizeFilterType) => {
     if (sizeFilter?.active) {
-      setImageSingleTree((t) => ({
-        list: t.list.map((t) => ({
-          ...t,
-          visible: {
-            ...t.visible,
-            size:
-              bytesToKb(t.stats.size) >= (sizeFilter.value.min || 0) &&
-              bytesToKb(t.stats.size) <= (sizeFilter.value.max || Number.POSITIVE_INFINITY),
-          },
-        })),
+      return imageList.map((t) => ({
+        ...t,
+        visible: {
+          ...t.visible,
+          size:
+            bytesToKb(t.stats.size) >= (sizeFilter.value.min || 0) &&
+            bytesToKb(t.stats.size) <= (sizeFilter.value.max || Number.POSITIVE_INFINITY),
+        },
       }))
     } else {
-      setImageSingleTree((t) => ({
-        list: t.list.map((t) => ({ ...t, visible: { ...t.visible, size: true } })),
-      }))
+      return imageList.map((t) => ({ ...t, visible: { ...t.visible, size: true } }))
     }
+  })
+
+  useUpdateEffect(() => {
+    const list = onSizeFilterChange(imageSingleTree.list, sizeFilter)
+    setImageSingleTree({ list })
   }, [sizeFilter])
 
   return {
     imageSingleTree,
-    setImageSingleTree,
     workspaceFolders,
     dirs,
     allDirs,

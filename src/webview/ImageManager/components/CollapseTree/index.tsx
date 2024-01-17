@@ -13,6 +13,7 @@ import { type GroupType } from '../DisplayGroup'
 import { type DisplayStyleType } from '../DisplayStyle'
 import ImageCollapse from '../ImageCollapse'
 import OpenFolder from './components/OpenFolder'
+import styles from './index.module.css'
 
 type GroupOption = Option
 
@@ -110,6 +111,7 @@ function CollapseTree(props: CollapseTreeProps) {
                   bordered: false,
                   defaultActiveKey: defaultOpen ? [node.value] : undefined,
                   collapsible: 'header',
+                  className: styles.collapse,
                   ...collapseProps,
                 }}
                 labelContainer={(label) => (

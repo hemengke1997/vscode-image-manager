@@ -1,0 +1,7 @@
+.collapse {
+  :global {
+    .ant-collapse-content .ant-collapse-content-active {
+      border-top: var(--ant-line-width) var(--ant-line-type) var(--ant-color-border);
+    }
+  }
+}
