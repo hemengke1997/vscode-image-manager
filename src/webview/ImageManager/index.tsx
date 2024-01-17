@@ -269,17 +269,7 @@ export default function ImageManager() {
                     imageList: item.imgs,
                   }}
                 >
-                  <TreeContext.Consumer>
-                    {({ dirs, imageType, workspaceFolders }) => (
-                      <CollapseTree
-                        workspaceFolders={workspaceFolders}
-                        displayStyle={displayStyle!}
-                        dirs={dirs}
-                        imageType={imageType}
-                        displayGroup={displayGroup}
-                      />
-                    )}
-                  </TreeContext.Consumer>
+                  <CollapseTree />
                 </TreeContext.Provider>
               ))}
             </div>

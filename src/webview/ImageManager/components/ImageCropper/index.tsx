@@ -113,7 +113,7 @@ function ImageCropper(props?: ImageCropperProps) {
                 {data.fileType !== image?.fileType && (
                   <div className={'inline-flex items-center space-x-1'}>
                     <Trans
-                      i18nKey={'im.save_fallback'}
+                      i18nKey='im.save_fallback'
                       values={{ currentType: image?.fileType, fallbackType: data.fileType }}
                     >
                       <div className={'text-ant-color-warning'}></div>
@@ -145,8 +145,8 @@ function ImageCropper(props?: ImageCropperProps) {
       width={'70%'}
       onCancel={() => setOpen(false)}
     >
-      <div className={'flex items-stretch space-x-2'}>
-        <div className={'h-full w-[80%]'}>
+      <div className={'flex items-stretch space-x-2 overflow-auto'}>
+        <div className={'h-full w-[80%] flex-none'}>
           <Card>
             <ReactCropper
               src={image?.vscodePath}

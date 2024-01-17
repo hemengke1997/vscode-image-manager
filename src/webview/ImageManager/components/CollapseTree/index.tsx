@@ -1,4 +1,4 @@
-import { useMemoizedFn } from '@minko-fe/react-hook'
+import { useMemoizedFn, useWhyDidYouUpdate } from '@minko-fe/react-hook'
 import { type CollapseProps, ConfigProvider } from 'antd'
 import { memo, useMemo, useRef } from 'react'
 import { useTranslation } from 'react-i18next'
@@ -7,28 +7,36 @@ import { FaRegObjectGroup } from 'react-icons/fa6'
 import { IoMdFolderOpen } from 'react-icons/io'
 import { PiFileImage } from 'react-icons/pi'
 import GlobalContext from '../../contexts/GlobalContext'
+import SettingsContext from '../../contexts/SettingsContext'
 import TreeContext from '../../contexts/TreeContext'
 import { DirTree, type FileNode } from '../../utils/DirTree'
-import { type GroupType } from '../DisplayGroup'
-import { type DisplayStyleType } from '../DisplayStyle'
 import ImageCollapse from '../ImageCollapse'
 import OpenFolder from './components/OpenFolder'
 import styles from './index.module.css'
 
-type GroupOption = Option
+function CollapseTree() {
+  const { displayGroup, displayStyle } = SettingsContext.usePicker(['displayGroup', 'displayStyle'])
 
-type CollapseTreeProps = {
-  workspaceFolders: GroupOption[]
-  dirs: GroupOption[]
-  imageType: GroupOption[]
-  displayGroup: GroupType[]
-  displayStyle: DisplayStyleType
-}
+  const { dirs, imageType, workspaceFolders } = TreeContext.usePicker([
+    'imageSingleTree',
+    'dirs',
+    'imageType',
+    'workspaceFolders',
+  ])
 
-function CollapseTree(props: CollapseTreeProps) {
-  const { workspaceFolders, dirs, imageType, displayGroup, displayStyle } = props
-  const { imageSingleTree } = TreeContext.usePicker(['imageSingleTree'])
+  const visibleList = TreeContext.useSelector((ctx) => ctx.imageSingleTree.visibleList)
+
   const allWorkspaceFolders = GlobalContext.useSelector((ctx) => ctx.imageState.workspaceFolders)
+
+  useWhyDidYouUpdate('CollapseTree', {
+    displayGroup,
+    displayStyle,
+    visibleList,
+    dirs,
+    imageType,
+    workspaceFolders,
+    allWorkspaceFolders,
+  })
 
   const { t } = useTranslation()
 
@@ -137,7 +145,7 @@ function CollapseTree(props: CollapseTreeProps) {
     dirTree.current = new DirTree({
       displayGroup,
       displayMap,
-      visibleList: imageSingleTree.visibleList,
+      visibleList,
     })
 
     let tree = dirTree.current.buildRenderTree()
