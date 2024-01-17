@@ -44,7 +44,7 @@ async function npmInstall(extUri: string, pkgJson: Record<string, any>) {
       return npmInstall(extUri, pkgJson)
     }
 
-    return undefined
+    return null
   }
 }
 

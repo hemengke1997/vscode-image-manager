@@ -1,4 +1,4 @@
-import { useMemoizedFn, useWhyDidYouUpdate } from '@minko-fe/react-hook'
+import { useMemoizedFn } from '@minko-fe/react-hook'
 import { type CollapseProps, ConfigProvider } from 'antd'
 import { memo, useMemo, useRef } from 'react'
 import { useTranslation } from 'react-i18next'
@@ -27,16 +27,6 @@ function CollapseTree() {
   const visibleList = TreeContext.useSelector((ctx) => ctx.imageSingleTree.visibleList)
 
   const allWorkspaceFolders = GlobalContext.useSelector((ctx) => ctx.imageState.workspaceFolders)
-
-  useWhyDidYouUpdate('CollapseTree', {
-    displayGroup,
-    displayStyle,
-    visibleList,
-    dirs,
-    imageType,
-    workspaceFolders,
-    allWorkspaceFolders,
-  })
 
   const { t } = useTranslation()
 

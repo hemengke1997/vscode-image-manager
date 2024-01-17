@@ -72,7 +72,7 @@ Right click in Explorer, select `Open Image Manager` to open extension. (Open cu
 
 #### sharp
 
-This is the default compression method. You need to install `node` and set the system environment variable (node -v is successful)
+This is the default compression method. You need to install `node>=14.15.0` and set the system environment variable
 
 When installing the extension, sharp will be installed automatically, please be patient (depending on your network environment)
 

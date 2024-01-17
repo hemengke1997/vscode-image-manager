@@ -24,7 +24,7 @@ class TinyPng extends AbsCompressor {
 
   public static DEFAULT_CONFIG = {
     exts: ['.png', '.jpg', '.jpeg', '.webp'],
-    max: 10 * 1024 * 1024, // 10MB
+    max: 5 * 1024 * 1024, // 5MB
   }
 
   constructor(
