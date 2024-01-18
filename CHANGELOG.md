@@ -1,5 +1,17 @@
 # CHANGELOG
 
+## [0.0.19](https://github.com/hemengke1997/vscode-image-manager/compare/v0.0.18...v0.0.19) (2024-01-18)
+
+### Performance
+
+* Mask image compressor more stable ([c1f638f](https://github.com/hemengke1997/vscode-image-manager/commit/c1f638f802f0f0c3df6188ed8033db5d133e623d))
+
+### Style
+
+* Mask menu to aviod misclick ([e1162d3](https://github.com/hemengke1997/vscode-image-manager/commit/e1162d38b438479be4970acf5e08edaf4c95284a))
+* Add collapse content border ([08bb016](https://github.com/hemengke1997/vscode-image-manager/commit/08bb016d0646ad21337e5a5104a720eae47b1d54))
+* Make cropper modal width flexible ([6114572](https://github.com/hemengke1997/vscode-image-manager/commit/6114572e90f8924c4f452e0b67fb9d54f0b94994))
+
 ## [0.0.18](https://github.com/hemengke1997/vscode-image-manager/compare/v0.0.17...v0.0.18) (2024-01-17)
 
 ### Fix
