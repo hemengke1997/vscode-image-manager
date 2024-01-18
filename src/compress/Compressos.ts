@@ -1,7 +1,6 @@
 import { Log } from '@rootSrc/utils/Log'
 import { type AbsCompressor, type CompressOptions, type CompressorMethod } from './AbsCompressor'
 import { Sharp } from './sharp/Sharp'
-import { initSharp } from './sharp/install'
 import { TinyPng } from './tinypng/TinyPng'
 import { TinypngFree } from './tinypng-free/TinypngFree'
 
@@ -11,17 +10,12 @@ class Compressor {
     public compressOptions: CompressOptions & {
       tinypngKey?: string
     },
+    private _depsInstalled = false,
   ) {}
 
   async init() {
     if (this.method === 'sharp') {
-      let sharpEnable = false
-      try {
-        sharpEnable = await initSharp()
-      } catch {
-        sharpEnable = false
-      }
-      if (!sharpEnable) {
+      if (!this._depsInstalled) {
         // fallback to tinypng if sharp is not available
         this.method = 'tinypng'
       }

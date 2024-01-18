@@ -23,14 +23,14 @@ function useGlobalContext() {
   const compressorTimer = useRef<NodeJS.Timeout>()
   const getCompressor = () => {
     vscodeApi.postMessage({ cmd: CmdToVscode.GET_COMPRESSOR }, (data) => {
-      if (!data) {
+      if (!data && !compressor) {
         // polling
         compressorTimer.current = setTimeout(() => {
           getCompressor()
         }, 1000)
       } else {
         compressorTimer.current && clearTimeout(compressorTimer.current)
-        setCompressor(data)
+        data && setCompressor(data)
       }
     })
   }
@@ -65,6 +65,7 @@ function useGlobalContext() {
 
   return {
     compressor,
+    setCompressor,
     config,
     imageState,
     setImageState,

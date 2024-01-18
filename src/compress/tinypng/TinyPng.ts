@@ -1,5 +1,5 @@
 import { Log } from '@rootSrc/utils/Log'
-import fs from 'node:fs'
+import fs from 'fs-extra'
 import tinify from 'tinify'
 import { AbsCompressor, type CompressOptions, type CompressorMethod } from '../AbsCompressor'
 

@@ -1,5 +1,6 @@
 import type SharpType from 'sharp'
-import fs from 'node:fs'
+import { detectSharp } from '@rootSrc/utils'
+import fs from 'fs-extra'
 import path from 'node:path'
 import { AbsCompressor, type CompressOptions, type CompressorMethod } from '../AbsCompressor'
 
@@ -20,8 +21,8 @@ class Sharp extends AbsCompressor {
 
   validate(): Promise<boolean> {
     try {
-      this._loadSharp()
-      return Promise.resolve(true)
+      const sharp = detectSharp()
+      return Promise.resolve(!!sharp)
     } catch {
       return Promise.resolve(false)
     }
