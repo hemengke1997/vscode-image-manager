@@ -103,7 +103,7 @@ function LazyImage(props: LazyImageProps) {
               lazy
                 ? {
                     mask: (
-                      <div className={'flex-col-center h-full w-full justify-center space-y-1 text-xs'}>
+                      <div className={'flex-col-center size-full justify-center space-y-1 text-xs'}>
                         <div
                           className={'flex-center cursor-pointer space-x-1 truncate'}
                           onClick={(e) => {
