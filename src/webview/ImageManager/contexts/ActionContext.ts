@@ -2,6 +2,13 @@ import { useControlledState, useMemoizedFn } from '@minko-fe/react-hook'
 import { createContainer } from 'context-state'
 import { useReducer, useState } from 'react'
 
+export type SizeFilterType =
+  | {
+      active: boolean
+      value: { min?: number; max?: number }
+    }
+  | undefined
+
 function useActionContext() {
   /* --------------- refresh image -------------- */
   const refreshImageReducer = useMemoizedFn(
@@ -19,10 +26,7 @@ function useActionContext() {
   })
 
   /* ---------------- size filter --------------- */
-  const [sizeFilter, setSizeFilter] = useState<{
-    active: boolean
-    value: { min?: number; max?: number }
-  }>()
+  const [sizeFilter, setSizeFilter] = useState<SizeFilterType>()
 
   /* -------------- image collapse -------------- */
 

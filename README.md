@@ -50,6 +50,17 @@ Right click in Explorer, select `Open Image Manager` to open extension. (Open cu
 - I18n. Currently support `english` and `简体中文`
 - And so on waiting for you to discover...🤗
 
+## Attention
+
+This extension will fetch necessary dependencies automatically at first installation what may take a few minutes. Please be patient.
+
+Once installed, following tip will show up, please click `Reload` to reload vscode.
+
+![reload-tip](./screenshots/reload-tip.png)
+
+
+
+
 ## Extension Settings
 
 | Name                                    | Type                | Description                                                                                                                                        | Default value                                                                                                      |
@@ -72,11 +83,7 @@ Right click in Explorer, select `Open Image Manager` to open extension. (Open cu
 
 #### sharp
 
-This is the default compression method. You need to install `node` and set the system environment variable (node -v is successful)
-
-When installing the extension, sharp will be installed automatically, please be patient (depending on your network environment)
-
-Once installed, **you must reload vscode to take effect**
+This is the default compression method.
 
 #### tinypng api mode
 

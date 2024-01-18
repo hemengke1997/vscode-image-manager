@@ -3,7 +3,7 @@ import { type Context } from '@rootSrc/Context'
 import { type MessageParams, type MessageType, VscodeMessageCenter } from '@rootSrc/message'
 import { CmdToWebview } from '@rootSrc/message/constant'
 import { Log } from '@rootSrc/utils/Log'
-import fs from 'node:fs'
+import fs from 'fs-extra'
 import path from 'node:path'
 import { type Disposable, Uri, ViewColumn, type Webview, type WebviewPanel, env, window } from 'vscode'
 

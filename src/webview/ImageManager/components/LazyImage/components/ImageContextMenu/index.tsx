@@ -6,20 +6,15 @@ import { formatBytes } from '@rootSrc/webview/ImageManager/utils'
 import FrameworkContext from '@rootSrc/webview/ui-framework/src/contexts/FrameworkContext'
 import { App, Descriptions, type DescriptionsProps } from 'antd'
 import { memo } from 'react'
-import { type BooleanPredicate, Item, type ItemParams, Menu, Separator } from 'react-contexify'
+import { type BooleanPredicate, Item, type ItemParams, Separator } from 'react-contexify'
 import { useTranslation } from 'react-i18next'
 import { os } from 'un-detector'
+import MaskMenu from '../../../MaskMenu'
 import styles from './index.module.css'
 
 export const IMAGE_CONTEXT_MENU_ID = 'IMAGE_CONTEXT_MENU_ID'
 
-type ImageContextMenuProps = {
-  onVisibilityChange: (visible: boolean) => void
-}
-
-function ImageContextMenu(props: ImageContextMenuProps) {
-  const { onVisibilityChange } = props
-
+function ImageContextMenu() {
   const { t } = useTranslation()
   const { theme } = FrameworkContext.usePicker(['theme'])
   const { message, modal } = App.useApp()
@@ -111,22 +106,18 @@ function ImageContextMenu(props: ImageContextMenuProps) {
 
       const descItems: DescriptionsProps['items'] = [
         {
-          key: '1',
           label: t('im.name'),
           children: <div>{image.name}</div>,
         },
         {
-          key: '2',
           label: t('im.workspace'),
           children: <div>{image.workspaceFolder}</div>,
         },
         {
-          key: '3',
           label: t('im.folder'),
           children: <div>{image.dirPath}</div>,
         },
         {
-          key: '4',
           label: t('im.dimensions'),
           children: (
             <div>
@@ -135,17 +126,14 @@ function ImageContextMenu(props: ImageContextMenuProps) {
           ),
         },
         {
-          key: '5',
           label: t('im.size'),
           children: <div>{formatBytes(image.stats.size)}</div>,
         },
         {
-          key: '6',
           label: t('im.birth_time'),
           children: <div>{formatDate(image.stats.birthtime)}</div>,
         },
         {
-          key: '7',
           label: t('im.last_status_changed_time'),
           children: <div>{formatDate(image.stats.ctime)}</div>,
         },
@@ -165,7 +153,7 @@ function ImageContextMenu(props: ImageContextMenuProps) {
             size='small'
             title={null}
             bordered
-            items={descItems}
+            items={descItems.map((item, index) => ({ key: index, ...item }))}
           />
         ),
         footer: null,
@@ -191,7 +179,7 @@ function ImageContextMenu(props: ImageContextMenuProps) {
 
   return (
     <>
-      <Menu id={IMAGE_CONTEXT_MENU_ID} theme={theme} onVisibilityChange={onVisibilityChange}>
+      <MaskMenu id={IMAGE_CONTEXT_MENU_ID} theme={theme}>
         <Item onClick={(e) => handleCopyString(e, 'name')}>{t('im.copy_image_name')}</Item>
         <Item onClick={(e) => handleCopyString(e, 'path')}>{t('im.copy_image_path')}</Item>
         <Item onClick={(e) => handleCopyString(e, 'path', copyImageAsBase64)}>{t('im.copy_image_base64')}</Item>
@@ -210,7 +198,7 @@ function ImageContextMenu(props: ImageContextMenuProps) {
         <Item onClick={handleOpenInVscodeExplorer}>{t('im.reveal_in_explorer')}</Item>
         <Separator />
         <Item onClick={(e) => handleShowImageDetail(e)}>{t('im.detail')}</Item>
-      </Menu>
+      </MaskMenu>
     </>
   )
 }

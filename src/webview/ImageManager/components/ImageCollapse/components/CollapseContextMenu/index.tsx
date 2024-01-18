@@ -4,19 +4,14 @@ import useImageOperation from '@rootSrc/webview/ImageManager/hooks/useImageOpera
 import FrameworkContext from '@rootSrc/webview/ui-framework/src/contexts/FrameworkContext'
 import { App } from 'antd'
 import { memo } from 'react'
-import { Item, type ItemParams, Menu, Separator } from 'react-contexify'
+import { Item, type ItemParams, Separator } from 'react-contexify'
 import { useTranslation } from 'react-i18next'
 import { os } from 'un-detector'
+import MaskMenu from '../../../MaskMenu'
 
 export const COLLAPSE_CONTEXT_MENU_ID = 'COLLAPSE_CONTEXT_MENU_ID'
 
-type CollapseContextMenuProps = {
-  onVisibilityChange: (visible: boolean) => void
-}
-
-function CollapseContextMenu(props: CollapseContextMenuProps) {
-  const { onVisibilityChange } = props
-
+function CollapseContextMenu() {
   const { theme } = FrameworkContext.usePicker(['theme'])
   const { t } = useTranslation()
   const { message } = App.useApp()
@@ -62,7 +57,7 @@ function CollapseContextMenu(props: CollapseContextMenuProps) {
 
   return (
     <>
-      <Menu id={COLLAPSE_CONTEXT_MENU_ID} theme={theme} onVisibilityChange={onVisibilityChange}>
+      <MaskMenu id={COLLAPSE_CONTEXT_MENU_ID} theme={theme}>
         <Item
           onClick={(e: ItemParams<{ targetPath: string; images: ImageType[] }>) => handleCompressImage(e.props?.images)}
         >
@@ -73,7 +68,7 @@ function CollapseContextMenu(props: CollapseContextMenuProps) {
           {os.isMac() ? t('im.reveal_in_os_mac') : t('im.reveal_in_os_windows')}
         </Item>
         <Item onClick={handleOpenInVscodeExplorer}>{t('im.reveal_in_explorer')}</Item>
-      </Menu>
+      </MaskMenu>
     </>
   )
 }

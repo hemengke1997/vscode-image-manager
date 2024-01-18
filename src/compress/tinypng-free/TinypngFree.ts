@@ -1,4 +1,4 @@
-import fs from 'node:fs'
+import fs from 'fs-extra'
 import https from 'node:https'
 import { AbsCompressor, type CompressOptions, type CompressorMethod } from '../AbsCompressor'
 

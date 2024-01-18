@@ -1,8 +1,8 @@
-import { intersection, uniq } from '@minko-fe/lodash-pro'
+import { intersection, isEqual, uniq } from '@minko-fe/lodash-pro'
 import { CmdToVscode, CmdToWebview } from '@rootSrc/message/constant'
 import { App, Card, Skeleton } from 'antd'
 import { AnimatePresence, motion } from 'framer-motion'
-import { type Stats } from 'node:fs'
+import { type Stats } from 'fs-extra'
 import { type ParsedPath } from 'node:path'
 import { type ReactElement, type ReactNode, useEffect, useMemo } from 'react'
 import { useTranslation } from 'react-i18next'
@@ -63,7 +63,11 @@ export default function ImageManager() {
 
   const { mode } = FrameworkContext.usePicker(['mode'])
 
-  const { imageState, setImageState } = GlobalContext.usePicker(['imageState', 'setImageState'])
+  const { imageState, setImageState, setCompressor } = GlobalContext.usePicker([
+    'imageState',
+    'setImageState',
+    'setCompressor',
+  ])
 
   const { imageRefreshedState, refreshImages, imageSearchOpen, setImageSearchOpen } = ActionContext.usePicker([
     'imageRefreshedState',
@@ -99,15 +103,19 @@ export default function ImageManager() {
     vscodeApi.postMessage({ cmd: CmdToVscode.GET_ALL_IMAGES }, ({ data, workspaceFolders }) => {
       console.log('GET_ALL_IMAGES', data, workspaceFolders)
 
+      const allTypes = data.flatMap((item) => item.fileTypes)
+      const imageTypes = displayImageTypes?.length ? intersection(displayImageTypes, allTypes) : allTypes
+
+      // avoid images flash
+      if (!isEqual(imageTypes, displayImageTypes)) {
+        onImageTypeChange(imageTypes)
+      }
+
       setImageState({
         data,
         workspaceFolders,
         loading: false,
       })
-
-      const allTypes = data.flatMap((item) => item.fileTypes)
-      const imageTypes = displayImageTypes?.length ? intersection(displayImageTypes, allTypes) : allTypes
-      onImageTypeChange(imageTypes)
 
       if (isRefresh) {
         message.destroy(messageKey)
@@ -124,6 +132,10 @@ export default function ImageManager() {
           refreshImages({ type: 'slientRefresh' })
           break
         }
+        case CmdToWebview.COMPRESSOR_CHANGED: {
+          setCompressor(message.data)
+          break
+        }
         default:
           break
       }
@@ -135,8 +147,8 @@ export default function ImageManager() {
   }, [])
 
   /* ------------ image type checkbox ----------- */
-  const allImageTypes = useMemo(() => uniq(imageState.data.flatMap((item) => item.fileTypes)), [imageState.data])
-  const allImageFiles = useMemo(() => imageState.data.flatMap((item) => item.imgs), [imageState.data])
+  const allImageTypes = useMemo(() => uniq(imageState.data.flatMap((item) => item.fileTypes)).sort(), [imageState.data])
+  const allImageFiles = useMemo(() => imageState.data.flatMap((item) => item.imgs).sort(), [imageState.data])
 
   const onImageTypeChange = (checked: string[]) => {
     setDisplayImageTypes(checked)
@@ -265,17 +277,7 @@ export default function ImageManager() {
                     imageList: item.imgs,
                   }}
                 >
-                  <TreeContext.Consumer>
-                    {({ dirs, imageType, workspaceFolders }) => (
-                      <CollapseTree
-                        workspaceFolders={workspaceFolders}
-                        displayStyle={displayStyle!}
-                        dirs={dirs}
-                        imageType={imageType}
-                        displayGroup={displayGroup}
-                      />
-                    )}
-                  </TreeContext.Consumer>
+                  <CollapseTree />
                 </TreeContext.Provider>
               ))}
             </div>

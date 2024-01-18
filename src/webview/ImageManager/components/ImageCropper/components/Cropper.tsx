@@ -1,5 +1,5 @@
 // Source from react-cropper
-// Support hmr to better DX
+// Support hmr for better DX
 
 import Cropper from 'cropperjs'
 import React, { memo, useEffect, useRef } from 'react'

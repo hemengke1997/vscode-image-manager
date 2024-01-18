@@ -5,10 +5,10 @@ import { Log } from '@rootSrc/utils/Log'
 import { imageGlob } from '@rootSrc/utils/glob'
 import { type ImageType } from '@rootSrc/webview/ImageManager'
 import fg from 'fast-glob'
+import fs from 'fs-extra'
 import imageSize from 'image-size'
 import micromatch from 'micromatch'
 import mime from 'mime/lite'
-import fs from 'node:fs'
 import path from 'node:path'
 import { Uri, type Webview, commands } from 'vscode'
 import { CmdToVscode } from './constant'
@@ -156,7 +156,6 @@ export const VscodeMessageCenter = {
         return null
       }
     }
-    Log.info(`Use [${compressor.name}] as Compressor`)
     return compressor
   },
 
@@ -253,6 +252,9 @@ export const VscodeMessageCenter = {
       fileType: outputFileType,
     }
   },
+
+  /* --------- find similar images -------- */
+  [CmdToVscode.FIND_SIMILAR_IMAGES]: async () => {},
 
   /* ----------- test vscode command ----------- */
   [CmdToVscode.TEMP_TEST_CMD]: async ({ message }: MessageParams<{ cmd: string; path: string }>) => {

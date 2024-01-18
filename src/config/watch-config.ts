@@ -1,3 +1,4 @@
+import { Log } from '@rootSrc/utils/Log'
 import { commands, window, workspace } from 'vscode'
 
 export function watchConfig() {
@@ -8,11 +9,13 @@ export function watchConfig() {
     // const existPanel = ImageManagerPanel.currentPanel?.panel
 
     if (affected) {
-      window.showInformationMessage('Config changed. Please reload extension', 'Reload').then((res) => {
+      window.showInformationMessage('Config changed. Please reload', 'Reload').then((res) => {
         if (res === 'Reload') {
           commands.executeCommand('workbench.action.reloadWindow')
         }
       })
     }
   })
+
+  Log.info(`Extension Config: ${JSON.stringify(workspace.getConfiguration('image-manager'), null, 2)}`)
 }

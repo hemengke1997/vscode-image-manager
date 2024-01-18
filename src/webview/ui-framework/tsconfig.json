@@ -4,9 +4,9 @@
     "baseUrl": ".",
     "paths": {
       "@/*": ["./src/*"],
-      "@rootSrc/*": ["../../../src/*"]
+      "@rootSrc/*": ["../../../src/*"],
     },
     "types": ["vite/client"],
-    "strict": true
-  }
+    "strict": true,
+  },
 }

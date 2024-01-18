@@ -1,5 +1,7 @@
 src
 screenshots
+node_modules/ui-framework
+node_modules/webview
 test
 .github
 .gitignore
@@ -17,3 +19,4 @@ CHANGELOG-CODE.md
 index.html
 .npmrc
 package-lock.json
+.cache.json
