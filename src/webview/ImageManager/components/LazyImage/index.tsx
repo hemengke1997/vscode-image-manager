@@ -1,6 +1,4 @@
 import { useControlledState, useInViewport } from '@minko-fe/react-hook'
-import { CmdToVscode } from '@rootSrc/message/constant'
-import { vscodeApi } from '@rootSrc/webview/vscode-api'
 import { Badge, Image, type ImageProps } from 'antd'
 import classNames from 'classnames'
 import { motion } from 'framer-motion'
@@ -11,6 +9,8 @@ import { useTranslation } from 'react-i18next'
 import { FaImages } from 'react-icons/fa6'
 import { ImEyePlus } from 'react-icons/im'
 import { PiFileImage } from 'react-icons/pi'
+import { CmdToVscode } from '@/message/constant'
+import { vscodeApi } from '@/webview/vscode-api'
 import { type ImageType } from '../..'
 import GlobalContext from '../../contexts/GlobalContext'
 import { bytesToKb, formatBytes } from '../../utils'
@@ -103,7 +103,7 @@ function LazyImage(props: LazyImageProps) {
               lazy
                 ? {
                     mask: (
-                      <div className={'flex-col-center size-full justify-center space-y-1 text-xs'}>
+                      <div className={'flex-col-center size-full justify-center space-y-1 text-sm'}>
                         <div
                           className={'flex-center cursor-pointer space-x-1 truncate'}
                           onClick={(e) => {

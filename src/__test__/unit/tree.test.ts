@@ -1,7 +1,7 @@
-import { type ImageType } from '@rootSrc/webview/ImageManager'
-import { filterImages } from '@rootSrc/webview/ImageManager/utils'
-import { DirTree, type TreeParams } from '@rootSrc/webview/ImageManager/utils/DirTree'
 import { describe, expect, it } from 'vitest'
+import { type ImageType } from '@/webview/ImageManager'
+import { filterImages } from '@/webview/ImageManager/utils'
+import { DirTree, type TreeParams } from '@/webview/ImageManager/utils/DirTree'
 
 const visibleListFixture = [
   {

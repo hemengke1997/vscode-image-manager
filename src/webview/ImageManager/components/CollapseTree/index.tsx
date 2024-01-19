@@ -1,5 +1,6 @@
 import { useMemoizedFn } from '@minko-fe/react-hook'
 import { type CollapseProps, ConfigProvider } from 'antd'
+import classNames from 'classnames'
 import { memo, useMemo, useRef } from 'react'
 import { useTranslation } from 'react-i18next'
 import { FaRegImages } from 'react-icons/fa'
@@ -108,8 +109,7 @@ function CollapseTree() {
                 collapseProps={{
                   bordered: false,
                   defaultActiveKey: defaultOpen ? [node.value] : undefined,
-                  collapsible: 'header',
-                  className: styles.collapse,
+                  className: classNames(styles.collapse),
                   ...collapseProps,
                 }}
                 labelContainer={(label) => (

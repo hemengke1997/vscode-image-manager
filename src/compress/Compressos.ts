@@ -1,4 +1,4 @@
-import { Log } from '@rootSrc/utils/Log'
+import { Log } from '@/utils/Log'
 import { type AbsCompressor, type CompressOptions, type CompressorMethod } from './AbsCompressor'
 import { Sharp } from './sharp/Sharp'
 import { TinyPng } from './tinypng/TinyPng'

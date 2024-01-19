@@ -1,4 +1,4 @@
-import { type Context } from '@rootSrc/Context'
+import { type Context } from '@/Context'
 import { type AbsCompressor } from './AbsCompressor'
 import { Compressor } from './Compressos'
 

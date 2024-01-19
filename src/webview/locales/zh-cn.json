@@ -75,7 +75,10 @@
     "save_success": "保存成功",
     "save_fail": "保存失败",
     "save_fallback": "<p>不支持</p><0>{{currentType}}</0>，已转为<1>{{fallbackType}}</1>",
-    "size_increase": "体积增加："
+    "size_increase": "体积增加：",
+    "language": "语言",
+    "primary_color": "主色",
+    "theme": "主题"
   },
   "fallback": {
     "internal_error": "内部错误",

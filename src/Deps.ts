@@ -1,9 +1,9 @@
-import { Log } from '@rootSrc/utils/Log'
 import { execa } from 'execa'
 import fs from 'fs-extra'
 import path from 'node:path'
 import { Emitter } from 'strict-event-emitter'
 import * as vscode from 'vscode'
+import { Log } from '@/utils/Log'
 import { Context } from './Context'
 
 type DepsInstallResult = 'installed' | 'success' | 'fail' | null

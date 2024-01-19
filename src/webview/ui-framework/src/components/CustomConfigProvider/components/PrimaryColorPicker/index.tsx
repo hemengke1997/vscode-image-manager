@@ -2,21 +2,22 @@ import { TinyColor } from '@ctrl/tinycolor'
 import { uniq } from '@minko-fe/lodash-pro'
 import { useControlledState, useLocalStorageState } from '@minko-fe/react-hook'
 import { ColorPicker, type ColorPickerProps } from 'antd'
-import { memo, startTransition } from 'react'
+import { type ReactNode, memo, startTransition } from 'react'
 import { useTranslation } from 'react-i18next'
-import { builtInColors, vscodeColors } from '@/utils/theme'
+import { builtInColors, vscodeColors } from '@/webview/ui-framework/src/utils/theme'
 
 type PrimaryColorPickerProps = {
   color?: string
   onColorChange: (color: string) => void
   localKey: string
   extraColors?: string[]
+  children?: ReactNode
 }
 
 function PrimaryColorPicker(props: PrimaryColorPickerProps) {
   const { t } = useTranslation()
 
-  const { color: colorProp, onColorChange, localKey, extraColors } = props
+  const { color: colorProp, onColorChange, localKey, extraColors, children } = props
 
   const color = new TinyColor(colorProp).toHex8String()
 
@@ -50,30 +51,30 @@ function PrimaryColorPicker(props: PrimaryColorPickerProps) {
   }
 
   return (
-    <div>
-      <ColorPicker
-        disabledAlpha={false}
-        presets={[
-          {
-            label: 'VSCode',
-            colors: uniq([...vscodeColors]),
-          },
-          {
-            label: t('im.bulit_in'),
-            colors: uniq([...(formattedExtraColors || []), ...builtInColors.map((t) => t.primary)]),
-          },
-          {
-            label: t('im.recent'),
-            colors: uniq(recentColorsQueue || []),
-          },
-        ]}
-        value={selectedColor}
-        onChange={_onColorChange}
-        onOpenChange={onOpenChange}
-        placement='bottom'
-        arrow={false}
-      />
-    </div>
+    <ColorPicker
+      disabledAlpha={false}
+      presets={[
+        {
+          label: 'VSCode',
+          colors: uniq([...vscodeColors]),
+        },
+        {
+          label: t('im.bulit_in'),
+          colors: uniq([...(formattedExtraColors || []), ...builtInColors.map((t) => t.primary)]),
+        },
+        {
+          label: t('im.recent'),
+          colors: uniq(recentColorsQueue || []),
+        },
+      ]}
+      value={selectedColor}
+      onChange={_onColorChange}
+      onOpenChange={onOpenChange}
+      placement='bottom'
+      arrow={false}
+    >
+      {children}
+    </ColorPicker>
   )
 }
 

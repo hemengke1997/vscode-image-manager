@@ -78,7 +78,10 @@
     "save_success": "Save Success",
     "save_fail": "Save Fail",
     "save_fallback": "<0>{{currentType}}</0> <p>is not supported, converted to</p> <1>{{fallbackType}}</1>",
-    "size_increase": "Size Increase:"
+    "size_increase": "Size Increase:",
+    "language": "language",
+    "primary_color": "color",
+    "theme": "theme"
   },
   "fallback": {
     "internal_error": "Internal Error",

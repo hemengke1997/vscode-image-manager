@@ -1,8 +1,9 @@
 import { useControlledState } from '@minko-fe/react-hook'
 import { Switch } from 'antd'
 import { memo, startTransition } from 'react'
+import { useTranslation } from 'react-i18next'
 import { CiDark, CiLight } from 'react-icons/ci'
-import { type ThemeType } from '@/utils/theme'
+import { type ThemeType } from '@/webview/ui-framework/src/utils/theme'
 
 type ThemeSwitcherProps = {
   theme?: ThemeType
@@ -11,6 +12,8 @@ type ThemeSwitcherProps = {
 
 function ThemeSwitcher(props: ThemeSwitcherProps) {
   const { theme: themeProp, onThemeChange } = props
+
+  const { t } = useTranslation()
 
   const [theme, setTheme] = useControlledState({
     defaultValue: themeProp,
@@ -38,6 +41,7 @@ function ThemeSwitcher(props: ThemeSwitcherProps) {
           <CiLight />
         </span>
       }
+      title={t('im.theme')}
     />
   )
 }

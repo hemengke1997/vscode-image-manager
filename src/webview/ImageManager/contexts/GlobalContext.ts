@@ -1,12 +1,12 @@
 import { useLocalStorageState, useSetState } from '@minko-fe/react-hook'
-import { type AbsCompressor } from '@rootSrc/compress/AbsCompressor'
-import { type ConfigType } from '@rootSrc/config'
-import { defaultConfig } from '@rootSrc/config/default'
-import { CmdToVscode } from '@rootSrc/message/constant'
-import { localStorageEnum } from '@rootSrc/webview/local-storage'
-import { vscodeApi } from '@rootSrc/webview/vscode-api'
 import { createContainer } from 'context-state'
 import { useEffect, useRef, useState } from 'react'
+import { type AbsCompressor } from '@/compress/AbsCompressor'
+import { type ConfigType } from '@/config'
+import { defaultConfig } from '@/config/default'
+import { CmdToVscode } from '@/message/constant'
+import { localStorageEnum } from '@/webview/local-storage'
+import { vscodeApi } from '@/webview/vscode-api'
 import { type ImageType } from '..'
 
 function useGlobalContext() {

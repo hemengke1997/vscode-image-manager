@@ -1,12 +1,14 @@
 import { App, ConfigProvider, theme as antdTheme } from 'antd'
 import { type FC, type PropsWithChildren } from 'react'
-import FrameworkContext from '@/contexts/FrameworkContext'
-import { getCssVar } from '@/utils/theme'
+import FrameworkContext from '../../contexts/FrameworkContext'
+import { getCssVar } from '../../utils/theme'
 
 const AntdConfigProvider: FC<PropsWithChildren> = ({ children }) => {
-  const { theme, primaryColor } = FrameworkContext.usePicker(['theme', 'primaryColor'])
+  const { theme, primaryColor, compact } = FrameworkContext.usePicker(['theme', 'primaryColor', 'compact'])
 
   const vscodeFontSize = getCssVar('--vscode-font-size').split('px')[0]
+
+  const compactAlgorithm = compact ? [antdTheme.compactAlgorithm] : []
 
   return (
     <ConfigProvider
@@ -15,7 +17,10 @@ const AntdConfigProvider: FC<PropsWithChildren> = ({ children }) => {
       theme={{
         hashed: false,
         cssVar: true,
-        algorithm: theme === 'dark' ? antdTheme.darkAlgorithm : antdTheme.defaultAlgorithm,
+        algorithm:
+          theme === 'dark'
+            ? [antdTheme.darkAlgorithm, ...compactAlgorithm]
+            : [antdTheme.defaultAlgorithm, ...compactAlgorithm],
         token: {
           fontSize: Number(vscodeFontSize) - 1 || 12,
           colorPrimary: primaryColor,

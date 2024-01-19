@@ -1,5 +1,5 @@
-import useImageOperation from '@rootSrc/webview/ImageManager/hooks/useImageOperation'
 import { type PropsWithChildren, memo } from 'react'
+import useImageOperation from '@/webview/ImageManager/hooks/useImageOperation'
 
 function OpenFolder(
   props: PropsWithChildren<{

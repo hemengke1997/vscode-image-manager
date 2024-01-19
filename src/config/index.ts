@@ -1,5 +1,5 @@
-import { normalizePath } from '@rootSrc/utils'
 import { workspace } from 'vscode'
+import { normalizePath } from '@/utils'
 import { defaultConfig } from './default'
 
 export function getConfig<T>(key: string, v?: T) {

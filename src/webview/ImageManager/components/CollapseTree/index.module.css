@@ -1,7 +1,18 @@
 .collapse {
   :global {
-    .ant-collapse-content .ant-collapse-content-active {
-      border-top: var(--ant-line-width) var(--ant-line-type) var(--ant-color-border);
+    .ant-collapse-borderless {
+      .ant-collapse-header {
+        @apply !rounded-ant-border-radius-lg;
+        &:hover {
+          @apply bg-ant-control-item-bg-hover;
+        }
+      }
+    }
+    .ant-collapse-header {
+      @apply !rounded-t-ant-border-radius-lg !rounded-b-none relative;
+      &:hover {
+        @apply bg-ant-control-item-bg-hover;
+      }
     }
   }
 }

@@ -11,7 +11,7 @@ export default defineConfig(async (env) => {
   const config = defineConfig({
     resolve: {
       alias: {
-        '@rootSrc': path.resolve(__dirname, './src'),
+        '@': path.resolve(__dirname, './src'),
       },
     },
     plugins: [

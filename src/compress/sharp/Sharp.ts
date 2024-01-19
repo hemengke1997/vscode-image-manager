@@ -1,7 +1,7 @@
 import type SharpType from 'sharp'
-import { detectSharp } from '@rootSrc/utils'
 import fs from 'fs-extra'
 import path from 'node:path'
+import { detectSharp } from '@/utils'
 import { AbsCompressor, type CompressOptions, type CompressorMethod } from '../AbsCompressor'
 
 class Sharp extends AbsCompressor {

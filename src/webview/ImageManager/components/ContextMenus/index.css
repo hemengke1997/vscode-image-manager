@@ -8,7 +8,7 @@
   --contexify-menu-shadow: var(--ant-box-shadow-popover-arrow);
   --contexify-zIndex: 9999;
 
-  @apply text-xs border-ant-color-border border-solid border;
+  @apply text-sm border-ant-color-border border-solid border;
 
   .contexify_itemContent {
     @apply rounded-[var(--contexify-menu-radius)];

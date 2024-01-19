@@ -1,5 +1,5 @@
-import { Log } from '@rootSrc/utils/Log'
 import { commands, window, workspace } from 'vscode'
+import { Log } from '@/utils/Log'
 
 export function watchConfig() {
   workspace.onDidChangeConfiguration((event) => {

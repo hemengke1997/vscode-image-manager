@@ -1,6 +1,6 @@
-import { Log } from '@rootSrc/utils/Log'
 import fs from 'fs-extra'
 import tinify from 'tinify'
+import { Log } from '@/utils/Log'
 import { AbsCompressor, type CompressOptions, type CompressorMethod } from '../AbsCompressor'
 
 type TinypngOptions = {

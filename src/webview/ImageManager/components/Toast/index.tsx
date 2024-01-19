@@ -60,7 +60,7 @@ function Toast(props: ToastProps) {
       {open && (
         <motion.div
           className={
-            'fixed left-1/2 top-1/2 z-[9999] flex -translate-x-1/2 -translate-y-1/2 items-center justify-center rounded-md bg-[rgba(0,0,0,.6)] px-2 py-1 text-xs shadow-sm'
+            'fixed left-1/2 top-1/2 z-[9999] flex -translate-x-1/2 -translate-y-1/2 items-center justify-center rounded-md bg-[rgba(0,0,0,.6)] px-2 py-1 text-sm shadow-sm'
           }
           initial={{
             opacity: 0,

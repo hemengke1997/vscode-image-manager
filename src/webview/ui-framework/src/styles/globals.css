@@ -21,3 +21,7 @@ pre {
 body {
   @apply p-0;
 }
+
+.ant-btn-icon-only {
+  @apply inline-flex justify-center items-center;
+}

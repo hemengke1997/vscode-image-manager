@@ -1,12 +1,12 @@
 import { useLocalStorageState } from '@minko-fe/react-hook'
-import { localStorageEnum } from '@rootSrc/webview/local-storage'
 import { Button, Dropdown, type MenuProps } from 'antd'
 import { memo } from 'react'
 import { useTranslation } from 'react-i18next'
 import { PiTranslateFill } from 'react-icons/pi'
+import { localStorageEnum } from '@/webview/local-storage'
 
 function LocaleSelector() {
-  const { i18n } = useTranslation()
+  const { i18n, t } = useTranslation()
 
   const [lang, setLang] = useLocalStorageState(localStorageEnum.LOCAL_STORAGE_LOCALE_KEY, {
     defaultValue: i18n.language,
@@ -41,11 +41,12 @@ function LocaleSelector() {
     >
       <Button
         icon={
-          <div className={'text-ant-color-primary flex-center text-xl'}>
+          <div className={'text-ant-color-primary flex-center text-2xl'}>
             <PiTranslateFill />
           </div>
         }
         type='text'
+        title={t('im.language')}
       ></Button>
     </Dropdown>
   )
