@@ -1,8 +1,8 @@
 import type Cropperjs from 'cropperjs'
 import { isNil, round } from '@minko-fe/lodash-pro'
-import { useControlledState, useDebounceFn } from '@minko-fe/react-hook'
+import { useControlledState, useDebounceFn, useSetState, useUpdateEffect } from '@minko-fe/react-hook'
 import { isDev } from '@minko-fe/vite-config/client'
-import { App, Button, Card, InputNumber, Modal, Radio, Skeleton } from 'antd'
+import { App, Button, Card, Checkbox, InputNumber, Modal, Radio, Skeleton } from 'antd'
 import classNames from 'classnames'
 import mime from 'mime/lite'
 import { memo, startTransition, useEffect, useReducer, useRef, useState } from 'react'
@@ -49,8 +49,17 @@ function ImageCropper(props?: ImageCropperProps) {
     return Object.values(obj).every((item) => !isNil(item))
   }
 
-  const [aspectRatio, setAspectRatio] = useState(getAspectRatios(i18n)[0].value)
-  const [viewMode, setViewMode] = useState<Cropperjs.ViewMode>(getViewmodes(i18n)[0].value as Cropperjs.ViewMode)
+  const [cropperOptions, setCropperOptions] = useSetState<Cropperjs.Options>({
+    aspectRatio: getAspectRatios(i18n)[0].value,
+    viewMode: getViewmodes(i18n)[0].value as Cropperjs.ViewMode,
+    guides: false,
+    highlight: false,
+    background: true,
+  })
+
+  useUpdateEffect(() => {
+    updateCropper()
+  }, [cropperOptions])
 
   // from cropper
   const [details, setDetails] = useState<Partial<Cropperjs.Data>>()
@@ -153,20 +162,15 @@ function ImageCropper(props?: ImageCropperProps) {
           <Card>
             <ReactCropper
               src={image?.vscodePath}
-              className={classNames('w-full max-w-full h-96', loading && 'opacity-0 absolute')}
+              className={classNames('w-full max-w-full h-[28rem]', loading && 'opacity-0 absolute')}
               ready={() => {
                 setLoading(false)
               }}
-              initialAspectRatio={aspectRatio}
-              aspectRatio={aspectRatio}
-              highlight={false}
-              center
-              guides={false}
               ref={cropperRef}
               forceRender={forceRenderCropper}
               crop={onCrop}
-              viewMode={viewMode}
               checkCrossOrigin={false}
+              {...cropperOptions}
             />
             <Skeleton loading={loading} active paragraph={{ rows: 7 }} />
           </Card>
@@ -175,12 +179,48 @@ function ImageCropper(props?: ImageCropperProps) {
           <Card rootClassName={'h-full'} bodyStyle={{ height: '100%' }}>
             <div className={'flex h-full flex-col justify-between'}>
               <div className={'flex flex-col space-y-1'}>
+                <div className={'flex w-full flex-wrap items-center gap-x-1'}>
+                  <Checkbox
+                    value={'highlight'}
+                    checked={cropperOptions.highlight}
+                    onChange={(e) => {
+                      setCropperOptions({
+                        highlight: e.target.checked,
+                      })
+                    }}
+                  >
+                    {t('im.highlight')}
+                  </Checkbox>
+                  <Checkbox
+                    value={'guides'}
+                    checked={cropperOptions.guides}
+                    onChange={(e) => {
+                      setCropperOptions({
+                        guides: e.target.checked,
+                      })
+                    }}
+                  >
+                    {t('im.guides')}
+                  </Checkbox>
+                  <Checkbox
+                    value={'background'}
+                    checked={cropperOptions.background}
+                    onChange={(e) => {
+                      setCropperOptions({
+                        background: e.target.checked,
+                      })
+                    }}
+                  >
+                    {t('im.background')}
+                  </Checkbox>
+                </div>
                 <div className={'w-full'}>
                   <Radio.Group
-                    value={viewMode}
+                    value={cropperOptions.viewMode}
                     onChange={(e) => {
-                      updateCropper()
-                      setViewMode(e.target.value)
+                      setCropperOptions({
+                        viewMode: e.target.value,
+                      })
                     }}
                     buttonStyle='solid'
                     className={'flex'}
@@ -192,12 +232,14 @@ function ImageCropper(props?: ImageCropperProps) {
                     ))}
                   </Radio.Group>
                 </div>
+
                 <div className={'w-full'}>
                   <Radio.Group
-                    value={aspectRatio}
+                    value={cropperOptions.aspectRatio}
                     onChange={(e) => {
-                      setAspectRatio(e.target.value)
-                      updateCropper()
+                      setCropperOptions({
+                        aspectRatio: e.target.value,
+                      })
                     }}
                     buttonStyle='solid'
                     className={'flex'}
