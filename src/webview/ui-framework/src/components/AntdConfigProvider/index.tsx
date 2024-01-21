@@ -3,6 +3,8 @@ import { type FC, type PropsWithChildren } from 'react'
 import FrameworkContext from '../../contexts/FrameworkContext'
 import { getCssVar } from '../../utils/theme'
 
+const DURATION_BASE = 0.04
+
 const AntdConfigProvider: FC<PropsWithChildren> = ({ children }) => {
   const { theme, primaryColor, compact } = FrameworkContext.usePicker(['theme', 'primaryColor', 'compact'])
 
@@ -24,7 +26,9 @@ const AntdConfigProvider: FC<PropsWithChildren> = ({ children }) => {
         token: {
           fontSize: Number(vscodeFontSize) - 1 || 12,
           colorPrimary: primaryColor,
-          motionUnit: 0.05, // ==> --ant-motion-duration-fast: 0.1s; --ant-motion-duration-mid: 0.1s; --ant-motion-duration-slow: 0.2s;
+          motionDurationSlow: `${DURATION_BASE * 2}s`,
+          motionDurationMid: `${DURATION_BASE}s`,
+          motionDurationFast: `${DURATION_BASE / 2}s`,
         },
       }}
       componentSize='small'

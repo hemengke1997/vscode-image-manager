@@ -197,7 +197,6 @@
     "@types/react": "^18.2.45",
     "@types/react-dom": "^18.2.18",
     "@types/react-highlight-words": "^0.16.7",
-    "@types/user-agents": "^1.0.4",
     "@types/vscode": "^1.60.0",
     "@types/vscode-webview": "^1.57.4",
     "@vitejs/plugin-react": "^4.2.1",

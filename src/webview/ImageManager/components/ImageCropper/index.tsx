@@ -1,6 +1,6 @@
 import type Cropperjs from 'cropperjs'
 import { isNil, round } from '@minko-fe/lodash-pro'
-import { useControlledState } from '@minko-fe/react-hook'
+import { useControlledState, useDebounceFn } from '@minko-fe/react-hook'
 import { isDev } from '@minko-fe/vite-config/client'
 import { App, Button, Card, InputNumber, Modal, Radio, Skeleton } from 'antd'
 import classNames from 'classnames'
@@ -34,11 +34,14 @@ function ImageCropper(props?: ImageCropperProps) {
   const { message, notification } = App.useApp()
   const cropperRef = useRef<ReactCropperElement>(null)
   const cropper = cropperRef.current?.cropper
-  const onCrop = (e: Cropperjs.CropEvent) => {
-    if (allTruly(e.detail)) {
-      startTransition(() => setDetails(e.detail))
-    }
-  }
+  const { run: onCrop } = useDebounceFn(
+    (e: Cropperjs.CropEvent) => {
+      if (allTruly(e.detail)) {
+        startTransition(() => setDetails(e.detail))
+      }
+    },
+    { wait: 20 },
+  )
 
   const [loading, setLoading] = useState(true)
 
@@ -142,11 +145,11 @@ function ImageCropper(props?: ImageCropperProps) {
       open={open}
       title={t('im.crop')}
       footer={null}
-      width={'70%'}
+      width={'80%'}
       onCancel={() => setOpen(false)}
     >
       <div className={'flex items-stretch space-x-2 overflow-auto'}>
-        <div className={'h-full w-[80%] flex-none'}>
+        <div className={'h-full w-[70%] flex-none'}>
           <Card>
             <ReactCropper
               src={image?.vscodePath}
@@ -209,7 +212,11 @@ function ImageCropper(props?: ImageCropperProps) {
                 <div className={'flex flex-col space-y-1'}>
                   {Object.keys(details || {}).map((key) => (
                     <InputNumber
-                      addonBefore={<div className={'flex-center w-10'}>{DETAIL_MAP[key].label}</div>}
+                      addonBefore={
+                        <div title={DETAIL_MAP[key].label} className={'flex-center w-14'}>
+                          {DETAIL_MAP[key].label}
+                        </div>
+                      }
                       addonAfter={DETAIL_MAP[key].unit}
                       value={round(controlledDetails[key], 2)}
                       onChange={(value) => setControlledDetails((t) => ({ ...t, [key]: value }))}
