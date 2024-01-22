@@ -39,6 +39,11 @@ export const VscodeMessageCenter = {
     const absWorkspaceFolders = Context.instance.config.root
     const workspaceFolders = absWorkspaceFolders.map((ws) => path.basename(ws))
 
+    function _resolveDirPath(absWorkspaceFolder: string, imgPath: string) {
+      if (absWorkspaceFolder === path.dirname(imgPath)) return ''
+      return normalizePath(path.relative(absWorkspaceFolder, path.dirname(imgPath)))
+    }
+
     async function _searchImgs(
       absWorkspaceFolder: string,
       webview: Webview,
@@ -71,11 +76,10 @@ export const VscodeMessageCenter = {
         const vscodePath = webview.asWebviewUri(Uri.file(img.path)).toString()
 
         const fileType = path.extname(img.path).replace('.', '')
-        fileTypes.add(fileType)
+        fileTypes && fileTypes.add(fileType)
 
-        const dirPath = normalizePath(path.relative(absWorkspaceFolder, path.dirname(img.path)))
-
-        dirs.add(dirPath)
+        const dirPath = _resolveDirPath(absWorkspaceFolder, img.path)
+        dirPath && dirs.add(dirPath)
 
         return {
           name: img.name,

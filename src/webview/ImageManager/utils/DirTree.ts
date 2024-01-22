@@ -5,10 +5,10 @@ import { type GroupType } from '../components/DisplayGroup'
 type DisplayGroupType = GroupType[]
 type DisplayMapType = {
   [key in GroupType]: {
-    imageKeys: {
-      absolutePath: string
-      relativePath: string
+    imageKey: {
+      id: string
     }
+    priority: number
     list: Option[]
   }
 }
@@ -19,7 +19,7 @@ type Flatten = 'all'
 export type FileNode = {
   label: string
   fullLabel: string
-  value: string
+  value: string // absolute path
   children: FileNode[]
   renderCondition: Record<string, string>
   type?: GroupType | Flatten
@@ -36,14 +36,14 @@ export class DirTree {
   constructor(params: TreeParams) {
     this.displayGroup = params.displayGroup
     this.displayMap = params.displayMap
-    this.visibleList = params.visibleList
+    this.visibleList = [...params.visibleList]
   }
 
   buildRenderTree() {
-    const toBeBuild = {} as Record<string, Option[]>
+    const _displayGroup = {} as Record<string, Option[]>
 
     this.displayGroup.forEach((g) => {
-      toBeBuild[g] = this.displayMap[g].list.filter((t) => !!t.label)
+      _displayGroup[g] = this.displayMap[g].list.filter((t) => !!t.label)
     })
 
     const previousTree = [] as FileNode[][]
@@ -51,7 +51,7 @@ export class DirTree {
 
     sortedKeys.forEach((d, i) => {
       const resultTree = this.arrangeIntoTree(
-        toBeBuild[d].map((t) => ({
+        _displayGroup[d].map((t) => ({
           ...t,
           path: t.label.split('/'),
         })),
@@ -73,12 +73,9 @@ export class DirTree {
       )
       previousTree.push(resultTree)
     })
-
     const tree = previousTree[previousTree.length - 1]
-
     // Maybe we should do this in arrangeIntoTree
     this.renderTree(tree)
-
     return tree
   }
 
@@ -91,11 +88,24 @@ export class DirTree {
       }
       if (!isEmpty(node?.renderCondition)) {
         const renderList = this.visibleList.filter((img) => this._shouldShowImage(node, img)) || []
+        this._postFiltered(renderList)
         if (renderList.length) {
           node.renderList = renderList
         }
       }
     }
+  }
+
+  private _postFiltered(filterdList: ImageType[]) {
+    filterdList.forEach((item) => {
+      const arr = this.visibleList
+      const indexToDelete = arr.findIndex((i) => i.path === item.path)
+      if (indexToDelete === -1) {
+        return
+      }
+      ;[arr[indexToDelete], arr[arr.length - 1]] = [arr[arr.length - 1], arr[indexToDelete]]
+      arr.pop()
+    })
   }
 
   mergeRenderCondition(prev: FileNode['renderCondition'], add: FileNode['renderCondition']) {
@@ -241,17 +251,59 @@ export class DirTree {
 
   private _shouldShowImage(node: FileNode, image: ImageType) {
     return this.displayGroup.every((g) => {
-      const imageValue = image[this.displayMap[g].imageKeys.absolutePath]
+      const imageValue = this._findImageIdByGroup(image, g)
 
       const condition = node.renderCondition[g]
 
-      // e.g. condition.dir = '' && image.dirPath = ''
+      // e.g. condition.dir = '' && image.absDirPath === image.absWorkspace
       // means that the image belongs to the parent node
-      if (condition === '' && image[this.displayMap[g].imageKeys.relativePath] === '') {
+      if (condition === '' && this._isBelongsToHigherPriority(image, g)) {
         return true
       }
 
       return condition === imageValue
     })
+  }
+
+  private _isBelongsToHigherPriority(image: ImageType, currentGroup: GroupType) {
+    const imageSomePath = this._findImageIdByGroup(image, currentGroup)
+
+    // only path like fileSystemPath has parent relationship
+    if (!imageSomePath.startsWith('/')) {
+      return false
+    }
+
+    const higherPriorityGroup = this.displayGroup.find((g) => {
+      return this._findMapByGroup(g).priority === this._findMapByGroup(currentGroup).priority - 1
+    })
+
+    if (higherPriorityGroup) {
+      return imageSomePath === this._findImageIdByGroup(image, higherPriorityGroup)
+    }
+
+    return false
+  }
+
+  /**
+   *
+   * @param group 'workspace' | 'dir' | 'type'
+   * @returns
+   * ```js
+   * {
+   *  imageKey: {
+   *    absolutePath: string,
+   *    relativePath: string,
+   *  },
+   *  priority: number,
+   *  list: Option[],
+   * }
+   * ```
+   */
+  private _findMapByGroup(group: GroupType) {
+    return this.displayMap[group]
+  }
+
+  private _findImageIdByGroup = (image: ImageType, g: GroupType) => {
+    return image[this._findMapByGroup(g).imageKey.id]
   }
 }

@@ -48,9 +48,8 @@ const visibleListFixture = [
 
 const displayMapFixture = {
   workspace: {
-    imageKeys: {
-      absolutePath: 'absWorkspaceFolder',
-      relativePath: 'workspaceFolder',
+    imageKey: {
+      id: 'absWorkspaceFolder',
     },
     list: filterImages(
       visibleListFixture,
@@ -63,9 +62,8 @@ const displayMapFixture = {
     priority: 1,
   },
   dir: {
-    imageKeys: {
-      absolutePath: 'absDirPath',
-      relativePath: 'dirPath',
+    imageKey: {
+      id: 'absDirPath',
     },
     list: filterImages(
       visibleListFixture,
@@ -78,9 +76,8 @@ const displayMapFixture = {
     priority: 2,
   },
   type: {
-    imageKeys: {
-      absolutePath: 'fileType',
-      relativePath: 'fileType',
+    imageKey: {
+      id: 'fileType',
     },
     list: filterImages(
       visibleListFixture,

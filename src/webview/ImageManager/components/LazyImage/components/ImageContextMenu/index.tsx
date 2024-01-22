@@ -115,10 +115,10 @@ function ImageContextMenu() {
         },
         {
           label: t('im.folder'),
-          children: <div>{image.dirPath}</div>,
+          children: <div>{image.dirPath || '/'}</div>,
         },
         {
-          label: t('im.dimensions'),
+          label: `${t('im.dimensions')}(px)`,
           children: (
             <div>
               {dimensions?.width} x {dimensions?.height}

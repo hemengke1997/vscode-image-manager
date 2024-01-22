@@ -151,7 +151,6 @@ function useTreeContext(props: { imageList: ImageType[] }) {
   })
 
   useUpdateEffect(() => {
-    console.log('sizeFilter changed')
     const list = onSizeFilterChange(imageSingleTree.list, sizeFilter)
     setImageSingleTree({ list })
   }, [sizeFilter])

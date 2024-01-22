@@ -1,6 +1,6 @@
 import type Cropperjs from 'cropperjs'
 import { isNil, round } from '@minko-fe/lodash-pro'
-import { useControlledState, useDebounceFn, useSetState, useUpdateEffect } from '@minko-fe/react-hook'
+import { useControlledState, useSetState, useUpdateEffect } from '@minko-fe/react-hook'
 import { isDev } from '@minko-fe/vite-config/client'
 import { App, Button, Card, Checkbox, InputNumber, Modal, Radio, Skeleton } from 'antd'
 import classNames from 'classnames'
@@ -34,15 +34,11 @@ function ImageCropper(props?: ImageCropperProps) {
   const { message, notification } = App.useApp()
   const cropperRef = useRef<ReactCropperElement>(null)
   const cropper = cropperRef.current?.cropper
-  const { run: onCrop } = useDebounceFn(
-    (e: Cropperjs.CropEvent) => {
-      if (allTruly(e.detail)) {
-        startTransition(() => setDetails(e.detail))
-      }
-    },
-    { wait: 20 },
-  )
-
+  const onCrop = (e: Cropperjs.CropEvent) => {
+    if (allTruly(e.detail)) {
+      startTransition(() => setDetails(e.detail))
+    }
+  }
   const [loading, setLoading] = useState(true)
 
   const allTruly = (obj: Record<string, any>) => {
@@ -162,7 +158,7 @@ function ImageCropper(props?: ImageCropperProps) {
           <Card>
             <ReactCropper
               src={image?.vscodePath}
-              className={classNames('w-full max-w-full h-[28rem]', loading && 'opacity-0 absolute')}
+              className={classNames('w-full max-w-full h-[30rem]', loading && 'opacity-0 absolute')}
               ready={() => {
                 setLoading(false)
               }}

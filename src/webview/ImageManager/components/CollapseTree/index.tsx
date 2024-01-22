@@ -36,9 +36,8 @@ function CollapseTree() {
   const displayMap = useMemo(
     () => ({
       workspace: {
-        imageKeys: {
-          absolutePath: 'absWorkspaceFolder',
-          relativePath: 'workspaceFolder',
+        imageKey: {
+          id: 'absWorkspaceFolder',
         },
         list: workspaceFolders,
         icon: (props: { path: string }) => (
@@ -50,9 +49,8 @@ function CollapseTree() {
         priority: 1,
       },
       dir: {
-        imageKeys: {
-          absolutePath: 'absDirPath',
-          relativePath: 'dirPath',
+        imageKey: {
+          id: 'absDirPath',
         },
         list: dirs,
         icon: (props: { path: string }) => (
@@ -64,9 +62,8 @@ function CollapseTree() {
         priority: 2,
       },
       type: {
-        imageKeys: {
-          absolutePath: 'fileType',
-          relativePath: 'fileType',
+        imageKey: {
+          id: 'fileType',
         },
         list: imageType,
         icon: () => <PiFileImage />,

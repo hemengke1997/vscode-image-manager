@@ -3,7 +3,7 @@ import { type FC, type PropsWithChildren } from 'react'
 import FrameworkContext from '../../contexts/FrameworkContext'
 import { getCssVar } from '../../utils/theme'
 
-const DURATION_BASE = 0.04
+const DURATION_BASE = 0.06
 
 const AntdConfigProvider: FC<PropsWithChildren> = ({ children }) => {
   const { theme, primaryColor, compact } = FrameworkContext.usePicker(['theme', 'primaryColor', 'compact'])

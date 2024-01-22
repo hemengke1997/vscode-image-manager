@@ -235,6 +235,7 @@
     "tailwind-antd-preset": "^0.0.4",
     "tailwindcss": "^3.3.6",
     "trash": "^8.1.1",
+    "tree-model": "^1.0.7",
     "ts-key-enum": "^2.0.12",
     "tsup": "6.7.0",
     "tsx": "^4.7.0",
