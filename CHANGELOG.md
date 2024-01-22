@@ -1,5 +1,12 @@
 # CHANGELOG
 
+## [0.0.21](https://github.com/hemengke1997/vscode-image-manager/compare/v0.0.20...v0.0.21) (2024-01-22)
+
+### Fix
+
+* Missing windows path condition when render image ([2146d27](https://github.com/hemengke1997/vscode-image-manager/commit/2146d27c6bc2500a7c1e5ebed3020064117f5941))
+
+
 ## [0.0.20](https://github.com/hemengke1997/vscode-image-manager/compare/v0.0.19...v0.0.20) (2024-01-22)
 
 ### Feat
