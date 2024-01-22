@@ -184,22 +184,23 @@ export class DirTree {
     return group
   }
 
-  isPath(value: string) {
-    return value.startsWith('/')
+  private _isPath(value: string) {
+    const PATH_REG = /^(?:[a-zA-Z]:[\\/]|\/)(?:.)+$/
+    return PATH_REG.test(value)
   }
 
   compactFolders(tree: FileNode[]) {
     tree.forEach((node) => {
       const { children } = node
       if (children.length > 1) {
-        const pathChildren = children.filter((c) => this.isPath(c.value))
+        const pathChildren = children.filter((c) => this._isPath(c.value))
 
         if (pathChildren.length > 1) {
           this.compactFolders(children)
           return
         }
 
-        const nonPathChildren = children.filter((c) => !this.isPath(c.value))
+        const nonPathChildren = children.filter((c) => !this._isPath(c.value))
         const noNonPathRenderList = nonPathChildren.every((child) => {
           const renderList = child.renderList || []
           if (renderList.length) {
@@ -220,7 +221,7 @@ export class DirTree {
           return
         }
       } else if (isNumber(children.length)) {
-        const child = children.filter((c) => this.isPath(c.value))[0] as FileNode | undefined
+        const child = children.filter((c) => this._isPath(c.value))[0] as FileNode | undefined
 
         if (child) {
           this.compact(node, tree)
@@ -231,7 +232,7 @@ export class DirTree {
   }
 
   compact(node: FileNode, tree: FileNode[]) {
-    const child = node.children.filter((c) => this.isPath(c.value))[0]
+    const child = node.children.filter((c) => this._isPath(c.value))[0]
     const renderList = node.renderList || []
     if (!renderList.length) {
       Object.assign(node, {
@@ -269,7 +270,7 @@ export class DirTree {
     const imageSomePath = this._findImageIdByGroup(image, currentGroup)
 
     // only path like fileSystemPath has parent relationship
-    if (!imageSomePath.startsWith('/')) {
+    if (!this._isPath(imageSomePath)) {
       return false
     }
 
@@ -303,7 +304,7 @@ export class DirTree {
     return this.displayMap[group]
   }
 
-  private _findImageIdByGroup = (image: ImageType, g: GroupType) => {
+  private _findImageIdByGroup = (image: ImageType, g: GroupType): string => {
     return image[this._findMapByGroup(g).imageKey.id]
   }
 }
