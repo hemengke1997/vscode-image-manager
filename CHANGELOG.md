@@ -1,5 +1,12 @@
 # CHANGELOG
 
+## [0.0.22](https://github.com/hemengke1997/vscode-image-manager/compare/v0.0.21...v0.0.22) (2024-01-22)
+
+### Fix
+
+* Render sort order not working ([6312699](https://github.com/hemengke1997/vscode-image-manager/commit/631269988c721c98160ac535bf01617a3451442d))
+
+
 ## [0.0.21](https://github.com/hemengke1997/vscode-image-manager/compare/v0.0.20...v0.0.21) (2024-01-22)
 
 ### Fix
