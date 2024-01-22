@@ -2,8 +2,8 @@ import { isEmpty, isNumber, mergeWith, uniq } from '@minko-fe/lodash-pro'
 import { type ImageType } from '..'
 import { type GroupType } from '../components/DisplayGroup'
 
-type DisplayGroupType = GroupType[]
-type DisplayMapType = {
+export type DisplayGroupType = GroupType[]
+export type DisplayMapType = {
   [key in GroupType]: {
     imageKey: {
       id: string
@@ -12,7 +12,7 @@ type DisplayMapType = {
     list: Option[]
   }
 }
-type VisibleList = ImageType[]
+export type VisibleListType = ImageType[]
 
 type Flatten = 'all'
 
@@ -26,12 +26,12 @@ export type FileNode = {
   renderList?: ImageType[]
 }
 
-export type TreeParams = { displayGroup: DisplayGroupType; displayMap: DisplayMapType; visibleList: VisibleList }
+export type TreeParams = { displayGroup: DisplayGroupType; displayMap: DisplayMapType; visibleList: VisibleListType }
 
 export class DirTree {
   displayGroup: DisplayGroupType
   displayMap: DisplayMapType
-  visibleList: VisibleList
+  visibleList: VisibleListType
 
   constructor(params: TreeParams) {
     this.displayGroup = params.displayGroup

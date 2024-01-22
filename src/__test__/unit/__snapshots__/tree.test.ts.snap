@@ -1,6 +1,6 @@
 // Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
 
-exports[`Convert direcotry to tree > 1. should render correctly with Group_by_dir + Nested 1`] = `
+exports[`Convert direcotry to tree on Unix > 1. should render correctly with Group_by_dir + Nested 1`] = `
 [
   {
     "children": [
@@ -110,6 +110,16 @@ exports[`Convert direcotry to tree > 1. should render correctly with Group_by_di
         "absWorkspaceFolder": "/Users/path/to/project/vscode-image-manager-debug/src",
         "basePath": "/Users/path/to/project/vscode-image-manager-debug",
         "dirPath": "",
+        "fileType": "svg",
+        "name": "root.svg",
+        "path": "/Users/path/to/project/vscode-image-manager-debug/src/root.svg",
+        "workspaceFolder": "src",
+      },
+      {
+        "absDirPath": "/Users/path/to/project/vscode-image-manager-debug/src",
+        "absWorkspaceFolder": "/Users/path/to/project/vscode-image-manager-debug/src",
+        "basePath": "/Users/path/to/project/vscode-image-manager-debug",
+        "dirPath": "",
         "fileType": "png",
         "name": "d3.png",
         "path": "/Users/path/to/project/vscode-image-manager-debug/src/d3.png",
@@ -122,7 +132,7 @@ exports[`Convert direcotry to tree > 1. should render correctly with Group_by_di
 ]
 `;
 
-exports[`Convert direcotry to tree > 2. should render correctly with Group_by_dir + Compact 1`] = `
+exports[`Convert direcotry to tree on Unix > 2. should render correctly with Group_by_dir + Compact 1`] = `
 [
   {
     "children": [
@@ -220,6 +230,16 @@ exports[`Convert direcotry to tree > 2. should render correctly with Group_by_di
         "absWorkspaceFolder": "/Users/path/to/project/vscode-image-manager-debug/src",
         "basePath": "/Users/path/to/project/vscode-image-manager-debug",
         "dirPath": "",
+        "fileType": "svg",
+        "name": "root.svg",
+        "path": "/Users/path/to/project/vscode-image-manager-debug/src/root.svg",
+        "workspaceFolder": "src",
+      },
+      {
+        "absDirPath": "/Users/path/to/project/vscode-image-manager-debug/src",
+        "absWorkspaceFolder": "/Users/path/to/project/vscode-image-manager-debug/src",
+        "basePath": "/Users/path/to/project/vscode-image-manager-debug",
+        "dirPath": "",
         "fileType": "png",
         "name": "d3.png",
         "path": "/Users/path/to/project/vscode-image-manager-debug/src/d3.png",
@@ -232,7 +252,7 @@ exports[`Convert direcotry to tree > 2. should render correctly with Group_by_di
 ]
 `;
 
-exports[`Convert direcotry to tree > 3. should render correctly with Group_by_type + Nested 1`] = `
+exports[`Convert direcotry to tree on Unix > 3. should render correctly with Group_by_type + Nested 1`] = `
 [
   {
     "children": [
@@ -245,6 +265,16 @@ exports[`Convert direcotry to tree > 3. should render correctly with Group_by_ty
           "workspace": "/Users/path/to/project/vscode-image-manager-debug/src",
         },
         "renderList": [
+          {
+            "absDirPath": "/Users/path/to/project/vscode-image-manager-debug/src/ui-framework/webview",
+            "absWorkspaceFolder": "/Users/path/to/project/vscode-image-manager-debug/src",
+            "basePath": "/Users/path/to/project/vscode-image-manager-debug",
+            "dirPath": "ui-framework/webview",
+            "fileType": "png",
+            "name": "d3.png",
+            "path": "/Users/path/to/project/vscode-image-manager-debug/src/ui-framework/webview/d3.png",
+            "workspaceFolder": "src",
+          },
           {
             "absDirPath": "/Users/path/to/project/vscode-image-manager-debug/src/webview",
             "absWorkspaceFolder": "/Users/path/to/project/vscode-image-manager-debug/src",
@@ -275,19 +305,32 @@ exports[`Convert direcotry to tree > 3. should render correctly with Group_by_ty
             "path": "/Users/path/to/project/vscode-image-manager-debug/src/d3.png",
             "workspaceFolder": "src",
           },
+        ],
+        "type": "type",
+        "value": "png",
+      },
+      {
+        "children": [],
+        "fullLabel": "svg",
+        "label": "svg",
+        "renderCondition": {
+          "type": "svg",
+          "workspace": "/Users/path/to/project/vscode-image-manager-debug/src",
+        },
+        "renderList": [
           {
-            "absDirPath": "/Users/path/to/project/vscode-image-manager-debug/src/ui-framework/webview",
+            "absDirPath": "/Users/path/to/project/vscode-image-manager-debug/src",
             "absWorkspaceFolder": "/Users/path/to/project/vscode-image-manager-debug/src",
             "basePath": "/Users/path/to/project/vscode-image-manager-debug",
-            "dirPath": "ui-framework/webview",
-            "fileType": "png",
-            "name": "d3.png",
-            "path": "/Users/path/to/project/vscode-image-manager-debug/src/ui-framework/webview/d3.png",
+            "dirPath": "",
+            "fileType": "svg",
+            "name": "root.svg",
+            "path": "/Users/path/to/project/vscode-image-manager-debug/src/root.svg",
             "workspaceFolder": "src",
           },
         ],
         "type": "type",
-        "value": "png",
+        "value": "svg",
       },
     ],
     "fullLabel": "src",
@@ -302,7 +345,7 @@ exports[`Convert direcotry to tree > 3. should render correctly with Group_by_ty
 ]
 `;
 
-exports[`Convert direcotry to tree > 4. should render correctly with Group_by_type + Compact 1`] = `
+exports[`Convert direcotry to tree on Unix > 4. should render correctly with Group_by_type + Compact 1`] = `
 [
   {
     "children": [
@@ -315,6 +358,16 @@ exports[`Convert direcotry to tree > 4. should render correctly with Group_by_ty
           "workspace": "/Users/path/to/project/vscode-image-manager-debug/src",
         },
         "renderList": [
+          {
+            "absDirPath": "/Users/path/to/project/vscode-image-manager-debug/src/ui-framework/webview",
+            "absWorkspaceFolder": "/Users/path/to/project/vscode-image-manager-debug/src",
+            "basePath": "/Users/path/to/project/vscode-image-manager-debug",
+            "dirPath": "ui-framework/webview",
+            "fileType": "png",
+            "name": "d3.png",
+            "path": "/Users/path/to/project/vscode-image-manager-debug/src/ui-framework/webview/d3.png",
+            "workspaceFolder": "src",
+          },
           {
             "absDirPath": "/Users/path/to/project/vscode-image-manager-debug/src/webview",
             "absWorkspaceFolder": "/Users/path/to/project/vscode-image-manager-debug/src",
@@ -345,19 +398,32 @@ exports[`Convert direcotry to tree > 4. should render correctly with Group_by_ty
             "path": "/Users/path/to/project/vscode-image-manager-debug/src/d3.png",
             "workspaceFolder": "src",
           },
+        ],
+        "type": "type",
+        "value": "png",
+      },
+      {
+        "children": [],
+        "fullLabel": "svg",
+        "label": "svg",
+        "renderCondition": {
+          "type": "svg",
+          "workspace": "/Users/path/to/project/vscode-image-manager-debug/src",
+        },
+        "renderList": [
           {
-            "absDirPath": "/Users/path/to/project/vscode-image-manager-debug/src/ui-framework/webview",
+            "absDirPath": "/Users/path/to/project/vscode-image-manager-debug/src",
             "absWorkspaceFolder": "/Users/path/to/project/vscode-image-manager-debug/src",
             "basePath": "/Users/path/to/project/vscode-image-manager-debug",
-            "dirPath": "ui-framework/webview",
-            "fileType": "png",
-            "name": "d3.png",
-            "path": "/Users/path/to/project/vscode-image-manager-debug/src/ui-framework/webview/d3.png",
+            "dirPath": "",
+            "fileType": "svg",
+            "name": "root.svg",
+            "path": "/Users/path/to/project/vscode-image-manager-debug/src/root.svg",
             "workspaceFolder": "src",
           },
         ],
         "type": "type",
-        "value": "png",
+        "value": "svg",
       },
     ],
     "fullLabel": "src",
@@ -372,7 +438,7 @@ exports[`Convert direcotry to tree > 4. should render correctly with Group_by_ty
 ]
 `;
 
-exports[`Convert direcotry to tree > 5. should render correctly with Group_by_dir_and_type + Nested 1`] = `
+exports[`Convert direcotry to tree on Unix > 5. should render correctly with Group_by_dir_and_type + Nested 1`] = `
 [
   {
     "children": [
@@ -401,6 +467,30 @@ exports[`Convert direcotry to tree > 5. should render correctly with Group_by_di
         "value": "png",
       },
       {
+        "children": [],
+        "fullLabel": "svg",
+        "label": "svg",
+        "renderCondition": {
+          "dir": "",
+          "type": "svg",
+          "workspace": "/Users/path/to/project/vscode-image-manager-debug/src",
+        },
+        "renderList": [
+          {
+            "absDirPath": "/Users/path/to/project/vscode-image-manager-debug/src",
+            "absWorkspaceFolder": "/Users/path/to/project/vscode-image-manager-debug/src",
+            "basePath": "/Users/path/to/project/vscode-image-manager-debug",
+            "dirPath": "",
+            "fileType": "svg",
+            "name": "root.svg",
+            "path": "/Users/path/to/project/vscode-image-manager-debug/src/root.svg",
+            "workspaceFolder": "src",
+          },
+        ],
+        "type": "type",
+        "value": "svg",
+      },
+      {
         "children": [
           {
             "children": [],
@@ -415,6 +505,18 @@ exports[`Convert direcotry to tree > 5. should render correctly with Group_by_di
             "value": "png",
           },
           {
+            "children": [],
+            "fullLabel": "svg",
+            "label": "svg",
+            "renderCondition": {
+              "dir": "/Users/path/to/project/vscode-image-manager-debug/src/ui-framework",
+              "type": "svg",
+              "workspace": "/Users/path/to/project/vscode-image-manager-debug/src",
+            },
+            "type": "type",
+            "value": "svg",
+          },
+          {
             "children": [
               {
                 "children": [],
@@ -427,6 +529,18 @@ exports[`Convert direcotry to tree > 5. should render correctly with Group_by_di
                 },
                 "type": "type",
                 "value": "png",
+              },
+              {
+                "children": [],
+                "fullLabel": "svg",
+                "label": "svg",
+                "renderCondition": {
+                  "dir": "/Users/path/to/project/vscode-image-manager-debug/src/ui-framework/src",
+                  "type": "svg",
+                  "workspace": "/Users/path/to/project/vscode-image-manager-debug/src",
+                },
+                "type": "type",
+                "value": "svg",
               },
               {
                 "children": [
@@ -453,6 +567,18 @@ exports[`Convert direcotry to tree > 5. should render correctly with Group_by_di
                     ],
                     "type": "type",
                     "value": "png",
+                  },
+                  {
+                    "children": [],
+                    "fullLabel": "svg",
+                    "label": "svg",
+                    "renderCondition": {
+                      "dir": "/Users/path/to/project/vscode-image-manager-debug/src/ui-framework/src/images",
+                      "type": "svg",
+                      "workspace": "/Users/path/to/project/vscode-image-manager-debug/src",
+                    },
+                    "type": "type",
+                    "value": "svg",
                   },
                 ],
                 "fullLabel": "ui-framework/src/images",
@@ -502,6 +628,18 @@ exports[`Convert direcotry to tree > 5. should render correctly with Group_by_di
                 "type": "type",
                 "value": "png",
               },
+              {
+                "children": [],
+                "fullLabel": "svg",
+                "label": "svg",
+                "renderCondition": {
+                  "dir": "/Users/path/to/project/vscode-image-manager-debug/src/ui-framework/webview",
+                  "type": "svg",
+                  "workspace": "/Users/path/to/project/vscode-image-manager-debug/src",
+                },
+                "type": "type",
+                "value": "svg",
+              },
             ],
             "fullLabel": "ui-framework/webview",
             "label": "webview",
@@ -550,6 +688,18 @@ exports[`Convert direcotry to tree > 5. should render correctly with Group_by_di
             "type": "type",
             "value": "png",
           },
+          {
+            "children": [],
+            "fullLabel": "svg",
+            "label": "svg",
+            "renderCondition": {
+              "dir": "/Users/path/to/project/vscode-image-manager-debug/src/webview",
+              "type": "svg",
+              "workspace": "/Users/path/to/project/vscode-image-manager-debug/src",
+            },
+            "type": "type",
+            "value": "svg",
+          },
         ],
         "fullLabel": "webview",
         "label": "webview",
@@ -575,7 +725,7 @@ exports[`Convert direcotry to tree > 5. should render correctly with Group_by_di
 ]
 `;
 
-exports[`Convert direcotry to tree > 6. should render correctly with Group_by_dir_and_type + Compact 1`] = `
+exports[`Convert direcotry to tree on Unix > 6. should render correctly with Group_by_dir_and_type + Compact 1`] = `
 [
   {
     "children": [
@@ -604,6 +754,30 @@ exports[`Convert direcotry to tree > 6. should render correctly with Group_by_di
         "value": "png",
       },
       {
+        "children": [],
+        "fullLabel": "svg",
+        "label": "svg",
+        "renderCondition": {
+          "dir": "",
+          "type": "svg",
+          "workspace": "/Users/path/to/project/vscode-image-manager-debug/src",
+        },
+        "renderList": [
+          {
+            "absDirPath": "/Users/path/to/project/vscode-image-manager-debug/src",
+            "absWorkspaceFolder": "/Users/path/to/project/vscode-image-manager-debug/src",
+            "basePath": "/Users/path/to/project/vscode-image-manager-debug",
+            "dirPath": "",
+            "fileType": "svg",
+            "name": "root.svg",
+            "path": "/Users/path/to/project/vscode-image-manager-debug/src/root.svg",
+            "workspaceFolder": "src",
+          },
+        ],
+        "type": "type",
+        "value": "svg",
+      },
+      {
         "children": [
           {
             "children": [],
@@ -616,6 +790,18 @@ exports[`Convert direcotry to tree > 6. should render correctly with Group_by_di
             },
             "type": "type",
             "value": "png",
+          },
+          {
+            "children": [],
+            "fullLabel": "svg",
+            "label": "svg",
+            "renderCondition": {
+              "dir": "/Users/path/to/project/vscode-image-manager-debug/src/ui-framework",
+              "type": "svg",
+              "workspace": "/Users/path/to/project/vscode-image-manager-debug/src",
+            },
+            "type": "type",
+            "value": "svg",
           },
           {
             "children": [
@@ -642,6 +828,18 @@ exports[`Convert direcotry to tree > 6. should render correctly with Group_by_di
                 ],
                 "type": "type",
                 "value": "png",
+              },
+              {
+                "children": [],
+                "fullLabel": "svg",
+                "label": "svg",
+                "renderCondition": {
+                  "dir": "/Users/path/to/project/vscode-image-manager-debug/src/ui-framework/src/images",
+                  "type": "svg",
+                  "workspace": "/Users/path/to/project/vscode-image-manager-debug/src",
+                },
+                "type": "type",
+                "value": "svg",
               },
             ],
             "fullLabel": "ui-framework/src/images",
@@ -680,6 +878,18 @@ exports[`Convert direcotry to tree > 6. should render correctly with Group_by_di
                 "type": "type",
                 "value": "png",
               },
+              {
+                "children": [],
+                "fullLabel": "svg",
+                "label": "svg",
+                "renderCondition": {
+                  "dir": "/Users/path/to/project/vscode-image-manager-debug/src/ui-framework/webview",
+                  "type": "svg",
+                  "workspace": "/Users/path/to/project/vscode-image-manager-debug/src",
+                },
+                "type": "type",
+                "value": "svg",
+              },
             ],
             "fullLabel": "ui-framework/webview",
             "label": "webview",
@@ -728,6 +938,18 @@ exports[`Convert direcotry to tree > 6. should render correctly with Group_by_di
             "type": "type",
             "value": "png",
           },
+          {
+            "children": [],
+            "fullLabel": "svg",
+            "label": "svg",
+            "renderCondition": {
+              "dir": "/Users/path/to/project/vscode-image-manager-debug/src/webview",
+              "type": "svg",
+              "workspace": "/Users/path/to/project/vscode-image-manager-debug/src",
+            },
+            "type": "type",
+            "value": "svg",
+          },
         ],
         "fullLabel": "webview",
         "label": "webview",
@@ -753,7 +975,7 @@ exports[`Convert direcotry to tree > 6. should render correctly with Group_by_di
 ]
 `;
 
-exports[`Convert direcotry to tree > 7. should render correctly with Group_by_none + Nested 1`] = `
+exports[`Convert direcotry to tree on Unix > 7. should render correctly with Group_by_none + Nested 1`] = `
 [
   {
     "children": [],
@@ -763,6 +985,16 @@ exports[`Convert direcotry to tree > 7. should render correctly with Group_by_no
       "workspace": "/Users/path/to/project/vscode-image-manager-debug/src",
     },
     "renderList": [
+      {
+        "absDirPath": "/Users/path/to/project/vscode-image-manager-debug/src",
+        "absWorkspaceFolder": "/Users/path/to/project/vscode-image-manager-debug/src",
+        "basePath": "/Users/path/to/project/vscode-image-manager-debug",
+        "dirPath": "",
+        "fileType": "svg",
+        "name": "root.svg",
+        "path": "/Users/path/to/project/vscode-image-manager-debug/src/root.svg",
+        "workspaceFolder": "src",
+      },
       {
         "absDirPath": "/Users/path/to/project/vscode-image-manager-debug/src/webview",
         "absWorkspaceFolder": "/Users/path/to/project/vscode-image-manager-debug/src",
@@ -810,7 +1042,7 @@ exports[`Convert direcotry to tree > 7. should render correctly with Group_by_no
 ]
 `;
 
-exports[`Convert direcotry to tree > 8. should render correctly with Group_by_none + Compact 1`] = `
+exports[`Convert direcotry to tree on Unix > 8. should render correctly with Group_by_none + Compact 1`] = `
 [
   {
     "children": [],
@@ -820,6 +1052,16 @@ exports[`Convert direcotry to tree > 8. should render correctly with Group_by_no
       "workspace": "/Users/path/to/project/vscode-image-manager-debug/src",
     },
     "renderList": [
+      {
+        "absDirPath": "/Users/path/to/project/vscode-image-manager-debug/src",
+        "absWorkspaceFolder": "/Users/path/to/project/vscode-image-manager-debug/src",
+        "basePath": "/Users/path/to/project/vscode-image-manager-debug",
+        "dirPath": "",
+        "fileType": "svg",
+        "name": "root.svg",
+        "path": "/Users/path/to/project/vscode-image-manager-debug/src/root.svg",
+        "workspaceFolder": "src",
+      },
       {
         "absDirPath": "/Users/path/to/project/vscode-image-manager-debug/src/webview",
         "absWorkspaceFolder": "/Users/path/to/project/vscode-image-manager-debug/src",
@@ -863,6 +1105,1067 @@ exports[`Convert direcotry to tree > 8. should render correctly with Group_by_no
     ],
     "type": "workspace",
     "value": "/Users/path/to/project/vscode-image-manager-debug/src",
+  },
+]
+`;
+
+exports[`Convert direcotry to tree on Windows > 1. should render correctly with Group_by_dir + Nested 1`] = `
+[
+  {
+    "children": [
+      {
+        "children": [
+          {
+            "children": [
+              {
+                "children": [],
+                "fullLabel": "c:ui-framework/src/images",
+                "label": "images",
+                "renderCondition": {
+                  "dir": "c:/Users/path/to/project/vscode-image-manager-debug/src/ui-framework/src/imagec:ui-framework/src/images",
+                  "workspace": "c:/Users/path/to/project/vscode-image-manager-debug/src",
+                },
+                "type": "dir",
+                "value": "c:/Users/path/to/project/vscode-image-manager-debug/src/ui-framework/src/imagec:ui-framework/src/images",
+              },
+            ],
+            "fullLabel": "c:ui-framework/src",
+            "label": "src",
+            "renderCondition": {
+              "dir": "c:/Users/path/to/project/vscode-image-manager-debug/src/ui-framework/src/imagec:ui-framework/src",
+              "workspace": "c:/Users/path/to/project/vscode-image-manager-debug/src",
+            },
+            "type": "dir",
+            "value": "c:/Users/path/to/project/vscode-image-manager-debug/src/ui-framework/src/imagec:ui-framework/src",
+          },
+        ],
+        "fullLabel": "c:ui-framework",
+        "label": "c:ui-framework",
+        "renderCondition": {
+          "dir": "c:/Users/path/to/project/vscode-image-manager-debug/src/ui-framework/src/imagec:ui-framework",
+          "workspace": "c:/Users/path/to/project/vscode-image-manager-debug/src",
+        },
+        "type": "dir",
+        "value": "c:/Users/path/to/project/vscode-image-manager-debug/src/ui-framework/src/imagec:ui-framework",
+      },
+      {
+        "children": [
+          {
+            "children": [],
+            "fullLabel": "ui-framework/webview",
+            "label": "webview",
+            "renderCondition": {
+              "dir": "c:/Users/path/to/project/vscode-image-manager-debug/src/ui-framework/webview",
+              "workspace": "c:/Users/path/to/project/vscode-image-manager-debug/src",
+            },
+            "renderList": [
+              {
+                "absDirPath": "c:/Users/path/to/project/vscode-image-manager-debug/src/ui-framework/webview",
+                "absWorkspaceFolder": "c:/Users/path/to/project/vscode-image-manager-debug/src",
+                "basePath": "c:/Users/path/to/project/vscode-image-manager-debug",
+                "dirPath": "ui-framework/webview",
+                "fileType": "png",
+                "name": "d3.png",
+                "path": "c:/Users/path/to/project/vscode-image-manager-debug/src/ui-framework/webview/d3.png",
+                "workspaceFolder": "src",
+              },
+            ],
+            "type": "dir",
+            "value": "c:/Users/path/to/project/vscode-image-manager-debug/src/ui-framework/webview",
+          },
+        ],
+        "fullLabel": "ui-framework",
+        "label": "ui-framework",
+        "renderCondition": {
+          "dir": "c:/Users/path/to/project/vscode-image-manager-debug/src/ui-framework",
+          "workspace": "c:/Users/path/to/project/vscode-image-manager-debug/src",
+        },
+        "type": "dir",
+        "value": "c:/Users/path/to/project/vscode-image-manager-debug/src/ui-framework",
+      },
+      {
+        "children": [],
+        "fullLabel": "webview",
+        "label": "webview",
+        "renderCondition": {
+          "dir": "c:/Users/path/to/project/vscode-image-manager-debug/src/webview",
+          "workspace": "c:/Users/path/to/project/vscode-image-manager-debug/src",
+        },
+        "renderList": [
+          {
+            "absDirPath": "c:/Users/path/to/project/vscode-image-manager-debug/src/webview",
+            "absWorkspaceFolder": "c:/Users/path/to/project/vscode-image-manager-debug/src",
+            "basePath": "c:/Users/path/to/project/vscode-image-manager-debug",
+            "dirPath": "webview",
+            "fileType": "png",
+            "name": "blender.png",
+            "path": "c:/Users/path/to/project/vscode-image-manager-debug/src/webview/blender.png",
+            "workspaceFolder": "src",
+          },
+        ],
+        "type": "dir",
+        "value": "c:/Users/path/to/project/vscode-image-manager-debug/src/webview",
+      },
+    ],
+    "fullLabel": "src",
+    "label": "src",
+    "renderCondition": {
+      "dir": "",
+      "workspace": "c:/Users/path/to/project/vscode-image-manager-debug/src",
+    },
+    "renderList": [
+      {
+        "absDirPath": "c:/Users/path/to/project/vscode-image-manager-debug/src",
+        "absWorkspaceFolder": "c:/Users/path/to/project/vscode-image-manager-debug/src",
+        "basePath": "c:/Users/path/to/project/vscode-image-manager-debug",
+        "dirPath": "",
+        "fileType": "svg",
+        "name": "root.svg",
+        "path": "c:/Users/path/to/project/vscode-image-manager-debug/src/root.svg",
+        "workspaceFolder": "src",
+      },
+      {
+        "absDirPath": "c:/Users/path/to/project/vscode-image-manager-debug/src",
+        "absWorkspaceFolder": "c:/Users/path/to/project/vscode-image-manager-debug/src",
+        "basePath": "c:/Users/path/to/project/vscode-image-manager-debug",
+        "dirPath": "",
+        "fileType": "png",
+        "name": "d3.png",
+        "path": "c:/Users/path/to/project/vscode-image-manager-debug/src/d3.png",
+        "workspaceFolder": "src",
+      },
+    ],
+    "type": "workspace",
+    "value": "c:/Users/path/to/project/vscode-image-manager-debug/src",
+  },
+]
+`;
+
+exports[`Convert direcotry to tree on Windows > 2. should render correctly with Group_by_dir + Compact 1`] = `
+[
+  {
+    "children": [
+      {
+        "children": [],
+        "fullLabel": "c:ui-framework/src/images",
+        "label": "c:ui-framework/src/images",
+        "renderCondition": {
+          "dir": "c:/Users/path/to/project/vscode-image-manager-debug/src/ui-framework/src/imagec:ui-framework/src/images",
+          "workspace": "c:/Users/path/to/project/vscode-image-manager-debug/src",
+        },
+        "type": "dir",
+        "value": "c:/Users/path/to/project/vscode-image-manager-debug/src/ui-framework/src/imagec:ui-framework/src/images",
+      },
+      {
+        "children": [],
+        "fullLabel": "ui-framework/webview",
+        "label": "ui-framework/webview",
+        "renderCondition": {
+          "dir": "c:/Users/path/to/project/vscode-image-manager-debug/src/ui-framework/webview",
+          "workspace": "c:/Users/path/to/project/vscode-image-manager-debug/src",
+        },
+        "renderList": [
+          {
+            "absDirPath": "c:/Users/path/to/project/vscode-image-manager-debug/src/ui-framework/webview",
+            "absWorkspaceFolder": "c:/Users/path/to/project/vscode-image-manager-debug/src",
+            "basePath": "c:/Users/path/to/project/vscode-image-manager-debug",
+            "dirPath": "ui-framework/webview",
+            "fileType": "png",
+            "name": "d3.png",
+            "path": "c:/Users/path/to/project/vscode-image-manager-debug/src/ui-framework/webview/d3.png",
+            "workspaceFolder": "src",
+          },
+        ],
+        "type": "dir",
+        "value": "c:/Users/path/to/project/vscode-image-manager-debug/src/ui-framework/webview",
+      },
+      {
+        "children": [],
+        "fullLabel": "webview",
+        "label": "webview",
+        "renderCondition": {
+          "dir": "c:/Users/path/to/project/vscode-image-manager-debug/src/webview",
+          "workspace": "c:/Users/path/to/project/vscode-image-manager-debug/src",
+        },
+        "renderList": [
+          {
+            "absDirPath": "c:/Users/path/to/project/vscode-image-manager-debug/src/webview",
+            "absWorkspaceFolder": "c:/Users/path/to/project/vscode-image-manager-debug/src",
+            "basePath": "c:/Users/path/to/project/vscode-image-manager-debug",
+            "dirPath": "webview",
+            "fileType": "png",
+            "name": "blender.png",
+            "path": "c:/Users/path/to/project/vscode-image-manager-debug/src/webview/blender.png",
+            "workspaceFolder": "src",
+          },
+        ],
+        "type": "dir",
+        "value": "c:/Users/path/to/project/vscode-image-manager-debug/src/webview",
+      },
+    ],
+    "fullLabel": "src",
+    "label": "src",
+    "renderCondition": {
+      "dir": "",
+      "workspace": "c:/Users/path/to/project/vscode-image-manager-debug/src",
+    },
+    "renderList": [
+      {
+        "absDirPath": "c:/Users/path/to/project/vscode-image-manager-debug/src",
+        "absWorkspaceFolder": "c:/Users/path/to/project/vscode-image-manager-debug/src",
+        "basePath": "c:/Users/path/to/project/vscode-image-manager-debug",
+        "dirPath": "",
+        "fileType": "svg",
+        "name": "root.svg",
+        "path": "c:/Users/path/to/project/vscode-image-manager-debug/src/root.svg",
+        "workspaceFolder": "src",
+      },
+      {
+        "absDirPath": "c:/Users/path/to/project/vscode-image-manager-debug/src",
+        "absWorkspaceFolder": "c:/Users/path/to/project/vscode-image-manager-debug/src",
+        "basePath": "c:/Users/path/to/project/vscode-image-manager-debug",
+        "dirPath": "",
+        "fileType": "png",
+        "name": "d3.png",
+        "path": "c:/Users/path/to/project/vscode-image-manager-debug/src/d3.png",
+        "workspaceFolder": "src",
+      },
+    ],
+    "type": "workspace",
+    "value": "c:/Users/path/to/project/vscode-image-manager-debug/src",
+  },
+]
+`;
+
+exports[`Convert direcotry to tree on Windows > 3. should render correctly with Group_by_type + Nested 1`] = `
+[
+  {
+    "children": [
+      {
+        "children": [],
+        "fullLabel": "png",
+        "label": "png",
+        "renderCondition": {
+          "type": "png",
+          "workspace": "c:/Users/path/to/project/vscode-image-manager-debug/src",
+        },
+        "renderList": [
+          {
+            "absDirPath": "c:/Users/path/to/project/vscode-image-manager-debug/src/ui-framework/webview",
+            "absWorkspaceFolder": "c:/Users/path/to/project/vscode-image-manager-debug/src",
+            "basePath": "c:/Users/path/to/project/vscode-image-manager-debug",
+            "dirPath": "ui-framework/webview",
+            "fileType": "png",
+            "name": "d3.png",
+            "path": "c:/Users/path/to/project/vscode-image-manager-debug/src/ui-framework/webview/d3.png",
+            "workspaceFolder": "src",
+          },
+          {
+            "absDirPath": "c:/Users/path/to/project/vscode-image-manager-debug/src/webview",
+            "absWorkspaceFolder": "c:/Users/path/to/project/vscode-image-manager-debug/src",
+            "basePath": "c:/Users/path/to/project/vscode-image-manager-debug",
+            "dirPath": "webview",
+            "fileType": "png",
+            "name": "blender.png",
+            "path": "c:/Users/path/to/project/vscode-image-manager-debug/src/webview/blender.png",
+            "workspaceFolder": "src",
+          },
+          {
+            "absDirPath": "c:/Users/path/to/project/vscode-image-manager-debug/src/ui-framework/src/images",
+            "absWorkspaceFolder": "c:/Users/path/to/project/vscode-image-manager-debug/src",
+            "basePath": "c:/Users/path/to/project/vscode-image-manager-debug",
+            "dirPath": "c:ui-framework/src/images",
+            "fileType": "png",
+            "name": "blender.png",
+            "path": "c:/Users/path/to/project/vscode-image-manager-debug/src/ui-framework/src/images/blender.png",
+            "workspaceFolder": "src",
+          },
+          {
+            "absDirPath": "c:/Users/path/to/project/vscode-image-manager-debug/src",
+            "absWorkspaceFolder": "c:/Users/path/to/project/vscode-image-manager-debug/src",
+            "basePath": "c:/Users/path/to/project/vscode-image-manager-debug",
+            "dirPath": "",
+            "fileType": "png",
+            "name": "d3.png",
+            "path": "c:/Users/path/to/project/vscode-image-manager-debug/src/d3.png",
+            "workspaceFolder": "src",
+          },
+        ],
+        "type": "type",
+        "value": "png",
+      },
+      {
+        "children": [],
+        "fullLabel": "svg",
+        "label": "svg",
+        "renderCondition": {
+          "type": "svg",
+          "workspace": "c:/Users/path/to/project/vscode-image-manager-debug/src",
+        },
+        "renderList": [
+          {
+            "absDirPath": "c:/Users/path/to/project/vscode-image-manager-debug/src",
+            "absWorkspaceFolder": "c:/Users/path/to/project/vscode-image-manager-debug/src",
+            "basePath": "c:/Users/path/to/project/vscode-image-manager-debug",
+            "dirPath": "",
+            "fileType": "svg",
+            "name": "root.svg",
+            "path": "c:/Users/path/to/project/vscode-image-manager-debug/src/root.svg",
+            "workspaceFolder": "src",
+          },
+        ],
+        "type": "type",
+        "value": "svg",
+      },
+    ],
+    "fullLabel": "src",
+    "label": "src",
+    "renderCondition": {
+      "type": "",
+      "workspace": "c:/Users/path/to/project/vscode-image-manager-debug/src",
+    },
+    "type": "workspace",
+    "value": "c:/Users/path/to/project/vscode-image-manager-debug/src",
+  },
+]
+`;
+
+exports[`Convert direcotry to tree on Windows > 4. should render correctly with Group_by_type + Compact 1`] = `
+[
+  {
+    "children": [
+      {
+        "children": [],
+        "fullLabel": "png",
+        "label": "png",
+        "renderCondition": {
+          "type": "png",
+          "workspace": "c:/Users/path/to/project/vscode-image-manager-debug/src",
+        },
+        "renderList": [
+          {
+            "absDirPath": "c:/Users/path/to/project/vscode-image-manager-debug/src/ui-framework/webview",
+            "absWorkspaceFolder": "c:/Users/path/to/project/vscode-image-manager-debug/src",
+            "basePath": "c:/Users/path/to/project/vscode-image-manager-debug",
+            "dirPath": "ui-framework/webview",
+            "fileType": "png",
+            "name": "d3.png",
+            "path": "c:/Users/path/to/project/vscode-image-manager-debug/src/ui-framework/webview/d3.png",
+            "workspaceFolder": "src",
+          },
+          {
+            "absDirPath": "c:/Users/path/to/project/vscode-image-manager-debug/src/webview",
+            "absWorkspaceFolder": "c:/Users/path/to/project/vscode-image-manager-debug/src",
+            "basePath": "c:/Users/path/to/project/vscode-image-manager-debug",
+            "dirPath": "webview",
+            "fileType": "png",
+            "name": "blender.png",
+            "path": "c:/Users/path/to/project/vscode-image-manager-debug/src/webview/blender.png",
+            "workspaceFolder": "src",
+          },
+          {
+            "absDirPath": "c:/Users/path/to/project/vscode-image-manager-debug/src/ui-framework/src/images",
+            "absWorkspaceFolder": "c:/Users/path/to/project/vscode-image-manager-debug/src",
+            "basePath": "c:/Users/path/to/project/vscode-image-manager-debug",
+            "dirPath": "c:ui-framework/src/images",
+            "fileType": "png",
+            "name": "blender.png",
+            "path": "c:/Users/path/to/project/vscode-image-manager-debug/src/ui-framework/src/images/blender.png",
+            "workspaceFolder": "src",
+          },
+          {
+            "absDirPath": "c:/Users/path/to/project/vscode-image-manager-debug/src",
+            "absWorkspaceFolder": "c:/Users/path/to/project/vscode-image-manager-debug/src",
+            "basePath": "c:/Users/path/to/project/vscode-image-manager-debug",
+            "dirPath": "",
+            "fileType": "png",
+            "name": "d3.png",
+            "path": "c:/Users/path/to/project/vscode-image-manager-debug/src/d3.png",
+            "workspaceFolder": "src",
+          },
+        ],
+        "type": "type",
+        "value": "png",
+      },
+      {
+        "children": [],
+        "fullLabel": "svg",
+        "label": "svg",
+        "renderCondition": {
+          "type": "svg",
+          "workspace": "c:/Users/path/to/project/vscode-image-manager-debug/src",
+        },
+        "renderList": [
+          {
+            "absDirPath": "c:/Users/path/to/project/vscode-image-manager-debug/src",
+            "absWorkspaceFolder": "c:/Users/path/to/project/vscode-image-manager-debug/src",
+            "basePath": "c:/Users/path/to/project/vscode-image-manager-debug",
+            "dirPath": "",
+            "fileType": "svg",
+            "name": "root.svg",
+            "path": "c:/Users/path/to/project/vscode-image-manager-debug/src/root.svg",
+            "workspaceFolder": "src",
+          },
+        ],
+        "type": "type",
+        "value": "svg",
+      },
+    ],
+    "fullLabel": "src",
+    "label": "src",
+    "renderCondition": {
+      "type": "",
+      "workspace": "c:/Users/path/to/project/vscode-image-manager-debug/src",
+    },
+    "type": "workspace",
+    "value": "c:/Users/path/to/project/vscode-image-manager-debug/src",
+  },
+]
+`;
+
+exports[`Convert direcotry to tree on Windows > 5. should render correctly with Group_by_dir_and_type + Nested 1`] = `
+[
+  {
+    "children": [
+      {
+        "children": [],
+        "fullLabel": "png",
+        "label": "png",
+        "renderCondition": {
+          "dir": "",
+          "type": "png",
+          "workspace": "c:/Users/path/to/project/vscode-image-manager-debug/src",
+        },
+        "renderList": [
+          {
+            "absDirPath": "c:/Users/path/to/project/vscode-image-manager-debug/src",
+            "absWorkspaceFolder": "c:/Users/path/to/project/vscode-image-manager-debug/src",
+            "basePath": "c:/Users/path/to/project/vscode-image-manager-debug",
+            "dirPath": "",
+            "fileType": "png",
+            "name": "d3.png",
+            "path": "c:/Users/path/to/project/vscode-image-manager-debug/src/d3.png",
+            "workspaceFolder": "src",
+          },
+        ],
+        "type": "type",
+        "value": "png",
+      },
+      {
+        "children": [],
+        "fullLabel": "svg",
+        "label": "svg",
+        "renderCondition": {
+          "dir": "",
+          "type": "svg",
+          "workspace": "c:/Users/path/to/project/vscode-image-manager-debug/src",
+        },
+        "renderList": [
+          {
+            "absDirPath": "c:/Users/path/to/project/vscode-image-manager-debug/src",
+            "absWorkspaceFolder": "c:/Users/path/to/project/vscode-image-manager-debug/src",
+            "basePath": "c:/Users/path/to/project/vscode-image-manager-debug",
+            "dirPath": "",
+            "fileType": "svg",
+            "name": "root.svg",
+            "path": "c:/Users/path/to/project/vscode-image-manager-debug/src/root.svg",
+            "workspaceFolder": "src",
+          },
+        ],
+        "type": "type",
+        "value": "svg",
+      },
+      {
+        "children": [
+          {
+            "children": [],
+            "fullLabel": "png",
+            "label": "png",
+            "renderCondition": {
+              "dir": "c:/Users/path/to/project/vscode-image-manager-debug/src/ui-framework/src/imagec:ui-framework",
+              "type": "png",
+              "workspace": "c:/Users/path/to/project/vscode-image-manager-debug/src",
+            },
+            "type": "type",
+            "value": "png",
+          },
+          {
+            "children": [],
+            "fullLabel": "svg",
+            "label": "svg",
+            "renderCondition": {
+              "dir": "c:/Users/path/to/project/vscode-image-manager-debug/src/ui-framework/src/imagec:ui-framework",
+              "type": "svg",
+              "workspace": "c:/Users/path/to/project/vscode-image-manager-debug/src",
+            },
+            "type": "type",
+            "value": "svg",
+          },
+          {
+            "children": [
+              {
+                "children": [],
+                "fullLabel": "png",
+                "label": "png",
+                "renderCondition": {
+                  "dir": "c:/Users/path/to/project/vscode-image-manager-debug/src/ui-framework/src/imagec:ui-framework/src",
+                  "type": "png",
+                  "workspace": "c:/Users/path/to/project/vscode-image-manager-debug/src",
+                },
+                "type": "type",
+                "value": "png",
+              },
+              {
+                "children": [],
+                "fullLabel": "svg",
+                "label": "svg",
+                "renderCondition": {
+                  "dir": "c:/Users/path/to/project/vscode-image-manager-debug/src/ui-framework/src/imagec:ui-framework/src",
+                  "type": "svg",
+                  "workspace": "c:/Users/path/to/project/vscode-image-manager-debug/src",
+                },
+                "type": "type",
+                "value": "svg",
+              },
+              {
+                "children": [
+                  {
+                    "children": [],
+                    "fullLabel": "png",
+                    "label": "png",
+                    "renderCondition": {
+                      "dir": "c:/Users/path/to/project/vscode-image-manager-debug/src/ui-framework/src/imagec:ui-framework/src/images",
+                      "type": "png",
+                      "workspace": "c:/Users/path/to/project/vscode-image-manager-debug/src",
+                    },
+                    "type": "type",
+                    "value": "png",
+                  },
+                  {
+                    "children": [],
+                    "fullLabel": "svg",
+                    "label": "svg",
+                    "renderCondition": {
+                      "dir": "c:/Users/path/to/project/vscode-image-manager-debug/src/ui-framework/src/imagec:ui-framework/src/images",
+                      "type": "svg",
+                      "workspace": "c:/Users/path/to/project/vscode-image-manager-debug/src",
+                    },
+                    "type": "type",
+                    "value": "svg",
+                  },
+                ],
+                "fullLabel": "c:ui-framework/src/images",
+                "label": "images",
+                "renderCondition": {
+                  "dir": "c:/Users/path/to/project/vscode-image-manager-debug/src/ui-framework/src/imagec:ui-framework/src/images",
+                  "type": "",
+                  "workspace": "c:/Users/path/to/project/vscode-image-manager-debug/src",
+                },
+                "type": "dir",
+                "value": "c:/Users/path/to/project/vscode-image-manager-debug/src/ui-framework/src/imagec:ui-framework/src/images",
+              },
+            ],
+            "fullLabel": "c:ui-framework/src",
+            "label": "src",
+            "renderCondition": {
+              "dir": "c:/Users/path/to/project/vscode-image-manager-debug/src/ui-framework/src/imagec:ui-framework/src",
+              "type": "",
+              "workspace": "c:/Users/path/to/project/vscode-image-manager-debug/src",
+            },
+            "type": "dir",
+            "value": "c:/Users/path/to/project/vscode-image-manager-debug/src/ui-framework/src/imagec:ui-framework/src",
+          },
+        ],
+        "fullLabel": "c:ui-framework",
+        "label": "c:ui-framework",
+        "renderCondition": {
+          "dir": "c:/Users/path/to/project/vscode-image-manager-debug/src/ui-framework/src/imagec:ui-framework",
+          "type": "",
+          "workspace": "c:/Users/path/to/project/vscode-image-manager-debug/src",
+        },
+        "type": "dir",
+        "value": "c:/Users/path/to/project/vscode-image-manager-debug/src/ui-framework/src/imagec:ui-framework",
+      },
+      {
+        "children": [
+          {
+            "children": [],
+            "fullLabel": "png",
+            "label": "png",
+            "renderCondition": {
+              "dir": "c:/Users/path/to/project/vscode-image-manager-debug/src/ui-framework",
+              "type": "png",
+              "workspace": "c:/Users/path/to/project/vscode-image-manager-debug/src",
+            },
+            "type": "type",
+            "value": "png",
+          },
+          {
+            "children": [],
+            "fullLabel": "svg",
+            "label": "svg",
+            "renderCondition": {
+              "dir": "c:/Users/path/to/project/vscode-image-manager-debug/src/ui-framework",
+              "type": "svg",
+              "workspace": "c:/Users/path/to/project/vscode-image-manager-debug/src",
+            },
+            "type": "type",
+            "value": "svg",
+          },
+          {
+            "children": [
+              {
+                "children": [],
+                "fullLabel": "png",
+                "label": "png",
+                "renderCondition": {
+                  "dir": "c:/Users/path/to/project/vscode-image-manager-debug/src/ui-framework/webview",
+                  "type": "png",
+                  "workspace": "c:/Users/path/to/project/vscode-image-manager-debug/src",
+                },
+                "renderList": [
+                  {
+                    "absDirPath": "c:/Users/path/to/project/vscode-image-manager-debug/src/ui-framework/webview",
+                    "absWorkspaceFolder": "c:/Users/path/to/project/vscode-image-manager-debug/src",
+                    "basePath": "c:/Users/path/to/project/vscode-image-manager-debug",
+                    "dirPath": "ui-framework/webview",
+                    "fileType": "png",
+                    "name": "d3.png",
+                    "path": "c:/Users/path/to/project/vscode-image-manager-debug/src/ui-framework/webview/d3.png",
+                    "workspaceFolder": "src",
+                  },
+                ],
+                "type": "type",
+                "value": "png",
+              },
+              {
+                "children": [],
+                "fullLabel": "svg",
+                "label": "svg",
+                "renderCondition": {
+                  "dir": "c:/Users/path/to/project/vscode-image-manager-debug/src/ui-framework/webview",
+                  "type": "svg",
+                  "workspace": "c:/Users/path/to/project/vscode-image-manager-debug/src",
+                },
+                "type": "type",
+                "value": "svg",
+              },
+            ],
+            "fullLabel": "ui-framework/webview",
+            "label": "webview",
+            "renderCondition": {
+              "dir": "c:/Users/path/to/project/vscode-image-manager-debug/src/ui-framework/webview",
+              "type": "",
+              "workspace": "c:/Users/path/to/project/vscode-image-manager-debug/src",
+            },
+            "type": "dir",
+            "value": "c:/Users/path/to/project/vscode-image-manager-debug/src/ui-framework/webview",
+          },
+        ],
+        "fullLabel": "ui-framework",
+        "label": "ui-framework",
+        "renderCondition": {
+          "dir": "c:/Users/path/to/project/vscode-image-manager-debug/src/ui-framework",
+          "type": "",
+          "workspace": "c:/Users/path/to/project/vscode-image-manager-debug/src",
+        },
+        "type": "dir",
+        "value": "c:/Users/path/to/project/vscode-image-manager-debug/src/ui-framework",
+      },
+      {
+        "children": [
+          {
+            "children": [],
+            "fullLabel": "png",
+            "label": "png",
+            "renderCondition": {
+              "dir": "c:/Users/path/to/project/vscode-image-manager-debug/src/webview",
+              "type": "png",
+              "workspace": "c:/Users/path/to/project/vscode-image-manager-debug/src",
+            },
+            "renderList": [
+              {
+                "absDirPath": "c:/Users/path/to/project/vscode-image-manager-debug/src/webview",
+                "absWorkspaceFolder": "c:/Users/path/to/project/vscode-image-manager-debug/src",
+                "basePath": "c:/Users/path/to/project/vscode-image-manager-debug",
+                "dirPath": "webview",
+                "fileType": "png",
+                "name": "blender.png",
+                "path": "c:/Users/path/to/project/vscode-image-manager-debug/src/webview/blender.png",
+                "workspaceFolder": "src",
+              },
+            ],
+            "type": "type",
+            "value": "png",
+          },
+          {
+            "children": [],
+            "fullLabel": "svg",
+            "label": "svg",
+            "renderCondition": {
+              "dir": "c:/Users/path/to/project/vscode-image-manager-debug/src/webview",
+              "type": "svg",
+              "workspace": "c:/Users/path/to/project/vscode-image-manager-debug/src",
+            },
+            "type": "type",
+            "value": "svg",
+          },
+        ],
+        "fullLabel": "webview",
+        "label": "webview",
+        "renderCondition": {
+          "dir": "c:/Users/path/to/project/vscode-image-manager-debug/src/webview",
+          "type": "",
+          "workspace": "c:/Users/path/to/project/vscode-image-manager-debug/src",
+        },
+        "type": "dir",
+        "value": "c:/Users/path/to/project/vscode-image-manager-debug/src/webview",
+      },
+    ],
+    "fullLabel": "src",
+    "label": "src",
+    "renderCondition": {
+      "dir": "",
+      "type": "",
+      "workspace": "c:/Users/path/to/project/vscode-image-manager-debug/src",
+    },
+    "type": "workspace",
+    "value": "c:/Users/path/to/project/vscode-image-manager-debug/src",
+  },
+]
+`;
+
+exports[`Convert direcotry to tree on Windows > 6. should render correctly with Group_by_dir_and_type + Compact 1`] = `
+[
+  {
+    "children": [
+      {
+        "children": [],
+        "fullLabel": "png",
+        "label": "png",
+        "renderCondition": {
+          "dir": "",
+          "type": "png",
+          "workspace": "c:/Users/path/to/project/vscode-image-manager-debug/src",
+        },
+        "renderList": [
+          {
+            "absDirPath": "c:/Users/path/to/project/vscode-image-manager-debug/src",
+            "absWorkspaceFolder": "c:/Users/path/to/project/vscode-image-manager-debug/src",
+            "basePath": "c:/Users/path/to/project/vscode-image-manager-debug",
+            "dirPath": "",
+            "fileType": "png",
+            "name": "d3.png",
+            "path": "c:/Users/path/to/project/vscode-image-manager-debug/src/d3.png",
+            "workspaceFolder": "src",
+          },
+        ],
+        "type": "type",
+        "value": "png",
+      },
+      {
+        "children": [],
+        "fullLabel": "svg",
+        "label": "svg",
+        "renderCondition": {
+          "dir": "",
+          "type": "svg",
+          "workspace": "c:/Users/path/to/project/vscode-image-manager-debug/src",
+        },
+        "renderList": [
+          {
+            "absDirPath": "c:/Users/path/to/project/vscode-image-manager-debug/src",
+            "absWorkspaceFolder": "c:/Users/path/to/project/vscode-image-manager-debug/src",
+            "basePath": "c:/Users/path/to/project/vscode-image-manager-debug",
+            "dirPath": "",
+            "fileType": "svg",
+            "name": "root.svg",
+            "path": "c:/Users/path/to/project/vscode-image-manager-debug/src/root.svg",
+            "workspaceFolder": "src",
+          },
+        ],
+        "type": "type",
+        "value": "svg",
+      },
+      {
+        "children": [
+          {
+            "children": [],
+            "fullLabel": "png",
+            "label": "png",
+            "renderCondition": {
+              "dir": "c:/Users/path/to/project/vscode-image-manager-debug/src/ui-framework/src/imagec:ui-framework/src/images",
+              "type": "png",
+              "workspace": "c:/Users/path/to/project/vscode-image-manager-debug/src",
+            },
+            "type": "type",
+            "value": "png",
+          },
+          {
+            "children": [],
+            "fullLabel": "svg",
+            "label": "svg",
+            "renderCondition": {
+              "dir": "c:/Users/path/to/project/vscode-image-manager-debug/src/ui-framework/src/imagec:ui-framework/src/images",
+              "type": "svg",
+              "workspace": "c:/Users/path/to/project/vscode-image-manager-debug/src",
+            },
+            "type": "type",
+            "value": "svg",
+          },
+        ],
+        "fullLabel": "c:ui-framework/src/images",
+        "label": "c:ui-framework/src/images",
+        "renderCondition": {
+          "dir": "c:/Users/path/to/project/vscode-image-manager-debug/src/ui-framework/src/imagec:ui-framework/src/images",
+          "type": "",
+          "workspace": "c:/Users/path/to/project/vscode-image-manager-debug/src",
+        },
+        "type": "dir",
+        "value": "c:/Users/path/to/project/vscode-image-manager-debug/src/ui-framework/src/imagec:ui-framework/src/images",
+      },
+      {
+        "children": [
+          {
+            "children": [],
+            "fullLabel": "png",
+            "label": "png",
+            "renderCondition": {
+              "dir": "c:/Users/path/to/project/vscode-image-manager-debug/src/ui-framework/webview",
+              "type": "png",
+              "workspace": "c:/Users/path/to/project/vscode-image-manager-debug/src",
+            },
+            "renderList": [
+              {
+                "absDirPath": "c:/Users/path/to/project/vscode-image-manager-debug/src/ui-framework/webview",
+                "absWorkspaceFolder": "c:/Users/path/to/project/vscode-image-manager-debug/src",
+                "basePath": "c:/Users/path/to/project/vscode-image-manager-debug",
+                "dirPath": "ui-framework/webview",
+                "fileType": "png",
+                "name": "d3.png",
+                "path": "c:/Users/path/to/project/vscode-image-manager-debug/src/ui-framework/webview/d3.png",
+                "workspaceFolder": "src",
+              },
+            ],
+            "type": "type",
+            "value": "png",
+          },
+          {
+            "children": [],
+            "fullLabel": "svg",
+            "label": "svg",
+            "renderCondition": {
+              "dir": "c:/Users/path/to/project/vscode-image-manager-debug/src/ui-framework/webview",
+              "type": "svg",
+              "workspace": "c:/Users/path/to/project/vscode-image-manager-debug/src",
+            },
+            "type": "type",
+            "value": "svg",
+          },
+        ],
+        "fullLabel": "ui-framework/webview",
+        "label": "ui-framework/webview",
+        "renderCondition": {
+          "dir": "c:/Users/path/to/project/vscode-image-manager-debug/src/ui-framework/webview",
+          "type": "",
+          "workspace": "c:/Users/path/to/project/vscode-image-manager-debug/src",
+        },
+        "type": "dir",
+        "value": "c:/Users/path/to/project/vscode-image-manager-debug/src/ui-framework/webview",
+      },
+      {
+        "children": [
+          {
+            "children": [],
+            "fullLabel": "png",
+            "label": "png",
+            "renderCondition": {
+              "dir": "c:/Users/path/to/project/vscode-image-manager-debug/src/webview",
+              "type": "png",
+              "workspace": "c:/Users/path/to/project/vscode-image-manager-debug/src",
+            },
+            "renderList": [
+              {
+                "absDirPath": "c:/Users/path/to/project/vscode-image-manager-debug/src/webview",
+                "absWorkspaceFolder": "c:/Users/path/to/project/vscode-image-manager-debug/src",
+                "basePath": "c:/Users/path/to/project/vscode-image-manager-debug",
+                "dirPath": "webview",
+                "fileType": "png",
+                "name": "blender.png",
+                "path": "c:/Users/path/to/project/vscode-image-manager-debug/src/webview/blender.png",
+                "workspaceFolder": "src",
+              },
+            ],
+            "type": "type",
+            "value": "png",
+          },
+          {
+            "children": [],
+            "fullLabel": "svg",
+            "label": "svg",
+            "renderCondition": {
+              "dir": "c:/Users/path/to/project/vscode-image-manager-debug/src/webview",
+              "type": "svg",
+              "workspace": "c:/Users/path/to/project/vscode-image-manager-debug/src",
+            },
+            "type": "type",
+            "value": "svg",
+          },
+        ],
+        "fullLabel": "webview",
+        "label": "webview",
+        "renderCondition": {
+          "dir": "c:/Users/path/to/project/vscode-image-manager-debug/src/webview",
+          "type": "",
+          "workspace": "c:/Users/path/to/project/vscode-image-manager-debug/src",
+        },
+        "type": "dir",
+        "value": "c:/Users/path/to/project/vscode-image-manager-debug/src/webview",
+      },
+    ],
+    "fullLabel": "src",
+    "label": "src",
+    "renderCondition": {
+      "dir": "",
+      "type": "",
+      "workspace": "c:/Users/path/to/project/vscode-image-manager-debug/src",
+    },
+    "type": "workspace",
+    "value": "c:/Users/path/to/project/vscode-image-manager-debug/src",
+  },
+]
+`;
+
+exports[`Convert direcotry to tree on Windows > 7. should render correctly with Group_by_none + Nested 1`] = `
+[
+  {
+    "children": [],
+    "fullLabel": "src",
+    "label": "src",
+    "renderCondition": {
+      "workspace": "c:/Users/path/to/project/vscode-image-manager-debug/src",
+    },
+    "renderList": [
+      {
+        "absDirPath": "c:/Users/path/to/project/vscode-image-manager-debug/src",
+        "absWorkspaceFolder": "c:/Users/path/to/project/vscode-image-manager-debug/src",
+        "basePath": "c:/Users/path/to/project/vscode-image-manager-debug",
+        "dirPath": "",
+        "fileType": "svg",
+        "name": "root.svg",
+        "path": "c:/Users/path/to/project/vscode-image-manager-debug/src/root.svg",
+        "workspaceFolder": "src",
+      },
+      {
+        "absDirPath": "c:/Users/path/to/project/vscode-image-manager-debug/src/webview",
+        "absWorkspaceFolder": "c:/Users/path/to/project/vscode-image-manager-debug/src",
+        "basePath": "c:/Users/path/to/project/vscode-image-manager-debug",
+        "dirPath": "webview",
+        "fileType": "png",
+        "name": "blender.png",
+        "path": "c:/Users/path/to/project/vscode-image-manager-debug/src/webview/blender.png",
+        "workspaceFolder": "src",
+      },
+      {
+        "absDirPath": "c:/Users/path/to/project/vscode-image-manager-debug/src/ui-framework/src/images",
+        "absWorkspaceFolder": "c:/Users/path/to/project/vscode-image-manager-debug/src",
+        "basePath": "c:/Users/path/to/project/vscode-image-manager-debug",
+        "dirPath": "c:ui-framework/src/images",
+        "fileType": "png",
+        "name": "blender.png",
+        "path": "c:/Users/path/to/project/vscode-image-manager-debug/src/ui-framework/src/images/blender.png",
+        "workspaceFolder": "src",
+      },
+      {
+        "absDirPath": "c:/Users/path/to/project/vscode-image-manager-debug/src",
+        "absWorkspaceFolder": "c:/Users/path/to/project/vscode-image-manager-debug/src",
+        "basePath": "c:/Users/path/to/project/vscode-image-manager-debug",
+        "dirPath": "",
+        "fileType": "png",
+        "name": "d3.png",
+        "path": "c:/Users/path/to/project/vscode-image-manager-debug/src/d3.png",
+        "workspaceFolder": "src",
+      },
+      {
+        "absDirPath": "c:/Users/path/to/project/vscode-image-manager-debug/src/ui-framework/webview",
+        "absWorkspaceFolder": "c:/Users/path/to/project/vscode-image-manager-debug/src",
+        "basePath": "c:/Users/path/to/project/vscode-image-manager-debug",
+        "dirPath": "ui-framework/webview",
+        "fileType": "png",
+        "name": "d3.png",
+        "path": "c:/Users/path/to/project/vscode-image-manager-debug/src/ui-framework/webview/d3.png",
+        "workspaceFolder": "src",
+      },
+    ],
+    "type": "workspace",
+    "value": "c:/Users/path/to/project/vscode-image-manager-debug/src",
+  },
+]
+`;
+
+exports[`Convert direcotry to tree on Windows > 8. should render correctly with Group_by_none + Compact 1`] = `
+[
+  {
+    "children": [],
+    "fullLabel": "src",
+    "label": "src",
+    "renderCondition": {
+      "workspace": "c:/Users/path/to/project/vscode-image-manager-debug/src",
+    },
+    "renderList": [
+      {
+        "absDirPath": "c:/Users/path/to/project/vscode-image-manager-debug/src",
+        "absWorkspaceFolder": "c:/Users/path/to/project/vscode-image-manager-debug/src",
+        "basePath": "c:/Users/path/to/project/vscode-image-manager-debug",
+        "dirPath": "",
+        "fileType": "svg",
+        "name": "root.svg",
+        "path": "c:/Users/path/to/project/vscode-image-manager-debug/src/root.svg",
+        "workspaceFolder": "src",
+      },
+      {
+        "absDirPath": "c:/Users/path/to/project/vscode-image-manager-debug/src/webview",
+        "absWorkspaceFolder": "c:/Users/path/to/project/vscode-image-manager-debug/src",
+        "basePath": "c:/Users/path/to/project/vscode-image-manager-debug",
+        "dirPath": "webview",
+        "fileType": "png",
+        "name": "blender.png",
+        "path": "c:/Users/path/to/project/vscode-image-manager-debug/src/webview/blender.png",
+        "workspaceFolder": "src",
+      },
+      {
+        "absDirPath": "c:/Users/path/to/project/vscode-image-manager-debug/src/ui-framework/src/images",
+        "absWorkspaceFolder": "c:/Users/path/to/project/vscode-image-manager-debug/src",
+        "basePath": "c:/Users/path/to/project/vscode-image-manager-debug",
+        "dirPath": "c:ui-framework/src/images",
+        "fileType": "png",
+        "name": "blender.png",
+        "path": "c:/Users/path/to/project/vscode-image-manager-debug/src/ui-framework/src/images/blender.png",
+        "workspaceFolder": "src",
+      },
+      {
+        "absDirPath": "c:/Users/path/to/project/vscode-image-manager-debug/src",
+        "absWorkspaceFolder": "c:/Users/path/to/project/vscode-image-manager-debug/src",
+        "basePath": "c:/Users/path/to/project/vscode-image-manager-debug",
+        "dirPath": "",
+        "fileType": "png",
+        "name": "d3.png",
+        "path": "c:/Users/path/to/project/vscode-image-manager-debug/src/d3.png",
+        "workspaceFolder": "src",
+      },
+      {
+        "absDirPath": "c:/Users/path/to/project/vscode-image-manager-debug/src/ui-framework/webview",
+        "absWorkspaceFolder": "c:/Users/path/to/project/vscode-image-manager-debug/src",
+        "basePath": "c:/Users/path/to/project/vscode-image-manager-debug",
+        "dirPath": "ui-framework/webview",
+        "fileType": "png",
+        "name": "d3.png",
+        "path": "c:/Users/path/to/project/vscode-image-manager-debug/src/ui-framework/webview/d3.png",
+        "workspaceFolder": "src",
+      },
+    ],
+    "type": "workspace",
+    "value": "c:/Users/path/to/project/vscode-image-manager-debug/src",
   },
 ]
 `;
