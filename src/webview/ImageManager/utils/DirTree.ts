@@ -88,7 +88,7 @@ export class DirTree {
       }
       if (!isEmpty(node?.renderCondition)) {
         const renderList = this.visibleList.filter((img) => this._shouldShowImage(node, img)) || []
-        this._postFiltered(renderList)
+        this._postFilterd(renderList)
         if (renderList.length) {
           node.renderList = renderList
         }
@@ -96,16 +96,9 @@ export class DirTree {
     }
   }
 
-  private _postFiltered(filterdList: ImageType[]) {
-    filterdList.forEach((item) => {
-      const arr = this.visibleList
-      const indexToDelete = arr.findIndex((i) => i.path === item.path)
-      if (indexToDelete === -1) {
-        return
-      }
-      ;[arr[indexToDelete], arr[arr.length - 1]] = [arr[arr.length - 1], arr[indexToDelete]]
-      arr.pop()
-    })
+  private _postFilterd(filterdList: ImageType[]) {
+    const filterdSet = new Set(filterdList.map((item) => item.path))
+    this.visibleList = this.visibleList.filter((item) => !filterdSet.has(item.path))
   }
 
   mergeRenderCondition(prev: FileNode['renderCondition'], add: FileNode['renderCondition']) {
