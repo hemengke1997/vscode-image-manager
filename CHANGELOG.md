@@ -1,5 +1,16 @@
 # CHANGELOG
 
+## [0.0.20](https://github.com/hemengke1997/vscode-image-manager/compare/v0.0.19...v0.0.20) (2024-01-22)
+
+### Feat
+
+* Support more user-custom cropper options ([47f4249](https://github.com/hemengke1997/vscode-image-manager/commit/47f42495d39147844d81ffac3d74db5963403117))
+
+### Fix
+
+* Images in root directory don't render ([fe37250](https://github.com/hemengke1997/vscode-image-manager/commit/fe372507b0e69162f0c1075a6de4f9b636dfb1a2))
+
+
 ## [0.0.19](https://github.com/hemengke1997/vscode-image-manager/compare/v0.0.18...v0.0.19) (2024-01-18)
 
 ### Performance
