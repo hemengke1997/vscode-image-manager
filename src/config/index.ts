@@ -33,17 +33,11 @@ export const Config = {
 
   get compress() {
     return {
-      get replace(): boolean {
-        return getConfig('compress.replace')
-      },
       get method(): 'tinypng' | 'sharp' {
         return getConfig('compress.method')
       },
       get tinypngKey(): string {
         return getConfig('compress.tinypngKey')
-      },
-      get quality(): number {
-        return getConfig('compress.quality')
       },
     }
   },

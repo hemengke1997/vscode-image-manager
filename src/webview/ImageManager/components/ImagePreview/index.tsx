@@ -7,15 +7,16 @@ import { type ReactNode, memo, startTransition, useEffect, useState } from 'reac
 import { type ImageType } from '../..'
 import GlobalContext from '../../contexts/GlobalContext'
 import SettingsContext from '../../contexts/SettingsContext'
-import LazyImage from '../LazyImage'
+import LazyImage, { type LazyImageProps } from '../LazyImage'
 import Toast from '../Toast'
 
 export type ImagePreviewProps = {
   images: ImageType[]
+  lazyImageProps?: Partial<LazyImageProps>
 }
 
 function ImagePreview(props: ImagePreviewProps) {
-  const { images } = props
+  const { images, lazyImageProps } = props
 
   const { token } = theme.useToken()
 
@@ -107,11 +108,13 @@ function ImagePreview(props: ImagePreviewProps) {
             >
               {images.map((image, i) => (
                 <LazyImage
+                  {...lazyImageProps}
                   imageProp={{
                     style: { backgroundColor },
                     width: BASE_SIZE * scale!,
                     height: BASE_SIZE * scale!,
                     src: image.vscodePath,
+                    ...lazyImageProps?.imageProp,
                   }}
                   preview={preview}
                   onPreviewChange={(p) => {

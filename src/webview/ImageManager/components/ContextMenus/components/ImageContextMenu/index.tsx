@@ -1,30 +1,27 @@
-import { useLockFn } from '@minko-fe/react-hook'
+import { useLockFn, useMemoizedFn } from '@minko-fe/react-hook'
 import { App, Descriptions, type DescriptionsProps } from 'antd'
 import { memo } from 'react'
 import { type BooleanPredicate, Item, type ItemParams, Separator } from 'react-contexify'
 import { useTranslation } from 'react-i18next'
 import { os } from 'un-detector'
 import { type ImageType } from '@/webview/ImageManager'
-import GlobalContext from '@/webview/ImageManager/contexts/GlobalContext'
 import useImageOperation from '@/webview/ImageManager/hooks/useImageOperation'
 import { formatBytes } from '@/webview/ImageManager/utils'
-import FrameworkContext from '@/webview/ui-framework/src/contexts/FrameworkContext'
 import MaskMenu from '../../../MaskMenu'
+import useOperation from '../../hooks/useOperation'
 import styles from './index.module.css'
 
 export const IMAGE_CONTEXT_MENU_ID = 'IMAGE_CONTEXT_MENU_ID'
 
 function ImageContextMenu() {
   const { t } = useTranslation()
-  const { theme } = FrameworkContext.usePicker(['theme'])
   const { message, modal } = App.useApp()
 
   const {
     openInOsExplorer,
     openInVscodeExplorer,
     copyImageAsBase64,
-    compressImage,
-    onCompressEnd,
+    beginCompressProcess,
     cropImage,
     _testVscodeBuiltInCmd,
   } = useImageOperation()
@@ -54,39 +51,16 @@ function ImageContextMenu() {
     openInVscodeExplorer(e.props!.image.path)
   }
 
-  const { compressor } = GlobalContext.usePicker(['compressor'])
-  const isCompressDisabled = (e: ItemParams<{ image: ImageType }>) => {
-    const supportedExts = compressor?.config.exts
-    if (supportedExts?.includes(e.props?.image.extraPathInfo.ext || '')) {
-      return false
-    }
-    return true
-  }
+  const { isCompressDisabled } = useOperation()
 
-  const handleCompressImage = useLockFn(async (filePath: string) => {
-    const LoadingKey = `${filePath}-compressing`
-    message.loading({
-      content: t('im.compressing'),
-      duration: 0,
-      key: LoadingKey,
-    })
-    try {
-      const res = await compressImage([filePath])
-      message.destroy(LoadingKey)
+  const _isOperationHidden = useMemoizedFn((e: ItemParams<{ operable: boolean }>) => {
+    const { operable = true } = e.props || {}
+    return !operable
+  })
+  const isOperationHidden = _isOperationHidden as BooleanPredicate
 
-      if (Array.isArray(res)) {
-        res.forEach((item) => {
-          onCompressEnd(item, {
-            onRetryClick: (filePath) => {
-              handleCompressImage(filePath)
-            },
-          })
-        })
-      }
-    } catch (e) {
-      console.error(e)
-      message.destroy(LoadingKey)
-    }
+  const handleCompressImage = useMemoizedFn((e: ItemParams<{ image: ImageType }>) => {
+    beginCompressProcess([e.props!.image])
   })
 
   const handleShowImageDetail = useLockFn(
@@ -179,18 +153,22 @@ function ImageContextMenu() {
 
   return (
     <>
-      <MaskMenu id={IMAGE_CONTEXT_MENU_ID} theme={theme}>
+      <MaskMenu id={IMAGE_CONTEXT_MENU_ID}>
         <Item onClick={(e) => handleCopyString(e, 'name')}>{t('im.copy_image_name')}</Item>
         <Item onClick={(e) => handleCopyString(e, 'path')}>{t('im.copy_image_path')}</Item>
         <Item onClick={(e) => handleCopyString(e, 'path', copyImageAsBase64)}>{t('im.copy_image_base64')}</Item>
-        <Separator />
+        <Separator hidden={isOperationHidden} />
         <Item
-          disabled={isCompressDisabled as BooleanPredicate}
-          onClick={(e: ItemParams<{ image: ImageType }>) => handleCompressImage(e.props!.image.path)}
+          // disabled={isCompressDisabled}
+          hidden={isOperationHidden}
+          onClick={handleCompressImage}
         >
           {t('im.compress')}
         </Item>
-        <Item onClick={(e) => handleCropImage(e)}>{t('im.crop')}</Item>
+        <Item onClick={(e) => handleCropImage(e)} hidden={isOperationHidden}>
+          {t('im.crop')}
+        </Item>
+
         <Separator />
         <Item onClick={handleOpenInOsExplorer}>
           {os.isMac() ? t('im.reveal_in_os_mac') : t('im.reveal_in_os_windows')}

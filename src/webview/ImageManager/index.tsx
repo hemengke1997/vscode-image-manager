@@ -1,9 +1,9 @@
-import { intersection, isEqual, uniq } from '@minko-fe/lodash-pro'
+import { difference, isEqual, uniq } from '@minko-fe/lodash-pro'
 import { App, Card, Skeleton } from 'antd'
 import { AnimatePresence, motion } from 'framer-motion'
 import { type Stats } from 'fs-extra'
 import { type ParsedPath } from 'node:path'
-import { type ReactElement, type ReactNode, useEffect, useMemo } from 'react'
+import { type ReactElement, type ReactNode, memo, useEffect, useMemo } from 'react'
 import { useTranslation } from 'react-i18next'
 import { CmdToVscode, CmdToWebview } from '@/message/constant'
 import { localStorageEnum } from '../local-storage'
@@ -19,10 +19,12 @@ import DisplayType from './components/DisplayType'
 import ImageActions from './components/ImageActions'
 import ImageCropper from './components/ImageCropper'
 import ImageForSize from './components/ImageForSize'
+import ImageOperator from './components/ImageOperator'
 import ImageSearch from './components/ImageSearch'
 import ActionContext from './contexts/ActionContext'
 import CroppoerContext from './contexts/CropperContext'
 import GlobalContext from './contexts/GlobalContext'
+import OperatorContext from './contexts/OperatorContext'
 import SettingsContext from './contexts/SettingsContext'
 import TreeContext from './contexts/TreeContext'
 import useWheelScaleEvent from './hooks/useWheelScaleEvent'
@@ -57,7 +59,7 @@ export type ImageType = {
   nameElement?: ReactElement
 }
 
-export default function ImageManager() {
+function ImageManager() {
   const { message } = App.useApp()
   const { t } = useTranslation()
 
@@ -75,6 +77,8 @@ export default function ImageManager() {
     'imageSearchOpen',
     'setImageSearchOpen',
   ])
+
+  const { operatorModal, setOperatorModal } = OperatorContext.usePicker(['operatorModal', 'setOperatorModal'])
 
   const {
     sort,
@@ -102,13 +106,19 @@ export default function ImageManager() {
 
     vscodeApi.postMessage({ cmd: CmdToVscode.GET_ALL_IMAGES }, ({ data, workspaceFolders }) => {
       console.log('GET_ALL_IMAGES', data, workspaceFolders)
-
       const allTypes = data.flatMap((item) => item.fileTypes)
-      const imageTypes = displayImageTypes?.length ? intersection(displayImageTypes, allTypes) : allTypes
 
-      // avoid images flash
-      if (!isEqual(imageTypes, displayImageTypes)) {
-        onImageTypeChange(imageTypes)
+      try {
+        const imageTypes = displayImageTypes?.unchecked.length
+          ? difference(allTypes, displayImageTypes.unchecked)
+          : allTypes
+
+        // avoid images flash
+        if (!isEqual(imageTypes, displayImageTypes)) {
+          onImageTypeChange(imageTypes)
+        }
+      } catch {
+        setDisplayImageTypes({ checked: allTypes, unchecked: [] })
       }
 
       setImageState({
@@ -150,8 +160,11 @@ export default function ImageManager() {
   const allImageTypes = useMemo(() => uniq(imageState.data.flatMap((item) => item.fileTypes)).sort(), [imageState.data])
   const allImageFiles = useMemo(() => imageState.data.flatMap((item) => item.imgs).sort(), [imageState.data])
 
-  const onImageTypeChange = (checked: string[]) => {
-    setDisplayImageTypes(checked)
+  const onImageTypeChange = (checked: string[], unchecked?: string[]) => {
+    setDisplayImageTypes((t) => ({
+      checked: checked || t?.checked || [],
+      unchecked: unchecked || t?.unchecked || [],
+    }))
   }
 
   /* ---------------- image group --------------- */
@@ -217,7 +230,7 @@ export default function ImageManager() {
                     <DisplayType
                       imageType={{
                         all: allImageTypes,
-                        checked: displayImageTypes!,
+                        checked: displayImageTypes?.checked || [],
                       }}
                       images={allImageFiles}
                       onImageTypeChange={onImageTypeChange}
@@ -296,9 +309,12 @@ export default function ImageManager() {
           }))
         }
       />
+      <ImageOperator {...operatorModal} onOpenChange={(open) => setOperatorModal({ open })} />
     </>
   )
 }
+
+export default memo(ImageManager)
 
 type OperationItemProps = {
   children: ReactNode

@@ -1,42 +1,46 @@
 import fs from 'fs-extra'
+import mime from 'mime/lite'
+import path from 'node:path'
 import tinify from 'tinify'
 import { Log } from '@/utils/Log'
-import { AbsCompressor, type CompressOptions, type CompressorMethod } from '../AbsCompressor'
+import { AbsCompressor, type CommonOptions, type CompressinOptions, type CompressorMethod } from '../AbsCompressor'
 
 type TinypngOptions = {
   apiKey: string
 }
 
-type PostInfo = {
-  error?: any
-  output: {
-    url: string
-    size: number
-    type: string
-    width: number
-    height: number
-    ratio: number
-  }
+interface TinypngCompressionOptions extends CompressinOptions {
+  /**
+   * @description output format
+   * @example 'png'
+   */
+  format: string
 }
 
-class TinyPng extends AbsCompressor {
+class TinyPng extends AbsCompressor<TinypngCompressionOptions> {
   name: CompressorMethod = 'tinypng'
+  option: TinypngCompressionOptions
 
   public static DEFAULT_CONFIG = {
-    exts: ['.png', '.jpg', '.jpeg', '.webp'],
+    exts: ['png', 'jpg', 'jpeg', 'webp'],
     max: 5 * 1024 * 1024, // 5MB
   }
 
   constructor(
-    public compressOptions: CompressOptions,
-    public options: TinypngOptions,
+    public commonOptions: CommonOptions,
+    options: TinypngOptions,
   ) {
-    super(compressOptions, {
+    super(commonOptions, {
       exts: TinyPng.DEFAULT_CONFIG.exts,
       sizeLimit: TinyPng.DEFAULT_CONFIG.max,
     })
 
     tinify.key = options.apiKey
+
+    this.option = {
+      format: '',
+      keep: 0,
+    }
   }
 
   validate(): Promise<boolean> {
@@ -52,14 +56,19 @@ class TinyPng extends AbsCompressor {
     })
   }
 
-  compress(filePaths: string[]): Promise<
+  compress(
+    filePaths: string[],
+    option: TinypngCompressionOptions,
+  ): Promise<
     {
       filePath: string
-      originSize?: number | undefined
-      compressedSize?: number | undefined
+      originSize?: number
+      compressedSize?: number
+      outputPath?: string
       error?: any
     }[]
   > {
+    this.option = option
     const res = Promise.all(filePaths.map((filePath) => this.tiny_compress(filePath)))
     return res
   }
@@ -69,12 +78,13 @@ class TinyPng extends AbsCompressor {
       await this.tryCompressable(filePath)
 
       const originSize = fs.statSync(filePath).size
-      const postInfo = await this.fileUpload(filePath)
+      const newFilePath = await this.tinifyFile(filePath)
 
       return {
         originSize,
-        compressedSize: postInfo.output.size,
+        compressedSize: fs.statSync(newFilePath).size,
         filePath,
+        outputPath: newFilePath,
       }
     } catch (e) {
       return {
@@ -84,34 +94,57 @@ class TinyPng extends AbsCompressor {
     }
   }
 
-  async fileUpload(filePath: string): Promise<PostInfo> {
-    return new Promise((resolve, reject) => {
-      tinify.fromFile(filePath).toBuffer((err, buffer) => {
-        if (err) {
-          if (err instanceof tinify.AccountError) {
-            reject('Authentication failed. Have you set the API Key?')
-          }
-          if (err instanceof tinify.ClientError) {
-            reject('Check your source image and request options.')
-          }
-          if (err instanceof tinify.ServerError) {
-            reject('Temporary issue with the Tinify API. Please try again later.')
-          }
-          if (err instanceof tinify.ConnectionError) {
-            reject('A network connection error occurred.')
-          }
-          reject(err)
-        }
+  private _supportedConvertExts = ['png', 'jpg', 'jpeg', 'webp']
 
-        if (buffer) {
-          const fileWritableStream = fs.createWriteStream(this.getOutputPath(filePath))
-          fileWritableStream.write(buffer)
-          fileWritableStream.on('finish', () => {
-            const postInfo = JSON.parse(buffer.toString()) as PostInfo
-            resolve(postInfo)
+  async tinifyFile(filePath: string): Promise<string> {
+    let { format } = this.option
+    if (!this._supportedConvertExts.includes(format)) {
+      format = path.extname(filePath).slice(1)
+    }
+
+    Log.info(`Tinify compress option: ${JSON.stringify(this.option)}`)
+
+    return new Promise((resolve, reject) => {
+      try {
+        tinify
+          .fromFile(filePath)
+          .convert({
+            type: mime.getType(format),
           })
-        }
-      })
+          .toBuffer((err, buffer) => {
+            if (err) {
+              if (err instanceof tinify.AccountError) {
+                reject('Authentication failed. Have you set the API Key?')
+              }
+              if (err instanceof tinify.ClientError) {
+                reject('Check your source image and request options.')
+              }
+              if (err instanceof tinify.ServerError) {
+                reject('Temporary issue with the Tinify API. Please try again later.')
+              }
+              if (err instanceof tinify.ConnectionError) {
+                reject('A network connection error occurred.')
+              }
+              reject(err)
+            }
+
+            const outputPath = this.getOutputPath(filePath, format)
+
+            try {
+              this.trashFile(filePath)
+              const fileWritableStream = fs.createWriteStream(outputPath)
+              fileWritableStream.write(buffer)
+              fileWritableStream.on('finish', () => {
+                resolve(outputPath)
+              })
+              fileWritableStream.end()
+            } catch (e) {
+              reject(e)
+            }
+          })
+      } catch (e) {
+        reject(e)
+      }
     })
   }
 }

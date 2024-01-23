@@ -1,3 +1,4 @@
+import { difference } from '@minko-fe/lodash-pro'
 import { Badge, Checkbox, ConfigProvider, theme } from 'antd'
 import { memo } from 'react'
 import { type ImageType } from '../..'
@@ -10,7 +11,7 @@ export type DisplayImageTypes = {
 type DisplayTypeProps = {
   images: ImageType[]
   imageType: DisplayImageTypes
-  onImageTypeChange: (checked: string[]) => void
+  onImageTypeChange: (checked: string[], unchecked: string[]) => void
 }
 
 function DisplayType(props: DisplayTypeProps) {
@@ -46,13 +47,12 @@ function DisplayType(props: DisplayTypeProps) {
     })
   }
 
-  return (
-    <Checkbox.Group
-      value={imageType.checked}
-      onChange={(checked) => onImageTypeChange(checked as string[])}
-      options={imageTypeOptions()}
-    ></Checkbox.Group>
-  )
+  const onChange = (checked: string[]) => {
+    const unchecked = difference(imageType.all, checked)
+    onImageTypeChange(checked, unchecked)
+  }
+
+  return <Checkbox.Group value={imageType.checked} onChange={onChange} options={imageTypeOptions()}></Checkbox.Group>
 }
 
 export default memo(DisplayType)

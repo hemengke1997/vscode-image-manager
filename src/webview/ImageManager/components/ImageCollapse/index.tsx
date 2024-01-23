@@ -5,8 +5,8 @@ import classNames from 'classnames'
 import { type ReactNode, memo, useEffect, useMemo } from 'react'
 import { useContextMenu } from 'react-contexify'
 import ActionContext from '../../contexts/ActionContext'
+import { COLLAPSE_CONTEXT_MENU_ID } from '../ContextMenus/components/CollapseContextMenu'
 import ImagePreview, { type ImagePreviewProps } from '../ImagePreview'
-import { COLLAPSE_CONTEXT_MENU_ID } from './components/CollapseContextMenu'
 
 type ImageCollapseProps = {
   collapseProps: CollapseProps

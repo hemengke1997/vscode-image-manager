@@ -1,18 +1,12 @@
-import { ceil, isObject } from '@minko-fe/lodash-pro'
 import { useMemoizedFn } from '@minko-fe/react-hook'
-import { App, Button } from 'antd'
-import { useTranslation } from 'react-i18next'
-import { IoMdTrendingDown } from 'react-icons/io'
-import { VscWarning } from 'react-icons/vsc'
 import { CmdToVscode } from '@/message/constant'
 import { vscodeApi } from '@/webview/vscode-api'
 import { type ImageType } from '..'
 import CroppoerContext from '../contexts/CropperContext'
-import { formatBytes, getFilenameFromPath } from '../utils'
+import OperatorContext from '../contexts/OperatorContext'
 
 function useImageOperation() {
-  const { notification } = App.useApp()
-  const { t } = useTranslation()
+  const { setOperatorModal } = OperatorContext.usePicker(['setOperatorModal'])
 
   const openInVscodeExplorer = useMemoizedFn((filePath: string) => {
     vscodeApi.postMessage({ cmd: CmdToVscode.OPEN_IMAGE_IN_VSCODE_EXPLORER, data: { filePath } })
@@ -30,106 +24,13 @@ function useImageOperation() {
     })
   })
 
-  const compressImage = useMemoizedFn(
-    (
-      filePaths: string[],
-    ): Promise<
-      | {
-          filePath: string
-          originSize?: number | undefined
-          compressedSize?: number | undefined
-          error?: any
-        }[]
-      | undefined
-    > => {
-      return new Promise((resolve) => {
-        vscodeApi.postMessage({ cmd: CmdToVscode.COMPRESS_IMAGE, data: { filePaths } }, (data) => {
-          resolve(data)
-        })
-      })
-    },
-  )
-
-  const onCompressEnd = useMemoizedFn(
-    (
-      result: {
-        filePath: string
-        originSize?: number | undefined
-        compressedSize?: number | undefined
-        error?: any
-      },
-      options: {
-        onError?: (filePath: string, error: string) => void
-        onRetryClick?: (filePath: string) => void
-      },
-    ) => {
-      const { originSize, compressedSize, filePath, error } = result
-      const filename = getFilenameFromPath(filePath)
-      if (originSize && compressedSize) {
-        const percent = ceil(((originSize - compressedSize) / originSize) * 100)
-        if (percent < 0) {
-          notification.warning({
-            duration: 0,
-            message: filename,
-            description: (
-              <div className={'flex items-center space-x-2'}>
-                <div className='flex-center'>
-                  <VscWarning />
-                </div>
-                <div>{t('im.size_increase')}</div>
-                <div className={'text-ant-color-warning font-bold'}>+{percent}%</div>
-              </div>
-            ),
-          })
-        } else {
-          notification.success({
-            duration: 10,
-            message: filename,
-            description: (
-              <div className={'flex items-center space-x-2'}>
-                <div className={'text-ant-color-error font-bold'}>-{percent}%</div>
-                <div className={'flex-center text-ant-color-text-secondary'}>
-                  <span>({formatBytes(originSize)}</span>
-                  <div className={'flex-center'}>
-                    <IoMdTrendingDown />
-                  </div>
-                  <span>{formatBytes(compressedSize)})</span>
-                </div>
-              </div>
-            ),
-          })
-        }
-      } else {
-        const { onError, onRetryClick } = options
-        const _error = isObject(error) ? JSON.stringify(error) : error
-
-        onError?.(filePath, _error || '')
-        const notificationKey = `${filename}-compress-fail`
-        notification.error({
-          duration: null,
-          key: notificationKey,
-          message: filename,
-          description: (
-            <div className={'flex flex-col space-y-2'}>
-              <div>
-                {t('im.compress_fail')}: {_error}
-              </div>
-              <div>
-                <Button
-                  onClick={() => {
-                    notification.destroy(notificationKey)
-                    onRetryClick?.(filePath)
-                  }}
-                >
-                  {t('im.retry')}
-                </Button>
-              </div>
-            </div>
-          ),
-        })
-      }
-    },
-  )
+  const beginCompressProcess = useMemoizedFn((images: ImageType[]) => {
+    // open compress modal
+    setOperatorModal({
+      open: true,
+      images,
+    })
+  })
 
   const { setCropperProps } = CroppoerContext.usePicker(['setCropperProps'])
   const cropImage = useMemoizedFn((image: ImageType) => {
@@ -144,8 +45,7 @@ function useImageOperation() {
     openInVscodeExplorer,
     openInOsExplorer,
     copyImageAsBase64,
-    compressImage,
-    onCompressEnd,
+    beginCompressProcess,
     cropImage,
     _testVscodeBuiltInCmd,
   }

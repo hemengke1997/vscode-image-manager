@@ -1,22 +1,58 @@
 import type SharpType from 'sharp'
+import { round } from '@minko-fe/lodash-pro'
 import fs from 'fs-extra'
 import path from 'node:path'
 import { detectSharp } from '@/utils'
-import { AbsCompressor, type CompressOptions, type CompressorMethod } from '../AbsCompressor'
+import { Log } from '@/utils/Log'
+import { AbsCompressor, type CommonOptions, type CompressinOptions, type CompressorMethod } from '../AbsCompressor'
 
-class Sharp extends AbsCompressor {
+interface SharpCompressionOptions extends CompressinOptions {
+  /**
+   * @description
+   * use the lowest number of colours needed to achieve given quality, sets palette to true
+   * @default 100
+   */
+  quality: number
+  /**
+   * @description
+   * zlib compression level, 0 (fastest, largest) to 9 (slowest, smallest)
+   * @default 9
+   */
+  compressionLevel: number
+  /**
+   * @description output size
+   * @example 1
+   * @default 1
+   */
+  size: number
+  /**
+   * @description output format
+   * @example 'png'
+   */
+  format: string
+}
+
+class Sharp extends AbsCompressor<SharpCompressionOptions> {
   name: CompressorMethod = 'sharp'
+  option: SharpCompressionOptions
 
   public static DEFAULT_CONFIG = {
-    exts: ['.png', '.jpg', '.jpeg', '.webp', '.gif', 'tiff', 'avif'],
+    exts: ['png', 'jpg', 'jpeg', 'webp', 'gif', 'tiff', 'avif'],
     maxLimit: 20 * 1024 * 1024, // 20MB
   }
 
-  constructor(public compressOptions: CompressOptions) {
-    super(compressOptions, {
+  constructor(public commonOptions: CommonOptions) {
+    super(commonOptions, {
       exts: Sharp.DEFAULT_CONFIG.exts,
       sizeLimit: Sharp.DEFAULT_CONFIG.maxLimit,
     })
+    this.option = {
+      compressionLevel: 9,
+      quality: 100,
+      size: 1,
+      format: '',
+      keep: 0,
+    }
   }
 
   validate(): Promise<boolean> {
@@ -30,9 +66,17 @@ class Sharp extends AbsCompressor {
 
   compress(
     filePaths: string[],
+    option: SharpCompressionOptions,
   ): Promise<
-    { filePath: string; originSize?: number | undefined; compressedSize?: number | undefined; error?: any }[]
+    {
+      filePath: string
+      originSize?: number
+      compressedSize?: number
+      outputPath?: string
+      error?: any
+    }[]
   > {
+    this.option = option
     const res = Promise.all(filePaths.map((filePath) => this.sharp_compress(filePath)))
     return res
   }
@@ -46,6 +90,7 @@ class Sharp extends AbsCompressor {
         ...res,
       }
     } catch (e) {
+      Log.info(`Sharp Compress Error: ${JSON.stringify(e)}`)
       return {
         error: e,
         filePath,
@@ -53,39 +98,59 @@ class Sharp extends AbsCompressor {
     }
   }
 
-  private async _streamSharp(filePath: string): Promise<{ originSize: number; compressedSize: number }> {
+  private async _streamSharp(
+    filePath: string,
+  ): Promise<{ originSize: number; compressedSize: number; outputPath: string }> {
+    const { format, compressionLevel, quality, size } = this.option!
+
     const originSize = fs.statSync(filePath).size
 
     return new Promise((resolve, reject) => {
-      const ouputPath = this.getOutputPath(filePath)
+      const ext = !format ? path.extname(filePath).slice(1) : format
+      const outputPath = this.getOutputPath(filePath, ext, size)
 
-      const ext = path.extname(filePath).slice(1)
+      const sharp = this._loadSharp()
 
-      this._loadSharp()(filePath)
-        .toFormat(ext as keyof SharpType.FormatEnum, {
-          quality: this.compressOptions.quality,
-          compressionLevel: this.compressOptions.compressionLevel,
-        })
-        .toBuffer()
-        .then(async (buffer) => {
-          try {
-            const fileWritableStream = fs.createWriteStream(this.getOutputPath(filePath))
-
-            fileWritableStream.on('finish', () => {
-              const compressedSize = fs.statSync(ouputPath).size
-
-              resolve({
-                originSize,
-                compressedSize,
-              })
+      sharp(filePath)
+        .metadata()
+        .then(({ width, height }) =>
+          sharp(filePath)
+            .toFormat(ext as keyof SharpType.FormatEnum, {
+              quality,
+              compressionLevel,
             })
+            .resize({
+              width: round(width! * size),
+              height: round(height! * size),
+              fit: 'contain',
+            })
+            .toBuffer()
+            .then(async (buffer) => {
+              try {
+                this.trashFile(filePath)
 
-            fileWritableStream.write(buffer)
-            fileWritableStream.end()
-          } catch (e) {
-            reject(e)
-          }
-        })
+                const fileWritableStream = fs.createWriteStream(outputPath)
+
+                fileWritableStream.on('finish', () => {
+                  const compressedSize = fs.statSync(outputPath).size
+
+                  resolve({
+                    originSize,
+                    compressedSize,
+                    outputPath,
+                  })
+                })
+
+                fileWritableStream.write(buffer)
+                fileWritableStream.end()
+              } catch (e) {
+                reject(e)
+              }
+            })
+            .catch((e) => {
+              reject(e)
+            }),
+        )
         .catch((e) => {
           reject(e)
         })

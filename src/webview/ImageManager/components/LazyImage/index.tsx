@@ -8,15 +8,16 @@ import { useHotkeys } from 'react-hotkeys-hook'
 import { useTranslation } from 'react-i18next'
 import { FaImages } from 'react-icons/fa6'
 import { ImEyePlus } from 'react-icons/im'
+import { MdOutlineRemoveCircle } from 'react-icons/md'
 import { PiFileImage } from 'react-icons/pi'
 import { CmdToVscode } from '@/message/constant'
 import { vscodeApi } from '@/webview/vscode-api'
 import { type ImageType } from '../..'
 import GlobalContext from '../../contexts/GlobalContext'
 import { bytesToKb, formatBytes } from '../../utils'
-import { IMAGE_CONTEXT_MENU_ID } from './components/ImageContextMenu'
+import { IMAGE_CONTEXT_MENU_ID } from '../ContextMenus/components/ImageContextMenu'
 
-type LazyImageProps = {
+export type LazyImageProps = {
   imageProp: ImageProps
   image: ImageType
   index?: number
@@ -25,11 +26,19 @@ type LazyImageProps = {
     current?: number
   }
   onPreviewChange?: (preview: { open?: boolean; current?: number }) => void
+
   lazy?: boolean
+  onRemoveClick?: (image: ImageType) => void
+  contextMenu?: {
+    /**
+     * @description whether to show operation menu
+     */
+    operable?: boolean
+  }
 }
 
 function LazyImage(props: LazyImageProps) {
-  const { imageProp, image, preview, onPreviewChange, index, lazy = true } = props
+  const { imageProp, image, preview, onPreviewChange, index, lazy = true, onRemoveClick, contextMenu } = props
 
   const { t } = useTranslation()
 
@@ -82,23 +91,33 @@ function LazyImage(props: LazyImageProps) {
         ref={keybindRef}
         tabIndex={-1}
         className={classNames(
-          'flex flex-none flex-col items-center p-1.5 space-y-1 transition-colors',
+          'flex flex-none flex-col items-center p-1.5 space-y-1 transition-colors relative group',
           'overflow-hidden border-[1px] border-solid border-transparent rounded-md hover:border-ant-color-primary focus:border-ant-color-primary',
         )}
         initial={{ opacity: 0 }}
         viewport={{ once: true, margin: '20px 0px' }}
         transition={{ duration: 0.8 }}
         whileInView={{ opacity: 1 }}
-        onClick={() => {}}
         onContextMenu={(e) => {
-          show({ event: e, id: IMAGE_CONTEXT_MENU_ID, props: { image, dimensions } })
+          show({ event: e, id: IMAGE_CONTEXT_MENU_ID, props: { image, dimensions, ...contextMenu } })
         }}
         onMouseOver={handleMaskMouseOver}
       >
+        {onRemoveClick && (
+          <div
+            className={
+              'text-ant-color-error absolute left-0 top-0 z-[99] cursor-pointer opacity-0 transition-opacity group-hover:opacity-100'
+            }
+            onClick={() => onRemoveClick(image)}
+            title={t('im.remove')}
+          >
+            <MdOutlineRemoveCircle />
+          </div>
+        )}
         <Badge status='warning' dot={ifWarning}>
           <Image
             {...imageProp}
-            className='rounded-md object-contain p-1 will-change-auto'
+            className={classNames('rounded-md object-contain p-1 will-change-auto', imageProp.className)}
             preview={
               lazy
                 ? {
@@ -132,7 +151,7 @@ function LazyImage(props: LazyImageProps) {
                   }
                 : false
             }
-            rootClassName='transition-all'
+            rootClassName={classNames('transition-all', imageProp.rootClassName)}
             style={{ width: imageProp.width, height: imageProp.height, ...imageProp.style }}
           ></Image>
         </Badge>

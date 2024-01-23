@@ -84,7 +84,19 @@
     "size_increase": "Size Increase:",
     "language": "language",
     "primary_color": "color",
-    "theme": "theme"
+    "theme": "theme",
+    "remove": "remove",
+    "undo_redo_tip": "Press {{undo}} to undo, {{redo}} to redo",
+    "image_compression": "Image Compression",
+    "compress_level": "Compression Level",
+    "compress_level_tip": "0 (fastest, largest) to 9 (slowest, smallest)",
+    "image_quality": "Image Quality",
+    "image_size": "Image Size",
+    "custom": "Custom",
+    "format": "Format",
+    "original": "Original",
+    "confirm": "Confirm",
+    "svg_format_tip": "SVG format can't be compressed"
   },
   "fallback": {
     "internal_error": "Internal Error",
