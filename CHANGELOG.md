@@ -1,5 +1,18 @@
 # CHANGELOG
 
+## [0.0.23](https://github.com/hemengke1997/vscode-image-manager/compare/v0.0.22...v0.0.23) (2024-01-25)
+
+### Feat
+
+* Image operator, added more image interactivity ([bf39b58](https://github.com/hemengke1997/vscode-image-manager/commit/bf39b580f0b8d0a0aa9b7d141bc24957dbad66be))
+
+### Break-Change
+
+* Deprecate `image-manager.compress.replace`
+* Deprecate `image-manager.compress.quality`
+* Deprecate `image-manager.compress.compressionLevel`
+* All above configs you can find in Image operator now.
+
 ## [0.0.22](https://github.com/hemengke1997/vscode-image-manager/compare/v0.0.21...v0.0.22) (2024-01-22)
 
 ### Fix
