@@ -81,7 +81,20 @@
     "size_increase": "体积增加：",
     "language": "语言",
     "primary_color": "主色",
-    "theme": "主题"
+    "theme": "主题",
+    "remove": "移除",
+    "undo_redo_tip": "按 {{undo}} 撤销，按 {{redo}} 恢复",
+    "image_compression": "图片压缩",
+    "compress_level": "压缩系数",
+    "compress_level_tip": "0(最快，最大)，9(最慢，最小)",
+    "image_quality": "图片质量",
+    "image_size": "图片尺寸",
+    "custom": "自定义",
+    "format": "格式",
+    "original": "原格式",
+    "confirm": "确认",
+    "cant_compress_svg": "无法压缩 svg，请选择其他格式",
+    "keep_origin": "保留原文件"
   },
   "fallback": {
     "internal_error": "内部错误",

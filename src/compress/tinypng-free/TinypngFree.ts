@@ -1,6 +1,6 @@
 import fs from 'fs-extra'
 import https from 'node:https'
-import { AbsCompressor, type CompressOptions, type CompressorMethod } from '../AbsCompressor'
+import { AbsCompressor, type CommonOptions, type CompressinOptions, type CompressorMethod } from '../AbsCompressor'
 
 type PostInfo = {
   error?: any
@@ -14,26 +14,33 @@ type PostInfo = {
   }
 }
 
-class TinypngFree extends AbsCompressor {
+export class TinypngFree extends AbsCompressor {
   name: CompressorMethod = 'tinypngFree'
+  option: CompressinOptions
 
   public static DEFAULT_CONFIG = {
-    exts: ['.png', '.jpg', '.jpeg', '.webp'],
+    exts: ['png', 'jpg', 'jpeg', 'webp'],
     max: 5 * 1024 * 1024, // 5MB
   }
 
-  constructor(public compressOptions: CompressOptions) {
-    super(compressOptions, {
+  constructor(public commonOptions: CommonOptions) {
+    super(commonOptions, {
       exts: TinypngFree.DEFAULT_CONFIG.exts,
       sizeLimit: TinypngFree.DEFAULT_CONFIG.max,
     })
+    this.option = {
+      keep: 0,
+    }
   }
 
   validate(): Promise<boolean> {
     return Promise.resolve(true)
   }
 
-  async compress(filePaths: string[]): Promise<
+  async compress(
+    filePaths: string[],
+    option: CompressinOptions,
+  ): Promise<
     {
       filePath: string
       originSize?: number
@@ -41,6 +48,7 @@ class TinypngFree extends AbsCompressor {
       error?: any
     }[]
   > {
+    this.option = option
     const res = Promise.all(filePaths.map((filePath) => this.tiny_compress(filePath)))
     return res
   }
@@ -117,9 +125,11 @@ class TinypngFree extends AbsCompressor {
     return new Promise((resolve, reject) => {
       const options = new URL(info.output.url)
       const req = https.request(options, (res) => {
-        const fileWritableStream = fs.createWriteStream(this.getOutputPath(filePath))
+        const outputPath = this.getOutputPath(filePath)
+        const fileWritableStream = fs.createWriteStream(outputPath)
         res.pipe(fileWritableStream)
         fileWritableStream.on('finish', () => {
+          this.trashFile(filePath)
           resolve()
         })
         fileWritableStream.on('error', (e) => {
@@ -140,5 +150,3 @@ class TinypngFree extends AbsCompressor {
       .join('.')
   }
 }
-
-export { TinypngFree }

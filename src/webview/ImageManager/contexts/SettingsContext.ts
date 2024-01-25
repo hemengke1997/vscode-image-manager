@@ -9,10 +9,15 @@ import { Colors } from '../utils/color'
 
 function useSettingsContext() {
   /* -------------- image display type --------------- */
-  const [displayImageTypes, setDisplayImageTypes] = useLocalStorageState<string[]>(
-    localStorageEnum.LOCAL_STORAGE_DISPLAY_TYPE,
-    { defaultValue: [] },
-  )
+  const [displayImageTypes, setDisplayImageTypes] = useLocalStorageState<{
+    checked: string[]
+    unchecked: string[]
+  }>(localStorageEnum.LOCAL_STORAGE_DISPLAY_TYPE, {
+    defaultValue: {
+      checked: [],
+      unchecked: [],
+    },
+  })
 
   /* ---------------- image sort ---------------- */
   const [sort, setSort] = useLocalStorageState<string[]>(localStorageEnum.LOCAL_STORAGE_SORT, {

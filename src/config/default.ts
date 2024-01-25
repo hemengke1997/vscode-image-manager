@@ -6,11 +6,9 @@ export const defaultConfig: ConfigType = {
   imageDefaultWidth: 100,
   scaleStep: 0.1,
   exclude: [],
-  imageType: ['svg', 'png', 'jpeg', 'jpg', 'ico', 'gif', 'webp', 'bmp', 'tif', 'apng'],
+  imageType: ['svg', 'png', 'jpeg', 'jpg', 'ico', 'gif', 'webp', 'bmp', 'tif', 'apng', 'apng', 'tiff', 'avif'],
   compress: {
-    replace: true,
-    quality: 80,
-    method: 'tinypng',
+    method: 'sharp',
     tinypngKey: '',
   },
 }

@@ -1,6 +1,6 @@
 import { memo } from 'react'
-import CollapseContextMenu from '../ImageCollapse/components/CollapseContextMenu'
-import ImageContextMenu from '../LazyImage/components/ImageContextMenu'
+import CollapseContextMenu from './components/CollapseContextMenu'
+import ImageContextMenu from './components/ImageContextMenu'
 import './index.css'
 import 'react-contexify/ReactContexify.css'
 

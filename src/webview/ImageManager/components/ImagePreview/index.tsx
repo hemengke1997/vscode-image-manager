@@ -4,18 +4,21 @@ import { isDev } from '@minko-fe/vite-config/client'
 import { ConfigProvider, Image, theme } from 'antd'
 import { motion } from 'framer-motion'
 import { type ReactNode, memo, startTransition, useEffect, useState } from 'react'
+import { useContextMenu } from 'react-contexify'
 import { type ImageType } from '../..'
 import GlobalContext from '../../contexts/GlobalContext'
 import SettingsContext from '../../contexts/SettingsContext'
-import LazyImage from '../LazyImage'
+import { IMAGE_CONTEXT_MENU_ID } from '../ContextMenus/components/ImageContextMenu'
+import LazyImage, { type LazyImageProps } from '../LazyImage'
 import Toast from '../Toast'
 
 export type ImagePreviewProps = {
   images: ImageType[]
+  lazyImageProps?: Partial<LazyImageProps>
 }
 
 function ImagePreview(props: ImagePreviewProps) {
-  const { images } = props
+  const { images, lazyImageProps } = props
 
   const { token } = theme.useToken()
 
@@ -30,6 +33,8 @@ function ImagePreview(props: ImagePreviewProps) {
   const [preview, setPreview] = useState<{ open?: boolean; current?: number }>({ open: false, current: -1 })
 
   const [scaleToast, setScaleToast] = useSetState<{ open: boolean; content: ReactNode }>({ open: false, content: null })
+
+  const { show } = useContextMenu<{ image: ImageType; dimensions: { width: number; height: number } }>()
 
   useEffect(() => {
     if (!preview.open) {
@@ -64,9 +69,9 @@ function ImagePreview(props: ImagePreviewProps) {
               onChange(current) {
                 setPreview({ current, open: true })
               },
-              onVisibleChange: (v, _) => {
+              onVisibleChange: (v, _, current) => {
                 if (!v) {
-                  setPreview({ open: v })
+                  setPreview({ open: v, current })
                   return
                 }
                 if (v) return
@@ -74,21 +79,34 @@ function ImagePreview(props: ImagePreviewProps) {
               maxScale: 50,
               minScale: 0.1,
               scaleStep: 0.3,
+              imageRender(originalNode, info) {
+                return (
+                  <div
+                    onContextMenu={(e) => {
+                      show({
+                        event: e,
+                        id: IMAGE_CONTEXT_MENU_ID,
+                        props: { image: images[info.current], ...lazyImageProps?.contextMenu },
+                      })
+                    }}
+                  >
+                    {originalNode}
+                  </div>
+                )
+              },
               onTransform(info) {
                 if (['wheel', 'zoomIn', 'zoomOut'].includes(info.action)) {
                   const sclalePercent = round(info.transform.scale * 100)
-                  try {
-                    startTransition(() => {
-                      setScaleToast({
-                        open: true,
-                        content: (
-                          <div className={'flex items-center'}>
-                            <span>{sclalePercent}%</span>
-                          </div>
-                        ),
-                      })
+                  startTransition(() => {
+                    setScaleToast({
+                      open: true,
+                      content: (
+                        <div className={'flex items-center'}>
+                          <span>{sclalePercent}%</span>
+                        </div>
+                      ),
                     })
-                  } catch {}
+                  })
                 }
               },
             }}
@@ -107,11 +125,13 @@ function ImagePreview(props: ImagePreviewProps) {
             >
               {images.map((image, i) => (
                 <LazyImage
+                  {...lazyImageProps}
                   imageProp={{
                     style: { backgroundColor },
                     width: BASE_SIZE * scale!,
                     height: BASE_SIZE * scale!,
                     src: image.vscodePath,
+                    ...lazyImageProps?.imageProp,
                   }}
                   preview={preview}
                   onPreviewChange={(p) => {
@@ -119,7 +139,7 @@ function ImagePreview(props: ImagePreviewProps) {
                   }}
                   image={image}
                   index={i}
-                  key={image.path}
+                  key={image.path + image.stats.ctime}
                 />
               ))}
             </ConfigProvider>

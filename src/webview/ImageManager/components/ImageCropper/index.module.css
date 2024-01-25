@@ -3,3 +3,11 @@
     @apply max-w-full max-h-full;
   }
 }
+
+.cropper {
+  :global {
+    .cropper-container {
+      @apply max-w-full;
+    }
+  }
+}

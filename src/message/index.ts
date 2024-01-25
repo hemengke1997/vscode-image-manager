@@ -139,7 +139,7 @@ export const VscodeMessageCenter = {
         height: size.height || 0,
       }
     } catch (err) {
-      console.log(err)
+      Log.info(`GET_IMAGE_DIMENSIONS ERROR: ${err}`)
     }
     return dimensions
   },
@@ -198,28 +198,33 @@ export const VscodeMessageCenter = {
   /* -------------- compress image -------------- */
   [CmdToVscode.COMPRESS_IMAGE]: async ({
     message,
-  }: MessageParams<{ filePaths: string[] }>): Promise<
+  }: MessageParams<{
+    filePaths: string[]
+    option?: {
+      compressionLevel?: number
+      quality?: number
+      size: number
+      format: string
+      keep: 0 | 1
+    }
+  }>): Promise<
     | {
         filePath: string
-        originSize?: number | undefined
-        compressedSize?: number | undefined
+        originSize?: number
+        compressedSize?: number
+        outputPath?: string
         error?: any
       }[]
     | undefined
   > => {
     try {
-      let { filePaths } = message.data
-
+      const { filePaths, option } = message.data
       const { compressor } = Context.instance
-      filePaths = filePaths.filter((file) => {
-        return compressor?.config.exts.includes(path.extname(file))
-      })
-
-      const res = await compressor?.compress(filePaths)
+      const res = await compressor?.compress(filePaths, option)
       Log.info(`Compress result: ${JSON.stringify(res)}`)
       return res
     } catch (e: any) {
-      Log.error(`Compress error: ${e}`)
+      Log.info(`Compress error: ${JSON.stringify(e)}`)
       return e
     }
   },

@@ -76,6 +76,6 @@ function useGlobalContext() {
   }
 }
 
-const BaseContext = createContainer(useGlobalContext)
+const GlobalContext = createContainer(useGlobalContext)
 
-export default BaseContext
+export default GlobalContext

@@ -13,7 +13,7 @@ export type ImageStateType = {
 }
 
 function useTreeContext(props: { imageList: ImageType[] }) {
-  const { imageList } = props
+  const { imageList: imageListProp } = props
 
   const [imageSingleTree, setImageSingleTree] = useSetState<ImageStateType>({
     originalList: [],
@@ -84,7 +84,9 @@ function useTreeContext(props: { imageList: ImageType[] }) {
   // Everytime list changed, update visibleList
   // the only entry to update visibleList
   useUpdateEffect(() => {
-    setImageSingleTree((t) => ({ visibleList: t.list.filter(shouldShowImage) }))
+    setImageSingleTree((t) => {
+      return { visibleList: t.list.filter(shouldShowImage) }
+    })
   }, [imageSingleTree.list])
 
   // sort
@@ -92,17 +94,16 @@ function useTreeContext(props: { imageList: ImageType[] }) {
   // display image type
   const generateImageList = useMemoizedFn((imageList: ImageType[]) => {
     const s = onSortChange(imageList, sort)
-    const d = onDisplayImageTypeChange(s, displayImageTypes)
+    const d = onDisplayImageTypeChange(s, displayImageTypes?.checked)
     return onSizeFilterChange(d, sizeFilter)
   })
 
   useEffect(() => {
     setImageSingleTree({
-      originalList: imageList,
-      list: generateImageList(imageList),
-      visibleList: imageList,
+      originalList: imageListProp,
+      list: generateImageList(imageListProp),
     })
-  }, [imageList])
+  }, [imageListProp])
 
   const { sort, displayImageTypes } = SettingsContext.usePicker(['sort', 'displayImageTypes'])
 
@@ -114,8 +115,9 @@ function useTreeContext(props: { imageList: ImageType[] }) {
   })
 
   useUpdateEffect(() => {
-    const list = onSortChange(imageSingleTree.list, sort)
-    setImageSingleTree({ list })
+    setImageSingleTree((t) => ({
+      list: onSortChange(t.list, sort),
+    }))
   }, [sort])
 
   const onDisplayImageTypeChange = useMemoizedFn((imageList: ImageType[], displayImageTypes: string[] | undefined) => {
@@ -127,9 +129,10 @@ function useTreeContext(props: { imageList: ImageType[] }) {
 
   // display image type setting change
   useUpdateEffect(() => {
-    const list = onDisplayImageTypeChange(imageSingleTree.list, displayImageTypes)
-    setImageSingleTree({ list })
-  }, [displayImageTypes])
+    setImageSingleTree((t) => ({
+      list: onDisplayImageTypeChange(t.list, displayImageTypes?.checked),
+    }))
+  }, [displayImageTypes?.checked])
 
   // filter action triggerd
   const { sizeFilter } = ActionContext.usePicker(['sizeFilter'])
@@ -151,8 +154,9 @@ function useTreeContext(props: { imageList: ImageType[] }) {
   })
 
   useUpdateEffect(() => {
-    const list = onSizeFilterChange(imageSingleTree.list, sizeFilter)
-    setImageSingleTree({ list })
+    setImageSingleTree((t) => ({
+      list: onSizeFilterChange(t.list, sizeFilter),
+    }))
   }, [sizeFilter])
 
   return {

@@ -1,20 +1,8 @@
 import fs from 'fs-extra'
 import path from 'node:path'
+import { Log } from '@/utils/Log'
 
-export type CompressOptions = {
-  /**
-   * @description sharp only
-   * use the lowest number of colours needed to achieve given quality, sets palette to true
-   * @default 80
-   */
-  quality: number
-  /**
-   * @description sharp only
-   * zlib compression level, 0 (fastest, largest) to 9 (slowest, smallest)
-   * @default 9
-   */
-  compressionLevel?: number
-  replace?: boolean
+export type CommonOptions = {
   fileSuffix?: string
 }
 
@@ -25,31 +13,67 @@ export type CompressConfig = {
 
 export type CompressorMethod = 'sharp' | 'tinypng' | 'tinypngFree'
 
-export abstract class AbsCompressor {
-  abstract name: CompressorMethod
+export interface CompressinOptions {
+  /**
+   * @description whether keep original
+   * @default 0
+   */
+  keep?: 0 | 1
+}
+
+export abstract class AbsCompressor<CO extends CompressinOptions = CompressinOptions> {
+  public abstract name: CompressorMethod
+  public abstract option: CO
 
   constructor(
-    public compressOptions: CompressOptions,
+    public commonOptions: CommonOptions,
     public config: CompressConfig,
   ) {}
 
-  abstract compress(filePaths: string[]): Promise<
+  abstract compress(
+    filePaths: string[],
+    option?: CO,
+  ): Promise<
     {
       filePath: string
       originSize?: number
       compressedSize?: number
+      outputPath?: string
       error?: any
     }[]
   >
 
   abstract validate(): Promise<boolean>
 
-  getOutputPath(targetPath: string) {
-    const { replace } = this.compressOptions
+  async trashFile(filePath: string) {
+    try {
+      if (this.option.keep) return
+      await fs.remove(filePath)
+    } catch (e) {
+      Log.info(`Trash File Error: ${e}`)
+    }
+  }
 
-    const outputPath = replace ? targetPath : this._generateOutputPath(targetPath)
+  getOutputPath(sourcePath: string, ext?: string, size?: number) {
+    const { keep } = this.option || {}
 
-    return outputPath
+    let outputPath = sourcePath
+    if (size !== 1) {
+      outputPath = this._generateOutputPath(outputPath, `@${size}x`)
+    }
+
+    if (keep) {
+      outputPath = this._generateOutputPath(outputPath, this.commonOptions.fileSuffix || '.min')
+    }
+
+    return this._changeExt(outputPath, ext)
+  }
+
+  private _changeExt(filePath: string, ext?: string) {
+    if (ext) {
+      return filePath.replace(new RegExp(`${path.extname(filePath).slice(1)}$`), ext)
+    }
+    return filePath
   }
 
   getFilename(filePath: string) {
@@ -69,21 +93,21 @@ export abstract class AbsCompressor {
       }
 
       reject(
-        `file ${this.getFilename(filePath)} is not a valid image. Only support ${this.config.exts.join(
-          ', ',
-        )} and size <= ${this.config.sizeLimit / 1024 / 1024}MB`,
+        `file [${this.getFilename(filePath)}] is not a valid image. Only support size <= ${this.config.sizeLimit / 1024 / 1024}MB`,
       )
     })
   }
 
   private _isCompressable(filePath: string) {
     const fileStat = fs.statSync(filePath)
-    return (
-      fileStat.isFile() && this.config.exts.includes(path.extname(filePath)) && fileStat.size <= this.config.sizeLimit
-    )
+    return fileStat.isFile() && fileStat.size <= this.config.sizeLimit
   }
 
-  private _generateOutputPath(filePath: string, suffix = this.compressOptions.fileSuffix || '.min') {
+  private _generateOutputPath(
+    filePath: string,
+    suffix: string,
+    //  = this.commonOptions.fileSuffix || '.min'
+  ) {
     const { name, ext, dir } = path.parse(filePath)
     const filename = `${name}${suffix}`
     const outputPath = `${dir}/${filename}${ext}`
@@ -91,7 +115,7 @@ export abstract class AbsCompressor {
     const fileExists = fs.existsSync(outputPath)
 
     if (fileExists) {
-      return this._generateOutputPath(outputPath)
+      return this._generateOutputPath(outputPath, suffix)
     }
     return outputPath
   }

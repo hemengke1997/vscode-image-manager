@@ -1,4 +1,5 @@
 import { type Context } from '@/Context'
+import { Log } from '@/utils/Log'
 import { type AbsCompressor } from './AbsCompressor'
 import { Compressor } from './Compressos'
 
@@ -15,8 +16,6 @@ export function initCompressor(
     new Compressor(
       compress.method,
       {
-        quality: compress.quality,
-        replace: compress.replace,
         tinypngKey: compress.tinypngKey,
       },
       depsInstalled,
@@ -24,10 +23,15 @@ export function initCompressor(
       .init()
       .then((compressor) => {
         compressor.getInstance().then((c) => {
-          ctx.setCompressor(c)
-          onSuccess?.(c)
-          resolve(c)
+          if (c) {
+            ctx.setCompressor(c)
+            onSuccess?.(c)
+            resolve(c)
+          }
         })
+      })
+      .catch((e) => {
+        Log.info(`Init Compressor Error: ${e}`)
       })
   })
 }
