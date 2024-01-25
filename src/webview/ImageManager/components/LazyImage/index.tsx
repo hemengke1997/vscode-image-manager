@@ -71,7 +71,7 @@ function LazyImage(props: LazyImageProps) {
 
   const ifWarning = bytesToKb(image.stats.size) > config.warningSize
 
-  const { show } = useContextMenu<{ image: ImageType; dimensions: { width: number; height: number } }>()
+  const { show } = useContextMenu<{ image: ImageType }>()
 
   if (!inViewport && lazy) {
     return (
@@ -99,7 +99,7 @@ function LazyImage(props: LazyImageProps) {
         transition={{ duration: 0.8 }}
         whileInView={{ opacity: 1 }}
         onContextMenu={(e) => {
-          show({ event: e, id: IMAGE_CONTEXT_MENU_ID, props: { image, dimensions, ...contextMenu } })
+          show({ event: e, id: IMAGE_CONTEXT_MENU_ID, props: { image, ...contextMenu } })
         }}
         onMouseOver={handleMaskMouseOver}
       >

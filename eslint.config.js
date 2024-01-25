@@ -6,6 +6,8 @@ export default defineConfig([
   {
     rules: {
       '@typescript-eslint/no-extraneous-class': 'off',
+      '@typescript-eslint/no-invalid-void-type': 'off',
+      'no-restricted-syntax': 'off',
     },
   },
 ])

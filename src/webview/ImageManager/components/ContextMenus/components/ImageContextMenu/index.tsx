@@ -4,11 +4,12 @@ import { memo } from 'react'
 import { type BooleanPredicate, Item, type ItemParams, Separator } from 'react-contexify'
 import { useTranslation } from 'react-i18next'
 import { os } from 'un-detector'
+import { CmdToVscode } from '@/message/constant'
 import { type ImageType } from '@/webview/ImageManager'
 import useImageOperation from '@/webview/ImageManager/hooks/useImageOperation'
 import { formatBytes } from '@/webview/ImageManager/utils'
+import { vscodeApi } from '@/webview/vscode-api'
 import MaskMenu from '../../../MaskMenu'
-import useOperation from '../../hooks/useOperation'
 import styles from './index.module.css'
 
 export const IMAGE_CONTEXT_MENU_ID = 'IMAGE_CONTEXT_MENU_ID'
@@ -51,8 +52,6 @@ function ImageContextMenu() {
     openInVscodeExplorer(e.props!.image.path)
   }
 
-  const { isCompressDisabled } = useOperation()
-
   const _isOperationHidden = useMemoizedFn((e: ItemParams<{ operable: boolean }>) => {
     const { operable = true } = e.props || {}
     return !operable
@@ -63,79 +62,81 @@ function ImageContextMenu() {
     beginCompressProcess([e.props!.image])
   })
 
-  const handleShowImageDetail = useLockFn(
-    (e: ItemParams<{ image: ImageType; dimensions: { width: number; height: number } }>) => {
-      const { image, dimensions } = e.props || {}
+  const handleShowImageDetail = useLockFn((e: ItemParams<{ image: ImageType }>) => {
+    const { image } = e.props || {}
 
-      if (!image) return Promise.resolve()
+    if (!image) return Promise.resolve()
 
-      const formatDate = (date: Date) => {
-        return new Date(date).toLocaleDateString(undefined, {
-          hour12: false,
-          hour: '2-digit',
-          minute: '2-digit',
-          second: '2-digit',
-        })
-      }
+    return new Promise((resolve) => {
+      vscodeApi.postMessage({ cmd: CmdToVscode.GET_IMAGE_DIMENSIONS, data: { filePath: image.path } }, (dimensions) => {
+        const formatDate = (date: Date) => {
+          return new Date(date).toLocaleDateString(undefined, {
+            hour12: false,
+            hour: '2-digit',
+            minute: '2-digit',
+            second: '2-digit',
+          })
+        }
 
-      const descItems: DescriptionsProps['items'] = [
-        {
-          label: t('im.name'),
-          children: <div>{image.name}</div>,
-        },
-        {
-          label: t('im.workspace'),
-          children: <div>{image.workspaceFolder}</div>,
-        },
-        {
-          label: t('im.folder'),
-          children: <div>{image.dirPath || '/'}</div>,
-        },
-        {
-          label: `${t('im.dimensions')}(px)`,
-          children: (
-            <div>
-              {dimensions?.width} x {dimensions?.height}
-            </div>
+        const descItems: DescriptionsProps['items'] = [
+          {
+            label: t('im.name'),
+            children: <div>{image.name}</div>,
+          },
+          {
+            label: t('im.workspace'),
+            children: <div>{image.workspaceFolder}</div>,
+          },
+          {
+            label: t('im.folder'),
+            children: <div>{image.dirPath || '/'}</div>,
+          },
+          {
+            label: `${t('im.dimensions')}(px)`,
+            children: (
+              <div>
+                {dimensions?.width} x {dimensions?.height}
+              </div>
+            ),
+          },
+          {
+            label: t('im.size'),
+            children: <div>{formatBytes(image.stats.size)}</div>,
+          },
+          {
+            label: t('im.birth_time'),
+            children: <div>{formatDate(image.stats.birthtime)}</div>,
+          },
+          {
+            label: t('im.last_status_changed_time'),
+            children: <div>{formatDate(image.stats.ctime)}</div>,
+          },
+        ]
+
+        modal.success({
+          width: '50%',
+          icon: null,
+          closable: true,
+          title: t('im.image_detail'),
+          className: styles.detail_modal,
+          content: (
+            <Descriptions
+              className={'mt-2'}
+              layout='horizontal'
+              column={1}
+              size='small'
+              title={null}
+              bordered
+              items={descItems.map((item, index) => ({ key: index, ...item }))}
+            />
           ),
-        },
-        {
-          label: t('im.size'),
-          children: <div>{formatBytes(image.stats.size)}</div>,
-        },
-        {
-          label: t('im.birth_time'),
-          children: <div>{formatDate(image.stats.birthtime)}</div>,
-        },
-        {
-          label: t('im.last_status_changed_time'),
-          children: <div>{formatDate(image.stats.ctime)}</div>,
-        },
-      ]
+          footer: null,
+        })
 
-      modal.success({
-        width: '50%',
-        icon: null,
-        closable: true,
-        title: t('im.image_detail'),
-        className: styles.detail_modal,
-        content: (
-          <Descriptions
-            className={'mt-2'}
-            layout='horizontal'
-            column={1}
-            size='small'
-            title={null}
-            bordered
-            items={descItems.map((item, index) => ({ key: index, ...item }))}
-          />
-        ),
-        footer: null,
+        resolve(true)
       })
-
-      return Promise.resolve()
-    },
-  )
+    })
+  })
 
   const handleCropImage = useLockFn(async (e: ItemParams<{ image: ImageType }>) => {
     if (!e.props?.image) {

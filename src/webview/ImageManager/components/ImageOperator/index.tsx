@@ -123,7 +123,7 @@ function ImageOperator(props: ImageOperatorProps & ImageOperatorStaticProps) {
       if (originSize && compressedSize) {
         const percent = ceil(((originSize - compressedSize) / originSize) * 100)
 
-        notification.open({
+        notification.info({
           duration: 10,
           message: filename,
           description: (
@@ -238,7 +238,7 @@ function ImageOperator(props: ImageOperatorProps & ImageOperatorStaticProps) {
     }
 
     let imagesToCompress = images?.map((item) => item.path) || []
-    if (!isSubmitDisabled()) {
+    if (isSubmitDisabled()) {
       message.warning(t('im.svg_format_tip'))
       imagesToCompress = imagesToCompress.filter((item) => item.endsWith('.svg'))
     }
