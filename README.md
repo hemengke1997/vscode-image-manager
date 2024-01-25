@@ -6,9 +6,6 @@
 
 <h1 align='center'>Image Manager</h1>
 
-> [!WARNING]
-> Extension maybe unstable on windows. If you encounter any problem, please report [issue](https://github.com/hemengke1997/vscode-image-manager/issues)
-
 ## Screenshot
 
 ### Overview
