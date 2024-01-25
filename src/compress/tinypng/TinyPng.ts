@@ -17,7 +17,7 @@ interface TinypngCompressionOptions extends CompressinOptions {
   format: string
 }
 
-class TinyPng extends AbsCompressor<TinypngCompressionOptions> {
+export class TinyPng extends AbsCompressor<TinypngCompressionOptions> {
   name: CompressorMethod = 'tinypng'
   option: TinypngCompressionOptions
 
@@ -148,5 +148,3 @@ class TinyPng extends AbsCompressor<TinypngCompressionOptions> {
     })
   }
 }
-
-export { TinyPng }

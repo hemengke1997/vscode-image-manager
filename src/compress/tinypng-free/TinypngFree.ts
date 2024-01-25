@@ -14,7 +14,7 @@ type PostInfo = {
   }
 }
 
-class TinypngFree extends AbsCompressor {
+export class TinypngFree extends AbsCompressor {
   name: CompressorMethod = 'tinypngFree'
   option: CompressinOptions
 
@@ -150,5 +150,3 @@ class TinypngFree extends AbsCompressor {
       .join('.')
   }
 }
-
-export { TinypngFree }

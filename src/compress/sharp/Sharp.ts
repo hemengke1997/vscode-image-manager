@@ -11,13 +11,13 @@ interface SharpCompressionOptions extends CompressinOptions {
    * use the lowest number of colours needed to achieve given quality, sets palette to true
    * @default 100
    */
-  quality: number
+  quality?: number
   /**
    * @description
    * zlib compression level, 0 (fastest, largest) to 9 (slowest, smallest)
    * @default 9
    */
-  compressionLevel: number
+  compressionLevel?: number
   /**
    * @description output size
    * @example 1
@@ -32,7 +32,7 @@ interface SharpCompressionOptions extends CompressinOptions {
   format: string
 }
 
-class Sharp extends AbsCompressor<SharpCompressionOptions> {
+export class Sharp extends AbsCompressor<SharpCompressionOptions> {
   name: CompressorMethod = 'sharp'
   option: SharpCompressionOptions
   operator: SharpOperator
@@ -111,7 +111,7 @@ class Sharp extends AbsCompressor<SharpCompressionOptions> {
       {
         name: 'compress',
         hooks: {
-          'on:input': (sharp) => {
+          'before:run': (sharp) => {
             sharp.metadata().then(({ width, height }) => {
               sharp
                 .toFormat(ext as keyof SharpType.FormatEnum, {
@@ -126,11 +126,12 @@ class Sharp extends AbsCompressor<SharpCompressionOptions> {
             })
             return sharp
           },
+          'after:run': async ({ outputPath }) => {
+            if (filePath === outputPath) return
+            await this.trashFile(filePath)
+          },
           'on:genOutputPath': (filePath) => {
             return this.getOutputPath(filePath, ext, size)
-          },
-          'on:output': () => {
-            this.trashFile(filePath)
           },
         },
       },
@@ -147,11 +148,4 @@ class Sharp extends AbsCompressor<SharpCompressionOptions> {
       return Promise.reject('compress failed')
     }
   }
-
-  private _loadSharp(): typeof SharpType {
-    const _sharp = require('sharp')
-    return _sharp
-  }
 }
-
-export { Sharp }

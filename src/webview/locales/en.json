@@ -96,7 +96,8 @@
     "format": "Format",
     "original": "Original",
     "confirm": "Confirm",
-    "svg_format_tip": "SVG format can't be compressed"
+    "svg_format_tip": "SVG format can't be compressed",
+    "keep_origin": "Keep original file"
   },
   "fallback": {
     "internal_error": "Internal Error",

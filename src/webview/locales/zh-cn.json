@@ -93,7 +93,8 @@
     "format": "格式",
     "original": "原格式",
     "confirm": "确认",
-    "cant_compress_svg": "无法压缩 svg，请选择其他格式"
+    "cant_compress_svg": "无法压缩 svg，请选择其他格式",
+    "keep_origin": "保留原文件"
   },
   "fallback": {
     "internal_error": "内部错误",

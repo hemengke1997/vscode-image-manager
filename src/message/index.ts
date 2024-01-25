@@ -201,10 +201,10 @@ export const VscodeMessageCenter = {
   }: MessageParams<{
     filePaths: string[]
     option?: {
+      compressionLevel?: number
+      quality?: number
       size: number
       format: string
-      compressionLevel: number
-      quality: number
       keep: 0 | 1
     }
   }>): Promise<

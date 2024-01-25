@@ -93,20 +93,14 @@ export abstract class AbsCompressor<CO extends CompressinOptions = CompressinOpt
       }
 
       reject(
-        `file [${this.getFilename(filePath)}] is not a valid image. Only support ${this.config.exts.join(
-          ', ',
-        )} and size <= ${this.config.sizeLimit / 1024 / 1024}MB`,
+        `file [${this.getFilename(filePath)}] is not a valid image. Only support size <= ${this.config.sizeLimit / 1024 / 1024}MB`,
       )
     })
   }
 
   private _isCompressable(filePath: string) {
     const fileStat = fs.statSync(filePath)
-    return (
-      fileStat.isFile() &&
-      this.config.exts.includes(path.extname(filePath).slice(1)) &&
-      fileStat.size <= this.config.sizeLimit
-    )
+    return fileStat.isFile() && fileStat.size <= this.config.sizeLimit
   }
 
   private _generateOutputPath(

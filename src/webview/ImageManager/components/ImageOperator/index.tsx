@@ -15,8 +15,8 @@ import { formatBytes, getFilenameFromPath } from '../../utils'
 import ImagePreview from '../ImagePreview'
 
 type FormValue = {
-  compressionLevel: number
-  quality: number
+  compressionLevel?: number
+  quality?: number
   size: string | number
   customResize?: number
   format: string
@@ -128,19 +128,21 @@ function ImageOperator(props: ImageOperatorProps & ImageOperatorStaticProps) {
           message: filename,
           description: (
             <div className={'flex items-center space-x-2'}>
-              {percent < 0 ? (
-                <div className={'flex items-center space-x-2'}>
-                  <div className='flex-center text-ant-color-warning'>
-                    <VscWarning />
-                  </div>
-                  <div>{t('im.size_increase')}</div>
-                  <div className={'text-ant-color-warning font-bold'}>
-                    {percent < 0 ? '+' : '-'}
-                    {Math.abs(percent)}%
-                  </div>
+              <div className={'flex items-center space-x-2'}>
+                {percent < 0 ? (
+                  <>
+                    <div className='flex-center text-ant-color-warning'>
+                      <VscWarning />
+                    </div>
+                    <div>{t('im.size_increase')}</div>
+                  </>
+                ) : null}
+                <div className={'text-ant-color-error font-bold'}>
+                  {percent < 0 ? '+' : '-'}
+                  {Math.abs(percent)}%
                 </div>
-              ) : null}
-              <div className={'flex-center text-ant-color-text-secondary'}>
+              </div>
+              <div className={'flex-center text-ant-color-text-secondary space-x-1'}>
                 <span>({formatBytes(originSize)}</span>
                 <div className={'flex-center'}>
                   <MdDoubleArrow />
@@ -219,13 +221,13 @@ function ImageOperator(props: ImageOperatorProps & ImageOperatorStaticProps) {
 
   const [submitting, setSubmitting] = useState(false)
 
-  const formatValue = Form.useWatch('format', form)
-
-  const isSubmitDisabled = () => {
+  const isSubmitDisabled = (formValue: FormValue) => {
     return (
       images?.some((item) => {
         return item.fileType === 'svg'
-      }) && !formatValue
+      }) &&
+      !formValue.format &&
+      formValue.compressionLevel
     )
   }
 
@@ -238,9 +240,9 @@ function ImageOperator(props: ImageOperatorProps & ImageOperatorStaticProps) {
     }
 
     let imagesToCompress = images?.map((item) => item.path) || []
-    if (isSubmitDisabled()) {
+    if (isSubmitDisabled(value)) {
       message.warning(t('im.svg_format_tip'))
-      imagesToCompress = imagesToCompress.filter((item) => item.endsWith('.svg'))
+      imagesToCompress = imagesToCompress.filter((item) => !item.endsWith('.svg'))
     }
 
     handleCompressImage(imagesToCompress, value)
@@ -269,7 +271,7 @@ function ImageOperator(props: ImageOperatorProps & ImageOperatorStaticProps) {
 
   const ComponentMap = {
     keep: () => (
-      <Form.Item label='Keep' name={'keep'} className={'mb-0'} tooltip={'keep original image'}>
+      <Form.Item label='Keep' name={'keep'} className={'mb-0'} tooltip={t('im.keep_origin')}>
         <Radio.Group>
           <Radio value={1}>Yes</Radio>
           <Radio value={0}>No</Radio>
@@ -277,17 +279,12 @@ function ImageOperator(props: ImageOperatorProps & ImageOperatorStaticProps) {
       </Form.Item>
     ),
     compressionLevel: () => (
-      <Form.Item
-        label={t('im.compress_level')}
-        name={'compressionLevel'}
-        rules={[{ required: true, message: '' }]}
-        tooltip={t('im.compress_level_tip')}
-      >
+      <Form.Item label={t('im.compress_level')} name={'compressionLevel'} tooltip={t('im.compress_level_tip')}>
         <InputNumber min={1} max={9} step={1} />
       </Form.Item>
     ),
     quality: () => (
-      <Form.Item label={t('im.image_quality')} name='quality' rules={[{ required: true, message: '' }]}>
+      <Form.Item label={t('im.image_quality')} name='quality'>
         <InputNumber min={20} max={100} step={10} />
       </Form.Item>
     ),

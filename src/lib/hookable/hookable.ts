@@ -33,7 +33,7 @@ export class Hookable<
     this.callHookWith = this.callHookWith.bind(this)
   }
 
-  protected hook<NameT extends HookNameT>(
+  hook<NameT extends HookNameT>(
     name: NameT,
     function_: InferCallback<HooksT, NameT>,
     options: { allowDeprecated?: boolean } = {},
@@ -84,7 +84,7 @@ export class Hookable<
     }
   }
 
-  protected hookOnce<NameT extends HookNameT>(name: NameT, function_: InferCallback<HooksT, NameT>) {
+  hookOnce<NameT extends HookNameT>(name: NameT, function_: InferCallback<HooksT, NameT>) {
     let _unreg: (() => void) | undefined
     let _function: ((...arguments_: any) => any) | undefined = (...arguments_: any) => {
       if (typeof _unreg === 'function') {
@@ -98,7 +98,7 @@ export class Hookable<
     return _unreg
   }
 
-  protected removeHook<NameT extends HookNameT>(name: NameT, function_: InferCallback<HooksT, NameT>) {
+  removeHook<NameT extends HookNameT>(name: NameT, function_: InferCallback<HooksT, NameT>) {
     if (this._hooks[name]) {
       const index = this._hooks[name].indexOf(function_)
 
@@ -112,7 +112,7 @@ export class Hookable<
     }
   }
 
-  protected deprecateHook<NameT extends HookNameT>(name: NameT, deprecated: HookKeys<HooksT> | DeprecatedHook<HooksT>) {
+  deprecateHook<NameT extends HookNameT>(name: NameT, deprecated: HookKeys<HooksT> | DeprecatedHook<HooksT>) {
     this._deprecatedHooks[name] = typeof deprecated === 'string' ? { to: deprecated } : deprecated
     const _hooks = this._hooks[name] || []
     delete this._hooks[name]
@@ -121,14 +121,14 @@ export class Hookable<
     }
   }
 
-  protected deprecateHooks(deprecatedHooks: Partial<Record<HookNameT, DeprecatedHook<HooksT>>>) {
+  deprecateHooks(deprecatedHooks: Partial<Record<HookNameT, DeprecatedHook<HooksT>>>) {
     Object.assign(this._deprecatedHooks, deprecatedHooks)
     for (const name in deprecatedHooks) {
       this.deprecateHook(name, deprecatedHooks[name] as DeprecatedHook<HooksT>)
     }
   }
 
-  protected addHooks(configHooks: NestedHooks<HooksT>) {
+  addHooks(configHooks: NestedHooks<HooksT>) {
     const hooks = flatHooks<HooksT>(configHooks)
     const removeFns = Object.keys(hooks).map((key) => this.hook(key as HookNameT, hooks[key]))
 
@@ -141,7 +141,7 @@ export class Hookable<
     }
   }
 
-  protected removeHooks(configHooks: NestedHooks<HooksT>) {
+  removeHooks(configHooks: NestedHooks<HooksT>) {
     const hooks = flatHooks<HooksT>(configHooks)
     for (const key in hooks) {
       // @ts-expect-error
@@ -149,13 +149,13 @@ export class Hookable<
     }
   }
 
-  protected removeAllHooks() {
+  removeAllHooks() {
     for (const key in this._hooks) {
       delete this._hooks[key]
     }
   }
 
-  protected callHook<NameT extends HookNameT>(
+  callHook<NameT extends HookNameT>(
     name: NameT,
     ...arguments_: Parameters<InferCallback<HooksT, NameT>>
   ): ReturnType<InferCallback<HooksT, NameT>> {
@@ -163,7 +163,7 @@ export class Hookable<
     return this.callHookWith(serialTaskCaller, name, ...arguments_)
   }
 
-  protected callHookParallel<NameT extends HookNameT>(
+  callHookParallel<NameT extends HookNameT>(
     name: NameT,
     ...arguments_: Parameters<InferCallback<HooksT, NameT>>
   ): ReturnType<InferCallback<HooksT, NameT>> {
@@ -171,7 +171,7 @@ export class Hookable<
     return this.callHookWith(parallelTaskCaller, name, ...arguments_)
   }
 
-  protected callHookWith<
+  callHookWith<
     NameT extends HookNameT,
     CallFunction extends (hooks: HookCallback[], arguments_: Parameters<InferCallback<HooksT, NameT>>) => any,
   >(
@@ -197,7 +197,7 @@ export class Hookable<
     return result
   }
 
-  protected beforeEach(function_: (event: InferSpyEvent<HooksT>) => void) {
+  beforeEach(function_: (event: InferSpyEvent<HooksT>) => void) {
     this._before = this._before || []
     this._before.push(function_)
     return () => {
@@ -210,7 +210,7 @@ export class Hookable<
     }
   }
 
-  protected afterEach(function_: (event: InferSpyEvent<HooksT>) => void) {
+  afterEach(function_: (event: InferSpyEvent<HooksT>) => void) {
     this._after = this._after || []
     this._after.push(function_)
     return () => {

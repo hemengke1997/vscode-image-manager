@@ -1,19 +1,15 @@
 import type SharpNS from 'sharp'
 import fs from 'fs-extra'
-import { Hookable } from '@/lib/hookable'
+import { type Hookable, createHooks } from '@/lib/hookable'
+import { Log } from '@/utils/Log'
 
 type TSharp = typeof SharpNS
 type HookResult<T = void> = Promise<T> | T
 
 const PluginIndicator = '__operator_plugin'
 
-export interface ResolvedPluginMeta {
-  name?: string
-  parallel?: boolean
-}
-
 interface PluginMeta {
-  name?: string
+  name: string
   enforce?: 'pre' | 'default' | 'post'
 }
 
@@ -31,27 +27,45 @@ export function defineOperatorPlugin(plugin: ObjectPlugin): ObjectPlugin {
 }
 
 interface RuntimeHooks {
-  'on:input': (sharp: SharpNS.Sharp) => HookResult<SharpNS.Sharp>
-  'on:output': (sharp: SharpNS.Sharp) => HookResult
+  'before:run': (sharp: SharpNS.Sharp) => HookResult<SharpNS.Sharp>
+  'after:run': (res: { outputPath: string }) => HookResult
   'on:finish': (res: { inputSize: number; outputSize: number; outputPath: string }) => HookResult
   'on:genOutputPath': (inputPath: string) => HookResult<string>
 }
 
-export class SharpOperator extends Hookable<RuntimeHooks> {
-  sharp: TSharp | null
+interface IContext {
+  outputPath: string | undefined
+  sharp: typeof SharpNS | undefined
+}
+
+class Context implements IContext {
+  outputPath: string | undefined
+  sharp: typeof SharpNS | undefined
+
+  constructor(option: Partial<IContext>) {
+    this.outputPath = option.outputPath
+    this.sharp = option.sharp
+  }
+}
+
+export class SharpOperator {
+  ctx: IContext
+  private _hooks: Hookable<RuntimeHooks>
 
   constructor(option?: { plugins: ObjectPlugin[] }) {
     const { plugins } = option || {}
-    super()
+    this._hooks = createHooks<RuntimeHooks>()
+    this._initLogger()
+
     try {
       this.detectUsable()
-      this.sharp = this._loadSharp()
-
+      const sharp = this._loadSharp()
+      this.ctx = new Context({ sharp })
       if (plugins?.length) {
         this._applyPlugins(plugins)
       }
     } catch (e) {
-      this.sharp = null
+      this.ctx = new Context({})
     }
   }
 
@@ -61,13 +75,23 @@ export class SharpOperator extends Hookable<RuntimeHooks> {
   }
 
   remove(configHooks: Parameters<Hookable['removeHooks']>[0]) {
-    this.removeHooks(configHooks)
+    this._hooks.removeHooks(configHooks)
     return this
+  }
+
+  private _initLogger() {
+    this._hooks.beforeEach((event) => {
+      Log.info(`[SharpOperator] ${event.name}`)
+    })
+
+    this._hooks.afterEach((event) => {
+      Log.info(`[SharpOperator] ${event.name} finished`)
+    })
   }
 
   private async _applyPlugin(plugin: ObjectPlugin) {
     if (plugin.hooks) {
-      this.addHooks(plugin.hooks)
+      this._hooks.addHooks(plugin.hooks)
     }
   }
 
@@ -114,14 +138,18 @@ export class SharpOperator extends Hookable<RuntimeHooks> {
     outputSize: number
     outputPath: string
   } | void> {
-    if (!this.sharp) return Promise.resolve()
-    const inputSize = fs.statSync(filePath).size
-    let sharpIntance = this.sharp(filePath)
-    sharpIntance = await this.callHook('on:input', sharpIntance)
+    if (!this.ctx.sharp) return Promise.resolve()
+
+    let sharpIntance = this.ctx.sharp(filePath)
+    sharpIntance = await this._hooks.callHook('before:run', sharpIntance)
+
     return new Promise((resolve, reject) => {
+      const inputSize = fs.statSync(filePath).size
+
       sharpIntance.toBuffer().then(async (buffer) => {
         const outputPath = await this.genOutputPath(filePath)
-        await this.callHook('on:output', sharpIntance)
+        await this._hooks.callHook('after:run', { outputPath })
+
         try {
           const fileWritableStream = fs.createWriteStream(outputPath)
 
@@ -134,7 +162,7 @@ export class SharpOperator extends Hookable<RuntimeHooks> {
               outputPath,
             }
 
-            this.callHook('on:finish', result)
+            this._hooks.callHook('on:finish', result)
             resolve(result)
           })
 
@@ -148,7 +176,9 @@ export class SharpOperator extends Hookable<RuntimeHooks> {
   }
 
   async genOutputPath(filePath: string) {
-    return (await this.callHook('on:genOutputPath', filePath)) || filePath
+    const outputPath = (await this._hooks.callHook('on:genOutputPath', filePath)) || filePath
+    this.ctx.outputPath = outputPath
+    return outputPath
   }
 
   public detectUsable() {
