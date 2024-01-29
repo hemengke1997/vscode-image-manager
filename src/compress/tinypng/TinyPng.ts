@@ -88,7 +88,7 @@ export class TinyPng extends AbsCompressor<TinypngCompressionOptions> {
       }
     } catch (e) {
       return {
-        error: e,
+        error: String(e),
         filePath,
       }
     }

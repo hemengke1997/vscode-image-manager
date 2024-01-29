@@ -148,6 +148,7 @@ function LazyImage(props: LazyImageProps) {
                       </div>
                     ),
                     maskClassName: 'rounded-md !cursor-default',
+                    className: 'min-w-24',
                   }
                 : false
             }

@@ -1,5 +1,4 @@
 import type SharpType from 'sharp'
-import { round } from '@minko-fe/lodash-pro'
 import path from 'node:path'
 import { SharpOperator } from '@/operator/SharpOperator'
 import { Log } from '@/utils/Log'
@@ -81,6 +80,7 @@ export class Sharp extends AbsCompressor<SharpCompressionOptions> {
   > {
     this.option = option
     const res = Promise.all(filePaths.map((filePath) => this.sharp_compress(filePath)))
+
     return res
   }
 
@@ -93,9 +93,9 @@ export class Sharp extends AbsCompressor<SharpCompressionOptions> {
         ...res,
       }
     } catch (e) {
-      Log.info(`Sharp Compress Error: ${JSON.stringify(e)}`)
+      Log.info(`Sharp Compress Error: ${e}`)
       return {
-        error: e,
+        error: String(e),
         filePath,
       }
     }
@@ -111,20 +111,23 @@ export class Sharp extends AbsCompressor<SharpCompressionOptions> {
       {
         name: 'compress',
         hooks: {
-          'before:run': (sharp) => {
-            sharp.metadata().then(({ width, height }) => {
-              sharp
-                .toFormat(ext as keyof SharpType.FormatEnum, {
+          'before:run': async (sharp) => {
+            return new Promise((resolve) => {
+              sharp.metadata().then(({ width, height }) => {
+                sharp.toFormat(ext as keyof SharpType.FormatEnum, {
                   quality,
                   compressionLevel,
                 })
-                .resize({
-                  width: round(width! * size),
-                  height: round(height! * size),
-                  fit: 'contain',
-                })
+                if (size !== 1) {
+                  sharp.resize({
+                    width: width! * size,
+                    height: height! * size,
+                    fit: 'contain',
+                  })
+                }
+                resolve(sharp)
+              })
             })
-            return sharp
           },
           'after:run': async ({ outputPath }) => {
             if (filePath === outputPath) return
@@ -137,15 +140,19 @@ export class Sharp extends AbsCompressor<SharpCompressionOptions> {
       },
     ])
 
-    const result = await this.operator.run(filePath)
-    if (result) {
-      return {
-        compressedSize: result.outputSize,
-        originSize: result.inputSize,
-        outputPath: result.outputPath,
+    try {
+      const result = await this.operator.run(filePath)
+      if (result) {
+        return {
+          compressedSize: result.outputSize,
+          originSize: result.inputSize,
+          outputPath: result.outputPath,
+        }
+      } else {
+        return Promise.reject(new Error('compress failed'))
       }
-    } else {
-      return Promise.reject('compress failed')
+    } catch (e) {
+      return Promise.reject(e)
     }
   }
 }

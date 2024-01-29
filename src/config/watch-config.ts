@@ -17,5 +17,5 @@ export function watchConfig() {
     }
   })
 
-  Log.info(`Extension Config: ${JSON.stringify(workspace.getConfiguration('image-manager'), null, 2)}`)
+  Log.info(`Extension Config: ${JSON.stringify(workspace.getConfiguration('image-manager'))}`)
 }

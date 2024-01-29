@@ -89,6 +89,7 @@ function ImagePreview(props: ImagePreviewProps) {
                         props: { image: images[info.current], ...lazyImageProps?.contextMenu },
                       })
                     }}
+                    className={'contents'}
                   >
                     {originalNode}
                   </div>

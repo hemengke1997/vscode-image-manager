@@ -1,6 +1,6 @@
 import type SharpNS from 'sharp'
 import fs from 'fs-extra'
-import { type Hookable, createHooks } from '@/lib/hookable'
+import { type Hookable, createHooks } from '@/fork/hookable'
 import { Log } from '@/utils/Log'
 
 type TSharp = typeof SharpNS
@@ -27,6 +27,7 @@ export function defineOperatorPlugin(plugin: ObjectPlugin): ObjectPlugin {
 }
 
 interface RuntimeHooks {
+  'on:configuration': () => HookResult<SharpNS.SharpOptions>
   'before:run': (sharp: SharpNS.Sharp) => HookResult<SharpNS.Sharp>
   'after:run': (res: { outputPath: string }) => HookResult
   'on:finish': (res: { inputSize: number; outputSize: number; outputPath: string }) => HookResult
@@ -47,6 +48,8 @@ class Context implements IContext {
     this.sharp = option.sharp
   }
 }
+
+const SHARP_LIB_RESOLVE_PATH = './lib/install/sharp.cjs'
 
 export class SharpOperator {
   ctx: IContext
@@ -140,38 +143,48 @@ export class SharpOperator {
   } | void> {
     if (!this.ctx.sharp) return Promise.resolve()
 
-    let sharpIntance = this.ctx.sharp(filePath)
+    let sharpIntance = this.ctx.sharp(filePath, {
+      animated: true,
+      limitInputPixels: false,
+      ...(await this._hooks.callHook('on:configuration')),
+    })
+
     sharpIntance = await this._hooks.callHook('before:run', sharpIntance)
 
     return new Promise((resolve, reject) => {
       const inputSize = fs.statSync(filePath).size
 
-      sharpIntance.toBuffer().then(async (buffer) => {
-        const outputPath = await this.genOutputPath(filePath)
-        await this._hooks.callHook('after:run', { outputPath })
+      sharpIntance
+        .toBuffer()
+        .then(async (buffer) => {
+          const outputPath = await this.genOutputPath(filePath)
 
-        try {
-          const fileWritableStream = fs.createWriteStream(outputPath)
+          try {
+            await this._hooks.callHook('after:run', { outputPath })
+            const fileWritableStream = fs.createWriteStream(outputPath)
 
-          fileWritableStream.on('finish', () => {
-            const outputSize = fs.statSync(outputPath).size
+            fileWritableStream.on('finish', () => {
+              const outputSize = fs.statSync(outputPath).size
 
-            const result = {
-              inputSize,
-              outputSize,
-              outputPath,
-            }
+              const result = {
+                inputSize,
+                outputSize,
+                outputPath,
+              }
 
-            this._hooks.callHook('on:finish', result)
-            resolve(result)
-          })
+              this._hooks.callHook('on:finish', result)
+              resolve(result)
+            })
 
-          fileWritableStream.write(buffer)
-          fileWritableStream.end()
-        } catch (e) {
+            fileWritableStream.write(buffer)
+            fileWritableStream.end()
+          } catch (e) {
+            reject(e)
+          }
+        })
+        .catch((e) => {
           reject(e)
-        }
-      })
+        })
     })
   }
 
@@ -183,17 +196,17 @@ export class SharpOperator {
 
   public detectUsable() {
     try {
-      require.resolve('sharp')
-      delete require.cache[require.resolve('sharp')]
+      require.resolve(SHARP_LIB_RESOLVE_PATH)
+      delete require.cache[require.resolve(SHARP_LIB_RESOLVE_PATH)]
       return true
     } catch {
-      delete require.cache[require.resolve('sharp')]
+      delete require.cache[require.resolve(SHARP_LIB_RESOLVE_PATH)]
       return false
     }
   }
 
   private _loadSharp(): TSharp {
-    const _sharp = require('sharp')
-    return _sharp
+    const _sharp = require(SHARP_LIB_RESOLVE_PATH)
+    return _sharp.default
   }
 }

@@ -1,10 +1,12 @@
 <p align='center'>
-  <a href='https://github.com/hemengke1997/vscode-image-manager' target="_blank" rel='noopener noreferrer'>
+  <a href='https://github.com/hemengke1997/vscode-image-manager-issue' target="_blank" rel='noopener noreferrer'>
     <img width='140' src='./assets/logo.png' alt='logo' />
   </a>
 </p>
 
 <h1 align='center'>Image Manager</h1>
+
+> A powerful yet simple image manager and viewer for VSCode
 
 ## Screenshot
 

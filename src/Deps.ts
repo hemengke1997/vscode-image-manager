@@ -5,6 +5,9 @@ import { Emitter } from 'strict-event-emitter'
 import * as vscode from 'vscode'
 import { Log } from '@/utils/Log'
 import { Context } from './Context'
+import { initCompressor } from './compress'
+import { CmdToWebview } from './message/constant'
+import { ImageManagerPanel } from './panel/ImageManagerPanel'
 
 type DepsInstallResult = 'installed' | 'success' | 'fail' | null
 
@@ -181,5 +184,45 @@ export class Deps extends Emitter<Events> {
 
       await fs.writeJson(path.join(this.cwd, './package.json'), pkgJson)
     }
+  }
+}
+
+export async function _init(ctx: Context) {
+  initCompressor(ctx)
+
+  try {
+    const deps = new Deps()
+    deps.on('install-success', () => {
+      vscode.window
+        .showInformationMessage('Dependencies Installed Successfully. Please Reload', 'Reload')
+        .then((res) => {
+          if (res === 'Reload') {
+            if (ImageManagerPanel.currentPanel?.panel) {
+              ImageManagerPanel.render(ctx, true)
+            } else {
+              // Try to avoid vscode issue `Extensions have been modified on disk. Please reload the window.`
+              vscode.commands.executeCommand('workbench.action.reloadWindow')
+            }
+          }
+        })
+    })
+    deps.on('install-fail', () => {
+      Log.error('Failed to install dependencies', true)
+    })
+    const depsInstalled = await deps.init()
+    if (depsInstalled) {
+      // if user choose sharp as compressor
+      // notify webview
+      if (ctx.config.compress.method === 'sharp') {
+        initCompressor(ctx, true, (c) => {
+          ImageManagerPanel.currentPanel?.panel.webview.postMessage({
+            cmd: CmdToWebview.COMPRESSOR_CHANGED,
+            data: c,
+          })
+        })
+      }
+    }
+  } catch (e) {
+    Log.error(`Init Error: ${JSON.stringify(e)}`)
   }
 }

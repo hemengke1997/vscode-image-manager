@@ -56,7 +56,7 @@ function Fallback(props: FallbackProps) {
           </Tooltip>
 
           <Tooltip title={`${t('fallback.thx_report')}🙏`}>
-            <a href='https://github.com/hemengke1997/vscode-image-manager/issues/new'>
+            <a href='https://github.com/hemengke1997/vscode-image-manager-issue/issues/new'>
               <Button
                 size='middle'
                 type='default'

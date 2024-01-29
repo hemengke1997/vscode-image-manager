@@ -72,7 +72,7 @@ export class TinypngFree extends AbsCompressor {
         }
       }
       return {
-        error: e,
+        error: String(e),
         filePath,
       }
     }

@@ -23,6 +23,9 @@
   ],
   "license": "MIT",
   "homepage": "https://github.com/hemengke1997/vscode-image-manager",
+  "bugs": {
+    "url": "https://github.com/hemengke1997/vscode-image-manager-issue"
+  },
   "repository": {
     "type": "git",
     "url": "https://github.com/hemengke1997/vscode-image-manager"
@@ -173,7 +176,7 @@
     "@types/vscode": "^1.60.0",
     "@types/vscode-webview": "^1.57.4",
     "@vitejs/plugin-react": "^4.2.1",
-    "@vscode/vsce": "^2.22.0",
+    "@vscode/vsce": "^2.23.0",
     "antd": "^5.13.1",
     "bumpp": "^9.2.1",
     "classnames": "^2.3.2",

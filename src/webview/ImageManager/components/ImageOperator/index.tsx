@@ -1,5 +1,5 @@
 import { ceil, isObject, upperCase } from '@minko-fe/lodash-pro'
-import { useControlledState, useHistoryTravel, useLockFn, useMemoizedFn } from '@minko-fe/react-hook'
+import { useControlledState, useHistoryTravel, useMemoizedFn } from '@minko-fe/react-hook'
 import { Alert, App, Button, Card, ConfigProvider, Divider, Form, InputNumber, Modal, Radio, theme } from 'antd'
 import { type ReactNode, memo, useEffect, useState } from 'react'
 import { useHotkeys } from 'react-hotkeys-hook'
@@ -101,6 +101,7 @@ function ImageOperator(props: ImageOperatorProps & ImageOperatorStaticProps) {
       },
     ) => {
       const { originSize, compressedSize, filePath, outputPath, error } = result
+      console.log(result, 'result')
 
       let filename: ReactNode = null
       if (outputPath && outputPath !== filePath) {
@@ -184,40 +185,38 @@ function ImageOperator(props: ImageOperatorProps & ImageOperatorStaticProps) {
     },
   )
 
-  const handleCompressImage = useLockFn(
-    async (
-      filePaths: string[],
-      compressOptions: FormValue,
-      callback?: {
-        onSuccess: () => void
-      },
-    ) => {
-      setSubmitting(true)
-      message.loading({
-        content: t('im.compressing'),
-        duration: 0,
-        key: LoadingKey,
-      })
-      try {
-        const res = await compressImage(filePaths, compressOptions)
-        if (Array.isArray(res)) {
-          res.forEach((item) => {
-            onCompressEnd(item, {
-              onRetryClick: (filePath) => {
-                handleCompressImage([filePath], compressOptions, callback)
-              },
-            })
-          })
-        }
-        setOpen(false)
-      } catch (e) {
-        console.error(e)
-      } finally {
-        message.destroy(LoadingKey)
-        setSubmitting(false)
-      }
+  const handleCompressImage = async (
+    filePaths: string[],
+    compressOptions: FormValue,
+    callback?: {
+      onSuccess: () => void
     },
-  )
+  ) => {
+    setSubmitting(true)
+    message.loading({
+      content: t('im.compressing'),
+      duration: 0,
+      key: LoadingKey,
+    })
+    try {
+      const res = await compressImage(filePaths, compressOptions)
+      if (Array.isArray(res)) {
+        res.forEach((item) => {
+          onCompressEnd(item, {
+            onRetryClick: (filePath) => {
+              handleCompressImage([filePath], compressOptions, callback)
+            },
+          })
+        })
+      }
+      setOpen(false)
+    } catch (e) {
+      console.error(e)
+    } finally {
+      message.destroy(LoadingKey)
+      setSubmitting(false)
+    }
+  }
 
   const [submitting, setSubmitting] = useState(false)
 
@@ -334,6 +333,7 @@ function ImageOperator(props: ImageOperatorProps & ImageOperatorStaticProps) {
       open={open}
       onCancel={() => {
         setOpen(false)
+        setSubmitting(false)
       }}
       title={t('im.image_compression')}
       footer={null}

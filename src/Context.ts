@@ -12,7 +12,7 @@ export class Context {
   public theme: 'light' | 'dark' = 'dark'
   public compressor: AbsCompressor | undefined
 
-  constructor(public ext: ExtensionContext) {
+  private constructor(public ext: ExtensionContext) {
     this._initTheme()
   }
 
