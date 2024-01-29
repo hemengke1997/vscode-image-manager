@@ -22,13 +22,13 @@
     "sharp"
   ],
   "license": "MIT",
-  "homepage": "https://github.com/hemengke1997/vscode-image-manager",
+  "homepage": "https://github.com/hemengke1997/vscode-image-manager-issue",
   "bugs": {
     "url": "https://github.com/hemengke1997/vscode-image-manager-issue"
   },
   "repository": {
     "type": "git",
-    "url": "https://github.com/hemengke1997/vscode-image-manager"
+    "url": "https://github.com/hemengke1997/vscode-image-manager-issue"
   },
   "categories": [
     "Visualization",
