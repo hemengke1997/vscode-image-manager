@@ -1,5 +1,11 @@
 # CHANGELOG
 
+## [0.0.24] (2024-01-29)
+
+### Performance
+
+* No `npm` relay, faster install
+
 ## [0.0.23] (2024-01-25)
 
 ### Feat
