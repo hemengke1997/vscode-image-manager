@@ -1,3 +1,3 @@
 module.exports = {
-  extends: ['@minko-fe'],
+  extends: ['@minko'],
 }
