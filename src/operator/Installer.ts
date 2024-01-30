@@ -3,7 +3,7 @@ import fs from 'fs-extra'
 import path from 'node:path'
 import { Emitter } from 'strict-event-emitter'
 import * as vscode from 'vscode'
-import { Context } from '@/Context'
+import { type Context } from '@/Context'
 import { Log } from '@/utils/Log'
 
 type Events = {
@@ -15,8 +15,8 @@ export class Installer {
   private _cwd: string
   event: Emitter<Events>
 
-  constructor() {
-    this._cwd = Context.instance.ext.extensionUri.fsPath
+  constructor(ctx: Context) {
+    this._cwd = ctx.ext.extensionUri.fsPath
     this.event = new Emitter<Events>()
     Log.info(`Extension cwd: ${this._cwd}`)
   }

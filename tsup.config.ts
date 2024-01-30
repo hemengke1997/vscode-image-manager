@@ -1,7 +1,10 @@
 import fs from 'fs-extra'
 import { createHash } from 'node:crypto'
 import path from 'node:path'
+import { fileURLToPath } from 'node:url'
 import { type Options, defineConfig } from 'tsup'
+
+const __dirname = path.dirname(fileURLToPath(import.meta.url))
 
 function buildExternals(option: Options): Options[] {
   function pathToHash(path: string) {
@@ -29,7 +32,7 @@ function buildExternals(option: Options): Options[] {
         {
           name: 'resolve-relative-packagejson',
           setup(build) {
-            build.onLoad({ filter: /.js$/ }, async (args) => {
+            build.onLoad({ filter: /\.js$/ }, async (args) => {
               const SEARCH_FILES = ['prebuild-install/bin.js', 'napi-build-utils/index.js']
               if (SEARCH_FILES.some((item) => args.path.includes(item))) {
                 const SEARCH_RESOLVE_JSON =
@@ -39,8 +42,8 @@ function buildExternals(option: Options): Options[] {
 
                 const matchTarget = [SEARCH_RESOLVE_JSON, SEARCH_EXISTS_JSJON]
 
-                const sharp = path.resolve(process.cwd(), 'node_modules/sharp/package.json')
-                const jsonFolder = path.resolve(process.cwd(), 'dist/lib/json')
+                const sharp = path.resolve(__dirname, 'node_modules/sharp/package.json')
+                const jsonFolder = path.resolve(__dirname, 'dist/lib/json')
 
                 let code = fs.readFileSync(args.path, 'utf8')
                 for (const match of matchTarget) {
@@ -50,7 +53,7 @@ function buildExternals(option: Options): Options[] {
                   }
                   const fileName = path.basename(sharp)
                   const folderName = pathToHash(sharp)
-                  copyJsonFile(process.cwd(), path.dirname(sharp), path.join(jsonFolder, folderName), fileName)
+                  copyJsonFile(__dirname, path.dirname(sharp), path.join(jsonFolder, folderName), fileName)
                   code = `${res[1]}json/${folderName}/${fileName}${res[3]}`
                 }
 

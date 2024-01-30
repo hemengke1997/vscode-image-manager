@@ -15,17 +15,15 @@ export function activate(context: ExtensionContext) {
 
   const ctx = Context.init(context)
 
-  const installer = new Installer()
+  const installer = new Installer(ctx)
 
   installer.event
     .on('install-success', () => {
       Log.info('Sharp creation success')
-
       initCompressor(ctx, true)
     })
     .on('install-fail', () => {
       Log.error('Failed to install dependencies')
-
       initCompressor(ctx, false)
     })
 

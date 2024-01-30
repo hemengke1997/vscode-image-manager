@@ -1,4 +1,5 @@
 import type SharpType from 'sharp'
+import { toString } from '@minko-fe/lodash-pro'
 import path from 'node:path'
 import { SharpOperator } from '@/operator/SharpOperator'
 import { Log } from '@/utils/Log'
@@ -95,7 +96,7 @@ export class Sharp extends AbsCompressor<SharpCompressionOptions> {
     } catch (e) {
       Log.info(`Sharp Compress Error: ${e}`)
       return {
-        error: String(e),
+        error: toString(e),
         filePath,
       }
     }

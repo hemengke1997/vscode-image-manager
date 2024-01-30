@@ -4,145 +4,142 @@
 
 ### Performance
 
-* No `npm` relay, faster install
+- No `npm` relay, faster install
 
 ## [0.0.23] (2024-01-25)
 
 ### Feat
 
-* Image operator, added more image interactivity
+- Image operator, added more image interactivity
 
 ### Break-Change
 
-* Deprecate `image-manager.compress.replace`
-* Deprecate `image-manager.compress.quality`
-* Deprecate `image-manager.compress.compressionLevel`
-* All above configs you can find in Image operator now.
+- Deprecate `image-manager.compress.replace`
+- Deprecate `image-manager.compress.quality`
+- Deprecate `image-manager.compress.compressionLevel`
+- All above configs you can find in Image operator now.
 
 ## [0.0.22] (2024-01-22)
 
 ### Fix
 
-* Render sort order not working
-
+- Render sort order not working
 
 ## [0.0.21] (2024-01-22)
 
 ### Fix
 
-* Missing windows path condition when render image
-
+- Missing windows path condition when render image
 
 ## [0.0.20] (2024-01-22)
 
 ### Feat
 
-* Support more user-custom cropper options
+- Support more user-custom cropper options
 
 ### Fix
 
-* Images in root directory don't render
-
+- Images in root directory don't render
 
 ## [0.0.19] (2024-01-18)
 
 ### Performance
 
-* Mask image compressor more stable
+- Mask image compressor more stable
 
 ### Style
 
-* Mask menu to aviod misclick
-* Add collapse content border
-* Make cropper modal width flexible
+- Mask menu to aviod misclick
+- Add collapse content border
+- Make cropper modal width flexible
+
 ## [0.0.18] (2024-01-17)
 
 ### Fix
 
-* Windows compress fail
+- Windows compress fail
 
 ## [0.0.17] (2024-01-16)
 
 ### Fix
 
-* Windows open extension fail
+- Windows open extension fail
 
 ## [0.0.16] (2024-01-16)
 
 ### Feat
 
-* Support crop image!
+- Support crop image!
+
 ### Fix
 
-* Install sharp failed
+- Install sharp failed
 
 ### Performance
 
-* Remove `user-agent` lib to reduce pack size
-
+- Remove `user-agent` lib to reduce pack size
 
 ## [0.0.15] (2024-01-13)
 
 ### Feat
 
-* Support search image. Just use `cmd + f` or `ctrl + f`!
+- Support search image. Just use `cmd + f` or `ctrl + f`!
 
 ## [0.0.14] (2024-01-13)
 
 ### Feat
 
-* Support compress image! Please refer to [README](./README.md) for more details
-* Windows compatibility, though it's not perfect, but it works. (I don't have a windows machine, so I can't test it. If you get any problems, please submit an issue)
-
+- Support compress image! Please refer to [README](./README.md) for more details
+- Windows compatibility, though it's not perfect, but it works. (I don't have a windows machine, so I can't test it. If you get any problems, please submit an issue)
 
 ## [0.0.13] (2024-01-08)
 
 ### Feat
 
-* Support multiple workspaces, you can right-clik on vscode explorer to choose workspace. If using vscode command or keybinding, it will open all workspaces
+- Support multiple workspaces, you can right-clik on vscode explorer to choose workspace. If using vscode command or keybinding, it will open all workspaces
 
 ### Performance
 
-* Optimized rendering logic, smoother now
+- Optimized rendering logic, smoother now
 
 ## [0.0.12] (2024-01-06)
 
 ### Feat
 
-* Support dir context-menu to open folder or highlight vscode explorer
-* Add copy image as base64 to context-menu
-* Add simple mode for clear layout, you can click left-top icon to change mode
+- Support dir context-menu to open folder or highlight vscode explorer
+- Add copy image as base64 to context-menu
+- Add simple mode for clear layout, you can click left-top icon to change mode
 
 ### Fix
 
-* Compact dir display wrong
+- Compact dir display wrong
 
 ## [0.0.11] (2024-01-04)
 
 ### Feat
 
-* Support compact dir style just like vscode, user friendly
-* Introduce `imageType` config, user can choose which type of image to display
+- Support compact dir style just like vscode, user friendly
+- Introduce `imageType` config, user can choose which type of image to display
 
 ### Break Change
 
-* **Rename `image-manager.excludePath` to `image-manager.exclude`**
+- **Rename `image-manager.excludePath` to `image-manager.exclude`**
 
 ## [0.0.10] (2024-01-04)
 
 ### Feat
 
-* Context-menu copy image(mod+c for shortcut), then you can paste it to other place
+- Context-menu copy image(mod+c for shortcut), then you can paste it to other place
 
 ## [0.0.9] (2024-01-03)
 
 ### Break Change
 
-* Rename extension to `Image Manager`
+- Rename extension to `Image Manager`
 
 ### Feat
 
-* Error boundary
+- Error boundary
 
 If any internal error occurs, the extension will display a friendly error message instead of crashing. Furthermore, user could report the error to the author or choose to restart.
 
@@ -150,46 +147,44 @@ If any internal error occurs, the extension will display a friendly error messag
 
 ### Fix
 
-* Filter action reset to previous values if user didn't trigger form submit real
+- Filter action reset to previous values if user didn't trigger form submit real
 
 ## [0.0.7] (2024-01-02)
 
 ### Chore
-* Improve UX, show tip when hover on icons
+
+- Improve UX, show tip when hover on icons
 
 ## [0.0.6] (2024-01-01)
 
 ### Feat
 
-* Build in vscode primary colors
-* Support `excludePath` vscode config
-* Support display style(nested or flat) for visual
-
+- Build in vscode primary colors
+- Support `excludePath` vscode config
+- Support display style(nested or flat) for visual
 
 ## [0.0.5] (2023-12-30)
 
 ### Fix
 
-* Sync theme to localstorage
-
+- Sync theme to localstorage
 
 ## [0.0.4] (2023-12-30)
 
 ### Feat
 
-* I18n, support only English and Chinese now
+- I18n, support only English and Chinese now
 
 ### Fix
 
-* Display images wrong when type filter change
-* Deduplicate image types when exists multiple dirs
-
+- Display images wrong when type filter change
+- Deduplicate image types when exists multiple dirs
 
 ## [0.0.3] (2023-12-29)
 
 ### Feat
 
-* Support vscode configuration.
+- Support vscode configuration.
 
 You can configure the following items in the vscode configuration file.
 For example:
@@ -199,25 +194,23 @@ For example:
   "image-manager.warningSize": 500,
   "image-manager.imageDefaultWidth": 100,
   "image-manager.scaleStep": 0.2,
-  "image-manager.excludePath": [],
+  "image-manager.excludePath": []
 }
 ```
 
-* Support vscode keybinding to open extension
-  * Open Image Manager: `shift+alt+i` (macos: `cmd+alt+i`)
+- Support vscode keybinding to open extension
+  - Open Image Manager: `shift+alt+i` (macos: `cmd+alt+i`)
 
 ## [0.0.2] (2023-12-29)
 
 ### Chore
 
-* Downgrade vscode version limit to ^1.60.0
-
-
+- Downgrade vscode version limit to ^1.60.0
 
 ## [0.0.1] (2023-12-28)
 
 ### Feat
 
-* Init vscode-image-manager.
+- Init vscode-image-manager.
 
 Currently support basic feature, includes viwer, preview, explorer context,etc

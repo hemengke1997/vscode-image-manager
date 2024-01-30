@@ -46,9 +46,11 @@ class Watcher {
 
   private _handleEvent(e: Uri) {
     if (this._isIgnored(e)) return
-    this.webview?.postMessage({
-      cmd: CmdToWebview.IMAGES_CHANGED,
-    })
+    debounce(() => {
+      this.webview?.postMessage({
+        cmd: CmdToWebview.IMAGES_CHANGED,
+      })
+    }, 100)()
   }
 
   private _onDidChange(e: Uri) {

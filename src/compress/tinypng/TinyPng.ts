@@ -1,3 +1,4 @@
+import { toString } from '@minko-fe/lodash-pro'
 import fs from 'fs-extra'
 import mime from 'mime/lite'
 import path from 'node:path'
@@ -88,7 +89,7 @@ export class TinyPng extends AbsCompressor<TinypngCompressionOptions> {
       }
     } catch (e) {
       return {
-        error: String(e),
+        error: toString(e),
         filePath,
       }
     }
