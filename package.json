@@ -2,7 +2,7 @@
   "publisher": "minko",
   "name": "image-manager",
   "displayName": "Image Manager",
-  "version": "0.0.24",
+  "version": "0.0.25",
   "private": true,
   "description": "Image Manager, a powerful yet simple image manager and viewer for VSCode",
   "type": "module",
@@ -52,7 +52,7 @@
     "commitlint": "commitlint --edit",
     "update": "taze -I -w",
     "changelog": "conventional-changelog -p eslint -i CHANGELOG-CODE.md -s -r 0",
-    "bump": "bumpp package.json --commit --tag --no-push --all -x",
+    "bump": "bumpp package.json --commit --tag --no-push --all -x \"npm run changelog\"",
     "publish": "vsce publish"
   },
   "contributes": {
