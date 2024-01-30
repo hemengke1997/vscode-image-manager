@@ -1,12 +1,12 @@
 # CHANGELOG
 
-## [0.0.24] (2024-01-29)
+## 0.0.24 (2024-01-29)
 
 ### Performance
 
 - No `npm` relay, faster install
 
-## [0.0.23] (2024-01-25)
+## 0.0.23 (2024-01-25)
 
 ### Feat
 
@@ -19,19 +19,19 @@
 - Deprecate `image-manager.compress.compressionLevel`
 - All above configs you can find in Image operator now.
 
-## [0.0.22] (2024-01-22)
+## 0.0.22 (2024-01-22)
 
 ### Fix
 
 - Render sort order not working
 
-## [0.0.21] (2024-01-22)
+## 0.0.21 (2024-01-22)
 
 ### Fix
 
 - Missing windows path condition when render image
 
-## [0.0.20] (2024-01-22)
+## 0.0.20 (2024-01-22)
 
 ### Feat
 
@@ -41,7 +41,7 @@
 
 - Images in root directory don't render
 
-## [0.0.19] (2024-01-18)
+## 0.0.19 (2024-01-18)
 
 ### Performance
 
@@ -53,19 +53,19 @@
 - Add collapse content border
 - Make cropper modal width flexible
 
-## [0.0.18] (2024-01-17)
+## 0.0.18 (2024-01-17)
 
 ### Fix
 
 - Windows compress fail
 
-## [0.0.17] (2024-01-16)
+## 0.0.17 (2024-01-16)
 
 ### Fix
 
 - Windows open extension fail
 
-## [0.0.16] (2024-01-16)
+## 0.0.16 (2024-01-16)
 
 ### Feat
 
@@ -79,20 +79,20 @@
 
 - Remove `user-agent` lib to reduce pack size
 
-## [0.0.15] (2024-01-13)
+## 0.0.15 (2024-01-13)
 
 ### Feat
 
 - Support search image. Just use `cmd + f` or `ctrl + f`!
 
-## [0.0.14] (2024-01-13)
+## 0.0.14 (2024-01-13)
 
 ### Feat
 
-- Support compress image! Please refer to [README](./README.md) for more details
+- Support compress image! Please refer to README(./README.md) for more details
 - Windows compatibility, though it's not perfect, but it works. (I don't have a windows machine, so I can't test it. If you get any problems, please submit an issue)
 
-## [0.0.13] (2024-01-08)
+## 0.0.13 (2024-01-08)
 
 ### Feat
 
@@ -102,7 +102,7 @@
 
 - Optimized rendering logic, smoother now
 
-## [0.0.12] (2024-01-06)
+## 0.0.12 (2024-01-06)
 
 ### Feat
 
@@ -114,7 +114,7 @@
 
 - Compact dir display wrong
 
-## [0.0.11] (2024-01-04)
+## 0.0.11 (2024-01-04)
 
 ### Feat
 
@@ -125,13 +125,13 @@
 
 - **Rename `image-manager.excludePath` to `image-manager.exclude`**
 
-## [0.0.10] (2024-01-04)
+## 0.0.10 (2024-01-04)
 
 ### Feat
 
 - Context-menu copy image(mod+c for shortcut), then you can paste it to other place
 
-## [0.0.9] (2024-01-03)
+## 0.0.9 (2024-01-03)
 
 ### Break Change
 
@@ -143,19 +143,19 @@
 
 If any internal error occurs, the extension will display a friendly error message instead of crashing. Furthermore, user could report the error to the author or choose to restart.
 
-## [0.0.8] (2024-01-02)
+## 0.0.8 (2024-01-02)
 
 ### Fix
 
 - Filter action reset to previous values if user didn't trigger form submit real
 
-## [0.0.7] (2024-01-02)
+## 0.0.7 (2024-01-02)
 
 ### Chore
 
 - Improve UX, show tip when hover on icons
 
-## [0.0.6] (2024-01-01)
+## 0.0.6 (2024-01-01)
 
 ### Feat
 
@@ -163,13 +163,13 @@ If any internal error occurs, the extension will display a friendly error messag
 - Support `excludePath` vscode config
 - Support display style(nested or flat) for visual
 
-## [0.0.5] (2023-12-30)
+## 0.0.5 (2023-12-30)
 
 ### Fix
 
 - Sync theme to localstorage
 
-## [0.0.4] (2023-12-30)
+## 0.0.4 (2023-12-30)
 
 ### Feat
 
@@ -180,7 +180,7 @@ If any internal error occurs, the extension will display a friendly error messag
 - Display images wrong when type filter change
 - Deduplicate image types when exists multiple dirs
 
-## [0.0.3] (2023-12-29)
+## 0.0.3 (2023-12-29)
 
 ### Feat
 
@@ -194,20 +194,20 @@ For example:
   "image-manager.warningSize": 500,
   "image-manager.imageDefaultWidth": 100,
   "image-manager.scaleStep": 0.2,
-  "image-manager.excludePath": []
+  "image-manager.excludePath": 
 }
 ```
 
 - Support vscode keybinding to open extension
   - Open Image Manager: `shift+alt+i` (macos: `cmd+alt+i`)
 
-## [0.0.2] (2023-12-29)
+## 0.0.2 (2023-12-29)
 
 ### Chore
 
 - Downgrade vscode version limit to ^1.60.0
 
-## [0.0.1] (2023-12-28)
+## 0.0.1 (2023-12-28)
 
 ### Feat
 

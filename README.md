@@ -6,7 +6,7 @@
 
 <h1 align='center'>Image Manager</h1>
 
-> A powerful yet simple image manager and viewer for VSCode
+> Compress, crop and preview images in vscode
 
 ## Screenshot
 
