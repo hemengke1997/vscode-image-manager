@@ -1,5 +1,11 @@
 # CHANGELOG
 
+## 0.0.25 (2024-01-31)
+
+### Fix
+
+- Compress group error 😥
+
 ## 0.0.24 (2024-01-29)
 
 ### Performance
