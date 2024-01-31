@@ -48,7 +48,7 @@
     "compress": "压缩",
     "compress_success": "压缩成功",
     "compress_fail": "压缩失败",
-    "compressing": "压缩中...",
+    "compressing": "压缩中...，请稍等",
     "compress_under_folder": "压缩当前文件夹下图片",
     "compressor_not_found": "图片压缩功能丢失",
     "search_image": "搜索",
@@ -94,7 +94,9 @@
     "original": "原格式",
     "confirm": "确认",
     "cant_compress_svg": "无法压缩 svg，请选择其他格式",
-    "keep_origin": "保留原文件"
+    "keep_origin": "保留原文件",
+    "yes": "是",
+    "no": "否"
   },
   "fallback": {
     "internal_error": "内部错误",

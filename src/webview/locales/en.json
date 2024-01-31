@@ -50,7 +50,7 @@
     "compress": "Compress",
     "compress_success": "Compress Success",
     "compress_fail": "Compress Fail",
-    "compressing": "Compressing...",
+    "compressing": "Compressing..., please wait",
     "compress_under_folder": "Compress images in this Folder",
     "retry": "Retry",
     "compressor_not_found": "Image compressor not found",
@@ -97,7 +97,9 @@
     "original": "Original",
     "confirm": "Confirm",
     "svg_format_tip": "SVG format can't be compressed",
-    "keep_origin": "Keep original file"
+    "keep_origin": "Keep original file",
+    "yes": "Yes",
+    "no": "No"
   },
   "fallback": {
     "internal_error": "Internal Error",

@@ -35,7 +35,6 @@ interface SharpCompressionOptions extends CompressinOptions {
 export class Sharp extends AbsCompressor<SharpCompressionOptions> {
   name: CompressorMethod = 'sharp'
   option: SharpCompressionOptions
-  operator: SharpOperator
 
   public static DEFAULT_CONFIG = {
     exts: ['png', 'jpg', 'jpeg', 'webp', 'gif', 'tiff', 'avif'],
@@ -54,8 +53,6 @@ export class Sharp extends AbsCompressor<SharpCompressionOptions> {
       format: '',
       keep: 0,
     }
-
-    this.operator = new SharpOperator()
   }
 
   validate(): Promise<boolean> {
@@ -108,41 +105,46 @@ export class Sharp extends AbsCompressor<SharpCompressionOptions> {
     const { format, compressionLevel, quality, size } = this.option!
     const ext = !format ? path.extname(filePath).slice(1) : format
 
-    this.operator.use([
-      {
-        name: 'compress',
-        hooks: {
-          'before:run': async (sharp) => {
-            return new Promise((resolve) => {
-              sharp.metadata().then(({ width, height }) => {
-                sharp.toFormat(ext as keyof SharpType.FormatEnum, {
-                  quality,
-                  compressionLevel,
+    let operator = new SharpOperator({
+      plugins: [
+        {
+          name: 'compress',
+          hooks: {
+            'before:run': async (sharp) => {
+              return new Promise((resolve) => {
+                sharp.metadata().then(({ width, height }) => {
+                  sharp
+                    .toFormat(ext as keyof SharpType.FormatEnum, {
+                      quality,
+                      compressionLevel,
+                    })
+                    .timeout({ seconds: 20 })
+
+                  if (size !== 1) {
+                    sharp.resize({
+                      width: width! * size,
+                      height: height! * size,
+                      fit: 'contain',
+                    })
+                  }
+                  resolve(sharp)
                 })
-                if (size !== 1) {
-                  sharp.resize({
-                    width: width! * size,
-                    height: height! * size,
-                    fit: 'contain',
-                  })
-                }
-                resolve(sharp)
               })
-            })
-          },
-          'after:run': async ({ outputPath }) => {
-            if (filePath === outputPath) return
-            await this.trashFile(filePath)
-          },
-          'on:genOutputPath': (filePath) => {
-            return this.getOutputPath(filePath, ext, size)
+            },
+            'after:run': async ({ outputPath }) => {
+              if (filePath === outputPath) return
+              await this.trashFile(filePath)
+            },
+            'on:genOutputPath': (inputPath) => {
+              return this.getOutputPath(inputPath, ext, size)
+            },
           },
         },
-      },
-    ])
+      ],
+    })
 
     try {
-      const result = await this.operator.run(filePath)
+      const result = await operator.run(filePath)
       if (result) {
         return {
           compressedSize: result.outputSize,
@@ -150,10 +152,13 @@ export class Sharp extends AbsCompressor<SharpCompressionOptions> {
           outputPath: result.outputPath,
         }
       } else {
-        return Promise.reject(new Error('compress failed'))
+        return Promise.reject('compress failed')
       }
     } catch (e) {
       return Promise.reject(e)
+    } finally {
+      // @ts-expect-error
+      operator = null
     }
   }
 }

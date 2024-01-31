@@ -4,7 +4,7 @@ import { Sharp } from './sharp/Sharp'
 import { TinyPng } from './tinypng/TinyPng'
 import { TinypngFree } from './tinypng-free/TinypngFree'
 
-const AbsorbMessage = 'Absorb instance'
+const AbsortMessage = 'Absort Compressor instance'
 
 class Compressor {
   static StaticSymbolFlag: symbol
@@ -30,16 +30,16 @@ class Compressor {
     return this
   }
 
-  private _absorbInstance() {
+  private _ifAbsortInstance() {
+    // If current instance is not the static instance,
+    // means that the instance is not the latest one,
+    // throw an error to absort the instance.
     if (Compressor.StaticSymbolFlag !== this.instanceSymbol) {
-      throw new Error(AbsorbMessage)
+      throw new Error(AbsortMessage)
     }
-    return true
   }
 
   public async getInstance(): Promise<AbsCompressor | null> {
-    this._absorbInstance()
-
     Log.info(`Init compressor ${this.method}`)
     const methodMap: Record<
       CompressorMethod,
@@ -61,11 +61,12 @@ class Compressor {
         next: 'tinypngFree',
       },
     }
+
     try {
       const current = methodMap[this.method]
 
       const isValid = await current.compressor.validate()
-      this._absorbInstance()
+      this._ifAbsortInstance()
 
       Log.info(`Compressor ${this.method} is valid: ${isValid}`)
 
@@ -78,7 +79,7 @@ class Compressor {
         return await this.getInstance()
       }
     } catch (e: any) {
-      if (e instanceof Error && e.message === AbsorbMessage) {
+      if (e instanceof Error && e.message === AbsortMessage) {
         return null
       } else {
         Log.info(`Compressor ${this.method} init failed: ${e}`)

@@ -54,15 +54,15 @@ const SHARP_LIB_RESOLVE_PATH = './lib/install/sharp.cjs'
 export class SharpOperator {
   ctx: IContext
   private _hooks: Hookable<RuntimeHooks>
+  private _hooksMap: Map<string, Partial<RuntimeHooks>> = new Map()
 
   constructor(option?: { plugins: ObjectPlugin[] }) {
     const { plugins } = option || {}
     this._hooks = createHooks<RuntimeHooks>()
-    this._initLogger()
 
     try {
-      this.detectUsable()
       const sharp = this._loadSharp()
+
       this.ctx = new Context({ sharp })
       if (plugins?.length) {
         this._applyPlugins(plugins)
@@ -82,19 +82,14 @@ export class SharpOperator {
     return this
   }
 
-  private _initLogger() {
-    this._hooks.beforeEach((event) => {
-      Log.info(`[SharpOperator] ${event.name}`)
-    })
-
-    this._hooks.afterEach((event) => {
-      Log.info(`[SharpOperator] ${event.name} finished`)
-    })
-  }
-
   private async _applyPlugin(plugin: ObjectPlugin) {
+    if (this._hooksMap.has(plugin.name)) {
+      this.remove(this._hooksMap.get(plugin.name)!)
+      this._hooksMap.delete(plugin.name)
+    }
     if (plugin.hooks) {
       this._hooks.addHooks(plugin.hooks)
+      this._hooksMap.set(plugin.name, plugin.hooks)
     }
   }
 
@@ -142,6 +137,14 @@ export class SharpOperator {
     outputPath: string
   } | void> {
     if (!this.ctx.sharp) return Promise.resolve()
+
+    Log.info(`${filePath} -run`)
+
+    this.ctx.sharp.cache({
+      files: 0,
+      items: 200,
+      memory: 200,
+    })
 
     let sharpIntance = this.ctx.sharp(filePath, {
       animated: true,
@@ -206,7 +209,6 @@ export class SharpOperator {
   }
 
   private _loadSharp(): TSharp {
-    const _sharp = require(SHARP_LIB_RESOLVE_PATH)
-    return _sharp.default
+    return require(SHARP_LIB_RESOLVE_PATH).default
   }
 }

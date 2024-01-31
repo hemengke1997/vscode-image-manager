@@ -219,6 +219,7 @@ export const VscodeMessageCenter = {
   > => {
     try {
       const { filePaths, option } = message.data
+      Log.info(`Compress params: ${JSON.stringify(message.data)}`)
       const { compressor } = Context.instance
       const res = await compressor?.compress(filePaths, option)
       Log.info(`Compress result: ${JSON.stringify(res)}`)

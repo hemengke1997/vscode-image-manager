@@ -101,7 +101,6 @@ function ImageOperator(props: ImageOperatorProps & ImageOperatorStaticProps) {
       },
     ) => {
       const { originSize, compressedSize, filePath, outputPath, error } = result
-      console.log(result, 'result')
 
       let filename: ReactNode = null
       if (outputPath && outputPath !== filePath) {
@@ -272,8 +271,8 @@ function ImageOperator(props: ImageOperatorProps & ImageOperatorStaticProps) {
     keep: () => (
       <Form.Item label='Keep' name={'keep'} className={'mb-0'} tooltip={t('im.keep_origin')}>
         <Radio.Group>
-          <Radio value={1}>Yes</Radio>
-          <Radio value={0}>No</Radio>
+          <Radio value={1}>{t('im.yes')}</Radio>
+          <Radio value={0}>{t('im.no')}</Radio>
         </Radio.Group>
       </Form.Item>
     ),
@@ -301,7 +300,7 @@ function ImageOperator(props: ImageOperatorProps & ImageOperatorStaticProps) {
           {({ getFieldValue }) =>
             getFieldValue('size') === 'custom' ? (
               <Form.Item name='customResize' label='x' rules={[{ required: true, message: '' }]}>
-                <InputNumber min={0.5} max={10} step={1} />
+                <InputNumber min={0.01} max={10} step={1} />
               </Form.Item>
             ) : null
           }
@@ -330,17 +329,14 @@ function ImageOperator(props: ImageOperatorProps & ImageOperatorStaticProps) {
   return (
     <Modal
       maskClosable={false}
+      keyboard={false}
       open={open}
       onCancel={() => {
         setOpen(false)
-        setSubmitting(false)
       }}
       title={t('im.image_compression')}
       footer={null}
       width={'80%'}
-      afterClose={() => {
-        setRemoved(false)
-      }}
     >
       <div className={'flex w-full flex-col items-center space-y-2 overflow-auto'}>
         <Card className={'w-full'}>
