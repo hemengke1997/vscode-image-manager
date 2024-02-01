@@ -5,7 +5,7 @@ import { type AbsCompressor } from '@/compress/AbsCompressor'
 import { type ConfigType } from '@/config'
 import { defaultConfig } from '@/config/default'
 import { CmdToVscode } from '@/message/constant'
-import { localStorageEnum } from '@/webview/local-storage'
+import { LocalStorageEnum } from '@/webview/local-storage'
 import { vscodeApi } from '@/webview/vscode-api'
 import { type ImageType } from '..'
 
@@ -56,7 +56,7 @@ function useGlobalContext() {
   })
 
   /* ---------------- image scale --------------- */
-  const [scale, setScale] = useLocalStorageState<number>(localStorageEnum.LOCAL_STORAGE_IMAGE_SIZE_SCALE, {
+  const [scale, setScale] = useLocalStorageState<number>(LocalStorageEnum.LOCAL_STORAGE_IMAGE_SIZE_SCALE, {
     defaultValue: 1,
   })
 

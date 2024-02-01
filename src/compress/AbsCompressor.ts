@@ -87,15 +87,13 @@ export abstract class AbsCompressor<CO extends CompressinOptions = CompressinOpt
       return Promise.reject('compressor is not valid')
     }
 
-    return new Promise((resolve, reject) => {
-      if (this._isCompressable(filePath)) {
-        return resolve(true)
-      }
-
-      reject(
+    if (this._isCompressable(filePath)) {
+      return Promise.resolve(true)
+    } else {
+      return Promise.reject(
         `file [${this.getFilename(filePath)}] is not a valid image. Only support size <= ${this.config.sizeLimit / 1024 / 1024}MB`,
       )
-    })
+    }
   }
 
   private _isCompressable(filePath: string) {

@@ -33,7 +33,7 @@ interface SharpCompressionOptions extends CompressinOptions {
 }
 
 export class Sharp extends AbsCompressor<SharpCompressionOptions> {
-  name: CompressorMethod = 'sharp'
+  readonly name: CompressorMethod = 'sharp'
   option: SharpCompressionOptions
 
   public static DEFAULT_CONFIG = {
@@ -111,25 +111,22 @@ export class Sharp extends AbsCompressor<SharpCompressionOptions> {
           name: 'compress',
           hooks: {
             'before:run': async (sharp) => {
-              return new Promise((resolve) => {
-                sharp.metadata().then(({ width, height }) => {
-                  sharp
-                    .toFormat(ext as keyof SharpType.FormatEnum, {
-                      quality,
-                      compressionLevel,
-                    })
-                    .timeout({ seconds: 20 })
-
-                  if (size !== 1) {
-                    sharp.resize({
-                      width: width! * size,
-                      height: height! * size,
-                      fit: 'contain',
-                    })
-                  }
-                  resolve(sharp)
+              const { width, height } = await sharp.metadata()
+              sharp
+                .toFormat(ext as keyof SharpType.FormatEnum, {
+                  quality,
+                  compressionLevel,
                 })
-              })
+                .timeout({ seconds: 20 })
+              if (size !== 1) {
+                sharp.resize({
+                  width: width! * size,
+                  height: height! * size,
+                  fit: 'contain',
+                })
+              }
+
+              return sharp
             },
             'after:run': async ({ outputPath }) => {
               if (filePath === outputPath) return
@@ -152,9 +149,12 @@ export class Sharp extends AbsCompressor<SharpCompressionOptions> {
           outputPath: result.outputPath,
         }
       } else {
-        return Promise.reject('compress failed')
+        return Promise.reject('Compress Failed')
       }
     } catch (e) {
+      if (e instanceof Error) {
+        return Promise.reject(e.message)
+      }
       return Promise.reject(e)
     } finally {
       // @ts-expect-error

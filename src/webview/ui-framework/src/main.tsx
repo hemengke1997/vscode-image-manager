@@ -2,12 +2,12 @@ import i18next from 'i18next'
 import ReactDOM from 'react-dom/client'
 import { initReactI18next } from 'react-i18next'
 import { setupI18n } from 'vite-plugin-i18n-detector/client'
-import { localStorageEnum } from '../../local-storage'
+import { LocalStorageEnum } from '@/webview/local-storage'
 import App from './App'
 import { parseJson } from './utils/json'
-import '../hmr'
-import 'antd/dist/reset.css'
+import './hmr'
 import './styles/index.css'
+import 'antd/dist/reset.css'
 
 const root = ReactDOM.createRoot(document.querySelector('#root') as HTMLElement)
 
@@ -37,9 +37,9 @@ export function registerApp(webviewComponents: IWebviewComponents) {
   const vscodeEnv = window.vscodeEnv
 
   const lng =
-    parseJson(localStorage.getItem(localStorageEnum.LOCAL_STORAGE_LOCALE_KEY)) || vscodeEnv?.language || FALLBACKLANG
+    parseJson(localStorage.getItem(LocalStorageEnum.LOCAL_STORAGE_LOCALE_KEY)) || vscodeEnv?.language || FALLBACKLANG
 
-  const vscodeTheme = parseJson(localStorage.getItem(localStorageEnum.LOCAL_STORAGE_THEME_KEY)) || window.vscodeTheme
+  const vscodeTheme = parseJson(localStorage.getItem(LocalStorageEnum.LOCAL_STORAGE_THEME_KEY)) || window.vscodeTheme
 
   i18next.changeLanguage(lng)
 

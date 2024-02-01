@@ -5,6 +5,7 @@ test
 .gitignore
 .gitattributes
 .vscode
+.turbo
 eslint.config.js
 lib
 commitlint.config.cjs

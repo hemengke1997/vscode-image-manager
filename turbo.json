@@ -1,0 +1,30 @@
+{
+  "$schema": "https://turbo.build/schema.json",
+  "pipeline": {
+    "turbo:ui:build": {
+      "outputs": ["dist-webview/**"],
+      "dependsOn": ["^turbo:ui:build"]
+    },
+    "turbo:vsc:build": {
+      "outputs": ["dist/**"],
+      "dependsOn": ["^turbo:vsc:build"]
+    },
+    "turbo:lint": {
+      "dependsOn": ["^turbo:lint"]
+    },
+    "turbo:type-check": {
+      "dependsOn": ["^turbo:type-check"]
+    },
+    "turbo:ui:dev": {
+      "cache": false,
+      "persistent": true
+    },
+    "turbo:vsc:dev": {
+      "cache": false,
+      "persistent": true
+    },
+    "turbo:test:unit": {
+      "dependsOn": ["^turbo:test:unit"]
+    }
+  }
+}

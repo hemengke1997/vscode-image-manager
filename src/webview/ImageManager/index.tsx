@@ -6,7 +6,7 @@ import { type ParsedPath } from 'node:path'
 import { type ReactElement, type ReactNode, memo, useEffect, useMemo } from 'react'
 import { useTranslation } from 'react-i18next'
 import { CmdToVscode, CmdToWebview } from '@/message/constant'
-import { localStorageEnum } from '../local-storage'
+import { LocalStorageEnum } from '../local-storage'
 import PrimaryColorPicker from '../ui-framework/src/components/CustomConfigProvider/components/PrimaryColorPicker'
 import FrameworkContext from '../ui-framework/src/contexts/FrameworkContext'
 import { vscodeApi } from '../vscode-api'
@@ -260,7 +260,7 @@ function ImageManager() {
                       <PrimaryColorPicker
                         color={backgroundColor}
                         onColorChange={setBackgroundColor}
-                        localKey={localStorageEnum.LOCAL_STORAGE_BACKGROUND_RECENT_COLORS_KEY}
+                        localKey={LocalStorageEnum.LOCAL_STORAGE_BACKGROUND_RECENT_COLORS_KEY}
                         extraColors={[Colors.warmBlack]}
                       />
                     </OperationItemUI>
@@ -270,7 +270,6 @@ function ImageManager() {
             </motion.div>
           )}
         </AnimatePresence>
-
         <Card
           headStyle={{ borderBottom: 'none' }}
           bodyStyle={{ padding: 0 }}

@@ -88,60 +88,62 @@ function ImageCropper(props?: ImageCropperProps) {
   }
 
   const handleSave = async () => {
-    const canvas = cropper!.getCroppedCanvas()
-    const imageType = mime.getType(image!.fileType)!
+    if (cropper && image) {
+      const canvas = cropper.getCroppedCanvas()
+      const imageType = mime.getType(image.fileType)!
 
-    const MESSAGE_KEY = 'save-cropper-image'
-    message.loading({
-      content: t('im.saving'),
-      duration: 0,
-      key: MESSAGE_KEY,
-    })
-    vscodeApi.postMessage(
-      {
-        cmd: CmdToVscode.SAVE_CROPPER_IMAGE,
-        data: {
-          dataUrl: canvas.toDataURL(imageType),
-          image,
+      const MESSAGE_KEY = 'save-cropper-image'
+      message.loading({
+        content: t('im.saving'),
+        duration: 0,
+        key: MESSAGE_KEY,
+      })
+      vscodeApi.postMessage(
+        {
+          cmd: CmdToVscode.SAVE_CROPPER_IMAGE,
+          data: {
+            dataUrl: canvas.toDataURL(imageType),
+            image,
+          },
         },
-      },
-      (data) => {
-        if (data) {
-          message.destroy(MESSAGE_KEY)
+        (data) => {
+          if (data) {
+            message.destroy(MESSAGE_KEY)
 
-          notification.success({
-            duration: 10,
-            message: t('im.save_success'),
-            description: (
-              <div className={'flex flex-col space-y-1'}>
-                <div className={'flex items-center'}>
-                  <div>{t('im.filename')}</div>
-                  <div>{data.filename}</div>
-                </div>
-                {data.fileType !== image?.fileType && (
-                  <div className={'inline-flex items-center space-x-1'}>
-                    <Trans
-                      i18nKey='im.save_fallback'
-                      values={{ currentType: image?.fileType, fallbackType: data.fileType }}
-                    >
-                      <div className={'text-ant-color-warning'}></div>
-                      <div className={'text-ant-color-error'}></div>
-                    </Trans>
+            notification.success({
+              duration: 10,
+              message: t('im.save_success'),
+              description: (
+                <div className={'flex flex-col space-y-1'}>
+                  <div className={'flex items-center'}>
+                    <div>{t('im.filename')}</div>
+                    <div>{data.filename}</div>
                   </div>
-                )}
-              </div>
-            ),
-          })
-        } else {
-          message.error({
-            key: MESSAGE_KEY,
-            content: t('im.save_fail'),
-          })
-        }
-      },
-    )
-    setSaveModalOpen(false)
-    setOpen(false)
+                  {data.fileType !== image?.fileType && (
+                    <div className={'inline-flex items-center space-x-1'}>
+                      <Trans
+                        i18nKey='im.save_fallback'
+                        values={{ currentType: image?.fileType, fallbackType: data.fileType }}
+                      >
+                        <div className={'text-ant-color-warning'}></div>
+                        <div className={'text-ant-color-error'}></div>
+                      </Trans>
+                    </div>
+                  )}
+                </div>
+              ),
+            })
+          } else {
+            message.error({
+              key: MESSAGE_KEY,
+              content: t('im.save_fail'),
+            })
+          }
+        },
+      )
+      setSaveModalOpen(false)
+      setOpen(false)
+    }
   }
 
   return (

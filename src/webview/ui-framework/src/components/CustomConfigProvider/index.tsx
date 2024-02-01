@@ -4,7 +4,7 @@ import { AnimatePresence, motion } from 'framer-motion'
 import { type PropsWithChildren, memo, useEffect, useRef } from 'react'
 import { useTranslation } from 'react-i18next'
 import { MdMenuOpen, MdOutlineColorLens } from 'react-icons/md'
-import { localStorageEnum } from '@/webview/local-storage'
+import { LocalStorageEnum } from '@/webview/local-storage'
 import { ReactComponent as Logo } from '@/webview/ui-framework/src/images/logo.svg'
 import FrameworkContext from '../../contexts/FrameworkContext'
 import { getCssVar } from '../../utils/theme'
@@ -68,7 +68,7 @@ function CustomConfigProvider(props: PropsWithChildren) {
                     <LocaleSelector />
                     <ThemeSwitcher theme={theme} onThemeChange={setTheme} />
                     <PrimaryColorPicker
-                      localKey={localStorageEnum.LOCAL_STORAGE_RECENT_COLORS_KEY}
+                      localKey={LocalStorageEnum.LOCAL_STORAGE_RECENT_COLORS_KEY}
                       color={primaryColor}
                       onColorChange={setPrimaryColor}
                     >

@@ -3,35 +3,31 @@ import { Log } from '@/utils/Log'
 import { type AbsCompressor } from './AbsCompressor'
 import { Compressor } from './Compressos'
 
-export function initCompressor(
-  ctx: Context,
-  depsInstalled = false,
-  onSuccess?: (c: AbsCompressor) => void,
-): Promise<AbsCompressor> {
+export async function initCompressor(ctx: Context, depsInstalled = false, onSuccess?: (c: AbsCompressor) => void) {
   const {
     config: { compress },
   } = ctx
 
-  return new Promise((resolve) => {
-    new Compressor(
+  try {
+    const compressor = new Compressor(
       compress.method,
       {
         tinypngKey: compress.tinypngKey,
       },
       depsInstalled,
     )
-      .init()
-      .then((compressor) => {
-        compressor.getInstance().then((c) => {
-          if (c) {
-            ctx.setCompressor(c)
-            onSuccess?.(c)
-            resolve(c)
-          }
-        })
-      })
-      .catch((e) => {
-        Log.info(`Init Compressor Error: ${e}`)
-      })
-  })
+
+    await compressor.init()
+    const c = await compressor.getInstance()
+
+    if (c) {
+      ctx.setCompressor(c)
+      onSuccess?.(c)
+      return c
+    }
+
+    return Promise.reject('Failed to get compressor instance')
+  } catch (e) {
+    Log.info(`Init Compressor Error: ${e}`)
+  }
 }

@@ -73,7 +73,7 @@ export default defineConfig((option) => [
   {
     entry: ['src/extension.ts'],
     format: ['cjs'],
-    external: ['vscode', 'sharp', 'tinify'],
+    external: ['vscode', 'tinify'],
     clean: false,
     dts: false,
     minify: !option.watch,

@@ -28,7 +28,7 @@
     {
       "label": "Watch Extension",
       "type": "npm",
-      "script": "dev",
+      "script": "vsc:dev",
       "dependsOn": "Watch Webview",
       "isBackground": true,
       "presentation": {
