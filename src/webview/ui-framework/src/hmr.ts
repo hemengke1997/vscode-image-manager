@@ -1,5 +1,5 @@
-import { CmdToVscode } from '../../message/constant'
-import { vscodeApi } from '../vscode-api'
+import { CmdToVscode } from '@/message/constant'
+import { vscodeApi } from '@/webview/vscode-api'
 
 if (import.meta.hot) {
   function avoidEmptyWebview() {

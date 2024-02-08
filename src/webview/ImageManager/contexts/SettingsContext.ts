@@ -2,7 +2,7 @@ import { TinyColor } from '@ctrl/tinycolor'
 import { useLocalStorageState } from '@minko-fe/react-hook'
 import { createContainer } from 'context-state'
 import { useMemo } from 'react'
-import { localStorageEnum } from '@/webview/local-storage'
+import { LocalStorageEnum } from '@/webview/local-storage'
 import { type GroupType } from '../components/DisplayGroup'
 import { type DisplayStyleType } from '../components/DisplayStyle'
 import { Colors } from '../utils/color'
@@ -12,7 +12,7 @@ function useSettingsContext() {
   const [displayImageTypes, setDisplayImageTypes] = useLocalStorageState<{
     checked: string[]
     unchecked: string[]
-  }>(localStorageEnum.LOCAL_STORAGE_DISPLAY_TYPE, {
+  }>(LocalStorageEnum.LOCAL_STORAGE_DISPLAY_TYPE, {
     defaultValue: {
       checked: [],
       unchecked: [],
@@ -20,13 +20,13 @@ function useSettingsContext() {
   })
 
   /* ---------------- image sort ---------------- */
-  const [sort, setSort] = useLocalStorageState<string[]>(localStorageEnum.LOCAL_STORAGE_SORT, {
+  const [sort, setSort] = useLocalStorageState<string[]>(LocalStorageEnum.LOCAL_STORAGE_SORT, {
     defaultValue: ['size', 'asc'],
   })
 
   /* ------ display style (flat | neseted) ------ */
   const [displayStyle, setDisplayStyle] = useLocalStorageState<DisplayStyleType>(
-    localStorageEnum.LOCAL_STORAGE_DISPLAY_STYLE,
+    LocalStorageEnum.LOCAL_STORAGE_DISPLAY_STYLE,
     {
       defaultValue: 'compact',
     },
@@ -34,7 +34,7 @@ function useSettingsContext() {
 
   /* ---------------- image group --------------- */
   const [_displayGroup, setDisplayGroup] = useLocalStorageState<GroupType[]>(
-    localStorageEnum.LOCAL_STORAGE_DISPLAY_GROUP,
+    LocalStorageEnum.LOCAL_STORAGE_DISPLAY_GROUP,
     {
       defaultValue: ['dir'],
     },
@@ -44,7 +44,7 @@ function useSettingsContext() {
 
   /* ----------- image backgroundColor ---------- */
   const [backgroundColor, setBackgroundColor] = useLocalStorageState<string>(
-    localStorageEnum.LOCAL_STORAGE_BACKGROUND_COLOR_KEY,
+    LocalStorageEnum.LOCAL_STORAGE_BACKGROUND_COLOR_KEY,
     {
       defaultValue: Colors.warmBlack,
     },

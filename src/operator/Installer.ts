@@ -13,11 +13,10 @@ type Events = {
 
 export class Installer {
   private _cwd: string
-  event: Emitter<Events>
+  event: Emitter<Events> = new Emitter()
 
   constructor(ctx: Context) {
     this._cwd = ctx.ext.extensionUri.fsPath
-    this.event = new Emitter<Events>()
     Log.info(`Extension cwd: ${this._cwd}`)
   }
 

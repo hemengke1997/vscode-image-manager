@@ -1,6 +1,6 @@
 import { deepMerge } from '@minko-fe/lodash-pro'
 import { type ExtensionContext, ExtensionMode, window } from 'vscode'
-import { type AbsCompressor } from './compress/AbsCompressor'
+import { type AbstractCompressor } from './compress/abstract/AbstractCompressor'
 import { Config, type ConfigType } from './config'
 import Watcher from './watcher'
 
@@ -10,7 +10,7 @@ export class Context {
   public static instance: Context
 
   public theme: 'light' | 'dark' = 'dark'
-  public compressor: AbsCompressor | undefined
+  public compressor: AbstractCompressor | undefined
 
   private constructor(public ext: ExtensionContext) {
     this._initTheme()
@@ -47,7 +47,7 @@ export class Context {
     return new Watcher(this)
   }
 
-  public setCompressor(c: AbsCompressor) {
+  public setCompressor(c: AbstractCompressor) {
     this.compressor = c
   }
 

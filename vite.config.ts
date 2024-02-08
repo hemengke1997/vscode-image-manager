@@ -17,11 +17,12 @@ export default defineConfig(async (env) => {
     plugins: [
       createHtmlPlugin({
         entry: path.resolve(__dirname, './src/webview/main.tsx'),
-        minify: false,
+        minify: env.command === 'build',
       }),
       i18nDetector({
         root: __dirname,
         autoDetectI18nConfig: true,
+        localesPaths: [path.resolve(__dirname, './src/webview/locales')],
       }),
     ],
     build: {
@@ -29,6 +30,7 @@ export default defineConfig(async (env) => {
       emptyOutDir: true,
       minify: true,
       rollupOptions: {
+        treeshake: true,
         output: {
           entryFileNames: `assets/[name].js`,
           chunkFileNames: `assets/[name].js`,

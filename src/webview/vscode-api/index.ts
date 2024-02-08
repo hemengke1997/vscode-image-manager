@@ -1,3 +1,4 @@
+import { random } from '@minko-fe/lodash-pro'
 import { type WebviewApi } from 'vscode-webview'
 import { type KeyofMessage, type MessageType, type ReturnOfMessageCenter } from '@/message'
 import { CmdToWebview } from '@/message/constant'
@@ -26,16 +27,17 @@ class VscodeApi {
   }
 
   public registerEventListener() {
-    // webview listener
+    // Listen message from vscode
     window.addEventListener('message', (event) => {
-      const message = event.data
+      const message = event.data as MessageType
+      const { callbackId, data } = message
       switch (message.cmd) {
-        case CmdToWebview.CALLBACK_FROM_VSCODE: {
-          const callback = this._callbacks[message.callbackId]
+        case CmdToWebview.WEBVIEW_CALLBACK: {
+          const callback = this._callbacks[callbackId]
           if (callback && typeof callback === 'function') {
-            callback(message.data)
+            callback(data)
           }
-          delete this._callbacks[message.callbackId]
+          delete this._callbacks[callbackId]
           break
         }
         default:
@@ -44,7 +46,7 @@ class VscodeApi {
     })
   }
 
-  private _getRandomId = () => `${Date.now()}_${Math.round(Math.random() * 100000)}`
+  private _getRandomId = () => `${Date.now()}_${random(1, 10000)}`
 
   /**
    * Post a message (i.e. send arbitrary data) to the owner of the webview (i.e. vscode extension).

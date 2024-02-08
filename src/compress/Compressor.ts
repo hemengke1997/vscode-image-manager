@@ -1,12 +1,13 @@
+import { type Context } from '@/Context'
 import { Log } from '@/utils/Log'
-import { type AbsCompressor, type CommonOptions, type CompressorMethod } from './AbsCompressor'
+import { type AbstractCompressor, type CommonOptions, type CompressorMethod } from './abstract/AbstractCompressor'
 import { Sharp } from './sharp/Sharp'
 import { TinyPng } from './tinypng/TinyPng'
 import { TinypngFree } from './tinypng-free/TinypngFree'
 
 const AbsortMessage = 'Absort Compressor instance'
 
-class Compressor {
+export class Compressor {
   static StaticSymbolFlag: symbol
   private instanceSymbol: symbol
 
@@ -18,6 +19,35 @@ class Compressor {
     private _depsInstalled = false,
   ) {
     Compressor.StaticSymbolFlag = this.instanceSymbol = Symbol('compressor')
+  }
+
+  static async setCompressorToCtx(ctx: Context, depsInstalled = false, onSuccess?: (c: AbstractCompressor) => void) {
+    const {
+      config: { compress },
+    } = ctx
+
+    try {
+      const compressor = new Compressor(
+        compress.method,
+        {
+          tinypngKey: compress.tinypngKey,
+        },
+        depsInstalled,
+      )
+
+      await compressor.init()
+      const c = await compressor.getInstance()
+
+      if (c) {
+        ctx.setCompressor(c)
+        onSuccess?.(c)
+        return c
+      }
+
+      return Promise.reject('Failed to get compressor instance')
+    } catch (e) {
+      Log.info(`Init Compressor Error: ${e}`)
+    }
   }
 
   async init() {
@@ -39,12 +69,12 @@ class Compressor {
     }
   }
 
-  public async getInstance(): Promise<AbsCompressor | null> {
+  public async getInstance(): Promise<AbstractCompressor | null> {
     Log.info(`Init compressor ${this.method}`)
     const methodMap: Record<
       CompressorMethod,
       {
-        compressor: AbsCompressor
+        compressor: AbstractCompressor
         next: CompressorMethod
       }
     > = {
@@ -88,5 +118,3 @@ class Compressor {
     }
   }
 }
-
-export { Compressor }

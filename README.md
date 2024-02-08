@@ -49,16 +49,6 @@ Right click in Explorer, select `Image Manager` to open extension. (Open current
 - I18n. Currently support `english` and `简体中文`
 - And so on waiting for you to discover...🤗
 
-## Attention
-
-This extension will fetch necessary dependencies automatically at first installation what may take a few minutes. Please be patient.
-
-Once installed, following tip will show up, please click `Reload` to reload vscode.
-
-![reload-tip](./screenshots/reload-tip.png)
-
-
-
 
 ## Extension Settings
 

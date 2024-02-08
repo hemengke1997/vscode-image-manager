@@ -3,12 +3,12 @@ import { Button, Dropdown, type MenuProps } from 'antd'
 import { memo } from 'react'
 import { useTranslation } from 'react-i18next'
 import { PiTranslateFill } from 'react-icons/pi'
-import { localStorageEnum } from '@/webview/local-storage'
+import { LocalStorageEnum } from '@/webview/local-storage'
 
 function LocaleSelector() {
   const { i18n, t } = useTranslation()
 
-  const [lang, setLang] = useLocalStorageState(localStorageEnum.LOCAL_STORAGE_LOCALE_KEY, {
+  const [lang, setLang] = useLocalStorageState(LocalStorageEnum.LOCAL_STORAGE_LOCALE_KEY, {
     defaultValue: i18n.language,
   })
 

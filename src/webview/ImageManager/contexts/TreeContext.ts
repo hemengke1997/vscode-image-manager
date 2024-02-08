@@ -1,7 +1,8 @@
+import { isFunction } from '@minko-fe/lodash-pro'
 import { useMemoizedFn, useSetState, useUpdateEffect } from '@minko-fe/react-hook'
 import { createContainer } from 'context-state'
 import { useEffect, useMemo } from 'react'
-import { type ImageType } from '..'
+import { type ImageType, type ImageVisibleFilterType } from '..'
 import { bytesToKb, filterImages, shouldShowImage } from '../utils'
 import ActionContext, { type SizeFilterType } from './ActionContext'
 import SettingsContext from './SettingsContext'
@@ -10,6 +11,29 @@ export type ImageStateType = {
   originalList: ImageType[]
   list: ImageType[]
   visibleList: ImageType[]
+}
+
+function toogleVisible(
+  imageList: ImageType[],
+  key: ImageVisibleFilterType,
+  condition: ((image: ImageType) => boolean) | boolean,
+) {
+  return imageList.map((image) => {
+    return { ...image, visible: { ...image.visible, [key]: isFunction(condition) ? condition(image) : condition } }
+  })
+}
+
+function sortImages(sort: string[], images: ImageType[]) {
+  images.sort((a, b) => {
+    if (sort[0] === 'size') {
+      return sort[1] === 'desc' ? b.stats.size - a.stats.size : a.stats.size - b.stats.size
+    }
+    if (sort[0] === 'name') {
+      return sort[1] === 'desc' ? b.name.localeCompare(a.name) : a.name.localeCompare(b.name)
+    }
+    return 0
+  })
+  return images
 }
 
 function useTreeContext(props: { imageList: ImageType[] }) {
@@ -89,6 +113,7 @@ function useTreeContext(props: { imageList: ImageType[] }) {
     })
   }, [imageSingleTree.list])
 
+  // !!CARE!!: once imageListProp changed, the list will be updated
   // sort
   // size filter
   // display image type
@@ -122,9 +147,9 @@ function useTreeContext(props: { imageList: ImageType[] }) {
 
   const onDisplayImageTypeChange = useMemoizedFn((imageList: ImageType[], displayImageTypes: string[] | undefined) => {
     if (displayImageTypes) {
-      return imageList.map((t) => ({ ...t, visible: { ...t.visible, type: displayImageTypes?.includes(t.fileType) } }))
+      return toogleVisible(imageList, 'type', (t) => displayImageTypes?.includes(t.fileType))
     }
-    return imageList.map((t) => ({ ...t, visible: { ...t.visible, type: true } }))
+    return toogleVisible(imageList, 'type', true)
   })
 
   // display image type setting change
@@ -139,17 +164,15 @@ function useTreeContext(props: { imageList: ImageType[] }) {
 
   const onSizeFilterChange = useMemoizedFn((imageList: ImageType[], sizeFilter: SizeFilterType) => {
     if (sizeFilter?.active) {
-      return imageList.map((t) => ({
-        ...t,
-        visible: {
-          ...t.visible,
-          size:
-            bytesToKb(t.stats.size) >= (sizeFilter.value.min || 0) &&
-            bytesToKb(t.stats.size) <= (sizeFilter.value.max || Number.POSITIVE_INFINITY),
-        },
-      }))
+      return toogleVisible(
+        imageList,
+        'size',
+        (t) =>
+          bytesToKb(t.stats.size) >= (sizeFilter.value.min || 0) &&
+          bytesToKb(t.stats.size) <= (sizeFilter.value.max || Number.POSITIVE_INFINITY),
+      )
     } else {
-      return imageList.map((t) => ({ ...t, visible: { ...t.visible, size: true } }))
+      return toogleVisible(imageList, 'size', true)
     }
   })
 
@@ -172,16 +195,3 @@ function useTreeContext(props: { imageList: ImageType[] }) {
 const TreeContext = createContainer(useTreeContext)
 
 export default TreeContext
-
-function sortImages(sort: string[], images: ImageType[]) {
-  images.sort((a, b) => {
-    if (sort[0] === 'size') {
-      return sort[1] === 'desc' ? b.stats.size - a.stats.size : a.stats.size - b.stats.size
-    }
-    if (sort[0] === 'name') {
-      return sort[1] === 'desc' ? b.name.localeCompare(a.name) : a.name.localeCompare(b.name)
-    }
-    return 0
-  })
-  return images
-}

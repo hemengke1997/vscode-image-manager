@@ -4,7 +4,12 @@ import mime from 'mime/lite'
 import path from 'node:path'
 import tinify from 'tinify'
 import { Log } from '@/utils/Log'
-import { AbsCompressor, type CommonOptions, type CompressinOptions, type CompressorMethod } from '../AbsCompressor'
+import {
+  AbstractCompressor,
+  type CommonOptions,
+  type CompressinOptions,
+  type CompressorMethod,
+} from '../abstract/AbstractCompressor'
 
 type TinypngOptions = {
   apiKey: string
@@ -18,7 +23,7 @@ interface TinypngCompressionOptions extends CompressinOptions {
   format: string
 }
 
-export class TinyPng extends AbsCompressor<TinypngCompressionOptions> {
+export class TinyPng extends AbstractCompressor<TinypngCompressionOptions> {
   name: CompressorMethod = 'tinypng'
   option: TinypngCompressionOptions
 

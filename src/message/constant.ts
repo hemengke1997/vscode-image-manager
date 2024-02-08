@@ -1,5 +1,5 @@
 export enum CmdToWebview {
-  CALLBACK_FROM_VSCODE = 'CALLBACK_FROM_VSCODE',
+  WEBVIEW_CALLBACK = 'WEBVIEW_CALLBACK',
   IMAGES_CHANGED = 'IMAGES_CHANGED',
   COMPRESSOR_CHANGED = 'COMPRESSOR_CHANGED',
 }
@@ -18,6 +18,6 @@ export enum CmdToVscode {
   SAVE_CROPPER_IMAGE = 'SAVE_CROPPER_IMAGE',
   FIND_SIMILAR_IMAGES = 'FIND_SIMILAR_IMAGES',
 
-  // 测试 vscode 内置命令 for dev convenience
+  // Test vscode built-in command. For dev convenience
   TEMP_TEST_CMD = 'TEMP_TEST_CMD',
 }

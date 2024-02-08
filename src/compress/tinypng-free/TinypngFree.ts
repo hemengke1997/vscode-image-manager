@@ -1,6 +1,11 @@
 import fs from 'fs-extra'
 import https from 'node:https'
-import { AbsCompressor, type CommonOptions, type CompressinOptions, type CompressorMethod } from '../AbsCompressor'
+import {
+  AbstractCompressor,
+  type CommonOptions,
+  type CompressinOptions,
+  type CompressorMethod,
+} from '../abstract/AbstractCompressor'
 
 type PostInfo = {
   error?: any
@@ -14,7 +19,7 @@ type PostInfo = {
   }
 }
 
-export class TinypngFree extends AbsCompressor {
+export class TinypngFree extends AbstractCompressor {
   name: CompressorMethod = 'tinypngFree'
   option: CompressinOptions
 

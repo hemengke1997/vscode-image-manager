@@ -1,4 +1,4 @@
-export enum localStorageEnum {
+export enum LocalStorageEnum {
   LOCAL_STORAGE_PRIMARY_COLOR_KEY = 'LOCAL_STORAGE_PRIMARY_COLOR_KEY', // primary color
   LOCAL_STORAGE_RECENT_COLORS_KEY = 'LOCAL_STORAGE_RECENT_COLORS_KEY', // recent primary colors
   LOCAL_STORAGE_THEME_KEY = 'LOCAL_STORAGE_THEME_KEY', // theme

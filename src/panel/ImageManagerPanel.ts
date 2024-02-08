@@ -189,7 +189,7 @@ export class ImageManagerPanel {
     const { message, webview, data } = params
     if (webview) {
       // Post a message to the webview content.
-      webview.postMessage({ cmd: CmdToWebview.CALLBACK_FROM_VSCODE, callbackId: message.callbackId, data })
+      webview.postMessage({ cmd: CmdToWebview.WEBVIEW_CALLBACK, callbackId: message.callbackId, data })
     }
   }
 
@@ -197,7 +197,7 @@ export class ImageManagerPanel {
    * Handles messages passed from the webview context and executes code based on the message that is recieved.
    */
   private _handlePanelMessage = async (message: MessageType, webview: Webview) => {
-    Log.info(`Receive cmd: ${JSON.stringify(message.cmd)}`)
+    Log.info(`Receive cmd: ${message.cmd}`)
     const handler: (params: MessageParams) => Promise<any> = VscodeMessageCenter[message.cmd]
     if (handler) {
       const data = await handler({ message, webview })
@@ -212,7 +212,11 @@ export class ImageManagerPanel {
    * executes code based on the message that is recieved.
    */
   private _setWebviewMessageListener(webview: Webview) {
-    webview.onDidReceiveMessage((msg) => this._handlePanelMessage(msg, webview), undefined, this._disposables)
+    webview.onDidReceiveMessage(
+      (msg: MessageType) => this._handlePanelMessage(msg, webview),
+      undefined,
+      this._disposables,
+    )
   }
 
   /**
