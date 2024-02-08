@@ -1,5 +1,11 @@
 # CHANGELOG
 
+## 0.0.26 (2024-02-08)
+
+### Feat
+
+- Support VSCode i10n
+
 ## 0.0.25 (2024-01-31)
 
 ### Fix
