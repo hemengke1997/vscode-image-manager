@@ -40,35 +40,36 @@
   ],
   "scripts": {
     "ui:dev": "turbo turbo:ui:dev",
-    "vsc:dev": "turbo turbo:vsc:dev",
+    "vsc:dev": "turbo build:i18n turbo:vsc:dev",
     "turbo:ui:dev": "vite -m development",
     "turbo:vsc:dev": "tsup --watch",
-    "build": "run-s ui:build vsc:build",
-    "ui:build": "turbo turbo:ui:build",
+    "build": "run-s build:i18n ui:build vsc:build",
+    "ui:build": "REPORT=true turbo turbo:ui:build",
     "vsc:build": "turbo turbo:vsc:build",
     "turbo:ui:build": "vite build -m production",
-    "turbo:vsc:build": "tsup",
+    "turbo:vsc:build": "rm -rf dist && tsup",
     "test": "run-s test:unit",
     "test:unit": "turbo turbo:test:unit",
     "turbo:test:unit": "vitest --run",
-    "vscode:prepublish": "npm run build",
     "pack": "vsce package",
     "prepare": "simple-git-hooks",
     "type-check": "turbo turbo:type-check",
     "turbo:type-check": "tsc --noEmit",
-    "lint": "turbo turbo:lint",
+    "lint": "turbo turbo:type-check turbo:lint",
     "turbo:lint": "eslint .",
     "commitlint": "commitlint --edit",
-    "update": "taze -I -w",
+    "up": "taze -I -w",
+    "build:i18n": "tsx scripts/build-i18n",
     "changelog": "conventional-changelog -p eslint -i CHANGELOG-CODE.md -s -r 0",
     "bump": "bumpp package.json --commit --tag --no-push --all -x \"npm run changelog\"",
+    "vscode:prepublish": "npm run build",
     "publish": "vsce publish"
   },
   "contributes": {
     "commands": [
       {
         "command": "image-manager.open-image-manager",
-        "title": "Image Manager 🏞️"
+        "title": "%pkg.title%"
       }
     ],
     "menus": {
@@ -95,17 +96,17 @@
             "boolean"
           ],
           "default": 500,
-          "description": "show warning dot if image size is larger than this value (KB)"
+          "description": "%pkg.warningSize%"
         },
         "image-manager.imageDefaultWidth": {
           "type": "number",
           "default": 100,
-          "description": "default width of image (px)"
+          "description": "%pkg.imageDefaultWidth%"
         },
         "image-manager.scaleStep": {
           "type": "number",
           "default": 0.1,
-          "description": "scale step when zooming image list"
+          "description": "%pkg.scaleStep%"
         },
         "image-manager.exclude": {
           "type": [
@@ -120,7 +121,7 @@
             "some-dist",
             "**/*.ico"
           ],
-          "description": "scan images not in exclude (pattern syntax of micromatch)"
+          "description": "%pkg.exclude%"
         },
         "image-manager.imageType": {
           "type": "array",
@@ -141,7 +142,7 @@
             "tiff",
             "avif"
           ],
-          "description": "scan images with imageType"
+          "description": "%pkg.imageType%"
         },
         "image-manager.compress.method": {
           "type": "string",
@@ -150,12 +151,12 @@
             "sharp",
             "tinypng"
           ],
-          "description": "compress method. If sharp installed, use sharp, else use tinypng"
+          "description": "%pkg.method%"
         },
         "image-manager.compress.tinypngKey": {
           "type": "string",
           "default": "",
-          "description": "tinypng key. If choose tinypng, you should set this key which can be get from https://tinypng.com/developers. If not set, it will use unstable key"
+          "description": "%pkg.tinypngKey%"
         }
       }
     }
@@ -168,25 +169,25 @@
     "@commitlint/cli": "^18.6.0",
     "@ctrl/tinycolor": "^4.0.3",
     "@minko-fe/commitlint-config": "^2.0.7",
-    "@minko-fe/eslint-config": "^2.0.8",
+    "@minko-fe/eslint-config": "^2.1.2",
     "@minko-fe/html-transform": "^0.1.17",
-    "@minko-fe/lodash-pro": "^0.1.17",
-    "@minko-fe/react-hook": "^0.1.17",
+    "@minko-fe/lodash-pro": "^0.2.1",
+    "@minko-fe/react-hook": "^0.2.2",
     "@minko-fe/tsconfig": "^2.0.7",
-    "@minko-fe/vite-config": "^0.1.17",
+    "@minko-fe/vite-config": "^0.2.0",
     "@types/eslint": "^8.56.2",
     "@types/fs-extra": "^11.0.4",
     "@types/micromatch": "^4.0.6",
-    "@types/node": "^18.15.0",
+    "@types/node": "^18.19.14",
     "@types/pixelmatch": "^5.2.6",
-    "@types/react": "^18.2.48",
-    "@types/react-dom": "^18.2.18",
+    "@types/react": "^18.2.55",
+    "@types/react-dom": "^18.2.19",
     "@types/react-highlight-words": "^0.16.7",
     "@types/vscode": "^1.60.0",
-    "@types/vscode-webview": "^1.57.4",
+    "@types/vscode-webview": "^1.57.5",
     "@vitejs/plugin-react": "^4.2.1",
     "@vscode/vsce": "^2.23.0",
-    "antd": "^5.13.3",
+    "antd": "^5.14.0",
     "bumpp": "^9.3.0",
     "classnames": "^2.5.1",
     "context-state": "^2.1.0",
@@ -195,40 +196,39 @@
     "eslint": "^8.56.0",
     "execa": "^8.0.1",
     "fast-glob": "^3.3.2",
-    "framer-motion": "^10.18.0",
+    "framer-motion": "^11.0.3",
     "fs-extra": "^11.2.0",
     "fuse.js": "^7.0.0",
-    "i18next": "^23.8.1",
+    "i18next": "^23.8.2",
     "image-size": "^1.1.1",
     "micromatch": "^4.0.5",
     "mime": "^4.0.1",
-    "npm-run-all": "^4.1.5",
-    "p-cancelable": "^4.0.1",
+    "npm-run-all2": "^6.1.2",
     "pixelmatch": "^5.3.0",
-    "postcss": "^8.4.33",
+    "postcss": "^8.4.35",
     "react": "^18.2.0",
     "react-contexify": "^6.0.0",
     "react-dom": "^18.2.0",
     "react-error-boundary": "^4.0.12",
     "react-highlight-words": "^0.20.0",
-    "react-hotkeys-hook": "^4.4.4",
-    "react-i18next": "^14.0.1",
+    "react-hotkeys-hook": "^4.5.0",
+    "react-i18next": "^14.0.5",
     "react-icons": "^5.0.1",
     "sharp": "0.32.6",
     "simple-git-hooks": "^2.9.0",
     "strict-event-emitter": "^0.5.1",
     "tailwind-antd-preset": "^0.0.4",
     "tailwindcss": "^3.4.1",
-    "taze": "^0.13.1",
+    "taze": "^0.13.3",
     "ts-key-enum": "^2.0.12",
     "tsup": "6.7.0",
     "tsx": "^4.7.0",
-    "turbo": "^1.12.2",
+    "turbo": "^1.12.3",
     "typescript": "^5.3.3",
-    "un-detector": "^0.0.6",
-    "vite": "^4.5.2",
+    "un-detector": "^1.1.0",
+    "vite": "^5.0.12",
     "vite-plugin-html": "^3.2.2",
-    "vite-plugin-i18n-detector": "^2.2.1",
+    "vite-plugin-i18n-detector": "^2.2.2",
     "vitest": "^0.34.6"
   },
   "engines": {

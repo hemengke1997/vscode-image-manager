@@ -1,0 +1,15 @@
+{
+  "pkg": {
+    "title": "Image Manager 🏞️",
+    "warningSize": "show warning dot if image size is larger than this value (KB)",
+    "imageDefaultWidth": "default width of image (px)",
+    "scaleStep": "scale step when zooming image",
+    "exclude": "scan images not in exclude (pattern syntax of micromatch)",
+    "imageType": "image type to scan",
+    "method": "compress method",
+    "tinypngKey": "tinypng key. If choose tinypng, you should set this key which can be get from https://tinypng.com/developers. If not set, it will use unstable key"
+  },
+  "prompt": {
+    "reload_tip": "Config changed. Please reload"
+  }
+}

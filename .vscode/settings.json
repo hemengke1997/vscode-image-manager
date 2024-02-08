@@ -1,10 +1,10 @@
 {
   "eslint.experimental.useFlatConfig": true,
-  "i18n-ally.localesPaths": ["src/webview/locales"],
+  "i18n-ally.localesPaths": ["src/webview/locales", "locales"],
   "i18n-ally.pathMatcher": "{locale}.json",
   "i18n-ally.namespace": true,
   "i18n-ally.sourceLanguage": "en",
   "i18n-ally.keystyle": "nested",
-  "i18n-ally.enabledFrameworks": ["react", "react-i18next"],
+  "i18n-ally.enabledFrameworks": ["react", "react-i18next", "vscode"],
   "image-manager.exclude": ["dist-webview"]
 }

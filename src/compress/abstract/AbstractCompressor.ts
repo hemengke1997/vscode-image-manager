@@ -21,7 +21,7 @@ export interface CompressinOptions {
   keep?: 0 | 1
 }
 
-export abstract class AbsCompressor<CO extends CompressinOptions = CompressinOptions> {
+export abstract class AbstractCompressor<CO extends CompressinOptions = CompressinOptions> {
   public abstract name: CompressorMethod
   public abstract option: CO
 

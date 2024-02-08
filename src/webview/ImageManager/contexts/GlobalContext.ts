@@ -1,7 +1,7 @@
 import { useLocalStorageState, useSetState } from '@minko-fe/react-hook'
 import { createContainer } from 'context-state'
 import { useEffect, useRef, useState } from 'react'
-import { type AbsCompressor } from '@/compress/AbsCompressor'
+import { type AbstractCompressor } from '@/compress/abstract/AbstractCompressor'
 import { type ConfigType } from '@/config'
 import { defaultConfig } from '@/config/default'
 import { CmdToVscode } from '@/message/constant'
@@ -19,7 +19,7 @@ function useGlobalContext() {
   }, [])
 
   /* ------------- image compressor ------------ */
-  const [compressor, setCompressor] = useState<AbsCompressor>()
+  const [compressor, setCompressor] = useState<AbstractCompressor>()
   const compressorTimer = useRef<NodeJS.Timeout>()
   const getCompressor = () => {
     vscodeApi.postMessage({ cmd: CmdToVscode.GET_COMPRESSOR }, (data) => {

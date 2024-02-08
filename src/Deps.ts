@@ -5,7 +5,7 @@ import { Emitter } from 'strict-event-emitter'
 import * as vscode from 'vscode'
 import { Log } from '@/utils/Log'
 import { Context } from './Context'
-import { initCompressor } from './compress'
+import { Compressor } from './compress/Compressor'
 import { CmdToWebview } from './message/constant'
 import { ImageManagerPanel } from './panel/ImageManagerPanel'
 
@@ -188,7 +188,7 @@ export class Deps extends Emitter<Events> {
 }
 
 export async function _init(ctx: Context) {
-  initCompressor(ctx)
+  Compressor.setCompressorToCtx(ctx)
 
   try {
     const deps = new Deps()
@@ -214,7 +214,7 @@ export async function _init(ctx: Context) {
       // if user choose sharp as compressor
       // notify webview
       if (ctx.config.compress.method === 'sharp') {
-        initCompressor(ctx, true, (c) => {
+        Compressor.setCompressorToCtx(ctx, true, (c) => {
           ImageManagerPanel.currentPanel?.panel.webview.postMessage({
             cmd: CmdToWebview.COMPRESSOR_CHANGED,
             data: c,

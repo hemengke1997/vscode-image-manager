@@ -44,4 +44,3 @@ export const Config = {
 }
 
 export type ConfigType = typeof Config
-export { watchConfig } from './watch-config'

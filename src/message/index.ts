@@ -6,7 +6,7 @@ import mime from 'mime/lite'
 import path from 'node:path'
 import { Uri, type Webview, commands } from 'vscode'
 import { Context } from '@/Context'
-import { initCompressor } from '@/compress'
+import { Compressor } from '@/compress/Compressor'
 import { normalizePath } from '@/utils'
 import { Log } from '@/utils/Log'
 import { imageGlob } from '@/utils/glob'
@@ -154,7 +154,7 @@ export const VscodeMessageCenter = {
     let compressor = Context.instance.compressor
     if (!compressor) {
       try {
-        compressor = await initCompressor(Context.instance)
+        compressor = await Compressor.setCompressorToCtx(Context.instance)
       } catch (e) {
         Log.info(`GET_COMPRESSOR ERROR: ${e as string}`)
         return null

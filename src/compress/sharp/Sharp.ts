@@ -3,7 +3,12 @@ import { toString } from '@minko-fe/lodash-pro'
 import path from 'node:path'
 import { SharpOperator } from '@/operator/SharpOperator'
 import { Log } from '@/utils/Log'
-import { AbsCompressor, type CommonOptions, type CompressinOptions, type CompressorMethod } from '../AbsCompressor'
+import {
+  AbstractCompressor,
+  type CommonOptions,
+  type CompressinOptions,
+  type CompressorMethod,
+} from '../abstract/AbstractCompressor'
 
 interface SharpCompressionOptions extends CompressinOptions {
   /**
@@ -32,7 +37,7 @@ interface SharpCompressionOptions extends CompressinOptions {
   format: string
 }
 
-export class Sharp extends AbsCompressor<SharpCompressionOptions> {
+export class Sharp extends AbstractCompressor<SharpCompressionOptions> {
   readonly name: CompressorMethod = 'sharp'
   option: SharpCompressionOptions
 
