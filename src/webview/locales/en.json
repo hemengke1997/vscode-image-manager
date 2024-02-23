@@ -99,7 +99,8 @@
     "svg_format_tip": "SVG format can't be compressed",
     "keep_origin": "Keep original file",
     "yes": "Yes",
-    "no": "No"
+    "no": "No",
+    "compressed": "Compressed"
   },
   "fallback": {
     "internal_error": "Internal Error",

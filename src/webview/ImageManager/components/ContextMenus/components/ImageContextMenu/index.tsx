@@ -4,11 +4,11 @@ import { memo } from 'react'
 import { type BooleanPredicate, Item, type ItemParams, Separator } from 'react-contexify'
 import { useTranslation } from 'react-i18next'
 import { os } from 'un-detector'
-import { CmdToVscode } from '@/message/constant'
-import { type ImageType } from '@/webview/ImageManager'
-import useImageOperation from '@/webview/ImageManager/hooks/useImageOperation'
-import { formatBytes } from '@/webview/ImageManager/utils'
-import { vscodeApi } from '@/webview/vscode-api'
+import { CmdToVscode } from '~/message/cmd'
+import { type ImageType } from '~/webview/ImageManager'
+import useImageOperation from '~/webview/ImageManager/hooks/useImageOperation'
+import { formatBytes } from '~/webview/ImageManager/utils'
+import { vscodeApi } from '~/webview/vscode-api'
 import MaskMenu from '../../../MaskMenu'
 import styles from './index.module.css'
 
@@ -68,7 +68,12 @@ function ImageContextMenu() {
     if (!image) return Promise.resolve()
 
     return new Promise((resolve) => {
-      vscodeApi.postMessage({ cmd: CmdToVscode.GET_IMAGE_DIMENSIONS, data: { filePath: image.path } }, (dimensions) => {
+      vscodeApi.postMessage({ cmd: CmdToVscode.GET_IMAGE_METADATA, data: { filePath: image.path } }, (data) => {
+        const {
+          metadata: { width, height },
+          exifInfo,
+        } = data
+
         const formatDate = (date: Date) => {
           return new Date(date).toLocaleDateString(undefined, {
             hour12: false,
@@ -95,7 +100,7 @@ function ImageContextMenu() {
             label: `${t('im.dimensions')}(px)`,
             children: (
               <div>
-                {dimensions?.width} x {dimensions?.height}
+                {width} x {height}
               </div>
             ),
           },
@@ -110,6 +115,10 @@ function ImageContextMenu() {
           {
             label: t('im.last_status_changed_time'),
             children: <div>{formatDate(image.stats.ctime)}</div>,
+          },
+          {
+            label: t('im.compressed'),
+            children: <div>{exifInfo?.Image?.ImageDescription?.includes('compressed') ? t('im.yes') : t('im.no')}</div>,
           },
         ]
 

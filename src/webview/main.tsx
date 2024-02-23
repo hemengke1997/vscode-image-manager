@@ -23,4 +23,8 @@ const webviewComponents = {
   ),
 }
 
-registerApp(webviewComponents)
+mount()
+
+export function mount(reload?: boolean) {
+  registerApp(webviewComponents, reload)
+}

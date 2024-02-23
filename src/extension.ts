@@ -1,26 +1,22 @@
 import type * as vscode from 'vscode'
+import { flatten } from '@minko-fe/lodash-pro'
+import commandsModules from '~/commands'
 import { version } from '../package.json'
-import { Context } from './Context'
-import { UserSettings } from './config/user-settings'
+import { Global } from './core'
 import { i18n } from './i18n'
-import { installOperator } from './operator'
-import { openPanelCmd } from './panel/command'
 import { Log } from './utils/Log'
 
-export function activate(context: vscode.ExtensionContext) {
+export async function activate(ctx: vscode.ExtensionContext) {
   Log.info(`🈶 Activated, v${version}`)
 
-  const ctx = Context.init(context)
-
-  installOperator(ctx)
   i18n.init(ctx)
+  await Global.init(ctx)
 
-  const disposables = [[openPanelCmd].map((cmd) => cmd(ctx)), UserSettings.watch()]
+  const modules = [commandsModules]
 
-  disposables
-    .flat()
-    .filter(Boolean)
-    .forEach((d) => context.subscriptions.push(d!))
+  const disposables = flatten(modules.map((m) => m(ctx)))
+
+  disposables.forEach((d) => ctx.subscriptions.push(d))
 }
 
 export function deactivate() {

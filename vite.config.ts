@@ -4,15 +4,27 @@ import path from 'node:path'
 import { defineConfig, loadConfigFromFile, mergeConfig } from 'vite'
 import { createHtmlPlugin } from 'vite-plugin-html'
 import { i18nDetector } from 'vite-plugin-i18n-detector'
+import { DEV_PORT } from './src/meta'
 
 export default defineConfig(async (env) => {
   const loadResult = await loadConfigFromFile(env, path.resolve(__dirname, './src/webview/ui-framework/vite.config.ts'))
 
   const config = defineConfig({
-    resolve: {
-      alias: {
-        '@': path.resolve(__dirname, './src'),
+    server: {
+      host: '0.0.0.0',
+      port: DEV_PORT,
+      watch: {},
+      hmr: {
+        host: 'localhost',
+        protocol: 'ws',
       },
+    },
+    preview: {
+      host: '0.0.0.0',
+      port: DEV_PORT,
+    },
+    resolve: {
+      alias: [{ find: '~', replacement: path.resolve(__dirname, './src') }],
     },
     plugins: [
       createHtmlPlugin({
@@ -38,13 +50,7 @@ export default defineConfig(async (env) => {
         },
       },
     },
-    server: {
-      watch: {},
-      hmr: {
-        host: 'localhost',
-        protocol: 'ws',
-      },
-    },
+
     test: {
       include: ['**/__test__/**/*.test.ts'],
     },

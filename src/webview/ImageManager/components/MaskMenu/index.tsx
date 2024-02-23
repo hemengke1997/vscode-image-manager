@@ -1,6 +1,6 @@
 import { memo, useState } from 'react'
 import { Menu, type MenuProps } from 'react-contexify'
-import FrameworkContext from '@/webview/ui-framework/src/contexts/FrameworkContext'
+import FrameworkContext from '~/webview/ui-framework/src/contexts/FrameworkContext'
 
 function MaskMenu(props: MenuProps) {
   const { theme } = FrameworkContext.usePicker(['theme'])

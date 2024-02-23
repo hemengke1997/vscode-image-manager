@@ -1,7 +1,7 @@
 import { useLocalStorageState } from '@minko-fe/react-hook'
 import { createContainer } from 'context-state'
 import { useEffect } from 'react'
-import { LocalStorageEnum } from '@/webview/local-storage'
+import { LocalStorageEnum } from '~/webview/local-storage'
 import { type ThemeType, getTheme, switchTheme, vscodeColors } from '../utils/theme'
 
 const useFrameworkContext = (initial: { theme?: Window['vscodeTheme'] }) => {

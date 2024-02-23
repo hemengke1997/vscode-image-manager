@@ -1,6 +1,6 @@
 import { useMemoizedFn } from '@minko-fe/react-hook'
-import { CmdToVscode } from '@/message/constant'
-import { vscodeApi } from '@/webview/vscode-api'
+import { CmdToVscode } from '~/message/cmd'
+import { vscodeApi } from '~/webview/vscode-api'
 import { type ImageType } from '..'
 import CroppoerContext from '../contexts/CropperContext'
 import OperatorContext from '../contexts/OperatorContext'

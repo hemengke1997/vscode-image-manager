@@ -1,8 +1,8 @@
 import fg from 'fast-glob'
 import path from 'node:path'
 import { describe, expect, it } from 'vitest'
-import { normalizePath } from '@/utils'
-import { imageGlob } from '@/utils/glob'
+import { normalizePath } from '~/utils'
+import { imageGlob } from '~/utils/glob'
 
 type Config = Parameters<typeof imageGlob>[0]
 const workspaceFolder = path.resolve(__dirname, './fixture')

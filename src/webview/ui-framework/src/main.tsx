@@ -2,7 +2,7 @@ import i18next from 'i18next'
 import ReactDOM from 'react-dom/client'
 import { initReactI18next } from 'react-i18next'
 import { setupI18n } from 'vite-plugin-i18n-detector/client'
-import { LocalStorageEnum } from '@/webview/local-storage'
+import { LocalStorageEnum } from '~/webview/local-storage'
 import App from './App'
 import { parseJson } from './utils/json'
 import './hmr'
@@ -33,7 +33,9 @@ i18next.use(initReactI18next).init({
   fallbackLng: FALLBACKLANG,
 })
 
-export function registerApp(webviewComponents: IWebviewComponents) {
+let key = 0
+
+export function registerApp(webviewComponents: IWebviewComponents, reload = false) {
   const vscodeEnv = window.vscodeEnv
 
   const lng =
@@ -43,10 +45,12 @@ export function registerApp(webviewComponents: IWebviewComponents) {
 
   i18next.changeLanguage(lng)
 
+  key = reload ? ~key : key
+
   const { loadResourceByLang } = setupI18n({
     language: lng,
     onInited() {
-      root.render(<App theme={vscodeTheme} components={webviewComponents} />)
+      root.render(<App theme={vscodeTheme} key={key} components={webviewComponents} />)
     },
     onResourceLoaded: (langs, currentLang) => {
       Object.keys(langs).forEach((ns) => {

@@ -1,1 +1,0 @@
-import 'prebuild-install/bin'

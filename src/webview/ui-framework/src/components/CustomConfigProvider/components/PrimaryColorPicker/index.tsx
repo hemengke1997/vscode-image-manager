@@ -4,7 +4,7 @@ import { useControlledState, useLocalStorageState } from '@minko-fe/react-hook'
 import { ColorPicker, type ColorPickerProps } from 'antd'
 import { type ReactNode, memo, startTransition } from 'react'
 import { useTranslation } from 'react-i18next'
-import { builtInColors, vscodeColors } from '@/webview/ui-framework/src/utils/theme'
+import { builtInColors, vscodeColors } from '~/webview/ui-framework/src/utils/theme'
 
 type PrimaryColorPickerProps = {
   color?: string

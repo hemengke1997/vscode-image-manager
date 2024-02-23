@@ -1,0 +1,5 @@
+{
+  "write": true,
+  "interactive": true,
+  "exclude": ["@types/vscode", "vitest", "@types/node"]
+}

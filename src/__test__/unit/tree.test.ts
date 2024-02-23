@@ -1,7 +1,7 @@
 import { describe, expect, it } from 'vitest'
-import { type ImageType } from '@/webview/ImageManager'
-import { filterImages } from '@/webview/ImageManager/utils'
-import { DirTree, type TreeParams } from '@/webview/ImageManager/utils/DirTree'
+import { type ImageType } from '~/webview/ImageManager'
+import { filterImages } from '~/webview/ImageManager/utils'
+import { DirTree, type TreeParams } from '~/webview/ImageManager/utils/DirTree'
 
 function displayMapFixture(visibleListFixture: ImageType[]) {
   return {

@@ -1,7 +1,7 @@
 import { useMemoizedFn } from '@minko-fe/react-hook'
 import { type BooleanPredicate, type ItemParams } from 'react-contexify'
-import { type ImageType } from '@/webview/ImageManager'
-import GlobalContext from '@/webview/ImageManager/contexts/GlobalContext'
+import { type ImageType } from '~/webview/ImageManager'
+import GlobalContext from '~/webview/ImageManager/contexts/GlobalContext'
 
 function useOperation() {
   const { compressor } = GlobalContext.usePicker(['compressor'])

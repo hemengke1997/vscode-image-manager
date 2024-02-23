@@ -5,8 +5,9 @@ import { type Stats } from 'fs-extra'
 import { type ParsedPath } from 'node:path'
 import { type ReactElement, type ReactNode, memo, useEffect, useMemo } from 'react'
 import { useTranslation } from 'react-i18next'
-import { CmdToVscode, CmdToWebview } from '@/message/constant'
+import { CmdToVscode, CmdToWebview } from '~/message/cmd'
 import { LocalStorageEnum } from '../local-storage'
+import { mount } from '../main'
 import PrimaryColorPicker from '../ui-framework/src/components/CustomConfigProvider/components/PrimaryColorPicker'
 import FrameworkContext from '../ui-framework/src/contexts/FrameworkContext'
 import { vscodeApi } from '../vscode-api'
@@ -114,7 +115,7 @@ function ImageManager() {
           : allTypes
 
         // avoid images flash
-        if (!isEqual(imageTypes, displayImageTypes)) {
+        if (!isEqual(imageTypes, displayImageTypes?.checked)) {
           onImageTypeChange(imageTypes)
         }
       } catch {
@@ -138,12 +139,16 @@ function ImageManager() {
     function onMessage(e: MessageEvent) {
       const message = e.data
       switch (message.cmd) {
-        case CmdToWebview.IMAGES_CHANGED: {
+        case CmdToWebview.REFRESH_IMAGES: {
           refreshImages({ type: 'slientRefresh' })
           break
         }
         case CmdToWebview.COMPRESSOR_CHANGED: {
           setCompressor(message.data)
+          break
+        }
+        case CmdToWebview.REFRESH_WEBVIEW: {
+          mount(true)
           break
         }
         default:
@@ -271,8 +276,10 @@ function ImageManager() {
           )}
         </AnimatePresence>
         <Card
-          headStyle={{ borderBottom: 'none' }}
-          bodyStyle={{ padding: 0 }}
+          styles={{
+            header: { borderBottom: 'none' },
+            body: { padding: 0 },
+          }}
           title={t('im.images')}
           extra={<ImageActions />}
         >

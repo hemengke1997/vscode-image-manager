@@ -44,6 +44,8 @@ export function imageGlob(options: { imageType: string[]; exclude: string[]; roo
   let patterns = cwd ? [`${addLastSlash(cwd)}${pattern}`] : root.map((r) => `${addLastSlash(r)}${pattern}`)
   patterns = patterns.map((p) => normalizePath(p))
 
+  const dirPatterns = root.map((r) => `${addLastSlash(r)}**/*`)
+
   const ignore = [...exclude, ...BUILT_IN_EXCLUDE].map((pattern) => {
     if (isPositivePattern(pattern)) {
       if (!pattern.startsWith('*')) {
@@ -56,6 +58,7 @@ export function imageGlob(options: { imageType: string[]; exclude: string[]; roo
 
   return {
     pattern,
+    dirPatterns,
     patterns,
     ignore,
     all: patterns.concat(ignore),

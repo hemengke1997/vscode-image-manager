@@ -154,8 +154,6 @@ function CollapseTree() {
       dirTree.current.compactFolders(tree)
     }
 
-    console.log('renderTree: ', tree)
-
     // render tree
     return nestedDisplay(tree, { bordered: true }, { defaultOpen: true })
   })

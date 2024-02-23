@@ -1,9 +1,10 @@
 {
   "extends": "@minko-fe/tsconfig/tsconfig.project",
   "compilerOptions": {
+    "target": "ES2015",
     "baseUrl": ".",
     "paths": {
-      "@/*": ["./src/*"]
+      "~/*": ["./src/*"]
     }
   },
   "exclude": ["./temp/**"]

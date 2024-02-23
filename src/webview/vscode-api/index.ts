@@ -1,7 +1,7 @@
 import { random } from '@minko-fe/lodash-pro'
 import { type WebviewApi } from 'vscode-webview'
-import { type KeyofMessage, type MessageType, type ReturnOfMessageCenter } from '@/message'
-import { CmdToWebview } from '@/message/constant'
+import { type KeyofMessage, type MessageType, type ReturnOfMessageCenter } from '~/message/MessageCenter'
+import { CmdToWebview } from '~/message/cmd'
 
 export type MessageCallbackFn<T extends KeyofMessage> = (data: ReturnOfMessageCenter<T>) => void
 
@@ -31,6 +31,7 @@ class VscodeApi {
     window.addEventListener('message', (event) => {
       const message = event.data as MessageType
       const { callbackId, data } = message
+      if (!callbackId) return
       switch (message.cmd) {
         case CmdToWebview.WEBVIEW_CALLBACK: {
           const callback = this._callbacks[callbackId]

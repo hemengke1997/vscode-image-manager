@@ -52,41 +52,21 @@ Right click in Explorer, select `Image Manager` to open extension. (Open current
 
 ## Extension Settings
 
-| Name                              | Type                | Description                                                                                                                                        | Default value                                                                                                      |
-| --------------------------------- | ------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------ |
-| image-manager.warningSize         | `number \| boolean` | Show warning dot if image size is larger than this value (KB)                                                                                      | 1024                                                                                                               |
-| image-manager.imageDefaultWidth   | `number`            | default width of image (px)                                                                                                                        | 100                                                                                                                |
-| image-manager.scaleStep           | `number`            | scale step when zooming image list                                                                                                                 | 0.1                                                                                                                |
-| image-manager.exclude             | `string[]`          | scan images not in exclude (pattern syntax of micromatch)                                                                                          | `['**/node_modules/**', '**/.git/**''**/dist/**','**/coverage/**', '**/.next/**',  '**/.nuxt/**','**/.vercel/**']` |
-| image-manager.imageTypes          | `string[]`          | scan images with imageType                                                                                                                         | `['svg', 'png', 'jpeg', 'ico', 'gif', 'webp', 'bmp', 'tif', 'apng']`                                               |
-| image-manager.compress.method     | `sharp \| tinypng`  | compress method. If sharp installed, use sharp, else use tinypng                                                                                   | `sharp`                                                                                                            |
-| image-manager.compress.tinypngKey | `string`            | tinypng key. If choose tinypng, you should set this key which can be get from https://tinypng.com/developers. If not set, it will use unstable key | ''                                                                                                                 |
+| Name                            | Type                | Description                                                   | Default value                                                                                                      |
+| ------------------------------- | ------------------- | ------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------ |
+| image-manager.warningSize       | `number \| boolean` | Show warning dot if image size is larger than this value (KB) | 1024                                                                                                               |
+| image-manager.imageDefaultWidth | `number`            | default width of image (px)                                   | 100                                                                                                                |
+| image-manager.scaleStep         | `number`            | scale step when zooming image list                            | 0.1                                                                                                                |
+| image-manager.exclude           | `string[]`          | scan images not in exclude (pattern syntax of micromatch)     | `['**/node_modules/**', '**/.git/**''**/dist/**','**/coverage/**', '**/.next/**',  '**/.nuxt/**','**/.vercel/**']` |
+| image-manager.imageTypes        | `string[]`          | scan images with imageType                                    | `['svg', 'png', 'jpeg', 'ico', 'gif', 'webp', 'bmp', 'tif', 'apng']`                                               |
 
 
-## About image compress
+## How to compress
 
-### Three compression methods are supported at present (`image-manager.compress.method`)
-
-#### sharp
-
-This is the default and **recommanded** compression method.
-
-#### tinypng api mode
-
-You need to apply for the tinypng api key at https://tinypng.com/developers. The personal mode can compress 500 images per month
-
-Of course you need to set `image-manager.compress.tinypngKey`, otherwise the free mode will be used
-
-#### tinypng free mode
-
-If you don't set tinypngKey(`image-manager.compress.tinypngKey`), extension will automatically switch to this mode. Free, but may be unstable
-
-### How to compress
-
-#### Right click on the image
+### Right click on the image
 ![compress-right-click-image](./screenshots/compress-1.png)
 
-#### Right click on the folder name
+### Right click on the folder name
 ![compress-right-click-folder](./screenshots/compress-2.png)
 
 

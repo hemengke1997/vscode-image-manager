@@ -96,7 +96,8 @@
     "cant_compress_svg": "无法压缩 svg，请选择其他格式",
     "keep_origin": "保留原文件",
     "yes": "是",
-    "no": "否"
+    "no": "否",
+    "compressed": "已压缩"
   },
   "fallback": {
     "internal_error": "内部错误",

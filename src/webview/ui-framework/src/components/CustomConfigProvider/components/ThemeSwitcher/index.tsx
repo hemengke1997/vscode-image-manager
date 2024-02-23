@@ -3,7 +3,7 @@ import { Switch } from 'antd'
 import { memo, startTransition } from 'react'
 import { useTranslation } from 'react-i18next'
 import { CiDark, CiLight } from 'react-icons/ci'
-import { type ThemeType } from '@/webview/ui-framework/src/utils/theme'
+import { type ThemeType } from '~/webview/ui-framework/src/utils/theme'
 
 type ThemeSwitcherProps = {
   theme?: ThemeType

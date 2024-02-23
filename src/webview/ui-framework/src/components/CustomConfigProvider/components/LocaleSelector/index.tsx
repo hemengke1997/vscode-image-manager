@@ -3,7 +3,7 @@ import { Button, Dropdown, type MenuProps } from 'antd'
 import { memo } from 'react'
 import { useTranslation } from 'react-i18next'
 import { PiTranslateFill } from 'react-icons/pi'
-import { LocalStorageEnum } from '@/webview/local-storage'
+import { LocalStorageEnum } from '~/webview/local-storage'
 
 function LocaleSelector() {
   const { i18n, t } = useTranslation()

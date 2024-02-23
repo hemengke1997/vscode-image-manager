@@ -107,13 +107,15 @@ function useTreeContext(props: { imageList: ImageType[] }) {
 
   // Everytime list changed, update visibleList
   // the only entry to update visibleList
-  useUpdateEffect(() => {
+  // !! 修改 visibleList 的唯一入口 !!
+  useEffect(() => {
     setImageSingleTree((t) => {
       return { visibleList: t.list.filter(shouldShowImage) }
     })
   }, [imageSingleTree.list])
 
   // !!CARE!!: once imageListProp changed, the list will be updated
+  // 以下条件会影响list的生成结果。如果有更多的影响因素，都需要加在这里面
   // sort
   // size filter
   // display image type
