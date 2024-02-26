@@ -20,6 +20,7 @@ export enum CmdToWebview {
  * @description Webview sends these commands
  */
 export enum CmdToVscode {
+  ON_WEBVIEW_READY = 'ON_WEBVIEW_READY',
   // 重新加载webview（vscode的webview自身没有重新加载的能力）
   RELOAD_WEBVIEW = 'RELOAD_WEBVIEW',
   // 获取所有图片

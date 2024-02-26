@@ -1,4 +1,5 @@
 import { difference, isEqual, uniq } from '@minko-fe/lodash-pro'
+import { isDev } from '@minko-fe/vite-config/client'
 import { App, Card, Skeleton } from 'antd'
 import { AnimatePresence, motion } from 'framer-motion'
 import { type Stats } from 'fs-extra'
@@ -106,7 +107,10 @@ function ImageManager() {
     }
 
     vscodeApi.postMessage({ cmd: CmdToVscode.GET_ALL_IMAGES }, ({ data, workspaceFolders }) => {
-      console.log('GET_ALL_IMAGES', data, workspaceFolders)
+      if (isDev()) {
+        console.log('GET_ALL_IMAGES', data, workspaceFolders)
+      }
+
       const allTypes = data.flatMap((item) => item.fileTypes)
 
       try {

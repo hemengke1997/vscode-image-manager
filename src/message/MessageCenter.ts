@@ -5,7 +5,7 @@ import imageSize from 'image-size'
 import micromatch from 'micromatch'
 import mime from 'mime/lite'
 import path from 'node:path'
-import { Uri, type Webview, commands } from 'vscode'
+import { Uri, type Webview, commands, env } from 'vscode'
 import { Config, Global } from '~/core'
 import { type CompressionOptions } from '~/core/compress'
 import { normalizePath } from '~/utils'
@@ -29,6 +29,13 @@ export type KeyofMessage = keyof typeof VscodeMessageCenter
 export type ReturnOfMessageCenter<K extends KeyofMessage> = RmPromise<ReturnType<(typeof VscodeMessageCenter)[K]>>
 
 export const VscodeMessageCenter = {
+  [CmdToVscode.ON_WEBVIEW_READY]: async () => {
+    Log.info('Webview is ready')
+    return {
+      theme: Global.theme,
+      language: env.language,
+    }
+  },
   /* -------------- reload webview -------------- */
   [CmdToVscode.RELOAD_WEBVIEW]: async () => {
     const data = await commands.executeCommand('workbench.action.webview.reloadWebviewAction')
@@ -53,14 +60,14 @@ export const VscodeMessageCenter = {
     ) {
       absWorkspaceFolder = normalizePath(absWorkspaceFolder)
 
-      const { all } = imageGlob({
+      const { allImagePatterns } = imageGlob({
         cwd: absWorkspaceFolder,
         imageType: Config.imageType,
         exclude: Config.exclude,
         root: Global.rootpaths,
       })
 
-      const imgs = await fg(all, {
+      const imgs = await fg(allImagePatterns, {
         cwd: absWorkspaceFolder,
         objectMode: true,
         dot: false,

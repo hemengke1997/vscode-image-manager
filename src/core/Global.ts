@@ -9,7 +9,7 @@ export class Global {
   private static _rootpaths: string[]
 
   static context: ExtensionContext
-  static theme: 'light' | 'dark' = 'dark'
+  static theme: Theme = 'dark'
   static sharp: typeof SharpNS
   static compressor: Compressor
 
@@ -39,7 +39,7 @@ export class Global {
     }
     if (rootpaths?.length) {
       Log.divider()
-      Log.info(`💼 Workspace root changed to "[${rootpaths.join(',')}]"`)
+      Log.info(`💼 Workspace root changed to ${rootpaths.join(',')}`)
       this._rootpaths = rootpaths
       this._onDidChangeRootPath.fire(this._rootpaths)
     }

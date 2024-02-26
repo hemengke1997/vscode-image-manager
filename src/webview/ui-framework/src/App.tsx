@@ -6,16 +6,12 @@ import FrameworkContext from './contexts/FrameworkContext'
 
 interface IAppProps {
   components: Record<string, () => JSX.Element>
-  theme: Window['vscodeTheme']
+  theme: Theme
 }
 
 function App(props: IAppProps) {
   const { components, theme } = props
-  let currentView = window?.currentView
-  if (!currentView) {
-    currentView = Object.keys(components)[0]
-  }
-  const CurrentComponent = components[currentView]
+  const CurrentComponent = components[Object.keys(components)[0]]
 
   return (
     <div onContextMenu={(e) => e.preventDefault()}>

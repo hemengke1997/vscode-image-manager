@@ -2,14 +2,14 @@ import i18next from 'i18next'
 import ReactDOM from 'react-dom/client'
 import { initReactI18next } from 'react-i18next'
 import { setupI18n } from 'vite-plugin-i18n-detector/client'
+import { CmdToVscode } from '~/message/cmd'
 import { LocalStorageEnum } from '~/webview/local-storage'
+import { vscodeApi } from '~/webview/vscode-api'
 import App from './App'
 import { parseJson } from './utils/json'
 import './hmr'
 import './styles/index.css'
 import 'antd/dist/reset.css'
-
-const root = ReactDOM.createRoot(document.querySelector('#root') as HTMLElement)
 
 interface IWebviewComponents {
   [componentName: string]: () => JSX.Element
@@ -36,36 +36,48 @@ i18next.use(initReactI18next).init({
 let key = 0
 
 export function registerApp(webviewComponents: IWebviewComponents, reload = false) {
-  const vscodeEnv = window.vscodeEnv
-
-  const lng =
-    parseJson(localStorage.getItem(LocalStorageEnum.LOCAL_STORAGE_LOCALE_KEY)) || vscodeEnv?.language || FALLBACKLANG
-
-  const vscodeTheme = parseJson(localStorage.getItem(LocalStorageEnum.LOCAL_STORAGE_THEME_KEY)) || window.vscodeTheme
-
-  i18next.changeLanguage(lng)
-
-  key = reload ? ~key : key
-
-  const { loadResourceByLang } = setupI18n({
-    language: lng,
-    onInited() {
-      root.render(<App theme={vscodeTheme} key={key} components={webviewComponents} />)
+  vscodeApi.postMessage(
+    {
+      cmd: CmdToVscode.ON_WEBVIEW_READY,
     },
-    onResourceLoaded: (langs, currentLang) => {
-      Object.keys(langs).forEach((ns) => {
-        i18next.addResourceBundle(currentLang, ns, langs[ns], true, true)
+    (data) => {
+      const { language, theme } = data
+
+      const lng = parseJson(localStorage.getItem(LocalStorageEnum.LOCAL_STORAGE_LOCALE_KEY)) || language || FALLBACKLANG
+
+      i18next.changeLanguage(lng)
+
+      const { loadResourceByLang } = setupI18n({
+        language: lng,
+        onInited() {
+          try {
+            if (!window['__react_root']) {
+              window['__react_root'] = ReactDOM.createRoot(document.querySelector('#root') as HTMLElement)
+            }
+          } catch {
+          } finally {
+            key = reload ? ~key : key
+            const vscodeTheme = parseJson(localStorage.getItem(LocalStorageEnum.LOCAL_STORAGE_THEME_KEY)) || theme
+
+            window['__react_root'].render(<App theme={vscodeTheme} key={key} components={webviewComponents} />)
+          }
+        },
+        onResourceLoaded: (langs, currentLang) => {
+          Object.keys(langs).forEach((ns) => {
+            i18next.addResourceBundle(currentLang, ns, langs[ns], true, true)
+          })
+        },
+        fallbackLng: FALLBACKLANG,
+        cache: {
+          htmlTag: true,
+        },
       })
-    },
-    fallbackLng: FALLBACKLANG,
-    cache: {
-      htmlTag: true,
-    },
-  })
 
-  const _changeLanguage = i18next.changeLanguage
-  i18next.changeLanguage = async (lang: string, ...args) => {
-    await loadResourceByLang(lang)
-    return _changeLanguage(lang, ...args)
-  }
+      const _changeLanguage = i18next.changeLanguage
+      i18next.changeLanguage = async (lang: string, ...args) => {
+        await loadResourceByLang(lang)
+        return _changeLanguage(lang, ...args)
+      }
+    },
+  )
 }

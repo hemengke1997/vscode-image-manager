@@ -25,9 +25,9 @@ describe('Glob images', () => {
       root: [workspaceFolder],
       cwd: workspaceFolder,
     }
-    const { all } = imageGlob(config)
-    const imgs = await glob(all, config.cwd)
-    expect(imgs.every((t) => !t.includes('dist-1'))).toBe(true)
+    const { allImagePatterns } = imageGlob(config)
+    const imgs = await glob(allImagePatterns, config.cwd)
+    expect(imgs.every((t) => !t.includes('dist'))).toBe(true)
   })
 
   it('should not ignore dist-1', async () => {
@@ -37,8 +37,9 @@ describe('Glob images', () => {
       cwd: workspaceFolder,
       exclude: [],
     }
-    const { all } = imageGlob(config)
-    const imgs = await glob(all, config.cwd)
+    const { allImagePatterns } = imageGlob(config)
+    const imgs = await glob(allImagePatterns, config.cwd)
+
     expect(imgs.some((t) => t.includes('dist-1'))).toBe(true)
   })
 
@@ -49,8 +50,9 @@ describe('Glob images', () => {
       root: [workspaceFolder],
       cwd: workspaceFolder,
     }
-    const { all } = imageGlob(config)
-    const imgs = await glob(all, config.cwd)
+    const { allImagePatterns } = imageGlob(config)
+    const imgs = await glob(allImagePatterns, config.cwd)
+
     expect(imgs.every((t) => !t.includes('.png'))).toBe(true)
   })
 
@@ -61,8 +63,21 @@ describe('Glob images', () => {
       root: [workspaceFolder],
       cwd: workspaceFolder,
     }
-    const { all } = imageGlob(config)
-    const imgs = await glob(all, config.cwd)
+    const { allImagePatterns } = imageGlob(config)
+    const imgs = await glob(allImagePatterns, config.cwd)
+
     expect(imgs.every((t) => !t.includes('.png'))).toBe(true)
+  })
+
+  it('should not ignore built-in pattern dist', async () => {
+    const config: Config = {
+      imageType: ['jpg', 'svg', 'png'],
+      exclude: ['!**/dist/**'],
+      root: [workspaceFolder],
+      cwd: workspaceFolder,
+    }
+    const { allImagePatterns } = imageGlob(config)
+    const imgs = await glob(allImagePatterns, config.cwd)
+    expect(imgs.some((t) => t.includes('/dist/'))).toBe(true)
   })
 })

@@ -1,7 +1,6 @@
-//  function removeLastSlash(path: string) {
-//   return path.replace(/\/$/g, '')
-// }
-
+import { remove } from '@minko-fe/lodash-pro'
+import micromatch from 'micromatch'
+import path from 'node:path'
 import { normalizePath } from '.'
 
 function addLastSlash(path: string) {
@@ -36,17 +35,8 @@ const BUILT_IN_EXCLUDE = [
   '**/.vercel/**',
 ]
 
-export function imageGlob(options: { imageType: string[]; exclude: string[]; root: string[]; cwd?: string }) {
-  const { imageType, exclude, root, cwd } = options
-
-  const pattern = `**/*.{${imageType.join(',')}}`
-
-  let patterns = cwd ? [`${addLastSlash(cwd)}${pattern}`] : root.map((r) => `${addLastSlash(r)}${pattern}`)
-  patterns = patterns.map((p) => normalizePath(p))
-
-  const dirPatterns = root.map((r) => `${addLastSlash(r)}**/*`)
-
-  const ignore = [...exclude, ...BUILT_IN_EXCLUDE].map((pattern) => {
+function convertToIgnore(patterns: string[]) {
+  return patterns.map((pattern) => {
     if (isPositivePattern(pattern)) {
       if (!pattern.startsWith('*')) {
         return convertToNegativePattern(`**/${pattern}`)
@@ -55,12 +45,58 @@ export function imageGlob(options: { imageType: string[]; exclude: string[]; roo
     }
     return convertToPositivePattern(pattern)
   })
+}
+
+export function imageGlob(options: { imageType: string[]; exclude: string[]; root: string[]; cwd?: string }) {
+  const { imageType, exclude, root, cwd } = options
+
+  const imagePattern = `**/*.{${imageType.join(',')}}`
+  const dirPattern = '**/*'
+
+  function create(p: string) {
+    let patterns: string[]
+    if (cwd) {
+      patterns = [`${addLastSlash(cwd)}${p}`]
+    }
+    patterns = root.map((r) => `${addLastSlash(r)}${p}`)
+    return patterns.map((t) => normalizePath(t))
+  }
+
+  const absImagePatterns = create(imagePattern)
+  const dirs = create('').map((t) => path.basename(t))
+
+  const absDirPatterns = create(dirPattern)
+
+  const built_in_exclude = convertToIgnore(BUILT_IN_EXCLUDE)
+  const user_exclude = convertToIgnore(exclude)
+
+  const ignore = [...built_in_exclude]
+  user_exclude.forEach((p) => {
+    if (isPositivePattern(p)) {
+      // 如果用户配置了与内置相反的规则，那么删除内置的排除规则
+      remove(ignore, (b) => convertToPositivePattern(b) === p)
+    } else {
+      ignore.push(p)
+    }
+  })
+
+  dirs.forEach((dir) => {
+    // 如果目录是被忽略的，则把ignore中的排除规则删除
+    if (micromatch.isMatch(dir, ignore)) {
+      remove(ignore, (p) => micromatch.isMatch(dir, convertToPositivePattern(p)))
+    }
+  })
+
+  const allImagePatterns = [...absImagePatterns, ...ignore]
 
   return {
-    pattern,
-    dirPatterns,
-    patterns,
+    imagePattern,
+    absImagePatterns,
+
+    dirPattern,
+    absDirPatterns,
+
     ignore,
-    all: patterns.concat(ignore),
+    allImagePatterns,
   }
 }

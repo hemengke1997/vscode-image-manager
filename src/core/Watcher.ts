@@ -29,9 +29,9 @@ export class Watcher {
   private static _isIgnored(e: Uri, isDirectory: boolean) {
     const gs = this.glob.ignore
     if (isDirectory) {
-      gs.unshift(...this.glob.dirPatterns)
+      gs.unshift(...this.glob.absDirPatterns)
     } else {
-      gs.unshift(...this.glob.patterns)
+      gs.unshift(...this.glob.absImagePatterns)
     }
     return gs?.every((g) => !micromatch.all(e.fsPath, g))
   }
@@ -78,7 +78,7 @@ export class Watcher {
     Log.info(`Watch Root: ${Config.root}`)
 
     const imageWatchers = Config.root.map((r) => {
-      return workspace.createFileSystemWatcher(new RelativePattern(r, this.glob.pattern))
+      return workspace.createFileSystemWatcher(new RelativePattern(r, this.glob.imagePattern))
     })
 
     const folderWatchers = Config.root.map((r) => {

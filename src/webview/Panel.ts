@@ -10,11 +10,9 @@ import {
   ViewColumn,
   type Webview,
   type WebviewPanel,
-  env,
   window,
   workspace,
 } from 'vscode'
-import { Global } from '~/core'
 import { i18n } from '~/i18n'
 import { MessageCenter, type MessageType } from '~/message/MessageCenter'
 import { CmdToWebview } from '~/message/cmd'
@@ -149,26 +147,6 @@ export class ImageManagerPanel {
     }
 
     html = applyHtmlTransforms(html, [
-      {
-        injectTo: 'head-prepend',
-        tag: 'script',
-        attrs: { type: 'text/javascript' },
-        children: `window.vscodeTheme = '${Global.theme}'`,
-      },
-      {
-        injectTo: 'head',
-        tag: 'script',
-        attrs: { type: 'text/javascript' },
-        children: `window.currentView = '${ImageManagerPanel.viewType}'`,
-      },
-      {
-        injectTo: 'head',
-        tag: 'script',
-        attrs: { type: 'text/javascript' },
-        children: `window.vscodeEnv = ${JSON.stringify({
-          language: env.language,
-        })}`,
-      },
       {
         injectTo: 'head-prepend',
         tag: 'meta',

@@ -31,7 +31,7 @@ function ImageSearch(props: ImageSearchProps) {
   const searchInputRef = useRef<InputRef>(null)
 
   const imageData = GlobalContext.useSelector((ctx) => ctx.imageState.data)
-  const allImages = useMemo(() => imageData.flatMap((item) => item.imgs), [imageData])
+  const allImagePatterns = useMemo(() => imageData.flatMap((item) => item.imgs), [imageData])
 
   const [caseSensitive, setCaseSensitive] = useState(false)
   const [wholeWord, setWholeWord] = useState(false)
@@ -40,14 +40,14 @@ function ImageSearch(props: ImageSearchProps) {
 
   const fuse = useMemo(
     () =>
-      new Fuse(allImages, {
+      new Fuse(allImagePatterns, {
         isCaseSensitive: caseSensitive,
         minMatchCharLength: 2,
         includeMatches: true,
         threshold: wholeWord ? 0 : 0.3,
         keys: ['name'],
       }),
-    [allImages, caseSensitive, wholeWord],
+    [allImagePatterns, caseSensitive, wholeWord],
   )
 
   const [searchValue, setSearchValue] = useState('')
