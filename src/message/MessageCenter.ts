@@ -1,14 +1,18 @@
-import exif, { type Exif } from 'exif-reader'
+import { flatten } from '@minko-fe/lodash-pro'
+import exif from 'exif-reader'
 import fg from 'fast-glob'
 import fs from 'fs-extra'
 import imageSize from 'image-size'
+import { getMetadata } from 'meta-png'
 import micromatch from 'micromatch'
 import mime from 'mime/lite'
 import path from 'node:path'
+import git from 'simple-git'
 import { Uri, type Webview, commands, env } from 'vscode'
 import { Config, Global } from '~/core'
 import { type CompressionOptions } from '~/core/compress'
-import { normalizePath } from '~/utils'
+import { COMPRESSED_META } from '~/core/compress/meta'
+import { isPng, normalizePath } from '~/utils'
 import { Log } from '~/utils/Log'
 import { imageGlob } from '~/utils/glob'
 import { type ImageType } from '~/webview/ImageManager'
@@ -262,16 +266,48 @@ export const VscodeMessageCenter = {
   /* ------------ get image metadata ------------ */
   [CmdToVscode.GET_IMAGE_METADATA]: async ({ message }: MessageParams<{ filePath: string }>) => {
     const { filePath } = message.data
-    const metadata = await Global.sharp(filePath).metadata()
-    let exifInfo: Exif | undefined = undefined
 
-    if (metadata.exif) {
-      exifInfo = exif(metadata.exif)
+    const metadata = await Global.sharp(filePath).metadata()
+    let compressed = false
+
+    if (isPng(filePath)) {
+      const arrayBuffer = new Uint8Array(fs.readFileSync(filePath))
+      compressed = !!getMetadata(arrayBuffer, COMPRESSED_META)
     }
+
+    if (!compressed) {
+      if (metadata.exif) {
+        compressed = !!exif(metadata.exif).Image?.ImageDescription?.includes(COMPRESSED_META)
+      }
+    }
+
     return {
       metadata,
-      exifInfo,
+      compressed,
     }
+  },
+
+  /* --------- get git staged images --------- */
+  [CmdToVscode.GET_GIT_STAGED_IMAGES]: async () => {
+    function getStagedImages(root: string) {
+      return new Promise<string[]>((resolve, reject) => {
+        git({
+          baseDir: root,
+        }).diff(['--cached', '--diff-filter=ACMR', '--name-only'], (err, result) => {
+          if (err) reject(err)
+          // Split the result into an array of file names
+          const files = result.split('\n')
+          // Filter out non-image files
+          let imageFiles = files.filter((file) => Config.imageType.includes(path.extname(file).slice(1)))
+          imageFiles = imageFiles.map((file) => path.join(root, file))
+          resolve(imageFiles)
+        })
+      })
+    }
+
+    const images = await Promise.all(Global.rootpaths.map((root) => getStagedImages(root)))
+
+    return flatten(images)
   },
 
   /* ----------- test vscode command ----------- */

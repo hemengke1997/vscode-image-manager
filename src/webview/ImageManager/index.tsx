@@ -35,10 +35,11 @@ import { Colors } from './utils/color'
 vscodeApi.registerEventListener()
 
 // The visible of image is determined by 'visible' prop.
-// at present, there are two filetr condition
+// at present, there are following filetr condition
 // 1. type - image type (i.e png, jpg, gif)
 // 2. size - image size (i.e 1kb)
-export type ImageVisibleFilterType = 'type' | 'size'
+// 3. git-staged - whether the image is git staged
+export type ImageVisibleFilterType = 'type' | 'size' | 'git_staged'
 
 export type ImageType = {
   name: string

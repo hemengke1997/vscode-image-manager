@@ -12,7 +12,7 @@ module.exports = {
   },
   presets: [require('tailwind-antd-preset')],
   plugins: [
-    require('./tailwind-vscode.cjs'),
+    require('./tailwind-vscode.js'),
     plugin(function ({ addUtilities }) {
       addUtilities({
         '.flex-center': {

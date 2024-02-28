@@ -1,5 +1,5 @@
-import type SharpNS from 'sharp'
 import fs from 'fs-extra'
+import { type SharpNS } from '~/@types/global'
 import { type Hookable, createHooks } from '~/fork/hookable'
 import { Log } from '~/utils/Log'
 import { Global } from '..'
@@ -164,7 +164,7 @@ export class SharpOperator {
             await this._hooks.callHook('after:run', { outputPath })
             const fileWritableStream = fs.createWriteStream(outputPath)
 
-            fileWritableStream.on('finish', () => {
+            fileWritableStream.on('finish', async () => {
               const outputSize = fs.statSync(outputPath).size
 
               const result = {
@@ -173,7 +173,7 @@ export class SharpOperator {
                 outputPath,
               }
 
-              this._hooks.callHook('on:finish', result)
+              await this._hooks.callHook('on:finish', result)
               resolve(result)
             })
 

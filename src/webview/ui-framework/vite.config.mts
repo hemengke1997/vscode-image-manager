@@ -10,7 +10,7 @@ export default defineConfig((env) => {
     {
       plugins: [react()],
       css: {
-        postcss: path.resolve(__dirname, './postcss.config.cjs'),
+        postcss: path.resolve(__dirname, './postcss.config.js'),
       },
       resolve: {
         alias: [{ find: '~', replacement: path.resolve(__dirname, './src') }],

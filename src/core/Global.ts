@@ -1,4 +1,3 @@
-import type SharpNS from 'sharp'
 import { type Event, EventEmitter, type ExtensionContext, window, workspace } from 'vscode'
 import { Compressor } from '~/core/compress/Compressor'
 import { Installer } from '~/core/sharp'
@@ -10,7 +9,7 @@ export class Global {
 
   static context: ExtensionContext
   static theme: Theme = 'dark'
-  static sharp: typeof SharpNS
+  static sharp: TSharp
   static compressor: Compressor
 
   // events
@@ -21,7 +20,7 @@ export class Global {
   static async init(context: ExtensionContext) {
     this.context = context
     Watcher.init()
-    this.installSharp()
+    await this.installSharp()
     this.updateTheme()
     context.subscriptions.push(workspace.onDidChangeWorkspaceFolders(() => this.updateRootPath()))
     // context.subscriptions.push(workspace.onDidChangeConfiguration((e) => this.update(e)))
@@ -38,7 +37,6 @@ export class Global {
       rootpaths = [workspace.rootPath]
     }
     if (rootpaths?.length) {
-      Log.divider()
       Log.info(`💼 Workspace root changed to ${rootpaths.join(',')}`)
       this._rootpaths = rootpaths
       this._onDidChangeRootPath.fire(this._rootpaths)
@@ -59,7 +57,7 @@ export class Global {
     }
   }
 
-  static installSharp() {
+  static async installSharp() {
     const installer = new Installer(this.context)
 
     installer.event
@@ -72,6 +70,6 @@ export class Global {
         Log.error('Failed to install sharp')
       })
 
-    installer.run()
+    await installer.run()
   }
 }

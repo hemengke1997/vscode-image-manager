@@ -1,10 +1,12 @@
 import { isFunction } from '@minko-fe/lodash-pro'
-import { useMemoizedFn, useSetState, useUpdateEffect } from '@minko-fe/react-hook'
+import { useAsyncEffect, useLatest, useMemoizedFn, useSetState, useUpdateEffect } from '@minko-fe/react-hook'
 import { createContainer } from 'context-state'
 import { useEffect, useMemo } from 'react'
+import { CmdToVscode } from '~/message/cmd'
+import { vscodeApi } from '~/webview/vscode-api'
 import { type ImageType, type ImageVisibleFilterType } from '..'
 import { bytesToKb, filterImages, shouldShowImage } from '../utils'
-import ActionContext, { type SizeFilterType } from './ActionContext'
+import ActionContext, { type ImageFilterType } from './ActionContext'
 import SettingsContext from './SettingsContext'
 
 export type ImageStateType = {
@@ -44,6 +46,7 @@ function useTreeContext(props: { imageList: ImageType[] }) {
     list: [],
     visibleList: [],
   })
+  const latestImageList = useLatest(imageSingleTree.list).current
 
   const workspaceFolders = useMemo(
     () =>
@@ -117,18 +120,22 @@ function useTreeContext(props: { imageList: ImageType[] }) {
   // !!CARE!!: once imageListProp changed, the list will be updated
   // 以下条件会影响list的生成结果。如果有更多的影响因素，都需要加在这里面
   // sort
-  // size filter
   // display image type
-  const generateImageList = useMemoizedFn((imageList: ImageType[]) => {
-    const s = onSortChange(imageList, sort)
-    const d = onDisplayImageTypeChange(s, displayImageTypes?.checked)
-    return onSizeFilterChange(d, sizeFilter)
-  })
+  // size filter
+  // git staged filter
+  const generateImageList = async (imageList: ImageType[]) => {
+    let res = onSortChange(imageList, sort)
+    res = onDisplayImageTypeChange(res, displayImageTypes?.checked)
+    res = onSizeFilterChange(res, imageFilter)
+    res = await onGitStagedFilterChange(res, imageFilter)
+    return res
+  }
 
-  useEffect(() => {
+  useAsyncEffect(async () => {
+    const list = await generateImageList(imageListProp)
     setImageSingleTree({
       originalList: imageListProp,
-      list: generateImageList(imageListProp),
+      list,
     })
   }, [imageListProp])
 
@@ -162,27 +169,49 @@ function useTreeContext(props: { imageList: ImageType[] }) {
   }, [displayImageTypes?.checked])
 
   // filter action triggerd
-  const { sizeFilter } = ActionContext.usePicker(['sizeFilter'])
+  const { imageFilter } = ActionContext.usePicker(['imageFilter'])
 
-  const onSizeFilterChange = useMemoizedFn((imageList: ImageType[], sizeFilter: SizeFilterType) => {
-    if (sizeFilter?.active) {
-      return toogleVisible(
-        imageList,
-        'size',
-        (t) =>
-          bytesToKb(t.stats.size) >= (sizeFilter.value.min || 0) &&
-          bytesToKb(t.stats.size) <= (sizeFilter.value.max || Number.POSITIVE_INFINITY),
-      )
-    } else {
-      return toogleVisible(imageList, 'size', true)
-    }
+  // action image filter change
+  // 目前有以下filter
+  // 1. size
+  // 2. git-staged
+  const onSizeFilterChange = useMemoizedFn((imageList: ImageType[], imageFilter: ImageFilterType) => {
+    const {
+      value: {
+        size: { min, max },
+      },
+    } = imageFilter || { value: { size: {} } }
+
+    return toogleVisible(
+      imageList,
+      'size',
+      (t) => bytesToKb(t.stats.size) >= (min || 0) && bytesToKb(t.stats.size) <= (max || Number.POSITIVE_INFINITY),
+    )
   })
-
   useUpdateEffect(() => {
     setImageSingleTree((t) => ({
-      list: onSizeFilterChange(t.list, sizeFilter),
+      list: onSizeFilterChange(t.list, imageFilter),
     }))
-  }, [sizeFilter])
+  }, [imageFilter?.value.size])
+
+  const onGitStagedFilterChange = useMemoizedFn((imageList: ImageType[], imageFilter: ImageFilterType) => {
+    return new Promise<ImageType[]>((resolve) => {
+      if (imageFilter?.value.git_staged) {
+        vscodeApi.postMessage({ cmd: CmdToVscode.GET_GIT_STAGED_IMAGES }, (res) => {
+          resolve(toogleVisible(imageList, 'git_staged', (t) => res.includes(t.path)))
+        })
+      } else {
+        resolve(toogleVisible(imageList, 'git_staged', true))
+      }
+    })
+  })
+  useUpdateEffect(() => {
+    onGitStagedFilterChange(latestImageList, imageFilter).then((list) => {
+      setImageSingleTree({
+        list,
+      })
+    })
+  }, [imageFilter?.value.git_staged])
 
   return {
     imageSingleTree,

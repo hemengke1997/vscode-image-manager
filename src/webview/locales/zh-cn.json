@@ -97,7 +97,8 @@
     "keep_origin": "保留原文件",
     "yes": "是",
     "no": "否",
-    "compressed": "已压缩"
+    "compressed": "已压缩",
+    "git_staged": "Git staged"
   },
   "fallback": {
     "internal_error": "内部错误",

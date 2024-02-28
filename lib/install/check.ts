@@ -1,1 +1,0 @@
-import 'sharp/install/check'

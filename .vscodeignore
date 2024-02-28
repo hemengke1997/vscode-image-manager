@@ -3,9 +3,10 @@
 .gitignore
 .gitattributes
 .vscode
-.turbo
 .cache/**
 .github/**
+.tazerc.json
+.idea
 
 src
 screenshots
@@ -13,17 +14,20 @@ test
 locales
 scripts
 lib
+examples
 
 index.html
 temp*
 
 eslint.config.js
-commitlint.config.cjs
+commitlint.config.*
 tsconfig.json
 package-lock.json
+renovate.json
 
 TODO.md
 CHANGELOG-CODE.md
 
 *.yaml
 **/*.ts
+*.mts

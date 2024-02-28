@@ -1,6 +1,6 @@
 import { isNil } from '@minko-fe/lodash-pro'
 import { useMemoizedFn } from '@minko-fe/react-hook'
-import { App, Button, Form, InputNumber, Popover, Space } from 'antd'
+import { App, Button, ConfigProvider, Divider, Form, InputNumber, Popover, Radio, Space } from 'antd'
 import { memo } from 'react'
 import { useHotkeys } from 'react-hotkeys-hook'
 import { useTranslation } from 'react-i18next'
@@ -10,29 +10,41 @@ import { TbLayoutNavbarExpand, TbRefresh } from 'react-icons/tb'
 import ActionContext from '../../contexts/ActionContext'
 import { Keybinding } from '../../keybinding'
 
+/**
+ * key: ImageVisibleFilterType 一一对应，方便使用
+ */
+export type ImageFilterFormValue = {
+  size: {
+    min?: number
+    max?: number
+  }
+  git_staged?: 0 | 1
+}
+
 function ImageActions() {
   const { t } = useTranslation()
-  const { setCollapseOpen, refreshImages, sizeFilter, setSizeFilter, imageSearchOpen, setImageSearchOpen } =
+  const { setCollapseOpen, refreshImages, imageFilter, setImageFilter, imageSearchOpen, setImageSearchOpen } =
     ActionContext.usePicker([
       'setCollapseOpen',
       'refreshImages',
-      'sizeFilter',
-      'setSizeFilter',
+      'imageFilter',
+      'setImageFilter',
       'imageSearchOpen',
       'setImageSearchOpen',
     ])
 
   const { message } = App.useApp()
-  const [sizeForm] = Form.useForm()
+  const [filterForm] = Form.useForm()
 
-  const filterImagesBySize = (value: { min?: number; max?: number }) => {
-    const { min, max } = value
+  const filterImagesByFormResult = (value: ImageFilterFormValue) => {
+    const {
+      size: { min, max },
+      git_staged,
+    } = value
 
-    if (isNil(min) && isNil(max)) {
-      setSizeFilter({ active: false, value })
-    } else {
-      setSizeFilter({ active: true, value })
-    }
+    const active = !isNil(min) || !isNil(max) || !!git_staged
+
+    setImageFilter({ active, value })
   }
 
   const toggleAllCollapse = useMemoizedFn((b: boolean) => {
@@ -75,92 +87,118 @@ function ImageActions() {
       ></Button>
       <Popover
         trigger={'click'}
+        placement='left'
         afterOpenChange={(open) => {
           if (!open) {
-            sizeForm.setFieldsValue(sizeFilter?.value)
+            filterForm.setFieldsValue(imageFilter?.value)
           }
         }}
         content={
           <>
-            <Form
-              layout='inline'
-              name='size'
-              form={sizeForm}
-              onFinishFailed={({ errorFields }) => {
-                errorFields.some((item) => {
-                  if (item.errors.length) {
-                    message.error(item.errors[0])
-                    return true
-                  }
-                  return false
-                })
-              }}
-              onFinish={(value) => {
-                filterImagesBySize(value)
+            <ConfigProvider
+              theme={{
+                components: {
+                  Form: {
+                    itemMarginBottom: 0,
+                  },
+                },
               }}
             >
-              <div className={'flex-center space-x-2'}>
-                <div>{t('im.size')}</div>
-                <Space.Compact>
-                  <Form.Item
-                    noStyle
-                    rules={[
-                      ({ getFieldValue }) => ({
-                        validator(_, value) {
-                          const max = getFieldValue('max')
-                          if (!isNil(max) && !isNil(value) && value > max) {
-                            return Promise.reject(new Error('min must less than max'))
-                          }
-                          return Promise.resolve()
-                        },
-                      }),
-                    ]}
-                    name={'min'}
-                  >
-                    <InputNumber placeholder={`${t('im.min')}(kb)`} min={0} onPressEnter={sizeForm.submit} />
-                  </Form.Item>
-                  <Form.Item
-                    noStyle
-                    name={'max'}
-                    rules={[
-                      ({ getFieldValue }) => ({
-                        validator(_, value) {
-                          const min = getFieldValue('min')
-                          if (!isNil(min) && !isNil(value) && value < min) {
-                            return Promise.reject()
-                          }
-                          return Promise.resolve()
-                        },
-                      }),
-                    ]}
-                  >
-                    <InputNumber placeholder={`${t('im.max')}(kb)`} min={0} onPressEnter={sizeForm.submit} />
-                  </Form.Item>
-                </Space.Compact>
-                <Form.Item noStyle>
-                  <Button.Group>
-                    <Button size='small' type='primary' onClick={sizeForm.submit}>
-                      {t('im.submit')}
-                    </Button>
-                    <Button
-                      size='small'
-                      type='default'
-                      onClick={() => {
-                        sizeForm.resetFields()
-                        sizeForm.submit()
-                      }}
-                    >
-                      {t('im.reset')}
-                    </Button>
-                  </Button.Group>
+              <Form
+                layout='horizontal'
+                name='size'
+                colon={false}
+                form={filterForm}
+                onFinishFailed={({ errorFields }) => {
+                  errorFields.some((item) => {
+                    if (item.errors.length) {
+                      message.error(item.errors[0])
+                      return true
+                    }
+                    return false
+                  })
+                }}
+                onFinish={(value) => {
+                  filterImagesByFormResult(value)
+                }}
+                className={'space-y-4'}
+                initialValues={{
+                  git_staged: 0,
+                }}
+              >
+                {/* size */}
+                <Form.Item label={t('im.size')}>
+                  <div className={'flex-center space-x-2'}>
+                    <Space.Compact>
+                      <Form.Item
+                        noStyle
+                        rules={[
+                          ({ getFieldValue }) => ({
+                            validator(_, value) {
+                              const max = getFieldValue('max')
+                              if (!isNil(max) && !isNil(value) && value > max) {
+                                return Promise.reject(new Error('min must less than max'))
+                              }
+                              return Promise.resolve()
+                            },
+                          }),
+                        ]}
+                        name={['size', 'min']}
+                      >
+                        <InputNumber placeholder={`${t('im.min')}(kb)`} min={0} onPressEnter={filterForm.submit} />
+                      </Form.Item>
+                      <Form.Item
+                        noStyle
+                        name={['size', 'max']}
+                        rules={[
+                          ({ getFieldValue }) => ({
+                            validator(_, value) {
+                              const min = getFieldValue('min')
+                              if (!isNil(min) && !isNil(value) && value < min) {
+                                return Promise.reject()
+                              }
+                              return Promise.resolve()
+                            },
+                          }),
+                        ]}
+                      >
+                        <InputNumber placeholder={`${t('im.max')}(kb)`} min={0} onPressEnter={filterForm.submit} />
+                      </Form.Item>
+                    </Space.Compact>
+                  </div>
                 </Form.Item>
-              </div>
-            </Form>
+                {/* git staged */}
+                <Form.Item label={t('im.git_staged')} name={'git_staged'}>
+                  <Radio.Group optionType='button' buttonStyle='solid' name='git-filter'>
+                    <Radio value={0}>{t('im.no')}</Radio>
+                    <Radio value={1}>{t('im.yes')}</Radio>
+                  </Radio.Group>
+                </Form.Item>
+                {/* TODO: compressed */}
+
+                <Divider></Divider>
+                <div className={'flex w-full justify-center gap-x-2'}>
+                  <Button size='small' type='primary' onClick={filterForm.submit}>
+                    {t('im.submit')}
+                  </Button>
+                  <Button
+                    size='small'
+                    type='default'
+                    onClick={() => {
+                      filterForm.resetFields()
+                      filterForm.submit()
+                    }}
+                  >
+                    {t('im.reset')}
+                  </Button>
+                </div>
+              </Form>
+            </ConfigProvider>
           </>
         }
       >
         <Button
-          type={sizeFilter?.active ? 'primary' : 'text'}
+          type={imageFilter?.active ? 'primary' : 'text'}
           icon={
             <div className={'flex-center text-xl'}>
               <RiFilter2Line />

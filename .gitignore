@@ -1,7 +1,6 @@
 .cache
 .DS_Store
 .idea
-.turbo
 
 *.log
 *.tgz

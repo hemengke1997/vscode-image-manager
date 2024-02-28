@@ -1,9 +1,13 @@
-import type SharpType from 'sharp'
 import { toString } from '@minko-fe/lodash-pro'
 import fs from 'fs-extra'
+import { addMetadata, getMetadata } from 'meta-png'
 import path from 'node:path'
+import piexif from 'piexifjs'
+import { type SharpNS } from '~/@types/global'
 import { SharpOperator } from '~/core/sharp'
+import { isJpg, isPng } from '~/utils'
 import { Log } from '~/utils/Log'
+import { COMPRESSED_META } from './meta'
 
 type ExtendOptions = {
   fileSuffix?: string
@@ -106,16 +110,21 @@ export class Compressor {
             'before:run': async (sharp) => {
               const { width, height } = await sharp.metadata()
               sharp
-                .toFormat(ext as keyof SharpType.FormatEnum, {
+                .toFormat(ext as keyof SharpNS.FormatEnum, {
                   quality,
                   compressionLevel,
                 })
-                .withExif({
-                  IFD0: {
-                    ImageDescription: `compressed:true;`,
+                .timeout({ seconds: 20 })
+
+              if (!isPng(ext) && !isJpg(ext)) {
+                sharp.withMetadata({
+                  exif: {
+                    IFD0: {
+                      ImageDescription: COMPRESSED_META,
+                    },
                   },
                 })
-                .timeout({ seconds: 20 })
+              }
 
               if (size !== 1) {
                 sharp.resize({
@@ -133,6 +142,23 @@ export class Compressor {
             },
             'on:genOutputPath': (inputPath) => {
               return this._getOutputPath(inputPath, ext, size)
+            },
+            'on:finish': async ({ outputPath }) => {
+              if (isPng(outputPath)) {
+                const PNGUint8Array = new Uint8Array(fs.readFileSync(outputPath))
+                if (getMetadata(PNGUint8Array, COMPRESSED_META)) return
+                const modified = addMetadata(PNGUint8Array, COMPRESSED_META, '1')
+                await fs.writeFile(outputPath, modified)
+              } else if (isJpg(outputPath)) {
+                let binary = fs.readFileSync(outputPath).toString('binary')
+                binary = piexif.remove(binary)
+                const zeroth = {}
+                zeroth[piexif.ImageIFD.ImageDescription] = COMPRESSED_META
+                const exifObj = { '0th': zeroth }
+                const exifbytes = piexif.dump(exifObj)
+                const newData = Buffer.from(piexif.insert(exifbytes, binary), 'binary')
+                await fs.writeFile(outputPath, newData)
+              }
             },
           },
         },

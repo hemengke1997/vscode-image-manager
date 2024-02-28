@@ -18,8 +18,15 @@ pre {
   @apply overflow-y-scroll w-full h-full;
 }
 
+html {
+  @apply select-none;
+}
+
 body {
   @apply p-0;
+  * {
+    @apply select-none;
+  }
 }
 
 .ant-btn-icon-only {

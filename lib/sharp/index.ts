@@ -1,3 +1,3 @@
 import sharp from 'sharp'
 
-export default sharp
+export { sharp }

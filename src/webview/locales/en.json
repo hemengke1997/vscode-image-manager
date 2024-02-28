@@ -100,7 +100,8 @@
     "keep_origin": "Keep original file",
     "yes": "Yes",
     "no": "No",
-    "compressed": "Compressed"
+    "compressed": "Compressed",
+    "git_staged": "Git staged"
   },
   "fallback": {
     "internal_error": "Internal Error",

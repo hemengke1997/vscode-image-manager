@@ -46,6 +46,8 @@ export enum CmdToVscode {
   SAVE_CROPPER_IMAGE = 'SAVE_CROPPER_IMAGE',
   // 查找相似图片
   FIND_SIMILAR_IMAGES = 'FIND_SIMILAR_IMAGES',
+  // 获取 git staged 中的图片
+  GET_GIT_STAGED_IMAGES = 'GET_GIT_STAGED_IMAGES',
 
   // Test vscode built-in command. For dev convenience
   TEMP_TEST_CMD = 'TEMP_TEST_CMD',

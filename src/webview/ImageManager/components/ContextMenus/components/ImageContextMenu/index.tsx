@@ -71,7 +71,7 @@ function ImageContextMenu() {
       vscodeApi.postMessage({ cmd: CmdToVscode.GET_IMAGE_METADATA, data: { filePath: image.path } }, (data) => {
         const {
           metadata: { width, height },
-          exifInfo,
+          compressed,
         } = data
 
         const formatDate = (date: Date) => {
@@ -118,7 +118,7 @@ function ImageContextMenu() {
           },
           {
             label: t('im.compressed'),
-            children: <div>{exifInfo?.Image?.ImageDescription?.includes('compressed') ? t('im.yes') : t('im.no')}</div>,
+            children: <div>{compressed ? t('im.yes') : t('im.no')}</div>,
           },
         ]
 

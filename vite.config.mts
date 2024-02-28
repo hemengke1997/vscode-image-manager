@@ -7,7 +7,10 @@ import { i18nDetector } from 'vite-plugin-i18n-detector'
 import { DEV_PORT } from './src/meta'
 
 export default defineConfig(async (env) => {
-  const loadResult = await loadConfigFromFile(env, path.resolve(__dirname, './src/webview/ui-framework/vite.config.ts'))
+  const loadResult = await loadConfigFromFile(
+    env,
+    path.resolve(__dirname, './src/webview/ui-framework/vite.config.mts'),
+  )
 
   const config = defineConfig({
     server: {
