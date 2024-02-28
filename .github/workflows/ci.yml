@@ -10,7 +10,7 @@ on:
       - master
 
 jobs:
-  install:
+  lint:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3
@@ -23,17 +23,6 @@ jobs:
 
       - name: Install
         run: npm install --frozen-lockfile --ignore-scripts
-
-  lint:
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v3
-
-      - name: Set node
-        uses: actions/setup-node@v3
-        with:
-          node-version: lts/*
-          cache: npm
 
       - name: Lint
         run: npm run lint
@@ -61,6 +50,9 @@ jobs:
         with:
           node-version: ${{ matrix.node_version }}
           cache: npm
+
+      - name: Install
+        run: npm install --frozen-lockfile --ignore-scripts
 
       - name: Test
         run: npm run test
