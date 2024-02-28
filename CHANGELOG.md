@@ -1,5 +1,22 @@
 # CHANGELOG
 
+## 0.1.0
+
+### Feat
+
+- Add `git-staged` filter in Filter Action
+- Add `compressed` flag to image metadata, you can find it in the image detail modal
+- Auto refresh image list when config changed
+- Reuse webview when open different workspace for better performance
+
+### Break-Change
+
+Currently, we use sharp as compressor only due to its performance and stability. So we remove `tinypng` support.
+
+- Deprecate `image-manager.compress.method`
+- Deprecate `image-manager.compress.tinypngKey`
+
+
 ## 0.0.26 (2024-02-08)
 
 ### Feat
