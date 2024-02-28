@@ -22,7 +22,7 @@ jobs:
           cache: npm
 
       - name: Install
-        run: npm install --frozen-lockfile --prefer-offline --ignore-scripts
+        run: npm install --no-frozen-lockfile --prefer-offline --ignore-scripts
 
       - name: Lint
         run: npm run lint
