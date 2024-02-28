@@ -2,7 +2,7 @@
   "publisher": "minko",
   "name": "image-manager",
   "displayName": "Image Manager",
-  "version": "0.0.26",
+  "version": "0.1.0",
   "private": true,
   "description": "Compress, crop and preview images in vscode",
   "icon": "assets/logo.png",
