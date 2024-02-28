@@ -51,18 +51,13 @@ jobs:
           node-version: ${{ matrix.node_version }}
 
       - name: Install pnpm
-        uses: pnpm/action-setup@v2
+        uses: pnpm/action-setup@v3
         with:
-          version: 8.6.2
-
-      - name: Set node version to LTS
-        uses: actions/setup-node@v3
-        with:
-          node-version: lts/*
-          cache: pnpm
+          version: 8
+          run_install: false
 
       - name: Install deps
-        run: pnpm install
+        run: pnpm install --no-frozen-lockfile --ignore-scripts
 
       - name: Test
         run: npm run test
