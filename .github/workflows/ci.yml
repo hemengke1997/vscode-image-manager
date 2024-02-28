@@ -22,7 +22,7 @@ jobs:
           cache: npm
 
       - name: Install
-        run: npm install --frozen-lockfile --ignore-scripts
+        run: npm install --no-frozen-lockfile --ignore-scripts
 
       - name: Lint
         run: npm run lint
@@ -49,10 +49,9 @@ jobs:
         uses: actions/setup-node@v3
         with:
           node-version: ${{ matrix.node_version }}
-          cache: npm
 
       - name: Install
-        run: npm install --frozen-lockfile --ignore-scripts
+        run: npm install --no-frozen-lockfile --ignore-scripts
 
       - name: Test
         run: npm run test
