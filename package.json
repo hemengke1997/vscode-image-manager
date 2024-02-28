@@ -222,5 +222,10 @@
   "simple-git-hooks": {
     "commit-msg": "npm run commitlint",
     "pre-commit": "npm run lint"
+  },
+  "overrides": {
+    "vite": {
+      "rollup": "npm:@rollup/wasm-node"
+    }
   }
 }
