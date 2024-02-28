@@ -276,13 +276,21 @@ function ImageOperator(props: ImageOperatorProps & ImageOperatorStaticProps) {
         </Radio.Group>
       </Form.Item>
     ),
+    // png
     compressionLevel: () => (
       <Form.Item label={t('im.compress_level')} name={'compressionLevel'} tooltip={t('im.compress_level_tip')}>
         <InputNumber min={1} max={9} step={1} />
       </Form.Item>
     ),
+    // gif
+    colors: () => (
+      <Form.Item label={t('im.colors')} name='colors' tooltip={t('im.colors_tip')}>
+        <InputNumber min={2} max={256} step={1} />
+      </Form.Item>
+    ),
+    // except png, gif
     quality: () => (
-      <Form.Item label={t('im.image_quality')} name='quality'>
+      <Form.Item label={t('im.image_quality')} name='quality' tooltip={t('im.quality_tip')}>
         <InputNumber min={20} max={100} step={10} />
       </Form.Item>
     ),

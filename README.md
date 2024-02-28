@@ -69,8 +69,6 @@ Right click in Explorer, select `Image Manager` to open extension. (Open current
 ### Right click on the folder name
 ![compress-right-click-folder](./screenshots/compress-2.png)
 
-
-
 ## Inspired
 
 ❤️ Big thanks for [vscode-image-viewer](https://github.com/ZhangJian1713/vscode-image-viewer)

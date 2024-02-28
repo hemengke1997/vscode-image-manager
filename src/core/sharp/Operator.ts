@@ -27,7 +27,7 @@ export function defineOperatorPlugin(plugin: ObjectPlugin): ObjectPlugin {
 }
 
 interface RuntimeHooks {
-  'on:configuration': () => HookResult<SharpNS.SharpOptions>
+  'on:configuration': () => HookResult<SharpNS.SharpOptions | undefined>
   'before:run': (sharp: SharpNS.Sharp) => HookResult<SharpNS.Sharp>
   'after:run': (res: { outputPath: string }) => HookResult
   'on:finish': (res: { inputSize: number; outputSize: number; outputPath: string }) => HookResult
@@ -145,9 +145,7 @@ export class SharpOperator {
     })
 
     let sharpIntance = this.ctx.sharp(filePath, {
-      animated: true,
-      limitInputPixels: false,
-      ...(await this._hooks.callHook('on:configuration')),
+      ...((await this._hooks.callHook('on:configuration')) || {}),
     })
 
     sharpIntance = await this._hooks.callHook('before:run', sharpIntance)

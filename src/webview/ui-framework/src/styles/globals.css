@@ -15,18 +15,11 @@ pre {
 }
 
 #root {
-  @apply overflow-y-scroll w-full h-full;
-}
-
-html {
-  @apply select-none;
+  @apply overflow-y-scroll w-full h-full select-none;
 }
 
 body {
   @apply p-0;
-  * {
-    @apply select-none;
-  }
 }
 
 .ant-btn-icon-only {

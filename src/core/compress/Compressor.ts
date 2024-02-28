@@ -22,7 +22,7 @@ export interface CompressionOptions {
   /**
    * @description
    * use the lowest number of colours needed to achieve given quality, sets palette to true
-   * @default 100
+   * @default 80
    */
   quality?: number
   /**
@@ -31,6 +31,13 @@ export interface CompressionOptions {
    * @default 9
    */
   compressionLevel?: number
+  /**
+   * @description
+   * Maximum number of palette entries, including transparency, between 2 and 256 (optional, default 256)
+   * for gif
+   * @default 256
+   */
+  colors?: number
   /**
    * @description output size
    * @example 1
@@ -47,7 +54,7 @@ export interface CompressionOptions {
 
 export class Compressor {
   config = {
-    exts: ['png', 'jpg', 'jpeg', 'webp', 'gif', 'tiff', 'avif'],
+    exts: ['png', 'jpg', 'jpeg', 'webp', 'gif', 'tiff', 'avif', 'heif', 'jxl', 'jp2'],
     sizeLimit: 20 * 1024 * 1024, // 20MB
   }
 
@@ -56,7 +63,8 @@ export class Compressor {
   constructor(private readonly _extendOptions?: ExtendOptions) {
     this.option = {
       compressionLevel: 9,
-      quality: 100,
+      quality: 80,
+      colors: 256,
       size: 1,
       format: '',
       keep: 0,
@@ -99,20 +107,54 @@ export class Compressor {
   }
 
   private async _stream(filePath: string): Promise<{ originSize: number; compressedSize: number; outputPath: string }> {
-    const { format, compressionLevel, quality, size } = this.option!
-    const ext = !format ? path.extname(filePath).slice(1) : format
+    const { format, size, compressionLevel, quality, colors } = this.option!
+
+    const originExt = path.extname(filePath).slice(1)
+    const ext = !format ? originExt : format
+
+    // const compressionMap: {
+    //   [key in keyof SharpNS.FormatEnum]?: 'quality' | 'compressionLevel' | 'colors'
+    // } = {
+    //   png: 'compressionLevel',
+    //   jpg: 'quality',
+    //   jpeg: 'quality',
+    //   webp: 'quality',
+    //   avif: 'quality',
+    //   heif: 'quality',
+    //   jxl: 'quality',
+    //   tiff: 'quality',
+    //   jp2: 'quality',
+    //   gif: 'colors',
+    // }
 
     let operator = new SharpOperator({
       plugins: [
         {
           name: 'compress',
           hooks: {
+            'on:configuration': () => {
+              if (ext === 'gif') {
+                return {
+                  animated: true,
+                  limitInputPixels: false,
+                }
+              }
+            },
             'before:run': async (sharp) => {
               const { width, height } = await sharp.metadata()
-              sharp
+
+              const compressionOption = {
+                quality,
+                compressionLevel,
+              }
+
+              if (ext === 'gif') {
+                compressionOption['colors'] = colors
+              }
+
+              sharp = sharp
                 .toFormat(ext as keyof SharpNS.FormatEnum, {
-                  quality,
-                  compressionLevel,
+                  ...compressionOption,
                 })
                 .timeout({ seconds: 20 })
 
