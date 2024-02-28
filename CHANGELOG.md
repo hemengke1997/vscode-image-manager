@@ -1,5 +1,15 @@
 # CHANGELOG
 
+## 0.1.1
+
+### Feat
+
+- Support gif colors in compression
+
+### Docs
+
+- Compression tips
+
 ## 0.1.0
 
 ### Feat
