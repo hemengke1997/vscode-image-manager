@@ -1,5 +1,11 @@
 # CHANGELOG
 
+## 0.1.2
+
+### Fix
+
+- i18n change not working
+
 ## 0.1.1
 
 ### Feat
