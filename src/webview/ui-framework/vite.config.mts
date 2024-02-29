@@ -12,9 +12,6 @@ export default defineConfig((env) => {
       css: {
         postcss: path.resolve(__dirname, './postcss.config.js'),
       },
-      resolve: {
-        alias: [{ find: '~', replacement: path.resolve(__dirname, './src') }],
-      },
     },
     {
       publicTypescript: false,

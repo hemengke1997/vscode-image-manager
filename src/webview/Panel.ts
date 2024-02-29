@@ -115,14 +115,18 @@ export class ImageManagerPanel {
     if (isProd) {
       html = this._transformHtml(this._getUri(this._ctx.extensionUri, ['dist-webview', 'index.html']).fsPath)
     } else {
-      // html string
-      const entry = 'src/webview/main.tsx'
+      function joinLocalServerUrl(path: string) {
+        return `${localServerUrl}/${path}`
+      }
 
-      const scriptUri = `${localServerUrl}/${entry}`
+      // html string
+      const etnryScriptUri = joinLocalServerUrl('src/webview/main.tsx')
+      const reactRefreshUri = joinLocalServerUrl('@react-refresh')
+      const viteClientUri = joinLocalServerUrl('@vite/client')
 
       const reactRefresh = /*html*/ `
         <script type="module">
-          import RefreshRuntime from "${localServerUrl}/@react-refresh"
+          import RefreshRuntime from "${reactRefreshUri}"
           RefreshRuntime.injectIntoGlobalHook(window)
           window.$RefreshReg$ = () => { }
           window.$RefreshSig$ = () => (type) => type
@@ -130,10 +134,15 @@ export class ImageManagerPanel {
         </script>
       `
 
+      const viteClient = /*html*/ `
+        <script type="module" src="${viteClientUri}"></script>
+      `
+
       html = /*html*/ `<!DOCTYPE html>
       <html lang="" data-theme="">
         <head>
           ${reactRefresh}
+          ${viteClient}
           <meta charset="UTF-8" />
           <meta name="viewport" content="width=device-width, initial-scale=1.0" />
           <meta name="renderer" content="webkit">
@@ -141,7 +150,7 @@ export class ImageManagerPanel {
         </head>
         <body>
           <div id="root"></div>
-          <script type="module" src="${scriptUri}"></script>
+          <script type="module" src="${etnryScriptUri}"></script>
         </body>
       </html>`
     }

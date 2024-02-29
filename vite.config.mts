@@ -47,13 +47,12 @@ export default defineConfig(async (env) => {
       rollupOptions: {
         treeshake: true,
         output: {
-          entryFileNames: `assets/[name].js`,
-          chunkFileNames: `assets/[name].js`,
-          assetFileNames: `assets/[name].[ext]`,
+          entryFileNames: 'assets/[name].js',
+          chunkFileNames: 'assets/[name].js',
+          assetFileNames: 'assets/[name].[ext]',
         },
       },
     },
-
     test: {
       include: ['**/__test__/**/*.test.ts'],
     },

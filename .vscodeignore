@@ -19,7 +19,7 @@ examples
 index.html
 temp*
 
-eslint.config.js
+eslint.config.*
 commitlint.config.*
 tsconfig.json
 package-lock.json

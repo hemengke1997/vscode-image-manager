@@ -194,7 +194,7 @@ function ImageManager() {
         value: 'type',
       },
     ],
-    [],
+    [t],
   )
 
   const { backgroundColor, setBackgroundColor } = SettingsContext.usePicker(['backgroundColor', 'setBackgroundColor'])
