@@ -47,10 +47,10 @@ function convertToIgnore(patterns: string[]) {
   })
 }
 
-export function imageGlob(options: { imageType: string[]; exclude: string[]; root: string[]; cwd?: string }) {
-  const { imageType, exclude, root, cwd } = options
+export function imageGlob(options: { scan: string[]; exclude: string[]; root: string[]; cwd?: string }) {
+  const { scan, exclude, root, cwd } = options
 
-  const imagePattern = `**/*.{${imageType.join(',')}}`
+  const imagePattern = `**/*.{${scan.join(',')}}`
   const dirPattern = '**/*'
 
   function create(p: string) {

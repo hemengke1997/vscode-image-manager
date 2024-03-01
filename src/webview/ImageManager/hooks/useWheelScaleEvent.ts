@@ -1,8 +1,13 @@
+import { round } from '@minko-fe/lodash-pro'
+import { useDebounceFn } from '@minko-fe/react-hook'
 import { useLayoutEffect, useRef } from 'react'
+import { ConfigKey } from '~/core/config/common'
+import { useConfiguration } from '~/webview/hooks/useConfiguration'
 import GlobalContext from '../contexts/GlobalContext'
 
 function useWheelScaleEvent() {
-  const { config, setScale } = GlobalContext.usePicker(['config', 'setScale'])
+  const { update } = useConfiguration()
+  const { setImageWidth, imageWidth } = GlobalContext.usePicker(['setImageWidth', 'imageWidth'])
 
   const ref = useRef<HTMLDivElement>(null)
 
@@ -13,18 +18,28 @@ function useWheelScaleEvent() {
     }
   }
 
+  const updateWidth = () => {
+    update({ key: ConfigKey.viewer_imageWidth, value: imageWidth })
+  }
+
+  const debounceUpdateWidth = useDebounceFn(updateWidth)
+
   const handleWheel = (event: WheelEvent) => {
     if (event.ctrlKey || event.metaKey) {
       closeDefault(event)
 
       const delta = event.deltaY
 
-      const scaleStep = config.scaleStep
+      const maxDelta = Math.abs(delta)
 
       if (delta > 0) {
-        setScale((prevScale) => Math.max(0.3, prevScale! - scaleStep))
+        // 缩小
+        setImageWidth((prevWidth) => Math.max(30, round(prevWidth! - maxDelta, 0)))
+        debounceUpdateWidth.run()
       } else if (delta < 0) {
-        setScale((prevScale) => Math.min(3, prevScale! + scaleStep))
+        // 放大
+        setImageWidth((prevWidth) => Math.min(600, round(prevWidth! + maxDelta, 0)))
+        debounceUpdateWidth.run()
       }
       return false
     }

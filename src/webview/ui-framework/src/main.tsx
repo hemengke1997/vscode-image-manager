@@ -3,10 +3,8 @@ import ReactDOM from 'react-dom/client'
 import { initReactI18next } from 'react-i18next'
 import { setupI18n } from 'vite-plugin-i18n-detector/client'
 import { CmdToVscode } from '~/message/cmd'
-import { LocalStorageEnum } from '~/webview/local-storage'
 import { vscodeApi } from '~/webview/vscode-api'
 import App from './App'
-import { parseJson } from './utils/json'
 import './hmr'
 import './styles/index.css'
 import 'antd/dist/reset.css'
@@ -29,7 +27,7 @@ i18next.use(initReactI18next).init({
   interpolation: {
     escapeValue: false,
   },
-  lowerCaseLng: true,
+  lowerCaseLng: false,
   fallbackLng: FALLBACKLANG,
 })
 
@@ -41,9 +39,9 @@ export function registerApp(webviewComponents: IWebviewComponents, reload = fals
       cmd: CmdToVscode.ON_WEBVIEW_READY,
     },
     (data) => {
-      const { language, theme } = data
+      const { language, theme } = data.config.appearance
 
-      const lng = parseJson(localStorage.getItem(LocalStorageEnum.LOCAL_STORAGE_LOCALE_KEY)) || language || FALLBACKLANG
+      const lng = language || FALLBACKLANG
 
       i18next.changeLanguage(lng)
 
@@ -51,15 +49,15 @@ export function registerApp(webviewComponents: IWebviewComponents, reload = fals
         language: lng,
         onInited() {
           try {
-            if (!window['__react_root']) {
-              window['__react_root'] = ReactDOM.createRoot(document.querySelector('#root') as HTMLElement)
+            if (!window['__react_root__']) {
+              window['__react_root__'] = ReactDOM.createRoot(document.querySelector('#root') as HTMLElement)
             }
           } catch {
           } finally {
             key = reload ? ~key : key
-            const vscodeTheme = parseJson(localStorage.getItem(LocalStorageEnum.LOCAL_STORAGE_THEME_KEY)) || theme
+            const vscodeTheme = theme
 
-            window['__react_root'].render(<App theme={vscodeTheme} key={key} components={webviewComponents} />)
+            window['__react_root__'].render(<App theme={vscodeTheme} key={key} components={webviewComponents} />)
           }
         },
         onResourceLoaded: (langs, currentLang) => {

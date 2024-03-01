@@ -1,13 +1,23 @@
 {
   "pkg": {
-    "title": "图片管理器 🏞️",
-    "warningSize": "如果图像大小大于此值 (KB)，则显示警告点",
-    "imageDefaultWidth": "图像的默认宽度 (px)",
-    "scaleStep": "图片缩放步长",
-    "exclude": "排除范围内的图片 (micromatch 匹配语法)",
-    "imageType": "扫描图片的类型"
+    "title": "图片管理工具 🏞️",
+    "file": {
+      "root": "根工作区",
+      "exclude": "排除范围内的图片 (micromatch 匹配语法)",
+      "scan": "扫描图片的类型"
+    },
+    "viewer": {
+      "warningSize": "如果图片大小大于此值 (KB)，则显示警告点",
+      "imageWidth": "图片宽度 (px)",
+      "imageBackgroundColor": "图片背景色"
+    },
+    "appearance": {
+      "theme": "主题",
+      "language": "语言"
+    }
   },
   "prompt": {
-    "reload_tip": "配置已更改，请重新加载"
+    "reload_tip": "配置已更改，请重新加载",
+    "compressor_init_fail": "图片压缩器安装失败，请检查网络"
   }
 }

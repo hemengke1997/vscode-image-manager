@@ -2,6 +2,7 @@ import { applyHtmlTransforms } from '@minko-fe/html-transform'
 import fs from 'fs-extra'
 import path from 'node:path'
 import {
+  type ConfigurationChangeEvent,
   Disposable,
   EventEmitter,
   type ExtensionContext,
@@ -13,10 +14,11 @@ import {
   window,
   workspace,
 } from 'vscode'
+import { Config } from '~/core'
 import { i18n } from '~/i18n'
 import { MessageCenter, type MessageType } from '~/message/MessageCenter'
 import { CmdToWebview } from '~/message/cmd'
-import { DEV_PORT } from '~/meta'
+import { DEV_PORT, EXT_NAMESPACE } from '~/meta'
 import { Log } from '~/utils/Log'
 
 export class ImageManagerPanel {
@@ -42,20 +44,51 @@ export class ImageManagerPanel {
     // This happens when the user closes the panel or when the panel is closed programatically
     this._panel.onDidDispose(() => this.dispose(), null, this._disposables)
     this._panel.webview.onDidReceiveMessage((msg: MessageType) => this._handleMessage(msg), null, this._disposables)
-    workspace.onDidChangeConfiguration(
-      () => {
-        MessageCenter.postMessage({ cmd: CmdToWebview.REFRESH_WEBVIEW, data: null })
-      },
-      null,
-      this._disposables,
-    )
+    workspace.onDidChangeConfiguration(this.update, null, this._disposables)
 
     this.init()
   }
 
-  public static createOrShow(ctx: ExtensionContext, refresh = false) {
+  update(e?: ConfigurationChangeEvent) {
+    let reload = false
+    if (e) {
+      let affected = false
+
+      for (const config of Config.reloadConfigs) {
+        const key = `${EXT_NAMESPACE}.${config}`
+        if (e.affectsConfiguration(key)) {
+          affected = true
+          reload = true
+          Log.info(`Config "${key}" changed, reloading`)
+          break
+        }
+      }
+
+      for (const config of Config.refreshConfigs) {
+        const key = `${EXT_NAMESPACE}.${config}`
+        if (e.affectsConfiguration(key)) {
+          affected = true
+          Log.info(`Config "${key}" changed`)
+          break
+        }
+      }
+
+      if (!affected) return
+
+      if (reload) {
+        Log.info(`Reloading webview`)
+        ImageManagerPanel._reloadWebview()
+        return
+      }
+      if (affected) {
+        MessageCenter.postMessage({ cmd: CmdToWebview.UPDATE_CONFIG, data: null })
+      }
+    }
+  }
+
+  public static createOrShow(ctx: ExtensionContext, reload = false) {
     const panel = this.revive(ctx)
-    panel._reveal(refresh)
+    panel._reveal(reload)
     return panel
   }
 
@@ -73,12 +106,16 @@ export class ImageManagerPanel {
     return ImageManagerPanel.currentPanel
   }
 
-  private _reveal(refresh: boolean) {
+  private _reveal(reload: boolean) {
     const column = this._panel.viewColumn ?? ViewColumn.One
-    if (refresh) {
-      MessageCenter.postMessage({ cmd: CmdToWebview.REFRESH_WEBVIEW, data: null })
+    if (reload) {
+      ImageManagerPanel._reloadWebview()
     }
     this._panel.reveal(column)
+  }
+
+  private static _reloadWebview() {
+    MessageCenter.postMessage({ cmd: CmdToWebview.PROGRAM_RELOAD_WEBVIEW, data: null })
   }
 
   private async _handleMessage(message: MessageType) {
@@ -108,8 +145,7 @@ export class ImageManagerPanel {
     const isProd = this._ctx.extensionMode === ExtensionMode.Production
     const webview = this._panel.webview
 
-    const localPort = DEV_PORT
-    const localServerUrl = `http://localhost:${localPort}`
+    const localServerUrl = `http://localhost:${DEV_PORT}`
 
     let html = ''
     if (isProd) {
@@ -163,12 +199,12 @@ export class ImageManagerPanel {
           'http-equiv': 'Content-Security-Policy',
           'content': [
             `default-src 'self' https://*`,
-            `connect-src 'self' https://\* http://\* wss://\* ws://${localServerUrl.replace(/https?:\/\//, '')} ws://0.0.0.0:${localPort} ${localServerUrl}`,
+            `connect-src 'self' https://\* http://\* wss://\* ws://${localServerUrl.replace(/https?:\/\//, '')} ws://0.0.0.0:${DEV_PORT} ${localServerUrl}`,
             `font-src 'self' https://* blob: data:`,
             `frame-src ${webview.cspSource} 'self' https://* blob: data:`,
             `media-src 'self' https://* blob: data:`,
             `img-src ${webview.cspSource} 'self' https://* http://* blob: data:`,
-            `script-src 'self' 'unsafe-inline' 'unsafe-eval' https://* ${localServerUrl} http://0.0.0.0:${localPort}`,
+            `script-src 'self' 'unsafe-inline' 'unsafe-eval' https://* ${localServerUrl} http://0.0.0.0:${DEV_PORT}`,
             `style-src ${webview.cspSource} 'self' 'unsafe-inline' https://* blob: data: http://*`,
           ].join('; '),
         },

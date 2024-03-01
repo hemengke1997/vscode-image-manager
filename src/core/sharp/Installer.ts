@@ -52,7 +52,7 @@ export class Installer {
     const cwd = path.resolve(this._cwd, 'dist/lib')
 
     // 如果是语言是中文，则认为是中国区域，设置npm镜像
-    const isChina = i18n.language === 'zh-cn'
+    const isChina = i18n.language === 'zh-CN'
 
     await execa('node', ['install/use-libvips.js'], {
       cwd,

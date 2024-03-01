@@ -20,7 +20,7 @@ async function glob(pattern: string[], cwd?: string) {
 describe('Glob images', () => {
   it('should ignore dist-1', async () => {
     const config: Config = {
-      imageType: ['png', 'jpg', 'svg'],
+      scan: ['png', 'jpg', 'svg'],
       exclude: ['dist-1'],
       root: [workspaceFolder],
       cwd: workspaceFolder,
@@ -32,7 +32,7 @@ describe('Glob images', () => {
 
   it('should not ignore dist-1', async () => {
     const config: Config = {
-      imageType: ['png', 'jpg', 'svg'],
+      scan: ['png', 'jpg', 'svg'],
       root: [workspaceFolder],
       cwd: workspaceFolder,
       exclude: [],
@@ -43,9 +43,9 @@ describe('Glob images', () => {
     expect(imgs.some((t) => t.includes('dist-1'))).toBe(true)
   })
 
-  it('should ignore png by `imageType`', async () => {
+  it('should ignore png by `scan`', async () => {
     const config: Config = {
-      imageType: ['jpg', 'svg'],
+      scan: ['jpg', 'svg'],
       exclude: ['dist-1'],
       root: [workspaceFolder],
       cwd: workspaceFolder,
@@ -58,7 +58,7 @@ describe('Glob images', () => {
 
   it('should ignore png by `exclude`', async () => {
     const config: Config = {
-      imageType: ['jpg', 'svg', 'png'],
+      scan: ['jpg', 'svg', 'png'],
       exclude: ['**/*.png'],
       root: [workspaceFolder],
       cwd: workspaceFolder,
@@ -71,7 +71,7 @@ describe('Glob images', () => {
 
   it('should not ignore built-in pattern dist', async () => {
     const config: Config = {
-      imageType: ['jpg', 'svg', 'png'],
+      scan: ['jpg', 'svg', 'png'],
       exclude: ['!**/dist/**'],
       root: [workspaceFolder],
       cwd: workspaceFolder,

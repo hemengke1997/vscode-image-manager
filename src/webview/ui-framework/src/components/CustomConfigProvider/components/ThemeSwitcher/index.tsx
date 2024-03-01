@@ -3,6 +3,8 @@ import { Switch } from 'antd'
 import { memo, startTransition } from 'react'
 import { useTranslation } from 'react-i18next'
 import { CiDark, CiLight } from 'react-icons/ci'
+import { ConfigKey } from '~/core/config/common'
+import { useConfiguration } from '~/webview/hooks/useConfiguration'
 
 type ThemeSwitcherProps = {
   theme?: Theme
@@ -13,6 +15,8 @@ function ThemeSwitcher(props: ThemeSwitcherProps) {
   const { theme: themeProp, onThemeChange } = props
 
   const { t } = useTranslation()
+
+  const { update } = useConfiguration()
 
   const [theme, setTheme] = useControlledState({
     defaultValue: themeProp,
@@ -26,7 +30,9 @@ function ThemeSwitcher(props: ThemeSwitcherProps) {
     <Switch
       onChange={(checked) => {
         startTransition(() => {
-          setTheme(checked ? 'dark' : 'light')
+          const theme = checked ? 'dark' : 'light'
+          setTheme(theme)
+          update({ key: ConfigKey.appearance_theme, value: theme })
         })
       }}
       checked={checked}

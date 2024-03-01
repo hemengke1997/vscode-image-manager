@@ -52,13 +52,15 @@ Right click in Explorer, select `Image Manager` to open extension. (Open current
 
 ## Extension Settings
 
-| Name                            | Type                | Description                                                   | Default value                                                                                                      |
-| ------------------------------- | ------------------- | ------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------ |
-| image-manager.warningSize       | `number \| boolean` | Show warning dot if image size is larger than this value (KB) | 1024                                                                                                               |
-| image-manager.imageDefaultWidth | `number`            | default width of image (px)                                   | 100                                                                                                                |
-| image-manager.scaleStep         | `number`            | scale step when zooming image list                            | 0.1                                                                                                                |
-| image-manager.exclude           | `string[]`          | scan images not in exclude (pattern syntax of micromatch)     | `['**/node_modules/**', '**/.git/**''**/dist/**','**/coverage/**', '**/.next/**',  '**/.nuxt/**','**/.vercel/**']` |
-| image-manager.imageTypes        | `string[]`          | scan images with imageType                                    | `['svg', 'png', 'jpeg', 'ico', 'gif', 'webp', 'bmp', 'tif', 'apng']`                                               |
+| Name                              | Type                    | Description                                                                                                                                                     | Default value                                                        |
+| --------------------------------- | ----------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------- | -------------------------------------------------------------------- |
+| image-manager.viewer.warningSize  | `number \| boolean`     | show warning dot if image size is larger than this value (KB)                                                                                                   | 1024                                                                 |
+| image-manager.viewer.imageWidth   | `number`                | width of image (px)                                                                                                                                             | 100                                                                  |
+| image-manager.file.exclude        | `string[]`              | scan images not in exclude, built-in exclue: `['**/node_modules/**', '**/.git/**''**/dist/**','**/coverage/**', '**/.next/**',  '**/.nuxt/**','**/.vercel/**']` | []                                                                   |
+| image-manager.file.scan           | `string[]`              | scan images with imageType                                                                                                                                      | `['svg', 'png', 'jpeg', 'ico', 'gif', 'webp', 'bmp', 'tif', 'apng']` |
+| image-manager.appearance.theme    | `dark \| light \| auto` | theme                                                                                                                                                           | `auto`                                                               |
+| image-manager.appearance.language | `en \| zh-CN \| auto`   | language                                                                                                                                                        | `auto`                                                               |
+
 
 
 ## How to compress

@@ -42,7 +42,8 @@ function LazyImage(props: LazyImageProps) {
 
   const { t } = useTranslation()
 
-  const { config, imagePlaceholderSize } = GlobalContext.usePicker(['config', 'imagePlaceholderSize'])
+  const { imagePlaceholderSize } = GlobalContext.usePicker(['imagePlaceholderSize'])
+  const warningSize = GlobalContext.useSelector((ctx) => ctx.extConfig.viewer.warningSize)
 
   const placeholderRef = useRef<HTMLDivElement>(null)
   const [inViewport] = useInViewport(placeholderRef, {
@@ -69,7 +70,7 @@ function LazyImage(props: LazyImageProps) {
     enabled: inViewport,
   })
 
-  const ifWarning = bytesToKb(image.stats.size) > config.warningSize
+  const ifWarning = bytesToKb(image.stats.size) > warningSize
 
   const { show } = useContextMenu<{ image: ImageType }>()
 

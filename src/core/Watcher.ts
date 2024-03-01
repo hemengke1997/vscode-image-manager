@@ -67,21 +67,21 @@ export class Watcher {
   }
 
   private static _start() {
-    if (!Config.root.length) return
+    if (!Config.file_root.length) return
 
     this.glob = imageGlob({
-      imageType: Config.imageType,
-      exclude: Config.exclude,
-      root: Config.root,
+      scan: Config.file_scan,
+      exclude: Config.file_exclude,
+      root: Config.file_root,
     })
 
-    Log.info(`Watch Root: ${Config.root}`)
+    Log.info(`Watch Root: ${Config.file_root}`)
 
-    const imageWatchers = Config.root.map((r) => {
+    const imageWatchers = Config.file_root.map((r) => {
       return workspace.createFileSystemWatcher(new RelativePattern(r, this.glob.imagePattern))
     })
 
-    const folderWatchers = Config.root.map((r) => {
+    const folderWatchers = Config.file_root.map((r) => {
       return workspace.createFileSystemWatcher(new RelativePattern(r, '**/*'))
     })
 

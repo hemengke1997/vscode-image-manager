@@ -24,9 +24,9 @@ export default <ExtensionModule>function (ctx) {
       // Open via command palette or shortcut
     }
 
-    // Whether to refresh the webview panel
-    const refresh = !isEqual(previousRoot, Global.rootpaths)
-    ImageManagerPanel.createOrShow(ctx, refresh)
+    // Whether to reload the webview panel
+    const reload = !isEqual(previousRoot, Global.rootpaths)
+    ImageManagerPanel.createOrShow(ctx, reload)
 
     previousRoot = Global.rootpaths
   }

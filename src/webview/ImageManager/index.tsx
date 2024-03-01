@@ -6,11 +6,12 @@ import { type Stats } from 'fs-extra'
 import { type ParsedPath } from 'node:path'
 import { type ReactElement, type ReactNode, memo, useEffect, useMemo } from 'react'
 import { useTranslation } from 'react-i18next'
+import { ConfigKey } from '~/core/config/common'
 import { CmdToVscode, CmdToWebview } from '~/message/cmd'
+import { ConfigurationTarget, useConfiguration } from '../hooks/useConfiguration'
 import { LocalStorageEnum } from '../local-storage'
 import { mount } from '../main'
 import PrimaryColorPicker from '../ui-framework/src/components/CustomConfigProvider/components/PrimaryColorPicker'
-import FrameworkContext from '../ui-framework/src/contexts/FrameworkContext'
 import { vscodeApi } from '../vscode-api'
 import CollapseTree from './components/CollapseTree'
 import ContextMenus from './components/ContextMenus'
@@ -29,6 +30,7 @@ import GlobalContext from './contexts/GlobalContext'
 import OperatorContext from './contexts/OperatorContext'
 import SettingsContext from './contexts/SettingsContext'
 import TreeContext from './contexts/TreeContext'
+import { useExtConfig } from './hooks/useExtConfig'
 import useWheelScaleEvent from './hooks/useWheelScaleEvent'
 import { Colors } from './utils/color'
 
@@ -66,12 +68,13 @@ function ImageManager() {
   const { message } = App.useApp()
   const { t } = useTranslation()
 
-  const { mode } = FrameworkContext.usePicker(['mode'])
+  const { update } = useConfiguration()
 
-  const { imageState, setImageState, setCompressor } = GlobalContext.usePicker([
+  const { imageState, setImageState, setCompressor, mode } = GlobalContext.usePicker([
     'imageState',
     'setImageState',
     'setCompressor',
+    'mode',
   ])
 
   const { imageRefreshedState, refreshImages, imageSearchOpen, setImageSearchOpen } = ActionContext.usePicker([
@@ -140,6 +143,11 @@ function ImageManager() {
     })
   }, [refreshTimes])
 
+  const { updateExtConfig } = useExtConfig()
+  useEffect(() => {
+    updateExtConfig()
+  }, [])
+
   useEffect(() => {
     function onMessage(e: MessageEvent) {
       const message = e.data
@@ -152,8 +160,12 @@ function ImageManager() {
           setCompressor(message.data)
           break
         }
-        case CmdToWebview.REFRESH_WEBVIEW: {
+        case CmdToWebview.PROGRAM_RELOAD_WEBVIEW: {
           mount(true)
+          break
+        }
+        case CmdToWebview.UPDATE_CONFIG: {
+          updateExtConfig()
           break
         }
         default:
@@ -269,7 +281,14 @@ function ImageManager() {
                     <OperationItemUI title={t('im.background_color')}>
                       <PrimaryColorPicker
                         color={backgroundColor}
-                        onColorChange={setBackgroundColor}
+                        onColorChange={(color) => {
+                          setBackgroundColor(color)
+                          update({
+                            key: ConfigKey.viewer_imageBackgroundColor,
+                            value: color,
+                            target: ConfigurationTarget.WorkspaceFolder,
+                          })
+                        }}
                         localKey={LocalStorageEnum.LOCAL_STORAGE_BACKGROUND_RECENT_COLORS_KEY}
                         extraColors={[Colors.warmBlack]}
                       />

@@ -34,7 +34,7 @@
   "author": "minko",
   "main": "./dist/extension.js",
   "activationEvents": [
-    "onStartupFinished"
+    "onWebviewPanel:ImageManagerPanel"
   ],
   "scripts": {
     "ui:dev": "vite -m development",
@@ -89,25 +89,32 @@
     "configuration": {
       "title": "Image Manager Settings",
       "properties": {
-        "image-manager.warningSize": {
+        "image-manager.viewer.warningSize": {
           "type": [
             "number",
             "boolean"
           ],
-          "default": 500,
-          "description": "%pkg.warningSize%"
+          "default": 1024,
+          "description": "%pkg.viewer.warningSize%"
         },
-        "image-manager.imageDefaultWidth": {
+        "image-manager.viewer.imageWidth": {
           "type": "number",
           "default": 100,
-          "description": "%pkg.imageDefaultWidth%"
+          "description": "%pkg.viewer.imageWidth%"
         },
-        "image-manager.scaleStep": {
-          "type": "number",
-          "default": 0.1,
-          "description": "%pkg.scaleStep%"
+        "image-manager.viewer.imageBackgroundColor": {
+          "type": "string",
+          "default": "#1a1a1a",
+          "description": "%pkg.viewer.imageBackgroundColor%"
         },
-        "image-manager.exclude": {
+        "image-manager.file.root": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "description": "%pkg.file.root%"
+        },
+        "image-manager.file.exclude": {
           "type": [
             "array"
           ],
@@ -118,11 +125,12 @@
           "examples": [
             "**/some-dist/**",
             "some-dist",
-            "**/*.ico"
+            "**/*.ico",
+            "!**/dist/**"
           ],
-          "description": "%pkg.exclude%"
+          "description": "%pkg.file.exclude%"
         },
-        "image-manager.imageType": {
+        "image-manager.file.scan": {
           "type": "array",
           "items": {
             "type": "string"
@@ -141,7 +149,27 @@
             "tiff",
             "avif"
           ],
-          "description": "%pkg.imageType%"
+          "description": "%pkg.file.scan%"
+        },
+        "image-manager.appearance.theme": {
+          "type": "string",
+          "default": "auto",
+          "enum": [
+            "auto",
+            "dark",
+            "light"
+          ],
+          "description": "%pkg.appearance.theme%"
+        },
+        "image-manager.appearance.language": {
+          "type": "string",
+          "default": "en",
+          "enum": [
+            "auto",
+            "en",
+            "zh-CN"
+          ],
+          "description": "%pkg.appearance.language%"
         }
       }
     }

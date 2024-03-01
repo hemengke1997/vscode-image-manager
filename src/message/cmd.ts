@@ -12,8 +12,10 @@ export enum CmdToWebview {
   REFRESH_IMAGES = 'REFRESH_IMAGES',
   // 图片压缩器改变
   COMPRESSOR_CHANGED = 'COMPRESSOR_CHANGED',
-  // 刷新webview
-  REFRESH_WEBVIEW = 'REFRESH_WEBVIEW',
+  // 重新加载webview
+  PROGRAM_RELOAD_WEBVIEW = 'PROGRAM_RELOAD_WEBVIEW',
+  // 更新配置
+  UPDATE_CONFIG = 'UPDATE_CONFIG',
 }
 
 /**
@@ -48,6 +50,8 @@ export enum CmdToVscode {
   FIND_SIMILAR_IMAGES = 'FIND_SIMILAR_IMAGES',
   // 获取 git staged 中的图片
   GET_GIT_STAGED_IMAGES = 'GET_GIT_STAGED_IMAGES',
+  // 更新用户config
+  UPDATE_USER_CONFIGURATION = 'UPDATE_USER_CONFIGURATION',
 
   // Test vscode built-in command. For dev convenience
   TEMP_TEST_CMD = 'TEMP_TEST_CMD',

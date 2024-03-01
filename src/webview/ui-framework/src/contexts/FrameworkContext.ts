@@ -1,37 +1,39 @@
-import { useLocalStorageState } from '@minko-fe/react-hook'
+import { useLocalStorageState, useUpdateEffect } from '@minko-fe/react-hook'
 import { createContainer } from 'context-state'
-import { useEffect } from 'react'
+import { useEffect, useState } from 'react'
+import { type ConfigType, defaultConfig } from '~/core/config/common'
 import { LocalStorageEnum } from '~/webview/local-storage'
 import { getTheme, switchTheme, vscodeColors } from '../utils/theme'
 
 const useFrameworkContext = (initial: { theme?: Theme }) => {
-  const [primaryColor, setPrimaryColor] = useLocalStorageState(LocalStorageEnum.LOCAL_STORAGE_PRIMARY_COLOR_KEY, {
-    defaultValue: vscodeColors[0],
-  })
+  /* ------------- extension config ------------- */
+  const [extConfig, setExtConfig] = useState<ConfigType>(defaultConfig)
 
-  const [theme, setTheme] = useLocalStorageState<Theme>(LocalStorageEnum.LOCAL_STORAGE_THEME_KEY, {
-    defaultValue: initial.theme || getTheme(),
-  })
+  const [primaryColor, setPrimaryColor] = useState(vscodeColors[0])
 
-  const [compact, setCompact] = useLocalStorageState(LocalStorageEnum.LOCAL_STORAGE_COMPACT_KEY, {
-    defaultValue: false,
-  })
+  const [theme, setTheme] = useState<Theme>(initial.theme || getTheme())
 
   useEffect(() => {
-    theme && switchTheme(theme)
+    if (theme) {
+      switchTheme(theme)
+    }
   }, [theme])
+
+  useUpdateEffect(() => {
+    setTheme(extConfig.appearance.theme as Theme)
+  }, [extConfig.appearance.theme])
 
   const [mode, setMode] = useLocalStorageState<'standard' | 'simple'>(LocalStorageEnum.LOCAL_STORAGE_MODE_KEY, {
     defaultValue: 'standard',
   })
 
   return {
+    extConfig,
+    setExtConfig,
     primaryColor,
     setPrimaryColor,
     theme,
     setTheme,
-    compact,
-    setCompact,
     mode,
     setMode,
   }

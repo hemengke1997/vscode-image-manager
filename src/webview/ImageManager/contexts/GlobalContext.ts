@@ -1,24 +1,20 @@
-import { useLocalStorageState, useSetState } from '@minko-fe/react-hook'
+import { useSetState } from '@minko-fe/react-hook'
 import { createContainer } from 'context-state'
 import { useEffect, useRef, useState } from 'react'
 import { type Compressor } from '~/core/compress'
-import { type ConfigType, defaultConfig } from '~/core/config/default'
 import { CmdToVscode } from '~/message/cmd'
-import { LocalStorageEnum } from '~/webview/local-storage'
+import FrameworkContext from '~/webview/ui-framework/src/contexts/FrameworkContext'
 import { vscodeApi } from '~/webview/vscode-api'
 import { type ImageType } from '..'
 
 function useGlobalContext() {
-  /* ------------- extension config ------------- */
-  const [config, setConfig] = useState<ConfigType>(defaultConfig)
-
-  useEffect(() => {
-    vscodeApi.postMessage({ cmd: CmdToVscode.GET_EXT_CONFIG }, (data) => {
-      if (data) {
-        setConfig(data)
-      }
-    })
-  }, [])
+  const { extConfig, setExtConfig, mode, setMode, theme } = FrameworkContext.usePicker([
+    'extConfig',
+    'setExtConfig',
+    'mode',
+    'setMode',
+    'theme',
+  ])
 
   /* ------------- image compressor ------------ */
   const [compressor, setCompressor] = useState<Compressor>()
@@ -57,22 +53,27 @@ function useGlobalContext() {
     data: [],
   })
 
-  /* ---------------- image scale --------------- */
-  const [scale, setScale] = useLocalStorageState<number>(LocalStorageEnum.LOCAL_STORAGE_IMAGE_SIZE_SCALE, {
-    defaultValue: 1,
-  })
+  /* ---------------- image width --------------- */
+  const [imageWidth, setImageWidth] = useState<number>()
+  useEffect(() => {
+    setImageWidth(extConfig.viewer.imageWidth)
+  }, [extConfig.viewer.imageWidth])
 
   /* ---------- image placeholder size ---------- */
   const [imagePlaceholderSize, setImagePlaceholderSize] = useState<{ width: number; height: number }>()
 
   return {
+    mode,
+    setMode,
+    theme,
     compressor,
     setCompressor,
-    config,
+    extConfig,
+    setExtConfig,
     imageState,
     setImageState,
-    scale,
-    setScale,
+    imageWidth,
+    setImageWidth,
     imagePlaceholderSize,
     setImagePlaceholderSize,
   }

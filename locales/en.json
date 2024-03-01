@@ -1,13 +1,23 @@
 {
   "pkg": {
     "title": "Image Manager 🏞️",
-    "warningSize": "show warning dot if image size is larger than this value (KB)",
-    "imageDefaultWidth": "default width of image (px)",
-    "scaleStep": "scale step when zooming image",
-    "exclude": "scan images not in exclude (pattern syntax of micromatch)",
-    "imageType": "image type to scan"
+    "file": {
+      "root": "workspace root",
+      "exclude": "scan images not in exclude (pattern syntax of micromatch)",
+      "scan": "image type to scan"
+    },
+    "viewer": {
+      "warningSize": "show warning dot if image size is larger than this value (KB)",
+      "imageWidth": "width of image (px)",
+      "imageBackgroundColor": "image background color"
+    },
+    "appearance": {
+      "theme": "theme",
+      "language": "language"
+    }
   },
   "prompt": {
-    "reload_tip": "Config changed. Please reload"
+    "reload_tip": "Config changed. Please reload",
+    "compressor_init_fail": "Failed to install image compressor, please check network"
   }
 }

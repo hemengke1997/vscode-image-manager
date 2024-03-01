@@ -22,13 +22,12 @@ function ImagePreview(props: ImagePreviewProps) {
 
   const { token } = theme.useToken()
 
-  const { config, scale } = GlobalContext.usePicker(['config', 'scale'])
+  const { imageWidth } = GlobalContext.usePicker(['imageWidth'])
   const { isDarkBackground, backgroundColor, tinyBackgroundColor } = SettingsContext.usePicker([
     'isDarkBackground',
     'backgroundColor',
     'tinyBackgroundColor',
   ])
-  const BASE_SIZE = config.imageDefaultWidth
 
   const [preview, setPreview] = useState<{ open?: boolean; current?: number }>({ open: false, current: -1 })
 
@@ -129,8 +128,8 @@ function ImagePreview(props: ImagePreviewProps) {
                   {...lazyImageProps}
                   imageProp={{
                     style: { backgroundColor },
-                    width: BASE_SIZE * scale!,
-                    height: BASE_SIZE * scale!,
+                    width: imageWidth,
+                    height: imageWidth,
                     src: image.vscodePath,
                     ...lazyImageProps?.imageProp,
                   }}

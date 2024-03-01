@@ -6,11 +6,9 @@ import { getCssVar } from '../../utils/theme'
 const DURATION_BASE = 0.06
 
 const AntdConfigProvider: FC<PropsWithChildren> = ({ children }) => {
-  const { theme, primaryColor, compact } = FrameworkContext.usePicker(['theme', 'primaryColor', 'compact'])
+  const { theme, primaryColor } = FrameworkContext.usePicker(['theme', 'primaryColor'])
 
   const vscodeFontSize = getCssVar('--vscode-font-size').split('px')[0]
-
-  const compactAlgorithm = compact ? [antdTheme.compactAlgorithm] : []
 
   return (
     <ConfigProvider
@@ -19,10 +17,7 @@ const AntdConfigProvider: FC<PropsWithChildren> = ({ children }) => {
       theme={{
         hashed: false,
         cssVar: true,
-        algorithm:
-          theme === 'dark'
-            ? [antdTheme.darkAlgorithm, ...compactAlgorithm]
-            : [antdTheme.defaultAlgorithm, ...compactAlgorithm],
+        algorithm: theme === 'dark' ? [antdTheme.darkAlgorithm] : [antdTheme.defaultAlgorithm],
         token: {
           fontSize: Number(vscodeFontSize) - 1 || 12,
           colorPrimary: primaryColor,

@@ -1,6 +1,7 @@
 import { type Event, EventEmitter, type ExtensionContext, window, workspace } from 'vscode'
 import { Compressor } from '~/core/compress/Compressor'
 import { Installer } from '~/core/sharp'
+import { i18n } from '~/i18n'
 import { Log } from '~/utils/Log'
 import { Config, Watcher } from '.'
 
@@ -32,7 +33,7 @@ export class Global {
   }
 
   static async updateRootPath(_rootpaths?: string[]) {
-    let rootpaths = _rootpaths?.length ? _rootpaths : Config.root
+    let rootpaths = _rootpaths?.length ? _rootpaths : Config.file_root
     if (!rootpaths && workspace.rootPath) {
       rootpaths = [workspace.rootPath]
     }
@@ -67,7 +68,7 @@ export class Global {
         Global.compressor = new Compressor()
       })
       .on('install-fail', () => {
-        Log.error('Failed to install sharp')
+        Log.error(i18n.t('prompt.compressor_init_fail'), true)
       })
 
     await installer.run()

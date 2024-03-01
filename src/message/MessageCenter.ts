@@ -8,10 +8,11 @@ import micromatch from 'micromatch'
 import mime from 'mime/lite'
 import path from 'node:path'
 import git from 'simple-git'
-import { Uri, type Webview, commands, env } from 'vscode'
+import { ConfigurationTarget, Uri, type Webview, commands, env, workspace } from 'vscode'
 import { Config, Global } from '~/core'
 import { type CompressionOptions } from '~/core/compress'
 import { COMPRESSED_META } from '~/core/compress/meta'
+import { EXT_NAMESPACE } from '~/meta'
 import { isPng, normalizePath } from '~/utils'
 import { Log } from '~/utils/Log'
 import { imageGlob } from '~/utils/glob'
@@ -35,9 +36,10 @@ export type ReturnOfMessageCenter<K extends KeyofMessage> = RmPromise<ReturnType
 export const VscodeMessageCenter = {
   [CmdToVscode.ON_WEBVIEW_READY]: async () => {
     Log.info('Webview is ready')
+    const config = await VscodeMessageCenter[CmdToVscode.GET_EXT_CONFIG]()
+
     return {
-      theme: Global.theme,
-      language: env.language,
+      config,
     }
   },
   /* -------------- reload webview -------------- */
@@ -66,8 +68,8 @@ export const VscodeMessageCenter = {
 
       const { allImagePatterns } = imageGlob({
         cwd: absWorkspaceFolder,
-        imageType: Config.imageType,
-        exclude: Config.exclude,
+        scan: Config.file_scan,
+        exclude: Config.file_exclude,
         root: Global.rootpaths,
       })
 
@@ -156,7 +158,23 @@ export const VscodeMessageCenter = {
 
   /* ----------- get extension config ----------- */
   [CmdToVscode.GET_EXT_CONFIG]: async () => {
-    return Config.all
+    const config = Config.all
+    const { theme, language } = config.appearance
+
+    function isSkip<T>(value: T): Exclude<T, 'auto'> | null {
+      if (value === 'auto') {
+        return null
+      }
+      return value as Exclude<T, 'auto'>
+    }
+    return {
+      ...config,
+      appearance: {
+        ...config.appearance,
+        theme: isSkip(theme) || Global.theme,
+        language: (isSkip(language) || env.language) as Language,
+      },
+    }
   },
 
   /* ----------- get compressor ---------- */
@@ -298,7 +316,7 @@ export const VscodeMessageCenter = {
           // Split the result into an array of file names
           const files = result.split('\n')
           // Filter out non-image files
-          let imageFiles = files.filter((file) => Config.imageType.includes(path.extname(file).slice(1)))
+          let imageFiles = files.filter((file) => Config.file_scan.includes(path.extname(file).slice(1)))
           imageFiles = imageFiles.map((file) => path.join(root, file))
           resolve(imageFiles)
         })
@@ -308,6 +326,14 @@ export const VscodeMessageCenter = {
     const images = await Promise.all(Global.rootpaths.map((root) => getStagedImages(root)))
 
     return flatten(images)
+  },
+
+  [CmdToVscode.UPDATE_USER_CONFIGURATION]: async ({
+    message,
+  }: MessageParams<{ key: string; value: any; target: ConfigurationTarget }>) => {
+    const { key, value, target = ConfigurationTarget.Global } = message.data
+    await workspace.getConfiguration().update(`${EXT_NAMESPACE}.${key}`, value, target)
+    return true
   },
 
   /* ----------- test vscode command ----------- */
