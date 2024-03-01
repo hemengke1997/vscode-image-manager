@@ -1,5 +1,29 @@
 # CHANGELOG
 
+
+## 0.2.0
+
+### Refactor
+
+- Refactor extension's vscode configuration
+
+Please use
+
+- `image-manager.file.root` replace `image-manager.root`
+- `image-manager.file.exclude` replace `image-manager.exclude`
+- `image-manager.file.scan` replace `image-manager.imageType`
+- `image-manager.viewer.warningSize` replace `image-manager.warningSize`
+- `image-manager.viewer.imageWidth` replace `image-manager.imageDefaultWidth`
+
+### Feat
+
+- Add more configuration
+  
+  - `image-manager.appearance.theme`
+  - `image-manager.appearance.language`
+  - `image-manager.viewer.imageBackgroundColor`
+  
+
 ## 0.1.2
 
 ### Fix

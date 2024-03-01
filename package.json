@@ -89,24 +89,6 @@
     "configuration": {
       "title": "Image Manager Settings",
       "properties": {
-        "image-manager.viewer.warningSize": {
-          "type": [
-            "number",
-            "boolean"
-          ],
-          "default": 1024,
-          "description": "%pkg.viewer.warningSize%"
-        },
-        "image-manager.viewer.imageWidth": {
-          "type": "number",
-          "default": 100,
-          "description": "%pkg.viewer.imageWidth%"
-        },
-        "image-manager.viewer.imageBackgroundColor": {
-          "type": "string",
-          "default": "#1a1a1a",
-          "description": "%pkg.viewer.imageBackgroundColor%"
-        },
         "image-manager.file.root": {
           "type": "array",
           "items": {
@@ -170,6 +152,24 @@
             "zh-CN"
           ],
           "description": "%pkg.appearance.language%"
+        },
+        "image-manager.viewer.warningSize": {
+          "type": [
+            "number",
+            "boolean"
+          ],
+          "default": 1024,
+          "description": "%pkg.viewer.warningSize%"
+        },
+        "image-manager.viewer.imageWidth": {
+          "type": "number",
+          "default": 100,
+          "description": "%pkg.viewer.imageWidth%"
+        },
+        "image-manager.viewer.imageBackgroundColor": {
+          "type": "string",
+          "default": "#1a1a1a",
+          "description": "%pkg.viewer.imageBackgroundColor%"
         }
       }
     }
