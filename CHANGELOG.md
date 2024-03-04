@@ -1,5 +1,11 @@
 # CHANGELOG
 
+## 0.2.1
+
+### Performance
+
+- Optimize image list rendering, reduce memory usage
+- Improve UX
 
 ## 0.2.0
 
