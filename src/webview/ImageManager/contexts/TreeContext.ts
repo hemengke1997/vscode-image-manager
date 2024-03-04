@@ -6,7 +6,7 @@ import { CmdToVscode } from '~/message/cmd'
 import { vscodeApi } from '~/webview/vscode-api'
 import { type ImageType, type ImageVisibleFilterType } from '..'
 import { bytesToKb, filterImages, shouldShowImage } from '../utils'
-import ActionContext, { type ImageFilterType } from './ActionContext'
+import ActionContext from './ActionContext'
 import SettingsContext from './SettingsContext'
 
 export type ImageStateType = {
@@ -15,16 +15,32 @@ export type ImageStateType = {
   visibleList: ImageType[]
 }
 
-function toogleVisible(
-  imageList: ImageType[],
-  key: ImageVisibleFilterType,
-  condition: ((image: ImageType) => boolean) | boolean,
-) {
-  return imageList.map((image) => {
-    return { ...image, visible: { ...image.visible, [key]: isFunction(condition) ? condition(image) : condition } }
-  })
+type Condition = {
+  key: ImageVisibleFilterType
+  condition: ((image: ImageType) => boolean | Promise<boolean>) | boolean
 }
 
+// 根据条件改变图片的visible
+async function changeImageVisible(imageList: ImageType[], conditions: Condition[]) {
+  return Promise.all(
+    imageList.map(async (image) => {
+      for (const { key, condition } of conditions) {
+        image = {
+          ...image,
+          visible: {
+            ...image.visible,
+            [key]: isFunction(condition) ? await condition(image) : condition,
+          },
+        }
+      }
+      return image
+    }),
+  )
+}
+
+// 图片排序
+// 1. 按照文件大小排序
+// 2. 按照文件名排序
 function sortImages(sort: string[], images: ImageType[]) {
   images.sort((a, b) => {
     if (sort[0] === 'size') {
@@ -46,8 +62,10 @@ function useTreeContext(props: { imageList: ImageType[] }) {
     list: [],
     visibleList: [],
   })
+
   const latestImageList = useLatest(imageSingleTree.list).current
 
+  // 筛选出当前显示的文件夹
   const workspaceFolders = useMemo(
     () =>
       filterImages(
@@ -61,6 +79,7 @@ function useTreeContext(props: { imageList: ImageType[] }) {
     [imageSingleTree.visibleList],
   )
 
+  // 筛选出当前显示的文件夹
   const dirs = useMemo(
     () =>
       filterImages(
@@ -73,6 +92,8 @@ function useTreeContext(props: { imageList: ImageType[] }) {
       ),
     [imageSingleTree.visibleList],
   )
+
+  // 筛选出所有的文件夹
   const allDirs = useMemo(
     () =>
       filterImages(
@@ -82,6 +103,8 @@ function useTreeContext(props: { imageList: ImageType[] }) {
       ),
     [imageSingleTree.originalList],
   )
+
+  // 筛选出当前显示的图片类型
   const imageType = useMemo(
     () =>
       filterImages(
@@ -95,6 +118,7 @@ function useTreeContext(props: { imageList: ImageType[] }) {
     [imageSingleTree.visibleList],
   )
 
+  // 筛选出所有的图片类型
   const allImageTypes = useMemo(
     () =>
       filterImages(
@@ -119,18 +143,59 @@ function useTreeContext(props: { imageList: ImageType[] }) {
 
   // !!CARE!!: once imageListProp changed, the list will be updated
   // 以下条件会影响list的生成结果。如果有更多的影响因素，都需要加在这里面
-  // sort
+  // 1. sort
+
+  // 2. filter:
   // display image type
   // size filter
   // git staged filter
   const generateImageList = async (imageList: ImageType[]) => {
+    // sort
     let res = onSortChange(imageList, sort)
-    res = onDisplayImageTypeChange(res, displayImageTypes?.checked)
-    res = onSizeFilterChange(res, imageFilter)
-    res = await onGitStagedFilterChange(res, imageFilter)
+
+    // filter
+    res = await changeImageVisibleByKeys(res, ['type', 'size', 'git_staged'])
+
     return res
   }
 
+  const changeImageVisibleByKeys = useMemoizedFn(
+    (imageList: ImageType[], key: ImageVisibleFilterType[]): Promise<ImageType[]> => {
+      const builtInConditions: Condition[] = [
+        {
+          key: 'type',
+          condition: (t) => (displayImageTypes?.checked ? displayImageTypes.checked.includes(t.fileType) : true),
+        },
+        {
+          key: 'size',
+          condition: (t) =>
+            bytesToKb(t.stats.size) >= (imageFilter?.value.size?.min || 0) &&
+            bytesToKb(t.stats.size) <= (imageFilter?.value.size?.max || Number.POSITIVE_INFINITY),
+        },
+        {
+          key: 'git_staged',
+          condition: (t) => {
+            if (imageFilter?.value.git_staged) {
+              return (async () => {
+                const res = await new Promise<string[]>((resolve) => {
+                  vscodeApi.postMessage({ cmd: CmdToVscode.GET_GIT_STAGED_IMAGES }, (res) => {
+                    resolve(res)
+                  })
+                })
+                return res.includes(t.path)
+              })()
+            }
+            return true
+          },
+        },
+      ]
+
+      const conditions = key.map((k) => builtInConditions.find((c) => c.key === k) as Condition)
+      return changeImageVisible(imageList, conditions)
+    },
+  )
+
+  // prop 改变时，重新根据目前已有的限制条件生成list
   useAsyncEffect(async () => {
     const list = await generateImageList(imageListProp)
     setImageSingleTree({
@@ -154,18 +219,17 @@ function useTreeContext(props: { imageList: ImageType[] }) {
     }))
   }, [sort])
 
-  const onDisplayImageTypeChange = useMemoizedFn((imageList: ImageType[], displayImageTypes: string[] | undefined) => {
-    if (displayImageTypes) {
-      return toogleVisible(imageList, 'type', (t) => displayImageTypes?.includes(t.fileType))
-    }
-    return toogleVisible(imageList, 'type', true)
+  const onDisplayImageTypeChange = useMemoizedFn((imageList: ImageType[]) => {
+    return changeImageVisibleByKeys(imageList, ['type'])
   })
 
   // display image type setting change
   useUpdateEffect(() => {
-    setImageSingleTree((t) => ({
-      list: onDisplayImageTypeChange(t.list, displayImageTypes?.checked),
-    }))
+    onDisplayImageTypeChange(latestImageList).then((list) => {
+      setImageSingleTree({
+        list,
+      })
+    })
   }, [displayImageTypes?.checked])
 
   // filter action triggerd
@@ -175,38 +239,22 @@ function useTreeContext(props: { imageList: ImageType[] }) {
   // 目前有以下filter
   // 1. size
   // 2. git-staged
-  const onSizeFilterChange = useMemoizedFn((imageList: ImageType[], imageFilter: ImageFilterType) => {
-    const {
-      value: {
-        size: { min, max },
-      },
-    } = imageFilter || { value: { size: {} } }
-
-    return toogleVisible(
-      imageList,
-      'size',
-      (t) => bytesToKb(t.stats.size) >= (min || 0) && bytesToKb(t.stats.size) <= (max || Number.POSITIVE_INFINITY),
-    )
+  const onSizeFilterChange = useMemoizedFn((imageList: ImageType[]) => {
+    return changeImageVisibleByKeys(imageList, ['size'])
   })
   useUpdateEffect(() => {
-    setImageSingleTree((t) => ({
-      list: onSizeFilterChange(t.list, imageFilter),
-    }))
+    onSizeFilterChange(latestImageList).then((list) => {
+      setImageSingleTree({
+        list,
+      })
+    })
   }, [imageFilter?.value.size])
 
-  const onGitStagedFilterChange = useMemoizedFn((imageList: ImageType[], imageFilter: ImageFilterType) => {
-    return new Promise<ImageType[]>((resolve) => {
-      if (imageFilter?.value.git_staged) {
-        vscodeApi.postMessage({ cmd: CmdToVscode.GET_GIT_STAGED_IMAGES }, (res) => {
-          resolve(toogleVisible(imageList, 'git_staged', (t) => res.includes(t.path)))
-        })
-      } else {
-        resolve(toogleVisible(imageList, 'git_staged', true))
-      }
-    })
+  const onGitStagedFilterChange = useMemoizedFn((imageList: ImageType[]) => {
+    return changeImageVisibleByKeys(imageList, ['git_staged'])
   })
   useUpdateEffect(() => {
-    onGitStagedFilterChange(latestImageList, imageFilter).then((list) => {
+    onGitStagedFilterChange(latestImageList).then((list) => {
       setImageSingleTree({
         list,
       })

@@ -12,6 +12,7 @@ export class Config {
     ConfigKey.appearance_theme,
     ConfigKey.viewer_imageWidth,
     ConfigKey.viewer_warningSize,
+    ConfigKey.viewer_imageBackgroundColor,
   ]
 
   static defaultConfig = defaultConfig

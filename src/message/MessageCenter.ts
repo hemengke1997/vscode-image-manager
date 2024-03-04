@@ -8,16 +8,16 @@ import micromatch from 'micromatch'
 import mime from 'mime/lite'
 import path from 'node:path'
 import git from 'simple-git'
-import { ConfigurationTarget, Uri, type Webview, commands, env, workspace } from 'vscode'
+import { type ConfigurationTarget, Uri, type Webview, commands, env } from 'vscode'
 import { Config, Global } from '~/core'
 import { type CompressionOptions } from '~/core/compress'
 import { COMPRESSED_META } from '~/core/compress/meta'
-import { EXT_NAMESPACE } from '~/meta'
 import { isPng, normalizePath } from '~/utils'
 import { Log } from '~/utils/Log'
 import { imageGlob } from '~/utils/glob'
 import { type ImageType } from '~/webview/ImageManager'
 import { CmdToVscode, CmdToWebview } from './cmd'
+import { debounceUpdateVscodeConfig } from './utils'
 
 export type MessageType<T = any> = {
   cmd: string
@@ -331,8 +331,8 @@ export const VscodeMessageCenter = {
   [CmdToVscode.UPDATE_USER_CONFIGURATION]: async ({
     message,
   }: MessageParams<{ key: string; value: any; target: ConfigurationTarget }>) => {
-    const { key, value, target = ConfigurationTarget.Global } = message.data
-    await workspace.getConfiguration().update(`${EXT_NAMESPACE}.${key}`, value, target)
+    await debounceUpdateVscodeConfig(message.data)
+
     return true
   },
 

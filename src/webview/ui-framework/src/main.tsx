@@ -57,7 +57,9 @@ export function registerApp(webviewComponents: IWebviewComponents, reload = fals
             key = reload ? ~key : key
             const vscodeTheme = theme
 
-            window['__react_root__'].render(<App theme={vscodeTheme} key={key} components={webviewComponents} />)
+            window['__react_root__'].render(
+              <App theme={vscodeTheme} language={lng} key={key} components={webviewComponents} />,
+            )
           }
         },
         onResourceLoaded: (langs, currentLang) => {

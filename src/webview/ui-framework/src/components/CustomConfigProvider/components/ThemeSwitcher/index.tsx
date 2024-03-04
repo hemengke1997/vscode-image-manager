@@ -29,11 +29,11 @@ function ThemeSwitcher(props: ThemeSwitcherProps) {
   return (
     <Switch
       onChange={(checked) => {
+        const theme = checked ? 'dark' : 'light'
         startTransition(() => {
-          const theme = checked ? 'dark' : 'light'
           setTheme(theme)
-          update({ key: ConfigKey.appearance_theme, value: theme })
         })
+        update({ key: ConfigKey.appearance_theme, value: theme })
       }}
       checked={checked}
       checkedChildren={

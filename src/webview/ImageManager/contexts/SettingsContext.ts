@@ -1,7 +1,8 @@
 import { TinyColor } from '@ctrl/tinycolor'
 import { useLocalStorageState } from '@minko-fe/react-hook'
 import { createContainer } from 'context-state'
-import { useMemo, useState } from 'react'
+import { useMemo } from 'react'
+import { useTrackConfigState } from '~/webview/hooks/useTrackConfigState'
 import { LocalStorageEnum } from '~/webview/local-storage'
 import { type GroupType } from '../components/DisplayGroup'
 import { type DisplayStyleType } from '../components/DisplayStyle'
@@ -43,8 +44,8 @@ function useSettingsContext() {
   const displayGroup: GroupType[] = useMemo(() => ['workspace', ...(_displayGroup || [])], [_displayGroup])
 
   /* ----------- image backgroundColor ---------- */
-  const imageBackgroundColor = GlobalContext.useSelector((ctx) => ctx.extConfig.viewer.imageBackgroundColor)
-  const [backgroundColor, setBackgroundColor] = useState<string>(imageBackgroundColor)
+  const _backgroundColor = GlobalContext.useSelector((ctx) => ctx.extConfig.viewer.imageBackgroundColor)
+  const [backgroundColor, setBackgroundColor] = useTrackConfigState<string>(_backgroundColor)
 
   const tinyBackgroundColor = new TinyColor(backgroundColor)
   const isDarkBackground = tinyBackgroundColor.isDark()

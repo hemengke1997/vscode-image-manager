@@ -8,7 +8,7 @@ import { type ReactElement, type ReactNode, memo, useEffect, useMemo } from 'rea
 import { useTranslation } from 'react-i18next'
 import { ConfigKey } from '~/core/config/common'
 import { CmdToVscode, CmdToWebview } from '~/message/cmd'
-import { ConfigurationTarget, useConfiguration } from '../hooks/useConfiguration'
+import { useConfiguration } from '../hooks/useConfiguration'
 import { LocalStorageEnum } from '../local-storage'
 import { mount } from '../main'
 import PrimaryColorPicker from '../ui-framework/src/components/CustomConfigProvider/components/PrimaryColorPicker'
@@ -286,7 +286,6 @@ function ImageManager() {
                           update({
                             key: ConfigKey.viewer_imageBackgroundColor,
                             value: color,
-                            target: ConfigurationTarget.WorkspaceFolder,
                           })
                         }}
                         localKey={LocalStorageEnum.LOCAL_STORAGE_BACKGROUND_RECENT_COLORS_KEY}

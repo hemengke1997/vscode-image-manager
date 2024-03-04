@@ -24,6 +24,8 @@ export enum ConfigurationTarget {
 export function useConfiguration() {
   const update = (option: { key: string; value: any; target?: ConfigurationTarget }, callback?: () => void) => {
     const { key, value, target } = option
+
+    // TODO: 会造成渲染卡顿，需要优化
     vscodeApi.postMessage(
       {
         cmd: CmdToVscode.UPDATE_USER_CONFIGURATION,

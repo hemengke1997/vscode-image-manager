@@ -3,6 +3,7 @@ import { createContainer } from 'context-state'
 import { useEffect, useRef, useState } from 'react'
 import { type Compressor } from '~/core/compress'
 import { CmdToVscode } from '~/message/cmd'
+import { useTrackConfigState } from '~/webview/hooks/useTrackConfigState'
 import FrameworkContext from '~/webview/ui-framework/src/contexts/FrameworkContext'
 import { vscodeApi } from '~/webview/vscode-api'
 import { type ImageType } from '..'
@@ -54,10 +55,7 @@ function useGlobalContext() {
   })
 
   /* ---------------- image width --------------- */
-  const [imageWidth, setImageWidth] = useState<number>()
-  useEffect(() => {
-    setImageWidth(extConfig.viewer.imageWidth)
-  }, [extConfig.viewer.imageWidth])
+  const [imageWidth, setImageWidth] = useTrackConfigState<number>(extConfig.viewer.imageWidth)
 
   /* ---------- image placeholder size ---------- */
   const [imagePlaceholderSize, setImagePlaceholderSize] = useState<{ width: number; height: number }>()

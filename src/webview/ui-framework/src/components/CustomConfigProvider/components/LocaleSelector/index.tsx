@@ -1,40 +1,37 @@
 import { useUpdateEffect } from '@minko-fe/react-hook'
 import { Button, Dropdown, type MenuProps } from 'antd'
-import { memo, useState } from 'react'
+import { memo } from 'react'
 import { useTranslation } from 'react-i18next'
 import { PiTranslateFill } from 'react-icons/pi'
 import { ConfigKey } from '~/core/config/common'
 import { useConfiguration } from '~/webview/hooks/useConfiguration'
+import { useTrackConfigState } from '~/webview/hooks/useTrackConfigState'
 import FrameworkContext from '~/webview/ui-framework/src/contexts/FrameworkContext'
+
+// webview/locales/*.json
+const locales: MenuProps['items'] = [
+  {
+    key: 'en',
+    label: 'English',
+  },
+  {
+    key: 'zh-CN',
+    label: '简体中文',
+  },
+]
 
 function LocaleSelector() {
   const { i18n, t } = useTranslation()
+
   const language = FrameworkContext.useSelector((ctx) => ctx.extConfig.appearance.language)
 
   const { update } = useConfiguration()
 
-  const [lang, setLang] = useState(i18n.language)
-
-  // webview/locales/*.json
-  const locales: MenuProps['items'] = [
-    {
-      key: 'en',
-      label: 'English',
-    },
-    {
-      key: 'zh-CN',
-      label: '简体中文',
-    },
-  ]
-
-  const changeLanguage = (lang: string) => {
-    i18n.changeLanguage(lang)
-    setLang(lang)
-  }
+  const [lang, setLang] = useTrackConfigState(language)
 
   useUpdateEffect(() => {
-    changeLanguage(language)
-  }, [language])
+    i18n.changeLanguage(lang)
+  }, [lang])
 
   return (
     <Dropdown
@@ -43,9 +40,8 @@ function LocaleSelector() {
         selectable: true,
         selectedKeys: [lang!],
         onSelect(info) {
-          update({ key: ConfigKey.appearance_language, value: info.key }, () => {
-            changeLanguage(info.key)
-          })
+          setLang(info.key as Language)
+          update({ key: ConfigKey.appearance_language, value: info.key })
         },
       }}
       trigger={['click']}
