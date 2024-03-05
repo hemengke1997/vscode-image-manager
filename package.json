@@ -169,7 +169,7 @@
         "image-manager.viewer.imageBackgroundColor": {
           "type": "string",
           "default": "#1a1a1a",
-          "format": "color",
+          "format": "color-hex",
           "description": "%pkg.viewer.imageBackgroundColor%"
         }
       }
@@ -229,7 +229,7 @@
     "react-hotkeys-hook": "^4.5.0",
     "react-i18next": "^14.0.5",
     "react-icons": "^5.0.1",
-    "sharp": "^0.32.6",
+    "sharp": "0.32.6",
     "simple-git": "^3.22.0",
     "simple-git-hooks": "^2.9.0",
     "strict-event-emitter": "^0.5.1",
