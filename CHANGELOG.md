@@ -1,5 +1,11 @@
 # CHANGELOG
 
+## 0.2.2
+
+### Chore
+
+- Add animation icon for extension initializing statusbar of vscode
+
 ## 0.2.1
 
 ### Performance
