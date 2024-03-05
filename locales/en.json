@@ -18,6 +18,8 @@
   },
   "prompt": {
     "reload_tip": "Config changed. Please reload",
-    "compressor_init_fail": "Failed to install image compressor, please check network"
+    "compressor_init_fail": "Failed to install image compressor, please check network",
+    "initializing": "Image Manager Initializing...",
+    "initializing_tooltip": "Downloading necessary dependencies"
   }
 }

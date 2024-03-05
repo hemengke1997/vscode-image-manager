@@ -14,7 +14,7 @@ export class Log {
   }
 
   static info(message: string, prompt = false, indent = 0) {
-    if (prompt) window.showInformationMessage(`[${EXT_NAME}] ${message}`)
+    if (prompt) window.showInformationMessage(`${message}`)
     this.outputChannel.appendLine(`${'\t'.repeat(indent)}[${EXT_NAME}] ${message}`)
   }
 
@@ -26,12 +26,12 @@ export class Log {
   static async error(err: Error | string | any = {}, prompt = false, indent = 0) {
     if (typeof err !== 'string') {
       const messages = [err.message, err.response?.data, err.stack, err.toJSON?.()].filter(Boolean).join('\n')
-      Log.info(`🐛 ERROR: ${err.name}: ${messages}`, prompt, indent)
+      Log.info(`🐛 ERROR: ${err.name}: ${messages}`, false, indent)
     }
 
     if (prompt) {
       const openOutputButton = 'Show logs'
-      const message = typeof err === 'string' ? err : `[${EXT_NAME}] Error: ${err.toString()}`
+      const message = typeof err === 'string' ? err : `Error: ${err.toString()}`
 
       const result = await window.showErrorMessage(message, openOutputButton)
       if (result === openOutputButton) this.show()

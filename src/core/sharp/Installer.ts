@@ -26,11 +26,14 @@ export class Installer {
     try {
       if (!this._isInstalled()) {
         const statusBarItem = vscode.window.createStatusBarItem(vscode.StatusBarAlignment.Left)
-        statusBarItem.text = 'Image Manager Initializing...'
-        Log.info('Sharp creating...')
+        const creating_text = i18n.t('prompt.initializing')
+        statusBarItem.text = `$(sync~spin) ${creating_text}`
+        statusBarItem.tooltip = i18n.t('prompt.initializing_tooltip')
+        Log.info(creating_text)
         statusBarItem.show()
         await this._install()
         statusBarItem.hide()
+        statusBarItem.dispose()
       }
       this.event.emit('install-success', this._loadSharp())
     } catch (error) {
