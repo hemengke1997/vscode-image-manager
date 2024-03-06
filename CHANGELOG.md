@@ -1,5 +1,11 @@
 # CHANGELOG
 
+## 0.2.3
+
+### Fix
+
+- Can't compress images when `group by type` option checked
+
 ## 0.2.2
 
 ### Chore
