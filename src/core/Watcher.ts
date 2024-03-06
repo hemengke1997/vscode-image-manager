@@ -36,10 +36,7 @@ export class Watcher {
     return gs?.every((g) => !micromatch.all(e.fsPath, g))
   }
 
-  private static debouncedHandleEvent = debounce(this._handleEvent, 200, {
-    leading: false,
-    trailing: true,
-  })
+  private static debouncedHandleEvent = debounce(this._handleEvent, 200)
 
   private static _handleEvent(e: Uri) {
     if (e.scheme !== 'file') return
@@ -47,11 +44,9 @@ export class Watcher {
     if (this._isIgnored(e, isDirectory)) {
       return
     }
-    debounce(() => {
-      this.webview?.postMessage({
-        cmd: CmdToWebview.REFRESH_IMAGES,
-      })
-    }, 100)()
+    this.webview?.postMessage({
+      cmd: CmdToWebview.REFRESH_IMAGES,
+    })
   }
 
   private static _onDidChange(e: Uri) {

@@ -102,7 +102,8 @@
     "yes": "Yes",
     "no": "No",
     "compressed": "Compressed",
-    "git_staged": "Git staged"
+    "git_staged": "Git staged",
+    "no_image_to_compress": "No image to compress"
   },
   "fallback": {
     "internal_error": "Internal Error",

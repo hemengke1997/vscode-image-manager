@@ -3,27 +3,52 @@ import { type ImageType } from '..'
 import { type GroupType } from '../components/DisplayGroup'
 
 export type DisplayGroupType = GroupType[]
-export type DisplayMapType = {
-  [key in GroupType]: {
-    imageKey: {
+export type DisplayMapType<T extends Record<string, any> = Record<string, any>> = {
+  [key in GroupType | Flatten]: {
+    imageKey?: {
       id: string
     }
-    priority: number
-    list: Option[]
-  }
+    list?: Option[]
+    priority: number | null
+  } & T
 }
 export type VisibleListType = ImageType[]
 
-type Flatten = 'all'
+export type Flatten = 'all'
 
 export type FileNode = {
+  /**
+   * 节点名称
+   */
   label: string
+  /**
+   * 节点完整路径名称
+   */
   fullLabel: string
-  value: string // absolute path
+  /**
+   * 节点标识
+   */
+  value: string
+  /**
+   * 节点分组类型（按 workspace | dir | type 分组）
+   */
+  groupType?: GroupType | Flatten
+  /**
+   * 当前节点的子节点
+   */
   children: FileNode[]
+  /**
+   * 渲染图片的条件，满足条件的图片会被渲染
+   */
   renderCondition: Record<string, string>
-  type?: GroupType | Flatten
+  /**
+   * 渲染图片列表
+   */
   renderList?: ImageType[]
+  /**
+   * 节点当前目录下的所有图片
+   */
+  underFolderList?: ImageType[]
 }
 
 export type TreeParams = { displayGroup: DisplayGroupType; displayMap: DisplayMapType; visibleList: VisibleListType }
@@ -43,7 +68,7 @@ export class DirTree {
     const _displayGroup = {} as Record<string, Option[]>
 
     this.displayGroup.forEach((g) => {
-      _displayGroup[g] = this.displayMap[g].list.filter((t) => !!t.label)
+      _displayGroup[g] = this.displayMap[g].list?.filter((t) => !!t.label) || []
     })
 
     const previousTree = [] as FileNode[][]
@@ -56,7 +81,7 @@ export class DirTree {
           path: t.label.split('/'),
         })),
         (n) => {
-          n.type = d
+          n.groupType = d
           if (isEmpty(n.renderCondition)) {
             sortedKeys.forEach((k) => {
               Object.assign({}, n.renderCondition)
@@ -74,6 +99,7 @@ export class DirTree {
       previousTree.push(resultTree)
     })
     const tree = previousTree[previousTree.length - 1]
+
     // Maybe we should do this in arrangeIntoTree
     this.renderTree(tree)
     return tree
@@ -86,13 +112,53 @@ export class DirTree {
       if (node?.children.length) {
         stack.push(...node.children)
       }
+
+      if (node) {
+        const { renderList, underFolderList } = this._filterImages(node)
+        node.renderList = renderList
+        node.underFolderList = underFolderList
+      }
+    }
+  }
+
+  // 从visibileList中筛选出
+  // 1. 符合 renderCondition 条件的图片
+  // 2. 当前节点目录下的所有图片
+  private _filterImages(node: FileNode) {
+    const renderList: ImageType[] = []
+    const underFolderList: ImageType[] = []
+
+    this.visibleList.forEach((image) => {
+      // 根据渲染条件过滤图片，将符合条件的图片放入 renderList
       if (!isEmpty(node?.renderCondition)) {
-        const renderList = this.visibleList.filter((img) => this._shouldShowImage(node, img)) || []
-        this._postFilterd(renderList)
-        if (renderList.length) {
-          node.renderList = renderList
+        const shouldRender = this.displayGroup.every((g) => {
+          const imageValue = this._findImageIdByGroup(image, g)
+
+          const condition = node.renderCondition[g]
+
+          // e.g. condition.dir = '' && image.absDirPath === image.absWorkspace
+          // means that the image belongs to the parent node
+          if (condition === '' && this._isBelongsToHigherPriority(image, g)) {
+            return true
+          }
+
+          return condition === imageValue
+        })
+
+        if (shouldRender) {
+          renderList.push(image)
         }
       }
+
+      // 将当前节点的所有图片放入 underFolderList
+      if (node.value === image.absDirPath) {
+        underFolderList.push(image)
+      }
+    })
+
+    return {
+      renderList,
+      underFolderList,
     }
   }
 
@@ -268,7 +334,7 @@ export class DirTree {
     }
 
     const higherPriorityGroup = this.displayGroup.find((g) => {
-      return this._findMapByGroup(g).priority === this._findMapByGroup(currentGroup).priority - 1
+      return this._findMapByGroup(g).priority === (this._findMapByGroup(currentGroup).priority || -999) - 1
     })
 
     if (higherPriorityGroup) {
@@ -298,6 +364,10 @@ export class DirTree {
   }
 
   private _findImageIdByGroup = (image: ImageType, g: GroupType): string => {
-    return image[this._findMapByGroup(g).imageKey.id]
+    const t = this._findMapByGroup(g)
+    if (t.imageKey) {
+      return image[t.imageKey.id]
+    }
+    return ''
   }
 }

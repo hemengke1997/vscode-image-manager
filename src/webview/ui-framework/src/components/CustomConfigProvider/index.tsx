@@ -88,7 +88,7 @@ function CustomConfigProvider(props: PropsWithChildren) {
                 <Button
                   type='text'
                   icon={
-                    <div className={'text-ant-color-primary flex-center text-2xl'}>
+                    <div className={'flex-center text-2xl'}>
                       <MdMenuOpen />
                     </div>
                   }

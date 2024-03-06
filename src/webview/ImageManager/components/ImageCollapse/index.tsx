@@ -5,7 +5,7 @@ import classNames from 'classnames'
 import { type ReactNode, memo, useEffect, useMemo } from 'react'
 import { useContextMenu } from 'react-contexify'
 import ActionContext from '../../contexts/ActionContext'
-import { COLLAPSE_CONTEXT_MENU_ID } from '../ContextMenus/components/CollapseContextMenu'
+import { COLLAPSE_CONTEXT_MENU_ID, type CollapseContextMenuType } from '../ContextMenus/components/CollapseContextMenu'
 import ImagePreview, { type ImagePreviewProps } from '../ImagePreview'
 
 type ImageCollapseProps = {
@@ -13,14 +13,31 @@ type ImageCollapseProps = {
   label: string
   joinLabel: boolean
   labelContainer: (children: ReactNode) => ReactNode
-  images: ImagePreviewProps['images']
+  /**
+   * 需要渲染的图片
+   */
+  images: ImagePreviewProps['images'] | undefined
+  /**
+   * 当前文件夹下的图片
+   */
+  underFolderImages: ImagePreviewProps['images'] | undefined
   nestedChildren: JSX.Element | null
   id: string
-  contextMenu: boolean
+  contextMenu?: CollapseContextMenuType
 }
 
 function ImageCollapse(props: ImageCollapseProps) {
-  const { collapseProps, nestedChildren, labelContainer, label, joinLabel, images, id, contextMenu } = props
+  const {
+    collapseProps,
+    nestedChildren,
+    labelContainer,
+    label,
+    joinLabel,
+    images,
+    underFolderImages,
+    id,
+    contextMenu,
+  } = props
 
   const { collapseOpen } = ActionContext.usePicker(['collapseOpen'])
 
@@ -57,12 +74,14 @@ function ImageCollapse(props: ImageCollapseProps) {
         <div
           onContextMenu={(e) => {
             if (!contextMenu) return
+
             show({
               event: e,
               id: COLLAPSE_CONTEXT_MENU_ID,
               props: {
                 targetPath: getCurrentPath(index) || '',
-                images,
+                images: [images, underFolderImages].find((arr) => arr?.length),
+                contextMenu,
               },
             })
           }}
@@ -103,7 +122,7 @@ function ImageCollapse(props: ImageCollapseProps) {
     }
   }
 
-  if (!images.length && !nestedChildren) return null
+  if (!images?.length && !nestedChildren) return null
 
   return (
     <>
@@ -116,7 +135,7 @@ function ImageCollapse(props: ImageCollapseProps) {
           {
             key: id,
             label: labelContainer(generateLabel(labels)),
-            children: images.length ? (
+            children: images?.length ? (
               <div className={'space-y-2'}>
                 <ImagePreview images={images} />
                 {nestedChildren}

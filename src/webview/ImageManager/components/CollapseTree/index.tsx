@@ -1,21 +1,23 @@
 import { useMemoizedFn } from '@minko-fe/react-hook'
-import { type CollapseProps, ConfigProvider } from 'antd'
+import { isDev } from '@minko-fe/vite-config/client'
+import { type CollapseProps, ConfigProvider, Empty } from 'antd'
 import classNames from 'classnames'
-import { memo, useMemo, useRef } from 'react'
+import { type ReactNode, memo, useMemo, useRef } from 'react'
 import { useTranslation } from 'react-i18next'
 import { FaRegImages } from 'react-icons/fa'
 import { FaRegObjectGroup } from 'react-icons/fa6'
 import { IoMdFolderOpen } from 'react-icons/io'
 import { PiFileImage } from 'react-icons/pi'
-import GlobalContext from '../../contexts/GlobalContext'
 import SettingsContext from '../../contexts/SettingsContext'
 import TreeContext from '../../contexts/TreeContext'
-import { DirTree, type FileNode } from '../../utils/DirTree'
+import { DirTree, type DisplayMapType, type FileNode } from '../../utils/DirTree'
+import { type CollapseContextMenuType } from '../ContextMenus/components/CollapseContextMenu'
 import ImageCollapse from '../ImageCollapse'
 import OpenFolder from './components/OpenFolder'
 import styles from './index.module.css'
 
 function CollapseTree() {
+  const { t } = useTranslation()
   const { displayGroup, displayStyle } = SettingsContext.usePicker(['displayGroup', 'displayStyle'])
 
   const { dirs, imageType, workspaceFolders } = TreeContext.usePicker([
@@ -27,13 +29,12 @@ function CollapseTree() {
 
   const visibleList = TreeContext.useSelector((ctx) => ctx.imageSingleTree.visibleList)
 
-  const allWorkspaceFolders = GlobalContext.useSelector((ctx) => ctx.imageState.workspaceFolders)
-
-  const { t } = useTranslation()
-
   const dirTree = useRef<DirTree>()
 
-  const displayMap = useMemo(
+  const displayMap: DisplayMapType<{
+    icon: (props: { path: string }) => ReactNode
+    contextMenu: CollapseContextMenuType
+  }> = useMemo(
     () => ({
       workspace: {
         imageKey: {
@@ -67,7 +68,10 @@ function CollapseTree() {
         },
         list: imageType,
         icon: () => <PiFileImage />,
-        contextMenu: false,
+        contextMenu: {
+          openInOsExplorer: false,
+          openInVscodeExplorer: false,
+        },
         priority: 3,
       },
       // Special case, when no group checked, show all images
@@ -111,15 +115,16 @@ function CollapseTree() {
                 }}
                 labelContainer={(label) => (
                   <div className={'flex items-center space-x-2'}>
-                    <div className={'flex-center'}>{displayMap[node.type!].icon({ path: node.value })}</div>
+                    <div className={'flex-center'}>{displayMap[node.groupType!].icon({ path: node.value })}</div>
                     {label}
                   </div>
                 )}
-                contextMenu={displayMap[node.type!].contextMenu}
+                contextMenu={displayMap[node.groupType!].contextMenu}
                 label={node.label}
-                joinLabel={!!displayMap[node.type!].priority}
-                images={node.renderList || []}
+                joinLabel={!!displayMap[node.groupType!].priority}
                 nestedChildren={node.label ? nestedDisplay(node.children) : null}
+                images={node.renderList}
+                underFolderImages={node.underFolderList}
               ></ImageCollapse>
             )
           })}
@@ -135,24 +140,17 @@ function CollapseTree() {
       visibleList,
     })
 
-    let tree = dirTree.current.buildRenderTree()
-
-    if (!tree.length) {
-      tree = [
-        {
-          label: t('im.all'),
-          type: 'all',
-          fullLabel: '',
-          value: workspaceFolders.length ? workspaceFolders[0].value : allWorkspaceFolders[0],
-          children: [],
-          renderCondition: {},
-        },
-      ]
-    }
+    const tree = dirTree.current.buildRenderTree()
 
     if (displayStyle === 'compact') {
       dirTree.current.compactFolders(tree)
     }
+
+    if (isDev()) {
+      console.log(tree, 'render tree')
+    }
+
+    if (!tree.length) return <Empty image={Empty.PRESENTED_IMAGE_SIMPLE} description={t('im.no_image')} />
 
     // render tree
     return nestedDisplay(tree, { bordered: true }, { defaultOpen: true })

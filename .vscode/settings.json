@@ -6,5 +6,8 @@
   "i18n-ally.sourceLanguage": "en",
   "i18n-ally.keystyle": "nested",
   "i18n-ally.enabledFrameworks": ["react", "react-i18next", "vscode"],
-  "image-manager.exclude": ["dist-webview"]
+  "search.exclude": {
+    "**/__snapshots__/**": true,
+    "CHANGELOG-CODE.md": true
+  }
 }
