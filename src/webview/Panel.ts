@@ -6,7 +6,6 @@ import {
   Disposable,
   EventEmitter,
   type ExtensionContext,
-  ExtensionMode,
   Uri,
   ViewColumn,
   type Webview,
@@ -14,7 +13,7 @@ import {
   window,
   workspace,
 } from 'vscode'
-import { Config } from '~/core'
+import { Config, Global } from '~/core'
 import { i18n } from '~/i18n'
 import { MessageCenter, type MessageType } from '~/message/MessageCenter'
 import { CmdToWebview } from '~/message/cmd'
@@ -142,7 +141,7 @@ export class ImageManagerPanel {
   }
 
   private _getWebviewHtml() {
-    const isProd = this._ctx.extensionMode === ExtensionMode.Production
+    const isProd = Global.isProduction()
     const webview = this._panel.webview
 
     const localServerUrl = `http://localhost:${DEV_PORT}`

@@ -2,6 +2,7 @@ import { useMemoizedFn } from '@minko-fe/react-hook'
 import { isDev } from '@minko-fe/vite-config/client'
 import { type CollapseProps, ConfigProvider, Empty } from 'antd'
 import classNames from 'classnames'
+import { motion } from 'framer-motion'
 import { type ReactNode, memo, useMemo, useRef } from 'react'
 import { useTranslation } from 'react-i18next'
 import { FaRegImages } from 'react-icons/fa'
@@ -150,7 +151,13 @@ function CollapseTree() {
       console.log(tree, 'render tree')
     }
 
-    if (!tree.length) return <Empty image={Empty.PRESENTED_IMAGE_SIMPLE} description={t('im.no_image')} />
+    if (!tree.length) {
+      return (
+        <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ duration: 0.1, delay: 0.2 }}>
+          <Empty image={Empty.PRESENTED_IMAGE_SIMPLE} description={t('im.no_image')} />
+        </motion.div>
+      )
+    }
 
     // render tree
     return nestedDisplay(tree, { bordered: true }, { defaultOpen: true })

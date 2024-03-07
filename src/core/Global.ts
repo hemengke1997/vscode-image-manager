@@ -1,4 +1,4 @@
-import { type Event, EventEmitter, type ExtensionContext, window, workspace } from 'vscode'
+import { type Event, EventEmitter, type ExtensionContext, ExtensionMode, window, workspace } from 'vscode'
 import { Compressor } from '~/core/compress/Compressor'
 import { Installer } from '~/core/sharp'
 import { i18n } from '~/i18n'
@@ -63,7 +63,7 @@ export class Global {
 
     installer.event
       .on('install-success', (e) => {
-        Log.info('Sharp creation success')
+        Log.info('Sharp installed')
         Global.sharp = e
         Global.compressor = new Compressor()
       })
@@ -72,5 +72,13 @@ export class Global {
       })
 
     await installer.run()
+  }
+
+  static isDevelopment() {
+    return this.context.extensionMode === ExtensionMode.Development
+  }
+
+  static isProduction() {
+    return this.context.extensionMode === ExtensionMode.Production
   }
 }

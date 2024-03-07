@@ -307,7 +307,7 @@ function ImageManager() {
           extra={<ImageActions />}
         >
           {imageState.loading ? (
-            <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ duration: 0.2, delay: 1 }}>
+            <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ duration: 0.1, delay: 0.2 }}>
               <Skeleton className={'p-4'} active paragraph={{ rows: 14 }} />
             </motion.div>
           ) : (

@@ -1,4 +1,5 @@
 import { type OutputChannel, window } from 'vscode'
+import { Global } from '~/core'
 import { EXT_NAME } from '~/meta'
 
 export class Log {
@@ -36,6 +37,10 @@ export class Log {
       const result = await window.showErrorMessage(message, openOutputButton)
       if (result === openOutputButton) this.show()
     }
+  }
+
+  static debug(message: string, indent = 0) {
+    if (Global.isDevelopment()) this.info(message, false, indent)
   }
 
   static show() {
