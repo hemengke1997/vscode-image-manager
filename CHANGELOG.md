@@ -1,5 +1,11 @@
 # CHANGELOG
 
+## 0.3.0
+
+### Feat
+
+- Support dependency os cache, improve performance
+
 ## 0.2.3
 
 ### Fix
