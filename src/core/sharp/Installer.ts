@@ -36,19 +36,22 @@ export class Installer {
 
   async run() {
     try {
-      let installedCache = this._getInstalledCache()
-
-      if (!installedCache) {
+      let cacheType = this._getInstalledCacheType()
+      if (!cacheType) {
         await this._showStausBar({
           beforeHide: this._install.bind(this),
         })
-        // Try to save to system cache
-        installedCache = await this._saveToTmpdirCache()
+        // Try to save to os cache
+        cacheType = await this._trySaveCacheToOs()
       } else {
-        Log.debug('Sharp already installed, load from cache')
+        Log.debug(`Sharp already installed, load from cache: ${cacheType}`)
+        // If extension cache, try to sync to the os cache
+        if (cacheType === 'extension') {
+          cacheType = await this._trySaveCacheToOs()
+          Log.debug(`Try to sync cache to os: ${cacheType === 'os' ? 'success' : 'failed'}`)
+        }
       }
-
-      this.event.emit('install-success', this._loadSharp(installedCache))
+      this.event.emit('install-success', this._loadSharp(cacheType))
     } catch (error) {
       Log.error(`Sharp binary file creation error: ${error}`)
       this.event.emit('install-fail')
@@ -90,7 +93,7 @@ export class Installer {
     return caches
   }
 
-  private _getInstalledCache(): CacheType | undefined {
+  private _getInstalledCacheType(): CacheType | undefined {
     const cache = this._getCaches().find((cache) => {
       const { releaseFsPath, type } = cache
       if (!fs.existsSync(releaseFsPath)) {
@@ -111,7 +114,7 @@ export class Installer {
     return require(localSharpPath!).sharp
   }
 
-  private async _saveToTmpdirCache() {
+  private async _trySaveCacheToOs() {
     const tempDir = os.tmpdir()
 
     return new Promise<CacheType>((resolve) => {
