@@ -1,5 +1,18 @@
 # CHANGELOG
 
+## 0.4.0
+
+### Feat
+
+- Support filter compressed/uncompressed images
+- Support filter git-staged/unstaged images
+- Show compressed status when hover on image
+
+### Fix
+
+- Render twice when open extension
+- Git staged command execute too many times
+
 ## 0.3.0
 
 ### Feat
