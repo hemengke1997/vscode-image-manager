@@ -27,8 +27,6 @@ export enum CmdToVscode {
   RELOAD_WEBVIEW = 'RELOAD_WEBVIEW',
   // 获取所有图片
   GET_ALL_IMAGES = 'GET_ALL_IMAGES',
-  // 获取图片尺寸
-  GET_IMAGE_DIMENSIONS = 'GET_IMAGE_DIMENSIONS',
   // 获取图片元信息
   GET_IMAGE_METADATA = 'GET_IMAGE_METADATA',
   // 获取扩展的配置

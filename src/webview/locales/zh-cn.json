@@ -103,7 +103,8 @@
     "no": "否",
     "compressed": "已压缩",
     "git_staged": "Git staged",
-    "no_image_to_compress": "无可压缩的图片"
+    "no_image_to_compress": "无可压缩的图片",
+    "init_compressor_fail": "压缩功能初始化失败"
   },
   "fallback": {
     "internal_error": "内部错误",

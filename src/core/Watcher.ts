@@ -27,13 +27,13 @@ export class Watcher {
   }
 
   private static _isIgnored(e: Uri, isDirectory: boolean) {
-    const gs = this.glob.ignore
+    const ignores = this.glob.ignore
     if (isDirectory) {
-      gs.unshift(...this.glob.absDirPatterns)
+      ignores.unshift(...this.glob.absDirPatterns)
     } else {
-      gs.unshift(...this.glob.absImagePatterns)
+      ignores.unshift(...this.glob.absImagePatterns)
     }
-    return gs?.every((g) => !micromatch.all(e.fsPath, g))
+    return !micromatch.all(e.fsPath, ignores)
   }
 
   private static debouncedHandleEvent = debounce(this._handleEvent, 200)
@@ -44,6 +44,7 @@ export class Watcher {
     if (this._isIgnored(e, isDirectory)) {
       return
     }
+    Log.debug(`File Changed: ${e.fsPath}, isDirectory: ${isDirectory}, trigger refresh`)
     this.webview?.postMessage({
       cmd: CmdToWebview.REFRESH_IMAGES,
     })

@@ -6,10 +6,12 @@ import { memo, useRef, useState } from 'react'
 import { useContextMenu } from 'react-contexify'
 import { useHotkeys } from 'react-hotkeys-hook'
 import { useTranslation } from 'react-i18next'
+import { FaRegGrinStars } from 'react-icons/fa'
 import { FaImages } from 'react-icons/fa6'
 import { ImEyePlus } from 'react-icons/im'
 import { MdOutlineRemoveCircle } from 'react-icons/md'
 import { PiFileImage } from 'react-icons/pi'
+import { type SharpNS } from '~/@types/global'
 import { CmdToVscode } from '~/message/cmd'
 import { vscodeApi } from '~/webview/vscode-api'
 import { type ImageType } from '../..'
@@ -56,12 +58,13 @@ function LazyImage(props: LazyImageProps) {
     onChange: onPreviewChange,
   })
 
-  const [dimensions, setDimensions] = useState<{ width: number; height: number }>()
+  const [imageMetadata, setImageMeatadata] = useState<{ metadata: SharpNS.Metadata; compressed: boolean }>()
 
   const handleMaskMouseOver = () => {
-    if (!dimensions) {
-      vscodeApi.postMessage({ cmd: CmdToVscode.GET_IMAGE_DIMENSIONS, data: { filePath: image.path } }, (data) => {
-        setDimensions(data)
+    if (!imageMetadata) {
+      vscodeApi.postMessage({ cmd: CmdToVscode.GET_IMAGE_METADATA, data: { filePath: image.path } }, (data) => {
+        const { metadata, compressed } = data
+        setImageMeatadata({ metadata, compressed })
       })
     }
   }
@@ -142,10 +145,16 @@ function LazyImage(props: LazyImageProps) {
                         </div>
                         <div className={'flex-center space-x-1 truncate'}>
                           <FaImages />
-                          <span>
-                            {dimensions?.width}x{dimensions?.height}
+                          <span className={'flex items-center'}>
+                            {imageMetadata?.metadata.width}x{imageMetadata?.metadata.height}
                           </span>
                         </div>
+                        {imageMetadata?.compressed ? (
+                          <div className={'flex-center space-x-1 truncate'}>
+                            <FaRegGrinStars />
+                            <span>{t('im.compressed')}</span>
+                          </div>
+                        ) : null}
                       </div>
                     ),
                     maskClassName: 'rounded-md !cursor-default',

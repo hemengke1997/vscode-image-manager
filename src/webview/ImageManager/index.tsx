@@ -1,4 +1,5 @@
 import { difference, isEqual, uniq } from '@minko-fe/lodash-pro'
+import { useAsyncEffect } from '@minko-fe/react-hook'
 import { isDev } from '@minko-fe/vite-config/client'
 import { App, Card, Skeleton } from 'antd'
 import { AnimatePresence, motion } from 'framer-motion'
@@ -6,11 +7,12 @@ import { type Stats } from 'fs-extra'
 import { type ParsedPath } from 'node:path'
 import { type ReactElement, type ReactNode, memo, useEffect, useMemo } from 'react'
 import { useTranslation } from 'react-i18next'
+import { isTooManyTries, retry } from 'ts-retry'
+import { type Compressor } from '~/core/compress'
 import { ConfigKey } from '~/core/config/common'
 import { CmdToVscode, CmdToWebview } from '~/message/cmd'
 import { useConfiguration } from '../hooks/useConfiguration'
 import { LocalStorageEnum } from '../local-storage'
-import { mount } from '../main'
 import PrimaryColorPicker from '../ui-framework/src/components/CustomConfigProvider/components/PrimaryColorPicker'
 import { vscodeApi } from '../vscode-api'
 import CollapseTree from './components/CollapseTree'
@@ -41,7 +43,8 @@ vscodeApi.registerEventListener()
 // 1. type - image type (i.e png, jpg, gif)
 // 2. size - image size (i.e 1kb)
 // 3. git-staged - whether the image is git staged
-export type ImageVisibleFilterType = 'type' | 'size' | 'git_staged'
+// 4. compressed - whether the image is compressed
+export type ImageVisibleFilterType = 'type' | 'size' | 'git_staged' | 'compressed'
 
 export type ImageType = {
   name: string
@@ -143,6 +146,21 @@ function ImageManager() {
     })
   }, [refreshTimes])
 
+  useAsyncEffect(async () => {
+    try {
+      const c = await retry(getCompressor, {
+        delay: 1000,
+        maxTry: 10,
+        until: (data) => !!data,
+      })
+      setCompressor(c)
+    } catch (err) {
+      if (isTooManyTries(err)) {
+        message.error(t('im.init_compressor_fail'))
+      }
+    }
+  }, [])
+
   const { updateExtConfig } = useExtConfig()
   useEffect(() => {
     updateExtConfig()
@@ -161,7 +179,7 @@ function ImageManager() {
           break
         }
         case CmdToWebview.PROGRAM_RELOAD_WEBVIEW: {
-          mount(true)
+          window.mountApp(true)
           break
         }
         case CmdToWebview.UPDATE_CONFIG: {
@@ -358,4 +376,16 @@ function OperationItemUI(props: OperationItemProps) {
       {children}
     </div>
   )
+}
+
+function getCompressor() {
+  return new Promise<Compressor>((resolve, reject) => {
+    vscodeApi.postMessage({ cmd: CmdToVscode.GET_COMPRESSOR }, (data) => {
+      if (!data) {
+        reject()
+      } else {
+        resolve(data)
+      }
+    })
+  })
 }

@@ -36,22 +36,39 @@ export class Installer {
 
   async run() {
     try {
-      let cacheType = this._getInstalledCacheType()
-      if (!cacheType) {
+      const cacheTypes = this._getInstalledCacheTypes()
+      let currentCacheType: CacheType
+
+      // If there is no cache, install
+      if (!cacheTypes?.length) {
         await this._showStausBar({
           beforeHide: this._install.bind(this),
         })
         // Try to save to os cache
-        cacheType = await this._trySaveCacheToOs()
+        this._trySaveCacheToOs()
       } else {
-        Log.debug(`Sharp already installed, load from cache: ${cacheType}`)
-        // If extension cache, try to sync to the os cache
-        if (cacheType === 'extension') {
-          cacheType = await this._trySaveCacheToOs()
-          Log.debug(`Try to sync cache to os: ${cacheType === 'os' ? 'success' : 'failed'}`)
+        currentCacheType = cacheTypes[0]
+
+        Log.debug(`Sharp already installed, load from cache: ${currentCacheType}`)
+
+        switch (currentCacheType) {
+          case 'extension': {
+            // If it's extension cache, try to sync to the os cache
+            this._trySaveCacheToOs()
+            break
+          }
+          case 'os': {
+            // Sharp exists in the os cache, but not in the extension cache
+            if (!cacheTypes.includes('extension')) {
+              // Reinstall
+              this._install()
+            }
+            break
+          }
         }
       }
-      this.event.emit('install-success', this._loadSharp(cacheType))
+
+      this.event.emit('install-success', this._loadSharp(this._getInstalledCacheTypes()![0]))
     } catch (error) {
       Log.error(`Sharp binary file creation error: ${error}`)
       this.event.emit('install-fail')
@@ -93,17 +110,19 @@ export class Installer {
     return caches
   }
 
-  private _getInstalledCacheType(): CacheType | undefined {
-    const cache = this._getCaches().find((cache) => {
-      const { releaseFsPath, type } = cache
-      if (!fs.existsSync(releaseFsPath)) {
-        return false
-      }
-      Log.info(`Load from ${type} cache: ${releaseFsPath}`)
-      return fs.readdirSync(releaseFsPath).some((item) => item.endsWith('.node'))
-    })
+  // Get all installed cache type
+  private _getInstalledCacheTypes(): CacheType[] | undefined {
+    const caches = this._getCaches()
+      .filter((cache) => {
+        const { releaseFsPath } = cache
+        if (!fs.existsSync(releaseFsPath)) {
+          return undefined
+        }
+        return true
+      })
+      .map((cache) => cache.type)
 
-    return cache?.type
+    return caches
   }
 
   private _loadSharp(cacheType: CacheType) {
@@ -117,11 +136,11 @@ export class Installer {
   private async _trySaveCacheToOs() {
     const tempDir = os.tmpdir()
 
-    return new Promise<CacheType>((resolve) => {
+    return new Promise<boolean>((resolve) => {
       fs.access(tempDir, fs.constants.W_OK, (err) => {
         if (err) {
           Log.debug(`Tmpdir not writable: ${tempDir}`)
-          resolve('extension')
+          resolve(false)
         } else {
           // Os Cache is writable
 
@@ -130,7 +149,7 @@ export class Installer {
           // Copy sharp files to cache directory
           fs.copySync(this._getSharpCwd(), this._getSharpOsCacheDir())
           Log.debug(`Copy sharp to tmpdir: ${this._getSharpOsCacheDir()}`)
-          resolve('os')
+          resolve(true)
         }
       })
     })
@@ -175,5 +194,7 @@ export class Installer {
       cwd,
       stdio: 'inherit',
     })
+
+    Log.debug('🚐 Sharp installed')
   }
 }

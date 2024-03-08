@@ -11,7 +11,7 @@ function Fallback(props: FallbackProps) {
   const { t } = useTranslation()
 
   return (
-    <div role='alert' className={'h-screen'}>
+    <div role='alert' className={'h-screen select-text'}>
       <Result status='error' title={t('fallback.internal_error')} subTitle={<>{t('fallback.sorry')} 😥</>}>
         <Paragraph>
           <Text strong className={'text-lg'}>

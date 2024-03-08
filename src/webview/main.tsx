@@ -25,6 +25,8 @@ const webviewComponents = {
 
 registerApp(webviewComponents, false)
 
-export function mount(reload?: boolean) {
+function mount(reload?: boolean) {
   registerApp(webviewComponents, reload)
 }
+
+window.mountApp = mount

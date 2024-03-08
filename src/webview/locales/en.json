@@ -103,7 +103,8 @@
     "no": "No",
     "compressed": "Compressed",
     "git_staged": "Git staged",
-    "no_image_to_compress": "No image to compress"
+    "no_image_to_compress": "No image to compress",
+    "init_compressor_fail": "Init compressor fail"
   },
   "fallback": {
     "internal_error": "Internal Error",

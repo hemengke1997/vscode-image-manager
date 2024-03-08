@@ -34,6 +34,7 @@ i18next.use(initReactI18next).init({
 let key = 0
 
 export function registerApp(webviewComponents: IWebviewComponents, reload = false) {
+  console.log('registerApp')
   vscodeApi.postMessage(
     {
       cmd: CmdToVscode.ON_WEBVIEW_READY,
@@ -49,15 +50,15 @@ export function registerApp(webviewComponents: IWebviewComponents, reload = fals
         language: lng,
         onInited() {
           try {
-            if (!window['__react_root__']) {
-              window['__react_root__'] = ReactDOM.createRoot(document.querySelector('#root') as HTMLElement)
+            if (!window.__react_root__) {
+              window.__react_root__ = ReactDOM.createRoot(document.querySelector('#root') as HTMLElement)
             }
           } catch {
           } finally {
             key = reload ? ~key : key
             const vscodeTheme = theme
 
-            window['__react_root__'].render(
+            window.__react_root__.render(
               <App theme={vscodeTheme} language={lng} key={key} components={webviewComponents} />,
             )
           }

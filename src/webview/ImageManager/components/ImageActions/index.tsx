@@ -1,4 +1,4 @@
-import { isNil } from '@minko-fe/lodash-pro'
+import { isNil, isObject } from '@minko-fe/lodash-pro'
 import { useMemoizedFn } from '@minko-fe/react-hook'
 import { App, Button, ConfigProvider, Divider, Form, InputNumber, Popover, Radio, Space } from 'antd'
 import { memo } from 'react'
@@ -10,6 +10,12 @@ import { TbLayoutNavbarExpand, TbRefresh } from 'react-icons/tb'
 import ActionContext from '../../contexts/ActionContext'
 import { Keybinding } from '../../keybinding'
 
+export enum FilterRadioValue {
+  all = 0,
+  no = 1,
+  yes = 2,
+}
+
 /**
  * key: ImageVisibleFilterType 一一对应，方便使用
  */
@@ -18,7 +24,14 @@ export type ImageFilterFormValue = {
     min?: number
     max?: number
   }
-  git_staged?: 0 | 1
+  /**
+   * @type 0: all, 1: no, 2: yes
+   */
+  git_staged?: ValueOf<typeof FilterRadioValue>
+  /**
+   * @type 0: all, 1: no, 2: yes
+   */
+  compressed?: ValueOf<typeof FilterRadioValue>
 }
 
 function ImageActions() {
@@ -37,12 +50,15 @@ function ImageActions() {
   const [filterForm] = Form.useForm()
 
   const filterImagesByFormResult = (value: ImageFilterFormValue) => {
-    const {
-      size: { min, max },
-      git_staged,
-    } = value
-
-    const active = !isNil(min) || !isNil(max) || !!git_staged
+    const active = (() => {
+      function deepTruly(v: Object | number | undefined) {
+        if (isObject(v)) {
+          return Object.values(v).some((v) => deepTruly(v))
+        }
+        return v
+      }
+      return deepTruly(value)
+    })()
 
     setImageFilter({ active, value })
   }
@@ -65,26 +81,7 @@ function ImageActions() {
 
   return (
     <div className={'space-x-2'}>
-      <Button
-        type='text'
-        icon={
-          <div className={'flex-center text-xl'}>
-            <TbRefresh />
-          </div>
-        }
-        onClick={() => refreshImages({ type: 'refresh' })}
-        title={t('im.refresh')}
-      ></Button>
-      <Button
-        type='text'
-        icon={
-          <div className={'flex-center text-xl'}>
-            <MdImageSearch />
-          </div>
-        }
-        onClick={() => setImageSearchOpen(true)}
-        title={`${t('im.search')} (${Keybinding.Search})`}
-      ></Button>
+      {/* Filter */}
       <Popover
         trigger={'click'}
         placement='left'
@@ -124,6 +121,7 @@ function ImageActions() {
                 className={'space-y-4'}
                 initialValues={{
                   git_staged: 0,
+                  compressed: 0,
                 }}
               >
                 {/* size */}
@@ -170,11 +168,18 @@ function ImageActions() {
                 {/* git staged */}
                 <Form.Item label={t('im.git_staged')} name={'git_staged'}>
                   <Radio.Group optionType='button' buttonStyle='solid' name='git-filter'>
-                    <Radio value={0}>{t('im.no')}</Radio>
-                    <Radio value={1}>{t('im.yes')}</Radio>
+                    <Radio value={0}>{t('im.all')}</Radio>
+                    <Radio value={1}>{t('im.no')}</Radio>
+                    <Radio value={2}>{t('im.yes')}</Radio>
                   </Radio.Group>
                 </Form.Item>
-                {/* TODO: compressed */}
+                <Form.Item label={t('im.compressed')} name='compressed'>
+                  <Radio.Group optionType='button' buttonStyle='solid' name='compressed-filter'>
+                    <Radio value={0}>{t('im.all')}</Radio>
+                    <Radio value={1}>{t('im.no')}</Radio>
+                    <Radio value={2}>{t('im.yes')}</Radio>
+                  </Radio.Group>
+                </Form.Item>
 
                 <Divider></Divider>
                 <div className={'flex w-full justify-center gap-x-2'}>
@@ -207,6 +212,30 @@ function ImageActions() {
           title={t('im.filter')}
         />
       </Popover>
+      {/* Refresh images */}
+      <Button
+        type='text'
+        icon={
+          <div className={'flex-center text-xl'}>
+            <TbRefresh />
+          </div>
+        }
+        onClick={() => refreshImages({ type: 'refresh' })}
+        title={t('im.refresh')}
+      ></Button>
+      {/* Search */}
+      <Button
+        type='text'
+        icon={
+          <div className={'flex-center text-xl'}>
+            <MdImageSearch />
+          </div>
+        }
+        onClick={() => setImageSearchOpen(true)}
+        title={`${t('im.search')} (${Keybinding.Search})`}
+      ></Button>
+
+      {/* Layout */}
       <Popover
         trigger='click'
         content={

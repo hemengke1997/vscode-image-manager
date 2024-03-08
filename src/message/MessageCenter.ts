@@ -2,7 +2,6 @@ import { flatten } from '@minko-fe/lodash-pro'
 import exif from 'exif-reader'
 import fg from 'fast-glob'
 import fs from 'fs-extra'
-import imageSize from 'image-size'
 import { getMetadata } from 'meta-png'
 import micromatch from 'micromatch'
 import mime from 'mime/lite'
@@ -138,22 +137,6 @@ export const VscodeMessageCenter = {
         workspaceFolders,
       }
     }
-  },
-
-  /* ----------- get image dimensions ----------- */
-  [CmdToVscode.GET_IMAGE_DIMENSIONS]: async ({ message }: MessageParams<{ filePath: string }>) => {
-    let dimensions = { width: 0, height: 0 }
-
-    const size = imageSize(message.data.filePath)
-    try {
-      dimensions = {
-        width: size.width || 0,
-        height: size.height || 0,
-      }
-    } catch (err) {
-      Log.info(`GET_IMAGE_DIMENSIONS ERROR: ${err}`)
-    }
-    return dimensions
   },
 
   /* ----------- get extension config ----------- */
@@ -357,7 +340,7 @@ export class MessageCenter {
   static postMessage(message: MessageType) {
     // Filter some message
     if (!this.slientMessages.includes(message.cmd)) {
-      Log.info(`Post message to webview: ${message.cmd}`)
+      Log.debug(`Post message to webview: ${message.cmd}`)
     }
     this._webview.postMessage(message)
   }

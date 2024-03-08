@@ -400,7 +400,7 @@ function ImageOperator(props: ImageOperatorProps & ImageOperatorStaticProps) {
               onFinish={onFinish}
             >
               {Object.keys(compressor?.option || []).map((key, index) => (
-                <div key={index}>{ComponentMap[key]()}</div>
+                <div key={index}>{ComponentMap[key]?.()}</div>
               ))}
             </Form>
             <Divider />

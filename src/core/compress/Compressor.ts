@@ -20,6 +20,11 @@ export interface CompressionOptions {
    */
   keep?: 0 | 1
   /**
+   * @description skip if the image is already compressed
+   * @default 1
+   */
+  skipCompressed?: 0 | 1
+  /**
    * @description
    * use the lowest number of colours needed to achieve given quality, sets palette to true
    * @default 80
@@ -68,6 +73,7 @@ export class Compressor {
       size: 1,
       format: '',
       keep: 0,
+      skipCompressed: 1,
     }
   }
 

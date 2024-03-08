@@ -118,7 +118,7 @@ export class ImageManagerPanel {
   }
 
   private async _handleMessage(message: MessageType) {
-    Log.info(`Receive cmd: ${message.cmd}`)
+    Log.debug(`Receive cmd: ${message.cmd}`)
     MessageCenter.handleMessages(message)
   }
 
