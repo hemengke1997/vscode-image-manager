@@ -8,6 +8,7 @@
 .tazerc.json
 .idea
 
+node_modules
 src
 screenshots
 test
