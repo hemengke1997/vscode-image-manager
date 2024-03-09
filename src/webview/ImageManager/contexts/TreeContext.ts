@@ -177,10 +177,7 @@ function useTreeContext(props: { imageList: ImageType[] }) {
         {
           key: 'git_staged',
           condition: (image, index) => {
-            if (
-              imageFilter?.value.git_staged &&
-              [FilterRadioValue.yes, FilterRadioValue.no].includes(imageFilter.value.git_staged)
-            ) {
+            if (imageFilter?.value.git_staged) {
               let staged: string[] = []
               if (index === 0) {
                 // Get staged images only once to improve performance
@@ -192,9 +189,14 @@ function useTreeContext(props: { imageList: ImageType[] }) {
                   })
                 })()
               }
-              return imageFilter.value.git_staged === FilterRadioValue.yes
-                ? staged.includes(image.path)
-                : !staged.includes(image.path)
+              switch (imageFilter.value.git_staged) {
+                case FilterRadioValue.yes:
+                  return staged.includes(image.path)
+                case FilterRadioValue.no:
+                  return !staged.includes(image.path)
+                default:
+                  return true
+              }
             }
             return true
           },
@@ -202,18 +204,22 @@ function useTreeContext(props: { imageList: ImageType[] }) {
         {
           key: 'compressed',
           condition(image) {
-            if (
-              imageFilter?.value.compressed &&
-              [FilterRadioValue.yes, FilterRadioValue.no].includes(imageFilter.value.compressed)
-            ) {
+            if (imageFilter?.value.compressed) {
               return (async () => {
                 return await new Promise<boolean>((resolve) => {
                   vscodeApi.postMessage(
                     { cmd: CmdToVscode.GET_IMAGE_METADATA, data: { filePath: image.path } },
                     (res) => {
-                      resolve(
-                        imageFilter.value.compressed === FilterRadioValue.yes ? res?.compressed : !res?.compressed,
-                      )
+                      switch (imageFilter.value.compressed) {
+                        case FilterRadioValue.yes:
+                          resolve(res?.compressed)
+                          break
+                        case FilterRadioValue.no:
+                          resolve(!res?.compressed)
+                          break
+                        default:
+                          resolve(true)
+                      }
                     },
                   )
                 })
@@ -285,7 +291,7 @@ function useTreeContext(props: { imageList: ImageType[] }) {
         list,
       })
     })
-  }, [imageFilter?.value.size])
+  }, [imageFilter?.value.size.max, imageFilter?.value.size.min])
 
   // 2. git-staged filter
   const onGitStagedFilterChange = useMemoizedFn((imageList: ImageType[]) => {

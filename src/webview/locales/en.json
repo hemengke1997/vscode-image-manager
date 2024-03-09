@@ -16,7 +16,6 @@
     "background_color": "BackgroundColor",
     "images": "Images",
     "size": "Size",
-    "submit": "Submit",
     "reset": "Reset",
     "layout": "Layout",
     "expand": "Expand",
@@ -98,13 +97,15 @@
     "original": "Original",
     "confirm": "Confirm",
     "svg_format_tip": "SVG format can't be compressed",
+    "keep": "Keep",
     "keep_origin": "Keep original file",
     "yes": "Yes",
     "no": "No",
     "compressed": "Compressed",
     "git_staged": "Git staged",
     "no_image_to_compress": "No image to compress",
-    "init_compressor_fail": "Init compressor fail"
+    "init_compressor_fail": "Init compressor fail",
+    "skip_compressed": "Skip compressed"
   },
   "fallback": {
     "internal_error": "Internal Error",

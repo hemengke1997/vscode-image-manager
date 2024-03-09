@@ -47,7 +47,7 @@ function useSettingsContext() {
   const _backgroundColor = GlobalContext.useSelector((ctx) => ctx.extConfig.viewer.imageBackgroundColor)
   const [backgroundColor, setBackgroundColor] = useTrackConfigState<string>(_backgroundColor)
 
-  const tinyBackgroundColor = new TinyColor(backgroundColor)
+  const tinyBackgroundColor = useMemo(() => new TinyColor(backgroundColor), [backgroundColor])
   const isDarkBackground = tinyBackgroundColor.isDark()
 
   return {

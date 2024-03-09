@@ -34,7 +34,6 @@ i18next.use(initReactI18next).init({
 let key = 0
 
 export function registerApp(webviewComponents: IWebviewComponents, reload = false) {
-  console.log('registerApp')
   vscodeApi.postMessage(
     {
       cmd: CmdToVscode.ON_WEBVIEW_READY,

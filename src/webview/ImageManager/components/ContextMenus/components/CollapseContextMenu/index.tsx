@@ -37,7 +37,7 @@ function CollapseContextMenu() {
 
   const handleCompressImage = useMemoizedFn(
     (e: ItemParams<{ images: ImageType[]; contextMenu: CollapseContextMenuType }>) => {
-      if (!e.props!.images.length) {
+      if (!e.props!.images?.length) {
         // 无可压缩的图片，提示用户
         return message.warning(t('im.no_image_to_compress'))
       }

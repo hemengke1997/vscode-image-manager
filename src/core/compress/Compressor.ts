@@ -5,6 +5,7 @@ import path from 'node:path'
 import piexif from 'piexifjs'
 import { type SharpNS } from '~/@types/global'
 import { SharpOperator } from '~/core/sharp'
+import { type MessageParams, VscodeMessageCenter } from '~/message'
 import { isJpg, isPng } from '~/utils'
 import { Log } from '~/utils/Log'
 import { COMPRESSED_META } from './meta'
@@ -62,8 +63,13 @@ export class Compressor {
     exts: ['png', 'jpg', 'jpeg', 'webp', 'gif', 'tiff', 'avif', 'heif', 'jxl', 'jp2'],
     sizeLimit: 20 * 1024 * 1024, // 20MB
   }
-
   option: CompressionOptions
+
+  private _operator: SharpOperator<{
+    ext: string
+    filePath: string
+    option: CompressionOptions
+  }>
 
   constructor(private readonly _extendOptions?: ExtendOptions) {
     this.option = {
@@ -73,81 +79,43 @@ export class Compressor {
       size: 1,
       format: '',
       keep: 0,
-      skipCompressed: 1,
+      skipCompressed: 0,
     }
-  }
 
-  compress(
-    filePaths: string[],
-    option: CompressionOptions | undefined,
-  ): Promise<
-    {
-      filePath: string
-      originSize?: number
-      compressedSize?: number
-      outputPath?: string
-      error?: any
-    }[]
-  > {
-    this.option = option || this.option
-    const res = Promise.all(filePaths.map((filePath) => this.compressImage(filePath)))
-
-    return res
-  }
-
-  async compressImage(filePath: string) {
-    try {
-      await this.tryCompressable(filePath)
-      const res = await this._stream(filePath)
-      return {
-        filePath,
-        ...res,
-      }
-    } catch (e) {
-      Log.info(`Compress Error: ${e}`)
-      return {
-        error: toString(e),
-        filePath,
-      }
-    }
-  }
-
-  private async _stream(filePath: string): Promise<{ originSize: number; compressedSize: number; outputPath: string }> {
-    const { format, size, compressionLevel, quality, colors } = this.option!
-
-    const originExt = path.extname(filePath).slice(1)
-    const ext = !format ? originExt : format
-
-    // const compressionMap: {
-    //   [key in keyof SharpNS.FormatEnum]?: 'quality' | 'compressionLevel' | 'colors'
-    // } = {
-    //   png: 'compressionLevel',
-    //   jpg: 'quality',
-    //   jpeg: 'quality',
-    //   webp: 'quality',
-    //   avif: 'quality',
-    //   heif: 'quality',
-    //   jxl: 'quality',
-    //   tiff: 'quality',
-    //   jp2: 'quality',
-    //   gif: 'colors',
-    // }
-
-    let operator = new SharpOperator({
+    this._operator = new SharpOperator({
       plugins: [
         {
           name: 'compress',
           hooks: {
-            'on:configuration': () => {
-              if (ext === 'gif') {
+            'on:configuration': (ctx) => {
+              if (ctx.runtime.ext === 'gif') {
                 return {
                   animated: true,
                   limitInputPixels: false,
                 }
               }
             },
-            'before:run': async (sharp) => {
-              const { width, height } = await sharp.metadata()
+            'before:run': async ({ sharp, runtime }) => {
+              const {
+                option: { colors, quality, compressionLevel, size, skipCompressed },
+                ext,
+                filePath,
+              } = runtime
+
+              const {
+                compressed,
+                metadata: { width, height },
+              } = await VscodeMessageCenter.GET_IMAGE_METADATA({
+                message: {
+                  data: {
+                    filePath,
+                  },
+                },
+              } as MessageParams)
+
+              if (skipCompressed && compressed) {
+                return Promise.reject(new SkipError())
+              }
 
               const compressionOption = {
                 quality,
@@ -184,14 +152,23 @@ export class Compressor {
 
               return sharp
             },
-            'after:run': async ({ outputPath }) => {
+            'after:run': async ({ runtime: { filePath } }, { outputPath }) => {
               if (filePath === outputPath) return
               await this._trashFile(filePath)
             },
-            'on:genOutputPath': (inputPath) => {
+            'on:genOutputPath': (
+              {
+                runtime: {
+                  ext,
+                  option: { size },
+                },
+              },
+              { inputPath },
+            ) => {
               return this._getOutputPath(inputPath, ext, size)
             },
-            'on:finish': async ({ outputPath }) => {
+            'on:finish': async (_, { outputPath }) => {
+              // add metadata
               if (isPng(outputPath)) {
                 const PNGUint8Array = new Uint8Array(fs.readFileSync(outputPath))
                 if (getMetadata(PNGUint8Array, COMPRESSED_META)) return
@@ -212,9 +189,77 @@ export class Compressor {
         },
       ],
     })
+  }
+
+  async compress(
+    filePaths: string[],
+    option: CompressionOptions | undefined,
+  ): Promise<
+    {
+      filePath: string
+      originSize?: number
+      compressedSize?: number
+      outputPath?: string
+      error?: any
+    }[]
+  > {
+    this.option = option || this.option
+    const res = await Promise.all(filePaths.map((filePath) => this.compressImage(filePath)))
+
+    return res.filter((r) => {
+      if (r.error === new SkipError().message) {
+        return false
+      }
+      return true
+    })
+  }
+
+  async compressImage(filePath: string) {
+    try {
+      await this.tryCompressable(filePath)
+      const res = await this._stream(filePath)
+      return {
+        filePath,
+        ...res,
+      }
+    } catch (e) {
+      const error = e instanceof Error ? e.message : toString(e)
+      Log.info(`Compress Error: ${error}`)
+      return {
+        error,
+        filePath,
+      }
+    }
+  }
+
+  private async _stream(filePath: string): Promise<{ originSize: number; compressedSize: number; outputPath: string }> {
+    const { format } = this.option!
+
+    const originExt = path.extname(filePath).slice(1)
+    const ext = !format ? originExt : format
+
+    // const compressionMap: {
+    //   [key in keyof SharpNS.FormatEnum]?: 'quality' | 'compressionLevel' | 'colors'
+    // } = {
+    //   png: 'compressionLevel',
+    //   jpg: 'quality',
+    //   jpeg: 'quality',
+    //   webp: 'quality',
+    //   avif: 'quality',
+    //   heif: 'quality',
+    //   jxl: 'quality',
+    //   tiff: 'quality',
+    //   jp2: 'quality',
+    //   gif: 'colors',
+    // }
 
     try {
-      const result = await operator.run(filePath)
+      const result = await this._operator.run({
+        ext,
+        filePath,
+        option: this.option,
+      })
+      console.log(result, 'result')
       if (result) {
         return {
           compressedSize: result.outputSize,
@@ -225,13 +270,7 @@ export class Compressor {
         return Promise.reject('Compress Failed')
       }
     } catch (e) {
-      if (e instanceof Error) {
-        return Promise.reject(e.message)
-      }
       return Promise.reject(e)
-    } finally {
-      // @ts-expect-error
-      operator = null
     }
   }
 
@@ -297,5 +336,11 @@ export class Compressor {
       return filePath.replace(new RegExp(`${path.extname(filePath).slice(1)}$`), ext)
     }
     return filePath
+  }
+}
+
+class SkipError extends Error {
+  constructor() {
+    super('Skip Compressed')
   }
 }

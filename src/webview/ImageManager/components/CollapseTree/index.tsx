@@ -1,6 +1,5 @@
 import { useMemoizedFn } from '@minko-fe/react-hook'
-import { isDev } from '@minko-fe/vite-config/client'
-import { type CollapseProps, ConfigProvider, Empty } from 'antd'
+import { type CollapseProps, Empty } from 'antd'
 import classNames from 'classnames'
 import { motion } from 'framer-motion'
 import { type ReactNode, memo, useMemo, useRef } from 'react'
@@ -147,10 +146,6 @@ function CollapseTree() {
       dirTree.current.compactFolders(tree)
     }
 
-    if (isDev()) {
-      console.log(tree, 'render tree')
-    }
-
     if (!tree.length) {
       return (
         <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ duration: 0.1, delay: 0.2 }}>
@@ -163,11 +158,7 @@ function CollapseTree() {
     return nestedDisplay(tree, { bordered: true }, { defaultOpen: true })
   })
 
-  return (
-    <>
-      <ConfigProvider>{displayByPriority()}</ConfigProvider>
-    </>
-  )
+  return <>{displayByPriority()}</>
 }
 
 export default memo(CollapseTree)

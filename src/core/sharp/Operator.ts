@@ -13,8 +13,8 @@ interface PluginMeta {
   enforce?: 'pre' | 'default' | 'post'
 }
 
-interface ObjectPlugin extends PluginMeta {
-  hooks: Partial<RuntimeHooks>
+interface ObjectPlugin<RuntimeCtx extends InternalRuntimeCtx = InternalRuntimeCtx> extends PluginMeta {
+  hooks: Partial<RuntimeHooks<RuntimeCtx>>
   /**
    * Execute plugin in parallel with other parallel plugins.
    * @default false
@@ -26,48 +26,51 @@ export function defineOperatorPlugin(plugin: ObjectPlugin): ObjectPlugin {
   return Object.assign(plugin, { [PluginIndicator]: true } as const)
 }
 
-interface RuntimeHooks {
-  'on:configuration': () => HookResult<SharpNS.SharpOptions | undefined>
-  'before:run': (sharp: SharpNS.Sharp) => HookResult<SharpNS.Sharp>
-  'after:run': (res: { outputPath: string }) => HookResult
-  'on:finish': (res: { inputSize: number; outputSize: number; outputPath: string }) => HookResult
-  'on:genOutputPath': (inputPath: string) => HookResult<string>
+interface RuntimeHooks<RuntimeCtx extends InternalRuntimeCtx = InternalRuntimeCtx> {
+  'on:configuration': (ctx: Context<RuntimeCtx>) => HookResult<SharpNS.SharpOptions | undefined>
+  'before:run': (ctx: Context<RuntimeCtx>) => HookResult<SharpNS.Sharp>
+  'after:run': (ctx: Context<RuntimeCtx>, res: { outputPath: string }) => HookResult
+  'on:finish': (
+    ctx: Context<RuntimeCtx>,
+    res: { inputSize: number; outputSize: number; outputPath: string },
+  ) => HookResult
+  'on:genOutputPath': (ctx: Context<RuntimeCtx>, res: { inputPath: string }) => HookResult<string>
 }
 
-interface IContext {
-  outputPath: string | undefined
-  sharp: typeof SharpNS | undefined
-}
+class Context<RuntimeCtx extends InternalRuntimeCtx = InternalRuntimeCtx> {
+  sharp: SharpNS.Sharp
+  sharpFactory: TSharp
+  runtime: RuntimeCtx
 
-class Context implements IContext {
-  outputPath: string | undefined
-  sharp: typeof SharpNS | undefined
-
-  constructor(option: Partial<IContext>) {
-    this.outputPath = option.outputPath
-    this.sharp = option.sharp
+  constructor() {
+    this.sharp = {} as SharpNS.Sharp
+    this.sharpFactory = {} as TSharp
+    this.runtime = {} as RuntimeCtx
+    return this
   }
 }
 
-export class SharpOperator {
-  ctx: IContext
-  private _hooks: Hookable<RuntimeHooks>
-  private _hooksMap: Map<string, Partial<RuntimeHooks>> = new Map()
+type InternalRuntimeCtx = {
+  filePath: string
+} & Record<string, any>
 
-  constructor(option?: { plugins: ObjectPlugin[] }) {
+export class SharpOperator<RuntimeCtx extends InternalRuntimeCtx> {
+  ctx: Context<RuntimeCtx>
+  private _hooks: Hookable<RuntimeHooks<RuntimeCtx>>
+  private _hooksMap: Map<string, Partial<RuntimeHooks<RuntimeCtx>>> = new Map()
+
+  constructor(option?: { plugins: ObjectPlugin<RuntimeCtx>[] }) {
     const { plugins } = option || {}
-    this._hooks = createHooks<RuntimeHooks>()
-
+    this._hooks = createHooks<RuntimeHooks<RuntimeCtx>>()
+    this.ctx = new Context<RuntimeCtx>()
     try {
       const sharp = Global.sharp
+      this.ctx.sharpFactory = sharp
 
-      this.ctx = new Context({ sharp })
       if (plugins?.length) {
-        this._applyPlugins(plugins)
+        this._applyPlugins(plugins as ObjectPlugin[])
       }
-    } catch (e) {
-      this.ctx = new Context({})
-    }
+    } catch (e) {}
   }
 
   use(plugins: ObjectPlugin[]) {
@@ -75,7 +78,7 @@ export class SharpOperator {
     return this
   }
 
-  remove(configHooks: Parameters<Hookable['removeHooks']>[0]) {
+  remove(configHooks: Parameters<(typeof this._hooks)['removeHooks']>[0]) {
     this._hooks.removeHooks(configHooks)
     return this
   }
@@ -129,37 +132,39 @@ export class SharpOperator {
     }
   }
 
-  async run(filePath: string): Promise<{
+  async run(runtime: RuntimeCtx): Promise<{
     inputSize: number
     outputSize: number
     outputPath: string
   } | void> {
     if (!this.ctx.sharp) return Promise.resolve()
+    this.ctx.runtime = runtime
 
+    const filePath = runtime.filePath
     Log.info(`${filePath} -run`)
 
-    this.ctx.sharp.cache({
+    this.ctx.sharpFactory.cache({
       files: 0,
       items: 200,
       memory: 200,
     })
 
-    let sharpIntance = this.ctx.sharp(filePath, {
-      ...((await this._hooks.callHook('on:configuration')) || {}),
+    this.ctx.sharp = this.ctx.sharpFactory(filePath, {
+      ...((await this._hooks.callHook('on:configuration', this.ctx)) || {}),
     })
 
-    sharpIntance = await this._hooks.callHook('before:run', sharpIntance)
+    await this._hooks.callHook('before:run', this.ctx)
 
     return new Promise((resolve, reject) => {
       const inputSize = fs.statSync(filePath).size
 
-      sharpIntance
-        .toBuffer()
+      this.ctx.sharp
+        ?.toBuffer()
         .then(async (buffer) => {
           const outputPath = await this.genOutputPath(filePath)
 
           try {
-            await this._hooks.callHook('after:run', { outputPath })
+            await this._hooks.callHook('after:run', this.ctx, { outputPath })
             const fileWritableStream = fs.createWriteStream(outputPath)
 
             fileWritableStream.on('finish', async () => {
@@ -171,7 +176,7 @@ export class SharpOperator {
                 outputPath,
               }
 
-              await this._hooks.callHook('on:finish', result)
+              await this._hooks.callHook('on:finish', this.ctx, result)
               resolve(result)
             })
 
@@ -188,8 +193,7 @@ export class SharpOperator {
   }
 
   async genOutputPath(filePath: string) {
-    const outputPath = (await this._hooks.callHook('on:genOutputPath', filePath)) || filePath
-    this.ctx.outputPath = outputPath
+    const outputPath = (await this._hooks.callHook('on:genOutputPath', this.ctx, { inputPath: filePath })) || filePath
     return outputPath
   }
 }

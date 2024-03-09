@@ -126,6 +126,7 @@ function ImageOperator(props: ImageOperatorProps & ImageOperatorStaticProps) {
         notification.info({
           duration: 10,
           message: filename,
+          placement: 'topRight',
           description: (
             <div className={'flex items-center space-x-2'}>
               <div className={'flex items-center space-x-2'}>
@@ -162,6 +163,7 @@ function ImageOperator(props: ImageOperatorProps & ImageOperatorStaticProps) {
           duration: null,
           key: notificationKey,
           message: filename,
+          placement: 'topLeft',
           description: (
             <div className={'flex flex-col space-y-2'}>
               <div>
@@ -268,14 +270,6 @@ function ImageOperator(props: ImageOperatorProps & ImageOperatorStaticProps) {
   )
 
   const ComponentMap = {
-    keep: () => (
-      <Form.Item label='Keep' name={'keep'} className={'mb-0'} tooltip={t('im.keep_origin')}>
-        <Radio.Group>
-          <Radio value={1}>{t('im.yes')}</Radio>
-          <Radio value={0}>{t('im.no')}</Radio>
-        </Radio.Group>
-      </Form.Item>
-    ),
     // png
     compressionLevel: () => (
       <Form.Item label={t('im.compress_level')} name={'compressionLevel'} tooltip={t('im.compress_level_tip')}>
@@ -330,6 +324,22 @@ function ImageOperator(props: ImageOperatorProps & ImageOperatorStaticProps) {
         </Form.Item>
       )
     },
+    keep: () => (
+      <Form.Item label={t('im.keep')} name={'keep'} tooltip={t('im.keep_origin')}>
+        <Radio.Group>
+          <Radio value={1}>{t('im.yes')}</Radio>
+          <Radio value={0}>{t('im.no')}</Radio>
+        </Radio.Group>
+      </Form.Item>
+    ),
+    skipCompressed: () => (
+      <Form.Item label={t('im.skip_compressed')} name={'skipCompressed'} className={'mb-0'}>
+        <Radio.Group>
+          <Radio value={1}>{t('im.yes')}</Radio>
+          <Radio value={0}>{t('im.no')}</Radio>
+        </Radio.Group>
+      </Form.Item>
+    ),
   }
 
   if (!compressor) return null

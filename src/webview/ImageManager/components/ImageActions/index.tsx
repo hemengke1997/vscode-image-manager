@@ -1,7 +1,7 @@
 import { isNil, isObject } from '@minko-fe/lodash-pro'
 import { useMemoizedFn } from '@minko-fe/react-hook'
 import { App, Button, ConfigProvider, Divider, Form, InputNumber, Popover, Radio, Space } from 'antd'
-import { memo } from 'react'
+import { memo, useState } from 'react'
 import { useHotkeys } from 'react-hotkeys-hook'
 import { useTranslation } from 'react-i18next'
 import { MdImageSearch } from 'react-icons/md'
@@ -12,8 +12,8 @@ import { Keybinding } from '../../keybinding'
 
 export enum FilterRadioValue {
   all = 0,
-  no = 1,
-  yes = 2,
+  yes = 1,
+  no = 2,
 }
 
 /**
@@ -25,11 +25,11 @@ export type ImageFilterFormValue = {
     max?: number
   }
   /**
-   * @type 0: all, 1: no, 2: yes
+   * @type 0: all, 1: yes, 2: no
    */
   git_staged?: ValueOf<typeof FilterRadioValue>
   /**
-   * @type 0: all, 1: no, 2: yes
+   * @type 0: all, 1: yes, 2: no
    */
   compressed?: ValueOf<typeof FilterRadioValue>
 }
@@ -47,6 +47,8 @@ function ImageActions() {
     ])
 
   const { message } = App.useApp()
+  const [open, setOpen] = useState(false)
+
   const [filterForm] = Form.useForm()
 
   const filterImagesByFormResult = (value: ImageFilterFormValue) => {
@@ -89,6 +91,10 @@ function ImageActions() {
           if (!open) {
             filterForm.setFieldsValue(imageFilter?.value)
           }
+        }}
+        open={open}
+        onOpenChange={(open) => {
+          setOpen(open)
         }}
         content={
           <>
@@ -168,23 +174,30 @@ function ImageActions() {
                 {/* git staged */}
                 <Form.Item label={t('im.git_staged')} name={'git_staged'}>
                   <Radio.Group optionType='button' buttonStyle='solid' name='git-filter'>
-                    <Radio value={0}>{t('im.all')}</Radio>
-                    <Radio value={1}>{t('im.no')}</Radio>
-                    <Radio value={2}>{t('im.yes')}</Radio>
+                    <Radio value={FilterRadioValue.all}>{t('im.all')}</Radio>
+                    <Radio value={FilterRadioValue.yes}>{t('im.yes')}</Radio>
+                    <Radio value={FilterRadioValue.no}>{t('im.no')}</Radio>
                   </Radio.Group>
                 </Form.Item>
                 <Form.Item label={t('im.compressed')} name='compressed'>
                   <Radio.Group optionType='button' buttonStyle='solid' name='compressed-filter'>
-                    <Radio value={0}>{t('im.all')}</Radio>
-                    <Radio value={1}>{t('im.no')}</Radio>
-                    <Radio value={2}>{t('im.yes')}</Radio>
+                    <Radio value={FilterRadioValue.all}>{t('im.all')}</Radio>
+                    <Radio value={FilterRadioValue.yes}>{t('im.yes')}</Radio>
+                    <Radio value={FilterRadioValue.no}>{t('im.no')}</Radio>
                   </Radio.Group>
                 </Form.Item>
 
                 <Divider></Divider>
                 <div className={'flex w-full justify-center gap-x-2'}>
-                  <Button size='small' type='primary' onClick={filterForm.submit}>
-                    {t('im.submit')}
+                  <Button
+                    size='small'
+                    type='primary'
+                    onClick={() => {
+                      filterForm.submit()
+                      setOpen(false)
+                    }}
+                  >
+                    {t('im.confirm')}
                   </Button>
                   <Button
                     size='small'
@@ -192,6 +205,7 @@ function ImageActions() {
                     onClick={() => {
                       filterForm.resetFields()
                       filterForm.submit()
+                      setOpen(false)
                     }}
                   >
                     {t('im.reset')}
@@ -238,6 +252,7 @@ function ImageActions() {
       {/* Layout */}
       <Popover
         trigger='click'
+        placement='left'
         content={
           <div>
             <div className={'flex-center space-x-2'}>

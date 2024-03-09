@@ -16,7 +16,6 @@
     "background_color": "背景色",
     "images": "图片",
     "size": "大小",
-    "submit": "确定",
     "reset": "重置",
     "layout": "布局",
     "expand": "展开",
@@ -98,13 +97,15 @@
     "original": "原格式",
     "confirm": "确认",
     "svg_format_tip": "SVG 格式无法压缩",
+    "keep": "保留",
     "keep_origin": "保留原文件",
     "yes": "是",
     "no": "否",
     "compressed": "已压缩",
     "git_staged": "Git staged",
     "no_image_to_compress": "无可压缩的图片",
-    "init_compressor_fail": "压缩功能初始化失败"
+    "init_compressor_fail": "压缩功能初始化失败",
+    "skip_compressed": "跳过已压缩"
   },
   "fallback": {
     "internal_error": "内部错误",

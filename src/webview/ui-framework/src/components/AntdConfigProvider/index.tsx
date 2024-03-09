@@ -1,14 +1,20 @@
+import { TinyColor } from '@ctrl/tinycolor'
 import { App, ConfigProvider, theme as antdTheme } from 'antd'
-import { type FC, type PropsWithChildren } from 'react'
+import { type PropsWithChildren, memo } from 'react'
 import FrameworkContext from '../../contexts/FrameworkContext'
 import { getCssVar } from '../../utils/theme'
 
 const DURATION_BASE = 0.06
 
-const AntdConfigProvider: FC<PropsWithChildren> = ({ children }) => {
+function isSameTheme(color: string, theme: Theme) {
+  return (new TinyColor(color).isLight() && theme === 'light') || (new TinyColor(color).isDark() && theme === 'dark')
+}
+
+function AntdConfigProvider({ children }: PropsWithChildren) {
   const { theme, primaryColor } = FrameworkContext.usePicker(['theme', 'primaryColor'])
 
   const vscodeFontSize = getCssVar('--vscode-font-size').split('px')[0]
+  const vscodeEditorBackground = getCssVar('--vscode-editor-background')
 
   return (
     <ConfigProvider
@@ -24,6 +30,7 @@ const AntdConfigProvider: FC<PropsWithChildren> = ({ children }) => {
           motionDurationSlow: `${DURATION_BASE * 2}s`,
           motionDurationMid: `${DURATION_BASE}s`,
           motionDurationFast: `${DURATION_BASE / 2}s`,
+          ...(isSameTheme(vscodeEditorBackground, theme) ? { colorBgContainer: vscodeEditorBackground } : {}),
         },
       }}
       componentSize='small'
@@ -43,4 +50,4 @@ const AntdConfigProvider: FC<PropsWithChildren> = ({ children }) => {
   )
 }
 
-export default AntdConfigProvider
+export default memo(AntdConfigProvider)
