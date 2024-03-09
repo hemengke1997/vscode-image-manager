@@ -1,5 +1,13 @@
 # CHANGELOG
 
+## 0.4.1
+
+### Feat
+
+- Add `skip compressed` option in operator modal
+- Change webview background to user's vscode editor background if theme is the same
+- Splite compress error and success notification placement, the error will show on left-top placement
+
 ## 0.4.0
 
 ### Feat
