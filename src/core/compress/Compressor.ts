@@ -65,12 +65,6 @@ export class Compressor {
   }
   option: CompressionOptions
 
-  private _operator: SharpOperator<{
-    ext: string
-    filePath: string
-    option: CompressionOptions
-  }>
-
   constructor(private readonly _extendOptions?: ExtendOptions) {
     this.option = {
       compressionLevel: 9,
@@ -81,8 +75,60 @@ export class Compressor {
       keep: 0,
       skipCompressed: 0,
     }
+  }
 
-    this._operator = new SharpOperator({
+  async compress(
+    filePaths: string[],
+    option: CompressionOptions | undefined,
+  ): Promise<
+    {
+      filePath: string
+      originSize?: number
+      compressedSize?: number
+      outputPath?: string
+      error?: any
+    }[]
+  > {
+    this.option = option || this.option
+    const res = await Promise.all(filePaths.map((filePath) => this.compressImage(filePath)))
+
+    return res.filter((r) => {
+      if (r.error === new SkipError().message) {
+        return false
+      }
+      return true
+    })
+  }
+
+  async compressImage(filePath: string) {
+    try {
+      await this.tryCompressable(filePath)
+      const res = await this._stream(filePath)
+      return {
+        filePath,
+        ...res,
+      }
+    } catch (e) {
+      const error = e instanceof Error ? e.message : toString(e)
+      Log.info(`Compress Error: ${error}`)
+      return {
+        error,
+        filePath,
+      }
+    }
+  }
+
+  private async _stream(filePath: string): Promise<{ originSize: number; compressedSize: number; outputPath: string }> {
+    const { format } = this.option!
+
+    const originExt = path.extname(filePath).slice(1)
+    const ext = !format ? originExt : format
+
+    let operator: SharpOperator<{
+      ext: string
+      filePath: string
+      option: CompressionOptions
+    }> = new SharpOperator({
       plugins: [
         {
           name: 'compress',
@@ -189,77 +235,13 @@ export class Compressor {
         },
       ],
     })
-  }
-
-  async compress(
-    filePaths: string[],
-    option: CompressionOptions | undefined,
-  ): Promise<
-    {
-      filePath: string
-      originSize?: number
-      compressedSize?: number
-      outputPath?: string
-      error?: any
-    }[]
-  > {
-    this.option = option || this.option
-    const res = await Promise.all(filePaths.map((filePath) => this.compressImage(filePath)))
-
-    return res.filter((r) => {
-      if (r.error === new SkipError().message) {
-        return false
-      }
-      return true
-    })
-  }
-
-  async compressImage(filePath: string) {
-    try {
-      await this.tryCompressable(filePath)
-      const res = await this._stream(filePath)
-      return {
-        filePath,
-        ...res,
-      }
-    } catch (e) {
-      const error = e instanceof Error ? e.message : toString(e)
-      Log.info(`Compress Error: ${error}`)
-      return {
-        error,
-        filePath,
-      }
-    }
-  }
-
-  private async _stream(filePath: string): Promise<{ originSize: number; compressedSize: number; outputPath: string }> {
-    const { format } = this.option!
-
-    const originExt = path.extname(filePath).slice(1)
-    const ext = !format ? originExt : format
-
-    // const compressionMap: {
-    //   [key in keyof SharpNS.FormatEnum]?: 'quality' | 'compressionLevel' | 'colors'
-    // } = {
-    //   png: 'compressionLevel',
-    //   jpg: 'quality',
-    //   jpeg: 'quality',
-    //   webp: 'quality',
-    //   avif: 'quality',
-    //   heif: 'quality',
-    //   jxl: 'quality',
-    //   tiff: 'quality',
-    //   jp2: 'quality',
-    //   gif: 'colors',
-    // }
 
     try {
-      const result = await this._operator.run({
+      const result = await operator.run({
         ext,
         filePath,
         option: this.option,
       })
-      console.log(result, 'result')
       if (result) {
         return {
           compressedSize: result.outputSize,
@@ -271,6 +253,9 @@ export class Compressor {
       }
     } catch (e) {
       return Promise.reject(e)
+    } finally {
+      // @ts-expect-error
+      operator = null
     }
   }
 

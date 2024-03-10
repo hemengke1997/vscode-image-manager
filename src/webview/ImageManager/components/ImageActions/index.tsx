@@ -49,7 +49,15 @@ function ImageActions() {
   const { message } = App.useApp()
   const [open, setOpen] = useState(false)
 
-  const [filterForm] = Form.useForm()
+  const [filterForm] = Form.useForm<ImageFilterFormValue>()
+  const FilterFormInitialValues: ImageFilterFormValue = {
+    size: {
+      min: undefined,
+      max: undefined,
+    },
+    git_staged: 0,
+    compressed: 0,
+  }
 
   const filterImagesByFormResult = (value: ImageFilterFormValue) => {
     const active = (() => {
@@ -89,7 +97,7 @@ function ImageActions() {
         placement='left'
         afterOpenChange={(open) => {
           if (!open) {
-            filterForm.setFieldsValue(imageFilter?.value)
+            filterForm.setFieldsValue(imageFilter?.value || FilterFormInitialValues)
           }
         }}
         open={open}

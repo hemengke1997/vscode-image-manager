@@ -17,6 +17,9 @@
 ### Preview
 ![preview](./screenshots/preview.png)
 
+### Compression
+![compression](./screenshots/compression.png)
+
 ### Crop
 ![crop](./screenshots/crop.png)
 
@@ -41,13 +44,11 @@ Right click in Explorer, select `Image Manager` to open extension. (Open current
 
 ## Features
 
-- **Compress Images** (magic happens on right-click 🤩)
-- **Crop Images**
+- **Batch image compression** (magic happens on right-click 🤩)
+- **Images Cropper**
 - **Image Viewer**
-- Dynamic Theme
-- Image Scale (`cmd + wheel` or `ctrl + wheel`)
+- Dark/light theme
 - I18n. Currently support `english` and `简体中文`
-- And so on waiting for you to discover...🤗
 
 
 ## Extension Settings
@@ -65,14 +66,24 @@ Right click in Explorer, select `Image Manager` to open extension. (Open current
 
 
 
-## How to compress
+## Tips
 
-### Right click on the image
+### Compression
+
+- Right click on the image
+
 ![compress-right-click-image](./screenshots/compress-1.png)
 
-### Right click on the folder name
+- Right click on the folder
+
 ![compress-right-click-folder](./screenshots/compress-2.png)
+
+
+### Viewer
+
+- cmd/ctrl + Mouse Wheel to zoom in/out
+- cmd/ctrl + F to open find modal
 
 ## Inspired
 
-❤️ Big thanks for [vscode-image-viewer](https://github.com/ZhangJian1713/vscode-image-viewer)
+❤️ Respect [vscode-image-viewer](https://github.com/ZhangJian1713/vscode-image-viewer)

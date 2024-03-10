@@ -10,6 +10,19 @@ function isSameTheme(color: string, theme: Theme) {
   return (new TinyColor(color).isLight() && theme === 'light') || (new TinyColor(color).isDark() && theme === 'dark')
 }
 
+function ligherOrDarker(color: string, theme: Theme) {
+  const c = new TinyColor(color)
+
+  switch (theme) {
+    case 'light':
+      return c.lighten(5).toString()
+    case 'dark':
+      return c.darken(5).toString()
+    default:
+      return color
+  }
+}
+
 function AntdConfigProvider({ children }: PropsWithChildren) {
   const { theme, primaryColor } = FrameworkContext.usePicker(['theme', 'primaryColor'])
 
@@ -30,7 +43,12 @@ function AntdConfigProvider({ children }: PropsWithChildren) {
           motionDurationSlow: `${DURATION_BASE * 2}s`,
           motionDurationMid: `${DURATION_BASE}s`,
           motionDurationFast: `${DURATION_BASE / 2}s`,
-          ...(isSameTheme(vscodeEditorBackground, theme) ? { colorBgContainer: vscodeEditorBackground } : {}),
+          ...(isSameTheme(vscodeEditorBackground, theme)
+            ? {
+                colorBgContainer: vscodeEditorBackground,
+                colorBgBase: ligherOrDarker(vscodeEditorBackground, theme),
+              }
+            : {}),
         },
       }}
       componentSize='small'
