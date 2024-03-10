@@ -1,5 +1,11 @@
 # CHANGELOG
 
+## 0.4.2
+
+### Fix
+
+- Batch compression messup (caused by 0.4.1 change)
+
 ## 0.4.1
 
 ### Feat
