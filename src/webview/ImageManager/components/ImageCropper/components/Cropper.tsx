@@ -104,6 +104,9 @@ const ReactCropper = React.forwardRef<ReactCropperElement | HTMLImageElement, Re
       }
     }, [src])
 
+    const cropBoxData = combinedRef.current?.cropper?.getCropBoxData()
+    const canvasData = combinedRef.current?.cropper?.getCanvasData()
+
     useEffect(() => {
       if (combinedRef.current !== null) {
         const cropper = new Cropper(combinedRef.current, {
@@ -113,6 +116,10 @@ const ReactCropper = React.forwardRef<ReactCropperElement | HTMLImageElement, Re
             if (e.currentTarget !== null) {
               applyDefaultOptions(e.currentTarget.cropper, defaultOptions)
             }
+            if (cropBoxData && canvasData) {
+              e.currentTarget.cropper.setCropBoxData(cropBoxData).setCanvasData(canvasData)
+            }
+
             ready && ready(e)
           },
         })
@@ -131,7 +138,7 @@ const ReactCropper = React.forwardRef<ReactCropperElement | HTMLImageElement, Re
     const imageProps = cleanImageProps({ ...rest, crossOrigin, src, alt })
 
     return (
-      <div style={style} className={className} key={forceRender}>
+      <div style={style} className={className}>
         <img {...imageProps} style={REQUIRED_IMAGE_STYLES} ref={combinedRef} />
       </div>
     )

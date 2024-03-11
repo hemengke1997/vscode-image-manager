@@ -1,4 +1,4 @@
-import { isNil, isObject } from '@minko-fe/lodash-pro'
+import { isNil, isObject, upperFirst } from '@minko-fe/lodash-pro'
 import { useMemoizedFn } from '@minko-fe/react-hook'
 import { App, Button, ConfigProvider, Divider, Form, InputNumber, Popover, Radio, Space } from 'antd'
 import { memo, useState } from 'react'
@@ -93,6 +93,7 @@ function ImageActions() {
     <div className={'space-x-2'}>
       {/* Filter */}
       <Popover
+        title={upperFirst(t('im.filter'))}
         trigger={'click'}
         placement='left'
         afterOpenChange={(open) => {

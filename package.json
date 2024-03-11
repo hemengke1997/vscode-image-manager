@@ -145,7 +145,7 @@
         },
         "image-manager.appearance.language": {
           "type": "string",
-          "default": "en",
+          "default": "auto",
           "enum": [
             "auto",
             "en",

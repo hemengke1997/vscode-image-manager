@@ -1,4 +1,4 @@
-import { useControlledState, useInViewport } from '@minko-fe/react-hook'
+import { useControlledState, useInViewport, useUpdateEffect } from '@minko-fe/react-hook'
 import { Badge, Image, type ImageProps } from 'antd'
 import classNames from 'classnames'
 import { motion } from 'framer-motion'
@@ -13,8 +13,10 @@ import { MdOutlineRemoveCircle } from 'react-icons/md'
 import { PiFileImage } from 'react-icons/pi'
 import { type SharpNS } from '~/@types/global'
 import { CmdToVscode } from '~/message/cmd'
+import useImageDetail from '~/webview/hooks/useImageDetail/useImageDetail'
 import { vscodeApi } from '~/webview/vscode-api'
 import { type ImageType } from '../..'
+import ActionContext from '../../contexts/ActionContext'
 import GlobalContext from '../../contexts/GlobalContext'
 import { bytesToKb, formatBytes } from '../../utils'
 import { IMAGE_CONTEXT_MENU_ID } from '../ContextMenus/components/ImageContextMenu'
@@ -43,9 +45,12 @@ function LazyImage(props: LazyImageProps) {
   const { imageProp, image, preview, onPreviewChange, index, lazy = true, onRemoveClick, contextMenu } = props
 
   const { t } = useTranslation()
+  const { showImageDetailModal } = useImageDetail()
 
   const { imagePlaceholderSize } = GlobalContext.usePicker(['imagePlaceholderSize'])
   const warningSize = GlobalContext.useSelector((ctx) => ctx.extConfig.viewer.warningSize)
+
+  const refreshTimes = ActionContext.useSelector((ctx) => ctx.imageRefreshedState.refreshTimes)
 
   const placeholderRef = useRef<HTMLDivElement>(null)
   const [inViewport] = useInViewport(placeholderRef, {
@@ -68,6 +73,11 @@ function LazyImage(props: LazyImageProps) {
       })
     }
   }
+
+  useUpdateEffect(() => {
+    // clear cache
+    setImageMeatadata(undefined)
+  }, [refreshTimes])
 
   const keybindRef = useHotkeys<HTMLDivElement>(`mod+c`, () => {}, {
     enabled: inViewport,
@@ -106,6 +116,9 @@ function LazyImage(props: LazyImageProps) {
           show({ event: e, id: IMAGE_CONTEXT_MENU_ID, props: { image, ...contextMenu } })
         }}
         onMouseOver={handleMaskMouseOver}
+        onDoubleClick={() => {
+          showImageDetailModal(image)
+        }}
       >
         {onRemoveClick && (
           <div

@@ -25,3 +25,7 @@ body {
 .ant-btn-icon-only {
   @apply inline-flex justify-center items-center;
 }
+
+.ant-checkbox-wrapper {
+  @apply select-none;
+}

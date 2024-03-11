@@ -18,6 +18,7 @@ export type ConfigType = {
   }
 }
 
+// !! Care: sync with package.json
 export const defaultConfig: ConfigType = {
   viewer: {
     warningSize: 1024,
@@ -26,7 +27,7 @@ export const defaultConfig: ConfigType = {
   },
   file: {
     root: [],
-    scan: ['svg', 'png', 'jpeg', 'jpg', 'ico', 'gif', 'webp', 'bmp', 'tif', 'apng', 'apng', 'tiff', 'avif'],
+    scan: ['svg', 'png', 'jpeg', 'jpg', 'ico', 'gif', 'webp', 'bmp', 'tif', 'apng', 'tiff', 'avif'],
     exclude: [],
   },
   appearance: {

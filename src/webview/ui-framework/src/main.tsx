@@ -1,3 +1,4 @@
+import { isDev } from '@minko-fe/vite-config/client'
 import i18next from 'i18next'
 import ReactDOM from 'react-dom/client'
 import { initReactI18next } from 'react-i18next'
@@ -20,7 +21,7 @@ i18next.use(initReactI18next).init({
   react: {
     useSuspense: true,
   },
-  debug: false,
+  debug: isDev(),
   resources: {},
   nsSeparator: '.',
   keySeparator: false,

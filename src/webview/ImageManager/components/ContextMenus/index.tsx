@@ -1,8 +1,8 @@
 import { memo } from 'react'
 import CollapseContextMenu from './components/CollapseContextMenu'
 import ImageContextMenu from './components/ImageContextMenu'
-import './index.css'
 import 'react-contexify/ReactContexify.css'
+import './index.css'
 
 function ContextMenus() {
   return (

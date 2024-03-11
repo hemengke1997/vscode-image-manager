@@ -1,12 +1,18 @@
 .contexify {
-  --contexify-activeItem-color: var(--ant-color-text);
-  --contexify-activeItem-bgColor: var(--ant-color-primary-hover);
-  --contexify-menu-minWidth: 140px;
-  --contexify-menu-padding: var(--ant-padding-xxs);
-  --contexify-itemContent-padding: var(--ant-margin-xxs) var(--ant-padding-xxs);
-  --contexify-separator-margin: var(--ant-margin-xxs);
-  --contexify-menu-shadow: var(--ant-box-shadow-popover-arrow);
-  --contexify-zIndex: 9999;
+  &[role='menu'] {
+    --contexify-menu-bgColor: var(--ant-color-bg-container) FF;
+    --contexify-activeItem-color: var(--ant-color-text);
+    --contexify-activeItem-bgColor: var(--ant-color-primary-hover);
+    --contexify-menu-minWidth: 140px;
+    --contexify-menu-padding: var(--ant-padding-xxs);
+    --contexify-itemContent-padding: var(--ant-margin-xxs) var(--ant-padding-xxs);
+    --contexify-separator-margin: var(--ant-margin-xxs);
+    --contexify-menu-shadow: var(--ant-box-shadow-popover-arrow);
+    --contexify-item-color: var(--ant-color-text);
+    --contexify-zIndex: 9999;
+  }
+
+  backdrop-filter: blur(40px);
 
   @apply text-sm border-ant-color-border border-solid border;
 

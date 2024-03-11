@@ -60,7 +60,7 @@ export interface CompressionOptions {
 
 export class Compressor {
   config = {
-    exts: ['png', 'jpg', 'jpeg', 'webp', 'gif', 'tiff', 'avif', 'heif', 'jxl', 'jp2'],
+    exts: ['png', 'jpg', 'jpeg', 'webp', 'gif', 'tiff', 'avif', 'heif'],
     sizeLimit: 20 * 1024 * 1024, // 20MB
   }
   option: CompressionOptions

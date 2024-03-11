@@ -81,31 +81,42 @@ export const VscodeMessageCenter = {
         stats: true,
       })
 
-      return imgs.map((img) => {
-        img.path = normalizePath(img.path)
+      return Promise.all(
+        imgs.map(async (img) => {
+          img.path = normalizePath(img.path)
+          let vscodePath = webview.asWebviewUri(Uri.file(img.path)).toString()
 
-        const vscodePath = webview.asWebviewUri(Uri.file(img.path)).toString()
+          // Browser doesn't support [tiff, tif, jp2], convert to png base64
+          try {
+            if (img.path.match(/\.(tiff?)|(jp2)$/i)) {
+              const buffer = await Global.sharp(img.path).png().toBuffer()
+              vscodePath = `data:image/png;base64,${buffer.toString('base64')}`
+            }
+          } catch (e) {
+            console.log(e, 'e')
+          }
 
-        const fileType = path.extname(img.path).replace('.', '')
-        fileTypes && fileTypes.add(fileType)
+          const fileType = path.extname(img.path).replace('.', '')
+          fileTypes && fileTypes.add(fileType)
 
-        const dirPath = _resolveDirPath(absWorkspaceFolder, img.path)
-        dirPath && dirs.add(dirPath)
+          const dirPath = _resolveDirPath(absWorkspaceFolder, img.path)
+          dirPath && dirs.add(dirPath)
 
-        return {
-          name: img.name,
-          path: img.path,
-          stats: img.stats!,
-          dirPath,
-          absDirPath: normalizePath(path.dirname(img.path)),
-          fileType,
-          vscodePath,
-          workspaceFolder: normalizePath(path.basename(absWorkspaceFolder)),
-          absWorkspaceFolder: normalizePath(absWorkspaceFolder),
-          basePath: normalizePath(path.dirname(absWorkspaceFolder)),
-          extraPathInfo: path.parse(img.path),
-        }
-      })
+          return {
+            name: img.name,
+            path: img.path,
+            stats: img.stats!,
+            dirPath,
+            absDirPath: normalizePath(path.dirname(img.path)),
+            fileType,
+            vscodePath,
+            workspaceFolder: normalizePath(path.basename(absWorkspaceFolder)),
+            absWorkspaceFolder: normalizePath(absWorkspaceFolder),
+            basePath: normalizePath(path.dirname(absWorkspaceFolder)),
+            extraPathInfo: path.parse(img.path),
+          }
+        }),
+      )
     }
 
     try {

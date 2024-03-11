@@ -1,22 +1,19 @@
 import { useLockFn, useMemoizedFn } from '@minko-fe/react-hook'
-import { App, Descriptions, type DescriptionsProps } from 'antd'
+import { App } from 'antd'
 import { memo } from 'react'
 import { type BooleanPredicate, Item, type ItemParams, Separator } from 'react-contexify'
 import { useTranslation } from 'react-i18next'
 import { os } from 'un-detector'
-import { CmdToVscode } from '~/message/cmd'
 import { type ImageType } from '~/webview/ImageManager'
 import useImageOperation from '~/webview/ImageManager/hooks/useImageOperation'
-import { formatBytes } from '~/webview/ImageManager/utils'
-import { vscodeApi } from '~/webview/vscode-api'
+import useImageDetail from '~/webview/hooks/useImageDetail/useImageDetail'
 import MaskMenu from '../../../MaskMenu'
-import styles from './index.module.css'
 
 export const IMAGE_CONTEXT_MENU_ID = 'IMAGE_CONTEXT_MENU_ID'
 
 function ImageContextMenu() {
   const { t } = useTranslation()
-  const { message, modal } = App.useApp()
+  const { message } = App.useApp()
 
   const {
     openInOsExplorer,
@@ -62,90 +59,7 @@ function ImageContextMenu() {
     beginCompressProcess([e.props!.image])
   })
 
-  const handleShowImageDetail = useLockFn((e: ItemParams<{ image: ImageType }>) => {
-    const { image } = e.props || {}
-
-    if (!image) return Promise.resolve()
-
-    return new Promise((resolve) => {
-      vscodeApi.postMessage({ cmd: CmdToVscode.GET_IMAGE_METADATA, data: { filePath: image.path } }, (data) => {
-        const {
-          metadata: { width, height },
-          compressed,
-        } = data
-
-        const formatDate = (date: Date) => {
-          return new Date(date).toLocaleDateString(undefined, {
-            hour12: false,
-            hour: '2-digit',
-            minute: '2-digit',
-            second: '2-digit',
-          })
-        }
-
-        const descItems: DescriptionsProps['items'] = [
-          {
-            label: t('im.name'),
-            children: <div>{image.name}</div>,
-          },
-          {
-            label: t('im.workspace'),
-            children: <div>{image.workspaceFolder}</div>,
-          },
-          {
-            label: t('im.folder'),
-            children: <div>{image.dirPath || '/'}</div>,
-          },
-          {
-            label: `${t('im.dimensions')}(px)`,
-            children: (
-              <div>
-                {width} x {height}
-              </div>
-            ),
-          },
-          {
-            label: t('im.size'),
-            children: <div>{formatBytes(image.stats.size)}</div>,
-          },
-          {
-            label: t('im.birth_time'),
-            children: <div>{formatDate(image.stats.birthtime)}</div>,
-          },
-          {
-            label: t('im.last_status_changed_time'),
-            children: <div>{formatDate(image.stats.ctime)}</div>,
-          },
-          {
-            label: t('im.compressed'),
-            children: <div>{compressed ? t('im.yes') : t('im.no')}</div>,
-          },
-        ]
-
-        modal.success({
-          width: '50%',
-          icon: null,
-          closable: true,
-          title: t('im.image_detail'),
-          className: styles.detail_modal,
-          content: (
-            <Descriptions
-              className={'mt-2'}
-              layout='horizontal'
-              column={1}
-              size='small'
-              title={null}
-              bordered
-              items={descItems.map((item, index) => ({ key: index, ...item }))}
-            />
-          ),
-          footer: null,
-        })
-
-        resolve(true)
-      })
-    })
-  })
+  const { showImageDetailModal } = useImageDetail()
 
   const handleCropImage = useLockFn(async (e: ItemParams<{ image: ImageType }>) => {
     if (!e.props?.image) {
@@ -185,7 +99,7 @@ function ImageContextMenu() {
         </Item>
         <Item onClick={handleOpenInVscodeExplorer}>{t('im.reveal_in_explorer')}</Item>
         <Separator />
-        <Item onClick={(e) => handleShowImageDetail(e)}>{t('im.detail')}</Item>
+        <Item onClick={(e) => showImageDetailModal(e.props.image)}>{t('im.detail')}</Item>
       </MaskMenu>
     </>
   )

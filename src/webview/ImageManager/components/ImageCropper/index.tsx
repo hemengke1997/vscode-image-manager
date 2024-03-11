@@ -33,7 +33,6 @@ function ImageCropper(props?: ImageCropperProps) {
   const { t, i18n } = useTranslation()
   const { message, notification } = App.useApp()
   const cropperRef = useRef<ReactCropperElement>(null)
-  const cropper = cropperRef.current?.cropper
   const onCrop = (e: Cropperjs.CropEvent) => {
     if (allTruly(e.detail)) {
       startTransition(() => setDetails(e.detail))
@@ -48,9 +47,9 @@ function ImageCropper(props?: ImageCropperProps) {
   const [cropperOptions, setCropperOptions] = useSetState<Cropperjs.Options>({
     aspectRatio: getAspectRatios(i18n)[0].value,
     viewMode: getViewmodes(i18n)[0].value as Cropperjs.ViewMode,
-    guides: false,
+    guides: true,
     highlight: false,
-    background: true,
+    background: false,
   })
 
   useUpdateEffect(() => {
@@ -65,8 +64,8 @@ function ImageCropper(props?: ImageCropperProps) {
     value: details,
     onChange: (value) => {
       // set cropper data
-      cropper?.setData({
-        ...cropper?.getData(),
+      cropperRef.current?.cropper?.setData({
+        ...cropperRef.current?.cropper?.getData(),
         ...value,
       })
     },
@@ -83,13 +82,13 @@ function ImageCropper(props?: ImageCropperProps) {
   const previewRef = useRef<HTMLDivElement>(null)
   const [saveModalOpen, setSaveModalOpen] = useState(false)
   const handlePreview = () => {
-    previewRef.current?.appendChild(cropper!.getCroppedCanvas())
+    previewRef.current?.appendChild(cropperRef.current!.cropper?.getCroppedCanvas())
     setSaveModalOpen(true)
   }
 
   const handleSave = async () => {
-    if (cropper && image) {
-      const canvas = cropper.getCroppedCanvas()
+    if (cropperRef.current?.cropper && image) {
+      const canvas = cropperRef.current?.cropper.getCroppedCanvas()
       const imageType = mime.getType(image.fileType)!
 
       const MESSAGE_KEY = 'save-cropper-image'
@@ -146,6 +145,36 @@ function ImageCropper(props?: ImageCropperProps) {
     }
   }
 
+  const getCropBoxCenterPoint = () => {
+    const { left, top, width, height } = cropperRef.current!.cropper!.getCropBoxData()
+    return {
+      x: left + width / 2,
+      y: top + height / 2,
+    }
+  }
+
+  const getContainerCenterPoint = () => {
+    const { width, height } = cropperRef.current!.cropper.getContainerData()
+    return {
+      x: width / 2,
+      y: height / 2,
+    }
+  }
+
+  const moveImageAndCropBoxToContainerCenter = () => {
+    // move crop box to container center
+    const { x: containerX, y: containerY } = getContainerCenterPoint()
+    cropperRef.current?.cropper?.setCropBoxData({
+      left: containerX - cropperRef.current?.cropper!.getCropBoxData().width / 2,
+      top: containerY - cropperRef.current?.cropper!.getCropBoxData().height / 2,
+    })
+
+    const { x: cropBoxX, y: cropBoxY } = getCropBoxCenterPoint()
+    console.log(cropBoxX, cropBoxY)
+    const { width, height } = cropperRef.current!.cropper!.getImageData()
+    cropperRef.current?.cropper?.moveTo(cropBoxX - width / 2, cropBoxY - height / 2)
+  }
+
   return (
     <Modal
       maskClosable={false}
@@ -160,21 +189,33 @@ function ImageCropper(props?: ImageCropperProps) {
           <Card>
             <ReactCropper
               src={image?.vscodePath}
-              className={classNames('w-full max-w-full h-[30rem]', styles.cropper, loading && 'opacity-0 absolute')}
+              className={classNames('w-full max-w-full h-[400px]', styles.cropper, loading && 'opacity-0 absolute')}
               ready={() => {
+                if (cropperRef.current) {
+                  moveImageAndCropBoxToContainerCenter()
+                }
                 setLoading(false)
               }}
+              dragMode='move'
               ref={cropperRef}
               forceRender={forceRenderCropper}
               crop={onCrop}
               checkCrossOrigin={false}
+              center
               {...cropperOptions}
             />
             <Skeleton loading={loading} active paragraph={{ rows: 7 }} />
           </Card>
         </div>
         <div className={'flex-1'}>
-          <Card rootClassName={'h-full'} bodyStyle={{ height: '100%' }}>
+          <Card
+            rootClassName={'h-full'}
+            styles={{
+              body: {
+                height: '100%',
+              },
+            }}
+          >
             <div className={'flex h-full flex-col justify-between'}>
               <div className={'flex flex-col space-y-1'}>
                 <div className={'flex w-full flex-wrap items-center gap-x-1'}>
@@ -211,6 +252,11 @@ function ImageCropper(props?: ImageCropperProps) {
                   >
                     {t('im.background')}
                   </Checkbox>
+                </div>
+                <div className={'w-full'}>
+                  <Button className={'w-full'} onClick={moveImageAndCropBoxToContainerCenter} type='primary'>
+                    {t('im.center')}
+                  </Button>
                 </div>
                 <div className={'w-full'}>
                   <Radio.Group
@@ -290,8 +336,8 @@ function ImageCropper(props?: ImageCropperProps) {
           setSaveModalOpen(false)
         }}
         afterOpenChange={(open) => {
-          if (!open) {
-            previewRef.current!.innerHTML = ''
+          if (!open && previewRef.current) {
+            previewRef.current.innerHTML = ''
           }
         }}
         title={t('im.preview')}

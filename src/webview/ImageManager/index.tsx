@@ -265,7 +265,7 @@ function ImageManager() {
               transition={{ duration: 0.15 }}
             >
               <Card size='small' title={t('im.settings')}>
-                <div className={'flex flex-col space-y-2.5'}>
+                <div className={'flex flex-col space-y-3'}>
                   <OperationItemUI title={t('im.type')}>
                     <DisplayType
                       imageType={{
@@ -277,7 +277,7 @@ function ImageManager() {
                     />
                   </OperationItemUI>
 
-                  <div className={'flex space-x-6'}>
+                  <div className={'flex items-center space-x-6'}>
                     <OperationItemUI title={t('im.group')}>
                       <DisplayGroup
                         options={groupType

@@ -33,6 +33,8 @@ function DisplayStyle(props: DisplayStyleProps) {
           value: 'nested',
         },
       ]}
+      optionType='button'
+      buttonStyle='solid'
       value={displayStyle}
       onChange={(e) => {
         setDisplayStyle(e.target.value)

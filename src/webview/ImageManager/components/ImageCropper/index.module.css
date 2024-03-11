@@ -1,4 +1,5 @@
 .canvas_box {
+  border: 1px solid var(--ant-color-border);
   > canvas {
     @apply max-w-full max-h-full;
   }
