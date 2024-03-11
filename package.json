@@ -204,6 +204,7 @@
     "context-state": "^2.2.0",
     "conventional-changelog-cli": "^4.1.0",
     "cropperjs": "^1.6.1",
+    "delay": "^6.0.0",
     "eslint": "^8.57.0",
     "execa": "^8.0.1",
     "exif-reader": "^2.0.1",

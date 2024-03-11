@@ -1,3 +1,4 @@
+import { toLower } from '@minko-fe/lodash-pro'
 import { execa } from 'execa'
 import fs from 'fs-extra'
 import os from 'node:os'
@@ -6,6 +7,7 @@ import { Emitter } from 'strict-event-emitter'
 import * as vscode from 'vscode'
 import { i18n } from '~/i18n'
 import { Log } from '~/utils/Log'
+import { Config, Global } from '..'
 
 type Events = {
   'install-success': [TSharp]
@@ -25,6 +27,7 @@ type CacheType =
 export class Installer {
   private _cwd: string
 
+  private _statusBarItem: vscode.StatusBarItem | undefined
   private readonly _osCacheDir = path.resolve(os.tmpdir(), 'vscode-image-manager-cache')
 
   event: Emitter<Events> = new Emitter()
@@ -68,11 +71,8 @@ export class Installer {
         }
       }
 
-      console.log(this._getInstalledCacheTypes(), '_getInstalledCacheTypes')
-
       this.event.emit('install-success', this._loadSharp(this._getInstalledCacheTypes()![0]))
     } catch (error) {
-      console.log(error, 'error')
       Log.error(`Sharp binary file creation error: ${error}`)
       this.event.emit('install-fail')
     }
@@ -80,17 +80,19 @@ export class Installer {
   }
 
   private async _showStausBar({ beforeHide }: { beforeHide: () => Promise<void> }) {
-    const statusBarItem = vscode.window.createStatusBarItem(vscode.StatusBarAlignment.Left)
-    const creating_text = i18n.t('prompt.initializing')
-    statusBarItem.text = `$(sync~spin) ${creating_text}`
-    statusBarItem.tooltip = i18n.t('prompt.initializing_tooltip')
-    Log.info(creating_text)
-    statusBarItem.show()
-
-    await beforeHide()
-
-    statusBarItem.hide()
-    statusBarItem.dispose()
+    try {
+      this._statusBarItem = vscode.window.createStatusBarItem(vscode.StatusBarAlignment.Left)
+      Global.context.subscriptions.push(this._statusBarItem)
+      const creating_text = i18n.t('prompt.initializing')
+      this._statusBarItem.text = `$(sync~spin) ${creating_text}`
+      this._statusBarItem.tooltip = i18n.t('prompt.initializing_tooltip')
+      Log.info(creating_text)
+      this._statusBarItem.show()
+      await beforeHide()
+    } finally {
+      this._statusBarItem?.hide()
+      this._statusBarItem?.dispose()
+    }
   }
 
   private _getCaches() {
@@ -188,16 +190,19 @@ export class Installer {
   private async _install() {
     const cwd = this._getSharpCwd()
 
-    // If the language is Chinese, it is considered to be the Chinese region, then set npm mirror
-    const isChina = i18n.language === 'zh-CN'
+    // If the language is Chinese, it's considered as Chinese region, then set npm mirror
+    const languages = [toLower(Config.appearance_language), toLower(i18n.language)]
+    const isChina = languages.includes('zh-cn')
 
     await execa('node', ['install/use-libvips.js'], {
       cwd,
       stdio: 'inherit',
       env: {
         ...process.env,
-        npm_config_sharp_libvips_binary_host: isChina ? 'https://npmmirror.com/mirrors/sharp-libvips' : '',
-        npm_config_sharp_binary_host: isChina ? 'https://npmmirror.com/mirrors/sharp' : '',
+        npm_package_config_libvips: '8.14.5',
+        ...(isChina && {
+          npm_config_sharp_libvips_binary_host: 'https://npmmirror.com/mirrors/sharp-libvips', // macos fullpath: https://npmmirror.com/mirrors/sharp-libvips/v8.14.5/libvips-8.14.5-darwin-arm64v8.tar.br
+        }),
       },
     })
     await execa('node', ['install/dll-copy.js'], {

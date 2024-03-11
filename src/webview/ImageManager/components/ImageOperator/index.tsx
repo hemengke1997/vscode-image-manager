@@ -357,7 +357,7 @@ function ImageOperator(props: ImageOperatorProps & ImageOperatorStaticProps) {
       width={'80%'}
     >
       <div className={'flex w-full flex-col items-center space-y-2 overflow-auto'}>
-        <Card className={'w-full'}>
+        <Card className={'max-h-[480px] w-full overflow-y-auto'}>
           <div className={'flex flex-col gap-y-4'}>
             <ImagePreview
               images={images || []}

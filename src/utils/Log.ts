@@ -6,7 +6,9 @@ export class Log {
   private static _channel: OutputChannel
 
   static get outputChannel(): OutputChannel {
-    if (!this._channel) this._channel = window.createOutputChannel(EXT_NAME)
+    if (!this._channel) {
+      this._channel = window.createOutputChannel(EXT_NAME)
+    }
     return this._channel
   }
 
@@ -15,12 +17,16 @@ export class Log {
   }
 
   static info(message: string, prompt = false, indent = 0) {
-    if (prompt) window.showInformationMessage(`${message}`)
+    if (prompt) {
+      window.showInformationMessage(`${message}`)
+    }
     this.outputChannel.appendLine(`${'\t'.repeat(indent)}[${EXT_NAME}] ${message}`)
   }
 
   static warn(message: string, prompt = false, indent = 0) {
-    if (prompt) window.showWarningMessage(message)
+    if (prompt) {
+      window.showWarningMessage(message)
+    }
     Log.info(`⚠ WARN: ${message}`, prompt, indent)
   }
 
@@ -40,7 +46,9 @@ export class Log {
   }
 
   static debug(message: string, indent = 0) {
-    if (Global.isDevelopment()) this.info(message, false, indent)
+    if (Global.isDevelopment()) {
+      this.info(message, false, indent)
+    }
   }
 
   static show() {
