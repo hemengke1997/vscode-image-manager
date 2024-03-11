@@ -68,8 +68,11 @@ export class Installer {
         }
       }
 
+      console.log(this._getInstalledCacheTypes(), '_getInstalledCacheTypes')
+
       this.event.emit('install-success', this._loadSharp(this._getInstalledCacheTypes()![0]))
     } catch (error) {
+      console.log(error, 'error')
       Log.error(`Sharp binary file creation error: ${error}`)
       this.event.emit('install-fail')
     }
@@ -92,17 +95,20 @@ export class Installer {
 
   private _getCaches() {
     const RELEASE_DIR = 'build/Release'
+    const VENDOR_DIR = 'vendor/8.14.5'
     const SHARP_FS = 'sharp/index.js'
 
-    const caches: { releaseFsPath: string; sharpFsPath: string; type: CacheType }[] = [
+    const caches: { releaseDirPath: string; vendorDirPath: string; sharpFsPath: string; type: CacheType }[] = [
       {
-        releaseFsPath: path.resolve(this._getSharpOsCacheDir(), RELEASE_DIR),
+        releaseDirPath: path.resolve(this._getSharpOsCacheDir(), RELEASE_DIR),
+        vendorDirPath: path.resolve(this._getSharpOsCacheDir(), VENDOR_DIR),
         sharpFsPath: path.resolve(this._getSharpOsCacheDir(), SHARP_FS),
         type: 'os',
       },
       {
-        releaseFsPath: path.resolve(this._getSharpCwd(), RELEASE_DIR),
+        releaseDirPath: path.resolve(this._getSharpCwd(), RELEASE_DIR),
         sharpFsPath: path.resolve(this._getSharpCwd(), SHARP_FS),
+        vendorDirPath: path.resolve(this._getSharpCwd(), VENDOR_DIR),
         type: 'extension',
       },
     ]
@@ -114,11 +120,19 @@ export class Installer {
   private _getInstalledCacheTypes(): CacheType[] | undefined {
     const caches = this._getCaches()
       .filter((cache) => {
-        const { releaseFsPath } = cache
-        if (!fs.existsSync(releaseFsPath)) {
-          return undefined
+        const { releaseDirPath, sharpFsPath, vendorDirPath } = cache
+        if (
+          // .node file exists
+          fs.existsSync(releaseDirPath) &&
+          fs.readdirSync(releaseDirPath).some((t) => t.includes('.node')) &&
+          // vendor/8.14.5 exists
+          fs.existsSync(vendorDirPath) &&
+          // sharp/index.js exists
+          fs.existsSync(sharpFsPath)
+        ) {
+          return true
         }
-        return true
+        return false
       })
       .map((cache) => cache.type)
 
