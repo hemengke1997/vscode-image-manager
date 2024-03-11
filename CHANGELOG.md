@@ -1,5 +1,11 @@
 # CHANGELOG
 
+## 0.4.3
+
+### Fix
+
+- Compressor init error
+
 ## 0.4.2
 
 ### Fix

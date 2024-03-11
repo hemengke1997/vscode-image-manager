@@ -2,7 +2,7 @@
   "publisher": "minko",
   "name": "image-manager",
   "displayName": "Image Manager",
-  "version": "0.4.2",
+  "version": "0.4.3",
   "private": true,
   "description": "Compress, crop and preview images in vscode",
   "icon": "assets/logo.png",
@@ -54,7 +54,7 @@
     "up": "taze",
     "build:i18n": "tsx scripts/build-i18n",
     "changelog": "conventional-changelog -p eslint -i CHANGELOG-CODE.md -s -r 0",
-    "bump": "bumpp package.json --commit --tag --no-push --all -x \"npm run changelog\"",
+    "bump": "bumpp package.json --no-commit --tag --no-push --all -x \"npm run changelog\"",
     "vscode:prepublish": "npm run build",
     "pack": "vsce package",
     "publish": "vsce publish"
