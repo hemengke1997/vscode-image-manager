@@ -1,5 +1,16 @@
 # CHANGELOG
 
+## 0.5.0
+
+### Feat
+
+- Add `image-manager.appearance.primaryColor` config to support custom primary color
+
+### Performance
+
+- Optimize toast render performance
+- Optimize config changed leading to webview slow render
+
 ## 0.4.3
 
 ### Fix
