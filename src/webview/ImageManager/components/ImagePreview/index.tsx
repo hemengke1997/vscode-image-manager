@@ -1,9 +1,8 @@
 import { round } from '@minko-fe/lodash-pro'
-import { useSetState } from '@minko-fe/react-hook'
 import { isDev } from '@minko-fe/vite-config/client'
 import { ConfigProvider, Image, theme } from 'antd'
 import { motion } from 'framer-motion'
-import { type ReactNode, memo, startTransition, useEffect, useState } from 'react'
+import { memo, useEffect, useState } from 'react'
 import { useContextMenu } from 'react-contexify'
 import { type ImageType } from '../..'
 import GlobalContext from '../../contexts/GlobalContext'
@@ -31,13 +30,11 @@ function ImagePreview(props: ImagePreviewProps) {
 
   const [preview, setPreview] = useState<{ open?: boolean; current?: number }>({ open: false, current: -1 })
 
-  const [scaleToast, setScaleToast] = useSetState<{ open: boolean; content: ReactNode }>({ open: false, content: null })
-
   const { show } = useContextMenu<{ image: ImageType; dimensions: { width: number; height: number } }>()
 
   useEffect(() => {
     if (!preview.open) {
-      setScaleToast({ open: false })
+      Toast.hide()
     }
   }, [preview.open])
 
@@ -65,6 +62,7 @@ function ImagePreview(props: ImagePreviewProps) {
               style: {
                 backgroundColor: tinyBackgroundColor.setAlpha(0.9).toRgbString(),
               },
+              keyboard: false,
               onChange(current) {
                 setPreview({ current, open: true })
               },
@@ -97,15 +95,13 @@ function ImagePreview(props: ImagePreviewProps) {
               onTransform(info) {
                 if (['wheel', 'zoomIn', 'zoomOut'].includes(info.action)) {
                   const sclalePercent = round(info.transform.scale * 100)
-                  startTransition(() => {
-                    setScaleToast({
-                      open: true,
-                      content: (
-                        <div className={'flex items-center'}>
-                          <span>{sclalePercent}%</span>
-                        </div>
-                      ),
-                    })
+                  if (!sclalePercent) return
+                  Toast.open({
+                    content: (
+                      <div className={'flex items-center'}>
+                        <span>{sclalePercent}%</span>
+                      </div>
+                    ),
                   })
                 }
               },
@@ -139,14 +135,13 @@ function ImagePreview(props: ImagePreviewProps) {
                   }}
                   image={image}
                   index={i}
-                  key={image.path + image.stats.ctime}
+                  key={image.path + image.stats.mtime}
                 />
               ))}
             </ConfigProvider>
           </Image.PreviewGroup>
         </ConfigProvider>
       </motion.div>
-      <Toast {...scaleToast} onOpenChange={(open) => setScaleToast({ open })} />
     </>
   )
 }

@@ -1,8 +1,8 @@
 import type SharpNS from 'sharp'
 
 declare global {
-  type Theme = 'dark' | 'light'
-  type Language = 'en' | 'zh-CN'
+  type Theme = 'dark' | 'light' | 'auto'
+  type Language = 'en' | 'zh-CN' | 'auto'
 
   type TSharp = typeof SharpNS
 

@@ -7,7 +7,7 @@ import micromatch from 'micromatch'
 import mime from 'mime/lite'
 import path from 'node:path'
 import git from 'simple-git'
-import { type ConfigurationTarget, Uri, type Webview, commands, env } from 'vscode'
+import { type ConfigurationTarget, Uri, type Webview, commands } from 'vscode'
 import { Config, Global } from '~/core'
 import { type CompressionOptions } from '~/core/compress'
 import { COMPRESSED_META } from '~/core/compress/meta'
@@ -34,7 +34,7 @@ export type ReturnOfMessageCenter<K extends KeyofMessage> = RmPromise<ReturnType
 
 export const VscodeMessageCenter = {
   [CmdToVscode.ON_WEBVIEW_READY]: async () => {
-    Log.info('Webview is ready')
+    Log.debug('Webview is ready')
     const config = await VscodeMessageCenter[CmdToVscode.GET_EXT_CONFIG]()
 
     return {
@@ -150,24 +150,18 @@ export const VscodeMessageCenter = {
     }
   },
 
-  /* ----------- get extension config ----------- */
+  /* ------- get extension & vscode config ------ */
   [CmdToVscode.GET_EXT_CONFIG]: async () => {
     const config = Config.all
-    const { theme, language } = config.appearance
 
-    function isSkip<T>(value: T): Exclude<T, 'auto'> | null {
-      if (value === 'auto') {
-        return null
-      }
-      return value as Exclude<T, 'auto'>
+    const vscodeConfig = {
+      theme: Global.theme,
+      language: Global.language,
     }
+
     return {
-      ...config,
-      appearance: {
-        ...config.appearance,
-        theme: isSkip(theme) || Global.theme,
-        language: (isSkip(language) || env.language) as Language,
-      },
+      ext: config,
+      vscode: vscodeConfig,
     }
   },
 

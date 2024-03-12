@@ -1,9 +1,10 @@
-import { isDev } from '@minko-fe/vite-config/client'
 import i18next from 'i18next'
 import ReactDOM from 'react-dom/client'
 import { initReactI18next } from 'react-i18next'
 import { setupI18n } from 'vite-plugin-i18n-detector/client'
 import { CmdToVscode } from '~/message/cmd'
+import { FALLBACK_LANGUAGE } from '~/meta'
+import { intelligentPickConfig } from '~/webview/utils'
 import { vscodeApi } from '~/webview/vscode-api'
 import App from './App'
 import './hmr'
@@ -14,14 +15,12 @@ interface IWebviewComponents {
   [componentName: string]: () => JSX.Element
 }
 
-const FALLBACKLANG = 'en'
-
 i18next.use(initReactI18next).init({
   returnNull: false,
   react: {
     useSuspense: true,
   },
-  debug: isDev(),
+  debug: false,
   resources: {},
   nsSeparator: '.',
   keySeparator: false,
@@ -29,7 +28,7 @@ i18next.use(initReactI18next).init({
     escapeValue: false,
   },
   lowerCaseLng: false,
-  fallbackLng: FALLBACKLANG,
+  fallbackLng: FALLBACK_LANGUAGE,
 })
 
 let key = 0
@@ -40,14 +39,16 @@ export function registerApp(webviewComponents: IWebviewComponents, reload = fals
       cmd: CmdToVscode.ON_WEBVIEW_READY,
     },
     (data) => {
-      const { language, theme } = data.config.appearance
+      const { ext, vscode } = data.config
 
-      const lng = language || FALLBACKLANG
+      const config = intelligentPickConfig(ext, vscode)
 
-      i18next.changeLanguage(lng)
+      const { language } = config.appearance
+
+      i18next.changeLanguage(language)
 
       const { loadResourceByLang } = setupI18n({
-        language: lng,
+        language,
         onInited() {
           try {
             if (!window.__react_root__) {
@@ -56,10 +57,9 @@ export function registerApp(webviewComponents: IWebviewComponents, reload = fals
           } catch {
           } finally {
             key = reload ? ~key : key
-            const vscodeTheme = theme
 
             window.__react_root__.render(
-              <App theme={vscodeTheme} language={lng} key={key} components={webviewComponents} />,
+              <App extConfig={ext} vscodeConfig={vscode} key={key} components={webviewComponents} />,
             )
           }
         },
@@ -68,7 +68,7 @@ export function registerApp(webviewComponents: IWebviewComponents, reload = fals
             i18next.addResourceBundle(currentLang, ns, langs[ns], true, true)
           })
         },
-        fallbackLng: FALLBACKLANG,
+        fallbackLng: FALLBACK_LANGUAGE,
         cache: {
           htmlTag: true,
         },

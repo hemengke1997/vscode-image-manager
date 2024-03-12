@@ -13,7 +13,8 @@
     },
     "appearance": {
       "theme": "主题",
-      "language": "语言"
+      "language": "语言",
+      "primaryColor": "主题色"
     }
   },
   "prompt": {

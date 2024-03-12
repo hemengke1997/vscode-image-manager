@@ -1,7 +1,9 @@
-import { type Event, EventEmitter, type ExtensionContext, ExtensionMode, window, workspace } from 'vscode'
+import { lowerCase } from '@minko-fe/lodash-pro'
+import { type Event, EventEmitter, type ExtensionContext, ExtensionMode, env, window, workspace } from 'vscode'
 import { Compressor } from '~/core/compress/Compressor'
 import { Installer } from '~/core/sharp'
 import { i18n } from '~/i18n'
+import { FALLBACK_LANGUAGE } from '~/meta'
 import { Log } from '~/utils/Log'
 import { Config, Watcher } from '.'
 
@@ -10,6 +12,7 @@ export class Global {
 
   static context: ExtensionContext
   static theme: Theme = 'dark'
+  static language: Language = FALLBACK_LANGUAGE
   static sharp: TSharp
   static compressor: Compressor
 
@@ -22,7 +25,8 @@ export class Global {
     this.context = context
     Watcher.init()
     await this.installSharp()
-    this.updateTheme()
+    this._updateTheme()
+    this._updateLanguage()
     context.subscriptions.push(workspace.onDidChangeWorkspaceFolders(() => this.updateRootPath()))
     // context.subscriptions.push(workspace.onDidChangeConfiguration((e) => this.update(e)))
     await this.updateRootPath()
@@ -44,7 +48,7 @@ export class Global {
     }
   }
 
-  static updateTheme() {
+  static _updateTheme() {
     switch (window.activeColorTheme.kind) {
       case 1:
         this.theme = 'light'
@@ -54,6 +58,20 @@ export class Global {
         break
       default:
         this.theme = 'dark'
+        break
+    }
+  }
+
+  static _updateLanguage() {
+    switch (lowerCase(env.language)) {
+      case 'en':
+        this.language = 'en'
+        break
+      case 'zh-cn':
+        this.language = 'zh-CN'
+        break
+      default:
+        this.language = FALLBACK_LANGUAGE
         break
     }
   }

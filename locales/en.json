@@ -13,7 +13,8 @@
     },
     "appearance": {
       "theme": "theme",
-      "language": "language"
+      "language": "language",
+      "primaryColor": "primary color"
     }
   },
   "prompt": {

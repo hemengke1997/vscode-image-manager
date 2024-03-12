@@ -1,6 +1,6 @@
 .contexify {
   &[role='menu'] {
-    --contexify-menu-bgColor: var(--ant-color-bg-container) FF;
+    --contexify-menu-bgColor: rgba(0, 0, 0, 0.35);
     --contexify-activeItem-color: var(--ant-color-text);
     --contexify-activeItem-bgColor: var(--ant-color-primary-hover);
     --contexify-menu-minWidth: 140px;

@@ -1,31 +1,24 @@
-import { difference, isEqual, uniq } from '@minko-fe/lodash-pro'
-import { useAsyncEffect } from '@minko-fe/react-hook'
+import { difference, isEqual } from '@minko-fe/lodash-pro'
+import { useAsyncEffect, useMemoizedFn } from '@minko-fe/react-hook'
 import { isDev } from '@minko-fe/vite-config/client'
 import { App, Card, Skeleton } from 'antd'
-import { AnimatePresence, motion } from 'framer-motion'
+import { motion } from 'framer-motion'
 import { type Stats } from 'fs-extra'
 import { type ParsedPath } from 'node:path'
-import { type ReactElement, type ReactNode, memo, useEffect, useMemo } from 'react'
+import { type ReactElement, memo, useEffect, useRef } from 'react'
 import { useTranslation } from 'react-i18next'
 import { isTooManyTries, retry } from 'ts-retry'
 import { type Compressor } from '~/core/compress'
-import { ConfigKey } from '~/core/config/common'
 import { CmdToVscode, CmdToWebview } from '~/message/cmd'
-import { useConfiguration } from '../hooks/useConfiguration'
-import { LocalStorageEnum } from '../local-storage'
-import PrimaryColorPicker from '../ui-framework/src/components/CustomConfigProvider/components/PrimaryColorPicker'
 import { vscodeApi } from '../vscode-api'
 import CollapseTree from './components/CollapseTree'
 import ContextMenus from './components/ContextMenus'
-import DisplayGroup, { type GroupType } from './components/DisplayGroup'
-import DisplaySort from './components/DisplaySort'
-import DisplayStyle from './components/DisplayStyle'
-import DisplayType from './components/DisplayType'
 import ImageActions from './components/ImageActions'
 import ImageCropper from './components/ImageCropper'
 import ImageForSize from './components/ImageForSize'
 import ImageOperator from './components/ImageOperator'
 import ImageSearch from './components/ImageSearch'
+import ViewerSettings, { type ViewerSettingsRef } from './components/ViewerSettings'
 import ActionContext from './contexts/ActionContext'
 import CroppoerContext from './contexts/CropperContext'
 import GlobalContext from './contexts/GlobalContext'
@@ -34,7 +27,6 @@ import SettingsContext from './contexts/SettingsContext'
 import TreeContext from './contexts/TreeContext'
 import { useExtConfig } from './hooks/useExtConfig'
 import useWheelScaleEvent from './hooks/useWheelScaleEvent'
-import { Colors } from './utils/color'
 
 vscodeApi.registerEventListener()
 
@@ -71,13 +63,10 @@ function ImageManager() {
   const { message } = App.useApp()
   const { t } = useTranslation()
 
-  const { update } = useConfiguration()
-
-  const { imageState, setImageState, setCompressor, mode } = GlobalContext.usePicker([
+  const { imageState, setImageState, setCompressor } = GlobalContext.usePicker([
     'imageState',
     'setImageState',
     'setCompressor',
-    'mode',
   ])
 
   const { imageRefreshedState, refreshImages, imageSearchOpen, setImageSearchOpen } = ActionContext.usePicker([
@@ -89,16 +78,7 @@ function ImageManager() {
 
   const { operatorModal, setOperatorModal } = OperatorContext.usePicker(['operatorModal', 'setOperatorModal'])
 
-  const {
-    sort,
-    setSort,
-    displayStyle,
-    setDisplayStyle,
-    displayGroup,
-    setDisplayGroup,
-    displayImageTypes,
-    setDisplayImageTypes,
-  } = SettingsContext.useSelector((ctx) => ctx)
+  const { displayImageTypes, setDisplayImageTypes } = SettingsContext.useSelector((ctx) => ctx)
 
   const { refreshTimes, refreshType } = imageRefreshedState
 
@@ -127,7 +107,7 @@ function ImageManager() {
 
         // avoid images flash
         if (!isEqual(imageTypes, displayImageTypes?.checked)) {
-          onImageTypeChange(imageTypes)
+          viewerSettingsRef.current?.changeImageType(imageTypes)
         }
       } catch {
         setDisplayImageTypes({ checked: allTypes, unchecked: [] })
@@ -145,6 +125,18 @@ function ImageManager() {
       }
     })
   }, [refreshTimes])
+
+  const getCompressor = useMemoizedFn(() => {
+    return new Promise<Compressor>((resolve, reject) => {
+      vscodeApi.postMessage({ cmd: CmdToVscode.GET_COMPRESSOR }, (data) => {
+        if (!data) {
+          reject()
+        } else {
+          resolve(data)
+        }
+      })
+    })
+  })
 
   useAsyncEffect(async () => {
     try {
@@ -196,54 +188,8 @@ function ImageManager() {
     }
   }, [])
 
-  /* ------------ image type checkbox ----------- */
-  const allImageTypes = useMemo(() => uniq(imageState.data.flatMap((item) => item.fileTypes)).sort(), [imageState.data])
-  const allImageFiles = useMemo(() => imageState.data.flatMap((item) => item.imgs).sort(), [imageState.data])
-
-  const onImageTypeChange = (checked: string[], unchecked?: string[]) => {
-    setDisplayImageTypes((t) => ({
-      checked: checked || t?.checked || [],
-      unchecked: unchecked || t?.unchecked || [],
-    }))
-  }
-
-  /* ---------------- image group --------------- */
-  const groupType: { label: string; value: GroupType; hidden?: boolean }[] = useMemo(
-    () => [
-      {
-        label: 'TODO: workspace',
-        value: 'workspace',
-        hidden: true,
-      },
-      {
-        label: t('im.group_by_dir'),
-        value: 'dir',
-      },
-      {
-        label: t('im.group_by_type'),
-        value: 'type',
-      },
-    ],
-    [t],
-  )
-
-  const { backgroundColor, setBackgroundColor } = SettingsContext.usePicker(['backgroundColor', 'setBackgroundColor'])
-
-  /* ---------------- image sort ---------------- */
-  const sortOptions = [
-    {
-      label: t('im.name_sort'),
-      value: 'name',
-    },
-    {
-      label: t('im.size_sort'),
-      value: 'size',
-    },
-  ]
-
-  const onSortChange = (value: string[]) => {
-    setSort(value)
-  }
+  /* -------------- viewer settings ------------- */
+  const viewerSettingsRef = useRef<ViewerSettingsRef>(null)
 
   /* ---------------- image scale --------------- */
   const [containerRef] = useWheelScaleEvent()
@@ -255,67 +201,9 @@ function ImageManager() {
     <>
       <ContextMenus />
 
+      <ViewerSettings ref={viewerSettingsRef} />
+
       <div ref={containerRef} className={'space-y-4'}>
-        <AnimatePresence>
-          {mode === 'standard' && (
-            <motion.div
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              exit={{ opacity: 0 }}
-              transition={{ duration: 0.15 }}
-            >
-              <Card size='small' title={t('im.settings')}>
-                <div className={'flex flex-col space-y-3'}>
-                  <OperationItemUI title={t('im.type')}>
-                    <DisplayType
-                      imageType={{
-                        all: allImageTypes,
-                        checked: displayImageTypes?.checked || [],
-                      }}
-                      images={allImageFiles}
-                      onImageTypeChange={onImageTypeChange}
-                    />
-                  </OperationItemUI>
-
-                  <div className={'flex items-center space-x-6'}>
-                    <OperationItemUI title={t('im.group')}>
-                      <DisplayGroup
-                        options={groupType
-                          .filter((t) => !t.hidden)
-                          .map((item) => ({ label: item.label, value: item.value }))}
-                        value={displayGroup}
-                        onChange={setDisplayGroup}
-                      ></DisplayGroup>
-                    </OperationItemUI>
-                    <OperationItemUI title={t('im.style')}>
-                      <DisplayStyle value={displayStyle} onChange={setDisplayStyle} />
-                    </OperationItemUI>
-                  </div>
-
-                  <div className={'flex space-x-6'}>
-                    <OperationItemUI title={t('im.sort')}>
-                      <DisplaySort options={sortOptions} value={sort} onChange={onSortChange} />
-                    </OperationItemUI>
-                    <OperationItemUI title={t('im.background_color')}>
-                      <PrimaryColorPicker
-                        color={backgroundColor}
-                        onColorChange={(color) => {
-                          setBackgroundColor(color)
-                          update({
-                            key: ConfigKey.viewer_imageBackgroundColor,
-                            value: color,
-                          })
-                        }}
-                        localKey={LocalStorageEnum.LOCAL_STORAGE_BACKGROUND_RECENT_COLORS_KEY}
-                        extraColors={[Colors.warmBlack]}
-                      />
-                    </OperationItemUI>
-                  </div>
-                </div>
-              </Card>
-            </motion.div>
-          )}
-        </AnimatePresence>
         <Card
           styles={{
             header: { borderBottom: 'none' },
@@ -362,30 +250,3 @@ function ImageManager() {
 }
 
 export default memo(ImageManager)
-
-type OperationItemProps = {
-  children: ReactNode
-  title: ReactNode
-}
-
-function OperationItemUI(props: OperationItemProps) {
-  const { children, title } = props
-  return (
-    <div className={'flex items-center space-x-4'}>
-      <div className={'font-semibold'}>{title}</div>
-      {children}
-    </div>
-  )
-}
-
-function getCompressor() {
-  return new Promise<Compressor>((resolve, reject) => {
-    vscodeApi.postMessage({ cmd: CmdToVscode.GET_COMPRESSOR }, (data) => {
-      if (!data) {
-        reject()
-      } else {
-        resolve(data)
-      }
-    })
-  })
-}

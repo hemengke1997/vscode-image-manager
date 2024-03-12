@@ -22,7 +22,7 @@ function DisplayType(props: DisplayTypeProps) {
     return imageType.all.map((item) => {
       return {
         label: (
-          <div className={'space-x-2'}>
+          <div className={'flex items-center space-x-2'}>
             <span>{item}</span>
             <ConfigProvider
               theme={{

@@ -13,11 +13,11 @@ import {
   yellow,
 } from '@ant-design/colors'
 
-export function getTheme() {
+export function getHtmlTheme() {
   return document.documentElement.getAttribute('data-theme') as Theme
 }
 
-export function switchTheme(theme: Theme) {
+export function setHtmlTheme(theme: Theme) {
   document.documentElement.setAttribute('data-theme', theme)
 }
 

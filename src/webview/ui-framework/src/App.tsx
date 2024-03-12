@@ -1,27 +1,29 @@
+import { memo } from 'react'
 import { ErrorBoundary } from 'react-error-boundary'
+import { type ConfigType, type VscodeConfigType } from '~/core/config/common'
 import AntdConfigProvider from './components/AntdConfigProvider'
-import ThemeProvider from './components/CustomConfigProvider'
+import CustomConfigProvider from './components/CustomConfigProvider'
 import Fallback from './components/Fallback'
 import FrameworkContext from './contexts/FrameworkContext'
 
 interface IAppProps {
   components: Record<string, () => JSX.Element>
-  theme: Theme
-  language: Language
+  extConfig: ConfigType
+  vscodeConfig: VscodeConfigType
 }
 
 function App(props: IAppProps) {
-  const { components, theme, language } = props
+  const { components, extConfig, vscodeConfig } = props
   const CurrentComponent = components[Object.keys(components)[0]]
 
   return (
     <div onContextMenu={(e) => e.preventDefault()}>
-      <FrameworkContext.Provider value={{ theme, language }}>
+      <FrameworkContext.Provider value={{ extConfig, vscodeConfig }}>
         <AntdConfigProvider>
           <ErrorBoundary FallbackComponent={Fallback}>
-            <ThemeProvider>
+            <CustomConfigProvider>
               <CurrentComponent />
-            </ThemeProvider>
+            </CustomConfigProvider>
           </ErrorBoundary>
         </AntdConfigProvider>
       </FrameworkContext.Provider>
@@ -29,4 +31,4 @@ function App(props: IAppProps) {
   )
 }
 
-export default App
+export default memo(App)

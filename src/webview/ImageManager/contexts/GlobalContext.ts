@@ -7,13 +7,7 @@ import FrameworkContext from '~/webview/ui-framework/src/contexts/FrameworkConte
 import { type ImageType } from '..'
 
 function useGlobalContext() {
-  const { extConfig, setExtConfig, mode, setMode, theme } = FrameworkContext.usePicker([
-    'extConfig',
-    'setExtConfig',
-    'mode',
-    'setMode',
-    'theme',
-  ])
+  const { extConfig, mode, setMode, theme } = FrameworkContext.usePicker(['extConfig', 'mode', 'setMode', 'theme'])
 
   /* ------------- image compressor ------------ */
   const [compressor, setCompressor] = useState<Compressor>()
@@ -47,7 +41,6 @@ function useGlobalContext() {
     compressor,
     setCompressor,
     extConfig,
-    setExtConfig,
     imageState,
     setImageState,
     imageWidth,

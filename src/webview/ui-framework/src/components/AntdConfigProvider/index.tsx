@@ -24,10 +24,21 @@ function ligherOrDarker(color: string, theme: Theme) {
 }
 
 function AntdConfigProvider({ children }: PropsWithChildren) {
-  const { theme, primaryColor } = FrameworkContext.usePicker(['theme', 'primaryColor'])
+  const { primaryColor, themeWithoutAuto } = FrameworkContext.usePicker(['primaryColor', 'themeWithoutAuto'])
 
   const vscodeFontSize = getCssVar('--vscode-font-size').split('px')[0]
   const vscodeEditorBackground = getCssVar('--vscode-editor-background')
+
+  const getThemeAlgorithm = () => {
+    switch (themeWithoutAuto) {
+      case 'dark':
+        return antdTheme.darkAlgorithm
+      case 'light':
+        return antdTheme.defaultAlgorithm
+      default:
+        return antdTheme.darkAlgorithm
+    }
+  }
 
   return (
     <ConfigProvider
@@ -36,17 +47,17 @@ function AntdConfigProvider({ children }: PropsWithChildren) {
       theme={{
         hashed: false,
         cssVar: true,
-        algorithm: theme === 'dark' ? [antdTheme.darkAlgorithm] : [antdTheme.defaultAlgorithm],
+        algorithm: [getThemeAlgorithm()],
         token: {
           fontSize: Number(vscodeFontSize) - 1 || 12,
           colorPrimary: primaryColor,
           motionDurationSlow: `${DURATION_BASE * 2}s`,
           motionDurationMid: `${DURATION_BASE}s`,
           motionDurationFast: `${DURATION_BASE / 2}s`,
-          ...(isSameTheme(vscodeEditorBackground, theme)
+          ...(isSameTheme(vscodeEditorBackground, themeWithoutAuto)
             ? {
                 colorBgContainer: vscodeEditorBackground,
-                colorBgBase: ligherOrDarker(vscodeEditorBackground, theme),
+                colorBgBase: ligherOrDarker(vscodeEditorBackground, themeWithoutAuto),
               }
             : {}),
         },

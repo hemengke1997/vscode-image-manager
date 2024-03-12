@@ -1,7 +1,7 @@
 import { useControlledState, useMemoizedFn } from '@minko-fe/react-hook'
 import { createContainer } from 'context-state'
 import { useReducer, useState } from 'react'
-import { type ImageFilterFormValue } from '../components/ImageActions'
+import { type ImageFilterFormValue } from '../components/ImageActions/components/Filter'
 
 export type ImageFilterType =
   | {

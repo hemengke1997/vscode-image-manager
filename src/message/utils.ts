@@ -13,7 +13,7 @@ export function debounceUpdateVscodeConfig(options: {
       clearTimeout(updateVscodeConfigTimeoutId)
     }
 
-    const { key, value, target = ConfigurationTarget.Global, wait = 1000 } = options
+    const { key, value, target = ConfigurationTarget.Workspace, wait = 1000 } = options
 
     updateVscodeConfigTimeoutId = setTimeout(async () => {
       try {

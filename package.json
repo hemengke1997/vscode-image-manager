@@ -153,6 +153,11 @@
           ],
           "description": "%pkg.appearance.language%"
         },
+        "image-manager.appearance.primaryColor": {
+          "type": "string",
+          "format": "color-hex",
+          "description": "%pkg.appearance.primaryColor%"
+        },
         "image-manager.viewer.warningSize": {
           "type": [
             "number",

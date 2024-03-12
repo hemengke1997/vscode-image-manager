@@ -1,34 +1,62 @@
-import { useControlledState } from '@minko-fe/react-hook'
+import { useControlledState, useThrottleEffect } from '@minko-fe/react-hook'
 import { AnimatePresence, motion } from 'framer-motion'
-import { type ReactNode, memo, useEffect, useRef } from 'react'
+import { type ReactElement, type ReactNode, useEffect, useLayoutEffect, useRef, useState } from 'react'
+import { type Root, createRoot } from 'react-dom/client'
+import { Emitter } from 'strict-event-emitter'
+import Queue, { type ToastMessageType } from './queue'
 
 export type ToastProps = {
-  open?: boolean
-  onOpenChange?: (open: boolean) => void
   content?: ReactNode
   duration?: number
   onClosed?: () => void
 }
 
+function useMergeProps<T>(props: T, updatedProps: T) {
+  const [mergedProps, setMergedProps] = useState<T>(props)
+  useEffect(() => {
+    setMergedProps((prev) => ({ ...prev, ...updatedProps }))
+  }, [updatedProps])
+  return mergedProps
+}
+
 function Toast(props: ToastProps) {
   const timer = useRef(0)
 
-  const { open: openProp, onOpenChange, onClosed, content, duration = 1500 } = props
+  const [updatedProps, setUpdatedProps] = useState<ToastProps>()
+  const mergedProps = useMergeProps(props, updatedProps)
+
+  const { onClosed, content, duration = 1500 } = mergedProps || {}
 
   const [open, setOpen] = useControlledState({
-    defaultValue: openProp,
-    value: openProp,
-    onChange: onOpenChange,
+    defaultValue: true,
   })
 
-  useEffect(() => {
-    if (open && content) {
-      delayClear()
-    }
+  useLayoutEffect(() => {
+    event.on('exit', internalDestroy)
+    event.on('update', setUpdatedProps)
     return () => {
-      timer.current && clearTimeout(timer.current)
+      event.off('exit', internalDestroy)
+      event.off('update', setUpdatedProps)
     }
-  }, [open, content])
+  }, [])
+
+  useThrottleEffect(
+    () => {
+      if (open && content) {
+        delayClear()
+      }
+      return () => {
+        timer.current && clearTimeout(timer.current)
+        timer.current = 0
+      }
+    },
+    [updatedProps],
+    {
+      wait: 60,
+      leading: true,
+      trailing: true,
+    },
+  )
 
   const internalDestroy = () => {
     setOpen(false)
@@ -83,4 +111,71 @@ function Toast(props: ToastProps) {
     </AnimatePresence>
   )
 }
-export default memo(Toast)
+
+const queue = new Queue()
+const event = new Emitter<{
+  init: [message: ToastMessageType]
+  update: [message: ToastMessageType]
+  exit: []
+}>()
+
+const MARK = '__toast_react_root__'
+
+type ContainerType = (Element | DocumentFragment) & {
+  [MARK]?: Root
+}
+
+async function concurrentUnmount(container: ContainerType) {
+  // Delay to unmount to avoid React 18 sync warning
+  return Promise.resolve().then(() => {
+    container[MARK]?.unmount()
+    delete container[MARK]
+  })
+}
+
+function modernRender(node: ReactElement, container: ContainerType) {
+  const root = container[MARK] || createRoot(container)
+  root.render(node)
+  container[MARK] = root
+}
+
+event.on('init', (args) => {
+  const container = document.createElement('div')
+  document.body.appendChild(container)
+  modernRender(
+    <Toast
+      {...args}
+      onClosed={() => {
+        concurrentUnmount(container)
+        container.remove()
+        args.onClosed?.()
+        queue.shift()
+      }}
+    />,
+    container,
+  )
+})
+
+function notice(props: ToastProps) {
+  queue.push(props)
+  if (queue.length === 1) {
+    event.emit('init', queue.first)
+    return
+  } else {
+    queue.shift()
+    event.emit('update', queue.first)
+  }
+}
+
+const index = {
+  open: (props: ToastProps) => {
+    notice(props)
+  },
+  hide: () => {
+    if (queue.length) {
+      event.emit('exit')
+    }
+  },
+}
+
+export default index

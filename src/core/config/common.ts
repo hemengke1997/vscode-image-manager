@@ -1,5 +1,10 @@
 import { Colors } from '~/webview/ImageManager/utils/color'
 
+export type VscodeConfigType = {
+  theme: Theme
+  language: Language
+}
+
 export type ConfigType = {
   viewer: {
     warningSize: number
@@ -13,8 +18,9 @@ export type ConfigType = {
   }
 
   appearance: {
-    theme: Theme | 'auto'
-    language: Language | 'auto'
+    theme: Theme
+    language: Language
+    primaryColor: string
   }
 }
 
@@ -33,6 +39,7 @@ export const defaultConfig: ConfigType = {
   appearance: {
     theme: 'auto',
     language: 'auto',
+    primaryColor: '',
   },
 }
 
@@ -47,4 +54,5 @@ export enum ConfigKey {
 
   appearance_theme = 'appearance.theme',
   appearance_language = 'appearance.language',
+  appearance_primaryColor = 'appearance.primaryColor',
 }

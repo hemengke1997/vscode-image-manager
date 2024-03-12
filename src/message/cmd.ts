@@ -29,7 +29,7 @@ export enum CmdToVscode {
   GET_ALL_IMAGES = 'GET_ALL_IMAGES',
   // 获取图片元信息
   GET_IMAGE_METADATA = 'GET_IMAGE_METADATA',
-  // 获取扩展的配置
+  // 获取扩展的配置（用户配置和默认的vscode配置）
   GET_EXT_CONFIG = 'GET_EXT_CONFIG',
   // 获取压缩器
   GET_COMPRESSOR = 'GET_COMPRESSOR',

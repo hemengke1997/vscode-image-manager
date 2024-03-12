@@ -10,6 +10,7 @@ export class Config {
   static readonly refreshConfigs = [
     ConfigKey.appearance_language,
     ConfigKey.appearance_theme,
+    ConfigKey.appearance_primaryColor,
     ConfigKey.viewer_imageWidth,
     ConfigKey.viewer_warningSize,
     ConfigKey.viewer_imageBackgroundColor,
@@ -49,6 +50,10 @@ export class Config {
 
   static get appearance_language() {
     return this.getConfig(ConfigKey.appearance_language)
+  }
+
+  static get appearance_primaryColor() {
+    return this.getConfig(ConfigKey.appearance_primaryColor)
   }
 
   static get all() {

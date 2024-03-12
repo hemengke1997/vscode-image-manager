@@ -3,25 +3,29 @@ import { Button, Popover, Tooltip } from 'antd'
 import { AnimatePresence, motion } from 'framer-motion'
 import { type PropsWithChildren, memo, useEffect, useRef } from 'react'
 import { useTranslation } from 'react-i18next'
-import { MdMenuOpen, MdOutlineColorLens } from 'react-icons/md'
+import { IoSettingsOutline } from 'react-icons/io5'
+import { ConfigKey } from '~/core/config/common'
+import { useConfiguration } from '~/webview/hooks/useConfiguration'
 import { LocalStorageEnum } from '~/webview/local-storage'
 import Logo from '~/webview/ui-framework/src/images/logo.svg?react'
 import FrameworkContext from '../../contexts/FrameworkContext'
-import { getCssVar } from '../../utils/theme'
+import { getCssVar, setHtmlTheme } from '../../utils/theme'
 import LocaleSelector from './components/LocaleSelector'
 import PrimaryColorPicker from './components/PrimaryColorPicker'
-import ThemeSwitcher from './components/ThemeSwitcher'
+import ThemeSelector from './components/ThemeSelector'
 
 function CustomConfigProvider(props: PropsWithChildren) {
   const { children } = props
-  const { primaryColor, theme, setPrimaryColor, setTheme, mode, setMode } = FrameworkContext.usePicker([
-    'primaryColor',
-    'theme',
-    'setPrimaryColor',
-    'setTheme',
-    'mode',
-    'setMode',
-  ])
+  const { primaryColor, theme, setPrimaryColor, setTheme, mode, setMode, themeWithoutAuto } =
+    FrameworkContext.usePicker([
+      'primaryColor',
+      'theme',
+      'setPrimaryColor',
+      'setTheme',
+      'mode',
+      'setMode',
+      'themeWithoutAuto',
+    ])
 
   const { t } = useTranslation()
 
@@ -34,6 +38,13 @@ function CustomConfigProvider(props: PropsWithChildren) {
     const fontSize = getCssVar('--ant-font-size', domRef.current!).split('px')[0]
     document.documentElement.style.fontSize = `${fontSize}px`
   }, [])
+
+  const { update } = useConfiguration()
+
+  // every time the theme changes, update the html theme (for tailwindcss)
+  useEffect(() => {
+    setHtmlTheme(themeWithoutAuto)
+  }, [themeWithoutAuto])
 
   return (
     <div className={'min-w-screen min-h-screen space-y-2 p-4'} ref={domRef}>
@@ -66,22 +77,25 @@ function CustomConfigProvider(props: PropsWithChildren) {
                 content={
                   <div className={'flex-center space-x-2'}>
                     <LocaleSelector />
-                    <ThemeSwitcher theme={theme} onThemeChange={setTheme} />
+                    <ThemeSelector value={theme} onChange={setTheme} />
                     <PrimaryColorPicker
                       localKey={LocalStorageEnum.LOCAL_STORAGE_RECENT_COLORS_KEY}
-                      color={primaryColor}
-                      onColorChange={setPrimaryColor}
-                    >
-                      <Button
-                        title={t('im.primary_color')}
-                        type='text'
-                        icon={
-                          <div className={'text-ant-color-primary flex-center text-2xl'}>
-                            <MdOutlineColorLens />
-                          </div>
-                        }
-                      ></Button>
-                    </PrimaryColorPicker>
+                      value={primaryColor}
+                      onChange={(color) => {
+                        return new Promise((resolve) => {
+                          update(
+                            {
+                              key: ConfigKey.appearance_primaryColor,
+                              value: color,
+                            },
+                            () => {
+                              setPrimaryColor(color)
+                              resolve()
+                            },
+                          )
+                        })
+                      }}
+                    ></PrimaryColorPicker>
                   </div>
                 }
               >
@@ -89,7 +103,7 @@ function CustomConfigProvider(props: PropsWithChildren) {
                   type='text'
                   icon={
                     <div className={'flex-center text-2xl'}>
-                      <MdMenuOpen />
+                      <IoSettingsOutline />
                     </div>
                   }
                   title={lowerCase(t('im.settings'))}
