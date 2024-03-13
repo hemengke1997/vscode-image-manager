@@ -1,7 +1,7 @@
 import { isFunction } from '@minko-fe/lodash-pro'
 import { useAsyncEffect, useLatest, useMemoizedFn, useSetState, useUpdateEffect } from '@minko-fe/react-hook'
 import { createContainer } from 'context-state'
-import { useEffect, useMemo } from 'react'
+import { useEffect, useMemo, useRef } from 'react'
 import { CmdToVscode } from '~/message/cmd'
 import { vscodeApi } from '~/webview/vscode-api'
 import { type ImageType, type ImageVisibleFilterType } from '..'
@@ -18,25 +18,30 @@ export type ImageStateType = {
 
 type Condition = {
   key: ImageVisibleFilterType
-  condition: ((image: ImageType, index: number) => boolean | Promise<boolean>) | boolean
+  condition: (image: ImageType, index: number) => boolean | undefined | Promise<boolean | undefined>
 }
 
 // 根据条件改变图片的visible
 async function changeImageVisible(imageList: ImageType[], conditions: Condition[]) {
-  return Promise.all(
-    imageList.map(async (image, index) => {
-      for (const { key, condition } of conditions) {
-        image = {
-          ...image,
-          visible: {
-            ...image.visible,
-            [key]: isFunction(condition) ? await condition(image, index) : condition,
-          },
-        }
+  const promises = imageList.map((image, index) => async () => {
+    for (const { key, condition } of conditions) {
+      image = {
+        ...image,
+        visible: {
+          ...image.visible,
+          [key]: isFunction(condition) ? await condition(image, index) : condition,
+        },
       }
-      return image
-    }),
-  )
+    }
+    return image
+  })
+
+  if (promises.length) {
+    const first = await promises[0]()
+    const rest = await Promise.all(promises.slice(1).map((p) => p()))
+    return [first, ...rest]
+  }
+  return []
 }
 
 // 图片排序
@@ -160,6 +165,8 @@ function useTreeContext(props: { imageList: ImageType[] }) {
     return res
   }
 
+  const git_staged_cache = useRef<string[] | null>(null)
+
   const changeImageVisibleByKeys = useMemoizedFn(
     (imageList: ImageType[], key: ImageVisibleFilterType[]): Promise<ImageType[]> => {
       const builtInConditions: Condition[] = [
@@ -176,24 +183,26 @@ function useTreeContext(props: { imageList: ImageType[] }) {
         },
         {
           key: 'git_staged',
-          condition: (image, index) => {
+          condition: async (image, index) => {
             if (imageFilter?.value.git_staged) {
-              let staged: string[] = []
-              if (index === 0) {
-                // Get staged images only once to improve performance
-                ;(async () => {
-                  staged = await new Promise<string[]>((resolve) => {
+              // Get staged images when needed to improve performance
+              if (index === 0 || !git_staged_cache.current) {
+                try {
+                  git_staged_cache.current = await new Promise<string[]>((resolve) => {
                     vscodeApi.postMessage({ cmd: CmdToVscode.GET_GIT_STAGED_IMAGES }, (res) => {
                       resolve(res || [])
                     })
                   })
-                })()
+                } catch {
+                  git_staged_cache.current = null
+                }
               }
+
               switch (imageFilter.value.git_staged) {
                 case FilterRadioValue.yes:
-                  return staged.includes(image.path)
+                  return git_staged_cache.current?.includes(image.path)
                 case FilterRadioValue.no:
-                  return !staged.includes(image.path)
+                  return !git_staged_cache.current?.includes(image.path)
                 default:
                   return true
               }

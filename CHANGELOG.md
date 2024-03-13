@@ -1,5 +1,15 @@
 # CHANGELOG
 
+## 0.5.1
+
+### Fix
+
+- Filter git staged/unstaged images not correct
+
+### Optimize
+
+- Update better icons
+
 ## 0.5.0
 
 ### Feat

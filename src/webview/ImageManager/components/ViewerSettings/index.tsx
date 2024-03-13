@@ -3,6 +3,7 @@ import { Card } from 'antd'
 import { AnimatePresence, motion } from 'framer-motion'
 import { type ForwardedRef, type ReactNode, forwardRef, memo, useImperativeHandle, useMemo } from 'react'
 import { useTranslation } from 'react-i18next'
+import { RiSettingsLine } from 'react-icons/ri'
 import { ConfigKey } from '~/core/config/common'
 import { useConfiguration } from '~/webview/hooks/useConfiguration'
 import { LocalStorageEnum } from '~/webview/local-storage'
@@ -10,10 +11,11 @@ import PrimaryColorPicker from '~/webview/ui-framework/src/components/CustomConf
 import GlobalContext from '../../contexts/GlobalContext'
 import SettingsContext from '../../contexts/SettingsContext'
 import { Colors } from '../../utils/color'
-import DisplayGroup, { type GroupType } from '../DisplayGroup'
+import DisplayGroup from '../DisplayGroup'
 import DisplaySort from '../DisplaySort'
 import DisplayStyle from '../DisplayStyle'
 import DisplayType from '../DisplayType'
+import TitleIconUI from '../TitleIconUI'
 
 export type ViewerSettingsRef = {
   changeImageType: (checked: string[], unchecked?: string[]) => void
@@ -39,26 +41,6 @@ function ViewerSettings(_: any, ref: ForwardedRef<ViewerSettingsRef>) {
       unchecked: unchecked || t?.unchecked || [],
     }))
   }
-
-  /* ---------------- image group --------------- */
-  const groupType: { label: string; value: GroupType; hidden?: boolean }[] = useMemo(
-    () => [
-      {
-        label: 'TODO: workspace',
-        value: 'workspace',
-        hidden: true,
-      },
-      {
-        label: t('im.group_by_dir'),
-        value: 'dir',
-      },
-      {
-        label: t('im.group_by_type'),
-        value: 'type',
-      },
-    ],
-    [t],
-  )
 
   const {
     sort,
@@ -98,8 +80,8 @@ function ViewerSettings(_: any, ref: ForwardedRef<ViewerSettingsRef>) {
           exit={{ opacity: 0 }}
           transition={{ duration: 0.15 }}
         >
-          <Card size='small' title={t('im.settings')}>
-            <div className={'flex flex-col space-y-3'}>
+          <Card title={<TitleIconUI icon={<RiSettingsLine />}>{t('im.settings')}</TitleIconUI>}>
+            <div className={'flex flex-col gap-y-3'}>
               <OperationItemUI title={t('im.type')}>
                 <DisplayType
                   imageType={{
@@ -111,22 +93,13 @@ function ViewerSettings(_: any, ref: ForwardedRef<ViewerSettingsRef>) {
                 />
               </OperationItemUI>
 
-              <div className={'flex items-center space-x-6'}>
+              <div className={'flex flex-wrap items-center gap-x-5 gap-y-1'}>
                 <OperationItemUI title={t('im.group')}>
-                  <DisplayGroup
-                    options={groupType
-                      .filter((t) => !t.hidden)
-                      .map((item) => ({ label: item.label, value: item.value }))}
-                    value={displayGroup}
-                    onChange={setDisplayGroup}
-                  ></DisplayGroup>
+                  <DisplayGroup value={displayGroup} onChange={setDisplayGroup}></DisplayGroup>
                 </OperationItemUI>
-                <OperationItemUI title={t('im.style')}>
+                <OperationItemUI title={t('im.layout')}>
                   <DisplayStyle value={displayStyle} onChange={setDisplayStyle} />
                 </OperationItemUI>
-              </div>
-
-              <div className={'flex space-x-6'}>
                 <OperationItemUI title={t('im.sort')}>
                   <DisplaySort options={sortOptions} value={sort} onChange={onSortChange} />
                 </OperationItemUI>
@@ -170,7 +143,7 @@ type OperationItemProps = {
 function OperationItemUI(props: OperationItemProps) {
   const { children, title } = props
   return (
-    <div className={'flex items-center space-x-4'}>
+    <div className={'flex-center space-x-4'}>
       <div className={'font-semibold'}>{title}</div>
       {children}
     </div>

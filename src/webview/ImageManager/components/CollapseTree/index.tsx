@@ -5,9 +5,8 @@ import { motion } from 'framer-motion'
 import { type ReactNode, memo, useMemo, useRef } from 'react'
 import { useTranslation } from 'react-i18next'
 import { FaRegImages } from 'react-icons/fa'
-import { FaRegObjectGroup } from 'react-icons/fa6'
 import { IoMdFolderOpen } from 'react-icons/io'
-import { PiFileImage } from 'react-icons/pi'
+import { VscFileMedia } from 'react-icons/vsc'
 import SettingsContext from '../../contexts/SettingsContext'
 import TreeContext from '../../contexts/TreeContext'
 import { DirTree, type DisplayMapType, type FileNode } from '../../utils/DirTree'
@@ -43,7 +42,7 @@ function CollapseTree() {
         list: workspaceFolders,
         icon: (props: { path: string }) => (
           <OpenFolder {...props}>
-            <FaRegObjectGroup />
+            <IoMdFolderOpen />
           </OpenFolder>
         ),
         contextMenu: true,
@@ -67,7 +66,7 @@ function CollapseTree() {
           id: 'fileType',
         },
         list: imageType,
-        icon: () => <PiFileImage />,
+        icon: () => <VscFileMedia className={'mr-1'} />,
         contextMenu: {
           openInOsExplorer: false,
           openInVscodeExplorer: false,
@@ -114,7 +113,7 @@ function CollapseTree() {
                   ...collapseProps,
                 }}
                 labelContainer={(label) => (
-                  <div className={'flex items-center space-x-2'}>
+                  <div className={'flex items-center space-x-1'}>
                     <div className={'flex-center'}>{displayMap[node.groupType!].icon({ path: node.value })}</div>
                     {label}
                   </div>

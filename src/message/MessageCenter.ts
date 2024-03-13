@@ -295,20 +295,21 @@ export const VscodeMessageCenter = {
 
   /* --------- get git staged images --------- */
   [CmdToVscode.GET_GIT_STAGED_IMAGES]: async () => {
-    function getStagedImages(root: string) {
-      return new Promise<string[]>((resolve, reject) => {
-        git({
-          baseDir: root,
-        }).diff(['--cached', '--diff-filter=ACMR', '--name-only'], (err, result) => {
-          if (err) reject(err)
-          // Split the result into an array of file names
-          const files = result.split('\n')
-          // Filter out non-image files
-          let imageFiles = files.filter((file) => Config.file_scan.includes(path.extname(file).slice(1)))
-          imageFiles = imageFiles.map((file) => path.join(root, file))
-          resolve(imageFiles)
-        })
-      })
+    async function getStagedImages(root: string) {
+      const simpleGit = git({ baseDir: root, binary: 'git' })
+
+      try {
+        const files = (await simpleGit.diff(['--staged', '--diff-filter=ACMR', '--name-only'])).split('\n')
+        // Filter out non-image files
+        let imageFiles = files.filter((file) => Config.file_scan.includes(path.extname(file).slice(1)))
+        // Add the full path to the file
+        const gitRoot = await simpleGit.revparse(['--show-toplevel'])
+        imageFiles = imageFiles.map((file) => path.join(gitRoot, file))
+        return imageFiles
+      } catch (e) {
+        Log.debug(`Get git staged images error: ${e}`)
+        return []
+      }
     }
 
     const images = await Promise.all(Global.rootpaths.map((root) => getStagedImages(root)))
@@ -322,14 +323,6 @@ export const VscodeMessageCenter = {
     await debounceUpdateVscodeConfig(message.data)
 
     return true
-  },
-
-  /* ----------- test vscode command ----------- */
-  [CmdToVscode.TEMP_TEST_CMD]: async ({ message }: MessageParams<{ cmd: string; path: string }>) => {
-    const { cmd, path } = message.data
-
-    const uri = Uri.file(path)
-    await commands.executeCommand(cmd, uri)
   },
 }
 

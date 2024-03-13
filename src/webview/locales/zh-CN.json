@@ -10,7 +10,6 @@
     "type": "类型",
     "group": "分组",
     "sort": "排序",
-    "style": "目录展示",
     "compact": "紧凑",
     "nested": "嵌套",
     "image_background_color": "图片背景色",
@@ -48,7 +47,6 @@
     "compress_success": "压缩成功",
     "compress_fail": "压缩失败",
     "compressing": "压缩中...，请稍等",
-    "compress_under_folder": "压缩当前文件夹下图片",
     "retry": "重试",
     "compressor_not_found": "图片压缩功能丢失",
     "search_image": "搜索",
@@ -106,7 +104,11 @@
     "git_staged": "Git staged",
     "no_image_to_compress": "无可压缩的图片",
     "init_compressor_fail": "压缩功能初始化失败",
-    "skip_compressed": "跳过已压缩"
+    "skip_compressed": "跳过已压缩",
+    "toggle_options": "选项配置",
+    "operation": "操作",
+    "center_x": "左右居中",
+    "center_y": "上下居中"
   },
   "fallback": {
     "internal_error": "内部错误",

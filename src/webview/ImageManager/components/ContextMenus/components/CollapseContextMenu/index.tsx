@@ -56,13 +56,6 @@ function CollapseContextMenu() {
   return (
     <>
       <MaskMenu id={COLLAPSE_CONTEXT_MENU_ID}>
-        <Item hidden={isItemHidden} onClick={handleCompressImage} data={COLLAPSE_CONTEXT_MENU.compressImage}>
-          {t('im.compress_under_folder')}
-        </Item>
-        <Separator
-          hidden={isItemHidden}
-          data={[COLLAPSE_CONTEXT_MENU.openInOsExplorer, COLLAPSE_CONTEXT_MENU.openInVscodeExplorer]}
-        />
         <Item hidden={isItemHidden} onClick={handleOpenInOsExplorer} data={COLLAPSE_CONTEXT_MENU.openInOsExplorer}>
           {os.isMac() ? t('im.reveal_in_os_mac') : t('im.reveal_in_os_windows')}
         </Item>
@@ -72,6 +65,14 @@ function CollapseContextMenu() {
           data={COLLAPSE_CONTEXT_MENU.openInVscodeExplorer}
         >
           {t('im.reveal_in_explorer')}
+        </Item>
+
+        <Separator
+          hidden={isItemHidden}
+          data={[COLLAPSE_CONTEXT_MENU.openInOsExplorer, COLLAPSE_CONTEXT_MENU.openInVscodeExplorer]}
+        />
+        <Item hidden={isItemHidden} onClick={handleCompressImage} data={COLLAPSE_CONTEXT_MENU.compressImage}>
+          {t('im.compress')}
         </Item>
       </MaskMenu>
     </>

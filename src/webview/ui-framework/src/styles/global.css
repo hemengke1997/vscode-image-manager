@@ -14,12 +14,14 @@ pre {
   margin: 0;
 }
 
-#root {
-  @apply overflow-y-scroll w-full h-full select-none;
-}
-
 body {
   @apply p-0;
+}
+
+#root {
+  /* 设置html overflow-y-scroll 会造成渲染问题 */
+  /* 所以在 #root 元素上设置 */
+  @apply overflow-y-scroll w-full h-full select-none;
 }
 
 .ant-btn-icon-only {

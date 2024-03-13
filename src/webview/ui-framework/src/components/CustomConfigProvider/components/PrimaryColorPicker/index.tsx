@@ -44,6 +44,7 @@ function PrimaryColorPicker(props: PrimaryColorPickerProps) {
   const [loading, setLoading] = useState(false)
 
   const _onColorChange: ColorPickerProps['onChange'] = (color) => {
+    if (loading) return
     startTransition(() => setSelectedColor(color.toHexString()))
   }
 

@@ -50,7 +50,4 @@ export enum CmdToVscode {
   GET_GIT_STAGED_IMAGES = 'GET_GIT_STAGED_IMAGES',
   // 更新用户config
   UPDATE_USER_CONFIGURATION = 'UPDATE_USER_CONFIGURATION',
-
-  // Test vscode built-in command. For dev convenience
-  TEMP_TEST_CMD = 'TEMP_TEST_CMD',
 }

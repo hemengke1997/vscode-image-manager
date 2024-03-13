@@ -1,6 +1,6 @@
 import { ceil, isObject, upperCase } from '@minko-fe/lodash-pro'
 import { useControlledState, useHistoryTravel, useMemoizedFn } from '@minko-fe/react-hook'
-import { Alert, App, Button, Card, ConfigProvider, Divider, Form, InputNumber, Modal, Radio, theme } from 'antd'
+import { Alert, App, Button, Card, ConfigProvider, Divider, Form, InputNumber, Modal, Segmented, theme } from 'antd'
 import { type ReactNode, memo, useEffect, useState } from 'react'
 import { useHotkeys } from 'react-hotkeys-hook'
 import { useTranslation } from 'react-i18next'
@@ -13,6 +13,7 @@ import GlobalContext from '../../contexts/GlobalContext'
 import { Keybinding } from '../../keybinding'
 import { formatBytes, getFilenameFromPath } from '../../utils'
 import ImagePreview from '../ImagePreview'
+import styles from './index.module.css'
 
 type FormValue = {
   compressionLevel?: number
@@ -291,12 +292,26 @@ function ImageOperator(props: ImageOperatorProps & ImageOperatorStaticProps) {
     size: () => (
       <div className={'flex'}>
         <Form.Item label={t('im.image_size')} name='size'>
-          <Radio.Group>
-            <Radio value={1}>@1x</Radio>
-            <Radio value={2}>@2x</Radio>
-            <Radio value={3}>@3x</Radio>
-            <Radio value={'custom'}>{t('im.custom')}</Radio>
-          </Radio.Group>
+          <Segmented
+            options={[
+              {
+                value: '1',
+                label: '@1x',
+              },
+              {
+                value: '2',
+                label: '@2x',
+              },
+              {
+                value: '3',
+                label: '@3x',
+              },
+              {
+                value: 'custom',
+                label: t('im.custom'),
+              },
+            ]}
+          ></Segmented>
         </Form.Item>
         <Form.Item noStyle shouldUpdate={(p, c) => p.size !== c.size}>
           {({ getFieldValue }) =>
@@ -312,32 +327,51 @@ function ImageOperator(props: ImageOperatorProps & ImageOperatorStaticProps) {
     format: () => {
       return (
         <Form.Item label={t('im.format')} name={'format'}>
-          <Radio.Group>
-            <Radio value={''}>{t('im.original')}</Radio>
-
-            {compressor?.config.exts.map((item) => (
-              <Radio value={item} key={item}>
-                {upperCase(item)}
-              </Radio>
-            ))}
-          </Radio.Group>
+          <Segmented
+            options={[
+              {
+                value: '',
+                label: t('im.original'),
+              },
+              ...(compressor?.config.exts.map((item) => ({
+                value: item,
+                label: upperCase(item),
+              })) || []),
+            ]}
+          ></Segmented>
         </Form.Item>
       )
     },
     keep: () => (
       <Form.Item label={t('im.keep')} name={'keep'} tooltip={t('im.keep_origin')}>
-        <Radio.Group>
-          <Radio value={1}>{t('im.yes')}</Radio>
-          <Radio value={0}>{t('im.no')}</Radio>
-        </Radio.Group>
+        <Segmented
+          options={[
+            {
+              value: 1,
+              label: t('im.yes'),
+            },
+            {
+              value: 0,
+              label: t('im.no'),
+            },
+          ]}
+        />
       </Form.Item>
     ),
     skipCompressed: () => (
       <Form.Item label={t('im.skip_compressed')} name={'skipCompressed'} className={'mb-0'}>
-        <Radio.Group>
-          <Radio value={1}>{t('im.yes')}</Radio>
-          <Radio value={0}>{t('im.no')}</Radio>
-        </Radio.Group>
+        <Segmented
+          options={[
+            {
+              value: 1,
+              label: t('im.yes'),
+            },
+            {
+              value: 0,
+              label: t('im.no'),
+            },
+          ]}
+        />
       </Form.Item>
     ),
   }
@@ -355,6 +389,7 @@ function ImageOperator(props: ImageOperatorProps & ImageOperatorStaticProps) {
       title={t('im.image_compression')}
       footer={null}
       width={'80%'}
+      destroyOnClose
     >
       <div className={'flex w-full flex-col items-center space-y-2 overflow-auto'}>
         <Card className={'max-h-[480px] w-full overflow-y-auto'}>
@@ -408,6 +443,7 @@ function ImageOperator(props: ImageOperatorProps & ImageOperatorStaticProps) {
               form={form}
               requiredMark={false}
               onFinish={onFinish}
+              className={styles.form}
             >
               {Object.keys(compressor?.option || []).map((key, index) => (
                 <div key={index}>{ComponentMap[key]?.()}</div>

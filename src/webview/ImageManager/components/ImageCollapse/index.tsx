@@ -70,7 +70,7 @@ function ImageCollapse(props: ImageCollapseProps) {
 
   const singleLabelNode = (label: string, index: number) => {
     return (
-      <div className={'w-full'}>
+      <div className={'w-full flex-1'}>
         <div
           onContextMenu={(e) => {
             if (!contextMenu) return
@@ -87,8 +87,7 @@ function ImageCollapse(props: ImageCollapseProps) {
           }}
           tabIndex={-1}
           className={classNames(
-            "w-fit relative cursor-pointer transition-all after:absolute after:-inset-x-0 after:-inset-y-1.5 after:content-['']",
-            contextMenu && 'hover:underline focus:underline',
+            "w-full relative cursor-pointer transition-all after:absolute after:-inset-y-[8px] after:-right-[12px] after:left-0 after:content-['']",
           )}
           onClick={() => {
             if (activeKeys?.length) {
@@ -107,9 +106,9 @@ function ImageCollapse(props: ImageCollapseProps) {
   const generateLabel = (labels: string[]) => {
     if (labels.length > 1) {
       return (
-        <div className={'flex-center'}>
+        <div className={'flex-center w-full'}>
           {labels.map((l, i) => (
-            <div key={i} className={'flex-center'}>
+            <div key={i} className={classNames('flex-center', i === labels.length - 1 && 'flex-1')}>
               {singleLabelNode(l, i)}
               {i !== labels.length - 1 && <div className={'px-0.5'}>/</div>}
             </div>

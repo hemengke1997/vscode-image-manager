@@ -1,17 +1,38 @@
 import { useControlledState } from '@minko-fe/react-hook'
 import { Checkbox, type CheckboxOptionType } from 'antd'
-import { memo, startTransition } from 'react'
+import { type ReactNode, memo, startTransition, useMemo } from 'react'
+import { useTranslation } from 'react-i18next'
 
 export type GroupType = 'workspace' | 'dir' | 'type'
 
 type DisplayGroupProps<T> = {
-  options: CheckboxOptionType[]
   value?: T[]
   onChange?: (checked: T[]) => void
 }
 
 function DisplayGroup<T extends string = GroupType>(props: DisplayGroupProps<T>) {
-  const { options, value, onChange } = props
+  const { value, onChange } = props
+  const { t } = useTranslation()
+
+  /* ---------------- image group --------------- */
+  const groupType: { label: ReactNode; value: GroupType; hidden?: boolean }[] = useMemo(
+    () => [
+      {
+        label: 'TODO: workspace',
+        value: 'workspace',
+        hidden: true,
+      },
+      {
+        label: t('im.group_by_dir'),
+        value: 'dir',
+      },
+      {
+        label: t('im.group_by_type'),
+        value: 'type',
+      },
+    ],
+    [t],
+  )
 
   const [groups, setGroups] = useControlledState<T[]>({
     defaultValue: value,
@@ -22,7 +43,11 @@ function DisplayGroup<T extends string = GroupType>(props: DisplayGroupProps<T>)
   return (
     <>
       <Checkbox.Group
-        options={options}
+        options={
+          groupType
+            .filter((t) => !t.hidden)
+            .map((item) => ({ label: item.label, value: item.value })) as CheckboxOptionType[]
+        }
         onChange={(checked) => {
           startTransition(() => setGroups(checked as T[]))
         }}

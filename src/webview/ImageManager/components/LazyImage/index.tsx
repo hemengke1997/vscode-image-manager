@@ -7,10 +7,10 @@ import { useContextMenu } from 'react-contexify'
 import { useHotkeys } from 'react-hotkeys-hook'
 import { useTranslation } from 'react-i18next'
 import { FaRegGrinStars } from 'react-icons/fa'
-import { FaImages } from 'react-icons/fa6'
-import { ImEyePlus } from 'react-icons/im'
+import { HiOutlineViewfinderCircle } from 'react-icons/hi2'
 import { MdOutlineRemoveCircle } from 'react-icons/md'
-import { PiFileImage } from 'react-icons/pi'
+import { RxDimensions } from 'react-icons/rx'
+import { TbResize } from 'react-icons/tb'
 import { type SharpNS } from '~/@types/global'
 import { CmdToVscode } from '~/message/cmd'
 import useImageDetail from '~/webview/hooks/useImageDetail/useImageDetail'
@@ -147,17 +147,17 @@ function LazyImage(props: LazyImageProps) {
                             setPreview({ open: true, current: index })
                           }}
                         >
-                          <ImEyePlus />
+                          <HiOutlineViewfinderCircle />
                           <span>{t('im.preview')}</span>
                         </div>
                         <div className={'flex-center space-x-1 truncate'}>
-                          <PiFileImage />
+                          <TbResize />
                           <span className={classNames(ifWarning && 'text-ant-color-warning-text')}>
                             {formatBytes(image.stats.size)}
                           </span>
                         </div>
                         <div className={'flex-center space-x-1 truncate'}>
-                          <FaImages />
+                          <RxDimensions />
                           <span className={'flex items-center'}>
                             {imageMetadata?.metadata.width}x{imageMetadata?.metadata.height}
                           </span>

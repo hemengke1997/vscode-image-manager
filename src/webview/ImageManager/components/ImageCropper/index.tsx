@@ -2,11 +2,12 @@ import type Cropperjs from 'cropperjs'
 import { isNil, round } from '@minko-fe/lodash-pro'
 import { useControlledState, useSetState, useUpdateEffect } from '@minko-fe/react-hook'
 import { isDev } from '@minko-fe/vite-config/client'
-import { App, Button, Card, Checkbox, InputNumber, Modal, Radio, Skeleton } from 'antd'
+import { App, Button, Card, Checkbox, Divider, InputNumber, Modal, Popover, Segmented, Skeleton } from 'antd'
 import classNames from 'classnames'
 import mime from 'mime/lite'
 import { memo, startTransition, useEffect, useReducer, useRef, useState } from 'react'
 import { Trans, useTranslation } from 'react-i18next'
+import { IoIosArrowDropup } from 'react-icons/io'
 import { CmdToVscode } from '~/message/cmd'
 import { vscodeApi } from '~/webview/vscode-api'
 import { type ImageType } from '../..'
@@ -161,28 +162,35 @@ function ImageCropper(props?: ImageCropperProps) {
     }
   }
 
-  const moveImageAndCropBoxToContainerCenter = () => {
-    // move crop box to container center
-    const { x: containerX, y: containerY } = getContainerCenterPoint()
-    cropperRef.current?.cropper?.setCropBoxData({
-      left: containerX - cropperRef.current?.cropper!.getCropBoxData().width / 2,
-      top: containerY - cropperRef.current?.cropper!.getCropBoxData().height / 2,
-    })
+  const moveToCenter = (options?: { centerCrop?: boolean; centerX?: boolean; centerY?: boolean }) => {
+    const { centerCrop = false, centerX = true, centerY = true } = options || {}
+    if (centerCrop) {
+      // move crop box to container center
+      const { x: containerX, y: containerY } = getContainerCenterPoint()
+      cropperRef.current?.cropper?.setCropBoxData({
+        left: containerX - cropperRef.current?.cropper.getCropBoxData().width / 2,
+        top: containerY - cropperRef.current?.cropper.getCropBoxData().height / 2,
+      })
+    }
 
     const { x: cropBoxX, y: cropBoxY } = getCropBoxCenterPoint()
-    console.log(cropBoxX, cropBoxY)
-    const { width, height } = cropperRef.current!.cropper!.getImageData()
-    cropperRef.current?.cropper?.moveTo(cropBoxX - width / 2, cropBoxY - height / 2)
+    const { width, height } = cropperRef.current!.cropper.getImageData()
+    const { top, left } = cropperRef.current!.cropper.getCanvasData()
+    cropperRef.current?.cropper?.moveTo(centerX ? cropBoxX - width / 2 : left, centerY ? cropBoxY - height / 2 : top)
   }
 
   return (
     <Modal
       maskClosable={false}
+      keyboard={false}
+      mask
       open={open}
       title={t('im.crop')}
       footer={null}
       width={'80%'}
       onCancel={() => setOpen(false)}
+      // resolve z-index bug
+      destroyOnClose
     >
       <div className={'flex items-stretch space-x-2 overflow-auto'}>
         <div className={'h-full w-[70%] flex-none'}>
@@ -192,7 +200,9 @@ function ImageCropper(props?: ImageCropperProps) {
               className={classNames('w-full max-w-full h-[400px]', styles.cropper, loading && 'opacity-0 absolute')}
               ready={() => {
                 if (cropperRef.current) {
-                  moveImageAndCropBoxToContainerCenter()
+                  moveToCenter({
+                    centerCrop: true,
+                  })
                 }
                 setLoading(false)
               }}
@@ -218,82 +228,85 @@ function ImageCropper(props?: ImageCropperProps) {
           >
             <div className={'flex h-full flex-col justify-between'}>
               <div className={'flex flex-col space-y-1'}>
-                <div className={'flex w-full flex-wrap items-center gap-x-1'}>
-                  <Checkbox
-                    value={'highlight'}
-                    checked={cropperOptions.highlight}
-                    onChange={(e) => {
-                      setCropperOptions({
-                        highlight: e.target.checked,
-                      })
-                    }}
-                  >
-                    {t('im.highlight')}
-                  </Checkbox>
-                  <Checkbox
-                    value={'guides'}
-                    checked={cropperOptions.guides}
-                    onChange={(e) => {
-                      setCropperOptions({
-                        guides: e.target.checked,
-                      })
-                    }}
-                  >
-                    {t('im.guides')}
-                  </Checkbox>
-                  <Checkbox
-                    value={'background'}
-                    checked={cropperOptions.background}
-                    onChange={(e) => {
-                      setCropperOptions({
-                        background: e.target.checked,
-                      })
-                    }}
-                  >
-                    {t('im.background')}
-                  </Checkbox>
-                </div>
-                <div className={'w-full'}>
-                  <Button className={'w-full'} onClick={moveImageAndCropBoxToContainerCenter} type='primary'>
-                    {t('im.center')}
+                <Popover
+                  trigger={['hover']}
+                  content={
+                    <div className={'flex w-full flex-col flex-wrap gap-x-1'}>
+                      <Checkbox
+                        value={'highlight'}
+                        checked={cropperOptions.highlight}
+                        onChange={(e) => {
+                          setCropperOptions({
+                            highlight: e.target.checked,
+                          })
+                        }}
+                      >
+                        {t('im.highlight')}
+                      </Checkbox>
+                      <Checkbox
+                        value={'guides'}
+                        checked={cropperOptions.guides}
+                        onChange={(e) => {
+                          setCropperOptions({
+                            guides: e.target.checked,
+                          })
+                        }}
+                      >
+                        {t('im.guides')}
+                      </Checkbox>
+                      <Checkbox
+                        value={'background'}
+                        checked={cropperOptions.background}
+                        onChange={(e) => {
+                          setCropperOptions({
+                            background: e.target.checked,
+                          })
+                        }}
+                      >
+                        {t('im.background')}
+                      </Checkbox>
+                    </div>
+                  }
+                >
+                  <Button type='default' icon={<IoIosArrowDropup />} className={'flex-center justify-center'}>
+                    {t('im.toggle_options')}
                   </Button>
-                </div>
+                </Popover>
+
                 <div className={'w-full'}>
-                  <Radio.Group
+                  <Segmented
                     value={cropperOptions.viewMode}
                     onChange={(e) => {
                       setCropperOptions({
-                        viewMode: e.target.value,
+                        viewMode: e as Cropperjs.ViewMode,
                       })
                     }}
-                    buttonStyle='solid'
+                    options={getViewmodes(i18n).map((item) => ({
+                      label: item.label,
+                      value: item.value,
+                    }))}
                     className={'flex'}
-                  >
-                    {getViewmodes(i18n).map((item, index) => (
-                      <Radio.Button className={'flex flex-1 justify-center'} key={index} value={item.value}>
-                        {item.label}
-                      </Radio.Button>
-                    ))}
-                  </Radio.Group>
+                    block
+                    size='small'
+                  ></Segmented>
                 </div>
 
                 <div className={'w-full'}>
-                  <Radio.Group
+                  <Segmented
                     value={cropperOptions.aspectRatio}
                     onChange={(e) => {
                       setCropperOptions({
-                        aspectRatio: e.target.value,
+                        aspectRatio: e as number,
                       })
                     }}
-                    buttonStyle='solid'
                     className={'flex'}
-                  >
-                    {getAspectRatios(i18n).map((item, index) => (
-                      <Radio.Button className={'flex flex-1 justify-center'} key={index} value={item.value}>
-                        {item.label}
-                      </Radio.Button>
-                    ))}
-                  </Radio.Group>
+                    block
+                    size='small'
+                    options={getAspectRatios(i18n).map((item) => ({
+                      label: item.label,
+                      value: item.value,
+                    }))}
+                  ></Segmented>
                 </div>
                 <div className={'flex flex-col space-y-1'}>
                   {Object.keys(details || {}).map((key) => (
@@ -309,6 +322,36 @@ function ImageCropper(props?: ImageCropperProps) {
                       key={key}
                     ></InputNumber>
                   ))}
+                  <Divider dashed plain>
+                    {t('im.operation')}
+                  </Divider>
+                  <Button.Group className={'flex-center w-full'}>
+                    <Button className={'flex-1'} onClick={() => moveToCenter({ centerCrop: true })}>
+                      {t('im.center')}
+                    </Button>
+                    <Button
+                      className={'flex-1'}
+                      onClick={() =>
+                        moveToCenter({
+                          centerX: true,
+                          centerY: false,
+                        })
+                      }
+                    >
+                      {t('im.center_x')}
+                    </Button>
+                    <Button
+                      className={'flex-1'}
+                      onClick={() =>
+                        moveToCenter({
+                          centerY: true,
+                          centerX: false,
+                        })
+                      }
+                    >
+                      {t('im.center_y')}
+                    </Button>
+                  </Button.Group>
                 </div>
               </div>
               <div className={'flex w-full justify-center'}>

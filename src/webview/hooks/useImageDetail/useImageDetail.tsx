@@ -69,7 +69,7 @@ export default function useImageDetail() {
           },
         ]
 
-        modal.success({
+        modal.confirm({
           width: '50%',
           icon: null,
           closable: true,

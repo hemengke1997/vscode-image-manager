@@ -1,5 +1,5 @@
 import { isNil, isObject, upperFirst } from '@minko-fe/lodash-pro'
-import { App, Button, ConfigProvider, Divider, Form, InputNumber, Popover, Radio, Space } from 'antd'
+import { App, Button, ConfigProvider, Divider, Form, InputNumber, Popover, Segmented, Space } from 'antd'
 import { memo, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { TbFilter } from 'react-icons/tb'
@@ -151,18 +151,42 @@ function Filter() {
               </Form.Item>
               {/* git staged */}
               <Form.Item label={t('im.git_staged')} name={'git_staged'}>
-                <Radio.Group optionType='button' buttonStyle='solid' name='git-filter'>
-                  <Radio value={FilterRadioValue.all}>{t('im.all')}</Radio>
-                  <Radio value={FilterRadioValue.yes}>{t('im.yes')}</Radio>
-                  <Radio value={FilterRadioValue.no}>{t('im.no')}</Radio>
-                </Radio.Group>
+                <Segmented
+                  size='small'
+                  options={[
+                    {
+                      value: FilterRadioValue.all,
+                      label: t('im.all'),
+                    },
+                    {
+                      value: FilterRadioValue.yes,
+                      label: t('im.yes'),
+                    },
+                    {
+                      value: FilterRadioValue.no,
+                      label: t('im.no'),
+                    },
+                  ]}
+                ></Segmented>
               </Form.Item>
               <Form.Item label={t('im.compressed')} name='compressed'>
-                <Radio.Group optionType='button' buttonStyle='solid' name='compressed-filter'>
-                  <Radio value={FilterRadioValue.all}>{t('im.all')}</Radio>
-                  <Radio value={FilterRadioValue.yes}>{t('im.yes')}</Radio>
-                  <Radio value={FilterRadioValue.no}>{t('im.no')}</Radio>
-                </Radio.Group>
+                <Segmented
+                  size='small'
+                  options={[
+                    {
+                      value: FilterRadioValue.all,
+                      label: t('im.all'),
+                    },
+                    {
+                      value: FilterRadioValue.yes,
+                      label: t('im.yes'),
+                    },
+                    {
+                      value: FilterRadioValue.no,
+                      label: t('im.no'),
+                    },
+                  ]}
+                ></Segmented>
               </Form.Item>
 
               <Divider></Divider>

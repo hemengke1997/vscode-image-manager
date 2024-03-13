@@ -1,5 +1,5 @@
 import { useControlledState } from '@minko-fe/react-hook'
-import { Radio } from 'antd'
+import { Segmented } from 'antd'
 import { memo } from 'react'
 import { useTranslation } from 'react-i18next'
 
@@ -22,7 +22,7 @@ function DisplayStyle(props: DisplayStyleProps) {
   })
 
   return (
-    <Radio.Group
+    <Segmented
       options={[
         {
           label: t('im.compact'),
@@ -33,13 +33,12 @@ function DisplayStyle(props: DisplayStyleProps) {
           value: 'nested',
         },
       ]}
-      optionType='button'
-      buttonStyle='solid'
       value={displayStyle}
-      onChange={(e) => {
-        setDisplayStyle(e.target.value)
+      onChange={(value) => {
+        setDisplayStyle(value as DisplayStyleType)
       }}
-    ></Radio.Group>
+      size='small'
+    ></Segmented>
   )
 }
 

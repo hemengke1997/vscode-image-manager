@@ -37,17 +37,12 @@ function useImageOperation() {
     setCropperProps({ open: true, image })
   })
 
-  const _testVscodeBuiltInCmd = useMemoizedFn(({ cmd, path }: { cmd: string; path: string }) => {
-    vscodeApi.postMessage({ cmd: CmdToVscode.TEMP_TEST_CMD, data: { cmd, path } })
-  })
-
   return {
     openInVscodeExplorer,
     openInOsExplorer,
     copyImageAsBase64,
     beginCompressProcess,
     cropImage,
-    _testVscodeBuiltInCmd,
   }
 }
 

@@ -15,14 +15,8 @@ function ImageContextMenu() {
   const { t } = useTranslation()
   const { message } = App.useApp()
 
-  const {
-    openInOsExplorer,
-    openInVscodeExplorer,
-    copyImageAsBase64,
-    beginCompressProcess,
-    cropImage,
-    _testVscodeBuiltInCmd,
-  } = useImageOperation()
+  const { openInOsExplorer, openInVscodeExplorer, copyImageAsBase64, beginCompressProcess, cropImage } =
+    useImageOperation()
 
   const handleCopyString = useLockFn(
     async (
@@ -68,19 +62,17 @@ function ImageContextMenu() {
     cropImage(e.props.image)
   })
 
-  const _test = (e: ItemParams<{ image: ImageType }>) => {
-    _testVscodeBuiltInCmd({
-      cmd: 'revealFileInOS',
-      path: e.props?.image.path || '',
-    })
-  }
-
   return (
     <>
       <MaskMenu id={IMAGE_CONTEXT_MENU_ID}>
         <Item onClick={(e) => handleCopyString(e, 'name')}>{t('im.copy_image_name')}</Item>
         <Item onClick={(e) => handleCopyString(e, 'path')}>{t('im.copy_image_path')}</Item>
         <Item onClick={(e) => handleCopyString(e, 'path', copyImageAsBase64)}>{t('im.copy_image_base64')}</Item>
+        <Separator />
+        <Item onClick={handleOpenInOsExplorer}>
+          {os.isMac() ? t('im.reveal_in_os_mac') : t('im.reveal_in_os_windows')}
+        </Item>
+        <Item onClick={handleOpenInVscodeExplorer}>{t('im.reveal_in_explorer')}</Item>
         <Separator hidden={isOperationHidden} />
         <Item
           // disabled={isCompressDisabled}
@@ -93,11 +85,6 @@ function ImageContextMenu() {
           {t('im.crop')}
         </Item>
 
-        <Separator />
-        <Item onClick={handleOpenInOsExplorer}>
-          {os.isMac() ? t('im.reveal_in_os_mac') : t('im.reveal_in_os_windows')}
-        </Item>
-        <Item onClick={handleOpenInVscodeExplorer}>{t('im.reveal_in_explorer')}</Item>
         <Separator />
         <Item onClick={(e) => showImageDetailModal(e.props.image)}>{t('im.detail')}</Item>
       </MaskMenu>

@@ -1,8 +1,16 @@
+[data-theme='dark'] {
+  --custom-contexify-menu-bgColor: rgba(55, 55, 55, 0.4);
+}
+[data-theme='light'] {
+  --custom-contexify-menu-bgColor: rgba(200, 200, 200, 0.4);
+}
+
 .contexify {
   &[role='menu'] {
-    --contexify-menu-bgColor: rgba(0, 0, 0, 0.35);
+    --contexify-menu-bgColor: var(--custom-contexify-menu-bgColor);
     --contexify-activeItem-color: var(--ant-color-text);
     --contexify-activeItem-bgColor: var(--ant-color-primary-hover);
+    --contexify-separator-color: var(--ant-color-border);
     --contexify-menu-minWidth: 140px;
     --contexify-menu-padding: var(--ant-padding-xxs);
     --contexify-itemContent-padding: var(--ant-margin-xxs) var(--ant-padding-xxs);
@@ -12,7 +20,7 @@
     --contexify-zIndex: 9999;
   }
 
-  backdrop-filter: blur(40px);
+  backdrop-filter: blur(35px);
 
   @apply text-sm border-ant-color-border border-solid border;
 

@@ -1,4 +1,5 @@
 import { round } from '@minko-fe/lodash-pro'
+import { useThrottleFn } from '@minko-fe/react-hook'
 import { isDev } from '@minko-fe/vite-config/client'
 import { ConfigProvider, Image, theme } from 'antd'
 import { motion } from 'framer-motion'
@@ -37,6 +38,24 @@ function ImagePreview(props: ImagePreviewProps) {
       Toast.hide()
     }
   }, [preview.open])
+
+  const throttleOpenToast = useThrottleFn(
+    (sclalePercent: number) => {
+      if (!sclalePercent) return
+      Toast.open({
+        content: (
+          <div className={'flex items-center'}>
+            <span>{sclalePercent}%</span>
+          </div>
+        ),
+      })
+    },
+    {
+      leading: true,
+      trailing: true,
+      wait: 60,
+    },
+  )
 
   return (
     <>
@@ -95,14 +114,7 @@ function ImagePreview(props: ImagePreviewProps) {
               onTransform(info) {
                 if (['wheel', 'zoomIn', 'zoomOut'].includes(info.action)) {
                   const sclalePercent = round(info.transform.scale * 100)
-                  if (!sclalePercent) return
-                  Toast.open({
-                    content: (
-                      <div className={'flex items-center'}>
-                        <span>{sclalePercent}%</span>
-                      </div>
-                    ),
-                  })
+                  throttleOpenToast.run(sclalePercent)
                 }
               },
             }}

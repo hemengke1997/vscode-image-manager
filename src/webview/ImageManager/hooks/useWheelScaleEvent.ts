@@ -1,5 +1,4 @@
 import { round } from '@minko-fe/lodash-pro'
-import { useDebounceFn } from '@minko-fe/react-hook'
 import { useLayoutEffect, useRef } from 'react'
 import { ConfigKey } from '~/core/config/common'
 import { useConfiguration } from '~/webview/hooks/useConfiguration'
@@ -22,8 +21,6 @@ function useWheelScaleEvent() {
     update({ key: ConfigKey.viewer_imageWidth, value: imageWidth })
   }
 
-  const debounceUpdateWidth = useDebounceFn(updateWidth)
-
   const handleWheel = (event: WheelEvent) => {
     if (event.ctrlKey || event.metaKey) {
       closeDefault(event)
@@ -35,11 +32,11 @@ function useWheelScaleEvent() {
       if (delta > 0) {
         // 缩小
         setImageWidth((prevWidth) => Math.max(30, round(prevWidth! - maxDelta, 0)))
-        debounceUpdateWidth.run()
+        updateWidth()
       } else if (delta < 0) {
         // 放大
         setImageWidth((prevWidth) => Math.min(600, round(prevWidth! + maxDelta, 0)))
-        debounceUpdateWidth.run()
+        updateWidth()
       }
       return false
     }

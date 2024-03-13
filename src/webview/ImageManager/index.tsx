@@ -1,8 +1,7 @@
 import { difference, isEqual } from '@minko-fe/lodash-pro'
 import { useAsyncEffect, useMemoizedFn } from '@minko-fe/react-hook'
 import { isDev } from '@minko-fe/vite-config/client'
-import { App, Card, Skeleton } from 'antd'
-import { motion } from 'framer-motion'
+import { App, FloatButton } from 'antd'
 import { type Stats } from 'fs-extra'
 import { type ParsedPath } from 'node:path'
 import { type ReactElement, memo, useEffect, useRef } from 'react'
@@ -11,22 +10,19 @@ import { isTooManyTries, retry } from 'ts-retry'
 import { type Compressor } from '~/core/compress'
 import { CmdToVscode, CmdToWebview } from '~/message/cmd'
 import { vscodeApi } from '../vscode-api'
-import CollapseTree from './components/CollapseTree'
 import ContextMenus from './components/ContextMenus'
-import ImageActions from './components/ImageActions'
 import ImageCropper from './components/ImageCropper'
 import ImageForSize from './components/ImageForSize'
 import ImageOperator from './components/ImageOperator'
 import ImageSearch from './components/ImageSearch'
+import Viewer from './components/Viewer'
 import ViewerSettings, { type ViewerSettingsRef } from './components/ViewerSettings'
 import ActionContext from './contexts/ActionContext'
 import CroppoerContext from './contexts/CropperContext'
 import GlobalContext from './contexts/GlobalContext'
 import OperatorContext from './contexts/OperatorContext'
 import SettingsContext from './contexts/SettingsContext'
-import TreeContext from './contexts/TreeContext'
 import { useExtConfig } from './hooks/useExtConfig'
-import useWheelScaleEvent from './hooks/useWheelScaleEvent'
 
 vscodeApi.registerEventListener()
 
@@ -63,11 +59,7 @@ function ImageManager() {
   const { message } = App.useApp()
   const { t } = useTranslation()
 
-  const { imageState, setImageState, setCompressor } = GlobalContext.usePicker([
-    'imageState',
-    'setImageState',
-    'setCompressor',
-  ])
+  const { setImageState, setCompressor } = GlobalContext.usePicker(['setImageState', 'setCompressor'])
 
   const { imageRefreshedState, refreshImages, imageSearchOpen, setImageSearchOpen } = ActionContext.usePicker([
     'imageRefreshedState',
@@ -191,9 +183,6 @@ function ImageManager() {
   /* -------------- viewer settings ------------- */
   const viewerSettingsRef = useRef<ViewerSettingsRef>(null)
 
-  /* ---------------- image scale --------------- */
-  const [containerRef] = useWheelScaleEvent()
-
   /* --------------- image cropper -------------- */
   const { cropperProps, setCropperProps } = CroppoerContext.usePicker(['cropperProps', 'setCropperProps'])
 
@@ -203,38 +192,9 @@ function ImageManager() {
 
       <ViewerSettings ref={viewerSettingsRef} />
 
-      <div ref={containerRef} className={'space-y-4'}>
-        <Card
-          styles={{
-            header: { borderBottom: 'none' },
-            body: { padding: 0 },
-          }}
-          title={t('im.images')}
-          extra={<ImageActions />}
-        >
-          {imageState.loading ? (
-            <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ duration: 0.1, delay: 0.2 }}>
-              <Skeleton className={'p-4'} active paragraph={{ rows: 14 }} />
-            </motion.div>
-          ) : (
-            <div className={'space-y-4'}>
-              {imageState.data.map((item, index) => (
-                <TreeContext.Provider
-                  key={index}
-                  value={{
-                    imageList: item.imgs,
-                  }}
-                >
-                  <CollapseTree />
-                </TreeContext.Provider>
-              ))}
-            </div>
-          )}
-        </Card>
-
-        <ImageForSize />
-        <ImageSearch open={imageSearchOpen} onOpenChange={setImageSearchOpen} />
-      </div>
+      <Viewer />
+      <ImageForSize />
+      <ImageSearch open={imageSearchOpen} onOpenChange={setImageSearchOpen} />
       <ImageCropper
         {...cropperProps}
         onOpenChange={(open) =>
@@ -245,6 +205,7 @@ function ImageManager() {
         }
       />
       <ImageOperator {...operatorModal} onOpenChange={(open) => setOperatorModal({ open })} />
+      <FloatButton.BackTop target={() => document.querySelector('#root') as HTMLElement} />
     </>
   )
 }

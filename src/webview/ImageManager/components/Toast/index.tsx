@@ -1,4 +1,4 @@
-import { useControlledState, useThrottleEffect } from '@minko-fe/react-hook'
+import { useControlledState } from '@minko-fe/react-hook'
 import { AnimatePresence, motion } from 'framer-motion'
 import { type ReactElement, type ReactNode, useEffect, useLayoutEffect, useRef, useState } from 'react'
 import { type Root, createRoot } from 'react-dom/client'
@@ -19,7 +19,7 @@ function useMergeProps<T>(props: T, updatedProps: T) {
   return mergedProps
 }
 
-function Toast(props: ToastProps) {
+function ToastHolder(props: ToastProps) {
   const timer = useRef(0)
 
   const [updatedProps, setUpdatedProps] = useState<ToastProps>()
@@ -32,31 +32,23 @@ function Toast(props: ToastProps) {
   })
 
   useLayoutEffect(() => {
-    event.on('exit', internalDestroy)
+    event.on('destroy', internalDestroy)
     event.on('update', setUpdatedProps)
     return () => {
-      event.off('exit', internalDestroy)
+      event.off('destroy', internalDestroy)
       event.off('update', setUpdatedProps)
     }
   }, [])
 
-  useThrottleEffect(
-    () => {
-      if (open && content) {
-        delayClear()
-      }
-      return () => {
-        timer.current && clearTimeout(timer.current)
-        timer.current = 0
-      }
-    },
-    [updatedProps],
-    {
-      wait: 60,
-      leading: true,
-      trailing: true,
-    },
-  )
+  useEffect(() => {
+    if (open && content) {
+      delayClear()
+    }
+    return () => {
+      timer.current && clearTimeout(timer.current)
+      timer.current = 0
+    }
+  }, [updatedProps])
 
   const internalDestroy = () => {
     setOpen(false)
@@ -88,7 +80,7 @@ function Toast(props: ToastProps) {
       {open && (
         <motion.div
           className={
-            'fixed left-1/2 top-1/2 z-[9999] flex -translate-x-1/2 -translate-y-1/2 items-center justify-center rounded-md bg-[rgba(0,0,0,.6)] px-2 py-1 text-sm shadow-sm'
+            'fixed left-1/2 top-1/2 z-[9999] flex -translate-x-1/2 -translate-y-1/2 items-center justify-center rounded-md bg-[rgba(0,0,0,0.6)] px-2 py-1 text-sm shadow-sm'
           }
           initial={{
             opacity: 0,
@@ -116,7 +108,7 @@ const queue = new Queue()
 const event = new Emitter<{
   init: [message: ToastMessageType]
   update: [message: ToastMessageType]
-  exit: []
+  destroy: []
 }>()
 
 const MARK = '__toast_react_root__'
@@ -133,7 +125,7 @@ async function concurrentUnmount(container: ContainerType) {
   })
 }
 
-function modernRender(node: ReactElement, container: ContainerType) {
+function reactRender(node: ReactElement, container: ContainerType) {
   const root = container[MARK] || createRoot(container)
   root.render(node)
   container[MARK] = root
@@ -142,8 +134,8 @@ function modernRender(node: ReactElement, container: ContainerType) {
 event.on('init', (args) => {
   const container = document.createElement('div')
   document.body.appendChild(container)
-  modernRender(
-    <Toast
+  reactRender(
+    <ToastHolder
       {...args}
       onClosed={() => {
         concurrentUnmount(container)
@@ -167,15 +159,15 @@ function notice(props: ToastProps) {
   }
 }
 
-const index = {
+const Toast = {
   open: (props: ToastProps) => {
     notice(props)
   },
   hide: () => {
     if (queue.length) {
-      event.emit('exit')
+      event.emit('destroy')
     }
   },
 }
 
-export default index
+export default Toast
