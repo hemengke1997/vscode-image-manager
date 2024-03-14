@@ -1,5 +1,15 @@
 # CHANGELOG
 
+## 0.5.2
+
+### Feat
+
+- Keep image original file type after cropped
+
+### Performance
+
+- Reduce filter changed leading to render serveral times
+
 ## 0.5.1
 
 ### Fix
