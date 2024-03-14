@@ -1,7 +1,6 @@
-import { uniq } from '@minko-fe/lodash-pro'
 import { Card } from 'antd'
 import { AnimatePresence, motion } from 'framer-motion'
-import { type ForwardedRef, type ReactNode, forwardRef, memo, useImperativeHandle, useMemo } from 'react'
+import { type ForwardedRef, type ReactNode, forwardRef, memo, useImperativeHandle } from 'react'
 import { useTranslation } from 'react-i18next'
 import { RiSettingsLine } from 'react-icons/ri'
 import { ConfigKey } from '~/core/config/common'
@@ -29,18 +28,7 @@ function ViewerSettings(_: any, ref: ForwardedRef<ViewerSettingsRef>) {
   const { t } = useTranslation()
 
   const { update } = useConfiguration()
-  const { imageState, mode } = GlobalContext.usePicker(['imageState', 'mode'])
-
-  /* ------------ image type checkbox ----------- */
-  const allImageTypes = useMemo(() => uniq(imageState.data.flatMap((item) => item.fileTypes)).sort(), [imageState.data])
-  const allImageFiles = useMemo(() => imageState.data.flatMap((item) => item.imgs).sort(), [imageState.data])
-
-  const onImageTypeChange = (checked: string[], unchecked?: string[]) => {
-    setDisplayImageTypes((t) => ({
-      checked: checked || t?.checked || [],
-      unchecked: unchecked || t?.unchecked || [],
-    }))
-  }
+  const { mode } = GlobalContext.usePicker(['mode'])
 
   const {
     sort,
@@ -53,7 +41,26 @@ function ViewerSettings(_: any, ref: ForwardedRef<ViewerSettingsRef>) {
     setDisplayImageTypes,
     backgroundColor,
     setBackgroundColor,
-  } = SettingsContext.useSelector((ctx) => ctx)
+  } = SettingsContext.usePicker([
+    'sort',
+    'setSort',
+    'displayStyle',
+    'setDisplayStyle',
+    'displayGroup',
+    'setDisplayGroup',
+    'displayImageTypes',
+    'setDisplayImageTypes',
+    'backgroundColor',
+    'setBackgroundColor',
+  ])
+
+  /* ------------ image type checkbox ----------- */
+  const onImageTypeChange = (checked: string[], unchecked?: string[]) => {
+    setDisplayImageTypes((t) => ({
+      checked: checked || t?.checked || [],
+      unchecked: unchecked || t?.unchecked || [],
+    }))
+  }
 
   /* ---------------- image sort ---------------- */
   const sortOptions = [
@@ -83,14 +90,7 @@ function ViewerSettings(_: any, ref: ForwardedRef<ViewerSettingsRef>) {
           <Card title={<TitleIconUI icon={<RiSettingsLine />}>{t('im.settings')}</TitleIconUI>}>
             <div className={'flex flex-col gap-y-3'}>
               <OperationItemUI title={t('im.type')}>
-                <DisplayType
-                  imageType={{
-                    all: allImageTypes,
-                    checked: displayImageTypes?.checked || [],
-                  }}
-                  images={allImageFiles}
-                  onImageTypeChange={onImageTypeChange}
-                />
+                <DisplayType value={displayImageTypes?.checked || []} onChange={onImageTypeChange} />
               </OperationItemUI>
 
               <div className={'flex flex-wrap items-center gap-x-5 gap-y-1'}>
@@ -107,6 +107,7 @@ function ViewerSettings(_: any, ref: ForwardedRef<ViewerSettingsRef>) {
                   <PrimaryColorPicker
                     value={backgroundColor}
                     onChange={(color) => {
+                      setBackgroundColor(color)
                       return new Promise((resolve) => {
                         update(
                           {
@@ -114,7 +115,6 @@ function ViewerSettings(_: any, ref: ForwardedRef<ViewerSettingsRef>) {
                             value: color,
                           },
                           () => {
-                            setBackgroundColor(color)
                             resolve()
                           },
                         )

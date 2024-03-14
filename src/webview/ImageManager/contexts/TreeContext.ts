@@ -1,23 +1,50 @@
 import { isFunction } from '@minko-fe/lodash-pro'
-import { useAsyncEffect, useLatest, useMemoizedFn, useSetState, useUpdateEffect } from '@minko-fe/react-hook'
+import {
+  useAsyncEffect,
+  useLatest,
+  useMemoizedFn,
+  usePrevious,
+  useSetState,
+  useUpdateEffect,
+} from '@minko-fe/react-hook'
 import { createContainer } from 'context-state'
+import { diff } from 'deep-object-diff'
 import { useEffect, useMemo, useRef } from 'react'
 import { CmdToVscode } from '~/message/cmd'
+import { nestToFlatten } from '~/utils/nest-to-flatten'
 import { vscodeApi } from '~/webview/vscode-api'
 import { type ImageType, type ImageVisibleFilterType } from '..'
 import { FilterRadioValue } from '../components/ImageActions/components/Filter'
 import { bytesToKb, filterImages, shouldShowImage } from '../utils'
-import ActionContext from './ActionContext'
+import GlobalContext from './GlobalContext'
 import SettingsContext from './SettingsContext'
 
 export type ImageStateType = {
+  /**
+   * 原始图片列表（从用户系统中获取，不会在内部改变）
+   */
   originalList: ImageType[]
+  /**
+   * 处理过后的图片列表，在originList的基础上新增了一些属性
+   * 不直接供页面使用
+   */
   list: ImageType[]
+  /**
+   * 当前可以显示的图片列表，根据图片的visible属性筛选出来的
+   * 供页面使用
+   */
   visibleList: ImageType[]
 }
 
 type Condition = {
+  /**
+   * visible的key
+   */
   key: ImageVisibleFilterType
+  /**
+   * 判断是否显示图片
+   * @returns should show or not
+   */
   condition: (image: ImageType, index: number) => boolean | undefined | Promise<boolean | undefined>
 }
 
@@ -25,13 +52,10 @@ type Condition = {
 async function changeImageVisible(imageList: ImageType[], conditions: Condition[]) {
   const promises = imageList.map((image, index) => async () => {
     for (const { key, condition } of conditions) {
-      image = {
-        ...image,
-        visible: {
-          ...image.visible,
-          [key]: isFunction(condition) ? await condition(image, index) : condition,
-        },
+      if (!image.visible) {
+        image.visible = {}
       }
+      image.visible[key] = isFunction(condition) ? await condition(image, index) : condition
     }
     return image
   })
@@ -69,9 +93,9 @@ function useTreeContext(props: { imageList: ImageType[] }) {
     visibleList: [],
   })
 
-  const latestImageList = useLatest(imageSingleTree.list).current
+  const latestImageList = useLatest(imageSingleTree.list)
 
-  // 筛选出当前显示的文件夹
+  // 筛选出当前树显示的工作区
   const workspaceFolders = useMemo(
     () =>
       filterImages(
@@ -85,7 +109,7 @@ function useTreeContext(props: { imageList: ImageType[] }) {
     [imageSingleTree.visibleList],
   )
 
-  // 筛选出当前显示的文件夹
+  // 筛选出当前树显示的文件夹
   const dirs = useMemo(
     () =>
       filterImages(
@@ -99,7 +123,7 @@ function useTreeContext(props: { imageList: ImageType[] }) {
     [imageSingleTree.visibleList],
   )
 
-  // 筛选出所有的文件夹
+  // 筛选出当前树所有的文件夹
   const allDirs = useMemo(
     () =>
       filterImages(
@@ -110,7 +134,7 @@ function useTreeContext(props: { imageList: ImageType[] }) {
     [imageSingleTree.originalList],
   )
 
-  // 筛选出当前显示的图片类型
+  // 筛选出当前树显示的图片类型
   const imageType = useMemo(
     () =>
       filterImages(
@@ -124,7 +148,7 @@ function useTreeContext(props: { imageList: ImageType[] }) {
     [imageSingleTree.visibleList],
   )
 
-  // 筛选出所有的图片类型
+  // 筛选当前树出所有的图片类型
   const allImageTypes = useMemo(
     () =>
       filterImages(
@@ -141,6 +165,7 @@ function useTreeContext(props: { imageList: ImageType[] }) {
   // Everytime list changed, update visibleList
   // the only entry to update visibleList
   // !! 修改 visibleList 的唯一入口 !!
+  // 只有当list改变时，才会重新生成visibleList
   useEffect(() => {
     setImageSingleTree((t) => {
       return { visibleList: t.list.filter(shouldShowImage) }
@@ -155,6 +180,7 @@ function useTreeContext(props: { imageList: ImageType[] }) {
   // display image type
   // size filter
   // git staged filter
+  // compressed filter
   const generateImageList = async (imageList: ImageType[]) => {
     // sort
     let res = onSortChange(imageList, sort)
@@ -164,85 +190,6 @@ function useTreeContext(props: { imageList: ImageType[] }) {
 
     return res
   }
-
-  const git_staged_cache = useRef<string[] | null>(null)
-
-  const changeImageVisibleByKeys = useMemoizedFn(
-    (imageList: ImageType[], key: ImageVisibleFilterType[]): Promise<ImageType[]> => {
-      const builtInConditions: Condition[] = [
-        {
-          key: 'type',
-          condition: (image) =>
-            displayImageTypes?.checked ? displayImageTypes.checked.includes(image.fileType) : true,
-        },
-        {
-          key: 'size',
-          condition: (image) =>
-            bytesToKb(image.stats.size) >= (imageFilter?.value.size?.min || 0) &&
-            bytesToKb(image.stats.size) <= (imageFilter?.value.size?.max || Number.POSITIVE_INFINITY),
-        },
-        {
-          key: 'git_staged',
-          condition: async (image, index) => {
-            if (imageFilter?.value.git_staged) {
-              // Get staged images when needed to improve performance
-              if (index === 0 || !git_staged_cache.current) {
-                try {
-                  git_staged_cache.current = await new Promise<string[]>((resolve) => {
-                    vscodeApi.postMessage({ cmd: CmdToVscode.GET_GIT_STAGED_IMAGES }, (res) => {
-                      resolve(res || [])
-                    })
-                  })
-                } catch {
-                  git_staged_cache.current = null
-                }
-              }
-
-              switch (imageFilter.value.git_staged) {
-                case FilterRadioValue.yes:
-                  return git_staged_cache.current?.includes(image.path)
-                case FilterRadioValue.no:
-                  return !git_staged_cache.current?.includes(image.path)
-                default:
-                  return true
-              }
-            }
-            return true
-          },
-        },
-        {
-          key: 'compressed',
-          condition(image) {
-            if (imageFilter?.value.compressed) {
-              return (async () => {
-                return await new Promise<boolean>((resolve) => {
-                  vscodeApi.postMessage(
-                    { cmd: CmdToVscode.GET_IMAGE_METADATA, data: { filePath: image.path } },
-                    (res) => {
-                      switch (imageFilter.value.compressed) {
-                        case FilterRadioValue.yes:
-                          resolve(res?.compressed)
-                          break
-                        case FilterRadioValue.no:
-                          resolve(!res?.compressed)
-                          break
-                        default:
-                          resolve(true)
-                      }
-                    },
-                  )
-                })
-              })()
-            }
-            return true
-          },
-        },
-      ]
-
-      const conditions = key.map((k) => builtInConditions.find((c) => c.key === k) as Condition)
-      return changeImageVisible(imageList, conditions)
-    },
-  )
 
   // prop 改变时，重新根据目前已有的限制条件生成list
   useAsyncEffect(async () => {
@@ -262,27 +209,95 @@ function useTreeContext(props: { imageList: ImageType[] }) {
     return imageList
   })
 
+  /**
+   * 排序改变时，需要修改list
+   */
   useUpdateEffect(() => {
     setImageSingleTree((t) => ({
       list: onSortChange(t.list, sort),
     }))
   }, [sort])
 
-  const onDisplayImageTypeChange = useMemoizedFn((imageList: ImageType[]) => {
-    return changeImageVisibleByKeys(imageList, ['type'])
-  })
+  const git_staged_cache = useRef<string[] | null>(null)
 
-  // display image type setting change
-  useUpdateEffect(() => {
-    onDisplayImageTypeChange(latestImageList).then((list) => {
-      setImageSingleTree({
-        list,
-      })
-    })
-  }, [displayImageTypes?.checked])
+  const changeImageVisibleByKeys = useMemoizedFn(
+    (imageList: ImageType[], key: ImageVisibleFilterType[]): Promise<ImageType[]> => {
+      const builtInConditions: Condition[] = [
+        {
+          key: 'type',
+          condition: (image) =>
+            displayImageTypes?.checked ? displayImageTypes.checked.includes(image.fileType) : true,
+        },
+        {
+          key: 'size',
+          condition: (image) =>
+            bytesToKb(image.stats.size) >= (imageFilter.size?.min || 0) &&
+            bytesToKb(image.stats.size) <= (imageFilter.size?.max || Number.POSITIVE_INFINITY),
+        },
+        {
+          key: 'git_staged',
+          condition: async (image, index) => {
+            if (imageFilter.git_staged) {
+              // Get staged images when needed to improve performance
+              if (index === 0 || !git_staged_cache.current) {
+                try {
+                  git_staged_cache.current = await new Promise<string[]>((resolve) => {
+                    vscodeApi.postMessage({ cmd: CmdToVscode.GET_GIT_STAGED_IMAGES }, (res) => {
+                      resolve(res || [])
+                    })
+                  })
+                } catch {
+                  git_staged_cache.current = null
+                }
+              }
 
-  // filter action triggerd
-  const { imageFilter } = ActionContext.usePicker(['imageFilter'])
+              switch (imageFilter.git_staged) {
+                case FilterRadioValue.yes:
+                  return git_staged_cache.current?.includes(image.path)
+                case FilterRadioValue.no:
+                  return !git_staged_cache.current?.includes(image.path)
+                default:
+                  return true
+              }
+            }
+            return true
+          },
+        },
+        {
+          key: 'compressed',
+          condition: async (image) => {
+            if (imageFilter.compressed) {
+              let compressed = false
+              try {
+                compressed = await new Promise<boolean>((resolve) => {
+                  vscodeApi.postMessage(
+                    { cmd: CmdToVscode.GET_IMAGE_METADATA, data: { filePath: image.path } },
+                    (res) => {
+                      resolve(res.compressed)
+                    },
+                  )
+                })
+              } catch {}
+              switch (imageFilter.compressed) {
+                case FilterRadioValue.yes:
+                  return compressed
+                case FilterRadioValue.no:
+                  return !compressed
+                default:
+                  return true
+              }
+            }
+            return true
+          },
+        },
+      ]
+
+      const conditions = key.map((k) => builtInConditions.find((c) => c.key === k) as Condition)
+      return changeImageVisible(imageList, conditions)
+    },
+  )
+
+  const { imageFilter } = GlobalContext.usePicker(['imageFilter'])
 
   // action image filter change
   // 目前有以下filter
@@ -290,41 +305,19 @@ function useTreeContext(props: { imageList: ImageType[] }) {
   // 2. git-staged
   // 3. compressed
 
-  // 1. size filter
-  const onSizeFilterChange = useMemoizedFn((imageList: ImageType[]) => {
-    return changeImageVisibleByKeys(imageList, ['size'])
-  })
+  // 统一处理筛选条件
+  // 优化单个副作用导致重复渲染的性能
+  const previousImageFilter = usePrevious(imageFilter)
   useUpdateEffect(() => {
-    onSizeFilterChange(latestImageList).then((list) => {
+    const changed = nestToFlatten(diff(previousImageFilter!, imageFilter))
+    // 这里需要一个前提：imageFilter 的 key 和 ImageVisibleFilterType 一一对应
+    const changedKeys = Object.keys(changed).map((k) => k.split('.')[0] as ImageVisibleFilterType)
+    changeImageVisibleByKeys(latestImageList.current, changedKeys).then((res) => {
       setImageSingleTree({
-        list,
+        list: res,
       })
     })
-  }, [imageFilter?.value.size.max, imageFilter?.value.size.min])
-
-  // 2. git-staged filter
-  const onGitStagedFilterChange = useMemoizedFn((imageList: ImageType[]) => {
-    return changeImageVisibleByKeys(imageList, ['git_staged'])
-  })
-  useUpdateEffect(() => {
-    onGitStagedFilterChange(latestImageList).then((list) => {
-      setImageSingleTree({
-        list,
-      })
-    })
-  }, [imageFilter?.value.git_staged])
-
-  // 3. compressed filter
-  const onCompressedFilterChange = useMemoizedFn((imageList: ImageType[]) => {
-    return changeImageVisibleByKeys(imageList, ['compressed'])
-  })
-  useUpdateEffect(() => {
-    onCompressedFilterChange(latestImageList).then((list) => {
-      setImageSingleTree({
-        list,
-      })
-    })
-  }, [imageFilter?.value.compressed])
+  }, [imageFilter])
 
   return {
     imageSingleTree,

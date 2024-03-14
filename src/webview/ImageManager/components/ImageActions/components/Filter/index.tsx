@@ -1,9 +1,17 @@
 import { isNil, isObject, upperFirst } from '@minko-fe/lodash-pro'
-import { App, Button, ConfigProvider, Divider, Form, InputNumber, Popover, Segmented, Space } from 'antd'
-import { memo, useState } from 'react'
+import { Button, ConfigProvider, Divider, Form, InputNumber, Popover, Segmented, Space } from 'antd'
+import { produce } from 'immer'
+import { memo, useMemo, useRef, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { TbFilter } from 'react-icons/tb'
-import ActionContext from '~/webview/ImageManager/contexts/ActionContext'
+import GlobalContext from '~/webview/ImageManager/contexts/GlobalContext'
+
+function deepTruly(v: Object | number | undefined): boolean {
+  if (isObject(v)) {
+    return Object.values(v).some((v) => deepTruly(v))
+  }
+  return !!v
+}
 
 export enum FilterRadioValue {
   all = 0,
@@ -14,7 +22,7 @@ export enum FilterRadioValue {
 /**
  * key: ImageVisibleFilterType 一一对应，方便使用
  */
-export type ImageFilterFormValue = {
+export type ImageFilterAction = {
   size: {
     min?: number
     max?: number
@@ -22,43 +30,43 @@ export type ImageFilterFormValue = {
   /**
    * @type 0: all, 1: yes, 2: no
    */
-  git_staged?: ValueOf<typeof FilterRadioValue>
+  git_staged: ValueOf<typeof FilterRadioValue>
   /**
    * @type 0: all, 1: yes, 2: no
    */
-  compressed?: ValueOf<typeof FilterRadioValue>
+  compressed: ValueOf<typeof FilterRadioValue>
 }
 
 function Filter() {
   const { t } = useTranslation()
-  const { imageFilter, setImageFilter } = ActionContext.usePicker(['imageFilter', 'setImageFilter'])
+  const { imageFilter, setImageFilter } = GlobalContext.usePicker(['imageFilter', 'setImageFilter'])
 
-  const { message } = App.useApp()
+  const initialFilter = useRef(imageFilter)
+
   const [open, setOpen] = useState(false)
 
-  const [filterForm] = Form.useForm<ImageFilterFormValue>()
-  const FilterFormInitialValues: ImageFilterFormValue = {
-    size: {
-      min: undefined,
-      max: undefined,
-    },
-    git_staged: 0,
-    compressed: 0,
+  const [filterForm] = Form.useForm<ImageFilterAction>()
+
+  const filterImagesByFormResult = (value: ImageFilterAction) => {
+    const { compressed, git_staged, size } = value
+
+    setImageFilter(
+      produce((draft) => {
+        draft.size.min = size.min
+        draft.size.max = size.max
+        draft.git_staged = git_staged
+        draft.compressed = compressed
+      }),
+    )
   }
 
-  const filterImagesByFormResult = (value: ImageFilterFormValue) => {
-    const active = (() => {
-      function deepTruly(v: Object | number | undefined) {
-        if (isObject(v)) {
-          return Object.values(v).some((v) => deepTruly(v))
-        }
-        return v
-      }
-      return deepTruly(value)
-    })()
-
-    setImageFilter({ active, value })
-  }
+  const isActive = useMemo(() => {
+    return deepTruly({
+      size: imageFilter.size,
+      git_staged: imageFilter.git_staged,
+      compressed: imageFilter.compressed,
+    })
+  }, [imageFilter])
 
   return (
     <Popover
@@ -67,7 +75,7 @@ function Filter() {
       placement='left'
       afterOpenChange={(open) => {
         if (!open) {
-          filterForm.setFieldsValue(imageFilter?.value || FilterFormInitialValues)
+          filterForm.setFieldsValue(imageFilter || initialFilter.current)
         }
       }}
       open={open}
@@ -90,23 +98,12 @@ function Filter() {
               name='size'
               colon={false}
               form={filterForm}
-              onFinishFailed={({ errorFields }) => {
-                errorFields.some((item) => {
-                  if (item.errors.length) {
-                    message.error(item.errors[0])
-                    return true
-                  }
-                  return false
-                })
-              }}
               onFinish={(value) => {
                 filterImagesByFormResult(value)
+                setOpen(false)
               }}
               className={'space-y-4'}
-              initialValues={{
-                git_staged: 0,
-                compressed: 0,
-              }}
+              initialValues={initialFilter.current}
             >
               {/* size */}
               <Form.Item label={t('im.size')}>
@@ -117,7 +114,7 @@ function Filter() {
                       rules={[
                         ({ getFieldValue }) => ({
                           validator(_, value) {
-                            const max = getFieldValue('max')
+                            const max = getFieldValue(['size', 'max'])
                             if (!isNil(max) && !isNil(value) && value > max) {
                               return Promise.reject(new Error('min must less than max'))
                             }
@@ -126,6 +123,7 @@ function Filter() {
                         }),
                       ]}
                       name={['size', 'min']}
+                      dependencies={[['size', 'max']]}
                     >
                       <InputNumber placeholder={`${t('im.min')}(kb)`} min={0} onPressEnter={filterForm.submit} />
                     </Form.Item>
@@ -135,7 +133,7 @@ function Filter() {
                       rules={[
                         ({ getFieldValue }) => ({
                           validator(_, value) {
-                            const min = getFieldValue('min')
+                            const min = getFieldValue(['size', 'min'])
                             if (!isNil(min) && !isNil(value) && value < min) {
                               return Promise.reject()
                             }
@@ -143,6 +141,7 @@ function Filter() {
                           },
                         }),
                       ]}
+                      dependencies={[['size', 'min']]}
                     >
                       <InputNumber placeholder={`${t('im.max')}(kb)`} min={0} onPressEnter={filterForm.submit} />
                     </Form.Item>
@@ -196,7 +195,6 @@ function Filter() {
                   type='primary'
                   onClick={() => {
                     filterForm.submit()
-                    setOpen(false)
                   }}
                 >
                   {t('im.confirm')}
@@ -207,7 +205,6 @@ function Filter() {
                   onClick={() => {
                     filterForm.resetFields()
                     filterForm.submit()
-                    setOpen(false)
                   }}
                 >
                   {t('im.reset')}
@@ -219,7 +216,7 @@ function Filter() {
       }
     >
       <Button
-        type={imageFilter?.active ? 'primary' : 'text'}
+        type={isActive ? 'primary' : 'text'}
         icon={
           <div className={'flex-center text-xl'}>
             <TbFilter />

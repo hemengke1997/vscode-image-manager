@@ -43,8 +43,7 @@ function PrimaryColorPicker(props: PrimaryColorPickerProps) {
 
   const [loading, setLoading] = useState(false)
 
-  const _onColorChange: ColorPickerProps['onChange'] = (color) => {
-    if (loading) return
+  const _onColorChange: ColorPickerProps['onChangeComplete'] = (color) => {
     startTransition(() => setSelectedColor(color.toHexString()))
   }
 
@@ -78,7 +77,7 @@ function PrimaryColorPicker(props: PrimaryColorPickerProps) {
         },
       ]}
       value={selectedColor}
-      onChange={_onColorChange}
+      onChangeComplete={_onColorChange}
       onOpenChange={onOpenChange}
       placement='bottom'
       arrow={false}

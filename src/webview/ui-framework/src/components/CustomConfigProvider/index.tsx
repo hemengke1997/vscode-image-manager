@@ -82,6 +82,7 @@ function CustomConfigProvider(props: PropsWithChildren) {
                       localKey={LocalStorageEnum.LOCAL_STORAGE_RECENT_COLORS_KEY}
                       value={primaryColor}
                       onChange={(color) => {
+                        setPrimaryColor(color)
                         return new Promise((resolve) => {
                           update(
                             {
@@ -89,7 +90,6 @@ function CustomConfigProvider(props: PropsWithChildren) {
                               value: color,
                             },
                             () => {
-                              setPrimaryColor(color)
                               resolve()
                             },
                           )

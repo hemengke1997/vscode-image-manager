@@ -5,6 +5,20 @@ import { type Compressor } from '~/core/compress'
 import { useTrackConfigState } from '~/webview/hooks/useTrackConfigState'
 import FrameworkContext from '~/webview/ui-framework/src/contexts/FrameworkContext'
 import { type ImageType } from '..'
+import { type ImageFilterAction } from '../components/ImageActions/components/Filter'
+
+/**
+ * 筛选条件
+ *
+ * @description key: ImageVisibleFilterType 一一对应，方便使用
+ *
+ * ImageFilterAction: 来源于 imageAction 的 form filter
+ *
+ * type: 来源于 settings 的 imageType
+ */
+export type ImageFilterType = ImageFilterAction & {
+  type: string[]
+}
 
 function useGlobalContext() {
   const { extConfig, mode, setMode, theme } = FrameworkContext.usePicker(['extConfig', 'mode', 'setMode', 'theme'])
@@ -28,6 +42,17 @@ function useGlobalContext() {
     data: [],
   })
 
+  /* ---------------- image filter --------------- */
+  const [imageFilter, setImageFilter] = useState<ImageFilterType>({
+    size: {
+      max: undefined,
+      min: undefined,
+    },
+    compressed: 0,
+    git_staged: 0,
+    type: [],
+  })
+
   /* ---------------- image width --------------- */
   const [imageWidth, setImageWidth] = useTrackConfigState<number>(extConfig.viewer.imageWidth)
 
@@ -47,6 +72,8 @@ function useGlobalContext() {
     setImageWidth,
     imagePlaceholderSize,
     setImagePlaceholderSize,
+    imageFilter,
+    setImageFilter,
   }
 }
 

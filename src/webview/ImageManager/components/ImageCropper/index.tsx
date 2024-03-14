@@ -4,6 +4,7 @@ import { useControlledState, useSetState, useUpdateEffect } from '@minko-fe/reac
 import { isDev } from '@minko-fe/vite-config/client'
 import { App, Button, Card, Checkbox, Divider, InputNumber, Modal, Popover, Segmented, Skeleton } from 'antd'
 import classNames from 'classnames'
+import { produce } from 'immer'
 import mime from 'mime/lite'
 import { memo, startTransition, useEffect, useReducer, useRef, useState } from 'react'
 import { Trans, useTranslation } from 'react-i18next'
@@ -318,7 +319,13 @@ function ImageCropper(props?: ImageCropperProps) {
                       }
                       addonAfter={DETAIL_MAP[key].unit}
                       value={round(controlledDetails[key], 2)}
-                      onChange={(value) => setControlledDetails((t) => ({ ...t, [key]: value }))}
+                      onChange={(value) =>
+                        setControlledDetails(
+                          produce((draft) => {
+                            draft[key] = value
+                          }),
+                        )
+                      }
                       key={key}
                     ></InputNumber>
                   ))}

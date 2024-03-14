@@ -15,13 +15,13 @@ const useFrameworkContext = (initial: { extConfig: ConfigType; vscodeConfig: Vsc
 
   const [vscodeConfig, setVscodeConfig] = useState<VscodeConfigType>(initial.vscodeConfig)
 
-  const [primaryColor, setPrimaryColor] = useState(() => {
-    const primaryColor = initial.extConfig.appearance.primaryColor
+  const [primaryColor, setPrimaryColor] = useTrackConfigState(() => {
+    const primaryColor = extConfig.appearance.primaryColor
     if (new TinyColor(primaryColor).isValid) {
       return primaryColor
     }
     return vscodeColors[0]
-  })
+  }, [extConfig.appearance.primaryColor])
 
   const [theme, setTheme] = useTrackConfigState<Theme>(extConfig.appearance.theme)
   const [language, setLanguage] = useTrackConfigState<Language>(extConfig.appearance.language)

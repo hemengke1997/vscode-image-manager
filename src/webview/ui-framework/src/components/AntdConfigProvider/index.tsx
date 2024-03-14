@@ -54,12 +54,10 @@ function AntdConfigProvider({ children }: PropsWithChildren) {
           motionDurationSlow: `${DURATION_BASE * 2}s`,
           motionDurationMid: `${DURATION_BASE}s`,
           motionDurationFast: `${DURATION_BASE / 2}s`,
-          ...(isSameTheme(vscodeEditorBackground, themeWithoutAuto)
-            ? {
-                colorBgContainer: vscodeEditorBackground,
-                colorBgBase: ligherOrDarker(vscodeEditorBackground, themeWithoutAuto),
-              }
-            : {}),
+          ...(isSameTheme(vscodeEditorBackground, themeWithoutAuto) && {
+            colorBgContainer: vscodeEditorBackground,
+            colorBgBase: ligherOrDarker(vscodeEditorBackground, themeWithoutAuto),
+          }),
         },
       }}
       componentSize='small'

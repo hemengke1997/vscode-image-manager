@@ -1,3 +1,4 @@
+import { produce } from 'immer'
 import { type ConfigType } from '~/core/config/common'
 
 /**
@@ -13,15 +14,11 @@ export function intelligentPickConfig(
   const { theme, language } = vscodeConfig
   const { appearance } = extConfig
   const { theme: extTheme, language: extLanguage } = appearance
-  const newAppearance = {
-    ...appearance,
-    theme: weightByKey(extTheme, theme, 'auto'),
-    language: weightByKey(extLanguage, language, 'auto'),
-  }
-  return {
-    ...extConfig,
-    appearance: newAppearance,
-  }
+
+  return produce(extConfig, (draft) => {
+    draft.appearance.theme = weightByKey(extTheme, theme, 'auto')
+    draft.appearance.language = weightByKey(extLanguage, language, 'auto')
+  })
 }
 
 /**

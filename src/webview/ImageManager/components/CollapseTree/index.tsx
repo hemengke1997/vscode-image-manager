@@ -19,12 +19,7 @@ function CollapseTree() {
   const { t } = useTranslation()
   const { displayGroup, displayStyle } = SettingsContext.usePicker(['displayGroup', 'displayStyle'])
 
-  const { dirs, imageType, workspaceFolders } = TreeContext.usePicker([
-    'imageSingleTree',
-    'dirs',
-    'imageType',
-    'workspaceFolders',
-  ])
+  const { dirs, imageType, workspaceFolders } = TreeContext.usePicker(['dirs', 'imageType', 'workspaceFolders'])
 
   const visibleList = TreeContext.useSelector((ctx) => ctx.imageSingleTree.visibleList)
 

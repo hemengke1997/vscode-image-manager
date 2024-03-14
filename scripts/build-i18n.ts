@@ -2,25 +2,10 @@ import fg from 'fast-glob'
 import fs from 'fs-extra'
 import path from 'node:path'
 import { fileURLToPath } from 'node:url'
+import { nestToFlatten } from '~/utils/nest-to-flatten'
 
 const DEFAULT_LOCALE = 'en'
 const __dirname = path.dirname(fileURLToPath(import.meta.url))
-
-function nestToFlatten(messages: Record<string, string>) {
-  const result: Record<string, string> = {}
-  for (const key in messages) {
-    const value = messages[key]
-    if (typeof value === 'object') {
-      const nested = nestToFlatten(value)
-      for (const nestedKey in nested) {
-        result[`${key}.${nestedKey}`] = nested[nestedKey]
-      }
-    } else {
-      result[key] = value
-    }
-  }
-  return result
-}
 
 ;(async () => {
   const fallbackMessages = JSON.parse(

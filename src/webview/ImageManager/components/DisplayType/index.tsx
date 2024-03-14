@@ -1,25 +1,26 @@
-import { difference } from '@minko-fe/lodash-pro'
+import { difference, uniq } from '@minko-fe/lodash-pro'
+import { useControlledState, useUpdateEffect } from '@minko-fe/react-hook'
 import { Badge, Checkbox, ConfigProvider, theme } from 'antd'
-import { memo } from 'react'
-import { type ImageType } from '../..'
-
-export type DisplayImageTypes = {
-  checked: string[]
-  all: string[]
-}
+import { produce } from 'immer'
+import { memo, useMemo } from 'react'
+import GlobalContext from '../../contexts/GlobalContext'
 
 type DisplayTypeProps = {
-  images: ImageType[]
-  imageType: DisplayImageTypes
-  onImageTypeChange: (checked: string[], unchecked: string[]) => void
+  value: string[]
+  onChange: (checked: string[], unchecked: string[]) => void
 }
 
 function DisplayType(props: DisplayTypeProps) {
   const { token } = theme.useToken()
-  const { imageType, images, onImageTypeChange } = props
+  const { value, onChange } = props
 
-  const imageTypeOptions = () => {
-    return imageType.all.map((item) => {
+  const { imageState, setImageFilter } = GlobalContext.usePicker(['imageState', 'setImageFilter'])
+
+  const allImageTypes = useMemo(() => uniq(imageState.data.flatMap((item) => item.fileTypes)).sort(), [imageState.data])
+  const allImageFiles = useMemo(() => imageState.data.flatMap((item) => item.imgs), [imageState.data])
+
+  const options = useMemo(() => {
+    return allImageTypes.map((item) => {
       return {
         label: (
           <div className={'flex items-center gap-x-2'}>
@@ -36,7 +37,7 @@ function DisplayType(props: DisplayTypeProps) {
               <Badge
                 overflowCount={Number.POSITIVE_INFINITY}
                 color={token.colorPrimary}
-                count={images.filter((t) => t.fileType === item).length}
+                count={allImageFiles.filter((t) => t.fileType === item).length}
                 showZero
               />
             </ConfigProvider>
@@ -45,14 +46,25 @@ function DisplayType(props: DisplayTypeProps) {
         value: item,
       }
     })
-  }
+  }, [allImageTypes, token, allImageFiles])
 
-  const onChange = (checked: string[]) => {
-    const unchecked = difference(imageType.all, checked)
-    onImageTypeChange(checked, unchecked)
-  }
+  const [checked, setChecked] = useControlledState({
+    defaultValue: value,
+    value,
+    onChange: (value) => {
+      onChange(value, difference(allImageTypes, value))
+    },
+  })
 
-  return <Checkbox.Group value={imageType.checked} onChange={onChange} options={imageTypeOptions()}></Checkbox.Group>
+  useUpdateEffect(() => {
+    setImageFilter(
+      produce((draft) => {
+        draft.type = checked
+      }),
+    )
+  }, [checked])
+
+  return <Checkbox.Group value={checked} onChange={setChecked} options={options}></Checkbox.Group>
 }
 
 export default memo(DisplayType)

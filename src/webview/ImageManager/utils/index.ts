@@ -38,11 +38,18 @@ export function getFilenameFromPath(path: string) {
   return path.split('/').pop()
 }
 
-export function filterImages<T>(images: ImageType[], filterValue: (image: ImageType) => T, key: keyof T) {
+/**
+ *
+ * @param images 待筛选的列表
+ * @param filterCondition 筛选条件
+ * @param key 筛选key，根据key来筛选
+ * @returns 筛选后的列表
+ */
+export function filterImages<T>(images: ImageType[], filterCondition: (image: ImageType) => T, key: keyof T): T[] {
   if (!images.length) return []
   return sortBy(
     uniqBy(
-      images.map((item) => filterValue(item)),
+      images.map((item) => filterCondition(item)),
       key,
     ),
     key,

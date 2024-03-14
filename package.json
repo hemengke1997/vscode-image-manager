@@ -105,10 +105,10 @@
           },
           "default": [],
           "examples": [
-            "**/some-dist/**",
-            "some-dist",
-            "**/*.ico",
-            "!**/dist/**"
+            "[**/some-dist/**]",
+            "[some-dist]",
+            "[**/*.ico]",
+            "[!**/dist/**]"
           ],
           "description": "%pkg.file.exclude%"
         },
@@ -209,6 +209,7 @@
     "context-state": "^2.3.0",
     "conventional-changelog-cli": "^4.1.0",
     "cropperjs": "^1.6.1",
+    "deep-object-diff": "^1.1.9",
     "delay": "^6.0.0",
     "eslint": "^8.57.0",
     "execa": "^8.0.1",
@@ -218,6 +219,7 @@
     "fs-extra": "^11.2.0",
     "fuse.js": "^7.0.0",
     "i18next": "^23.10.1",
+    "immer": "^10.0.4",
     "meta-png": "^1.0.6",
     "micromatch": "^4.0.5",
     "mime": "^4.0.1",

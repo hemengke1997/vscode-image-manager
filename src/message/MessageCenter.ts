@@ -93,7 +93,7 @@ export const VscodeMessageCenter = {
               vscodePath = `data:image/png;base64,${buffer.toString('base64')}`
             }
           } catch (e) {
-            console.log(e, 'e')
+            Log.error(`Convert tiff/jp2 to base64 error: ${e}`)
           }
 
           const fileType = path.extname(img.path).replace('.', '')
