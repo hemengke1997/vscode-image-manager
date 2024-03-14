@@ -80,7 +80,6 @@ function PrimaryColorPicker(props: PrimaryColorPickerProps) {
       onChangeComplete={_onColorChange}
       onOpenChange={onOpenChange}
       placement='bottom'
-      arrow={false}
     >
       <Button
         title={t('im.primary_color')}

@@ -123,15 +123,16 @@ function ImageOperator(props: ImageOperatorProps & ImageOperatorStaticProps) {
 
       if (originSize && compressedSize) {
         const percent = ceil(((originSize - compressedSize) / originSize) * 100)
+        const increase = percent < 0
 
-        notification.info({
+        notification[increase ? 'warning' : 'success']({
           duration: 10,
           message: filename,
           placement: 'topRight',
           description: (
             <div className={'flex items-center space-x-2'}>
               <div className={'flex items-center space-x-2'}>
-                {percent < 0 ? (
+                {increase ? (
                   <>
                     <div className='flex-center text-ant-color-warning'>
                       <VscWarning />
@@ -140,7 +141,7 @@ function ImageOperator(props: ImageOperatorProps & ImageOperatorStaticProps) {
                   </>
                 ) : null}
                 <div className={'text-ant-color-error font-bold'}>
-                  {percent < 0 ? '+' : '-'}
+                  {increase ? '+' : '-'}
                   {Math.abs(percent)}%
                 </div>
               </div>

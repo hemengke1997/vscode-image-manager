@@ -6,7 +6,7 @@ import piexif from 'piexifjs'
 import { type SharpNS } from '~/@types/global'
 import { SharpOperator } from '~/core/sharp'
 import { type MessageParams, VscodeMessageCenter } from '~/message'
-import { isJpg, isPng } from '~/utils'
+import { generateOutputPath, isJpg, isPng } from '~/utils'
 import { Log } from '~/utils/Log'
 import { COMPRESSED_META } from './meta'
 
@@ -124,7 +124,7 @@ export class Compressor {
     const originExt = path.extname(filePath).slice(1)
     const ext = !format ? originExt : format
 
-    let operator: SharpOperator<{
+    let compressor: SharpOperator<{
       ext: string
       filePath: string
       option: CompressionOptions
@@ -172,7 +172,7 @@ export class Compressor {
                 compressionOption['colors'] = colors
               }
 
-              sharp = sharp
+              sharp
                 .toFormat(ext as keyof SharpNS.FormatEnum, {
                   ...compressionOption,
                 })
@@ -195,23 +195,19 @@ export class Compressor {
                   fit: 'contain',
                 })
               }
-
-              return sharp
             },
             'after:run': async ({ runtime: { filePath } }, { outputPath }) => {
               if (filePath === outputPath) return
               await this._trashFile(filePath)
             },
-            'on:genOutputPath': (
-              {
-                runtime: {
-                  ext,
-                  option: { size },
-                },
+            'on:generate-output-path': ({
+              runtime: {
+                ext,
+                option: { size },
+                filePath,
               },
-              { inputPath },
-            ) => {
-              return this._getOutputPath(inputPath, ext, size)
+            }) => {
+              return this._getOutputPath(filePath, ext, size)
             },
             'on:finish': async (_, { outputPath }) => {
               // add metadata
@@ -237,16 +233,20 @@ export class Compressor {
     })
 
     try {
-      const result = await operator.run({
+      const inputSize = fs.statSync(filePath).size
+      const { outputPath } = await compressor.run({
         ext,
         filePath,
         option: this.option,
+        input: filePath,
       })
-      if (result) {
+      if (outputPath) {
+        const outputSize = fs.statSync(outputPath).size
+
         return {
-          compressedSize: result.outputSize,
-          originSize: result.inputSize,
-          outputPath: result.outputPath,
+          compressedSize: outputSize,
+          originSize: inputSize,
+          outputPath,
         }
       } else {
         return Promise.reject('Compress Failed')
@@ -255,7 +255,7 @@ export class Compressor {
       return Promise.reject(e)
     } finally {
       // @ts-expect-error
-      operator = null
+      compressor = null
     }
   }
 
@@ -279,27 +279,14 @@ export class Compressor {
 
     let outputPath = sourcePath
     if (size !== 1) {
-      outputPath = this._generateOutputPath(outputPath, `@${size}x`)
+      outputPath = generateOutputPath(outputPath, `@${size}x`)
     }
 
     if (keep) {
-      outputPath = this._generateOutputPath(outputPath, this._extendOptions?.fileSuffix || '.min')
+      outputPath = generateOutputPath(outputPath, this._extendOptions?.fileSuffix || '.min')
     }
 
     return this._changeExt(outputPath, ext)
-  }
-
-  private _generateOutputPath(filePath: string, suffix: string) {
-    const { name, ext, dir } = path.parse(filePath)
-    const filename = `${name}${suffix}`
-    const outputPath = `${dir}/${filename}${ext}`
-
-    const fileExists = fs.existsSync(outputPath)
-
-    if (fileExists) {
-      return this._generateOutputPath(outputPath, suffix)
-    }
-    return outputPath
   }
 
   private async _trashFile(filePath: string) {

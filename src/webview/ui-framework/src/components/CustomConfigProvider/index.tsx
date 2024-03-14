@@ -72,7 +72,6 @@ function CustomConfigProvider(props: PropsWithChildren) {
             >
               <Popover
                 trigger={['click']}
-                arrow={false}
                 placement='left'
                 content={
                   <div className={'flex-center space-x-2'}>

@@ -20,15 +20,15 @@ function ThemeSelector(props: ThemeSelectorProps) {
   const themes = [
     {
       key: 'light',
-      label: <MdOutlineLightMode title='light' />,
+      label: <MdOutlineLightMode title='light' className={'text-2xl'} />,
     },
     {
       key: 'dark',
-      label: <MdOutlineDarkMode title='dark' />,
+      label: <MdOutlineDarkMode title='dark' className={'text-2xl'} />,
     },
     {
       key: 'auto',
-      label: <VscColorMode title='auto' />,
+      label: <VscColorMode title='auto' className={'text-2xl'} />,
     },
   ]
 

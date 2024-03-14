@@ -28,8 +28,8 @@ export function getAspectRatios(i18next: i18n) {
       value: 1,
     },
     {
-      label: i18next.t('im.none'),
-      value: undefined,
+      label: i18next.t('im.unset'),
+      value: 0,
     },
   ]
 }

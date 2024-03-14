@@ -63,7 +63,6 @@
     "birth_time": "创建时间",
     "last_status_changed_time": "最后修改时间",
     "no_image": "无图片",
-    "none": "无",
     "highlight": "高亮",
     "guides": "网格",
     "background": "背景",
@@ -108,7 +107,11 @@
     "toggle_options": "选项配置",
     "operation": "操作",
     "center_x": "左右居中",
-    "center_y": "上下居中"
+    "center_y": "上下居中",
+    "unset": "无",
+    "zoom_to_fit": "自适应缩放",
+    "scale_x": "左右翻转",
+    "scale_y": "上下翻转"
   },
   "fallback": {
     "internal_error": "内部错误",

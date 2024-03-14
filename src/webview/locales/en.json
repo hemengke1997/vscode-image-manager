@@ -63,7 +63,7 @@
     "birth_time": "Birth Time",
     "last_status_changed_time": "Status Change Time",
     "no_image": "No image",
-    "none": "None",
+    "unset": "Unset",
     "highlight": "Highlight",
     "guides": "Guides",
     "background": "Background",
@@ -106,9 +106,12 @@
     "init_compressor_fail": "Init compressor fail",
     "skip_compressed": "Skip compressed",
     "toggle_options": "Toggle Options",
-    "operation": "Operation",
+    "operation": "Operations",
     "center_x": "Center X",
-    "center_y": "Center Y"
+    "center_y": "Center Y",
+    "zoom_to_fit": "Zoom to Fit",
+    "scale_x": "scale X",
+    "scale_y": "scale Y"
   },
   "fallback": {
     "internal_error": "Internal Error",

@@ -1,14 +1,16 @@
 import type Cropperjs from 'cropperjs'
 import { isNil, round } from '@minko-fe/lodash-pro'
-import { useControlledState, useSetState, useUpdateEffect } from '@minko-fe/react-hook'
+import { useControlledState, useSetState, useThrottleFn, useUpdateEffect } from '@minko-fe/react-hook'
 import { isDev } from '@minko-fe/vite-config/client'
-import { App, Button, Card, Checkbox, Divider, InputNumber, Modal, Popover, Segmented, Skeleton } from 'antd'
+import { App, Button, Card, Checkbox, Divider, InputNumber, Modal, Popover, Segmented, Skeleton, Tooltip } from 'antd'
 import classNames from 'classnames'
 import { produce } from 'immer'
 import mime from 'mime/lite'
 import { memo, startTransition, useEffect, useReducer, useRef, useState } from 'react'
-import { Trans, useTranslation } from 'react-i18next'
+import { useTranslation } from 'react-i18next'
 import { IoIosArrowDropup } from 'react-icons/io'
+import { LuArrowRightLeft, LuArrowUpDown } from 'react-icons/lu'
+import { RxReset } from 'react-icons/rx'
 import { CmdToVscode } from '~/message/cmd'
 import { vscodeApi } from '~/webview/vscode-api'
 import { type ImageType } from '../..'
@@ -35,11 +37,14 @@ function ImageCropper(props?: ImageCropperProps) {
   const { t, i18n } = useTranslation()
   const { message, notification } = App.useApp()
   const cropperRef = useRef<ReactCropperElement>(null)
-  const onCrop = (e: Cropperjs.CropEvent) => {
+  const _onCrop = (e: Cropperjs.CropEvent) => {
     if (allTruly(e.detail)) {
       startTransition(() => setDetails(e.detail))
     }
   }
+
+  const onCrop = useThrottleFn(_onCrop, { wait: 100 })
+
   const [loading, setLoading] = useState(true)
 
   const allTruly = (obj: Record<string, any>) => {
@@ -113,26 +118,8 @@ function ImageCropper(props?: ImageCropperProps) {
 
             notification.success({
               duration: 10,
-              message: t('im.save_success'),
-              description: (
-                <div className={'flex flex-col space-y-1'}>
-                  <div className={'flex items-center'}>
-                    <div>{t('im.filename')}</div>
-                    <div>{data.filename}</div>
-                  </div>
-                  {data.fileType !== image?.fileType && (
-                    <div className={'inline-flex items-center space-x-1'}>
-                      <Trans
-                        i18nKey='im.save_fallback'
-                        values={{ currentType: image?.fileType, fallbackType: data.fileType }}
-                      >
-                        <div className={'text-ant-color-warning'}></div>
-                        <div className={'text-ant-color-error'}></div>
-                      </Trans>
-                    </div>
-                  )}
-                </div>
-              ),
+              message: data.filename,
+              description: <div className={'flex flex-col space-y-1'}>{t('im.save_success')}</div>,
             })
           } else {
             message.error({
@@ -198,7 +185,7 @@ function ImageCropper(props?: ImageCropperProps) {
           <Card>
             <ReactCropper
               src={image?.vscodePath}
-              className={classNames('w-full max-w-full h-[400px]', styles.cropper, loading && 'opacity-0 absolute')}
+              className={classNames('w-full max-w-full h-[500px]', styles.cropper, loading && 'opacity-0 absolute')}
               ready={() => {
                 if (cropperRef.current) {
                   moveToCenter({
@@ -210,9 +197,12 @@ function ImageCropper(props?: ImageCropperProps) {
               dragMode='move'
               ref={cropperRef}
               forceRender={forceRenderCropper}
-              crop={onCrop}
+              toggleDragModeOnDblclick={false}
+              crop={onCrop.run}
               checkCrossOrigin={false}
               center
+              zoomOnTouch={false}
+              wheelZoomRatio={0.1}
               {...cropperOptions}
             />
             <Skeleton loading={loading} active paragraph={{ rows: 7 }} />
@@ -269,7 +259,7 @@ function ImageCropper(props?: ImageCropperProps) {
                     </div>
                   }
                 >
-                  <Button type='default' icon={<IoIosArrowDropup />} className={'flex-center justify-center'}>
+                  <Button type='default' icon={<IoIosArrowDropup />}>
                     {t('im.toggle_options')}
                   </Button>
                 </Popover>
@@ -332,33 +322,64 @@ function ImageCropper(props?: ImageCropperProps) {
                   <Divider dashed plain>
                     {t('im.operation')}
                   </Divider>
-                  <Button.Group className={'flex-center w-full'}>
-                    <Button className={'flex-1'} onClick={() => moveToCenter({ centerCrop: true })}>
-                      {t('im.center')}
-                    </Button>
-                    <Button
-                      className={'flex-1'}
-                      onClick={() =>
-                        moveToCenter({
-                          centerX: true,
-                          centerY: false,
-                        })
-                      }
-                    >
-                      {t('im.center_x')}
-                    </Button>
-                    <Button
-                      className={'flex-1'}
-                      onClick={() =>
-                        moveToCenter({
-                          centerY: true,
-                          centerX: false,
-                        })
-                      }
-                    >
-                      {t('im.center_y')}
-                    </Button>
-                  </Button.Group>
+                  <div className={'flex flex-col gap-y-3'}>
+                    <Button.Group className={'flex-center w-full'}>
+                      <Button className={'flex-1'} onClick={() => moveToCenter({ centerCrop: true })}>
+                        {t('im.center')}
+                      </Button>
+                      <Button
+                        className={'flex-1'}
+                        onClick={() =>
+                          moveToCenter({
+                            centerX: true,
+                            centerY: false,
+                          })
+                        }
+                      >
+                        {t('im.center_x')}
+                      </Button>
+                      <Button
+                        className={'flex-1'}
+                        onClick={() =>
+                          moveToCenter({
+                            centerY: true,
+                            centerX: false,
+                          })
+                        }
+                      >
+                        {t('im.center_y')}
+                      </Button>
+                    </Button.Group>
+                    <Button.Group className={'flex-center w-full'}>
+                      <Tooltip title={t('im.scale_x')}>
+                        <Button
+                          className={'flex-1'}
+                          onClick={() => {
+                            cropperRef.current?.cropper.scaleX((controlledDetails.scaleX || 0) >= 0 ? -1 : 1)
+                          }}
+                          icon={<LuArrowRightLeft />}
+                        ></Button>
+                      </Tooltip>
+                      <Tooltip title={t('im.scale_y')}>
+                        <Button
+                          className={'flex-1'}
+                          onClick={() => {
+                            cropperRef.current?.cropper.scaleY((controlledDetails.scaleY || 0) >= 0 ? -1 : 1)
+                          }}
+                          icon={<LuArrowUpDown />}
+                        ></Button>
+                      </Tooltip>
+                    </Button.Group>
+                    <Button.Group className={'flex-center w-full'}>
+                      <Button
+                        className={'flex-1'}
+                        icon={<RxReset />}
+                        onClick={() => cropperRef.current?.cropper.reset()}
+                      >
+                        {t('im.reset')}
+                      </Button>
+                    </Button.Group>
+                  </div>
                 </div>
               </div>
               <div className={'flex w-full justify-center'}>

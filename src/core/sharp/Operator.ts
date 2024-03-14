@@ -1,7 +1,6 @@
 import fs from 'fs-extra'
 import { type SharpNS } from '~/@types/global'
 import { type Hookable, createHooks } from '~/fork/hookable'
-import { Log } from '~/utils/Log'
 import { Global } from '..'
 
 type HookResult<T = void> = Promise<T> | T
@@ -13,7 +12,7 @@ interface PluginMeta {
   enforce?: 'pre' | 'default' | 'post'
 }
 
-interface ObjectPlugin<RuntimeCtx extends InternalRuntimeCtx = InternalRuntimeCtx> extends PluginMeta {
+interface ObjectPlugin<RuntimeCtx extends AnyObject = AnyObject> extends PluginMeta {
   hooks: Partial<RuntimeHooks<RuntimeCtx>>
   /**
    * Execute plugin in parallel with other parallel plugins.
@@ -26,18 +25,15 @@ export function defineOperatorPlugin(plugin: ObjectPlugin): ObjectPlugin {
   return Object.assign(plugin, { [PluginIndicator]: true } as const)
 }
 
-interface RuntimeHooks<RuntimeCtx extends InternalRuntimeCtx = InternalRuntimeCtx> {
+interface RuntimeHooks<T extends AnyObject, RuntimeCtx extends AnyObject = T & OperatorInput> {
   'on:configuration': (ctx: Context<RuntimeCtx>) => HookResult<SharpNS.SharpOptions | undefined>
-  'before:run': (ctx: Context<RuntimeCtx>) => HookResult<SharpNS.Sharp>
+  'before:run': (ctx: Context<RuntimeCtx>) => HookResult
   'after:run': (ctx: Context<RuntimeCtx>, res: { outputPath: string }) => HookResult
-  'on:finish': (
-    ctx: Context<RuntimeCtx>,
-    res: { inputSize: number; outputSize: number; outputPath: string },
-  ) => HookResult
-  'on:genOutputPath': (ctx: Context<RuntimeCtx>, res: { inputPath: string }) => HookResult<string>
+  'on:finish': (ctx: Context<RuntimeCtx>, res: { outputPath: string }) => HookResult
+  'on:generate-output-path': (ctx: Context<RuntimeCtx>) => HookResult<string>
 }
 
-class Context<RuntimeCtx extends InternalRuntimeCtx = InternalRuntimeCtx> {
+class Context<T extends AnyObject, RuntimeCtx extends AnyObject = T & OperatorInput> {
   sharp: SharpNS.Sharp
   sharpFactory: TSharp
   runtime: RuntimeCtx
@@ -50,11 +46,12 @@ class Context<RuntimeCtx extends InternalRuntimeCtx = InternalRuntimeCtx> {
   }
 }
 
-type InternalRuntimeCtx = {
-  filePath: string
-} & Record<string, any>
+type AnyObject = Record<string, any>
+type OperatorInput = {
+  input: Parameters<TSharp>[0]
+}
 
-export class SharpOperator<RuntimeCtx extends InternalRuntimeCtx> {
+export class SharpOperator<T extends AnyObject, RuntimeCtx extends AnyObject = T & OperatorInput> {
   ctx: Context<RuntimeCtx>
   private _hooks: Hookable<RuntimeHooks<RuntimeCtx>>
   private _hooksMap: Map<string, Partial<RuntimeHooks<RuntimeCtx>>> = new Map()
@@ -132,16 +129,14 @@ export class SharpOperator<RuntimeCtx extends InternalRuntimeCtx> {
     }
   }
 
-  async run(runtime: RuntimeCtx): Promise<{
-    inputSize: number
-    outputSize: number
+  async run(runtime: RuntimeCtx & OperatorInput): Promise<{
     outputPath: string
-  } | void> {
-    if (!this.ctx.sharp) return Promise.resolve()
+  }> {
+    if (!this.ctx.sharp) return Promise.reject(new Error('Operator is not available'))
+
     this.ctx.runtime = runtime
 
-    const filePath = runtime.filePath
-    Log.info(`${filePath} -run`)
+    const { input } = this.ctx.runtime
 
     this.ctx.sharpFactory.cache({
       files: 0,
@@ -149,33 +144,26 @@ export class SharpOperator<RuntimeCtx extends InternalRuntimeCtx> {
       memory: 200,
     })
 
-    this.ctx.sharp = this.ctx.sharpFactory(filePath, {
+    this.ctx.sharp = this.ctx.sharpFactory(input, {
       ...((await this._hooks.callHook('on:configuration', this.ctx)) || {}),
     })
 
     await this._hooks.callHook('before:run', this.ctx)
 
     return new Promise((resolve, reject) => {
-      const inputSize = fs.statSync(filePath).size
-
       this.ctx.sharp
-        ?.toBuffer()
+        .toBuffer()
         .then(async (buffer) => {
-          const outputPath = await this.genOutputPath(filePath)
+          const outputPath = await this._hooks.callHook('on:generate-output-path', this.ctx)
 
           try {
             await this._hooks.callHook('after:run', this.ctx, { outputPath })
             const fileWritableStream = fs.createWriteStream(outputPath)
 
             fileWritableStream.on('finish', async () => {
-              const outputSize = fs.statSync(outputPath).size
-
               const result = {
-                inputSize,
-                outputSize,
                 outputPath,
               }
-
               await this._hooks.callHook('on:finish', this.ctx, result)
               resolve(result)
             })
@@ -190,10 +178,5 @@ export class SharpOperator<RuntimeCtx extends InternalRuntimeCtx> {
           reject(e)
         })
     })
-  }
-
-  async genOutputPath(filePath: string) {
-    const outputPath = (await this._hooks.callHook('on:genOutputPath', this.ctx, { inputPath: filePath })) || filePath
-    return outputPath
   }
 }

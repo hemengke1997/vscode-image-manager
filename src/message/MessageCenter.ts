@@ -8,10 +8,11 @@ import mime from 'mime/lite'
 import path from 'node:path'
 import git from 'simple-git'
 import { type ConfigurationTarget, Uri, type Webview, commands } from 'vscode'
-import { Config, Global } from '~/core'
+import { type SharpNS } from '~/@types/global'
+import { Config, Global, SharpOperator } from '~/core'
 import { type CompressionOptions } from '~/core/compress'
 import { COMPRESSED_META } from '~/core/compress/meta'
-import { isPng, normalizePath } from '~/utils'
+import { generateOutputPath, isPng, normalizePath } from '~/utils'
 import { Log } from '~/utils/Log'
 import { imageGlob } from '~/utils/glob'
 import { type ImageType } from '~/webview/ImageManager'
@@ -244,24 +245,58 @@ export const VscodeMessageCenter = {
   }: MessageParams<{
     dataUrl: string
     image: ImageType
-  }>): Promise<{ filename: string; fileType: string | null } | null> => {
+  }>): Promise<{ filename: string } | null> => {
     const { dataUrl, image } = message.data
 
     const [mimeType, base64] = dataUrl.split(',')
+
     const imageBuffer = Buffer.from(base64, 'base64')
-    const outputFileType = mime.getExtension(mimeType.match(/data:(.*);/)?.[1] || '') || image.fileType
-    // TODO: custom suffix
-    const filename = `${image.extraPathInfo.name}.crop.${outputFileType}`
-    try {
-      const newPath = path.join(image.absDirPath, filename)
-      await fs.promises.writeFile(newPath, imageBuffer)
-    } catch (e) {
-      Log.error(`SAVE_CROPPER_IMAGE ${e}`)
-      return null
+
+    const outputFileType = mime.getExtension(mimeType.match(/data:(.*);/)?.[1] || '')
+
+    const outputPath = generateOutputPath(image.path, '.crop')
+
+    if (outputFileType !== image.fileType) {
+      // 转为图片原格式
+      let formatter: SharpOperator<{
+        filePath: string
+        ext: string
+      }> = new SharpOperator({
+        plugins: [
+          {
+            name: 'toFormat',
+            hooks: {
+              'before:run': async ({ sharp, runtime }) => {
+                const { ext } = runtime
+                sharp.toFormat(ext as keyof SharpNS.FormatEnum)
+              },
+              'on:generate-output-path': () => {
+                return outputPath
+              },
+            },
+          },
+        ],
+      })
+      try {
+        await formatter.run({ filePath: image.path, ext: image.fileType, input: imageBuffer })
+      } finally {
+        // @ts-expect-error
+        formatter = null
+      }
+    } else {
+      // 直接输出图片
+      try {
+        await fs.promises.writeFile(outputPath, imageBuffer)
+      } catch (e) {
+        Log.error(`SAVE_CROPPER_IMAGE ${e}`)
+        return null
+      }
     }
+
+    const filename = path.basename(outputPath)
+
     return {
       filename,
-      fileType: outputFileType,
     }
   },
 
@@ -350,7 +385,7 @@ export class MessageCenter {
       const data = await handler({ message, webview: this._webview })
       this.postMessage({ cmd: CmdToWebview.WEBVIEW_CALLBACK, callbackId: message.callbackId, data })
     } else {
-      Log.error(`Handler function "${message.cmd}" doesn't exist!`, true)
+      Log.error(`Handler function "${message.cmd}" doesn't exist!`)
     }
   }
 }

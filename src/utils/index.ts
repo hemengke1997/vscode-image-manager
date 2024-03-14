@@ -1,3 +1,4 @@
+import fs from 'fs-extra'
 import os from 'node:os'
 import path from 'node:path'
 
@@ -24,4 +25,17 @@ function isSomeImageType(filePath: string, type: string[]) {
   const ext = path.extname(filePath).toLowerCase()
   if (!ext) return type.some((t) => t === filePath)
   return type.some((t) => ext === `.${t}`)
+}
+
+export function generateOutputPath(filePath: string, suffix: string) {
+  const { name, ext, dir } = path.parse(filePath)
+  const filename = `${name}${suffix}`
+  const outputPath = `${dir}/${filename}${ext}`
+
+  const fileExists = fs.existsSync(outputPath)
+
+  if (fileExists) {
+    return generateOutputPath(outputPath, suffix)
+  }
+  return outputPath
 }
