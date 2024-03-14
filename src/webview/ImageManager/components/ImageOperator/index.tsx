@@ -6,6 +6,7 @@ import { useHotkeys } from 'react-hotkeys-hook'
 import { useTranslation } from 'react-i18next'
 import { MdDoubleArrow } from 'react-icons/md'
 import { VscWarning } from 'react-icons/vsc'
+import { type CompressionOptions } from '~/core/compress/Compressor'
 import { CmdToVscode } from '~/message/cmd'
 import { vscodeApi } from '~/webview/vscode-api'
 import { type ImageType } from '../..'
@@ -15,12 +16,8 @@ import { formatBytes, getFilenameFromPath } from '../../utils'
 import ImagePreview from '../ImagePreview'
 import styles from './index.module.css'
 
-type FormValue = {
-  compressionLevel?: number
-  quality?: number
-  size: string | number
+interface FormValue extends CompressionOptions {
   customResize?: number
-  format: string
 }
 
 export type ImageOperatorProps = {
@@ -235,7 +232,7 @@ function ImageOperator(props: ImageOperatorProps & ImageOperatorStaticProps) {
 
   const onFinish = (value: FormValue) => {
     if (value) {
-      if (value.size === 'custom') {
+      if (Number(value.size) === 0) {
         value.size = value.customResize!
       }
       value.size = Number(value.size)
@@ -308,7 +305,7 @@ function ImageOperator(props: ImageOperatorProps & ImageOperatorStaticProps) {
                 label: '@3x',
               },
               {
-                value: 'custom',
+                value: '0',
                 label: t('im.custom'),
               },
             ]}
@@ -316,7 +313,7 @@ function ImageOperator(props: ImageOperatorProps & ImageOperatorStaticProps) {
         </Form.Item>
         <Form.Item noStyle shouldUpdate={(p, c) => p.size !== c.size}>
           {({ getFieldValue }) =>
-            getFieldValue('size') === 'custom' ? (
+            getFieldValue('size') === 0 ? (
               <Form.Item name='customResize' label='x' rules={[{ required: true, message: '' }]}>
                 <InputNumber min={0.01} max={10} step={1} />
               </Form.Item>

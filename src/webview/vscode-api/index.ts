@@ -1,6 +1,11 @@
 import { random } from '@minko-fe/lodash-pro'
 import { type WebviewApi } from 'vscode-webview'
-import { type KeyofMessage, type MessageType, type ReturnOfMessageCenter } from '~/message/MessageCenter'
+import {
+  type FirstParameterOfMessageCenter,
+  type KeyofMessage,
+  type MessageType,
+  type ReturnOfMessageCenter,
+} from '~/message/MessageCenter'
 import { CmdToWebview } from '~/message/cmd'
 
 export type MessageCallbackFn<T extends KeyofMessage> = (data: ReturnOfMessageCenter<T>) => void
@@ -57,11 +62,12 @@ class VscodeApi {
    *
    * @param message Abitrary data (must be JSON serializable) to send to the extension context.
    */
-  public postMessage<T extends KeyofMessage, D>(
-    message: Partial<MessageType> & {
-      cmd: T
-      data?: D
-    },
+  public postMessage<T extends KeyofMessage>(
+    message: FirstParameterOfMessageCenter<T> extends never
+      ? Omit<Partial<MessageType>, 'cmd'> & {
+          cmd: T
+        }
+      : MessageType<FirstParameterOfMessageCenter<T>, T>,
     callback?: MessageCallbackFn<T>,
   ) {
     message.msgId = this._getRandomId()

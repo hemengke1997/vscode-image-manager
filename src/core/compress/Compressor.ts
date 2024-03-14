@@ -5,7 +5,7 @@ import path from 'node:path'
 import piexif from 'piexifjs'
 import { type SharpNS } from '~/@types/global'
 import { SharpOperator } from '~/core/sharp'
-import { type MessageParams, VscodeMessageCenter } from '~/message'
+import { VscodeMessageCenter } from '~/message'
 import { generateOutputPath, isJpg, isPng } from '~/utils'
 import { Log } from '~/utils/Log'
 import { COMPRESSED_META } from './meta'
@@ -152,12 +152,8 @@ export class Compressor {
                 compressed,
                 metadata: { width, height },
               } = await VscodeMessageCenter.GET_IMAGE_METADATA({
-                message: {
-                  data: {
-                    filePath,
-                  },
-                },
-              } as MessageParams)
+                filePath,
+              })
 
               if (skipCompressed && compressed) {
                 return Promise.reject(new SkipError())

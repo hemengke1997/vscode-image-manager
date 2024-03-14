@@ -5,7 +5,7 @@ let updateVscodeConfigTimeoutId: NodeJS.Timeout | null = null
 export function debounceUpdateVscodeConfig(options: {
   key: string
   value: any
-  target: ConfigurationTarget
+  target?: ConfigurationTarget
   wait?: number
 }) {
   return new Promise((resolve, reject) => {

@@ -25,7 +25,7 @@ export function useConfiguration() {
   const update = (option: { key: string; value: any; target?: ConfigurationTarget }, callback?: () => void) => {
     const { key, value, target } = option
 
-    // TODO: 会造成渲染卡顿，需要优化
+    // postMessage 会造成渲染卡顿，需要优化
     // 原因：如果target是Global，会造成卡顿
     // 解决：默认使用Workspace
     vscodeApi.postMessage(

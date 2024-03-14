@@ -104,6 +104,7 @@ function ImageCropper(props?: ImageCropperProps) {
         duration: 0,
         key: MESSAGE_KEY,
       })
+
       vscodeApi.postMessage(
         {
           cmd: CmdToVscode.SAVE_CROPPER_IMAGE,
