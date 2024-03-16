@@ -8,7 +8,9 @@ import { type ReactElement, memo, useEffect, useRef } from 'react'
 import { useTranslation } from 'react-i18next'
 import { isTooManyTries, retry } from 'ts-retry'
 import { type Compressor } from '~/core/compress'
+import { type MessageType } from '~/message'
 import { CmdToVscode, CmdToWebview } from '~/message/cmd'
+import useUpdateConfig from '../hooks/useUpdateConfig'
 import { vscodeApi } from '../vscode-api'
 import ContextMenus from './components/ContextMenus'
 import ImageCropper from './components/ImageCropper'
@@ -22,7 +24,6 @@ import CroppoerContext from './contexts/CropperContext'
 import GlobalContext from './contexts/GlobalContext'
 import OperatorContext from './contexts/OperatorContext'
 import SettingsContext from './contexts/SettingsContext'
-import { useExtConfig } from './hooks/useExtConfig'
 
 vscodeApi.registerEventListener()
 
@@ -32,7 +33,7 @@ vscodeApi.registerEventListener()
 // 2. size - image size (i.e 1kb)
 // 3. git-staged - whether the image is git staged
 // 4. compressed - whether the image is compressed
-export type ImageVisibleFilterType = 'type' | 'size' | 'git_staged' | 'compressed'
+export type ImageVisibleFilterType = 'file_type' | 'size' | 'git_staged' | 'compressed'
 
 export type ImageType = {
   name: string
@@ -76,7 +77,7 @@ function ImageManager() {
 
   useEffect(() => {
     const isRefresh = refreshTimes && refreshType === 'refresh'
-    const messageKey = 'REFRESH_IMAGES'
+    const messageKey = 'refresh_images'
     if (isRefresh) {
       message.loading({
         content: t('im.img_refreshing'),
@@ -85,9 +86,9 @@ function ImageManager() {
       })
     }
 
-    vscodeApi.postMessage({ cmd: CmdToVscode.GET_ALL_IMAGES }, ({ data, workspaceFolders }) => {
+    vscodeApi.postMessage({ cmd: CmdToVscode.get_all_images }, ({ data, workspaceFolders }) => {
       if (isDev()) {
-        console.log('GET_ALL_IMAGES', data, workspaceFolders)
+        console.log('get_all_images', data, workspaceFolders)
       }
 
       const allTypes = data.flatMap((item) => item.fileTypes)
@@ -120,7 +121,7 @@ function ImageManager() {
 
   const getCompressor = useMemoizedFn(() => {
     return new Promise<Compressor>((resolve, reject) => {
-      vscodeApi.postMessage({ cmd: CmdToVscode.GET_COMPRESSOR }, (data) => {
+      vscodeApi.postMessage({ cmd: CmdToVscode.get_compressor }, (data) => {
         if (!data) {
           reject()
         } else {
@@ -145,29 +146,28 @@ function ImageManager() {
     }
   }, [])
 
-  const { updateExtConfig } = useExtConfig()
-  useEffect(() => {
-    updateExtConfig()
-  }, [])
+  const { updateConfig } = useUpdateConfig()
+
+  const clearLocalStorages = () => {
+    window.localStorage.clear()
+  }
 
   useEffect(() => {
+    clearLocalStorages()
+
     function onMessage(e: MessageEvent) {
-      const message = e.data
-      switch (message.cmd) {
-        case CmdToWebview.REFRESH_IMAGES: {
-          refreshImages({ type: 'slientRefresh' })
+      const { cmd } = e.data as MessageType<Record<string, any>, keyof typeof CmdToWebview>
+      switch (cmd) {
+        case CmdToWebview.refresh_images: {
+          refreshImages({ type: 'slient-refresh' })
           break
         }
-        case CmdToWebview.COMPRESSOR_CHANGED: {
-          setCompressor(message.data)
-          break
-        }
-        case CmdToWebview.PROGRAM_RELOAD_WEBVIEW: {
+        case CmdToWebview.program_reload_webview: {
           window.mountApp(true)
           break
         }
-        case CmdToWebview.UPDATE_CONFIG: {
-          updateExtConfig()
+        case CmdToWebview.update_config: {
+          updateConfig()
           break
         }
         default:

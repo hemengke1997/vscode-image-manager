@@ -57,7 +57,7 @@ function ImageSearch(props: ImageSearchProps) {
     return new Promise((resolve) => {
       vscodeApi.postMessage(
         {
-          cmd: CmdToVscode.MICROMATCH_ISMATCH,
+          cmd: CmdToVscode.micromatch_ismatch,
           data: {
             filePaths,
             globs: glob?.split(',').map((g) => g.trim()),

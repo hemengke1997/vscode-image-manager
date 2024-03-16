@@ -9,16 +9,16 @@ function useImageOperation() {
   const { setOperatorModal } = OperatorContext.usePicker(['setOperatorModal'])
 
   const openInVscodeExplorer = useMemoizedFn((filePath: string) => {
-    vscodeApi.postMessage({ cmd: CmdToVscode.OPEN_IMAGE_IN_VSCODE_EXPLORER, data: { filePath } })
+    vscodeApi.postMessage({ cmd: CmdToVscode.open_image_in_vscode_explorer, data: { filePath } })
   })
 
   const openInOsExplorer = useMemoizedFn((filePath: string) => {
-    vscodeApi.postMessage({ cmd: CmdToVscode.OPEN_IMAGE_IN_OS_EXPLORER, data: { filePath } })
+    vscodeApi.postMessage({ cmd: CmdToVscode.open_image_in_os_explorer, data: { filePath } })
   })
 
   const copyImageAsBase64 = useMemoizedFn((filePath: string): Promise<string> => {
     return new Promise((resolve) => {
-      vscodeApi.postMessage({ cmd: CmdToVscode.COPY_IMAGE_AS_BASE64, data: { filePath } }, (data) => {
+      vscodeApi.postMessage({ cmd: CmdToVscode.copy_image_as_base64, data: { filePath } }, (data) => {
         resolve(data)
       })
     })

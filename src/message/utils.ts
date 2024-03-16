@@ -1,29 +1,32 @@
-import { ConfigurationTarget, workspace } from 'vscode'
-import { EXT_NAMESPACE } from '~/meta'
+const timerMap = new Map()
+export function debouncePromise<T extends Function>(
+  fn: T,
+  option: {
+    key: string
+    wait?: number
+  },
+) {
+  return new Promise<boolean>((resolve, reject) => {
+    const { key, wait = 2000 } = option
 
-let updateVscodeConfigTimeoutId: NodeJS.Timeout | null = null
-export function debounceUpdateVscodeConfig(options: {
-  key: string
-  value: any
-  target?: ConfigurationTarget
-  wait?: number
-}) {
-  return new Promise((resolve, reject) => {
-    if (updateVscodeConfigTimeoutId) {
-      clearTimeout(updateVscodeConfigTimeoutId)
+    let isLeading = false
+    if (timerMap.get(key)) {
+      clearTimeout(timerMap.get(key))
+    } else {
+      isLeading = true
+      fn()
     }
 
-    const { key, value, target = ConfigurationTarget.Workspace, wait = 2000 } = options
-
-    updateVscodeConfigTimeoutId = setTimeout(async () => {
+    const timer = setTimeout(async () => {
       try {
-        await workspace.getConfiguration().update(`${EXT_NAMESPACE}.${key}`, value, target)
+        !isLeading && (await fn())
         resolve(true)
       } catch (error) {
         reject(error)
       } finally {
-        updateVscodeConfigTimeoutId = null
+        timerMap.set(key, null)
       }
     }, wait)
+    timerMap.set(key, timer)
   })
 }

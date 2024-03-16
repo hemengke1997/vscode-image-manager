@@ -3,7 +3,7 @@ import { vscodeApi } from '~/webview/vscode-api'
 
 if (import.meta.hot) {
   function avoidEmptyWebview() {
-    vscodeApi.postMessage({ cmd: CmdToVscode.RELOAD_WEBVIEW })
+    vscodeApi.postMessage({ cmd: CmdToVscode.reload_webview })
     throw new Error('prevent vite invoke `window.location.reload`')
   }
 

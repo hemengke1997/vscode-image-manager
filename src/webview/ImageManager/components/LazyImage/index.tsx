@@ -13,7 +13,7 @@ import { RxDimensions } from 'react-icons/rx'
 import { TbResize } from 'react-icons/tb'
 import { type SharpNS } from '~/@types/global'
 import { CmdToVscode } from '~/message/cmd'
-import useImageDetail from '~/webview/hooks/useImageDetail/useImageDetail'
+import useImageDetail from '~/webview/ImageManager/hooks/useImageDetail/useImageDetail'
 import { vscodeApi } from '~/webview/vscode-api'
 import { type ImageType } from '../..'
 import ActionContext from '../../contexts/ActionContext'
@@ -67,7 +67,7 @@ function LazyImage(props: LazyImageProps) {
 
   const handleMaskMouseOver = () => {
     if (!imageMetadata) {
-      vscodeApi.postMessage({ cmd: CmdToVscode.GET_IMAGE_METADATA, data: { filePath: image.path } }, (data) => {
+      vscodeApi.postMessage({ cmd: CmdToVscode.get_image_metadata, data: { filePath: image.path } }, (data) => {
         const { metadata, compressed } = data
         setImageMeatadata({ metadata, compressed })
       })

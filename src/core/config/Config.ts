@@ -1,4 +1,4 @@
-import { deepMerge } from '@minko-fe/lodash-pro'
+import { deepMerge, get } from '@minko-fe/lodash-pro'
 import { workspace } from 'vscode'
 import { EXT_NAMESPACE } from '~/meta'
 import { normalizePath } from '~/utils'
@@ -61,9 +61,7 @@ export class Config {
     return deepMerge(defaultConfig, userConfig, { arrayMerge: (_, s) => s })
   }
 
-  private static getConfig<T>(key: string, v?: T) {
-    return workspace
-      .getConfiguration()
-      .get(`${EXT_NAMESPACE}.${key}`, (this.defaultConfig as Record<string, any>)[key] || v)
+  private static getConfig<T extends ConfigKey>(key: T) {
+    return workspace.getConfiguration().get(`${EXT_NAMESPACE}.${key}`, get(defaultConfig, key))
   }
 }

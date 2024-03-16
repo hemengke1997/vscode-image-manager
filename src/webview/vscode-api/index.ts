@@ -38,7 +38,7 @@ class VscodeApi {
       const { callbackId, data } = message
       if (!callbackId) return
       switch (message.cmd) {
-        case CmdToWebview.WEBVIEW_CALLBACK: {
+        case CmdToWebview.webview_callback: {
           const callback = this._callbacks[callbackId]
           if (callback && typeof callback === 'function') {
             callback(data)

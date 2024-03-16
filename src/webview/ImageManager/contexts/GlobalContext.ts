@@ -2,26 +2,38 @@ import { useSetState } from '@minko-fe/react-hook'
 import { createContainer } from 'context-state'
 import { useState } from 'react'
 import { type Compressor } from '~/core/compress'
-import { useTrackConfigState } from '~/webview/hooks/useTrackConfigState'
+import { ConfigKey } from '~/core/config/common'
+import { useExtConfigState } from '~/webview/hooks/useExtConfigState'
 import FrameworkContext from '~/webview/ui-framework/src/contexts/FrameworkContext'
-import { type ImageType } from '..'
+import { type ImageType, type ImageVisibleFilterType } from '..'
+import { type DisplayTypeFilter } from '../components/DisplayType'
 import { type ImageFilterAction } from '../components/ImageActions/components/Filter'
+
+type RestrictHelper = {
+  [key in ImageVisibleFilterType]?: any
+}
+
+export type RestrictImageFilterType<T extends RestrictHelper> = T
 
 /**
  * 筛选条件
  *
- * @description key: ImageVisibleFilterType 一一对应，方便使用
+ * @description 对象的key 与 ImageVisibleFilterType 一一对应，方便使用
  *
  * ImageFilterAction: 来源于 imageAction 的 form filter
  *
- * type: 来源于 settings 的 imageType
+ * DisplayTypeFilter: 来源于 settings 的 image file type
  */
-export type ImageFilterType = ImageFilterAction & {
-  type: string[]
-}
+export type ImageFilterType = ImageFilterAction & DisplayTypeFilter
 
 function useGlobalContext() {
-  const { extConfig, mode, setMode, theme } = FrameworkContext.usePicker(['extConfig', 'mode', 'setMode', 'theme'])
+  const { extConfig, mode, setMode, theme, workspaceState } = FrameworkContext.usePicker([
+    'extConfig',
+    'mode',
+    'setMode',
+    'theme',
+    'workspaceState',
+  ])
 
   /* ------------- image compressor ------------ */
   const [compressor, setCompressor] = useState<Compressor>()
@@ -50,11 +62,11 @@ function useGlobalContext() {
     },
     compressed: 0,
     git_staged: 0,
-    type: [],
+    file_type: [],
   })
 
   /* ---------------- image width --------------- */
-  const [imageWidth, setImageWidth] = useTrackConfigState<number>(extConfig.viewer.imageWidth)
+  const [imageWidth, setImageWidth] = useExtConfigState(ConfigKey.viewer_imageWidth, extConfig.viewer.imageWidth)
 
   /* ---------- image placeholder size ---------- */
   const [imagePlaceholderSize, setImagePlaceholderSize] = useState<{ width: number; height: number }>()
@@ -63,6 +75,7 @@ function useGlobalContext() {
     mode,
     setMode,
     theme,
+    workspaceState,
     compressor,
     setCompressor,
     extConfig,

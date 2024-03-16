@@ -7,47 +7,54 @@
  */
 export enum CmdToWebview {
   // webview 发送命令后的回调
-  WEBVIEW_CALLBACK = 'WEBVIEW_CALLBACK',
+  webview_callback = 'webview_callback',
   // 图片改变
-  REFRESH_IMAGES = 'REFRESH_IMAGES',
-  // 图片压缩器改变
-  COMPRESSOR_CHANGED = 'COMPRESSOR_CHANGED',
+  refresh_images = 'refresh_images',
   // 重新加载webview
-  PROGRAM_RELOAD_WEBVIEW = 'PROGRAM_RELOAD_WEBVIEW',
+  program_reload_webview = 'program_reload_webview',
   // 更新配置
-  UPDATE_CONFIG = 'UPDATE_CONFIG',
+  update_config = 'update_config',
 }
 
 /**
  * @description Webview sends these commands
  */
+
 export enum CmdToVscode {
-  ON_WEBVIEW_READY = 'ON_WEBVIEW_READY',
+  on_webview_ready = 'on_webview_ready',
   // 重新加载webview（vscode的webview自身没有重新加载的能力）
-  RELOAD_WEBVIEW = 'RELOAD_WEBVIEW',
+  reload_webview = 'reload_webview',
   // 获取所有图片
-  GET_ALL_IMAGES = 'GET_ALL_IMAGES',
+  get_all_images = 'get_all_images',
   // 获取图片元信息
-  GET_IMAGE_METADATA = 'GET_IMAGE_METADATA',
+  get_image_metadata = 'get_image_metadata',
   // 获取扩展的配置（用户配置和默认的vscode配置）
-  GET_EXT_CONFIG = 'GET_EXT_CONFIG',
+  get_extension_config = 'get_extension_config',
   // 获取压缩器
-  GET_COMPRESSOR = 'GET_COMPRESSOR',
+  get_compressor = 'get_compressor',
   // 在vscode中的资源管理器中打开图片
-  OPEN_IMAGE_IN_VSCODE_EXPLORER = 'OPEN_IMAGE_IN_VSCODE_EXPLORER',
+  open_image_in_vscode_explorer = 'open_image_in_vscode_explorer',
   // 在操作系统资源管理器中打开图片
-  OPEN_IMAGE_IN_OS_EXPLORER = 'OPEN_IMAGE_IN_OS_EXPLORER',
+  open_image_in_os_explorer = 'open_image_in_os_explorer',
   // 复制图片为base64
-  COPY_IMAGE_AS_BASE64 = 'COPY_IMAGE_AS_BASE64',
+  copy_image_as_base64 = 'copy_image_as_base64',
   // 压缩图片
-  COMPRESS_IMAGE = 'COMPRESS_IMAGE',
-  MICROMATCH_ISMATCH = 'MICROMATCH_ISMATCH',
+  compress_image = 'compress_image',
+  micromatch_ismatch = 'micromatch_ismatch',
   // 保存裁剪后的图片
-  SAVE_CROPPER_IMAGE = 'SAVE_CROPPER_IMAGE',
+  save_cropper_image = 'save_cropper_image',
   // 查找相似图片
-  FIND_SIMILAR_IMAGES = 'FIND_SIMILAR_IMAGES',
+  find_similar_images = 'find_similar_images',
   // 获取 git staged 中的图片
-  GET_GIT_STAGED_IMAGES = 'GET_GIT_STAGED_IMAGES',
+  get_git_staged_images = 'get_git_staged_images',
   // 更新用户config
-  UPDATE_USER_CONFIGURATION = 'UPDATE_USER_CONFIGURATION',
+  update_user_configuration = 'update_user_configuration',
+  // 获取工作区缓存
+  get_workspace_state = 'get_workspace_state',
+  // 设置工作区缓存
+  update_workspace_state = 'update_workspace_state',
+  // 清空工作区缓存
+  clear_workspace_state = 'clear_workspace_state',
+  // 清除无用的工作区缓存
+  clear_useless_workspace_state = 'clear_useless_workspace_state',
 }

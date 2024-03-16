@@ -5,7 +5,15 @@ import { useReducer, useState } from 'react'
 function useActionContext() {
   /* --------------- refresh image -------------- */
   const refreshImageReducer = useMemoizedFn(
-    (state: { refreshTimes: number }, action: { type: 'refresh' | 'sort' | 'slientRefresh' | undefined }) => {
+    (
+      state: { refreshTimes: number },
+      action: {
+        type:
+          | 'refresh' // 带通知刷新
+          | 'slient-refresh' // 无通知刷新
+          | undefined
+      },
+    ) => {
       return {
         refreshTimes: state.refreshTimes + 1,
         refreshType: action?.type,

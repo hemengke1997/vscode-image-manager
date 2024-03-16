@@ -186,7 +186,7 @@ function useTreeContext(props: { imageList: ImageType[] }) {
     let res = onSortChange(imageList, sort)
 
     // filter
-    res = await changeImageVisibleByKeys(res, ['type', 'size', 'git_staged', 'compressed'])
+    res = await changeImageVisibleByKeys(res, ['file_type', 'size', 'git_staged', 'compressed'])
 
     return res
   }
@@ -224,7 +224,7 @@ function useTreeContext(props: { imageList: ImageType[] }) {
     (imageList: ImageType[], key: ImageVisibleFilterType[]): Promise<ImageType[]> => {
       const builtInConditions: Condition[] = [
         {
-          key: 'type',
+          key: 'file_type',
           condition: (image) =>
             displayImageTypes?.checked ? displayImageTypes.checked.includes(image.fileType) : true,
         },
@@ -242,7 +242,7 @@ function useTreeContext(props: { imageList: ImageType[] }) {
               if (index === 0 || !git_staged_cache.current) {
                 try {
                   git_staged_cache.current = await new Promise<string[]>((resolve) => {
-                    vscodeApi.postMessage({ cmd: CmdToVscode.GET_GIT_STAGED_IMAGES }, (res) => {
+                    vscodeApi.postMessage({ cmd: CmdToVscode.get_git_staged_images }, (res) => {
                       resolve(res || [])
                     })
                   })
@@ -271,7 +271,7 @@ function useTreeContext(props: { imageList: ImageType[] }) {
               try {
                 compressed = await new Promise<boolean>((resolve) => {
                   vscodeApi.postMessage(
-                    { cmd: CmdToVscode.GET_IMAGE_METADATA, data: { filePath: image.path } },
+                    { cmd: CmdToVscode.get_image_metadata, data: { filePath: image.path } },
                     (res) => {
                       resolve(res.compressed)
                     },

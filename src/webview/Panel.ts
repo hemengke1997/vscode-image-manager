@@ -80,7 +80,7 @@ export class ImageManagerPanel {
         return
       }
       if (affected) {
-        MessageCenter.postMessage({ cmd: CmdToWebview.UPDATE_CONFIG, data: {} })
+        MessageCenter.postMessage({ cmd: CmdToWebview.update_config, data: {} })
       }
     }
   }
@@ -114,7 +114,7 @@ export class ImageManagerPanel {
   }
 
   private static _reloadWebview() {
-    MessageCenter.postMessage({ cmd: CmdToWebview.PROGRAM_RELOAD_WEBVIEW, data: {} })
+    MessageCenter.postMessage({ cmd: CmdToWebview.program_reload_webview, data: {} })
   }
 
   private async _handleMessage(message: MessageType) {

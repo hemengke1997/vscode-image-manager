@@ -4,7 +4,7 @@ import { produce } from 'immer'
 import { memo, useMemo, useRef, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { TbFilter } from 'react-icons/tb'
-import GlobalContext from '~/webview/ImageManager/contexts/GlobalContext'
+import GlobalContext, { type RestrictImageFilterType } from '~/webview/ImageManager/contexts/GlobalContext'
 
 function deepTruly(v: Object | number | undefined): boolean {
   if (isObject(v)) {
@@ -22,7 +22,7 @@ export enum FilterRadioValue {
 /**
  * key: ImageVisibleFilterType 一一对应，方便使用
  */
-export type ImageFilterAction = {
+export type ImageFilterAction = RestrictImageFilterType<{
   size: {
     min?: number
     max?: number
@@ -35,7 +35,7 @@ export type ImageFilterAction = {
    * @type 0: all, 1: yes, 2: no
    */
   compressed: ValueOf<typeof FilterRadioValue>
-}
+}>
 
 function Filter() {
   const { t } = useTranslation()

@@ -1,6 +1,10 @@
 {
   "pkg": {
     "title": "Image Manager 🏞️",
+    "cmd": {
+      "open": "Open Image Manager",
+      "reset_settings": "Reset Settings"
+    },
     "file": {
       "root": "workspace root",
       "exclude": "scan images not in exclude (pattern syntax of micromatch)",

@@ -75,7 +75,7 @@ function ImageOperator(props: ImageOperatorProps & ImageOperatorStaticProps) {
     > => {
       return new Promise((resolve) => {
         vscodeApi.postMessage(
-          { cmd: CmdToVscode.COMPRESS_IMAGE, data: { filePaths, option: compressOptions } },
+          { cmd: CmdToVscode.compress_image, data: { filePaths, option: compressOptions } },
           (data) => {
             resolve(data)
           },

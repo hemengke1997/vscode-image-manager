@@ -36,10 +36,13 @@ let key = 0
 export function registerApp(webviewComponents: IWebviewComponents, reload = false) {
   vscodeApi.postMessage(
     {
-      cmd: CmdToVscode.ON_WEBVIEW_READY,
+      cmd: CmdToVscode.on_webview_ready,
     },
     (data) => {
-      const { ext, vscode } = data.config
+      const {
+        config: { ext, vscode },
+        workspaceState,
+      } = data
 
       const config = intelligentPickConfig(ext, vscode)
 
@@ -59,7 +62,13 @@ export function registerApp(webviewComponents: IWebviewComponents, reload = fals
             key = reload ? ~key : key
 
             window.__react_root__.render(
-              <App extConfig={ext} vscodeConfig={vscode} key={key} components={webviewComponents} />,
+              <App
+                extConfig={ext}
+                vscodeConfig={vscode}
+                workspaceState={workspaceState}
+                key={key}
+                components={webviewComponents}
+              />,
             )
           }
         },

@@ -2,9 +2,9 @@ import { useLockFn } from '@minko-fe/react-hook'
 import { App, Descriptions, type DescriptionsProps } from 'antd'
 import { useTranslation } from 'react-i18next'
 import { CmdToVscode } from '~/message/cmd'
-import { type ImageType } from '../../ImageManager'
-import { formatBytes } from '../../ImageManager/utils'
-import { vscodeApi } from '../../vscode-api'
+import { type ImageType } from '../..'
+import { vscodeApi } from '../../../vscode-api'
+import { formatBytes } from '../../utils'
 import styles from './index.module.css'
 
 export default function useImageDetail() {
@@ -15,7 +15,7 @@ export default function useImageDetail() {
     if (!image) return Promise.resolve()
 
     return new Promise((resolve) => {
-      vscodeApi.postMessage({ cmd: CmdToVscode.GET_IMAGE_METADATA, data: { filePath: image.path } }, (data) => {
+      vscodeApi.postMessage({ cmd: CmdToVscode.get_image_metadata, data: { filePath: image.path } }, (data) => {
         const {
           metadata: { width, height },
           compressed,

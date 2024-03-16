@@ -151,7 +151,7 @@ export class Compressor {
               const {
                 compressed,
                 metadata: { width, height },
-              } = await VscodeMessageCenter.GET_IMAGE_METADATA({
+              } = await VscodeMessageCenter.get_image_metadata({
                 filePath,
               })
 

@@ -5,8 +5,8 @@ import { type BooleanPredicate, Item, type ItemParams, Separator } from 'react-c
 import { useTranslation } from 'react-i18next'
 import { os } from 'un-detector'
 import { type ImageType } from '~/webview/ImageManager'
+import useImageDetail from '~/webview/ImageManager/hooks/useImageDetail/useImageDetail'
 import useImageOperation from '~/webview/ImageManager/hooks/useImageOperation'
-import useImageDetail from '~/webview/hooks/useImageDetail/useImageDetail'
 import MaskMenu from '../../../MaskMenu'
 
 export const IMAGE_CONTEXT_MENU_ID = 'IMAGE_CONTEXT_MENU_ID'

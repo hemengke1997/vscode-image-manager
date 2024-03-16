@@ -1,51 +1,46 @@
 import { TinyColor } from '@ctrl/tinycolor'
-import { useLocalStorageState } from '@minko-fe/react-hook'
 import { createContainer } from 'context-state'
 import { useMemo } from 'react'
-import { useTrackConfigState } from '~/webview/hooks/useTrackConfigState'
-import { LocalStorageEnum } from '~/webview/local-storage'
-import { type GroupType } from '../components/DisplayGroup'
-import { type DisplayStyleType } from '../components/DisplayStyle'
+import { ConfigKey } from '~/core/config/common'
+import { WorkspaceStateKey, type WorkspaceStateType } from '~/core/persist/workspace/common'
+import { useExtConfigState } from '~/webview/hooks/useExtConfigState'
+import { useWorkspaceState } from '~/webview/hooks/useWorkspaceState'
 import GlobalContext from './GlobalContext'
 
 function useSettingsContext() {
-  /* -------------- image display type --------------- */
-  const [displayImageTypes, setDisplayImageTypes] = useLocalStorageState<{
-    checked: string[]
-    unchecked: string[]
-  }>(LocalStorageEnum.LOCAL_STORAGE_DISPLAY_TYPE, {
-    defaultValue: {
-      checked: [],
-      unchecked: [],
-    },
-  })
+  const { workspaceState } = GlobalContext.usePicker(['workspaceState'])
+  /* -------------- display type --------------- */
+  const [displayImageTypes, setDisplayImageTypes] = useWorkspaceState(
+    WorkspaceStateKey.display_type,
+    workspaceState.display_type,
+  )
 
-  /* ---------------- image sort ---------------- */
-  const [sort, setSort] = useLocalStorageState<string[]>(LocalStorageEnum.LOCAL_STORAGE_SORT, {
-    defaultValue: ['size', 'asc'],
-  })
+  /* ---------------- display sort ---------------- */
+  const [sort, setSort] = useWorkspaceState(WorkspaceStateKey.display_sort, workspaceState.display_sort)
 
-  /* ------ display style (flat | neseted) ------ */
-  const [displayStyle, setDisplayStyle] = useLocalStorageState<DisplayStyleType>(
-    LocalStorageEnum.LOCAL_STORAGE_DISPLAY_STYLE,
-    {
-      defaultValue: 'compact',
-    },
+  /* --------------- display style -------------- */
+  const [displayStyle, setDisplayStyle] = useWorkspaceState(
+    WorkspaceStateKey.display_style,
+    workspaceState.display_style,
   )
 
   /* ---------------- image group --------------- */
-  const [_displayGroup, setDisplayGroup] = useLocalStorageState<GroupType[]>(
-    LocalStorageEnum.LOCAL_STORAGE_DISPLAY_GROUP,
-    {
-      defaultValue: ['dir'],
-    },
+  const [_displayGroup, setDisplayGroup] = useWorkspaceState(
+    WorkspaceStateKey.display_group,
+    workspaceState.display_group,
   )
 
-  const displayGroup: GroupType[] = useMemo(() => ['workspace', ...(_displayGroup || [])], [_displayGroup])
+  const displayGroup: WorkspaceStateType['display_group'] = useMemo(
+    () => ['workspace', ...(_displayGroup || [])],
+    [_displayGroup],
+  )
 
   /* ----------- image backgroundColor ---------- */
   const _backgroundColor = GlobalContext.useSelector((ctx) => ctx.extConfig.viewer.imageBackgroundColor)
-  const [backgroundColor, setBackgroundColor] = useTrackConfigState<string>(_backgroundColor)
+  const [backgroundColor, setBackgroundColor] = useExtConfigState(
+    ConfigKey.viewer_imageBackgroundColor,
+    _backgroundColor,
+  )
 
   const tinyBackgroundColor = useMemo(() => new TinyColor(backgroundColor), [backgroundColor])
   const isDarkBackground = tinyBackgroundColor.isDark()

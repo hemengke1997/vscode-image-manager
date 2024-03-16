@@ -16,7 +16,6 @@ export type ConfigType = {
     exclude: string[]
     scan: string[]
   }
-
   appearance: {
     theme: Theme
     language: Language
@@ -29,7 +28,7 @@ export const defaultConfig: ConfigType = {
   viewer: {
     warningSize: 1024,
     imageWidth: 100,
-    imageBackgroundColor: Colors.warmBlack, // #1a1a1a
+    imageBackgroundColor: '#1a1a1a', // #1a1a1a
   },
   file: {
     root: [],

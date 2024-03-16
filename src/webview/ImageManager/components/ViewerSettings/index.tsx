@@ -3,9 +3,6 @@ import { AnimatePresence, motion } from 'framer-motion'
 import { type ForwardedRef, type ReactNode, forwardRef, memo, useImperativeHandle } from 'react'
 import { useTranslation } from 'react-i18next'
 import { RiSettingsLine } from 'react-icons/ri'
-import { ConfigKey } from '~/core/config/common'
-import { useConfiguration } from '~/webview/hooks/useConfiguration'
-import { LocalStorageEnum } from '~/webview/local-storage'
 import PrimaryColorPicker from '~/webview/ui-framework/src/components/CustomConfigProvider/components/PrimaryColorPicker'
 import GlobalContext from '../../contexts/GlobalContext'
 import SettingsContext from '../../contexts/SettingsContext'
@@ -27,7 +24,6 @@ function ViewerSettings(_: any, ref: ForwardedRef<ViewerSettingsRef>) {
 
   const { t } = useTranslation()
 
-  const { update } = useConfiguration()
   const { mode } = GlobalContext.usePicker(['mode'])
 
   const {
@@ -106,21 +102,7 @@ function ViewerSettings(_: any, ref: ForwardedRef<ViewerSettingsRef>) {
                 <OperationItemUI title={t('im.image_background_color')}>
                   <PrimaryColorPicker
                     value={backgroundColor}
-                    onChange={(color) => {
-                      setBackgroundColor(color)
-                      return new Promise((resolve) => {
-                        update(
-                          {
-                            key: ConfigKey.viewer_imageBackgroundColor,
-                            value: color,
-                          },
-                          () => {
-                            resolve()
-                          },
-                        )
-                      })
-                    }}
-                    localKey={LocalStorageEnum.LOCAL_STORAGE_BACKGROUND_RECENT_COLORS_KEY}
+                    onChange={setBackgroundColor}
                     extraColors={[Colors.warmBlack]}
                   />
                 </OperationItemUI>

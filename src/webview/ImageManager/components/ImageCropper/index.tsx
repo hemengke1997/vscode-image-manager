@@ -107,7 +107,7 @@ function ImageCropper(props?: ImageCropperProps) {
 
       vscodeApi.postMessage(
         {
-          cmd: CmdToVscode.SAVE_CROPPER_IMAGE,
+          cmd: CmdToVscode.save_cropper_image,
           data: {
             dataUrl: canvas.toDataURL(imageType),
             image,

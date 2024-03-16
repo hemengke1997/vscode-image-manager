@@ -1,16 +1,15 @@
 import { TinyColor } from '@ctrl/tinycolor'
 import { uniq } from '@minko-fe/lodash-pro'
-import { useControlledState, useLocalStorageState } from '@minko-fe/react-hook'
+import { useControlledState } from '@minko-fe/react-hook'
 import { Button, ColorPicker, type ColorPickerProps } from 'antd'
-import { type ReactNode, memo, startTransition, useState } from 'react'
+import { type ReactNode, memo, startTransition } from 'react'
 import { useTranslation } from 'react-i18next'
 import { MdOutlineColorLens } from 'react-icons/md'
 import { builtInColors, vscodeColors } from '~/webview/ui-framework/src/utils/theme'
 
 type PrimaryColorPickerProps = {
   value?: string
-  onChange: (color: string) => Promise<void>
-  localKey: string
+  onChange: (color: string) => void
   extraColors?: string[]
   children?: ReactNode
 }
@@ -18,7 +17,7 @@ type PrimaryColorPickerProps = {
 function PrimaryColorPicker(props: PrimaryColorPickerProps) {
   const { t } = useTranslation()
 
-  const { value, onChange, localKey, extraColors } = props
+  const { value, onChange, extraColors } = props
 
   const color = new TinyColor(value).toHex8String()
 
@@ -27,21 +26,12 @@ function PrimaryColorPicker(props: PrimaryColorPickerProps) {
   const [selectedColor, setSelectedColor] = useControlledState({
     defaultValue: color,
     value: color,
-    onChange: async (v) => {
-      setLoading(true)
-      try {
-        await onChange(v)
-      } finally {
-        setLoading(false)
-      }
-    },
+    onChange,
   })
 
-  const [recentColorsQueue, setRecentColorsQueue] = useLocalStorageState<string[]>(localKey, {
-    defaultValue: [color || ''],
+  const [recentColorsQueue, setRecentColorsQueue] = useControlledState<string[]>({
+    defaultValue: color ? [color] : [],
   })
-
-  const [loading, setLoading] = useState(false)
 
   const _onColorChange: ColorPickerProps['onChangeComplete'] = (color) => {
     startTransition(() => setSelectedColor(color.toHexString()))
@@ -89,7 +79,6 @@ function PrimaryColorPicker(props: PrimaryColorPickerProps) {
             <MdOutlineColorLens />
           </div>
         }
-        loading={loading}
       ></Button>
     </ColorPicker>
   )

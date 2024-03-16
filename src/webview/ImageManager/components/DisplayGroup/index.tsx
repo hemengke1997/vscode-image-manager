@@ -2,8 +2,9 @@ import { useControlledState } from '@minko-fe/react-hook'
 import { Checkbox, type CheckboxOptionType } from 'antd'
 import { type ReactNode, memo, startTransition, useMemo } from 'react'
 import { useTranslation } from 'react-i18next'
+import { type WorkspaceStateType } from '~/core/persist/workspace/common'
 
-export type GroupType = 'workspace' | 'dir' | 'type'
+export type GroupType = WorkspaceStateType['display_group'][number]
 
 type DisplayGroupProps<T> = {
   value?: T[]

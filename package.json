@@ -34,7 +34,9 @@
   "author": "minko",
   "main": "./dist/extension.js",
   "activationEvents": [
-    "onWebviewPanel:ImageManagerPanel"
+    "onWebviewPanel:ImageManagerPanel",
+    "onCommand:image-manager.open-image-manager",
+    "onCommand:image-manager.reset-settings"
   ],
   "scripts": {
     "ui:dev": "vite -m development",
@@ -63,13 +65,20 @@
     "commands": [
       {
         "command": "image-manager.open-image-manager",
-        "title": "%pkg.title%"
+        "title": "%pkg.cmd.open%",
+        "category": "%pkg.title%"
+      },
+      {
+        "command": "image-manager.reset-settings",
+        "title": "%pkg.cmd.reset_settings%",
+        "category": "%pkg.title%"
       }
     ],
     "menus": {
       "commandPalette": [
         {
-          "command": "image-manager.open-image-manager"
+          "command": "image-manager.open-image-manager",
+          "group": "z_commands"
         }
       ],
       "explorer/context": [
@@ -87,7 +96,7 @@
       }
     ],
     "configuration": {
-      "title": "Image Manager",
+      "title": "%pkg.title%",
       "properties": {
         "image-manager.file.root": {
           "type": "array",
@@ -219,11 +228,13 @@
     "fs-extra": "^11.2.0",
     "fuse.js": "^7.0.0",
     "i18next": "^23.10.1",
+    "image-size": "^1.1.1",
     "immer": "^10.0.4",
     "meta-png": "^1.0.6",
     "micromatch": "^4.0.5",
     "mime": "^4.0.1",
     "npm-run-all2": "^6.1.2",
+    "p-debounce": "^4.0.0",
     "piexifjs": "^1.0.6",
     "pixelmatch": "^5.3.0",
     "postcss": "^8.4.35",

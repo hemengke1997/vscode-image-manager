@@ -4,9 +4,6 @@ import { AnimatePresence, motion } from 'framer-motion'
 import { type PropsWithChildren, memo, useEffect, useRef } from 'react'
 import { useTranslation } from 'react-i18next'
 import { IoSettingsOutline } from 'react-icons/io5'
-import { ConfigKey } from '~/core/config/common'
-import { useConfiguration } from '~/webview/hooks/useConfiguration'
-import { LocalStorageEnum } from '~/webview/local-storage'
 import Logo from '~/webview/ui-framework/src/images/logo.svg?react'
 import FrameworkContext from '../../contexts/FrameworkContext'
 import { getCssVar, setHtmlTheme } from '../../utils/theme'
@@ -38,8 +35,6 @@ function CustomConfigProvider(props: PropsWithChildren) {
     const fontSize = getCssVar('--ant-font-size', domRef.current!).split('px')[0]
     document.documentElement.style.fontSize = `${fontSize}px`
   }, [])
-
-  const { update } = useConfiguration()
 
   // every time the theme changes, update the html theme (for tailwindcss)
   useEffect(() => {
@@ -78,21 +73,9 @@ function CustomConfigProvider(props: PropsWithChildren) {
                     <LocaleSelector />
                     <ThemeSelector value={theme} onChange={setTheme} />
                     <PrimaryColorPicker
-                      localKey={LocalStorageEnum.LOCAL_STORAGE_RECENT_COLORS_KEY}
                       value={primaryColor}
                       onChange={(color) => {
                         setPrimaryColor(color)
-                        return new Promise((resolve) => {
-                          update(
-                            {
-                              key: ConfigKey.appearance_primaryColor,
-                              value: color,
-                            },
-                            () => {
-                              resolve()
-                            },
-                          )
-                        })
                       }}
                     ></PrimaryColorPicker>
                   </div>

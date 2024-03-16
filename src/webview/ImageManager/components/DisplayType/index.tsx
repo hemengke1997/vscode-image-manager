@@ -3,7 +3,11 @@ import { useControlledState, useUpdateEffect } from '@minko-fe/react-hook'
 import { Badge, Checkbox, ConfigProvider, theme } from 'antd'
 import { produce } from 'immer'
 import { memo, useMemo } from 'react'
-import GlobalContext from '../../contexts/GlobalContext'
+import GlobalContext, { type RestrictImageFilterType } from '../../contexts/GlobalContext'
+
+export type DisplayTypeFilter = RestrictImageFilterType<{
+  file_type: string[]
+}>
 
 type DisplayTypeProps = {
   value: string[]
@@ -59,7 +63,7 @@ function DisplayType(props: DisplayTypeProps) {
   useUpdateEffect(() => {
     setImageFilter(
       produce((draft) => {
-        draft.type = checked
+        draft.file_type = checked
       }),
     )
   }, [checked])

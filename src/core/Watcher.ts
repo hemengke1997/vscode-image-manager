@@ -46,7 +46,7 @@ export class Watcher {
     }
     Log.debug(`File Changed: ${e.fsPath}, isDirectory: ${isDirectory}, trigger refresh`)
     this.webview?.postMessage({
-      cmd: CmdToWebview.REFRESH_IMAGES,
+      cmd: CmdToWebview.refresh_images,
     })
   }
 

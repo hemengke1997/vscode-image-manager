@@ -1,12 +1,9 @@
 import { round } from '@minko-fe/lodash-pro'
 import { useLayoutEffect, useRef } from 'react'
-import { ConfigKey } from '~/core/config/common'
-import { useConfiguration } from '~/webview/hooks/useConfiguration'
 import GlobalContext from '../contexts/GlobalContext'
 
 function useWheelScaleEvent() {
-  const { update } = useConfiguration()
-  const { setImageWidth, imageWidth } = GlobalContext.usePicker(['setImageWidth', 'imageWidth'])
+  const { setImageWidth } = GlobalContext.usePicker(['setImageWidth'])
 
   const ref = useRef<HTMLDivElement>(null)
 
@@ -15,10 +12,6 @@ function useWheelScaleEvent() {
       e.preventDefault()
       e.stopPropagation()
     }
-  }
-
-  const updateWidth = () => {
-    update({ key: ConfigKey.viewer_imageWidth, value: imageWidth })
   }
 
   const handleWheel = (event: WheelEvent) => {
@@ -32,11 +25,9 @@ function useWheelScaleEvent() {
       if (delta > 0) {
         // 缩小
         setImageWidth((prevWidth) => Math.max(30, round(prevWidth! - maxDelta, 0)))
-        updateWidth()
       } else if (delta < 0) {
         // 放大
         setImageWidth((prevWidth) => Math.min(600, round(prevWidth! + maxDelta, 0)))
-        updateWidth()
       }
       return false
     }
