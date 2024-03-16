@@ -65,8 +65,7 @@
     "commands": [
       {
         "command": "image-manager.open-image-manager",
-        "title": "%pkg.cmd.open%",
-        "category": "%pkg.title%"
+        "title": "%pkg.title%"
       },
       {
         "command": "image-manager.reset-settings",
@@ -77,8 +76,7 @@
     "menus": {
       "commandPalette": [
         {
-          "command": "image-manager.open-image-manager",
-          "group": "z_commands"
+          "command": "image-manager.open-image-manager"
         }
       ],
       "explorer/context": [
