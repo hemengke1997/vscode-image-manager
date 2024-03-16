@@ -12,12 +12,14 @@ type PrimaryColorPickerProps = {
   onChange: (color: string) => void
   extraColors?: string[]
   children?: ReactNode
+  rencentColors: string[]
+  onRencentColorsChange: (colors: string[]) => void
 }
 
 function PrimaryColorPicker(props: PrimaryColorPickerProps) {
   const { t } = useTranslation()
 
-  const { value, onChange, extraColors } = props
+  const { value, onChange, extraColors, rencentColors, onRencentColorsChange } = props
 
   const color = new TinyColor(value).toHex8String()
 
@@ -30,7 +32,9 @@ function PrimaryColorPicker(props: PrimaryColorPickerProps) {
   })
 
   const [recentColorsQueue, setRecentColorsQueue] = useControlledState<string[]>({
-    defaultValue: color ? [color] : [],
+    defaultValue: rencentColors.length ? rencentColors : [color],
+    value: rencentColors,
+    onChange: onRencentColorsChange,
   })
 
   const _onColorChange: ColorPickerProps['onChangeComplete'] = (color) => {

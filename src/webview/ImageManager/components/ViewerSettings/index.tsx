@@ -3,6 +3,8 @@ import { AnimatePresence, motion } from 'framer-motion'
 import { type ForwardedRef, type ReactNode, forwardRef, memo, useImperativeHandle } from 'react'
 import { useTranslation } from 'react-i18next'
 import { RiSettingsLine } from 'react-icons/ri'
+import { WorkspaceStateKey } from '~/core/persist/workspace/common'
+import { useWorkspaceState } from '~/webview/hooks/useWorkspaceState'
 import PrimaryColorPicker from '~/webview/ui-framework/src/components/CustomConfigProvider/components/PrimaryColorPicker'
 import GlobalContext from '../../contexts/GlobalContext'
 import SettingsContext from '../../contexts/SettingsContext'
@@ -24,7 +26,7 @@ function ViewerSettings(_: any, ref: ForwardedRef<ViewerSettingsRef>) {
 
   const { t } = useTranslation()
 
-  const { mode } = GlobalContext.usePicker(['mode'])
+  const { mode, workspaceState } = GlobalContext.usePicker(['mode', 'workspaceState'])
 
   const {
     sort,
@@ -74,6 +76,12 @@ function ViewerSettings(_: any, ref: ForwardedRef<ViewerSettingsRef>) {
     setSort(value)
   }
 
+  /* ---------- image background color ---------- */
+  const [recentBackgroundColors, setRencentBackgroundColors] = useWorkspaceState(
+    WorkspaceStateKey.rencent_image_backgroundColor,
+    workspaceState.rencent_image_backgroundColor,
+  )
+
   return (
     <AnimatePresence>
       {mode === 'standard' && (
@@ -103,6 +111,8 @@ function ViewerSettings(_: any, ref: ForwardedRef<ViewerSettingsRef>) {
                   <PrimaryColorPicker
                     value={backgroundColor}
                     onChange={setBackgroundColor}
+                    rencentColors={recentBackgroundColors}
+                    onRencentColorsChange={setRencentBackgroundColors}
                     extraColors={[Colors.warmBlack]}
                   />
                 </OperationItemUI>

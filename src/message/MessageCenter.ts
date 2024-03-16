@@ -1,4 +1,4 @@
-import { flatten } from '@minko-fe/lodash-pro'
+import { flatten, toString } from '@minko-fe/lodash-pro'
 import exif from 'exif-reader'
 import fg from 'fast-glob'
 import fs from 'fs-extra'
@@ -21,7 +21,7 @@ import { Log } from '~/utils/Log'
 import { imageGlob } from '~/utils/glob'
 import { type ImageType } from '~/webview/ImageManager'
 import { CmdToVscode, CmdToWebview } from './cmd'
-import { debouncePromise } from './utils'
+import { convertImageToBase64, convertToBase64IfBrowserNotSupport, debouncePromise } from './utils'
 
 export type VscodeMessageCenterType = typeof VscodeMessageCenter
 
@@ -106,12 +106,10 @@ export const VscodeMessageCenter = {
 
           // Browser doesn't support [tiff, tif], convert to png base64
           try {
-            if (img.path.match(/\.(tiff?)$/i)) {
-              const buffer = await Global.sharp(img.path).png().toBuffer()
-              vscodePath = `data:image/png;base64,${buffer.toString('base64')}`
-            }
+            vscodePath = (await convertToBase64IfBrowserNotSupport(img.path)) || vscodePath
           } catch (e) {
-            Log.error(`Convert tiff to base64 error: ${e}`)
+            console.log(e, 'e')
+            Log.error(`Convert to base64 error: ${e}`)
           }
 
           const fileType = path.extname(img.path).replace('.', '')
@@ -214,11 +212,12 @@ export const VscodeMessageCenter = {
   [CmdToVscode.copy_image_as_base64]: async (data: { filePath: string }) => {
     const { filePath } = data
 
-    const bitmap = await fs.promises.readFile(filePath)
-    const imgType = filePath.substring(filePath.lastIndexOf('.') + 1)
-
-    const imgBase64 = `data:${mime.getType(imgType)};base64,${Buffer.from(bitmap).toString('base64')}`
-    return imgBase64
+    try {
+      return await convertImageToBase64(filePath)
+    } catch (e) {
+      Log.error(`Copy image as base64 error: ${toString(e)}`)
+      return ''
+    }
   },
 
   /* -------------- compress image -------------- */

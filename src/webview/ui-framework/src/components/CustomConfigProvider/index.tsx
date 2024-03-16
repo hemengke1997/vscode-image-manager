@@ -5,6 +5,8 @@ import { motion } from 'framer-motion'
 import { type PropsWithChildren, memo, useEffect, useRef } from 'react'
 import { useTranslation } from 'react-i18next'
 import { IoSettingsOutline } from 'react-icons/io5'
+import { WorkspaceStateKey } from '~/core/persist/workspace/common'
+import { useWorkspaceState } from '~/webview/hooks/useWorkspaceState'
 import Logo from '~/webview/ui-framework/src/images/logo.svg?react'
 import FrameworkContext from '../../contexts/FrameworkContext'
 import { getCssVar, setHtmlTheme } from '../../utils/theme'
@@ -25,6 +27,7 @@ function CustomConfigProvider(props: PropsWithChildren) {
     themeWithoutAuto,
     languageWithoutAuto,
     setLanguage,
+    workspaceState,
   } = FrameworkContext.usePicker([
     'primaryColor',
     'theme',
@@ -35,6 +38,7 @@ function CustomConfigProvider(props: PropsWithChildren) {
     'themeWithoutAuto',
     'languageWithoutAuto',
     'setLanguage',
+    'workspaceState',
   ])
 
   const { t } = useTranslation()
@@ -57,6 +61,11 @@ function CustomConfigProvider(props: PropsWithChildren) {
   useUpdateEffect(() => {
     i18n.changeLanguage(languageWithoutAuto)
   }, [languageWithoutAuto])
+
+  const [recentBackgroundColors, setRencentBackgroundColors] = useWorkspaceState(
+    WorkspaceStateKey.rencent_layout_backgroundColor,
+    workspaceState.rencent_layout_backgroundColor,
+  )
 
   return (
     <div className={'min-w-screen min-h-screen space-y-2 p-4'} ref={domRef}>
@@ -86,7 +95,12 @@ function CustomConfigProvider(props: PropsWithChildren) {
               <div className={'flex-center space-x-2'}>
                 <LocaleSelector value={languageWithoutAuto} onChange={setLanguage} />
                 <ThemeSelector value={theme} onChange={setTheme} />
-                <PrimaryColorPicker value={primaryColor} onChange={setPrimaryColor}></PrimaryColorPicker>
+                <PrimaryColorPicker
+                  value={primaryColor}
+                  onChange={setPrimaryColor}
+                  rencentColors={recentBackgroundColors}
+                  onRencentColorsChange={setRencentBackgroundColors}
+                ></PrimaryColorPicker>
               </div>
             }
           >

@@ -96,7 +96,7 @@ function ImageCropper(props?: ImageCropperProps) {
   const handleSave = async () => {
     if (cropperRef.current?.cropper && image) {
       const canvas = cropperRef.current?.cropper.getCroppedCanvas()
-      const imageType = mime.getType(image.fileType)!
+      const imageType = mime.getType(image.fileType)
 
       const MESSAGE_KEY = 'save-cropper-image'
       message.loading({
@@ -109,7 +109,7 @@ function ImageCropper(props?: ImageCropperProps) {
         {
           cmd: CmdToVscode.save_cropper_image,
           data: {
-            dataUrl: canvas.toDataURL(imageType),
+            dataUrl: canvas.toDataURL(imageType || undefined),
             image,
           },
         },

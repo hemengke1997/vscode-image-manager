@@ -28,7 +28,6 @@ export class Global {
     this._updateTheme()
     this._updateLanguage()
     context.subscriptions.push(workspace.onDidChangeWorkspaceFolders(() => this.updateRootPath()))
-    // context.subscriptions.push(workspace.onDidChangeConfiguration((e) => this.update(e)))
     await this.updateRootPath()
   }
 
