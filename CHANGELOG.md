@@ -1,5 +1,11 @@
 # CHANGELOG
 
+## 0.6.1
+
+### Fix
+
+- I18n don't sync with vscode config
+
 ## 0.6.0
 
 ### Feat
