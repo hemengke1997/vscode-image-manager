@@ -1,5 +1,13 @@
 # CHANGELOG
 
+## 0.6.2
+
+### Fix
+
+- Support recent colors in workspaceState
+- Fix copy ico base64 failed
+- Copy tiff base64 as png (for brower compatibility)
+
 ## 0.6.1
 
 ### Fix
