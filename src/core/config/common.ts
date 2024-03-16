@@ -1,5 +1,3 @@
-import { Colors } from '~/webview/ImageManager/utils/color'
-
 export type VscodeConfigType = {
   theme: Theme
   language: Language
