@@ -1,5 +1,5 @@
 import { Card, Skeleton } from 'antd'
-import { motion } from 'framer-motion'
+import { AnimatePresence, motion } from 'framer-motion'
 import { memo } from 'react'
 import { useTranslation } from 'react-i18next'
 import { IoMdImages } from 'react-icons/io'
@@ -27,24 +27,33 @@ function Viewer() {
         title={<TitleIconUI icon={<IoMdImages />}>{t('im.images')}</TitleIconUI>}
         extra={<ImageActions />}
       >
-        {imageState.loading ? (
-          <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ duration: 0.1, delay: 0.2 }}>
-            <Skeleton className={'p-4'} active paragraph={{ rows: 14 }} />
-          </motion.div>
-        ) : (
-          <div className={'space-y-4'}>
-            {imageState.data.map((item, index) => (
-              <TreeContext.Provider
-                key={index}
-                value={{
-                  imageList: item.imgs,
-                }}
-              >
-                <CollapseTree />
-              </TreeContext.Provider>
-            ))}
-          </div>
-        )}
+        <AnimatePresence mode='sync'>
+          {imageState.loading ? (
+            <motion.div
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              transition={{ duration: 0.2 }}
+            >
+              <Skeleton className={'px-4 py-2'} active paragraph={{ rows: 4 }} />
+            </motion.div>
+          ) : (
+            <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ duration: 0.2 }}>
+              <div className={'space-y-4'}>
+                {imageState.data.map((item, index) => (
+                  <TreeContext.Provider
+                    key={index}
+                    value={{
+                      imageList: item.imgs,
+                    }}
+                  >
+                    <CollapseTree />
+                  </TreeContext.Provider>
+                ))}
+              </div>
+            </motion.div>
+          )}
+        </AnimatePresence>
       </Card>
     </div>
   )
