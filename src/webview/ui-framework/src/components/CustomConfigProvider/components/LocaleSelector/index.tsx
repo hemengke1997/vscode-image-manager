@@ -1,14 +1,23 @@
-import { useUpdateEffect } from '@minko-fe/react-hook'
+import { useControlledState } from '@minko-fe/react-hook'
 import { Button, Dropdown } from 'antd'
 import { memo } from 'react'
 import { useTranslation } from 'react-i18next'
 import { PiTranslateFill } from 'react-icons/pi'
-import FrameworkContext from '~/webview/ui-framework/src/contexts/FrameworkContext'
 
-function LocaleSelector() {
-  const { i18n, t } = useTranslation()
+type LocaleSelectorProps = {
+  value: Language
+  onChange: (language: Language) => void
+}
 
-  const { languageWithoutAuto, setLanguage } = FrameworkContext.usePicker(['languageWithoutAuto', 'setLanguage'])
+function LocaleSelector(props: LocaleSelectorProps) {
+  const { value, onChange } = props
+  const { t } = useTranslation()
+
+  const [language, setLanguage] = useControlledState({
+    defaultValue: value,
+    value,
+    onChange,
+  })
 
   // webview/locales/*.json
   const locales = [
@@ -22,16 +31,12 @@ function LocaleSelector() {
     },
   ]
 
-  useUpdateEffect(() => {
-    i18n.changeLanguage(languageWithoutAuto)
-  }, [languageWithoutAuto])
-
   return (
     <Dropdown
       menu={{
         items: locales,
         selectable: true,
-        selectedKeys: [languageWithoutAuto],
+        selectedKeys: [language],
         onSelect(info) {
           setLanguage(info.key as Language)
         },

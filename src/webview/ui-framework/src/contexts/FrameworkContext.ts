@@ -34,7 +34,9 @@ const useFrameworkContext = () => {
   const [language, setLanguage] = useExtConfigState(ConfigKey.appearance_language, extConfig.appearance.language)
 
   // theme without `auto`
-  const themeWithoutAuto = useMemo(() => weightByKey(theme, vscodeConfig.theme, 'auto'), [theme, vscodeConfig.theme])
+  const themeWithoutAuto = useMemo(() => {
+    return weightByKey(theme, vscodeConfig.theme, 'auto')
+  }, [theme, vscodeConfig.theme])
 
   // language without `auto`
   const languageWithoutAuto = useMemo(

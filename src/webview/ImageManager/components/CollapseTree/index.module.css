@@ -4,7 +4,6 @@
       .ant-collapse-header {
         @apply !rounded-ant-border-radius-lg;
         &:hover,
-        &:focus,
         &:focus-within {
           @apply bg-ant-control-item-bg-hover;
         }
@@ -13,7 +12,6 @@
     .ant-collapse-header {
       @apply !rounded-t-ant-border-radius-lg !rounded-b-none relative;
       &:hover,
-      &:focus,
       &:focus-within {
         @apply bg-ant-control-item-bg-hover;
       }

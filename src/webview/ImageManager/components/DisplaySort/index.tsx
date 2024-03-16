@@ -57,8 +57,11 @@ function DisplaySort(props: DisplaySortProps) {
         theme={{
           components: {
             Cascader: {
-              dropdownHeight: 'auto' as any,
               optionSelectedBg: token.colorPrimaryActive,
+              optionPadding: '2px 12px',
+              dropdownHeight: 'auto' as any,
+              controlWidth: 'auto' as any,
+              controlItemWidth: 'auto' as any,
             },
           },
         }}

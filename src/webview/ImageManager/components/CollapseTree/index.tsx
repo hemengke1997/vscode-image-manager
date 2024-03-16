@@ -1,5 +1,5 @@
 import { useMemoizedFn } from '@minko-fe/react-hook'
-import { type CollapseProps, Empty } from 'antd'
+import { type CollapseProps, ConfigProvider, Empty } from 'antd'
 import classNames from 'classnames'
 import { motion } from 'framer-motion'
 import { type ReactNode, memo, useMemo, useRef } from 'react'
@@ -152,7 +152,19 @@ function CollapseTree() {
     return nestedDisplay(tree, { bordered: true }, { defaultOpen: true })
   })
 
-  return <>{displayByPriority()}</>
+  return (
+    <ConfigProvider
+      theme={{
+        components: {
+          Collapse: {
+            lineWidth: 0,
+          },
+        },
+      }}
+    >
+      {displayByPriority()}
+    </ConfigProvider>
+  )
 }
 
 export default memo(CollapseTree)

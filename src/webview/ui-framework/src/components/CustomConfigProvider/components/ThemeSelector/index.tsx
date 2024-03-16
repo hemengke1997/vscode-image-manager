@@ -41,7 +41,7 @@ function ThemeSelector(props: ThemeSelectorProps) {
       menu={{
         items: themes,
         selectable: true,
-        selectedKeys: [theme!],
+        selectedKeys: [theme],
         onSelect(info) {
           setTheme(info.key as Theme)
         },
