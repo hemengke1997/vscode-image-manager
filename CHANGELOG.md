@@ -1,5 +1,15 @@
 # CHANGELOG
 
+## 0.6.0
+
+### Feat
+
+- Add `image-manager.reset-settings` command to reset viewer settings, including `group/sort/style/type` etc.
+
+### Fix
+
+- Get `ico` image dimession failed
+
 ## 0.5.2
 
 ### Feat
