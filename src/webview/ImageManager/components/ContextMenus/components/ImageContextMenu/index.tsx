@@ -74,11 +74,7 @@ function ImageContextMenu() {
         </Item>
         <Item onClick={handleOpenInVscodeExplorer}>{t('im.reveal_in_explorer')}</Item>
         <Separator hidden={isOperationHidden} />
-        <Item
-          // disabled={isCompressDisabled}
-          hidden={isOperationHidden}
-          onClick={handleCompressImage}
-        >
+        <Item hidden={isOperationHidden} onClick={handleCompressImage}>
           {t('im.compress')}
         </Item>
         <Item onClick={(e) => handleCropImage(e)} hidden={isOperationHidden}>

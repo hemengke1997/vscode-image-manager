@@ -3,6 +3,8 @@ import { memo } from 'react'
 import { type FallbackProps } from 'react-error-boundary'
 import { useTranslation } from 'react-i18next'
 import { MdOutlineError } from 'react-icons/md'
+import { CmdToVscode } from '~/message/cmd'
+import { vscodeApi } from '~/webview/vscode-api'
 
 const { Paragraph, Text } = Typography
 
@@ -47,8 +49,9 @@ function Fallback(props: FallbackProps) {
               size='middle'
               danger
               onClick={() => {
-                localStorage.clear()
-                resetErrorBoundary()
+                vscodeApi.postMessage({ cmd: CmdToVscode.clear_workspace_state }, () => {
+                  resetErrorBoundary()
+                })
               }}
             >
               {t('fallback.reset')}

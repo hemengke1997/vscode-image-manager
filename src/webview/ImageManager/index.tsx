@@ -191,19 +191,11 @@ function ImageManager() {
       <ContextMenus />
 
       <ViewerSettings ref={viewerSettingsRef} />
-
       <Viewer />
+
       <ImageForSize />
       <ImageSearch open={imageSearchOpen} onOpenChange={setImageSearchOpen} />
-      <ImageCropper
-        {...cropperProps}
-        onOpenChange={(open) =>
-          setCropperProps((t) => ({
-            ...t,
-            open,
-          }))
-        }
-      />
+      <ImageCropper {...cropperProps} onOpenChange={(open) => setCropperProps({ open })} />
       <ImageOperator {...operatorModal} onOpenChange={(open) => setOperatorModal({ open })} />
       <FloatButton.BackTop target={() => document.querySelector('#root') as HTMLElement} />
     </>

@@ -97,28 +97,30 @@ function CollapseTree() {
       return (
         <div className={'space-y-2'}>
           {tree.map((node) => {
+            const { groupType, value, label, children, renderList, underFolderList } = node
+            if (!groupType) return null
             return (
               <ImageCollapse
-                key={node.value}
-                id={node.value}
+                key={value}
+                id={value}
                 collapseProps={{
                   bordered: false,
-                  defaultActiveKey: defaultOpen ? [node.value] : undefined,
+                  defaultActiveKey: defaultOpen ? [value] : undefined,
                   className: classNames(styles.collapse),
                   ...collapseProps,
                 }}
                 labelContainer={(label) => (
                   <div className={'flex items-center space-x-1'}>
-                    <div className={'flex-center'}>{displayMap[node.groupType!].icon({ path: node.value })}</div>
+                    <div className={'flex-center'}>{displayMap[groupType].icon({ path: value })}</div>
                     {label}
                   </div>
                 )}
-                contextMenu={displayMap[node.groupType!].contextMenu}
-                label={node.label}
-                joinLabel={!!displayMap[node.groupType!].priority}
-                nestedChildren={node.label ? nestedDisplay(node.children) : null}
-                images={node.renderList}
-                underFolderImages={node.underFolderList}
+                contextMenu={displayMap[groupType].contextMenu}
+                label={label}
+                joinLabel={!!displayMap[groupType].priority}
+                nestedChildren={label ? nestedDisplay(children) : null}
+                images={renderList}
+                underFolderImages={underFolderList}
               ></ImageCollapse>
             )
           })}
@@ -142,7 +144,7 @@ function CollapseTree() {
 
     if (!tree.length) {
       return (
-        <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ duration: 0.1, delay: 0.2 }}>
+        <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ duration: 0.15, delay: 0.15 }}>
           <Empty image={Empty.PRESENTED_IMAGE_SIMPLE} description={t('im.no_image')} />
         </motion.div>
       )

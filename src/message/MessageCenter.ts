@@ -13,7 +13,7 @@ import { type SharpNS } from '~/@types/global'
 import { Config, Global, SharpOperator } from '~/core'
 import { type CompressionOptions } from '~/core/compress'
 import { COMPRESSED_META } from '~/core/compress/meta'
-import { WorkspaceState } from '~/core/persist/workspace/WorkspaceState'
+import { WorkspaceState } from '~/core/persist'
 import { type WorkspaceStateKey } from '~/core/persist/workspace/common'
 import { EXT_NAMESPACE } from '~/meta'
 import { generateOutputPath, isPng, normalizePath } from '~/utils'
@@ -402,9 +402,17 @@ export const VscodeMessageCenter = {
     return true
   },
 
+  /* ----------- clear_workspace_state ---------- */
+  [CmdToVscode.clear_workspace_state]: async () => {
+    await WorkspaceState.clear_unused()
+    await WorkspaceState.clear()
+    return true
+  },
+
   /* ------- clear useless workspace state ------ */
-  [CmdToVscode.clear_useless_workspace_state]: () => {
-    return WorkspaceState.clear_unused()
+  [CmdToVscode.clear_useless_workspace_state]: async () => {
+    await WorkspaceState.clear_unused()
+    return true
   },
 }
 
