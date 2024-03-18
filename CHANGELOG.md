@@ -1,5 +1,11 @@
 # CHANGELOG
 
+## 0.6.4
+
+### Fix
+
+- Update state in webview trigger endless loop
+
 ## 0.6.3
 
 ### Fix
