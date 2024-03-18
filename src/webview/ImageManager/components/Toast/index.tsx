@@ -66,6 +66,7 @@ function ToastHolder(props: ToastProps) {
   }
 
   const onMouseHover = (hover: boolean) => {
+    if (!open) return
     if (hover) {
       timer.current && clearTimeout(timer.current)
     } else if (open && content) {
@@ -76,7 +77,7 @@ function ToastHolder(props: ToastProps) {
   if (!content) return null
 
   return (
-    <AnimatePresence mode='sync' onExitComplete={onClosed}>
+    <AnimatePresence onExitComplete={onClosed}>
       {open && (
         <motion.div
           className={

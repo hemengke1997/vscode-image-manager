@@ -7,7 +7,6 @@ import { useTranslation } from 'react-i18next'
 import { FaRegImages } from 'react-icons/fa'
 import { IoMdFolderOpen } from 'react-icons/io'
 import { VscFileMedia } from 'react-icons/vsc'
-import logger from '~/utils/logger'
 import SettingsContext from '../../contexts/SettingsContext'
 import TreeContext from '../../contexts/TreeContext'
 import { DirTree, type DisplayMapType, type FileNode } from '../../utils/DirTree'
@@ -138,8 +137,6 @@ function CollapseTree() {
     })
 
     const tree = dirTree.current.buildRenderTree()
-
-    logger.debug('tree', tree)
 
     if (displayStyle === 'compact') {
       dirTree.current.compactFolders(tree)

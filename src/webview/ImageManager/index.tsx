@@ -1,9 +1,9 @@
 import { difference, isEqual } from '@minko-fe/lodash-pro'
-import { useAsyncEffect, useMemoizedFn } from '@minko-fe/react-hook'
+import { useAsyncEffect, useMemoizedFn, useUpdateEffect } from '@minko-fe/react-hook'
 import { App, FloatButton } from 'antd'
 import { type Stats } from 'fs-extra'
 import { type ParsedPath } from 'node:path'
-import { type ReactElement, memo, useEffect, useRef } from 'react'
+import { type ReactElement, memo, useEffect, useMemo, useRef } from 'react'
 import { useTranslation } from 'react-i18next'
 import { isTooManyTries, retry } from 'ts-retry'
 import { type Compressor } from '~/core/compress'
@@ -60,7 +60,11 @@ function ImageManager() {
   const { message } = App.useApp()
   const { t } = useTranslation()
 
-  const { setImageState, setCompressor } = GlobalContext.usePicker(['setImageState', 'setCompressor'])
+  const { setImageState, setCompressor, imageState } = GlobalContext.usePicker([
+    'setImageState',
+    'setCompressor',
+    'imageState',
+  ])
 
   const { imageRefreshedState, refreshImages, imageSearchOpen, setImageSearchOpen } = ActionContext.usePicker([
     'imageRefreshedState',
@@ -71,38 +75,42 @@ function ImageManager() {
 
   const { operatorModal, setOperatorModal } = OperatorContext.usePicker(['operatorModal', 'setOperatorModal'])
 
-  const { displayImageTypes } = SettingsContext.useSelector((ctx) => ctx)
+  const { displayImageTypes } = SettingsContext.usePicker(['displayImageTypes'])
 
   const { refreshTimes, refreshType } = imageRefreshedState
 
   /**
-   * 设置 image display types
-   * @param reset 是否重置为全选
+   * setup image display types
+   * @param reset whether reset image display types
    */
-  const setupImageDisplayTypes = useMemoizedFn((allImageTypes: string[], reset = false) => {
+  const setupImageDisplayTypes = useMemoizedFn((reset = false) => {
     const _reset = () => {
       viewerSettingsRef.current?.changeImageType(allImageTypes)
     }
     if (reset) {
-      return _reset()
-    } else {
-      try {
-        const shouldCheckedTypes = displayImageTypes?.unchecked.length
-          ? difference(allImageTypes, displayImageTypes.unchecked)
-          : allImageTypes
+      _reset()
+      return
+    }
+    try {
+      const shouldCheckedTypes = displayImageTypes?.unchecked.length
+        ? difference(allImageTypes, displayImageTypes.unchecked)
+        : allImageTypes
 
-        // avoid unnecessary render
-        if (!isEqual(shouldCheckedTypes, displayImageTypes?.checked)) {
-          viewerSettingsRef.current?.changeImageType(shouldCheckedTypes)
-        }
-      } catch {
-        _reset()
+      // avoid unnecessary render
+      if (!isEqual(shouldCheckedTypes, displayImageTypes?.checked)) {
+        viewerSettingsRef.current?.changeImageType(shouldCheckedTypes)
       }
+    } catch {
+      _reset()
     }
   })
 
   // all image types
-  const allImageTypes = useRef<string[]>([])
+  const allImageTypes = useMemo(() => imageState.data.flatMap((item) => item.fileTypes), [imageState.data])
+
+  useUpdateEffect(() => {
+    setupImageDisplayTypes()
+  }, [allImageTypes])
 
   useEffect(() => {
     const isRefresh = refreshTimes && refreshType === 'refresh'
@@ -117,10 +125,6 @@ function ImageManager() {
 
     vscodeApi.postMessage({ cmd: CmdToVscode.get_all_images }, ({ data, workspaceFolders }) => {
       logger.debug('get_all_images', data, workspaceFolders)
-
-      allImageTypes.current = data.flatMap((item) => item.fileTypes)
-
-      setupImageDisplayTypes(allImageTypes.current)
 
       setImageState({
         data,
@@ -169,39 +173,38 @@ function ImageManager() {
     window.localStorage.clear()
   })
 
+  const onMessage = useMemoizedFn((e: MessageEvent) => {
+    const { cmd } = e.data as MessageType<Record<string, any>, keyof typeof CmdToWebview>
+    switch (cmd) {
+      case CmdToWebview.refresh_images: {
+        refreshImages({ type: 'slient-refresh' })
+        break
+      }
+      case CmdToWebview.program_reload_webview: {
+        window.mountApp(true)
+        break
+      }
+      case CmdToWebview.update_config: {
+        updateConfig()
+        break
+      }
+      case CmdToWebview.update_workspaceState: {
+        updateWorkspaceState(allImageTypes)
+        break
+      }
+      default:
+        break
+    }
+  })
+
   useEffect(() => {
     clearLocalStorages()
 
-    function onMessage(e: MessageEvent) {
-      const { cmd } = e.data as MessageType<Record<string, any>, keyof typeof CmdToWebview>
-      switch (cmd) {
-        case CmdToWebview.refresh_images: {
-          refreshImages({ type: 'slient-refresh' })
-          break
-        }
-        case CmdToWebview.program_reload_webview: {
-          window.mountApp(true)
-          break
-        }
-        case CmdToWebview.update_config: {
-          updateConfig()
-          break
-        }
-        case CmdToWebview.update_workspaceState: {
-          updateWorkspaceState().then(() => {
-            setupImageDisplayTypes(allImageTypes.current, true)
-          })
-          break
-        }
-        default:
-          break
-      }
-    }
     window.addEventListener('message', onMessage)
     return () => {
       window.removeEventListener('message', onMessage)
     }
-  }, [])
+  }, [onMessage])
 
   /* -------------- viewer settings ------------- */
   const viewerSettingsRef = useRef<ViewerSettingsRef>(null)

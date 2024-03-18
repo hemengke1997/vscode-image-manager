@@ -41,7 +41,7 @@ function ImagePreview(props: ImagePreviewProps) {
 
   const throttleOpenToast = useThrottleFn(
     (sclalePercent: number) => {
-      if (!sclalePercent) return
+      if (!sclalePercent || !preview.open) return
       Toast.open({
         content: (
           <div className={'flex items-center'}>

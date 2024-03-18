@@ -80,6 +80,10 @@ export class ImageManagerPanel {
         return
       }
       if (affected) {
+        if (Global.isProgrammaticChangeConfig) {
+          Channel.info(`Programmatic change config, skip update webview`)
+          return
+        }
         MessageCenter.postMessage({ cmd: CmdToWebview.update_config, data: {} })
       }
     }

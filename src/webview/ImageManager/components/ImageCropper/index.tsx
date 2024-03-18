@@ -43,7 +43,12 @@ function ImageCropper(props?: ImageCropperProps) {
     }
   }
 
-  const onCrop = useThrottleFn(_onCrop, { wait: 100 })
+  const onCrop = useThrottleFn(_onCrop, {
+    wait: 100,
+    // aviod details flash
+    leading: false,
+    trailing: true,
+  })
 
   const [loading, setLoading] = useState(true)
 
@@ -188,11 +193,6 @@ function ImageCropper(props?: ImageCropperProps) {
               src={image?.vscodePath}
               className={classNames('w-full max-w-full h-[500px]', styles.cropper, loading && 'opacity-0 absolute')}
               ready={() => {
-                if (cropperRef.current) {
-                  moveToCenter({
-                    centerCrop: true,
-                  })
-                }
                 setLoading(false)
               }}
               dragMode='move'

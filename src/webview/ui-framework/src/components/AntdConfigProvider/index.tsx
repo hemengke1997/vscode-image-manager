@@ -15,9 +15,9 @@ function ligherOrDarker(color: string, theme: Theme) {
 
   switch (theme) {
     case 'light':
-      return c.lighten(5).toString()
+      return c.lighten(8).toString()
     case 'dark':
-      return c.darken(5).toString()
+      return c.darken(8).toString()
     default:
       return color
   }

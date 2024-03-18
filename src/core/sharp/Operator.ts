@@ -139,8 +139,8 @@ export class SharpOperator<T extends AnyObject, RuntimeCtx extends AnyObject = T
     const { input } = this.ctx.runtime
 
     this.ctx.sharpFactory.cache({
-      files: 0,
-      items: 200,
+      files: 20,
+      items: 100,
       memory: 200,
     })
 

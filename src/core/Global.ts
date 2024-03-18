@@ -15,6 +15,7 @@ export class Global {
   static language: Language = FALLBACK_LANGUAGE
   static sharp: TSharp
   static compressor: Compressor
+  static isProgrammaticChangeConfig = false
 
   // events
   private static _onDidChangeRootPath: EventEmitter<string[]> = new EventEmitter()

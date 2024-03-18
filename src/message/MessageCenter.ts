@@ -370,8 +370,13 @@ export const VscodeMessageCenter = {
     const { key, value, target = ConfigurationTarget.Workspace } = data
 
     debouncePromise(
-      () => {
-        workspace.getConfiguration().update(`${EXT_NAMESPACE}.${key}`, value, target)
+      async () => {
+        Global.isProgrammaticChangeConfig = true
+        try {
+          await workspace.getConfiguration().update(`${EXT_NAMESPACE}.${key}`, value, target)
+        } finally {
+          Global.isProgrammaticChangeConfig = false
+        }
       },
       {
         key,

@@ -1,5 +1,4 @@
 import { useMemoizedFn } from '@minko-fe/react-hook'
-import { flushSync } from 'react-dom'
 import { CmdToVscode } from '~/message/cmd'
 import VscodeContext from '../ui-framework/src/contexts/VscodeContext'
 import { vscodeApi } from '../vscode-api'
@@ -20,22 +19,23 @@ export default function useUpdateWebview() {
     })
   })
 
-  const updateWorkspaceState = useMemoizedFn(() => {
-    return new Promise((resolve) => {
-      vscodeApi.postMessage(
-        {
-          cmd: CmdToVscode.get_workspace_state,
-        },
-        (data) => {
-          if (data) {
-            flushSync(() => {
-              setWorkspaceState(data)
-              resolve(data)
-            })
-          }
-        },
-      )
-    })
+  const updateWorkspaceState = useMemoizedFn((allImageTypes: string[]) => {
+    vscodeApi.postMessage(
+      {
+        cmd: CmdToVscode.get_workspace_state,
+      },
+      (data) => {
+        if (data) {
+          setWorkspaceState({
+            ...data,
+            display_type: {
+              checked: allImageTypes,
+              unchecked: [],
+            },
+          })
+        }
+      },
+    )
   })
 
   return {
