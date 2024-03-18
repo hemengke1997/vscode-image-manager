@@ -207,11 +207,14 @@ export class Compressor {
             },
             'on:finish': async (_, { outputPath }) => {
               // add metadata
+              let PNGUint8Array = new Uint8Array(fs.readFileSync(outputPath))
               if (isPng(outputPath)) {
-                const PNGUint8Array = new Uint8Array(fs.readFileSync(outputPath))
-                if (getMetadata(PNGUint8Array, COMPRESSED_META)) return
-                const modified = addMetadata(PNGUint8Array, COMPRESSED_META, '1')
-                await fs.writeFile(outputPath, modified)
+                try {
+                  const compressed = getMetadata(PNGUint8Array, COMPRESSED_META)
+                  if (compressed) return
+                  PNGUint8Array = addMetadata(PNGUint8Array, COMPRESSED_META, '1')
+                } catch {}
+                await fs.writeFile(outputPath, PNGUint8Array)
               } else if (isJpg(outputPath)) {
                 let binary = fs.readFileSync(outputPath).toString('binary')
                 binary = piexif.remove(binary)
@@ -219,8 +222,8 @@ export class Compressor {
                 zeroth[piexif.ImageIFD.ImageDescription] = COMPRESSED_META
                 const exifObj = { '0th': zeroth }
                 const exifbytes = piexif.dump(exifObj)
-                const newData = Buffer.from(piexif.insert(exifbytes, binary), 'binary')
-                await fs.writeFile(outputPath, newData)
+                const buffer = Buffer.from(piexif.insert(exifbytes, binary), 'binary')
+                await fs.writeFile(outputPath, buffer)
               }
             },
           },

@@ -164,8 +164,11 @@ export class SharpOperator<T extends AnyObject, RuntimeCtx extends AnyObject = T
               const result = {
                 outputPath,
               }
-              await this._hooks.callHook('on:finish', this.ctx, result)
-              resolve(result)
+              try {
+                await this._hooks.callHook('on:finish', this.ctx, result)
+              } finally {
+                resolve(result)
+              }
             })
 
             fileWritableStream.write(buffer)

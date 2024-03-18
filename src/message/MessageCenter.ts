@@ -331,7 +331,9 @@ export const VscodeMessageCenter = {
       }
       if (!compressed && isPng(filePath)) {
         const PNGUint8Array = new Uint8Array(fs.readFileSync(filePath))
-        compressed = !!getMetadata(PNGUint8Array, COMPRESSED_META)
+        try {
+          compressed = !!getMetadata(PNGUint8Array, COMPRESSED_META)
+        } catch {}
       }
     }
 
