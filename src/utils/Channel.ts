@@ -2,7 +2,7 @@ import { type OutputChannel, window } from 'vscode'
 import { Global } from '~/core'
 import { EXT_NAME } from '~/meta'
 
-export class Log {
+export class Channel {
   private static _channel: OutputChannel
 
   static get outputChannel(): OutputChannel {
@@ -27,13 +27,13 @@ export class Log {
     if (prompt) {
       window.showWarningMessage(message)
     }
-    Log.info(`⚠ WARN: ${message}`, prompt, indent)
+    Channel.info(`⚠ WARN: ${message}`, prompt, indent)
   }
 
   static async error(err: Error | string | any = {}, prompt = false, indent = 0) {
     if (typeof err !== 'string') {
       const messages = [err.message, err.response?.data, err.stack, err.toJSON?.()].filter(Boolean).join('\n')
-      Log.info(`🐛 ERROR: ${err.name}: ${messages}`, false, indent)
+      Channel.info(`🐛 ERROR: ${err.name}: ${messages}`, false, indent)
     }
 
     if (prompt) {

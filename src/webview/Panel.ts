@@ -18,7 +18,7 @@ import { i18n } from '~/i18n'
 import { MessageCenter, type MessageType } from '~/message/MessageCenter'
 import { CmdToWebview } from '~/message/cmd'
 import { DEV_PORT, EXT_NAMESPACE } from '~/meta'
-import { Log } from '~/utils/Log'
+import { Channel } from '~/utils/Channel'
 
 export class ImageManagerPanel {
   static readonly viewType = 'ImageManagerPanel'
@@ -58,7 +58,7 @@ export class ImageManagerPanel {
         if (e.affectsConfiguration(key)) {
           affected = true
           reload = true
-          Log.info(`Config "${key}" changed, reloading`)
+          Channel.info(`Config "${key}" changed, reloading`)
           break
         }
       }
@@ -67,7 +67,7 @@ export class ImageManagerPanel {
         const key = `${EXT_NAMESPACE}.${config}`
         if (e.affectsConfiguration(key)) {
           affected = true
-          Log.info(`Config "${key}" changed`)
+          Channel.info(`Config "${key}" changed`)
           break
         }
       }
@@ -75,7 +75,7 @@ export class ImageManagerPanel {
       if (!affected) return
 
       if (reload) {
-        Log.info(`Reloading webview`)
+        Channel.info(`Reloading webview`)
         ImageManagerPanel._reloadWebview()
         return
       }
@@ -118,7 +118,7 @@ export class ImageManagerPanel {
   }
 
   private async _handleMessage(message: MessageType) {
-    Log.debug(`Receive cmd: ${message.cmd}`)
+    Channel.debug(`Receive cmd: ${message.cmd}`)
     MessageCenter.handleMessages(message)
   }
 
@@ -216,7 +216,7 @@ export class ImageManagerPanel {
   private _transformHtml(htmlPath: string) {
     const resourcePath = Uri.file(htmlPath).fsPath
 
-    Log.info(`ResourcePath: ${resourcePath}`)
+    Channel.info(`ResourcePath: ${resourcePath}`)
     const dirPath = path.dirname(resourcePath)
     let html = fs.readFileSync(resourcePath, 'utf-8')
     html = html.replace(/(<link.+?href="|<script.+?src="|<img.+?src=")(.+?)"/g, (_, $1: string, $2: string) => {

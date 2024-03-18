@@ -1,6 +1,5 @@
 import { difference, isEqual } from '@minko-fe/lodash-pro'
 import { useAsyncEffect, useMemoizedFn } from '@minko-fe/react-hook'
-import { isDev } from '@minko-fe/vite-config/client'
 import { App, FloatButton } from 'antd'
 import { type Stats } from 'fs-extra'
 import { type ParsedPath } from 'node:path'
@@ -10,7 +9,8 @@ import { isTooManyTries, retry } from 'ts-retry'
 import { type Compressor } from '~/core/compress'
 import { type MessageType } from '~/message'
 import { CmdToVscode, CmdToWebview } from '~/message/cmd'
-import useUpdateConfig from '../hooks/useUpdateConfig'
+import logger from '~/utils/logger'
+import useUpdateWebview from '../hooks/useUpdateWebview'
 import { vscodeApi } from '../vscode-api'
 import ContextMenus from './components/ContextMenus'
 import ImageCropper from './components/ImageCropper'
@@ -71,9 +71,38 @@ function ImageManager() {
 
   const { operatorModal, setOperatorModal } = OperatorContext.usePicker(['operatorModal', 'setOperatorModal'])
 
-  const { displayImageTypes, setDisplayImageTypes } = SettingsContext.useSelector((ctx) => ctx)
+  const { displayImageTypes } = SettingsContext.useSelector((ctx) => ctx)
 
   const { refreshTimes, refreshType } = imageRefreshedState
+
+  /**
+   * 设置 image display types
+   * @param reset 是否重置为全选
+   */
+  const setupImageDisplayTypes = useMemoizedFn((allImageTypes: string[], reset = false) => {
+    const _reset = () => {
+      viewerSettingsRef.current?.changeImageType(allImageTypes)
+    }
+    if (reset) {
+      return _reset()
+    } else {
+      try {
+        const shouldCheckedTypes = displayImageTypes?.unchecked.length
+          ? difference(allImageTypes, displayImageTypes.unchecked)
+          : allImageTypes
+
+        // avoid unnecessary render
+        if (!isEqual(shouldCheckedTypes, displayImageTypes?.checked)) {
+          viewerSettingsRef.current?.changeImageType(shouldCheckedTypes)
+        }
+      } catch {
+        _reset()
+      }
+    }
+  })
+
+  // all image types
+  const allImageTypes = useRef<string[]>([])
 
   useEffect(() => {
     const isRefresh = refreshTimes && refreshType === 'refresh'
@@ -87,24 +116,11 @@ function ImageManager() {
     }
 
     vscodeApi.postMessage({ cmd: CmdToVscode.get_all_images }, ({ data, workspaceFolders }) => {
-      if (isDev()) {
-        console.log('get_all_images', data, workspaceFolders)
-      }
+      logger.debug('get_all_images', data, workspaceFolders)
 
-      const allTypes = data.flatMap((item) => item.fileTypes)
+      allImageTypes.current = data.flatMap((item) => item.fileTypes)
 
-      try {
-        const imageTypes = displayImageTypes?.unchecked.length
-          ? difference(allTypes, displayImageTypes.unchecked)
-          : allTypes
-
-        // avoid images flash
-        if (!isEqual(imageTypes, displayImageTypes?.checked)) {
-          viewerSettingsRef.current?.changeImageType(imageTypes)
-        }
-      } catch {
-        setDisplayImageTypes({ checked: allTypes, unchecked: [] })
-      }
+      setupImageDisplayTypes(allImageTypes.current)
 
       setImageState({
         data,
@@ -146,11 +162,12 @@ function ImageManager() {
     }
   }, [])
 
-  const { updateConfig } = useUpdateConfig()
+  const { updateConfig, updateWorkspaceState } = useUpdateWebview()
 
-  const clearLocalStorages = () => {
+  const clearLocalStorages = useMemoizedFn(() => {
+    // For old extension version.
     window.localStorage.clear()
-  }
+  })
 
   useEffect(() => {
     clearLocalStorages()
@@ -168,6 +185,12 @@ function ImageManager() {
         }
         case CmdToWebview.update_config: {
           updateConfig()
+          break
+        }
+        case CmdToWebview.update_workspaceState: {
+          updateWorkspaceState().then(() => {
+            setupImageDisplayTypes(allImageTypes.current, true)
+          })
           break
         }
         default:

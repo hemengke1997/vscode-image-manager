@@ -4,13 +4,13 @@ import path from 'node:path'
 import { type FileSystemWatcher, RelativePattern, type Uri, type Webview, workspace } from 'vscode'
 import { Config, Global } from '~/core'
 import { CmdToWebview } from '~/message/cmd'
-import { Log } from '~/utils/Log'
+import { Channel } from '~/utils/Channel'
 import { imageGlob } from '~/utils/glob'
 import { ImageManagerPanel } from '~/webview/Panel'
 
 export class Watcher {
   public static watchers: FileSystemWatcher[]
-  public static webview: Webview
+  public static webview: Webview | undefined
   public static glob: ReturnType<typeof imageGlob>
 
   static init() {
@@ -18,6 +18,7 @@ export class Watcher {
       if (!e) {
         // webview closed
         this.dispose()
+        this.webview = undefined
       } else {
         // webview opened
         this.webview = e
@@ -44,7 +45,7 @@ export class Watcher {
     if (this._isIgnored(e, isDirectory)) {
       return
     }
-    Log.debug(`File Changed: ${e.fsPath}, isDirectory: ${isDirectory}, trigger refresh`)
+    Channel.debug(`File Changed: ${e.fsPath}, isDirectory: ${isDirectory}, trigger refresh`)
     this.webview?.postMessage({
       cmd: CmdToWebview.refresh_images,
     })
@@ -71,7 +72,7 @@ export class Watcher {
       root: Config.file_root,
     })
 
-    Log.info(`Watch Root: ${Config.file_root}`)
+    Channel.info(`Watch Root: ${Config.file_root}`)
 
     const imageWatchers = Config.file_root.map((r) => {
       return workspace.createFileSystemWatcher(new RelativePattern(r, this.glob.imagePattern))

@@ -4,8 +4,8 @@ import { Compressor } from '~/core/compress/Compressor'
 import { Installer } from '~/core/sharp'
 import { i18n } from '~/i18n'
 import { FALLBACK_LANGUAGE } from '~/meta'
-import { Log } from '~/utils/Log'
-import { Config, Watcher } from '.'
+import { Channel } from '~/utils/Channel'
+import { Config, Watcher, WorkspaceState } from '.'
 
 export class Global {
   private static _rootpaths: string[]
@@ -23,11 +23,17 @@ export class Global {
 
   static async init(context: ExtensionContext) {
     this.context = context
+
     Watcher.init()
+    WorkspaceState.init()
+
     await this.installSharp()
+
     this._updateTheme()
     this._updateLanguage()
+
     context.subscriptions.push(workspace.onDidChangeWorkspaceFolders(() => this.updateRootPath()))
+    context.subscriptions.push(window.onDidChangeActiveColorTheme(() => this._updateTheme()))
     await this.updateRootPath()
   }
 
@@ -41,7 +47,7 @@ export class Global {
       rootpaths = [workspace.rootPath]
     }
     if (rootpaths?.length) {
-      Log.info(`💼 Workspace root changed to ${rootpaths.join(',')}`)
+      Channel.info(`💼 Workspace root changed to ${rootpaths.join(',')}`)
       this._rootpaths = rootpaths
       this._onDidChangeRootPath.fire(this._rootpaths)
     }
@@ -80,12 +86,12 @@ export class Global {
 
     installer.event
       .on('install-success', (e) => {
-        Log.info('Sharp installed')
+        Channel.info('Sharp installed')
         Global.sharp = e
         Global.compressor = new Compressor()
       })
       .on('install-fail', () => {
-        Log.error(i18n.t('prompt.compressor_init_fail'), true)
+        Channel.error(i18n.t('prompt.compressor_init_fail'), true)
       })
 
     await installer.run()

@@ -6,7 +6,7 @@ import path from 'node:path'
 import { Emitter } from 'strict-event-emitter'
 import * as vscode from 'vscode'
 import { i18n } from '~/i18n'
-import { Log } from '~/utils/Log'
+import { Channel } from '~/utils/Channel'
 import { Config, Global } from '..'
 
 type Events = {
@@ -34,7 +34,7 @@ export class Installer {
 
   constructor(ctx: vscode.ExtensionContext) {
     this._cwd = ctx.extensionUri.fsPath
-    Log.info(`Extension cwd: ${this._cwd}`)
+    Channel.info(`Extension cwd: ${this._cwd}`)
   }
 
   async run() {
@@ -52,7 +52,7 @@ export class Installer {
       } else {
         currentCacheType = cacheTypes[0]
 
-        Log.debug(`Sharp already installed, load from cache: ${currentCacheType}`)
+        Channel.debug(`Sharp already installed, load from cache: ${currentCacheType}`)
 
         switch (currentCacheType) {
           case 'extension': {
@@ -73,7 +73,7 @@ export class Installer {
 
       this.event.emit('install-success', this._loadSharp(this._getInstalledCacheTypes()![0]))
     } catch (error) {
-      Log.error(`Sharp binary file creation error: ${error}`)
+      Channel.error(`Sharp binary file creation error: ${error}`)
       this.event.emit('install-fail')
     }
     return this
@@ -86,7 +86,7 @@ export class Installer {
       const creating_text = i18n.t('prompt.initializing')
       this._statusBarItem.text = `$(sync~spin) ${creating_text}`
       this._statusBarItem.tooltip = i18n.t('prompt.initializing_tooltip')
-      Log.info(creating_text)
+      Channel.info(creating_text)
       this._statusBarItem.show()
       await beforeHide()
     } finally {
@@ -144,7 +144,7 @@ export class Installer {
   private _loadSharp(cacheType: CacheType) {
     const localSharpPath = this._getCaches().find((cache) => cache.type === cacheType)?.sharpFsPath
 
-    Log.debug(`Load sharp from: ${localSharpPath}`)
+    Channel.debug(`Load sharp from: ${localSharpPath}`)
 
     return require(localSharpPath!).sharp
   }
@@ -155,7 +155,7 @@ export class Installer {
     return new Promise<boolean>((resolve) => {
       fs.access(tempDir, fs.constants.W_OK, (err) => {
         if (err) {
-          Log.debug(`Tmpdir not writable: ${tempDir}`)
+          Channel.debug(`Tmpdir not writable: ${tempDir}`)
           resolve(false)
         } else {
           // Os Cache is writable
@@ -164,7 +164,7 @@ export class Installer {
           fs.ensureDirSync(this._getSharpOsCacheDir())
           // Copy sharp files to cache directory
           fs.copySync(this._getSharpCwd(), this._getSharpOsCacheDir())
-          Log.debug(`Copy sharp to tmpdir: ${this._getSharpOsCacheDir()}`)
+          Channel.debug(`Copy sharp to tmpdir: ${this._getSharpOsCacheDir()}`)
           resolve(true)
         }
       })
@@ -214,6 +214,6 @@ export class Installer {
       stdio: 'inherit',
     })
 
-    Log.debug('🚐 Sharp installed')
+    Channel.debug('🚐 Sharp installed')
   }
 }

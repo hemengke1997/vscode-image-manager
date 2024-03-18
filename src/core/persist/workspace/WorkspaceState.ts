@@ -1,13 +1,25 @@
 import { get } from '@minko-fe/lodash-pro'
+import { type Webview } from 'vscode'
 import { Global } from '~/core'
 import { EXT_NAMESPACE } from '~/meta'
+import { ImageManagerPanel } from '~/webview/Panel'
 import { type WorkspaceStateKey, type WorkspaceStateType, defaultState } from './common'
 
 export class WorkspaceState {
   static readonly defaultState = defaultState
+  public static webview: Webview | undefined
 
-  static async init() {
-    await this.clear_unused()
+  static init() {
+    ImageManagerPanel.onDidChange((e) => {
+      if (e) {
+        // webview opened
+        this.webview = e
+      } else {
+        // webview closed
+        this.webview = undefined
+      }
+    })
+    this.clear_unused()
   }
 
   /**

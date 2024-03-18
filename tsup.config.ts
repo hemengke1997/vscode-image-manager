@@ -77,6 +77,9 @@ export default defineConfig((option) => [
     clean: false,
     dts: false,
     minify: !option.watch,
+    env: {
+      NODE_ENV: option.watch ? 'development' : 'production',
+    },
   },
   ...buildExternals(option),
 ])

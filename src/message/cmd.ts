@@ -14,6 +14,8 @@ export enum CmdToWebview {
   program_reload_webview = 'program_reload_webview',
   // 更新配置
   update_config = 'update_config',
+  // 更新工作区缓存
+  update_workspaceState = 'update_workspaceState',
 }
 
 /**

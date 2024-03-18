@@ -8,6 +8,7 @@ import { MdDoubleArrow } from 'react-icons/md'
 import { VscWarning } from 'react-icons/vsc'
 import { type CompressionOptions } from '~/core/compress/Compressor'
 import { CmdToVscode } from '~/message/cmd'
+import logger from '~/utils/logger'
 import { vscodeApi } from '~/webview/vscode-api'
 import { type ImageType } from '../..'
 import GlobalContext from '../../contexts/GlobalContext'
@@ -211,7 +212,7 @@ function ImageOperator(props: ImageOperatorProps & ImageOperatorStaticProps) {
       }
       setOpen(false)
     } catch (e) {
-      console.error(e)
+      logger.error(e)
     } finally {
       message.destroy(LoadingKey)
       setSubmitting(false)

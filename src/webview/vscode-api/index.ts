@@ -7,6 +7,7 @@ import {
   type ReturnOfMessageCenter,
 } from '~/message/MessageCenter'
 import { CmdToWebview } from '~/message/cmd'
+import logger from '~/utils/logger'
 
 export type MessageCallbackFn<T extends KeyofMessage> = (data: ReturnOfMessageCenter<T>) => void
 
@@ -81,7 +82,7 @@ class VscodeApi {
       // Post message to vscode listener
       this.vsCodeApi.postMessage(message)
     } else {
-      console.log(message)
+      logger.log(message)
     }
   }
 

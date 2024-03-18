@@ -17,7 +17,7 @@ import { WorkspaceState } from '~/core/persist'
 import { type WorkspaceStateKey } from '~/core/persist/workspace/common'
 import { EXT_NAMESPACE } from '~/meta'
 import { generateOutputPath, isPng, normalizePath } from '~/utils'
-import { Log } from '~/utils/Log'
+import { Channel } from '~/utils/Channel'
 import { imageGlob } from '~/utils/glob'
 import { type ImageType } from '~/webview/ImageManager'
 import { CmdToVscode, CmdToWebview } from './cmd'
@@ -50,7 +50,7 @@ export type FirstParameterOfMessageCenter<K extends KeyofMessage> =
  */
 export const VscodeMessageCenter = {
   [CmdToVscode.on_webview_ready]: async () => {
-    Log.debug('Webview is ready')
+    Channel.debug('Webview is ready')
     const config = await VscodeMessageCenter[CmdToVscode.get_extension_config]()
     const workspaceState = await VscodeMessageCenter[CmdToVscode.get_workspace_state]()
 
@@ -108,8 +108,7 @@ export const VscodeMessageCenter = {
           try {
             vscodePath = (await convertToBase64IfBrowserNotSupport(img.path)) || vscodePath
           } catch (e) {
-            console.log(e, 'e')
-            Log.error(`Convert to base64 error: ${e}`)
+            Channel.error(`Convert to base64 error: ${e}`)
           }
 
           const fileType = path.extname(img.path).replace('.', '')
@@ -215,7 +214,7 @@ export const VscodeMessageCenter = {
     try {
       return await convertImageToBase64(filePath)
     } catch (e) {
-      Log.error(`Copy image as base64 error: ${toString(e)}`)
+      Channel.error(`Copy image as base64 error: ${toString(e)}`)
       return ''
     }
   },
@@ -236,13 +235,13 @@ export const VscodeMessageCenter = {
   > => {
     try {
       const { filePaths, option } = data
-      Log.info(`Compress params: ${JSON.stringify(data)}`)
+      Channel.info(`Compress params: ${JSON.stringify(data)}`)
       const { compressor } = Global
       const res = await compressor?.compress(filePaths, option)
-      Log.info(`Compress result: ${JSON.stringify(res)}`)
+      Channel.info(`Compress result: ${JSON.stringify(res)}`)
       return res
     } catch (e: any) {
-      Log.info(`Compress error: ${JSON.stringify(e)}`)
+      Channel.info(`Compress error: ${JSON.stringify(e)}`)
       return e
     }
   },
@@ -300,7 +299,7 @@ export const VscodeMessageCenter = {
       try {
         await fs.promises.writeFile(outputPath, imageBuffer)
       } catch (e) {
-        Log.error(`save_cropper_image ${e}`)
+        Channel.error(`save_cropper_image ${e}`)
         return null
       }
     }
@@ -356,7 +355,7 @@ export const VscodeMessageCenter = {
         imageFiles = imageFiles.map((file) => path.join(gitRoot, file))
         return imageFiles
       } catch (e) {
-        Log.debug(`Get git staged images error: ${e}`)
+        Channel.debug(`Get git staged images error: ${e}`)
         return []
       }
     }
@@ -428,7 +427,7 @@ export class MessageCenter {
   static postMessage<T extends keyof typeof CmdToWebview>(message: MessageType<any, T>) {
     // Filter some message
     if (!this.slientMessages.includes(message.cmd)) {
-      Log.debug(`Post message to webview: ${message.cmd}`)
+      Channel.debug(`Post message to webview: ${message.cmd}`)
     }
     this._webview.postMessage(message)
   }
@@ -440,7 +439,7 @@ export class MessageCenter {
       const data = await handler(message.data, this._webview)
       this.postMessage({ cmd: CmdToWebview.webview_callback, callbackId: message.callbackId, data })
     } else {
-      Log.error(`Handler function "${message.cmd}" doesn't exist!`)
+      Channel.error(`Handler function "${message.cmd}" doesn't exist!`)
     }
   }
 }

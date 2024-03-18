@@ -7,7 +7,7 @@ import { type SharpNS } from '~/@types/global'
 import { SharpOperator } from '~/core/sharp'
 import { VscodeMessageCenter } from '~/message'
 import { generateOutputPath, isJpg, isPng } from '~/utils'
-import { Log } from '~/utils/Log'
+import { Channel } from '~/utils/Channel'
 import { COMPRESSED_META } from './meta'
 
 type ExtendOptions = {
@@ -110,7 +110,7 @@ export class Compressor {
       }
     } catch (e) {
       const error = e instanceof Error ? e.message : toString(e)
-      Log.info(`Compress Error: ${error}`)
+      Channel.info(`Compress Error: ${error}`)
       return {
         error,
         filePath,
@@ -290,7 +290,7 @@ export class Compressor {
       if (this.option.keep) return
       await fs.remove(filePath)
     } catch (e) {
-      Log.info(`Trash File Error: ${e}`)
+      Channel.info(`Trash File Error: ${e}`)
     }
   }
 
