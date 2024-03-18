@@ -1,5 +1,12 @@
 # CHANGELOG
 
+## 0.6.3
+
+### Fix
+
+- Track debounced config make webview state mess up
+- Sync workspaceState to webview when `reset` command triggerd
+
 ## 0.6.2
 
 ### Fix
