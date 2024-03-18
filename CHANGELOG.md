@@ -1,5 +1,15 @@
 # CHANGELOG
 
+## 0.7.0
+
+### Feat
+
+- Add `show ouput channel` command
+
+### Fix
+
+- Catch `getMetadata` error which cause compress fail
+
 ## 0.6.4
 
 ### Fix
