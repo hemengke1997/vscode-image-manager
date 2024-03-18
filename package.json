@@ -36,7 +36,8 @@
   "activationEvents": [
     "onWebviewPanel:ImageManagerPanel",
     "onCommand:image-manager.open-image-manager",
-    "onCommand:image-manager.reset-settings"
+    "onCommand:image-manager.reset-settings",
+    "onCommand:image-manager.open-channel"
   ],
   "scripts": {
     "ui:dev": "vite -m development",
@@ -70,6 +71,11 @@
       {
         "command": "image-manager.reset-settings",
         "title": "%pkg.cmd.reset_settings%",
+        "category": "%pkg.title%"
+      },
+      {
+        "command": "image-manager.open-channel",
+        "title": "%pkg.cmd.show_channel%",
         "category": "%pkg.title%"
       }
     ],

@@ -3,7 +3,8 @@
     "title": "Image Manager 🏞️",
     "cmd": {
       "open": "Open Image Manager",
-      "reset_settings": "Reset Settings"
+      "reset_settings": "Reset Settings",
+      "show_channel": "Show Output Channel"
     },
     "file": {
       "root": "workspace root",
