@@ -10,10 +10,10 @@ import MaskMenu from '../../../MaskMenu'
 
 export const COLLAPSE_CONTEXT_MENU_ID = 'COLLAPSE_CONTEXT_MENU_ID'
 export const COLLAPSE_CONTEXT_MENU = {
-  openInOsExplorer: 'openInOsExplorer',
-  openInVscodeExplorer: 'openInVscodeExplorer',
-  compressImage: 'compressImage',
-  compressImageDeeply: 'compressImageDeeply',
+  open_in_os_explorer: 'open_in_os_explorer',
+  open_in_vscode_explorer: 'open_in_vscode_explorer',
+  compress_in_current_directory: 'compress_in_current_directory',
+  compress_in_recursive_directories: 'compress_in_recursive_directories',
 }
 
 export type CollapseContextMenuType =
@@ -62,43 +62,69 @@ function CollapseContextMenu() {
   return (
     <>
       <MaskMenu id={COLLAPSE_CONTEXT_MENU_ID}>
-        <Item hidden={isItemHidden} onClick={handleOpenInOsExplorer} data={COLLAPSE_CONTEXT_MENU.openInOsExplorer}>
+        <Item hidden={isItemHidden} onClick={handleOpenInOsExplorer} data={COLLAPSE_CONTEXT_MENU.open_in_os_explorer}>
           {os.isMac() ? t('im.reveal_in_os_mac') : t('im.reveal_in_os_windows')}
         </Item>
         <Item
           hidden={isItemHidden}
           onClick={handleOpenInVscodeExplorer}
-          data={COLLAPSE_CONTEXT_MENU.openInVscodeExplorer}
+          data={COLLAPSE_CONTEXT_MENU.open_in_vscode_explorer}
         >
           {t('im.reveal_in_explorer')}
         </Item>
 
         <Separator
           hidden={isItemHidden}
-          data={[COLLAPSE_CONTEXT_MENU.openInOsExplorer, COLLAPSE_CONTEXT_MENU.openInVscodeExplorer]}
+          data={[COLLAPSE_CONTEXT_MENU.open_in_os_explorer, COLLAPSE_CONTEXT_MENU.open_in_vscode_explorer]}
         />
         <Submenu
           label={t('im.compress')}
           hidden={(e) =>
             isItemHidden({
               ...e,
-              data: [COLLAPSE_CONTEXT_MENU.compressImage, COLLAPSE_CONTEXT_MENU.compressImageDeeply],
+              data: [
+                COLLAPSE_CONTEXT_MENU.compress_in_current_directory,
+                COLLAPSE_CONTEXT_MENU.compress_in_recursive_directories,
+              ],
             })
           }
+          arrow={<Arrow />}
         >
-          <Item hidden={isItemHidden} onClick={handleCompressImage} data={COLLAPSE_CONTEXT_MENU.compressImage}>
-            {t('im.child_folder')}
+          <Item
+            hidden={isItemHidden}
+            onClick={handleCompressImage}
+            data={COLLAPSE_CONTEXT_MENU.compress_in_current_directory}
+          >
+            {t('im.current_directory')}
           </Item>
           <Item
             hidden={isItemHidden}
             onClick={handleCompressImageDeeply}
-            data={COLLAPSE_CONTEXT_MENU.compressImageDeeply}
+            data={COLLAPSE_CONTEXT_MENU.compress_in_recursive_directories}
           >
-            {t('im.all_folder')}
+            {t('im.recursive_directories')}
           </Item>
         </Submenu>
       </MaskMenu>
     </>
+  )
+}
+
+function Arrow() {
+  return (
+    <svg
+      xmlns='http://www.w3.org/2000/svg'
+      width='1rem'
+      height='1rem'
+      viewBox='0 0 24 24'
+      fill='none'
+      stroke='currentColor'
+      strokeWidth='2'
+      strokeLinecap='round'
+      strokeLinejoin='round'
+    >
+      <polyline points='9 18 15 12 9 6' />
+    </svg>
   )
 }
 

@@ -63,9 +63,9 @@ function CollapseTree() {
         list: imageType,
         icon: () => <VscFileMedia className={'mr-1'} />,
         contextMenu: {
-          openInOsExplorer: false,
-          openInVscodeExplorer: false,
-          compressImageDeeply: false,
+          open_in_os_explorer: false,
+          open_in_vscode_explorer: false,
+          compress_in_recursive_directories: false,
         },
         priority: 3,
       },

@@ -40,7 +40,7 @@ export default function useImageDetail() {
             children: <div>{image.workspaceFolder}</div>,
           },
           {
-            label: t('im.folder'),
+            label: t('im.directory'),
             children: <div>{image.dirPath || '/'}</div>,
           },
           {
