@@ -1,10 +1,17 @@
 # CHANGELOG
 
+## 0.7.2
+
+### Update
+
+- Improve translations
+- Separate the collapse image compression context-menu into submenus
+
 ## 0.7.1
 
 ### Feat
 
-- Add compress deep folder support in context menu
+- Add compress recursive directories in context menu
 
 ### Fix
 

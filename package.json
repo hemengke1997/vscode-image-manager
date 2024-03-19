@@ -195,7 +195,7 @@
   },
   "devDependencies": {
     "@ant-design/colors": "^7.0.2",
-    "@commitlint/cli": "^19.1.0",
+    "@commitlint/cli": "^19.2.1",
     "@ctrl/tinycolor": "^4.0.3",
     "@minko-fe/commitlint-config": "^2.0.7",
     "@minko-fe/eslint-config": "^2.1.2",
@@ -204,12 +204,12 @@
     "@minko-fe/react-hook": "^0.2.5",
     "@minko-fe/tsconfig": "^2.0.7",
     "@minko-fe/vite-config": "^0.2.3",
-    "@types/eslint": "^8.56.5",
+    "@types/eslint": "^8.56.6",
     "@types/fs-extra": "^11.0.4",
     "@types/micromatch": "^4.0.6",
     "@types/node": "^18.19.18",
     "@types/pixelmatch": "^5.2.6",
-    "@types/react": "^18.2.66",
+    "@types/react": "^18.2.67",
     "@types/react-dom": "^18.2.22",
     "@types/react-highlight-words": "^0.16.7",
     "@types/vscode": "^1.60.0",
@@ -267,7 +267,7 @@
     "vite": "^5.1.6",
     "vite-plugin-html": "^3.2.2",
     "vite-plugin-i18n-detector": "^2.2.2",
-    "vitest": "^1.3.0"
+    "vitest": "^1.4.0"
   },
   "engines": {
     "vscode": "^1.60.0"

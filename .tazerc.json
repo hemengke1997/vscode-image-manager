@@ -1,5 +1,5 @@
 {
   "write": true,
   "interactive": true,
-  "exclude": ["vitest", "tsup", "sharp", "@types/node", "@types/vscode"]
+  "exclude": ["tsup", "sharp", "@types/node", "@types/vscode"]
 }
