@@ -135,7 +135,7 @@ type OperationItemProps = {
 function OperationItemUI(props: OperationItemProps) {
   const { children, title } = props
   return (
-    <div className={'flex-center space-x-4'}>
+    <div className={'flex items-center space-x-4'}>
       <div className={'font-semibold'}>{title}</div>
       {children}
     </div>

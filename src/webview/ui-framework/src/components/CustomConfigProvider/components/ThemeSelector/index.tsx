@@ -50,7 +50,7 @@ function ThemeSelector(props: ThemeSelectorProps) {
       placement='bottom'
     >
       <Button
-        icon={<div className={'flex-center text-2xl'}>{themes.find((t) => t!.key === theme)!.label}</div>}
+        icon={<div className={'flex items-center text-2xl'}>{themes.find((t) => t!.key === theme)!.label}</div>}
         type='text'
         title={t('im.theme')}
       ></Button>

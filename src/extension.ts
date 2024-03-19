@@ -10,6 +10,7 @@ export async function activate(ctx: vscode.ExtensionContext) {
   Channel.info(`🈶 Activated, v${version}`)
 
   i18n.init(ctx)
+
   await Global.init(ctx)
 
   const modules = [commandsModules]

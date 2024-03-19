@@ -15,17 +15,6 @@ module.exports = {
     require('./tailwind-vscode.js'),
     plugin(function ({ addUtilities }) {
       addUtilities({
-        '.flex-center': {
-          display: 'flex',
-          alignItems: 'center',
-        },
-        '.flex-col-center': {
-          display: 'flex',
-          flexDirection: 'column',
-          alignItems: 'center',
-        },
-      })
-      addUtilities({
         '.text-xxs': {
           fontSize: '0.625rem',
         },

@@ -1,7 +1,7 @@
 .form {
   :global {
     .ant-form-item-row {
-      @apply flex-center;
+      @apply flex items-center;
     }
   }
 }

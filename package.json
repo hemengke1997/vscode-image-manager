@@ -58,7 +58,7 @@
     "build:i18n": "tsx scripts/build-i18n",
     "changelog": "conventional-changelog -p eslint -i CHANGELOG-CODE.md -s -r 0",
     "bump": "bumpp package.json --no-commit --tag --no-push --all -x \"npm run changelog\"",
-    "vscode:prepublish": "npm run build",
+    "vscode:prepublish": "run-s test build",
     "pack": "vsce package",
     "publish": "vsce publish"
   },

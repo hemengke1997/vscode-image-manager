@@ -11,7 +11,6 @@ import { createContainer } from 'context-state'
 import { diff } from 'deep-object-diff'
 import { useEffect, useMemo, useRef } from 'react'
 import { CmdToVscode } from '~/message/cmd'
-import { nestToFlatten } from '~/utils/nest-to-flatten'
 import { vscodeApi } from '~/webview/vscode-api'
 import { type ImageType, type ImageVisibleFilterType } from '..'
 import { FilterRadioValue } from '../components/ImageActions/components/Filter'
@@ -69,19 +68,23 @@ async function changeImageVisible(imageList: ImageType[], conditions: Condition[
 }
 
 // 图片排序
+const sortFunctions = {
+  size: {
+    asc: (a: ImageType, b: ImageType) => a.stats.size - b.stats.size,
+    desc: (a: ImageType, b: ImageType) => b.stats.size - a.stats.size,
+  },
+  name: {
+    asc: (a: ImageType, b: ImageType) => a.name.localeCompare(b.name),
+    desc: (a: ImageType, b: ImageType) => b.name.localeCompare(a.name),
+  },
+}
+
 // 1. 按照文件大小排序
 // 2. 按照文件名排序
 function sortImages(sort: string[], images: ImageType[]) {
-  images.sort((a, b) => {
-    if (sort[0] === 'size') {
-      return sort[1] === 'desc' ? b.stats.size - a.stats.size : a.stats.size - b.stats.size
-    }
-    if (sort[0] === 'name') {
-      return sort[1] === 'desc' ? b.name.localeCompare(a.name) : a.name.localeCompare(b.name)
-    }
-    return 0
-  })
-  return images
+  const [sortType, sortOrder] = sort
+  const sortFunction = sortFunctions[sortType][sortOrder]
+  return images.sort(sortFunction)
 }
 
 function useTreeContext(props: { imageList: ImageType[] }) {
@@ -204,7 +207,7 @@ function useTreeContext(props: { imageList: ImageType[] }) {
 
   const onSortChange = useMemoizedFn((imageList: ImageType[], sort: string[] | undefined) => {
     if (sort) {
-      return [...sortImages(sort, imageList)]
+      return sortImages(sort, imageList)
     }
     return imageList
   })
@@ -306,12 +309,12 @@ function useTreeContext(props: { imageList: ImageType[] }) {
   // 3. compressed
 
   // 统一处理筛选条件
-  // 优化单个副作用导致重复渲染的性能
+  // 优化单个副作用导致重复渲染的性能损耗
   const previousImageFilter = usePrevious(imageFilter)
   useUpdateEffect(() => {
-    const changed = nestToFlatten(diff(previousImageFilter!, imageFilter))
+    const changed = diff(previousImageFilter!, imageFilter)
     // 这里需要一个前提：imageFilter 的 key 和 ImageVisibleFilterType 一一对应
-    const changedKeys = Object.keys(changed).map((k) => k.split('.')[0] as ImageVisibleFilterType)
+    const changedKeys = Object.keys(changed) as ImageVisibleFilterType[]
     changeImageVisibleByKeys(latestImageList.current, changedKeys).then((res) => {
       setImageSingleTree({
         list: res,

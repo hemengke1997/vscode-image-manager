@@ -109,7 +109,7 @@ function ImageOperator(props: ImageOperatorProps & ImageOperatorStaticProps) {
         filename = (
           <div className={'flex items-center space-x-2'}>
             <div>{prevFilename}</div>
-            <div className={'flex-center'}>
+            <div className={'flex items-center'}>
               <MdDoubleArrow />
             </div>
             <div>{currentFilename}</div>
@@ -132,7 +132,7 @@ function ImageOperator(props: ImageOperatorProps & ImageOperatorStaticProps) {
               <div className={'flex items-center space-x-2'}>
                 {increase ? (
                   <>
-                    <div className='flex-center text-ant-color-warning'>
+                    <div className='text-ant-color-warning flex items-center'>
                       <VscWarning />
                     </div>
                     <div>{t('im.size_increase')}</div>
@@ -143,9 +143,9 @@ function ImageOperator(props: ImageOperatorProps & ImageOperatorStaticProps) {
                   {Math.abs(percent)}%
                 </div>
               </div>
-              <div className={'flex-center text-ant-color-text-secondary space-x-1'}>
+              <div className={'text-ant-color-text-secondary flex items-center space-x-1'}>
                 <span>({formatBytes(originSize)}</span>
-                <div className={'flex-center'}>
+                <div className={'flex items-center'}>
                   <MdDoubleArrow />
                 </div>
                 <span>{formatBytes(compressedSize)})</span>

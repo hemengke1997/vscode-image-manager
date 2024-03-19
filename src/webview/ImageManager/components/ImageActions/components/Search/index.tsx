@@ -26,7 +26,7 @@ function Search() {
     <Button
       type='text'
       icon={
-        <div className={'flex-center text-xl'}>
+        <div className={'flex items-center text-xl'}>
           <MdImageSearch />
         </div>
       }

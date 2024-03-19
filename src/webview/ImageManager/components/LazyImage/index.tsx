@@ -139,9 +139,9 @@ function LazyImage(props: LazyImageProps) {
               lazy
                 ? {
                     mask: (
-                      <div className={'flex-col-center size-full justify-center space-y-1 text-sm'}>
+                      <div className={'flex size-full flex-col items-center justify-center space-y-1 text-sm'}>
                         <div
-                          className={'flex-center cursor-pointer space-x-1 truncate'}
+                          className={'flex cursor-pointer items-center space-x-1 truncate'}
                           onClick={(e) => {
                             e.stopPropagation()
                             setPreview({ open: true, current: index })
@@ -150,20 +150,20 @@ function LazyImage(props: LazyImageProps) {
                           <HiOutlineViewfinderCircle />
                           <span>{t('im.preview')}</span>
                         </div>
-                        <div className={'flex-center space-x-1 truncate'}>
+                        <div className={'flex items-center space-x-1 truncate'}>
                           <TbResize />
                           <span className={classNames(ifWarning && 'text-ant-color-warning-text')}>
                             {formatBytes(image.stats.size)}
                           </span>
                         </div>
-                        <div className={'flex-center space-x-1 truncate'}>
+                        <div className={'flex items-center space-x-1 truncate'}>
                           <RxDimensions />
                           <span className={'flex items-center'}>
                             {imageMetadata?.metadata.width}x{imageMetadata?.metadata.height}
                           </span>
                         </div>
                         {imageMetadata?.compressed ? (
-                          <div className={'flex-center space-x-1 truncate'}>
+                          <div className={'flex items-center space-x-1 truncate'}>
                             <FaRegGrinStars />
                             <span>{t('im.compressed')}</span>
                           </div>

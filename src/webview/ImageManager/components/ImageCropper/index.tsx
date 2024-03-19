@@ -304,7 +304,7 @@ function ImageCropper(props?: ImageCropperProps) {
                   {Object.keys(details || {}).map((key) => (
                     <InputNumber
                       addonBefore={
-                        <div title={DETAIL_MAP[key].label} className={'flex-center w-14'}>
+                        <div title={DETAIL_MAP[key].label} className={'flex w-14 items-center'}>
                           {DETAIL_MAP[key].label}
                         </div>
                       }
@@ -324,7 +324,7 @@ function ImageCropper(props?: ImageCropperProps) {
                     {t('im.operation')}
                   </Divider>
                   <div className={'flex flex-col gap-y-3'}>
-                    <Button.Group className={'flex-center w-full'}>
+                    <Button.Group className={'flex w-full items-center'}>
                       <Button className={'flex-1'} onClick={() => moveToCenter({ centerCrop: true })}>
                         {t('im.center')}
                       </Button>
@@ -351,7 +351,7 @@ function ImageCropper(props?: ImageCropperProps) {
                         {t('im.center_y')}
                       </Button>
                     </Button.Group>
-                    <Button.Group className={'flex-center w-full'}>
+                    <Button.Group className={'flex w-full items-center'}>
                       <Tooltip title={t('im.scale_x')}>
                         <Button
                           className={'flex-1'}
@@ -371,7 +371,7 @@ function ImageCropper(props?: ImageCropperProps) {
                         ></Button>
                       </Tooltip>
                     </Button.Group>
-                    <Button.Group className={'flex-center w-full'}>
+                    <Button.Group className={'flex w-full items-center'}>
                       <Button
                         className={'flex-1'}
                         icon={<RxReset />}

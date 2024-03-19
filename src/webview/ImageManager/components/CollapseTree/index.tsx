@@ -113,7 +113,7 @@ function CollapseTree() {
                 }}
                 labelContainer={(label) => (
                   <div className={'flex items-center space-x-1'}>
-                    <div className={'flex-center'}>{displayMap[groupType].icon({ path: value })}</div>
+                    <div className={'flex items-center'}>{displayMap[groupType].icon({ path: value })}</div>
                     {label}
                   </div>
                 )}

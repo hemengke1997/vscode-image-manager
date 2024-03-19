@@ -20,7 +20,7 @@ function More() {
       placement='left'
       content={
         <div>
-          <div className={'flex-center space-x-2'}>
+          <div className={'flex items-center space-x-2'}>
             <div>{t('im.folder')}</div>
             <Button.Group>
               <Button
@@ -45,7 +45,7 @@ function More() {
       <Button
         type='text'
         icon={
-          <div className={'flex-center text-xl'}>
+          <div className={'flex items-center text-xl'}>
             <IoIosMore />
           </div>
         }

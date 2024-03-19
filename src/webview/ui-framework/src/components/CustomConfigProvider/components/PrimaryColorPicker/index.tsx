@@ -79,7 +79,7 @@ function PrimaryColorPicker(props: PrimaryColorPickerProps) {
         title={t('im.primary_color')}
         type='text'
         icon={
-          <div className={'flex-center text-2xl'}>
+          <div className={'flex items-center text-2xl'}>
             <MdOutlineColorLens />
           </div>
         }

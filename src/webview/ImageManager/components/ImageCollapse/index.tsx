@@ -112,9 +112,9 @@ function ImageCollapse(props: ImageCollapseProps) {
   const generateLabel = (labels: string[]) => {
     if (labels.length > 1) {
       return (
-        <div className={'flex-center w-full'}>
+        <div className={'flex w-full items-center'}>
           {labels.map((l, i) => (
-            <div key={i} className={classNames('flex-center', i === labels.length - 1 && 'flex-1')}>
+            <div key={i} className={classNames('flex items-center', i === labels.length - 1 && 'flex-1')}>
               {singleLabelNode(l, i)}
               {i !== labels.length - 1 && <div className={'px-0.5'}>/</div>}
             </div>

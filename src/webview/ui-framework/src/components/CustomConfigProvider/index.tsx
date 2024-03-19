@@ -79,7 +79,7 @@ function CustomConfigProvider(props: PropsWithChildren) {
             onClick={() => setMode((t) => (isSimpleMode(t) ? 'standard' : 'simple'))}
             size='large'
             type='link'
-            className={'flex-center'}
+            className={'flex items-center'}
             icon={<Logo className='fill-ant-color-primary text-4xl' />}
           ></Button>
         </Tooltip>
@@ -92,7 +92,7 @@ function CustomConfigProvider(props: PropsWithChildren) {
             trigger={['click']}
             placement='left'
             content={
-              <div className={'flex-center space-x-2'}>
+              <div className={'flex items-center space-x-2'}>
                 <LocaleSelector value={languageWithoutAuto} onChange={setLanguage} />
                 <ThemeSelector value={theme} onChange={setTheme} />
                 <PrimaryColorPicker
@@ -107,7 +107,7 @@ function CustomConfigProvider(props: PropsWithChildren) {
             <Button
               type='text'
               icon={
-                <div className={'flex-center text-2xl'}>
+                <div className={'flex items-center text-2xl'}>
                   <IoSettingsOutline />
                 </div>
               }

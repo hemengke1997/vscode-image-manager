@@ -47,7 +47,7 @@ function LocaleSelector(props: LocaleSelectorProps) {
     >
       <Button
         icon={
-          <div className={'flex-center text-2xl'}>
+          <div className={'flex items-center text-2xl'}>
             <PiTranslateFill />
           </div>
         }

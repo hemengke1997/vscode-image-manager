@@ -107,7 +107,7 @@ function Filter() {
             >
               {/* size */}
               <Form.Item label={t('im.size')}>
-                <div className={'flex-center space-x-2'}>
+                <div className={'flex items-center space-x-2'}>
                   <Space.Compact>
                     <Form.Item
                       noStyle
@@ -218,7 +218,7 @@ function Filter() {
       <Button
         type={isActive ? 'primary' : 'text'}
         icon={
-          <div className={'flex-center text-xl'}>
+          <div className={'flex items-center text-xl'}>
             <TbFilter />
           </div>
         }
