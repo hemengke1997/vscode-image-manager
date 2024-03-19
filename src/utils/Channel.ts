@@ -47,7 +47,7 @@ export class Channel {
 
   static debug(message: string, indent = 0) {
     if (Global.isDevelopment()) {
-      this.info(message, false, indent)
+      this.info(`[DEBUG]: ${message}`, false, indent)
     }
   }
 

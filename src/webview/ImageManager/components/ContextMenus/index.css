@@ -6,23 +6,33 @@
 }
 
 .contexify {
-  &[role='menu'] {
-    --contexify-menu-bgColor: var(--custom-contexify-menu-bgColor);
-    --contexify-activeItem-color: var(--ant-color-text);
-    --contexify-activeItem-bgColor: var(--ant-color-primary-hover);
-    --contexify-separator-color: var(--ant-color-border);
-    --contexify-menu-minWidth: 140px;
-    --contexify-menu-padding: var(--ant-padding-xxs);
-    --contexify-itemContent-padding: var(--ant-margin-xxs) var(--ant-padding-xxs);
-    --contexify-separator-margin: var(--ant-margin-xxs);
-    --contexify-menu-shadow: var(--ant-box-shadow-popover-arrow);
-    --contexify-item-color: var(--ant-color-text);
-    --contexify-zIndex: 9999;
+  --contexify-menu-bgColor: var(--custom-contexify-menu-bgColor);
+  --contexify-activeItem-color: var(--ant-color-text);
+  --contexify-activeItem-bgColor: var(--ant-color-primary-hover);
+  --contexify-separator-color: var(--ant-color-border);
+  --contexify-menu-minWidth: 140px;
+  --contexify-menu-padding: var(--ant-padding-xxs);
+  --contexify-itemContent-padding: var(--ant-margin-xxs) var(--ant-padding-xxs);
+  --contexify-separator-margin: var(--ant-margin-xxs);
+  --contexify-menu-shadow: var(--ant-box-shadow-popover-arrow);
+  --contexify-item-color: var(--ant-color-text);
+  --contexify-zIndex: 9999;
+
+  &::before {
+    content: '';
+    @apply rounded-[var(--contexify-menu-radius)] left-0 top-0 right-0 bottom-0 absolute bg-[var(--contexify-menu-bgColor)] backdrop-blur-[35px];
   }
 
-  backdrop-filter: blur(35px);
-
   @apply text-sm border-ant-color-border border-solid border;
+
+  .contexify_separator {
+    @apply backdrop-blur-0;
+  }
+
+  &.contexify_submenu {
+    --contexify-menu-minWidth: 100px;
+    transition: none;
+  }
 
   .contexify_itemContent {
     @apply rounded-[var(--contexify-menu-radius)];
@@ -31,11 +41,9 @@
   @keyframes contexify_quickFadeIn {
     from {
       opacity: 0;
-      transform: translateY(4px);
     }
     to {
       opacity: 1;
-      transform: translateY(0);
     }
   }
 
@@ -49,10 +57,10 @@
   }
 
   &.contexify_willEnter-fade {
-    animation: contexify_quickFadeIn 0.1s ease;
+    animation: contexify_quickFadeIn 0.06s ease;
   }
 
   &.contexify_willLeave-fade {
-    animation: contexify_quickFadeOut 0.01s ease;
+    animation: contexify_quickFadeOut 0.08s ease;
   }
 }

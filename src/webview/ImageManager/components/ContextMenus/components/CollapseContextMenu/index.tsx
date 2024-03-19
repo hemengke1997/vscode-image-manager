@@ -1,7 +1,7 @@
 import { useMemoizedFn } from '@minko-fe/react-hook'
 import { App } from 'antd'
 import { memo } from 'react'
-import { Item, type ItemParams, type PredicateParams, Separator } from 'react-contexify'
+import { Item, type ItemParams, type PredicateParams, Separator, Submenu } from 'react-contexify'
 import { useTranslation } from 'react-i18next'
 import { os } from 'un-detector'
 import { type ImageType } from '~/webview/ImageManager'
@@ -77,16 +77,26 @@ function CollapseContextMenu() {
           hidden={isItemHidden}
           data={[COLLAPSE_CONTEXT_MENU.openInOsExplorer, COLLAPSE_CONTEXT_MENU.openInVscodeExplorer]}
         />
-        <Item hidden={isItemHidden} onClick={handleCompressImage} data={COLLAPSE_CONTEXT_MENU.compressImage}>
-          {t('im.compress')}
-        </Item>
-        <Item
-          hidden={isItemHidden}
-          onClick={handleCompressImageDeeply}
-          data={COLLAPSE_CONTEXT_MENU.compressImageDeeply}
+        <Submenu
+          label={t('im.compress')}
+          hidden={(e) =>
+            isItemHidden({
+              ...e,
+              data: [COLLAPSE_CONTEXT_MENU.compressImage, COLLAPSE_CONTEXT_MENU.compressImageDeeply],
+            })
+          }
         >
-          {t('im.compress_deeply')}
-        </Item>
+          <Item hidden={isItemHidden} onClick={handleCompressImage} data={COLLAPSE_CONTEXT_MENU.compressImage}>
+            {t('im.child_folder')}
+          </Item>
+          <Item
+            hidden={isItemHidden}
+            onClick={handleCompressImageDeeply}
+            data={COLLAPSE_CONTEXT_MENU.compressImageDeeply}
+          >
+            {t('im.all_folder')}
+          </Item>
+        </Submenu>
       </MaskMenu>
     </>
   )

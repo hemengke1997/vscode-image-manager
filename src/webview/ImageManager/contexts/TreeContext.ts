@@ -312,9 +312,8 @@ function useTreeContext(props: { imageList: ImageType[] }) {
   // 优化单个副作用导致重复渲染的性能损耗
   const previousImageFilter = usePrevious(imageFilter)
   useUpdateEffect(() => {
-    const changed = diff(previousImageFilter!, imageFilter)
     // 这里需要一个前提：imageFilter 的 key 和 ImageVisibleFilterType 一一对应
-    const changedKeys = Object.keys(changed) as ImageVisibleFilterType[]
+    const changedKeys = Object.keys(diff(previousImageFilter!, imageFilter)) as ImageVisibleFilterType[]
     changeImageVisibleByKeys(latestImageList.current, changedKeys).then((res) => {
       setImageSingleTree({
         list: res,
