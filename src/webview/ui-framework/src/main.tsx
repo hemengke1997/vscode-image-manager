@@ -1,7 +1,7 @@
 import i18next from 'i18next'
 import ReactDOM from 'react-dom/client'
 import { initReactI18next } from 'react-i18next'
-import { setupI18n } from 'vite-plugin-i18n-detector/client'
+import { setupI18n } from 'vite-plugin-i18n-ally/client'
 import { CmdToVscode } from '~/message/cmd'
 import { FALLBACK_LANGUAGE } from '~/meta'
 import { intelligentPickConfig } from '~/webview/utils'

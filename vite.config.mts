@@ -3,7 +3,7 @@
 import path from 'node:path'
 import { defineConfig, loadConfigFromFile, mergeConfig } from 'vite'
 import { createHtmlPlugin } from 'vite-plugin-html'
-import { i18nDetector } from 'vite-plugin-i18n-detector'
+import { i18n } from 'vite-plugin-i18n-ally'
 import { DEV_PORT } from './src/meta'
 
 export default defineConfig(async (env) => {
@@ -34,9 +34,9 @@ export default defineConfig(async (env) => {
         entry: path.resolve(__dirname, './src/webview/main.tsx'),
         minify: env.command === 'build',
       }),
-      i18nDetector({
+      i18n({
         root: __dirname,
-        autoDetectI18nConfig: true,
+        useVscodeI18nAllyConfig: true,
         localesPaths: [path.resolve(__dirname, './src/webview/locales')],
       }),
     ],
