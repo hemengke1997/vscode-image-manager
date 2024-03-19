@@ -1,5 +1,15 @@
 # CHANGELOG
 
+## 0.7.1
+
+### Feat
+
+- Add compress deep folder support in context menu
+
+### Fix
+
+- Complement missing i18n
+
 ## 0.7.0
 
 ### Feat
