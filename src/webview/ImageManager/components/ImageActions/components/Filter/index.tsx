@@ -116,7 +116,7 @@ function Filter() {
                           validator(_, value) {
                             const max = getFieldValue(['size', 'max'])
                             if (!isNil(max) && !isNil(value) && value > max) {
-                              return Promise.reject(new Error('min must less than max'))
+                              return Promise.reject(new Error(t('im.size_filter_tip')))
                             }
                             return Promise.resolve()
                           },

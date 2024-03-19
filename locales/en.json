@@ -27,5 +27,10 @@
     "compressor_init_fail": "Failed to install image compressor, please check network",
     "initializing": "Image Manager Initializing...",
     "initializing_tooltip": "Downloading necessary dependencies"
+  },
+  "core": {
+    "compress_fail": "Compress Fail",
+    "operator_init_failed": "Operator init failed",
+    "compress_fail_reason": "file [{0}] is not a valid image. Only support size less than {1} MB"
   }
 }

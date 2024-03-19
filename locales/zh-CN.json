@@ -27,5 +27,10 @@
     "compressor_init_fail": "图片压缩器安装失败，请检查网络",
     "initializing": "图片管理器初始化...",
     "initializing_tooltip": "正在下载必要依赖"
+  },
+  "core": {
+    "compress_fail": "压缩失败",
+    "operator_init_failed": "操作器初始化失败",
+    "compress_fail_reason": "文件 [{{filename}}] 不是有效图片. 最大支持体积 {{maxsize}} MB"
   }
 }

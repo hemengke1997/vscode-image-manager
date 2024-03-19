@@ -14,6 +14,8 @@ export async function activate(ctx: vscode.ExtensionContext) {
 
   const modules = [commandsModules]
 
+  Channel.info(i18n.t('core.compress_fail_reason', 'test', '1204'))
+
   const disposables = flatten(modules.map((m) => m(ctx)))
 
   disposables.forEach((d) => ctx.subscriptions.push(d))

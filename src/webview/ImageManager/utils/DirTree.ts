@@ -46,9 +46,13 @@ export type FileNode = {
    */
   renderList?: ImageType[]
   /**
-   * 节点当前目录下的所有图片
+   * 节点当前目录下的所有图片（不包括子目录）
    */
   underFolderList?: ImageType[]
+  /**
+   * 节点当前目录下的所有图片（包括子目录）
+   */
+  underFolderDeeplyList?: ImageType[]
 }
 
 export type TreeParams = { displayGroup: DisplayGroupType; displayMap: DisplayMapType; visibleList: VisibleListType }
@@ -114,19 +118,22 @@ export class DirTree {
       }
 
       if (node) {
-        const { renderList, underFolderList } = this._filterImages(node)
+        const { renderList, underFolderList, underFolderDeeplyList } = this._filterImages(node)
         node.renderList = renderList
         node.underFolderList = underFolderList
+        node.underFolderDeeplyList = underFolderDeeplyList
       }
     }
   }
 
   // 从visibileList中筛选出
   // 1. 符合 renderCondition 条件的图片
-  // 2. 当前节点目录下的所有图片
+  // 2. 当前节点目录下的所有图片（不包括子目录）
+  // 3. 当前节点目录下的所有图片（包括子目录）
   private _filterImages(node: FileNode) {
     const renderList: ImageType[] = []
     const underFolderList: ImageType[] = []
+    const underFolderDeeplyList: ImageType[] = []
 
     this.visibleList.forEach((image) => {
       // 根据渲染条件过滤图片，将符合条件的图片放入 renderList
@@ -150,15 +157,21 @@ export class DirTree {
         }
       }
 
-      // 将当前节点的所有图片放入 underFolderList
-      if (node.value === image.absDirPath) {
+      // Put all images under the current node into underFolderList
+      if (image.absDirPath.match(new RegExp(`^${node.value}$`))) {
         underFolderList.push(image)
+      }
+
+      // Put all images under the current node and its subdirectories into underFolderDeeplyList
+      if (image.absDirPath.match(new RegExp(`^${node.value}`))) {
+        underFolderDeeplyList.push(image)
       }
     })
 
     return {
       renderList,
       underFolderList,
+      underFolderDeeplyList,
     }
   }
 

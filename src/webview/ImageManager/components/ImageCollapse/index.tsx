@@ -21,6 +21,10 @@ type ImageCollapseProps = {
    * 当前文件夹下的图片
    */
   underFolderImages: ImagePreviewProps['images'] | undefined
+  /**
+   * 当前文件夹下的所有图片（包括子目录）
+   */
+  underFolderDeeplyImages: ImagePreviewProps['images'] | undefined
   nestedChildren: JSX.Element | null
   id: string
   contextMenu?: CollapseContextMenuType
@@ -35,6 +39,7 @@ function ImageCollapse(props: ImageCollapseProps) {
     joinLabel,
     images,
     underFolderImages,
+    underFolderDeeplyImages,
     id,
     contextMenu,
   } = props
@@ -81,6 +86,7 @@ function ImageCollapse(props: ImageCollapseProps) {
               props: {
                 targetPath: getCurrentPath(index) || '',
                 images: [images, underFolderImages].find((arr) => arr?.length),
+                underFolderDeeplyImages,
                 contextMenu,
               },
             })

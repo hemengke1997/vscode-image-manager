@@ -65,6 +65,7 @@ function CollapseTree() {
         contextMenu: {
           openInOsExplorer: false,
           openInVscodeExplorer: false,
+          compressImageDeeply: false,
         },
         priority: 3,
       },
@@ -97,7 +98,8 @@ function CollapseTree() {
       return (
         <div className={'space-y-2'}>
           {tree.map((node) => {
-            const { groupType, value, label, children, renderList, underFolderList } = node
+            const { groupType, value, label, children, renderList, underFolderList, underFolderDeeplyList } = node
+
             if (!groupType) return null
             return (
               <ImageCollapse
@@ -121,6 +123,7 @@ function CollapseTree() {
                 nestedChildren={label ? nestedDisplay(children) : null}
                 images={renderList}
                 underFolderImages={underFolderList}
+                underFolderDeeplyImages={underFolderDeeplyList}
               ></ImageCollapse>
             )
           })}

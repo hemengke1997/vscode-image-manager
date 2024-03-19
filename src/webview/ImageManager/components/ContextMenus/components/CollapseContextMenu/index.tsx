@@ -13,6 +13,7 @@ export const COLLAPSE_CONTEXT_MENU = {
   openInOsExplorer: 'openInOsExplorer',
   openInVscodeExplorer: 'openInVscodeExplorer',
   compressImage: 'compressImage',
+  compressImageDeeply: 'compressImageDeeply',
 }
 
 export type CollapseContextMenuType =
@@ -27,6 +28,14 @@ function CollapseContextMenu() {
 
   const { openInOsExplorer, openInVscodeExplorer, beginCompressProcess } = useImageOperation()
 
+  const isItemHidden = (e: PredicateParams<{ contextMenu: CollapseContextMenuType }>) => {
+    const { data, props } = e
+    if (Array.isArray(data)) {
+      return data.every((d) => props?.contextMenu[d] === false)
+    }
+    return props?.contextMenu[data] === false
+  }
+
   const handleOpenInOsExplorer = (e: ItemParams<{ targetPath: string }>) => {
     openInOsExplorer(e.props?.targetPath || '')
   }
@@ -35,23 +44,20 @@ function CollapseContextMenu() {
     openInVscodeExplorer(e.props?.targetPath || '')
   }
 
-  const handleCompressImage = useMemoizedFn(
-    (e: ItemParams<{ images: ImageType[]; contextMenu: CollapseContextMenuType }>) => {
-      if (!e.props!.images?.length) {
-        // 无可压缩的图片，提示用户
-        return message.warning(t('im.no_image_to_compress'))
-      }
-      beginCompressProcess(e.props!.images)
-    },
-  )
-
-  const isItemHidden = (e: PredicateParams<{ contextMenu: CollapseContextMenuType }>) => {
-    const { data, props } = e
-    if (Array.isArray(data)) {
-      return data.every((d) => props?.contextMenu[d] === false)
+  const _compressImage = useMemoizedFn((images: ImageType[] | undefined) => {
+    if (!images?.length) {
+      return message.warning(t('im.no_image_to_compress'))
     }
-    return props?.contextMenu[data] === false
-  }
+    beginCompressProcess(images)
+  })
+
+  const handleCompressImage = useMemoizedFn((e: ItemParams<{ images: ImageType[] }>) => {
+    _compressImage(e.props!.images)
+  })
+
+  const handleCompressImageDeeply = useMemoizedFn((e: ItemParams<{ underFolderDeeplyImages: ImageType[] }>) => {
+    _compressImage(e.props!.underFolderDeeplyImages)
+  })
 
   return (
     <>
@@ -73,6 +79,13 @@ function CollapseContextMenu() {
         />
         <Item hidden={isItemHidden} onClick={handleCompressImage} data={COLLAPSE_CONTEXT_MENU.compressImage}>
           {t('im.compress')}
+        </Item>
+        <Item
+          hidden={isItemHidden}
+          onClick={handleCompressImageDeeply}
+          data={COLLAPSE_CONTEXT_MENU.compressImageDeeply}
+        >
+          {t('im.compress_deeply')}
         </Item>
       </MaskMenu>
     </>

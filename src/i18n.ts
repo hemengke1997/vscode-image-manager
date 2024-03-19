@@ -23,7 +23,9 @@ export class i18n {
   static t(key: string, ...args: any[]) {
     let text = this.messages[key] || ''
 
-    if (args && args.length) text = this.format(text, args)
+    if (args && args.length) {
+      text = this.format(text, args)
+    }
 
     return text
   }

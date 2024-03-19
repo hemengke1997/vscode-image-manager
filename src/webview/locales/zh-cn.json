@@ -44,6 +44,7 @@
     "standard_mode": "标准模式",
     "change_mode": "切换模式",
     "compress": "压缩",
+    "compress_deeply": "压缩（深度目录）",
     "compress_success": "压缩成功",
     "compress_fail": "压缩失败",
     "compressing": "压缩中...，请稍等",
@@ -111,7 +112,8 @@
     "unset": "无",
     "zoom_to_fit": "自适应缩放",
     "scale_x": "左右翻转",
-    "scale_y": "上下翻转"
+    "scale_y": "上下翻转",
+    "size_filter_tip": "最小值须小于最大值"
   },
   "fallback": {
     "internal_error": "内部错误",

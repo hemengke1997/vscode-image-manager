@@ -1,6 +1,7 @@
 import fs from 'fs-extra'
 import { type SharpNS } from '~/@types/global'
 import { type Hookable, createHooks } from '~/fork/hookable'
+import { i18n } from '~/i18n'
 import { Global } from '..'
 
 type HookResult<T = void> = Promise<T> | T
@@ -132,7 +133,7 @@ export class SharpOperator<T extends AnyObject, RuntimeCtx extends AnyObject = T
   async run(runtime: RuntimeCtx & OperatorInput): Promise<{
     outputPath: string
   }> {
-    if (!this.ctx.sharp) return Promise.reject(new Error('Operator is not available'))
+    if (!this.ctx.sharp) return Promise.reject(new Error(i18n.t('core.operator_init_failed')))
 
     this.ctx.runtime = runtime
 

@@ -5,6 +5,7 @@ import path from 'node:path'
 import piexif from 'piexifjs'
 import { type SharpNS } from '~/@types/global'
 import { SharpOperator } from '~/core/sharp'
+import { i18n } from '~/i18n'
 import { VscodeMessageCenter } from '~/message'
 import { generateOutputPath, isJpg, isPng } from '~/utils'
 import { Channel } from '~/utils/Channel'
@@ -248,7 +249,7 @@ export class Compressor {
           outputPath,
         }
       } else {
-        return Promise.reject('Compress Failed')
+        return Promise.reject(i18n.t('core.compress_fail'))
       }
     } catch (e) {
       return Promise.reject(e)
@@ -263,7 +264,7 @@ export class Compressor {
       return Promise.resolve(true)
     } else {
       return Promise.reject(
-        `file [${this._getFilename(filePath)}] is not a valid image. Only support size <= ${this.config.sizeLimit / 1024 / 1024}MB`,
+        i18n.t('core.compress_fail_reason', this._getFilename(filePath), this.config.sizeLimit / 1024 / 1024),
       )
     }
   }
