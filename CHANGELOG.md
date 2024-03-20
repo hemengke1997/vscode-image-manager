@@ -1,13 +1,20 @@
 # CHANGELOG
 
-## 0.7.2
+## 0.7.3 (2024-03-20)
+
+### Fix
+
+- Cropper keep internal data on options changed
+- I18n
+
+## 0.7.2 (2024-03-19)
 
 ### Update
 
 - Improve translations
 - Separate the collapse image compression context-menu into submenus
 
-## 0.7.1
+## 0.7.1 (2024-03-19)
 
 ### Feat
 
@@ -17,7 +24,7 @@
 
 - Complement missing i18n
 
-## 0.7.0
+## 0.7.0 (2024-03-18)
 
 ### Feat
 
@@ -27,20 +34,20 @@
 
 - Catch `getMetadata` error which cause compress fail
 
-## 0.6.4
+## 0.6.4 (2024-03-18)
 
 ### Fix
 
 - Update state in webview trigger endless loop
 
-## 0.6.3
+## 0.6.3 (2024-03-18)
 
 ### Fix
 
 - Track debounced config make webview state mess up
 - Sync workspaceState to webview when `reset` command triggerd
 
-## 0.6.2
+## 0.6.2 (2024-03-16)
 
 ### Fix
 
@@ -48,13 +55,13 @@
 - Fix copy ico base64 failed
 - Copy tiff base64 as png (for brower compatibility)
 
-## 0.6.1
+## 0.6.1 (2024-03-16)
 
 ### Fix
 
 - I18n don't sync with vscode config
 
-## 0.6.0
+## 0.6.0 (2024-03-16)
 
 ### Feat
 
@@ -64,7 +71,7 @@
 
 - Get `ico` image dimession failed
 
-## 0.5.2
+## 0.5.2 (2024-03-14)
 
 ### Feat
 
@@ -76,7 +83,7 @@
 
 ## 0.5.1
 
-### Fix
+### Fix (2024-03-13)
 
 - Filter git staged/unstaged images not correct
 
@@ -84,7 +91,7 @@
 
 - Update better icons
 
-## 0.5.0
+## 0.5.0 (2024-03-12)
 
 ### Feat
 
@@ -95,19 +102,19 @@
 - Optimize toast render performance
 - Optimize config changed leading to webview slow render
 
-## 0.4.3
+## 0.4.3 (2024-03-11)
 
 ### Fix
 
 - Compressor init error
 
-## 0.4.2
+## 0.4.2 (2024-03-10)
 
 ### Fix
 
 - Batch compression messup (caused by 0.4.1 change)
 
-## 0.4.1
+## 0.4.1 (2024-03-09)
 
 ### Feat
 
@@ -115,7 +122,7 @@
 - Change webview background to user's vscode editor background if theme is the same
 - Splite compress error and success notification placement, the error will show on left-top placement
 
-## 0.4.0
+## 0.4.0 (2024-03-08)
 
 ### Feat
 
@@ -128,32 +135,32 @@
 - Render twice when open extension
 - Git staged command execute too many times
 
-## 0.3.0
+## 0.3.0 (2024-03-07)
 
 ### Feat
 
 - Support dependency os cache, improve performance
 
-## 0.2.3
+## 0.2.3 (2024-03-06)
 
 ### Fix
 
 - Can't compress images when `group by type` option checked
 
-## 0.2.2
+## 0.2.2 (2024-03-05)
 
 ### Chore
 
 - Add animation icon for extension initializing statusbar of vscode
 
-## 0.2.1
+## 0.2.1 (2024-03-04)
 
 ### Performance
 
 - Optimize image list rendering, reduce memory usage
 - Improve UX
 
-## 0.2.0
+## 0.2.0 (2024-03-01)
 
 ### Refactor
 
@@ -176,13 +183,13 @@ Please use
   - `image-manager.viewer.imageBackgroundColor`
   
 
-## 0.1.2
+## 0.1.2 (2024-02-29)
 
 ### Fix
 
 - i18n change not working
 
-## 0.1.1
+## 0.1.1 (2024-02-28)
 
 ### Feat
 
@@ -192,7 +199,7 @@ Please use
 
 - Compression tips
 
-## 0.1.0
+## 0.1.0 (2024-02-28)
 
 ### Feat
 
