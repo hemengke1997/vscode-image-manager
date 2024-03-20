@@ -6,7 +6,9 @@
 
 <h1 align='center'>Image Manager</h1>
 
-> Compress, crop and preview images in vscode
+> Compress, crop, convert format and preview images in vscode
+
+[功能介绍文章](https://juejin.cn/post/7348004403016794147)
 
 ## Screenshot
 

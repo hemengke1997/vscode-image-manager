@@ -4,24 +4,29 @@
   "displayName": "Image Manager",
   "version": "0.7.3",
   "private": true,
-  "description": "Compress, crop and preview images in vscode",
+  "description": "Compress, crop, convert format and preview images in vscode",
   "icon": "assets/logo.png",
   "keywords": [
     "image",
+    "minify",
+    "format",
+    "convert format",
     "viewer",
-    "cropper",
+    "crop",
     "compress",
     "manager",
     "base64",
     "svg",
     "img",
     "pic",
-    "png"
+    "png",
+    "image project",
+    "image browser"
   ],
   "license": "MIT",
   "homepage": "https://github.com/hemengke1997/vscode-image-manager",
   "bugs": {
-    "url": "https://github.com/hemengke1997/vscode-image-manager"
+    "url": "https://github.com/hemengke1997/vscode-image-manager/issues"
   },
   "repository": {
     "type": "git",

@@ -11,8 +11,8 @@ import './hmr'
 import './styles/index.css'
 import 'antd/dist/reset.css'
 
-interface IWebviewComponents {
-  [componentName: string]: () => JSX.Element
+type WebviewComponents = {
+  [key: string]: () => JSX.Element
 }
 
 i18next.use(initReactI18next).init({
@@ -33,7 +33,7 @@ i18next.use(initReactI18next).init({
 
 let key = 0
 
-export function registerApp(webviewComponents: IWebviewComponents, reload = false) {
+export function registerApp(webviewComponents: WebviewComponents, reload = false) {
   vscodeApi.postMessage(
     {
       cmd: CmdToVscode.on_webview_ready,
