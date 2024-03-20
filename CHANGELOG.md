@@ -1,5 +1,16 @@
 # CHANGELOG
 
+## 0.8.0 (2024-03-20)
+
+### Feat
+
+- Add `image-manager.mirror.enabled` config to support mirror for downloading dependencies
+- Add `image-manager.mirror.url` config to support custom mirror url
+
+### Docs
+
+- Add common questions and answers
+
 ## 0.7.3 (2024-03-20)
 
 ### Fix

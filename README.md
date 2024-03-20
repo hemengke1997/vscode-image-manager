@@ -70,8 +70,6 @@ Right click in Explorer, select `Image Manager` to open extension. (Open current
 | image-manager.mirror.url                  | `string`                | custom mirror url                                                                                                                                               | undefined                                                            |
 
 
-
-
 ## Tips
 
 ### Compression
@@ -87,8 +85,8 @@ Right click in Explorer, select `Image Manager` to open extension. (Open current
 
 ### Viewer
 
-- cmd/ctrl + Mouse Wheel to scale image size
-- cmd/ctrl + F to open `Search` modal
+- `cmd/ctrl + Mouse Wheel` to scale image size
+- `cmd/ctrl + F` to open `Search` modal
 
 ### 常见问题
 
