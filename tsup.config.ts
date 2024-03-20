@@ -45,7 +45,7 @@ function buildExternals(option: Options): Options[] {
                 const sharp = path.resolve(__dirname, 'node_modules/sharp/package.json')
                 const jsonFolder = path.resolve(__dirname, 'dist/lib/json')
 
-                let code = fs.readFileSync(args.path, 'utf8')
+                let code = fs.readFileSync(args.path, 'utf-8')
                 for (const match of matchTarget) {
                   const res = code.match(match)
                   if (!res) {

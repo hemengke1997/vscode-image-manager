@@ -151,9 +151,14 @@ export class ImageManagerPanel {
     const localServerUrl = `http://localhost:${DEV_PORT}`
 
     let html = ''
+    let content_src = ''
+    let script_src = ''
+
     if (isProd) {
-      html = this._transformHtml(this._getUri(this._ctx.extensionUri, ['dist-webview', 'index.html']).fsPath)
+      const { htmlContent, htmlPath } = this._getHtml(['dist-webview', 'index.html'])
+      html = this._transformHtml(htmlPath, htmlContent)
     } else {
+      html = this._getHtml(['index.html']).htmlContent
       function joinLocalServerUrl(path: string) {
         return `${localServerUrl}/${path}`
       }
@@ -163,35 +168,41 @@ export class ImageManagerPanel {
       const reactRefreshUri = joinLocalServerUrl('@react-refresh')
       const viteClientUri = joinLocalServerUrl('@vite/client')
 
-      const reactRefresh = /*html*/ `
-        <script type="module">
-          import RefreshRuntime from "${reactRefreshUri}"
-          RefreshRuntime.injectIntoGlobalHook(window)
-          window.$RefreshReg$ = () => { }
-          window.$RefreshSig$ = () => (type) => type
-          window.__vite_plugin_react_preamble_installed__ = true
-        </script>
-      `
-
-      const viteClient = /*html*/ `
-        <script type="module" src="${viteClientUri}"></script>
-      `
-
-      html = /*html*/ `<!DOCTYPE html>
-      <html lang="" data-theme="">
-        <head>
-          ${reactRefresh}
-          ${viteClient}
-          <meta charset="UTF-8" />
-          <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-          <meta name="renderer" content="webkit">
-          <title>vscode-image-manager</title>
-        </head>
-        <body>
-          <div id="root"></div>
-          <script type="module" src="${etnryScriptUri}"></script>
-        </body>
-      </html>`
+      html = applyHtmlTransforms(html, [
+        {
+          injectTo: 'head-prepend',
+          tag: 'script',
+          attrs: {
+            type: 'module',
+          },
+          // Taken from vite-plugin-react for HMR
+          children: `
+            import RefreshRuntime from "${reactRefreshUri}"
+            RefreshRuntime.injectIntoGlobalHook(window)
+            window.$RefreshReg$ = () => { }
+            window.$RefreshSig$ = () => (type) => type
+            window.__vite_plugin_react_preamble_installed__ = true
+          `,
+        },
+        {
+          injectTo: 'head-prepend',
+          tag: 'script',
+          attrs: {
+            type: 'module',
+            src: viteClientUri,
+          },
+        },
+        {
+          injectTo: 'body',
+          tag: 'script',
+          attrs: {
+            type: 'module',
+            src: etnryScriptUri,
+          },
+        },
+      ])
+      content_src = `ws://${localServerUrl.replace(/https?:\/\//, '')} ws://0.0.0.0:${DEV_PORT} ${localServerUrl}`
+      script_src = `${localServerUrl} http://0.0.0.0:${DEV_PORT}`
     }
 
     html = applyHtmlTransforms(html, [
@@ -202,12 +213,12 @@ export class ImageManagerPanel {
           'http-equiv': 'Content-Security-Policy',
           'content': [
             `default-src 'self' https://*`,
-            `connect-src 'self' https://\* http://\* wss://\* ws://${localServerUrl.replace(/https?:\/\//, '')} ws://0.0.0.0:${DEV_PORT} ${localServerUrl}`,
+            `connect-src 'self' https://\* http://\* wss://\* ${content_src}`,
             `font-src 'self' https://* blob: data:`,
             `frame-src ${webview.cspSource} 'self' https://* blob: data:`,
             `media-src 'self' https://* blob: data:`,
             `img-src ${webview.cspSource} 'self' https://* http://* blob: data:`,
-            `script-src 'self' 'unsafe-inline' 'unsafe-eval' https://* ${localServerUrl} http://0.0.0.0:${DEV_PORT}`,
+            `script-src 'self' 'unsafe-inline' 'unsafe-eval' https://\* ${script_src}`,
             `style-src ${webview.cspSource} 'self' 'unsafe-inline' https://* blob: data: http://*`,
           ].join('; '),
         },
@@ -217,16 +228,14 @@ export class ImageManagerPanel {
     return html
   }
 
-  private _transformHtml(htmlPath: string) {
-    const resourcePath = Uri.file(htmlPath).fsPath
+  private _transformHtml(htmlPath: string, html: string) {
+    Channel.info(`htmlPath: ${htmlPath}`)
+    const htmlDirPath = path.dirname(htmlPath)
 
-    Channel.info(`ResourcePath: ${resourcePath}`)
-    const dirPath = path.dirname(resourcePath)
-    let html = fs.readFileSync(resourcePath, 'utf-8')
     html = html.replace(/(<link.+?href="|<script.+?src="|<img.+?src=")(.+?)"/g, (_, $1: string, $2: string) => {
       $2 = $2.startsWith('.') ? $2 : `.${$2}`
 
-      const vscodeResourcePath = this._panel.webview.asWebviewUri(Uri.file(path.resolve(dirPath, $2))).toString()
+      const vscodeResourcePath = this._panel.webview.asWebviewUri(Uri.file(path.resolve(htmlDirPath, $2))).toString()
       return `${$1 + vscodeResourcePath}"`
     })
 
@@ -235,6 +244,18 @@ export class ImageManagerPanel {
 
   private _getUri(extensionUri: Uri, pathList: string[]) {
     return this._panel.webview.asWebviewUri(Uri.joinPath(extensionUri, ...pathList))
+  }
+
+  private _getHtml(htmlPath: string[]) {
+    const htmlWebviewPath = this._getUri(this._ctx.extensionUri, htmlPath).fsPath
+    const htmlContent = fs.readFileSync(htmlWebviewPath, 'utf-8')
+
+    Channel.debug(`htmlPath: ${htmlWebviewPath}`)
+
+    return {
+      htmlPath: htmlWebviewPath,
+      htmlContent,
+    }
   }
 
   get visible() {
