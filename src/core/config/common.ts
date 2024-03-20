@@ -19,6 +19,10 @@ export type ConfigType = {
     language: Language
     primaryColor: string
   }
+  mirror: {
+    enabled: boolean
+    url: string
+  }
 }
 
 // !! Care: sync with package.json
@@ -38,6 +42,10 @@ export const defaultConfig: ConfigType = {
     language: 'auto',
     primaryColor: '',
   },
+  mirror: {
+    enabled: false,
+    url: '',
+  },
 }
 
 export const enum ConfigKey {
@@ -52,4 +60,7 @@ export const enum ConfigKey {
   appearance_theme = 'appearance.theme',
   appearance_language = 'appearance.language',
   appearance_primaryColor = 'appearance.primaryColor',
+
+  mirror_enabled = 'mirror.enabled',
+  mirror_url = 'mirror.url',
 }

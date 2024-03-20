@@ -4,7 +4,8 @@
     "cmd": {
       "open": "Open Image Manager",
       "reset_settings": "Reset Settings",
-      "show_channel": "Show Output Channel"
+      "show_channel": "Show Output Channel",
+      "enable_mirror": "Enable Mirror"
     },
     "file": {
       "root": "workspace root",
@@ -20,14 +21,21 @@
       "theme": "theme",
       "language": "language",
       "primaryColor": "primary color"
+    },
+    "mirror": {
+      "enabled": "use mirror for downloading dependencies",
+      "url": "mirror url"
     }
   },
   "prompt": {
     "reload_tip": "Config changed. Please reload",
-    "compressor_init_fail": "Failed to install image compressor, please check network",
+    "compressor_init_fail": "Install dependencies failed. Please check network.",
     "initializing": "Image Manager Initializing...",
     "initializing_tooltip": "Downloading necessary dependencies",
-    "show_logs": "Show logs"
+    "show_logs": "Show logs",
+    "mirror_enabled": "Mirror enabled. Please reload vscode to take effect.",
+    "reload_now": "Reload Now",
+    "mirror_already_enabled": "Mirror already enabled."
   },
   "core": {
     "compress_fail": "Compress Fail",

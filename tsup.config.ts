@@ -1,3 +1,4 @@
+import { execa } from 'execa'
 import fs from 'fs-extra'
 import { createHash } from 'node:crypto'
 import path from 'node:path'
@@ -79,6 +80,12 @@ export default defineConfig((option) => [
     minify: !option.watch,
     env: {
       NODE_ENV: option.watch ? 'development' : 'production',
+    },
+    onSuccess() {
+      if (option.watch) {
+        execa('npm', ['run', 'build:i18n'])
+      }
+      return Promise.resolve()
     },
   },
   ...buildExternals(option),

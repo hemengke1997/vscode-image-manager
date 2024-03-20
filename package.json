@@ -82,6 +82,11 @@
         "command": "image-manager.open-channel",
         "title": "%pkg.cmd.show_channel%",
         "category": "%pkg.title%"
+      },
+      {
+        "command": "image-manager.enable-mirror",
+        "title": "%pkg.cmd.enable_mirror%",
+        "category": "%pkg.title%"
       }
     ],
     "menus": {
@@ -194,6 +199,15 @@
           "default": "#1a1a1a",
           "format": "color-hex",
           "description": "%pkg.viewer.imageBackgroundColor%"
+        },
+        "image-manager.mirror.enabled": {
+          "type": "boolean",
+          "default": false,
+          "description": "%pkg.mirror.enabled%"
+        },
+        "image-manager.mirror.url": {
+          "type": "string",
+          "description": "%pkg.mirror.url%"
         }
       }
     }

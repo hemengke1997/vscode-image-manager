@@ -4,7 +4,8 @@
     "cmd": {
       "open": "打开 Image Manager",
       "reset_settings": "重置设置",
-      "show_channel": "显示输出"
+      "show_channel": "显示输出",
+      "enable_mirror": "启用镜像"
     },
     "file": {
       "root": "根工作区",
@@ -20,14 +21,21 @@
       "theme": "主题",
       "language": "语言",
       "primaryColor": "主题色"
+    },
+    "mirror": {
+      "enable": "使用镜像下载依赖",
+      "url": "镜像地址"
     }
   },
   "prompt": {
     "reload_tip": "配置已更改，请重新加载",
-    "compressor_init_fail": "图片压缩器安装失败，请检查网络",
+    "compressor_init_fail": "依赖安装失败，请检查网络",
     "initializing": "Image Manager 初始化...",
     "initializing_tooltip": "正在下载必要依赖",
-    "show_logs": "显示日志"
+    "show_logs": "显示日志",
+    "mirror_enabled": "镜像下载依赖已启用, 请重启vscode生效",
+    "reload_now": "立即重启",
+    "mirror_already_enabled": "镜像下载依赖已启用"
   },
   "core": {
     "compress_fail": "压缩失败",

@@ -6,6 +6,7 @@ import path from 'node:path'
 import { Emitter } from 'strict-event-emitter'
 import * as vscode from 'vscode'
 import { i18n } from '~/i18n'
+import { isValidHttpsUrl } from '~/utils'
 import { Channel } from '~/utils/Channel'
 import { Config, Global } from '..'
 
@@ -192,7 +193,7 @@ export class Installer {
 
     // If the language is Chinese, it's considered as Chinese region, then set npm mirror
     const languages = [toLower(Config.appearance_language), toLower(i18n.language)]
-    const isChina = languages.includes('zh-cn')
+    const useMirror = languages.includes('zh-cn') || Config.mirror_enabled
 
     await execa('node', ['install/use-libvips.js'], {
       cwd,
@@ -200,8 +201,11 @@ export class Installer {
       env: {
         ...process.env,
         npm_package_config_libvips: '8.14.5',
-        ...(isChina && {
-          npm_config_sharp_libvips_binary_host: 'https://npmmirror.com/mirrors/sharp-libvips', // macos fullpath: https://npmmirror.com/mirrors/sharp-libvips/v8.14.5/libvips-8.14.5-darwin-arm64v8.tar.br
+        ...(useMirror && {
+          npm_config_sharp_libvips_binary_host: isValidHttpsUrl(Config.mirror_url)
+            ? Config.mirror_url
+            : 'https://npmmirror.com/mirrors/sharp-libvips',
+          // macos fullpath: ${npm_config_sharp_libvips_binary_host}/v8.14.5/libvips-8.14.5-darwin-arm64v8.tar.br
         }),
       },
     })

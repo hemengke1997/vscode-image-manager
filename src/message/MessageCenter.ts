@@ -8,14 +8,14 @@ import micromatch from 'micromatch'
 import mime from 'mime/lite'
 import path from 'node:path'
 import git from 'simple-git'
-import { ConfigurationTarget, Uri, type Webview, commands, workspace } from 'vscode'
+import { type ConfigurationTarget, Uri, type Webview, commands } from 'vscode'
 import { type SharpNS } from '~/@types/global'
 import { Config, Global, SharpOperator } from '~/core'
 import { type CompressionOptions } from '~/core/compress'
 import { COMPRESSED_META } from '~/core/compress/meta'
+import { type ConfigKey } from '~/core/config/common'
 import { WorkspaceState } from '~/core/persist'
 import { type WorkspaceStateKey } from '~/core/persist/workspace/common'
-import { EXT_NAMESPACE } from '~/meta'
 import { generateOutputPath, isPng, normalizePath } from '~/utils'
 import { Channel } from '~/utils/Channel'
 import { imageGlob } from '~/utils/glob'
@@ -368,14 +368,14 @@ export const VscodeMessageCenter = {
   },
 
   /* --------- update user configuration -------- */
-  [CmdToVscode.update_user_configuration]: (data: { key: string; value: any; target?: ConfigurationTarget }) => {
-    const { key, value, target = ConfigurationTarget.Workspace } = data
+  [CmdToVscode.update_user_configuration]: (data: { key: ConfigKey; value: any; target?: ConfigurationTarget }) => {
+    const { key, value, target } = data
 
     debouncePromise(
       async () => {
         Global.isProgrammaticChangeConfig = true
         try {
-          await workspace.getConfiguration().update(`${EXT_NAMESPACE}.${key}`, value, target)
+          await Config.updateConfig(key, value, target)
         } finally {
           Global.isProgrammaticChangeConfig = false
         }

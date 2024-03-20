@@ -39,3 +39,12 @@ export function generateOutputPath(filePath: string, suffix: string) {
   }
   return outputPath
 }
+
+export function isValidHttpsUrl(url: string) {
+  try {
+    const urlObj = new URL(url)
+    return urlObj.protocol === 'https:'
+  } catch (e) {
+    return false
+  }
+}

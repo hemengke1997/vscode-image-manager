@@ -1,5 +1,5 @@
 import { deepMerge, get } from '@minko-fe/lodash-pro'
-import { workspace } from 'vscode'
+import { ConfigurationTarget, workspace } from 'vscode'
 import { EXT_NAMESPACE } from '~/meta'
 import { normalizePath } from '~/utils'
 import { ConfigKey, type ConfigType, defaultConfig } from './common'
@@ -56,9 +56,25 @@ export class Config {
     return this.getConfig(ConfigKey.appearance_primaryColor)
   }
 
+  static get mirror_enabled() {
+    return this.getConfig(ConfigKey.mirror_enabled)
+  }
+
+  static get mirror_url() {
+    return this.getConfig(ConfigKey.mirror_url)
+  }
+
   static get all() {
     const userConfig = workspace.getConfiguration().get(`${EXT_NAMESPACE}`) as ConfigType
     return deepMerge(defaultConfig, userConfig, { arrayMerge: (_, s) => s })
+  }
+
+  static updateConfig<T extends ConfigKey, U>(
+    key: T,
+    value: U,
+    target: ConfigurationTarget = ConfigurationTarget.Workspace,
+  ) {
+    return workspace.getConfiguration().update(`${EXT_NAMESPACE}.${key}`, value, target)
   }
 
   private static getConfig<T extends ConfigKey>(key: T) {

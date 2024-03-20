@@ -66,6 +66,9 @@ Right click in Explorer, select `Image Manager` to open extension. (Open current
 | image-manager.viewer.warningSize          | `number \| boolean`     | show warning dot if image size is larger than this value (KB)                                                                                                   | 1024                                                                 |
 | image-manager.viewer.imageWidth           | `number`                | width of image (px)                                                                                                                                             | 100                                                                  |
 | image-manager.viewer.imageBackgroundColor | `string`                | image background color                                                                                                                                          | `#1a1a1a`                                                            |
+| image-manager.mirror.enabled              | `boolean`               | use mirror for downloading dependencies                                                                                                                         | false                                                                |
+| image-manager.mirror.url                  | `string`                | custom mirror url                                                                                                                                               | undefined                                                            |
+
 
 
 
@@ -84,8 +87,32 @@ Right click in Explorer, select `Image Manager` to open extension. (Open current
 
 ### Viewer
 
-- cmd/ctrl + Mouse Wheel to zoom in/out
-- cmd/ctrl + F to open find modal
+- cmd/ctrl + Mouse Wheel to scale image size
+- cmd/ctrl + F to open `Search` modal
+
+### 常见问题
+
+#### 为什么第一次打开插件很慢？
+
+由于首次打开插件时，需要下载必要依赖，此过程跟您的网络环境有关，可能会比较慢，请耐心等待
+
+#### 报错：依赖安装失败，请检查网络
+
+如果您是在中国大陆，且网络环境不佳（懂的都懂），请开启镜像源配置，然后重启vscode
+
+有两种方式：
+
+- 使用命令面板，输入 `enable mirror`，然后回车
+
+或者
+
+- 手动修改配置文件 `settings.json`，添加如下配置
+
+```json
+{
+  "image-manager.mirror.enabled": true
+}
+```
 
 ## Inspired
 
