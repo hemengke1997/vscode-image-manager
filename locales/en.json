@@ -26,7 +26,8 @@
     "reload_tip": "Config changed. Please reload",
     "compressor_init_fail": "Failed to install image compressor, please check network",
     "initializing": "Image Manager Initializing...",
-    "initializing_tooltip": "Downloading necessary dependencies"
+    "initializing_tooltip": "Downloading necessary dependencies",
+    "show_logs": "Show logs"
   },
   "core": {
     "compress_fail": "Compress Fail",

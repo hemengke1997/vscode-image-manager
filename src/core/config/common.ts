@@ -40,7 +40,7 @@ export const defaultConfig: ConfigType = {
   },
 }
 
-export enum ConfigKey {
+export const enum ConfigKey {
   viewer_warningSize = 'viewer.warningSize',
   viewer_imageWidth = 'viewer.imageWidth',
   viewer_imageBackgroundColor = 'viewer.imageBackgroundColor',

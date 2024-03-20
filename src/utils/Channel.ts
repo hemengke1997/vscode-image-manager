@@ -1,5 +1,6 @@
 import { type OutputChannel, window } from 'vscode'
 import { Global } from '~/core'
+import { i18n } from '~/i18n'
 import { EXT_NAME } from '~/meta'
 
 export class Channel {
@@ -37,8 +38,8 @@ export class Channel {
     }
 
     if (prompt) {
-      const openOutputButton = 'Show logs'
-      const message = typeof err === 'string' ? err : `Error: ${err.toString()}`
+      const openOutputButton = i18n.t('prompt.show_logs')
+      const message = typeof err === 'string' ? err : `${EXT_NAME} Error: ${err.toString()}`
 
       const result = await window.showErrorMessage(message, openOutputButton)
       if (result === openOutputButton) this.show()

@@ -13,7 +13,7 @@ function deepTruly(v: Object | number | undefined): boolean {
   return !!v
 }
 
-export enum FilterRadioValue {
+export const enum FilterRadioValue {
   all = 0,
   yes = 1,
   no = 2,

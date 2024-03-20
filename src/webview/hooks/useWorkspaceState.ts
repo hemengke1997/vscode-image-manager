@@ -1,12 +1,12 @@
 import { set } from '@minko-fe/lodash-pro'
-import { useUpdateEffect } from '@minko-fe/react-hook'
+import { useMemoizedFn } from '@minko-fe/react-hook'
 import { produce } from 'immer'
 import { type DependencyList } from 'react'
 import { type WorkspaceStateKey } from '~/core/persist/workspace/common'
 import { CmdToVscode } from '~/message/cmd'
 import VscodeContext from '../ui-framework/src/contexts/VscodeContext'
 import { vscodeApi } from '../vscode-api'
-import { Trigger, useTrackState } from './useTrackState'
+import { useTrackState } from './useTrackState'
 
 /**
  *
@@ -15,10 +15,7 @@ import { Trigger, useTrackState } from './useTrackState'
 export function useWorkspaceState<T extends WorkspaceStateKey, U>(key: T, trackState: U, deps?: DependencyList) {
   const { setWorkspaceState } = VscodeContext.usePicker(['setWorkspaceState'])
 
-  const [state, setState, trigger] = useTrackState(trackState, deps)
-
-  useUpdateEffect(() => {
-    if (trigger === Trigger.track) return
+  const onChangeBySet = useMemoizedFn(() => {
     setWorkspaceState(
       produce((draft) => {
         set(draft, key, state)
@@ -31,7 +28,12 @@ export function useWorkspaceState<T extends WorkspaceStateKey, U>(key: T, trackS
         value: state,
       },
     })
-  }, [state])
+  })
+
+  const [state, setState] = useTrackState(trackState, {
+    deps,
+    onChangeBySet,
+  })
 
   return [state, setState] as const
 }

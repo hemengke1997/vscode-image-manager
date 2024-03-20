@@ -24,7 +24,7 @@ export const defaultState: WorkspaceStateType = {
   rencent_layout_backgroundColor: [],
 }
 
-export enum WorkspaceStateKey {
+export const enum WorkspaceStateKey {
   display_type = 'display_type',
   display_sort = 'display_sort',
   display_group = 'display_group',

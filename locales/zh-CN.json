@@ -1,8 +1,8 @@
 {
   "pkg": {
-    "title": "图片管理器 🏞️",
+    "title": "Image Manager 🏞️",
     "cmd": {
-      "open": "打开图片管理器",
+      "open": "打开 Image Manager",
       "reset_settings": "重置设置",
       "show_channel": "显示输出"
     },
@@ -25,8 +25,9 @@
   "prompt": {
     "reload_tip": "配置已更改，请重新加载",
     "compressor_init_fail": "图片压缩器安装失败，请检查网络",
-    "initializing": "图片管理器初始化...",
-    "initializing_tooltip": "正在下载必要依赖"
+    "initializing": "Image Manager 初始化...",
+    "initializing_tooltip": "正在下载必要依赖",
+    "show_logs": "显示日志"
   },
   "core": {
     "compress_fail": "压缩失败",
