@@ -14,7 +14,7 @@ import { CmdToVscode } from '~/message/cmd'
 import { vscodeApi } from '~/webview/vscode-api'
 import { type ImageType, type ImageVisibleFilterType } from '..'
 import { FilterRadioValue } from '../components/ImageActions/components/Filter'
-import { bytesToKb, filterImages, shouldShowImage } from '../utils'
+import { bytesToKb, shouldShowImage, uniqSortByThenMap } from '../utils'
 import GlobalContext from './GlobalContext'
 import SettingsContext from './SettingsContext'
 
@@ -87,8 +87,32 @@ function sortImages(sort: string[], images: ImageType[]) {
   return images.sort(sortFunction)
 }
 
-function useTreeContext(props: { imageList: ImageType[] }) {
-  const { imageList: imageListProp } = props
+type TreeContextProp = {
+  /**
+   * 当前树的图片列表
+   */
+  imageList: ImageType[]
+  /**
+   * 当前树工作区
+   */
+  workspaceFolder: string
+  /**
+   * 当前树所有目录
+   */
+  dirs: string[]
+  /**
+   * 当前树所有图片类型
+   */
+  imageTypes: string[]
+}
+
+function useTreeContext(props: TreeContextProp) {
+  const {
+    imageList: imageListProp,
+    dirs: originalDirs,
+    imageTypes: originalImageTypes,
+    workspaceFolder: originalWorkspaceFolder,
+  } = props
 
   const [imageSingleTree, setImageSingleTree] = useSetState<ImageStateType>({
     originalList: [],
@@ -99,70 +123,33 @@ function useTreeContext(props: { imageList: ImageType[] }) {
   const latestImageList = useLatest(imageSingleTree.list)
 
   // 筛选出当前树显示的工作区
-  const workspaceFolders = useMemo(
+  const workspaceFolder = useMemo(
     () =>
-      filterImages(
-        imageSingleTree.visibleList,
-        (image) => ({
-          label: image.workspaceFolder,
-          value: image.absWorkspaceFolder,
-        }),
-        'value',
-      ),
+      uniqSortByThenMap(imageSingleTree.visibleList, 'absWorkspaceFolder', (image) => ({
+        label: image.workspaceFolder,
+        value: image.absWorkspaceFolder,
+      }))[0],
     [imageSingleTree.visibleList],
   )
 
   // 筛选出当前树显示的文件夹
   const dirs = useMemo(
     () =>
-      filterImages(
-        imageSingleTree.visibleList,
-        (image) => ({
-          label: image.dirPath,
-          value: image.absDirPath,
-        }),
-        'value',
-      ),
+      uniqSortByThenMap(imageSingleTree.visibleList, 'absDirPath', (image) => ({
+        label: image.dirPath,
+        value: image.absDirPath,
+      })),
     [imageSingleTree.visibleList],
-  )
-
-  // 筛选出当前树所有的文件夹
-  const allDirs = useMemo(
-    () =>
-      filterImages(
-        imageSingleTree.originalList,
-        (image) => ({ label: image.dirPath, value: image.absDirPath }),
-        'value',
-      ),
-    [imageSingleTree.originalList],
   )
 
   // 筛选出当前树显示的图片类型
-  const imageType = useMemo(
+  const imageTypes = useMemo(
     () =>
-      filterImages(
-        imageSingleTree.visibleList,
-        (image) => ({
-          label: image.fileType,
-          value: image.fileType,
-        }),
-        'value',
-      ),
+      uniqSortByThenMap(imageSingleTree.visibleList, 'fileType', (image) => ({
+        label: image.fileType,
+        value: image.fileType,
+      })),
     [imageSingleTree.visibleList],
-  )
-
-  // 筛选当前树出所有的图片类型
-  const allImageTypes = useMemo(
-    () =>
-      filterImages(
-        imageSingleTree.originalList,
-        (image) => ({
-          label: image.fileType,
-          value: image.fileType,
-        }),
-        'value',
-      ),
-    [imageSingleTree.originalList],
   )
 
   // Everytime list changed, update visibleList
@@ -323,11 +310,12 @@ function useTreeContext(props: { imageList: ImageType[] }) {
 
   return {
     imageSingleTree,
-    workspaceFolders,
+    workspaceFolder,
+    originalWorkspaceFolder,
     dirs,
-    allDirs,
-    imageType,
-    allImageTypes,
+    originalDirs,
+    imageTypes,
+    originalImageTypes,
   }
 }
 

@@ -39,19 +39,14 @@ export function getFilenameFromPath(path: string) {
 }
 
 /**
- *
- * @param images 待筛选的列表
- * @param filterCondition 筛选条件
- * @param key 筛选key，根据key来筛选
- * @returns 筛选后的列表
+ * 将一定规则去重、排序后的图片列表转为其他列表
+ * @param images 图片列表
+ * @param key 去重、排序的规则key
+ * @param convert 转化规则
+ * @returns 转化后的列表
  */
-export function filterImages<T>(images: ImageType[], filterCondition: (image: ImageType) => T, key: keyof T): T[] {
+export function uniqSortByThenMap<T>(images: ImageType[], key: keyof ImageType, convert: (image: ImageType) => T): T[] {
   if (!images.length) return []
-  return sortBy(
-    uniqBy(
-      images.map((item) => filterCondition(item)),
-      key,
-    ),
-    key,
-  )
+
+  return sortBy(uniqBy(images, key), key).map((item) => convert(item))
 }

@@ -45,6 +45,9 @@ function Viewer() {
                     key={index}
                     value={{
                       imageList: item.imgs,
+                      workspaceFolder: item.workspaceFolder,
+                      dirs: item.dirs,
+                      imageTypes: item.fileTypes,
                     }}
                   >
                     <CollapseTree />

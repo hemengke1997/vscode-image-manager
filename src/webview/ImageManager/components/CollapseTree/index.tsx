@@ -1,5 +1,5 @@
 import { useMemoizedFn } from '@minko-fe/react-hook'
-import { type CollapseProps, ConfigProvider, Empty } from 'antd'
+import { Card, type CollapseProps, ConfigProvider, Empty } from 'antd'
 import classNames from 'classnames'
 import { motion } from 'framer-motion'
 import { type ReactNode, memo, useMemo, useRef } from 'react'
@@ -17,9 +17,15 @@ import styles from './index.module.css'
 
 function CollapseTree() {
   const { t } = useTranslation()
+
   const { displayGroup, displayStyle } = SettingsContext.usePicker(['displayGroup', 'displayStyle'])
 
-  const { dirs, imageType, workspaceFolders } = TreeContext.usePicker(['dirs', 'imageType', 'workspaceFolders'])
+  const { dirs, imageTypes, workspaceFolder, originalWorkspaceFolder } = TreeContext.usePicker([
+    'dirs',
+    'imageTypes',
+    'workspaceFolder',
+    'originalWorkspaceFolder',
+  ])
 
   const visibleList = TreeContext.useSelector((ctx) => ctx.imageSingleTree.visibleList)
 
@@ -34,7 +40,7 @@ function CollapseTree() {
         imageKey: {
           id: 'absWorkspaceFolder',
         },
-        list: workspaceFolders,
+        list: [workspaceFolder].filter(Boolean),
         icon: (props: { path: string }) => (
           <OpenFolder {...props}>
             <IoMdFolderOpen />
@@ -60,7 +66,7 @@ function CollapseTree() {
         imageKey: {
           id: 'fileType',
         },
-        list: imageType,
+        list: imageTypes,
         icon: () => <VscFileMedia className={'mr-1'} />,
         contextMenu: {
           open_in_os_explorer: false,
@@ -80,7 +86,7 @@ function CollapseTree() {
         priority: null,
       },
     }),
-    [workspaceFolders, dirs, imageType],
+    [workspaceFolder, dirs, imageTypes],
   )
 
   const nestedDisplay = useMemoizedFn(
@@ -99,7 +105,6 @@ function CollapseTree() {
         <div className={'space-y-2'}>
           {tree.map((node) => {
             const { groupType, value, label, children, renderList, underFolderList, underFolderDeeplyList } = node
-
             if (!groupType) return null
             return (
               <ImageCollapse
@@ -148,7 +153,13 @@ function CollapseTree() {
     if (!tree.length) {
       return (
         <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ duration: 0.15, delay: 0.15 }}>
-          <Empty image={Empty.PRESENTED_IMAGE_SIMPLE} description={t('im.no_image')} />
+          <Card
+            title={<div className={'text-ant-color-warning'}>{originalWorkspaceFolder}</div>}
+            bordered={false}
+            type='inner'
+          >
+            <Empty image={Empty.PRESENTED_IMAGE_SIMPLE} description={t('im.no_image')} />
+          </Card>
         </motion.div>
       )
     }

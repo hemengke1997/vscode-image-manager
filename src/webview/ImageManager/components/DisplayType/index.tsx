@@ -3,6 +3,7 @@ import { useControlledState, useUpdateEffect } from '@minko-fe/react-hook'
 import { Badge, Checkbox, ConfigProvider, theme } from 'antd'
 import { produce } from 'immer'
 import { memo, useMemo } from 'react'
+import { RxViewNone } from 'react-icons/rx'
 import GlobalContext, { type RestrictImageFilterType } from '../../contexts/GlobalContext'
 
 export type DisplayTypeFilter = RestrictImageFilterType<{
@@ -68,7 +69,11 @@ function DisplayType(props: DisplayTypeProps) {
     )
   }, [checked])
 
-  return <Checkbox.Group value={checked} onChange={setChecked} options={options}></Checkbox.Group>
+  return options.length ? (
+    <Checkbox.Group value={checked} onChange={setChecked} options={options}></Checkbox.Group>
+  ) : (
+    <RxViewNone className={'text-lg'} />
+  )
 }
 
 export default memo(DisplayType)

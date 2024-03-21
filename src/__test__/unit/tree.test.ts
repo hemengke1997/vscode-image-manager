@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest'
 import { type ImageType } from '~/webview/ImageManager'
-import { filterImages } from '~/webview/ImageManager/utils'
+import { uniqSortByThenMap } from '~/webview/ImageManager/utils'
 import { DirTree, type TreeParams } from '~/webview/ImageManager/utils/DirTree'
 
 function displayMapFixture(visibleListFixture: ImageType[]) {
@@ -9,42 +9,30 @@ function displayMapFixture(visibleListFixture: ImageType[]) {
       imageKey: {
         id: 'absWorkspaceFolder',
       },
-      list: filterImages(
-        visibleListFixture,
-        (image) => ({
-          label: image.workspaceFolder,
-          value: image.absWorkspaceFolder,
-        }),
-        'value',
-      ),
+      list: uniqSortByThenMap(visibleListFixture, 'absWorkspaceFolder', (image) => ({
+        label: image.workspaceFolder,
+        value: image.absWorkspaceFolder,
+      })),
       priority: 1,
     },
     dir: {
       imageKey: {
         id: 'absDirPath',
       },
-      list: filterImages(
-        visibleListFixture,
-        (image) => ({
-          label: image.dirPath,
-          value: image.absDirPath,
-        }),
-        'value',
-      ),
+      list: uniqSortByThenMap(visibleListFixture, 'absDirPath', (image) => ({
+        label: image.dirPath,
+        value: image.absDirPath,
+      })),
       priority: 2,
     },
     type: {
       imageKey: {
         id: 'fileType',
       },
-      list: filterImages(
-        visibleListFixture,
-        (image) => ({
-          label: image.fileType,
-          value: image.fileType,
-        }),
-        'value',
-      ),
+      list: uniqSortByThenMap(visibleListFixture, 'fileType', (image) => ({
+        label: image.fileType,
+        value: image.fileType,
+      })),
       priority: 3,
     },
     all: {
