@@ -1,8 +1,4 @@
-<style>
-table tr {
-  white-space:nowrap;
-}
-</style>
+
 
 <p align='center'>
   <a href='https://github.com/hemengke1997/vscode-image-manager' target="_blank" rel='noopener noreferrer'>
@@ -66,19 +62,19 @@ Right click in Explorer, select `Image Manager` to open extension. (Open current
 
 
 
-| Name                                      | Type                    | Description                                                   | Default value                                                                                                                |
-| ----------------------------------------- | ----------------------- | ------------------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------- |
-| image-manager.file.root                   | `string[]`              | root folder to scan images                                    | current workspace                                                                                                            |
-| image-manager.file.exclude                | `string[]`              | scan images not in exclude                                    | `['**/node_modules/**','**/.git/**',`<br>`'**/dist/**','**/coverage/**','**/.next/**',`<br/>`'**/.nuxt/**','**/.vercel/**']` |
-| image-manager.file.scan                   | `string[]`              | scan images with imageType                                    | `['svg','png','jpeg','jpg',`<br/>`'ico','gif','webp','bmp',`<br/>`'tif','tiff','apng','avif']`                               |
-| image-manager.appearance.theme            | `dark \| light \| auto` | theme                                                         | `auto`                                                                                                                       |
-| image-manager.appearance.language         | `en \| zh-CN \| auto`   | language                                                      | `auto`                                                                                                                       |
-| image-manager.appearance.primaryColor     | `string`                | primary color                                                 | undefined                                                                                                                    |
-| image-manager.viewer.warningSize          | `number \| boolean`     | show warning dot if image size is larger than this value (KB) | 1024                                                                                                                         |
-| image-manager.viewer.imageWidth           | `number`                | width of image (px)                                           | 100                                                                                                                          |
-| image-manager.viewer.imageBackgroundColor | `string`                | image background color                                        | `#1a1a1a`                                                                                                                    |
-| image-manager.mirror.enabled              | `boolean`               | use mirror for downloading dependencies                       | false                                                                                                                        |
-| image-manager.mirror.url                  | `string`                | custom mirror url (No need to custom this in general)         | undefined                                                                                                                    |
+| Name                                      | Type                                 | Description                                                                | Default value                                                                                                                             |
+| ----------------------------------------- | ------------------------------------ | -------------------------------------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------- |
+| image-manager.file.root                   | `string[]`                           | root folder to scan images                                                 | current workspace                                                                                                                         |
+| image-manager.file.exclude                | `string[]`                           | scan images not in exclude                                                 | <nobr>`['**/node_modules/**','**/.git/**',`<br>`'**/dist/**','**/coverage/**','**/.next/**',`<br/>`'**/.nuxt/**','**/.vercel/**']`</nobr> |
+| image-manager.file.scan                   | `string[]`                           | scan images with imageType                                                 | <nobr>`['svg','png','jpeg','jpg',`<br/>`'ico','gif','webp','bmp',`<br/>`'tif','tiff','apng','avif']`</nobr>                               |
+| image-manager.appearance.theme            | <nobr>`dark \| light \| auto`</nobr> | theme                                                                      | `auto`                                                                                                                                    |
+| image-manager.appearance.language         | `en \| zh-CN \| auto`                | language                                                                   | `auto`                                                                                                                                    |
+| image-manager.appearance.primaryColor     | `string`                             | primary color                                                              | undefined                                                                                                                                 |
+| image-manager.viewer.warningSize          | `number \| boolean`                  | <nobr>show warning dot if image size is larger than this value (KB)</nobr> | 1024                                                                                                                                      |
+| image-manager.viewer.imageWidth           | `number`                             | width of image (px)                                                        | 100                                                                                                                                       |
+| image-manager.viewer.imageBackgroundColor | `string`                             | image background color                                                     | `#1a1a1a`                                                                                                                                 |
+| image-manager.mirror.enabled              | `boolean`                            | use mirror for downloading dependencies                                    | false                                                                                                                                     |
+| image-manager.mirror.url                  | `string`                             | custom mirror url (No need to custom this in general)                      | undefined                                                                                                                                 |
 
 
 ## Tips

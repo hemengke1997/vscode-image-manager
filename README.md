@@ -1,8 +1,4 @@
-<style>
-table tr {
-  white-space:nowrap;
-}
-</style>
+
 
 
 <p align='center'>
@@ -70,19 +66,19 @@ table tr {
 
 
 
-| 配置项名称                                | 数据类型                | 描述                                       | 默认值                                                                                                                       |
-| :---------------------------------------- | ----------------------- | ------------------------------------------ | ---------------------------------------------------------------------------------------------------------------------------- |
-| image-manager.file.root                   | `string[]`              | 扫描图片的根目录                           | 当前工作区                                                                                                                   |
-| image-manager.file.exclude                | `string[]`              | 排除目录                                   | `['**/node_modules/**','**/.git/**',`<br>`'**/dist/**','**/coverage/**','**/.next/**',`<br/>`'**/.nuxt/**','**/.vercel/**']` |
-| image-manager.file.scan                   | `string[]`              | 扫描的图片类型                             | `['svg','png','jpeg','jpg',`<br/>`'ico','gif','webp','bmp',`<br/>`'tif','tiff','apng','avif']`                               |
-| image-manager.appearance.theme            | `dark \| light \| auto` | 主题                                       | `auto`                                                                                                                       |
-| image-manager.appearance.language         | `en \| zh-CN \| auto`   | 语言                                       | `auto`                                                                                                                       |
-| image-manager.appearance.primaryColor     | `string`                | 主题色                                     | undefined                                                                                                                    |
-| image-manager.viewer.warningSize          | `number \| boolean`     | 当图片体积大于此值时右上角展示警告点（KB） | 1024                                                                                                                         |
-| image-manager.viewer.imageWidth           | `number`                | 图片宽度（px）                             | 100                                                                                                                          |
-| image-manager.viewer.imageBackgroundColor | `string`                | 图片背景色                                 | `#1a1a1a`                                                                                                                    |
-| image-manager.mirror.enabled              | `boolean`               | 使用镜像下载依赖                           | false                                                                                                                        |
-| image-manager.mirror.url                  | `string`                | 镜像地址（通常情况不需要自定义）           | undefined                                                                                                                    |
+| 配置项名称                                | 数据类型                             | 描述                                                    | 默认值                                                                                                                                    |
+| :---------------------------------------- | ------------------------------------ | ------------------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------- |
+| image-manager.file.root                   | `string[]`                           | 扫描图片的根目录                                        | 当前工作区                                                                                                                                |
+| image-manager.file.exclude                | `string[]`                           | 排除目录                                                | <nobr>`['**/node_modules/**','**/.git/**',`<br>`'**/dist/**','**/coverage/**','**/.next/**',`<br/>`'**/.nuxt/**','**/.vercel/**']`</nobr> |
+| image-manager.file.scan                   | `string[]`                           | 扫描的图片类型                                          | <nobr>`['svg','png','jpeg','jpg',`<br/>`'ico','gif','webp','bmp',`<br/>`'tif','tiff','apng','avif']`</nobr>                               |
+| image-manager.appearance.theme            | <nobr>`dark \| light \| auto`</nobr> | 主题                                                    | `auto`                                                                                                                                    |
+| image-manager.appearance.language         | <nobr>`en \| zh-CN \| auto`</nobr>   | 语言                                                    | `auto`                                                                                                                                    |
+| image-manager.appearance.primaryColor     | `string`                             | 主题色                                                  | undefined                                                                                                                                 |
+| image-manager.viewer.warningSize          | `number \| boolean`                  | <nobr>当图片体积大于此值时右上角展示警告点（KB）</nobr> | 1024                                                                                                                                      |
+| image-manager.viewer.imageWidth           | `number`                             | 图片宽度（px）                                          | 100                                                                                                                                       |
+| image-manager.viewer.imageBackgroundColor | `string`                             | 图片背景色                                              | `#1a1a1a`                                                                                                                                 |
+| image-manager.mirror.enabled              | `boolean`                            | 使用镜像下载依赖                                        | false                                                                                                                                     |
+| image-manager.mirror.url                  | `string`                             | 镜像地址（通常情况不需要自定义）                        | undefined                                                                                                                                 |
 
 ## 小贴士
 
