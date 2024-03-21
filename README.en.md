@@ -58,6 +58,12 @@ Right click in Explorer, select `Image Manager` to open extension. (Open current
 
 ## Extension Configurations
 
+<style>
+table tr {
+  white-space:nowrap;
+}
+</style>
+
 | Name                                      | Type                    | Description                                                   | Default value                                                                                                                |
 | ----------------------------------------- | ----------------------- | ------------------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------- |
 | image-manager.file.root                   | `string[]`              | root folder to scan images                                    | current workspace                                                                                                            |
