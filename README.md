@@ -1,3 +1,10 @@
+<style>
+table tr {
+  white-space:nowrap;
+}
+</style>
+
+
 <p align='center'>
   <a href='https://github.com/hemengke1997/vscode-image-manager' target="_blank" rel='noopener noreferrer'>
     <img width='140' src='./assets/logo.png' alt='logo' />
@@ -60,15 +67,11 @@
 
 ## 插件配置项
 
-<style>
-table tr {
-  white-space:nowrap;
-}
-</style>
+
 
 
 | 配置项名称                                | 数据类型                | 描述                                       | 默认值                                                                                                                       |
-| ----------------------------------------- | ----------------------- | ------------------------------------------ | ---------------------------------------------------------------------------------------------------------------------------- |
+| :---------------------------------------- | ----------------------- | ------------------------------------------ | ---------------------------------------------------------------------------------------------------------------------------- |
 | image-manager.file.root                   | `string[]`              | 扫描图片的根目录                           | 当前工作区                                                                                                                   |
 | image-manager.file.exclude                | `string[]`              | 排除目录                                   | `['**/node_modules/**','**/.git/**',`<br>`'**/dist/**','**/coverage/**','**/.next/**',`<br/>`'**/.nuxt/**','**/.vercel/**']` |
 | image-manager.file.scan                   | `string[]`              | 扫描的图片类型                             | `['svg','png','jpeg','jpg',`<br/>`'ico','gif','webp','bmp',`<br/>`'tif','tiff','apng','avif']`                               |

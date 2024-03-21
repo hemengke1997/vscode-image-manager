@@ -1,3 +1,9 @@
+<style>
+table tr {
+  white-space:nowrap;
+}
+</style>
+
 <p align='center'>
   <a href='https://github.com/hemengke1997/vscode-image-manager' target="_blank" rel='noopener noreferrer'>
     <img width='140' src='./assets/logo.png' alt='logo' />
@@ -58,11 +64,7 @@ Right click in Explorer, select `Image Manager` to open extension. (Open current
 
 ## Extension Configurations
 
-<style>
-table tr {
-  white-space:nowrap;
-}
-</style>
+
 
 | Name                                      | Type                    | Description                                                   | Default value                                                                                                                |
 | ----------------------------------------- | ----------------------- | ------------------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------- |
