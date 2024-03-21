@@ -2,10 +2,14 @@
 
 ## 0.8.1 (2024-03-21)
 
+### Fix
+
+- Prompt solutions when dependencies init fails
+
 ### Docs
 
-- Add Chinese README.
-- Add Common Questions and Answers.
+- Add Chinese README
+- Add Common Questions and Answers
 
 ## 0.8.0 (2024-03-20)
 
