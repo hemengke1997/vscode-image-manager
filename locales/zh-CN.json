@@ -40,6 +40,7 @@
   "core": {
     "compress_fail": "压缩失败",
     "operator_init_failed": "操作器初始化失败",
-    "compress_fail_reason": "文件 [{{filename}}] 不是有效图片. 最大支持体积 {{maxsize}} MB"
+    "compress_fail_reason": "文件 [{{filename}}] 不是有效图片. 最大支持体积 {{maxsize}} MB",
+    "view_solution": "查看解决方案"
   }
 }

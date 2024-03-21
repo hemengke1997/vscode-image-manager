@@ -170,8 +170,8 @@ export const VscodeMessageCenter = {
     const config = Config.all
 
     const vscodeConfig = {
-      theme: Global.theme,
-      language: Global.language,
+      theme: Global.vscodeTheme,
+      language: Global.vscodeLanguage,
     }
 
     return {
@@ -268,7 +268,7 @@ export const VscodeMessageCenter = {
     const outputPath = generateOutputPath(image.path, '.crop')
 
     if (outputFileType !== image.fileType) {
-      // 转为图片原格式
+      // Convert to the same format as the original image
       let formatter: SharpOperator<{
         filePath: string
         ext: string
@@ -295,7 +295,7 @@ export const VscodeMessageCenter = {
         formatter = null
       }
     } else {
-      // 直接输出图片
+      // Write image output directly
       try {
         await fs.promises.writeFile(outputPath, imageBuffer)
       } catch (e) {

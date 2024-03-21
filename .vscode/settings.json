@@ -3,7 +3,8 @@
   "i18n-ally.localesPaths": ["src/webview/locales", "locales"],
   "i18n-ally.pathMatcher": "{locale}.json",
   "i18n-ally.namespace": true,
-  "i18n-ally.sourceLanguage": "en",
+  "i18n-ally.sourceLanguage": "zh-CN",
+  "i18n-ally.displayLanguage": "zh-CN",
   "i18n-ally.keystyle": "nested",
   "i18n-ally.enabledFrameworks": ["react", "react-i18next", "vscode"],
   "search.exclude": {

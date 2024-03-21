@@ -1,15 +1,22 @@
+import { lowerCase } from '@minko-fe/lodash-pro'
 import fs from 'node:fs'
 import path from 'node:path'
-import { type ExtensionContext, env } from 'vscode'
+import { type ExtensionContext } from 'vscode'
+import { Config, Global } from './core'
+import { FALLBACK_LANGUAGE } from './meta'
+import { intelligentPick } from './utils/intelligent-pick'
 
 export class i18n {
-  static language = env.language.toLocaleLowerCase()
   static messages: Record<string, string> = {}
 
   static init(ctx: ExtensionContext) {
     const extensionPath = ctx.extensionUri.fsPath
-    let name = this.language === 'en' ? 'package.nls.json' : `package.nls.${this.language}.json`
-    if (!fs.existsSync(path.join(extensionPath, name))) name = 'package.nls.json' // locale not exist, fallback to English
+    const language = lowerCase(intelligentPick(Config.appearance_language, Global.vscodeLanguage, 'auto'))
+
+    let name = language === FALLBACK_LANGUAGE ? 'package.nls.json' : `package.nls.${language}.json`
+    if (!fs.existsSync(path.join(extensionPath, name))) {
+      name = 'package.nls.json' // locale not exist, fallback to English
+    }
 
     this.messages = JSON.parse(fs.readFileSync(path.join(extensionPath, name), 'utf-8'))
   }

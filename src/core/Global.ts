@@ -10,11 +10,29 @@ import { Config, Watcher, WorkspaceState } from '.'
 export class Global {
   private static _rootpaths: string[]
 
+  /**
+   * extension context
+   */
   static context: ExtensionContext
-  static theme: Theme = 'dark'
-  static language: Language = FALLBACK_LANGUAGE
+  /**
+   * vscode theme
+   */
+  static vscodeTheme: Theme
+  /**
+   * vscode language
+   */
+  static vscodeLanguage: Language
+  /**
+   * sharp
+   */
   static sharp: TSharp
+  /**
+   * sharp compressor
+   */
   static compressor: Compressor
+  /**
+   * is programmatic change config
+   */
   static isProgrammaticChangeConfig = false
 
   // events
@@ -25,16 +43,16 @@ export class Global {
   static async init(context: ExtensionContext) {
     this.context = context
 
+    this._initVscodeTheme()
+    this._initVscodeLanguage()
+
     Watcher.init()
     WorkspaceState.init()
 
     await this.installSharp()
 
-    this._updateTheme()
-    this._updateLanguage()
-
     context.subscriptions.push(workspace.onDidChangeWorkspaceFolders(() => this.updateRootPath()))
-    context.subscriptions.push(window.onDidChangeActiveColorTheme(() => this._updateTheme()))
+    context.subscriptions.push(window.onDidChangeActiveColorTheme(() => this._initVscodeTheme()))
     await this.updateRootPath()
   }
 
@@ -54,30 +72,30 @@ export class Global {
     }
   }
 
-  static _updateTheme() {
+  static _initVscodeTheme() {
     switch (window.activeColorTheme.kind) {
       case 1:
-        this.theme = 'light'
+        this.vscodeTheme = 'light'
         break
       case 2:
-        this.theme = 'dark'
+        this.vscodeTheme = 'dark'
         break
       default:
-        this.theme = 'dark'
+        this.vscodeTheme = 'dark'
         break
     }
   }
 
-  static _updateLanguage() {
+  static _initVscodeLanguage() {
     switch (lowerCase(env.language)) {
       case 'en':
-        this.language = 'en'
+        this.vscodeLanguage = 'en'
         break
       case 'zh-cn':
-        this.language = 'zh-CN'
+        this.vscodeLanguage = 'zh-CN'
         break
       default:
-        this.language = FALLBACK_LANGUAGE
+        this.vscodeLanguage = FALLBACK_LANGUAGE
         break
     }
   }

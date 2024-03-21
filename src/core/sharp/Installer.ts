@@ -192,7 +192,7 @@ export class Installer {
     const cwd = this._getSharpCwd()
 
     // If the language is Chinese, it's considered as Chinese region, then set npm mirror
-    const languages = [toLower(Config.appearance_language), toLower(i18n.language)]
+    const languages = [Config.appearance_language, Global.vscodeLanguage].map(toLower)
     const useMirror = languages.includes('zh-cn') || Config.mirror_enabled
 
     await execa('node', ['install/use-libvips.js'], {

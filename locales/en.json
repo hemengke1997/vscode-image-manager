@@ -40,6 +40,7 @@
   "core": {
     "compress_fail": "Compress Fail",
     "operator_init_failed": "Operator init failed",
-    "compress_fail_reason": "file [{0}] is not a valid image. Only support size less than {1} MB"
+    "compress_fail_reason": "file [{0}] is not a valid image. Only support size less than {1} MB",
+    "view_solution": "View the Solution"
   }
 }

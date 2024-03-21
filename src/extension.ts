@@ -9,9 +9,8 @@ import { Channel } from './utils/Channel'
 export async function activate(ctx: vscode.ExtensionContext) {
   Channel.info(`🈶️ Activated, v${version}`)
 
-  i18n.init(ctx)
-
   await Global.init(ctx)
+  i18n.init(ctx)
 
   const modules = [commandsModules]
 

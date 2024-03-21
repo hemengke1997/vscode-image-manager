@@ -114,7 +114,8 @@
     "zoom_to_fit": "自适应缩放",
     "scale_x": "左右翻转",
     "scale_y": "上下翻转",
-    "size_filter_tip": "最小值须小于最大值"
+    "size_filter_tip": "最小值须小于最大值",
+    "view_solution": "查看解决方案"
   },
   "fallback": {
     "internal_error": "内部错误",

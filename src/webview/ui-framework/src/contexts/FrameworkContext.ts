@@ -3,9 +3,9 @@ import { createContainer } from 'context-state'
 import { useMemo } from 'react'
 import { ConfigKey } from '~/core/config/common'
 import { WorkspaceStateKey } from '~/core/persist/workspace/common'
+import { intelligentPick } from '~/utils/intelligent-pick'
 import { useExtConfigState } from '~/webview/hooks/useExtConfigState'
 import { useWorkspaceState } from '~/webview/hooks/useWorkspaceState'
-import { weightByKey } from '~/webview/utils'
 import { vscodeColors } from '../utils/theme'
 import VscodeContext from './VscodeContext'
 
@@ -35,12 +35,12 @@ const useFrameworkContext = () => {
 
   // theme without `auto`
   const themeWithoutAuto = useMemo(() => {
-    return weightByKey(theme, vscodeConfig.theme, 'auto')
+    return intelligentPick(theme, vscodeConfig.theme, 'auto')
   }, [theme, vscodeConfig.theme])
 
   // language without `auto`
   const languageWithoutAuto = useMemo(
-    () => weightByKey(language, vscodeConfig.language, 'auto'),
+    () => intelligentPick(language, vscodeConfig.language, 'auto'),
     [language, vscodeConfig.language],
   )
 

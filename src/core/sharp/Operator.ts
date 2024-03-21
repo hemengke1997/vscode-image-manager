@@ -1,4 +1,5 @@
 import fs from 'fs-extra'
+import { Uri, env, window } from 'vscode'
 import { type SharpNS } from '~/@types/global'
 import { type Hookable, createHooks } from '~/fork/hookable'
 import { i18n } from '~/i18n'
@@ -133,7 +134,20 @@ export class SharpOperator<T extends AnyObject, RuntimeCtx extends AnyObject = T
   async run(runtime: RuntimeCtx & OperatorInput): Promise<{
     outputPath: string
   }> {
-    if (!this.ctx.sharp) return Promise.reject(new Error(i18n.t('core.operator_init_failed')))
+    if (!this.ctx.sharp) {
+      const noSharpTip = i18n.t('core.operator_init_failed')
+      const viewSolutionTip = i18n.t('core.view_solution')
+      window.showErrorMessage(noSharpTip, viewSolutionTip).then((res) => {
+        if (res === viewSolutionTip) {
+          env.openExternal(
+            Uri.parse(
+              'https://github.com/hemengke1997/vscode-image-manager?tab=readme-ov-file#%E6%8A%A5%E9%94%99%E4%BE%9D%E8%B5%96%E5%AE%89%E8%A3%85%E5%A4%B1%E8%B4%A5%E8%AF%B7%E6%A3%80%E6%9F%A5%E7%BD%91%E7%BB%9C',
+            ),
+          )
+        }
+      })
+      return Promise.reject(new Error(noSharpTip))
+    }
 
     this.ctx.runtime = runtime
 
