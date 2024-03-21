@@ -6,87 +6,95 @@
 
 <h1 align='center'>Image Manager</h1>
 
-> Compress, crop, convert format and preview images in vscode
+> 压缩、裁剪、转换格式和预览图片的vscode插件
+
+[English README](./README.en.md)
 
 [功能介绍文章](https://juejin.cn/post/7348004403016794147)
 
-## Screenshot
+## 插件截图
 
-### Overview
+### 概览
 
 ![overview](./screenshots/overview.png)
 
-### Preview
+### 大图预览
 ![preview](./screenshots/preview.png)
 
-### Compression
+### 压缩
 ![compression](./screenshots/compression.png)
 
-### Crop
+### 裁剪
 ![crop](./screenshots/crop.png)
 
-## Usage
 
-**Several ways open extension**
+## 核心功能
 
-### Shortcut
+- **图片批量压缩** (右键总会发生魔法 🤩)
+- **图片裁剪**
+- **图片大图浏览**
+- 查看图片详情（尺寸、体积等）
+- 查找图片
+- 条件筛选图片
+- 暗黑/明亮主题，自定义UI主题色
+- 国际化。目前支持 `english` 和 `简体中文`
+
+## 使用方法
+
+**有以下几种方式打开插件**
+
+### 快捷键
 
 - windows: `shift+alt+i`
 - macos: `cmd+option+i`
 
 
-### Command
+### 命令面板
 
-`ctrl+shift+p` (macos `cmd+shift+p`), input `Image Manager` to open. (Open workspace root folder)
+`ctrl+shift+p` (macos `cmd+shift+p`) 打开命令面板, 输入 `Image Manager` 选择打开
 
-### Context Menu
+### 右键菜单
 
-Right click in Explorer, select `Image Manager` to open extension. (Open current folder)
-
-
-## Features
-
-- **Batch image compression** (magic happens on right-click 🤩)
-- **Images Cropper**
-- **Image Viewer**
-- Dark/light theme
-- I18n. Currently support `english` and `简体中文`
+资源管理器中右键选择 `Image Manager 🏞️` 打开插件
 
 
-## Extension Settings
+## 插件配置项
 
-| Name                                      | Type                    | Description                                                                                                                                                     | Default value                                                        |
-| ----------------------------------------- | ----------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------- | -------------------------------------------------------------------- |
-| image-manager.file.root                   | `string[]`              | root folder to scan images                                                                                                                                      | current workspace                                                    |
-| image-manager.file.exclude                | `string[]`              | scan images not in exclude, built-in exclue: `['**/node_modules/**', '**/.git/**''**/dist/**','**/coverage/**', '**/.next/**',  '**/.nuxt/**','**/.vercel/**']` | []                                                                   |
-| image-manager.file.scan                   | `string[]`              | scan images with imageType                                                                                                                                      | `['svg', 'png', 'jpeg', 'ico', 'gif', 'webp', 'bmp', 'tif', 'apng']` |
-| image-manager.appearance.theme            | `dark \| light \| auto` | theme                                                                                                                                                           | `auto`                                                               |
-| image-manager.appearance.language         | `en \| zh-CN \| auto`   | language                                                                                                                                                        | `auto`                                                               |
-| image-manager.appearance.primaryColor     | `string`                | primary color                                                                                                                                                   | undefined                                                            |
-| image-manager.viewer.warningSize          | `number \| boolean`     | show warning dot if image size is larger than this value (KB)                                                                                                   | 1024                                                                 |
-| image-manager.viewer.imageWidth           | `number`                | width of image (px)                                                                                                                                             | 100                                                                  |
-| image-manager.viewer.imageBackgroundColor | `string`                | image background color                                                                                                                                          | `#1a1a1a`                                                            |
-| image-manager.mirror.enabled              | `boolean`               | use mirror for downloading dependencies                                                                                                                         | false                                                                |
-| image-manager.mirror.url                  | `string`                | custom mirror url                                                                                                                                               | undefined                                                            |
-
+| 配置项名称                                | 数据类型                | 描述                                      | 默认值                                                                                                                       |
+| ----------------------------------------- | ----------------------- | ----------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------- |
+| image-manager.file.root                   | `string[]`              | 扫描图片的根目录                          | 当前工作区                                                                                                                   |
+| image-manager.file.exclude                | `string[]`              | 排除目录                                  | `['**/node_modules/**','**/.git/**',`<br>`'**/dist/**','**/coverage/**','**/.next/**',`<br/>`'**/.nuxt/**','**/.vercel/**']` |
+| image-manager.file.scan                   | `string[]`              | 扫描的图片类型                            | `['svg','png','jpeg','jpg',`<br/>`'ico','gif','webp','bmp',`<br/>`'tif','tiff','apng','avif']`                               |
+| image-manager.appearance.theme            | `dark \| light \| auto` | 主题                                      | `auto`                                                                                                                       |
+| image-manager.appearance.language         | `en \| zh-CN \| auto`   | 语言                                      | `auto`                                                                                                                       |
+| image-manager.appearance.primaryColor     | `string`                | 主题色                                    | undefined                                                                                                                    |
+| image-manager.viewer.warningSize          | `number \| boolean`     | 当图片体积大于此值时右上角展示警告点 (KB) | 1024                                                                                                                         |
+| image-manager.viewer.imageWidth           | `number`                | 图片宽度 (px)                             | 100                                                                                                                          |
+| image-manager.viewer.imageBackgroundColor | `string`                | 图片背景色                                | `#1a1a1a`                                                                                                                    |
+| image-manager.mirror.enabled              | `boolean`               | 使用镜像下载依赖                          | false                                                                                                                        |
+| image-manager.mirror.url                  | `string`                | 镜像地址（通常情况不需要自定义）          | undefined                                                                                                                    |
 
 ## Tips
 
-### Compression
+### 关于配置
 
-- Right click on the image
+大部分配置可以在插件页面中设置，比如主题、语言等，当然也可以在 `settings.json` 中设置
+
+### 压缩
+
+- 在图片上右键，可以单独压缩一张图片
 
 ![compress-right-click-image](./screenshots/compress-1.png)
 
-- Right click on the folder
+- 在文件夹上右键，可以批量压缩文件夹下的图片
 
 ![compress-right-click-folder](./screenshots/compress-2.png)
 
 
-### Viewer
+### 浏览区域
 
-- `cmd/ctrl + Mouse Wheel` to scale image size
-- `cmd/ctrl + F` to open `Search` modal
+- `cmd/ctrl + Mouse Wheel` 可以缩放图片大小
+- `cmd/ctrl + F` 可以打开搜索窗口
 
 ### 常见问题
 
@@ -112,6 +120,6 @@ Right click in Explorer, select `Image Manager` to open extension. (Open current
 }
 ```
 
-## Inspired
+## 感谢
 
-❤️ Respect [vscode-image-viewer](https://github.com/ZhangJian1713/vscode-image-viewer)
+❤️ [vscode-image-viewer](https://github.com/ZhangJian1713/vscode-image-viewer)
