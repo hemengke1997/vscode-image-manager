@@ -23,10 +23,10 @@ const webviewComponents = {
   ),
 }
 
-registerApp(webviewComponents)
-
 function mount(reload?: boolean) {
   registerApp(webviewComponents, reload)
 }
 
 window.mountApp = mount
+
+mount()

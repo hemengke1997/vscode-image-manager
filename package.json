@@ -42,7 +42,8 @@
     "onWebviewPanel:ImageManagerPanel",
     "onCommand:image-manager.open-image-manager",
     "onCommand:image-manager.reset-settings",
-    "onCommand:image-manager.open-channel"
+    "onCommand:image-manager.open-channel",
+    "onCommand:image-manager.enable-mirror"
   ],
   "scripts": {
     "ui:dev": "vite -m development",

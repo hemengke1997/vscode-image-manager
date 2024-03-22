@@ -5,3 +5,11 @@
     }
   }
 }
+
+.custom_resize {
+  :global {
+    .ant-form-item-row {
+      @apply h-full ml-2;
+    }
+  }
+}

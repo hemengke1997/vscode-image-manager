@@ -314,9 +314,9 @@ function ImageOperator(props: ImageOperatorProps & ImageOperatorStaticProps) {
         </Form.Item>
         <Form.Item noStyle shouldUpdate={(p, c) => p.size !== c.size}>
           {({ getFieldValue }) =>
-            getFieldValue('size') === 0 ? (
-              <Form.Item name='customResize' label='x' rules={[{ required: true, message: '' }]}>
-                <InputNumber min={0.01} max={10} step={1} />
+            getFieldValue('size') === '0' ? (
+              <Form.Item name='customResize' className={styles.custom_resize} rules={[{ required: true, message: '' }]}>
+                <InputNumber className={'h-full'} min={0.01} max={10} step={1} />
               </Form.Item>
             ) : null
           }

@@ -8,14 +8,14 @@ import Fallback from './components/Fallback'
 import FrameworkContext from './contexts/FrameworkContext'
 import VscodeContext from './contexts/VscodeContext'
 
-interface IAppProps {
+type AppProps = {
   components: Record<string, () => JSX.Element>
   extConfig: ConfigType
   vscodeConfig: VscodeConfigType
   workspaceState: WorkspaceStateType
 }
 
-function App(props: IAppProps) {
+function App(props: AppProps) {
   const { components, extConfig, vscodeConfig, workspaceState } = props
   const CurrentComponent = components[Object.keys(components)[0]]
 

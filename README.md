@@ -1,6 +1,3 @@
-
-
-
 <p align='center'>
   <a href='https://github.com/hemengke1997/vscode-image-manager' target="_blank" rel='noopener noreferrer'>
     <img width='140' src='./assets/logo.png' alt='logo' />
