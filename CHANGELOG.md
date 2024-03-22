@@ -1,5 +1,16 @@
 # CHANGELOG
 
+## 0.9.0 (2024-03-22)
+
+### Feat
+
+- Support manual dependency installation
+- Highlight workspace folder name when images empty
+- Add `select-mirror` command to select mirror url
+
+### Fix
+
+- Compression custom resize not working
 
 ## 0.8.1 (2024-03-21)
 
