@@ -87,16 +87,16 @@
 
 - 在图片上右键，可以单独压缩一张图片
 
-![compress-right-click-image](./screenshots/compress-1.png)
+![compress-right-click-image](./screenshots/compress-cn-1.png)
 
 - 在文件夹上右键，可以批量压缩文件夹下的图片
 
-![compress-right-click-folder](./screenshots/compress-2.png)
+![compress-right-click-folder](./screenshots/compress-cn-2.png)
 
 
 ### 浏览区域
 
-- `cmd/ctrl + Mouse Wheel` 可以缩放图片大小
+- `cmd/ctrl + 鼠标滚轮` 可以缩放图片大小
 - `cmd/ctrl + F` 可以打开搜索窗口
 
 ### 常见问题
@@ -109,19 +109,23 @@
 
 如果您是在中国大陆，且网络环境不佳（懂的都懂），请开启镜像源配置，然后重启vscode
 
-有两种方式：
+##### 如何切换镜像源
 
-- 使用命令面板，输入 `enable mirror`，然后回车
+使用命令面板，输入 `select mirror url`，选择回车
 
-或者
+![选择](./screenshots/select-mirror-1.png)
 
-- 手动修改配置文件 `settings.json`，添加如下配置
+然后选择一个镜像源，重启vscode尝试重新下载依赖
 
-```json
-{
-  "image-manager.mirror.enabled": true
-}
-```
+![选择](./screenshots/select-mirror-2.png)
+
+##### 如何手动安装依赖
+
+1. 打开命令面板，输入 `Show Output Channel`，选择 Image Manager 对应的选项
+2. 在输出中找到 `插件根目录` 和 `系统平台`，之后需要用到
+3. 去CNPM镜像网站下载依赖：https://registry.npmmirror.com/binary.html?path=sharp-libvips/v8.14.5/ 。找到你的 步骤2 的`系统平台` 对应的依赖。比如你是 `darwin-arm64v8`，就下载 `libvips-8.14.5-darwin-arm64v8.tar.br` 
+4. 将下载的依赖直接放在 步骤2 的`插件根目录`
+5. 重启vscode即可
 
 ## 感谢
 

@@ -2,15 +2,18 @@ import type * as vscode from 'vscode'
 import { flatten } from '@minko-fe/lodash-pro'
 import commandsModules from '~/commands'
 import { version } from '../package.json'
-import { Global } from './core'
+import { Global, VscodeSettings } from './core'
 import { i18n } from './i18n'
 import { Channel } from './utils/Channel'
 
 export async function activate(ctx: vscode.ExtensionContext) {
   Channel.info(`🈶️ Activated, v${version}`)
 
-  await Global.init(ctx)
+  const settings = VscodeSettings.init(ctx)
+
   i18n.init(ctx)
+
+  await Global.init(ctx, settings)
 
   const modules = [commandsModules]
 

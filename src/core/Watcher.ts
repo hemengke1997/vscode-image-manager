@@ -72,7 +72,7 @@ export class Watcher {
       root: Config.file_root,
     })
 
-    Channel.info(`Watch Root: ${Config.file_root}`)
+    Channel.debug(`Watch Root: ${Config.file_root}`)
 
     const imageWatchers = Config.file_root.map((r) => {
       return workspace.createFileSystemWatcher(new RelativePattern(r, this.glob.imagePattern))

@@ -192,6 +192,7 @@ export class ImageManagerPanel {
             src: viteClientUri,
           },
         },
+
         {
           injectTo: 'body',
           tag: 'script',
@@ -229,7 +230,7 @@ export class ImageManagerPanel {
   }
 
   private _transformHtml(htmlPath: string, html: string) {
-    Channel.info(`htmlPath: ${htmlPath}`)
+    Channel.debug(`htmlPath: ${htmlPath}`)
     const htmlDirPath = path.dirname(htmlPath)
 
     html = html.replace(/(<link.+?href="|<script.+?src="|<img.+?src=")(.+?)"/g, (_, $1: string, $2: string) => {

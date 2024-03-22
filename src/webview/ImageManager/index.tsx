@@ -161,7 +161,7 @@ function ImageManager() {
       setCompressor(c)
     } catch (err) {
       if (isTooManyTries(err)) {
-        message.error(t('im.init_compressor_fail'))
+        message.error(t('im.deps_not_found'))
       }
     }
   }, [])

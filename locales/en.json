@@ -5,7 +5,8 @@
       "open": "Open Image Manager",
       "reset_settings": "Reset Settings",
       "show_channel": "Show Output Channel",
-      "enable_mirror": "Enable Mirror"
+      "enable_mirror": "Enable Mirror",
+      "select_mirror": "Select Mirror Url"
     },
     "file": {
       "root": "workspace root",
@@ -30,17 +31,27 @@
   "prompt": {
     "reload_tip": "Config changed. Please reload",
     "compressor_init_fail": "Install dependencies failed. Please check network.",
+    "deps_init_success": "Dependencies installed successfully",
     "initializing": "Image Manager Initializing...",
     "initializing_tooltip": "Downloading necessary dependencies",
     "show_logs": "Show logs",
     "mirror_enabled": "Mirror enabled. Please reload vscode to take effect.",
     "reload_now": "Reload Now",
-    "mirror_already_enabled": "Mirror already enabled."
+    "mirror_already_enabled": "Mirror already enabled.",
+    "select_mirror": "Select Mirror Url",
+    "mirror_selected": "Mirror Url Selected: {0}. Please reload vscode to take effect."
   },
   "core": {
     "compress_fail": "Compress Fail",
-    "operator_init_failed": "Operator init failed",
+    "dep_not_found": "Dependencies install failed",
     "compress_fail_reason": "file [{0}] is not a valid image. Only support size less than {1} MB",
-    "view_solution": "View the Solution"
+    "view_solution": "View the Solution",
+    "extension_root": "Extension Root",
+    "platform": "OS platform",
+    "manual_install_failed": "Manual install failed. Make sure to install the correct version",
+    "manual_install_success": "Manual install success",
+    "dep_cache_dir": "Dependencies Cache Dir",
+    "start_manual_install": "Start manual install dependencies",
+    "start_auto_install": "Start auto install dependencies"
   }
 }

@@ -2,14 +2,14 @@ import fg from 'fast-glob'
 import fs from 'fs-extra'
 import path from 'node:path'
 import { fileURLToPath } from 'node:url'
+import { FALLBACK_LANGUAGE } from '~/meta'
 import { nestToFlatten } from '~/utils/nest-to-flatten'
 
-const DEFAULT_LOCALE = 'en'
 const __dirname = path.dirname(fileURLToPath(import.meta.url))
 
 ;(async () => {
   const fallbackMessages = JSON.parse(
-    await fs.readFile(path.resolve(__dirname, `../locales/${DEFAULT_LOCALE}.json`), 'utf-8'),
+    await fs.readFile(path.resolve(__dirname, `../locales/${FALLBACK_LANGUAGE}.json`), 'utf-8'),
   )
 
   const files = await fg('*.json', {
@@ -27,7 +27,7 @@ const __dirname = path.dirname(fileURLToPath(import.meta.url))
 
     messages = nestToFlatten(messages)
 
-    const output = locale === DEFAULT_LOCALE ? './package.nls.json' : `./package.nls.${locale.toLowerCase()}.json`
+    const output = locale === FALLBACK_LANGUAGE ? './package.nls.json' : `./package.nls.${locale.toLowerCase()}.json`
 
     await fs.writeJson(output, messages, {
       encoding: 'utf-8',

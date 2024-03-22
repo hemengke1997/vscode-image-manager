@@ -4,6 +4,8 @@ import { createHash } from 'node:crypto'
 import path from 'node:path'
 import { fileURLToPath } from 'node:url'
 import { type Options, defineConfig } from 'tsup'
+import { loadEnv } from 'vite'
+import logger from '~/utils/logger'
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url))
 
@@ -21,12 +23,8 @@ function buildExternals(option: Options): Options[] {
 
   return [
     {
-      entry: {
-        'lib/install/prebuild-install-bin': 'lib/install/prebuild-install-bin.ts',
-        'lib/install/dll-copy': 'lib/install/dll-copy.ts',
-        'lib/install/use-libvips': 'lib/install/use-libvips.ts',
-        'lib/sharp/index': 'lib/sharp/index.ts',
-      },
+      entry: ['lib/**/*.ts'],
+      outDir: 'dist/lib',
       format: ['cjs'],
       minify: !option.watch,
       esbuildPlugins: [
@@ -80,10 +78,12 @@ export default defineConfig((option) => [
     minify: !option.watch,
     env: {
       NODE_ENV: option.watch ? 'development' : 'production',
+      ...loadEnv('', __dirname, 'IM_'),
     },
     onSuccess() {
       if (option.watch) {
         execa('npm', ['run', 'build:i18n'])
+        logger.success('i18n build success')
       }
       return Promise.resolve()
     },

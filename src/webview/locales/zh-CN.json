@@ -104,7 +104,7 @@
     "compressed": "已压缩",
     "git_staged": "Git staged",
     "no_image_to_compress": "无可压缩的图片",
-    "init_compressor_fail": "压缩功能初始化失败",
+    "deps_not_found": "依赖安装失败",
     "skip_compressed": "跳过已压缩",
     "toggle_options": "选项配置",
     "operation": "操作",

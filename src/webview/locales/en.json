@@ -105,7 +105,7 @@
     "compressed": "Compressed",
     "git_staged": "Git staged",
     "no_image_to_compress": "No image to compress",
-    "init_compressor_fail": "Init compressor fail",
+    "deps_not_found": "Dependencies install failed",
     "skip_compressed": "Skip compressed",
     "toggle_options": "Toggle Options",
     "operation": "Operations",

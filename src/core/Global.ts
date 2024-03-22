@@ -1,11 +1,10 @@
-import { lowerCase } from '@minko-fe/lodash-pro'
-import { type Event, EventEmitter, type ExtensionContext, ExtensionMode, env, window, workspace } from 'vscode'
+import { type Event, EventEmitter, type ExtensionContext, ExtensionMode, workspace } from 'vscode'
 import { Compressor } from '~/core/compress/Compressor'
 import { Installer } from '~/core/sharp'
 import { i18n } from '~/i18n'
-import { FALLBACK_LANGUAGE } from '~/meta'
 import { Channel } from '~/utils/Channel'
 import { Config, Watcher, WorkspaceState } from '.'
+import { type VscodeConfigType } from './config/common'
 
 export class Global {
   private static _rootpaths: string[]
@@ -40,19 +39,18 @@ export class Global {
 
   static readonly onDidChangeRootPath: Event<string[]> = Global._onDidChangeRootPath.event
 
-  static async init(context: ExtensionContext) {
+  static async init(context: ExtensionContext, settings: VscodeConfigType) {
     this.context = context
-
-    this._initVscodeTheme()
-    this._initVscodeLanguage()
 
     Watcher.init()
     WorkspaceState.init()
 
+    this.vscodeTheme = settings.theme
+    this.vscodeLanguage = settings.language
+
     await this.installSharp()
 
     context.subscriptions.push(workspace.onDidChangeWorkspaceFolders(() => this.updateRootPath()))
-    context.subscriptions.push(window.onDidChangeActiveColorTheme(() => this._initVscodeTheme()))
     await this.updateRootPath()
   }
 
@@ -72,40 +70,12 @@ export class Global {
     }
   }
 
-  static _initVscodeTheme() {
-    switch (window.activeColorTheme.kind) {
-      case 1:
-        this.vscodeTheme = 'light'
-        break
-      case 2:
-        this.vscodeTheme = 'dark'
-        break
-      default:
-        this.vscodeTheme = 'dark'
-        break
-    }
-  }
-
-  static _initVscodeLanguage() {
-    switch (lowerCase(env.language)) {
-      case 'en':
-        this.vscodeLanguage = 'en'
-        break
-      case 'zh-cn':
-        this.vscodeLanguage = 'zh-CN'
-        break
-      default:
-        this.vscodeLanguage = FALLBACK_LANGUAGE
-        break
-    }
-  }
-
   static async installSharp() {
     const installer = new Installer(this.context)
 
     installer.event
       .on('install-success', (e) => {
-        Channel.info('Sharp installed')
+        Channel.info(`✅ ${i18n.t('prompt.deps_init_success')}`)
         Global.sharp = e
         Global.compressor = new Compressor()
       })

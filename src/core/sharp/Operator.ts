@@ -135,15 +135,11 @@ export class SharpOperator<T extends AnyObject, RuntimeCtx extends AnyObject = T
     outputPath: string
   }> {
     if (!this.ctx.sharp) {
-      const noSharpTip = i18n.t('core.operator_init_failed')
+      const noSharpTip = i18n.t('core.dep_not_found')
       const viewSolutionTip = i18n.t('core.view_solution')
       window.showErrorMessage(noSharpTip, viewSolutionTip).then((res) => {
         if (res === viewSolutionTip) {
-          env.openExternal(
-            Uri.parse(
-              'https://github.com/hemengke1997/vscode-image-manager?tab=readme-ov-file#%E6%8A%A5%E9%94%99%E4%BE%9D%E8%B5%96%E5%AE%89%E8%A3%85%E5%A4%B1%E8%B4%A5%E8%AF%B7%E6%A3%80%E6%9F%A5%E7%BD%91%E7%BB%9C',
-            ),
-          )
+          env.openExternal(Uri.parse(process.env.IM_QA_URL || ''))
         }
       })
       return Promise.reject(new Error(noSharpTip))

@@ -22,6 +22,7 @@ export default defineConfig(async (env) => {
         protocol: 'ws',
       },
     },
+    envPrefix: 'IM_',
     preview: {
       host: '0.0.0.0',
       port: DEV_PORT,

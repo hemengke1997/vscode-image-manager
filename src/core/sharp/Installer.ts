@@ -9,6 +9,7 @@ import { i18n } from '~/i18n'
 import { isValidHttpsUrl } from '~/utils'
 import { Channel } from '~/utils/Channel'
 import { Config, Global } from '..'
+import { version } from '../../../package.json'
 
 type Events = {
   'install-success': [TSharp]
@@ -17,7 +18,7 @@ type Events = {
 
 type CacheType =
   /**
-   * Os cache（os.tmpdir）
+   * Os cache (os.homedir()|os.tmpDir()/.vscode-image-manager-cache)
    */
   | 'os'
   /**
@@ -26,16 +27,28 @@ type CacheType =
   | 'extension'
 
 export class Installer {
+  public platform: string
   private _cwd: string
-
   private _statusBarItem: vscode.StatusBarItem | undefined
-  private readonly _osCacheDir = path.resolve(os.tmpdir(), 'vscode-image-manager-cache')
+  private readonly _stables = ['build', 'vendor', 'sharp']
+  private readonly _unstables = ['install', 'json']
+  private readonly _osCacheDir: string
 
   event: Emitter<Events> = new Emitter()
 
-  constructor(ctx: vscode.ExtensionContext) {
+  constructor(public ctx: vscode.ExtensionContext) {
     this._cwd = ctx.extensionUri.fsPath
-    Channel.info(`Extension cwd: ${this._cwd}`)
+    this.platform = require(path.resolve(this._getSharpCwd(), 'install/platform')).platform()
+    const cacheDir = [os.homedir(), os.tmpdir()].find((dir) => this._isDirectoryWritable(dir))
+    if (cacheDir) {
+      this._osCacheDir = path.resolve(cacheDir, '.vscode-image-manager-cache')
+    } else {
+      this._osCacheDir = path.join(this._cwd, 'dist')
+    }
+
+    Channel.info(`${i18n.t('core.dep_cache_dir')}: ${this._osCacheDir}`)
+    Channel.info(`${i18n.t('core.extension_root')}: ${this._cwd}`)
+    Channel.info(`${i18n.t('core.platform')}: ${this.platform}`)
   }
 
   async run() {
@@ -48,36 +61,59 @@ export class Installer {
         await this._showStausBar({
           beforeHide: this._install.bind(this),
         })
-        // Try to save to os cache
-        this._trySaveCacheToOs()
+        this._trySaveCacheToOs(this._stables)
       } else {
         currentCacheType = cacheTypes[0]
 
-        Channel.debug(`Sharp already installed, load from cache: ${currentCacheType}`)
+        Channel.info(`Dependency already installed, load from cache: ${currentCacheType}`)
 
         switch (currentCacheType) {
           case 'extension': {
-            // If it's extension cache, try to sync to the os cache
-            this._trySaveCacheToOs()
+            // It's extension cache
+            this._trySaveCacheToOs(this._stables)
             break
           }
           case 'os': {
             // Sharp exists in the os cache, but not in the extension cache
             if (!cacheTypes.includes('extension')) {
-              // Reinstall
-              this._install()
+              Channel.info('Dependency exists in the os cache, but not in the extension cache')
+              // Is it necessary to reinstall?
+              // this._install()
             }
             break
           }
         }
       }
 
+      const pkgCacheFilePath = path.join(this._getDepOsCacheDir(), 'package.json')
+      fs.ensureFileSync(pkgCacheFilePath)
+      let pkg: any = fs.readFileSync(pkgCacheFilePath, 'utf-8')
+      if (pkg) {
+        pkg = JSON.parse(pkg)
+      } else {
+        pkg = {}
+      }
+      Channel.debug(`Cache package.json: ${JSON.stringify(pkg)}`)
+      if (pkg.version !== version) {
+        Channel.info('Cache extension version is different, copy unstable files to os cache')
+        await this._trySaveCacheToOs(this._unstables)
+        fs.writeJSONSync(pkgCacheFilePath, { version })
+      }
       this.event.emit('install-success', this._loadSharp(this._getInstalledCacheTypes()![0]))
     } catch (error) {
-      Channel.error(`Sharp binary file creation error: ${error}`)
+      Channel.error(error)
       this.event.emit('install-fail')
     }
     return this
+  }
+
+  private _isDirectoryWritable(dirPath: string) {
+    try {
+      fs.accessSync(dirPath, fs.constants.W_OK)
+      return true
+    } catch (err) {
+      return false
+    }
   }
 
   private async _showStausBar({ beforeHide }: { beforeHide: () => Promise<void> }) {
@@ -103,9 +139,9 @@ export class Installer {
 
     const caches: { releaseDirPath: string; vendorDirPath: string; sharpFsPath: string; type: CacheType }[] = [
       {
-        releaseDirPath: path.resolve(this._getSharpOsCacheDir(), RELEASE_DIR),
-        vendorDirPath: path.resolve(this._getSharpOsCacheDir(), VENDOR_DIR),
-        sharpFsPath: path.resolve(this._getSharpOsCacheDir(), SHARP_FS),
+        releaseDirPath: path.resolve(this._getDepOsCacheDir(), RELEASE_DIR),
+        vendorDirPath: path.resolve(this._getDepOsCacheDir(), VENDOR_DIR),
+        sharpFsPath: path.resolve(this._getDepOsCacheDir(), SHARP_FS),
         type: 'os',
       },
       {
@@ -150,26 +186,32 @@ export class Installer {
     return require(localSharpPath!).sharp
   }
 
-  private async _trySaveCacheToOs() {
-    const tempDir = os.tmpdir()
-
+  private async _trySaveCacheToOs(cacheDirs: string[]) {
     return new Promise<boolean>((resolve) => {
-      fs.access(tempDir, fs.constants.W_OK, (err) => {
+      fs.access(this._osCacheDir, fs.constants.W_OK, async (err) => {
         if (err) {
-          Channel.debug(`Tmpdir not writable: ${tempDir}`)
+          Channel.info(`${this._osCacheDir} not writable`)
           resolve(false)
         } else {
           // Os Cache is writable
 
           // Ensure the existence of the cache directory
-          fs.ensureDirSync(this._getSharpOsCacheDir())
-          // Copy sharp files to cache directory
-          fs.copySync(this._getSharpCwd(), this._getSharpOsCacheDir())
-          Channel.debug(`Copy sharp to tmpdir: ${this._getSharpOsCacheDir()}`)
+          fs.ensureDirSync(this._getDepOsCacheDir())
+
+          // Copy stable files to cache directory
+          await this._copyDirsToOsCache(cacheDirs)
+
+          Channel.debug(`Copy [${cacheDirs.join(',')}] to ${this._osCacheDir}: ${this._getDepOsCacheDir()}`)
           resolve(true)
         }
       })
     })
+  }
+
+  private _copyDirsToOsCache(dirs: string[]) {
+    return Promise.all(
+      dirs.map((dir) => fs.copy(path.resolve(this._getSharpCwd(), dir), path.resolve(this._getDepOsCacheDir(), dir))),
+    )
   }
 
   /**
@@ -181,43 +223,79 @@ export class Installer {
   }
 
   /**
-   * Get the directory path of sharp in the system cache
+   * Get the directory path of deps in the system cache
    * @returns /{tmpdir}/vscode-image-manager-cache/lib
    */
-  private _getSharpOsCacheDir() {
+  private _getDepOsCacheDir() {
     return path.resolve(this._osCacheDir, 'lib')
   }
 
   private async _install() {
     const cwd = this._getSharpCwd()
 
+    // If there is a .tar.br file in the extension root directory,
+    // the user may intend to install the dependency manually
+    const extensionHost = this.ctx.extensionUri.fsPath
+    const tarbr = fs.readdirSync(extensionHost).filter((file) => /^libvips.+\.tar\.br$/.test(file))
+    let manualInstallSuccess: boolean | undefined
+
+    if (tarbr.length) {
+      Channel.info(`${i18n.t('core.start_manual_install')}: ${tarbr.join(', ')}`)
+      for (let i = 0; i < tarbr.length; i++) {
+        // Try install manually
+        try {
+          await execa('node', ['install/extract-tarball.js', path.join(extensionHost, tarbr[i])], {
+            cwd,
+          })
+          manualInstallSuccess = true
+          Channel.info(`${i18n.t('core.manual_install_success')}: ${tarbr[i]}`)
+          break
+        } catch (e) {
+          manualInstallSuccess = false
+        }
+      }
+    }
+
     // If the language is Chinese, it's considered as Chinese region, then set npm mirror
     const languages = [Config.appearance_language, Global.vscodeLanguage].map(toLower)
     const useMirror = languages.includes('zh-cn') || Config.mirror_enabled
 
-    await execa('node', ['install/use-libvips.js'], {
-      cwd,
-      stdio: 'inherit',
-      env: {
-        ...process.env,
-        npm_package_config_libvips: '8.14.5',
-        ...(useMirror && {
-          npm_config_sharp_libvips_binary_host: isValidHttpsUrl(Config.mirror_url)
-            ? Config.mirror_url
-            : 'https://npmmirror.com/mirrors/sharp-libvips',
-          // macos fullpath: ${npm_config_sharp_libvips_binary_host}/v8.14.5/libvips-8.14.5-darwin-arm64v8.tar.br
-        }),
-      },
-    })
+    if (!manualInstallSuccess) {
+      Channel.info(i18n.t('core.start_auto_install'))
+      try {
+        await execa('node', ['install/use-libvips.js'], {
+          cwd,
+          env: {
+            ...process.env,
+            npm_package_config_libvips: '8.14.5',
+            ...(useMirror && {
+              npm_config_sharp_libvips_binary_host: isValidHttpsUrl(Config.mirror_url)
+                ? Config.mirror_url.replace(/\/$/, '')
+                : 'https://registry.npmmirror.com/-/binary/sharp-libvips',
+              // Fullpath
+              // ${npm_config_sharp_libvips_binary_host}/v8.14.5/libvips-8.14.5-${this.platform}.tar.br
+            }),
+          },
+        })
+      } catch (e) {
+        Channel.error(e)
+        // Install failed.
+        if (manualInstallSuccess === false) {
+          Channel.error(`${i18n.t('core.manual_install_failed')}: libvips-8.14.5-${this.platform}.tar.br`)
+          Channel.error(i18n.t('core.manual_install_failed'), true)
+        } else {
+          Channel.error(i18n.t('core.dep_not_found'), true)
+        }
+      }
+    }
+
     await execa('node', ['install/dll-copy.js'], {
       cwd,
-      stdio: 'inherit',
     })
     await execa('node', ['install/prebuild-install-bin.js'], {
       cwd,
-      stdio: 'inherit',
     })
 
-    Channel.debug('🚐 Sharp installed')
+    Channel.info('🚐 Dependencies install process finished')
   }
 }
