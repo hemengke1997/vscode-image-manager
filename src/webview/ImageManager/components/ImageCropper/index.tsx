@@ -3,7 +3,6 @@ import { isNil, round } from '@minko-fe/lodash-pro'
 import { useControlledState, useSetState, useThrottleFn, useUpdateEffect } from '@minko-fe/react-hook'
 import { isDev } from '@minko-fe/vite-config/client'
 import { App, Button, Card, Checkbox, Divider, InputNumber, Modal, Popover, Segmented, Skeleton, Tooltip } from 'antd'
-import classNames from 'classnames'
 import { produce } from 'immer'
 import mime from 'mime/lite'
 import { memo, startTransition, useEffect, useReducer, useRef, useState } from 'react'
@@ -12,6 +11,7 @@ import { IoIosArrowDropup } from 'react-icons/io'
 import { LuArrowRightLeft, LuArrowUpDown } from 'react-icons/lu'
 import { RxReset } from 'react-icons/rx'
 import { CmdToVscode } from '~/message/cmd'
+import { mergeClass } from '~/webview/utils'
 import { vscodeApi } from '~/webview/vscode-api'
 import { type ImageType } from '../..'
 import ReactCropper, { type ReactCropperElement } from './components/Cropper'
@@ -191,7 +191,7 @@ function ImageCropper(props?: ImageCropperProps) {
           <Card>
             <ReactCropper
               src={image?.vscodePath}
-              className={classNames('w-full max-w-full h-[500px]', styles.cropper, loading && 'opacity-0 absolute')}
+              className={mergeClass('w-full max-w-full h-[500px]', styles.cropper, loading && 'opacity-0 absolute')}
               ready={() => {
                 setLoading(false)
               }}
@@ -415,7 +415,7 @@ function ImageCropper(props?: ImageCropperProps) {
         title={t('im.preview')}
       >
         <Card>
-          <div ref={previewRef} className={classNames('flex justify-center', styles.canvas_box)}></div>
+          <div ref={previewRef} className={mergeClass('flex justify-center', styles.canvas_box)}></div>
         </Card>
       </Modal>
     </Modal>

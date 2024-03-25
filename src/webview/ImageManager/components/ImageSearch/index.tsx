@@ -1,13 +1,13 @@
 import { useControlledState, useUpdateEffect } from '@minko-fe/react-hook'
 import { Input, Modal } from 'antd'
 import { type InputRef } from 'antd/es/input'
-import classNames from 'classnames'
 import Fuse, { type FuseResult } from 'fuse.js'
 import { type HTMLAttributes, memo, useMemo, useRef, useState } from 'react'
 import Highlighter from 'react-highlight-words'
 import { useTranslation } from 'react-i18next'
 import { VscCaseSensitive, VscWholeWord } from 'react-icons/vsc'
 import { CmdToVscode } from '~/message/cmd'
+import { mergeClass } from '~/webview/utils'
 import { vscodeApi } from '~/webview/vscode-api'
 import { type ImageType } from '../..'
 import GlobalContext from '../../contexts/GlobalContext'
@@ -202,7 +202,7 @@ function IconUI(
   const { active, ...rest } = props
   return (
     <div
-      className={classNames(
+      className={mergeClass(
         'flex items-center text-sm h-full p-0.5 border-solid border-transparent rounded-md transition-all cursor-pointer hover:bg-ant-color-bg-text-hover',
         active && '!text-ant-color-primary !border-ant-color-primary hover:bg-transparent',
       )}

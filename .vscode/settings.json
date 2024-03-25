@@ -9,7 +9,6 @@
   "i18n-ally.enabledFrameworks": ["react", "react-i18next", "vscode"],
   "search.exclude": {
     "**/__snapshots__/**": true,
-    "**/fork/**": true,
     "CHANGELOG-CODE.md": true
   }
 }

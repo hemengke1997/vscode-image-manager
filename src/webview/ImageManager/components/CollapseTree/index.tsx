@@ -1,12 +1,12 @@
 import { useMemoizedFn } from '@minko-fe/react-hook'
 import { Card, type CollapseProps, ConfigProvider, Empty } from 'antd'
-import classNames from 'classnames'
 import { motion } from 'framer-motion'
 import { type ReactNode, memo, useMemo, useRef } from 'react'
 import { useTranslation } from 'react-i18next'
 import { FaRegImages } from 'react-icons/fa'
 import { IoMdFolderOpen } from 'react-icons/io'
 import { VscFileMedia } from 'react-icons/vsc'
+import { mergeClass } from '~/webview/utils'
 import SettingsContext from '../../contexts/SettingsContext'
 import TreeContext from '../../contexts/TreeContext'
 import { DirTree, type DisplayMapType, type FileNode } from '../../utils/DirTree'
@@ -113,7 +113,7 @@ function CollapseTree() {
                 collapseProps={{
                   bordered: false,
                   defaultActiveKey: defaultOpen ? [value] : undefined,
-                  className: classNames(styles.collapse),
+                  className: mergeClass(styles.collapse),
                   ...collapseProps,
                 }}
                 labelContainer={(label) => (

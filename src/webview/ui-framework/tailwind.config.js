@@ -4,9 +4,9 @@ const plugin = require('tailwindcss/plugin')
 module.exports = {
   content: ['./src/webview/**/*.tsx'],
   // @see https://tailwindcss.com/docs/dark-mode#customizing-the-class-name
-  // You can customize the dark mode selector name
-  // by setting darkMode to an array with your custom selector as the **second** item:
-  darkMode: ['class', '[data-theme="dark"]'],
+  // You can customize the dark mode selector
+  // by setting darkMode to an array with your custom selector as the second item:
+  darkMode: ['selector', '[data-theme="dark"]'],
   corePlugins: {
     preflight: false,
   },

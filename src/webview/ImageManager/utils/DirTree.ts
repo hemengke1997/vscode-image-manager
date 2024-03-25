@@ -138,19 +138,7 @@ export class DirTree {
     this.visibleList.forEach((image) => {
       // 根据渲染条件过滤图片，将符合条件的图片放入 renderList
       if (!isEmpty(node?.renderCondition)) {
-        const shouldRender = this.displayGroup.every((g) => {
-          const imageValue = this._findImageIdByGroup(image, g)
-
-          const condition = node.renderCondition[g]
-
-          // e.g. condition.dir = '' && image.absDirPath === image.absWorkspace
-          // means that the image belongs to the parent node
-          if (condition === '' && this._isBelongsToHigherPriority(image, g)) {
-            return true
-          }
-
-          return condition === imageValue
-        })
+        const shouldRender = this._shouldShowImage(node, image)
 
         if (shouldRender) {
           renderList.push(image)

@@ -1,6 +1,5 @@
 import { useControlledState, useInViewport, useUpdateEffect } from '@minko-fe/react-hook'
 import { Badge, Image, type ImageProps } from 'antd'
-import classNames from 'classnames'
 import { motion } from 'framer-motion'
 import { memo, useRef, useState } from 'react'
 import { useContextMenu } from 'react-contexify'
@@ -14,6 +13,7 @@ import { TbResize } from 'react-icons/tb'
 import { type SharpNS } from '~/@types/global'
 import { CmdToVscode } from '~/message/cmd'
 import useImageDetail from '~/webview/ImageManager/hooks/useImageDetail/useImageDetail'
+import { mergeClass } from '~/webview/utils'
 import { vscodeApi } from '~/webview/vscode-api'
 import { type ImageType } from '../..'
 import ActionContext from '../../contexts/ActionContext'
@@ -104,13 +104,13 @@ function LazyImage(props: LazyImageProps) {
       <motion.div
         ref={keybindRef}
         tabIndex={-1}
-        className={classNames(
+        className={mergeClass(
           'flex flex-none flex-col items-center p-1.5 space-y-1 transition-colors relative group',
           'overflow-hidden border-[1px] border-solid border-transparent rounded-md hover:border-ant-color-primary focus:border-ant-color-primary',
         )}
         initial={{ opacity: 0 }}
         viewport={{ once: true, margin: '20px 0px' }}
-        transition={{ duration: 0.8 }}
+        transition={{ duration: 0.6 }}
         whileInView={{ opacity: 1 }}
         onContextMenu={(e) => {
           show({ event: e, id: IMAGE_CONTEXT_MENU_ID, props: { image, ...contextMenu } })
@@ -134,7 +134,7 @@ function LazyImage(props: LazyImageProps) {
         <Badge status='warning' dot={ifWarning}>
           <Image
             {...imageProp}
-            className={classNames('rounded-md object-contain p-1 will-change-auto', imageProp.className)}
+            className={mergeClass('rounded-md object-contain p-1 will-change-auto', imageProp.className)}
             preview={
               lazy
                 ? {
@@ -152,7 +152,7 @@ function LazyImage(props: LazyImageProps) {
                         </div>
                         <div className={'flex items-center space-x-1 truncate'}>
                           <TbResize />
-                          <span className={classNames(ifWarning && 'text-ant-color-warning-text')}>
+                          <span className={mergeClass(ifWarning && 'text-ant-color-warning-text')}>
                             {formatBytes(image.stats.size)}
                           </span>
                         </div>
@@ -175,7 +175,7 @@ function LazyImage(props: LazyImageProps) {
                   }
                 : false
             }
-            rootClassName={classNames('transition-all', imageProp.rootClassName)}
+            rootClassName={mergeClass('transition-all', imageProp.rootClassName)}
             style={{ width: imageProp.width, height: imageProp.height, ...imageProp.style }}
           ></Image>
         </Badge>

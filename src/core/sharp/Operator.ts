@@ -1,7 +1,7 @@
+import { type Hookable, createHooks } from '@minko-fe/hookable'
 import fs from 'fs-extra'
 import { Uri, env, window } from 'vscode'
 import { type SharpNS } from '~/@types/global'
-import { type Hookable, createHooks } from '~/fork/hookable'
 import { i18n } from '~/i18n'
 import { Global } from '..'
 

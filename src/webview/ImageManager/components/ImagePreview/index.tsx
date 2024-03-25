@@ -81,7 +81,7 @@ function ImagePreview(props: ImagePreviewProps) {
               style: {
                 backgroundColor: tinyBackgroundColor.setAlpha(0.9).toRgbString(),
               },
-              keyboard: false,
+              keyboard: true,
               onChange(current) {
                 setPreview({ current, open: true })
               },

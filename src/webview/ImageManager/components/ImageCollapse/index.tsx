@@ -1,9 +1,9 @@
 import { isUndefined } from '@minko-fe/lodash-pro'
 import { useControlledState } from '@minko-fe/react-hook'
 import { Collapse, type CollapseProps } from 'antd'
-import classNames from 'classnames'
 import { type ReactNode, memo, useEffect, useMemo } from 'react'
 import { useContextMenu } from 'react-contexify'
+import { mergeClass } from '~/webview/utils'
 import ActionContext from '../../contexts/ActionContext'
 import { COLLAPSE_CONTEXT_MENU_ID, type CollapseContextMenuType } from '../ContextMenus/components/CollapseContextMenu'
 import ImagePreview, { type ImagePreviewProps } from '../ImagePreview'
@@ -92,7 +92,7 @@ function ImageCollapse(props: ImageCollapseProps) {
             })
           }}
           tabIndex={-1}
-          className={classNames(
+          className={mergeClass(
             "w-full relative cursor-pointer transition-all after:absolute after:-inset-y-[8px] after:-right-[12px] after:left-0 after:content-['']",
           )}
           onClick={() => {
@@ -114,7 +114,7 @@ function ImageCollapse(props: ImageCollapseProps) {
       return (
         <div className={'flex w-full items-center'}>
           {labels.map((l, i) => (
-            <div key={i} className={classNames('flex items-center', i === labels.length - 1 && 'flex-1')}>
+            <div key={i} className={mergeClass('flex items-center', i === labels.length - 1 && 'flex-1')}>
               {singleLabelNode(l, i)}
               {i !== labels.length - 1 && <div className={'px-0.5'}>/</div>}
             </div>
