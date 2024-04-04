@@ -9,11 +9,14 @@ import GlobalContext from '../contexts/GlobalContext'
 import OperatorContext from '../contexts/OperatorContext'
 
 function useImageOperation() {
-  const { compressor } = GlobalContext.usePicker(['compressor'])
+  const { compressor, formatConverter } = GlobalContext.usePicker(['compressor', 'formatConverter'])
   const { notification } = App.useApp()
   const { t } = useTranslation()
 
-  const { setOperatorModal } = OperatorContext.usePicker(['setOperatorModal'])
+  const { setCompressorModal, setFormatConverterModal } = OperatorContext.usePicker([
+    'setCompressorModal',
+    'setFormatConverterModal',
+  ])
 
   const openInVscodeExplorer = useMemoizedFn((filePath: string) => {
     vscodeApi.postMessage({ cmd: CmdToVscode.open_image_in_vscode_explorer, data: { filePath } })
@@ -31,8 +34,16 @@ function useImageOperation() {
     })
   })
 
-  const beginCompressProcess = useMemoizedFn((images: ImageType[]) => {
-    if (!compressor) {
+  const prettySvg = useMemoizedFn((filePath: string): Promise<boolean> => {
+    return new Promise((resolve) => {
+      vscodeApi.postMessage({ cmd: CmdToVscode.pretty_svg, data: { filePath } }, (data) => {
+        resolve(data)
+      })
+    })
+  })
+
+  const noOperatorTip = useMemoizedFn(() => {
+    if (!compressor || !formatConverter) {
       notification.error({
         duration: null,
         message: t('im.deps_not_found'),
@@ -42,10 +53,25 @@ function useImageOperation() {
           </Button>
         ),
       })
-      return
+      return true
     }
+  })
+
+  const beginCompressProcess = useMemoizedFn((images: ImageType[]) => {
+    const no = noOperatorTip()
+    if (no) return
     // open compress modal
-    setOperatorModal({
+    setCompressorModal({
+      open: true,
+      images,
+    })
+  })
+
+  const beginFormatConversionProcess = useMemoizedFn((images: ImageType[]) => {
+    const no = noOperatorTip()
+    if (no) return
+    // open format conversion modal
+    setFormatConverterModal({
       open: true,
       images,
     })
@@ -61,7 +87,9 @@ function useImageOperation() {
     openInOsExplorer,
     copyImageAsBase64,
     beginCompressProcess,
+    beginFormatConversionProcess,
     cropImage,
+    prettySvg,
   }
 }
 

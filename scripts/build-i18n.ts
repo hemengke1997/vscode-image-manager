@@ -1,9 +1,9 @@
 import fg from 'fast-glob'
+import { flatten } from 'flat'
 import fs from 'fs-extra'
 import path from 'node:path'
 import { fileURLToPath } from 'node:url'
 import { FALLBACK_LANGUAGE } from '~/meta'
-import { nestToFlatten } from '~/utils/nest-to-flatten'
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url))
 
@@ -25,7 +25,7 @@ const __dirname = path.dirname(fileURLToPath(import.meta.url))
       messages[key] = messages[key] || fallbackMessages[key]
     })
 
-    messages = nestToFlatten(messages)
+    messages = flatten(messages)
 
     const output = locale === FALLBACK_LANGUAGE ? './package.nls.json' : `./package.nls.${locale.toLowerCase()}.json`
 

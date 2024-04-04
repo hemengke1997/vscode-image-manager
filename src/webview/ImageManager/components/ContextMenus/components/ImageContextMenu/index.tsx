@@ -4,6 +4,7 @@ import { memo } from 'react'
 import { type BooleanPredicate, Item, type ItemParams, Separator } from 'react-contexify'
 import { useTranslation } from 'react-i18next'
 import { os } from 'un-detector'
+import logger from '~/utils/logger'
 import { type ImageType } from '~/webview/ImageManager'
 import useImageDetail from '~/webview/ImageManager/hooks/useImageDetail/useImageDetail'
 import useImageOperation from '~/webview/ImageManager/hooks/useImageOperation'
@@ -15,8 +16,15 @@ function ImageContextMenu() {
   const { t } = useTranslation()
   const { message } = App.useApp()
 
-  const { openInOsExplorer, openInVscodeExplorer, copyImageAsBase64, beginCompressProcess, cropImage } =
-    useImageOperation()
+  const {
+    openInOsExplorer,
+    openInVscodeExplorer,
+    copyImageAsBase64,
+    beginCompressProcess,
+    cropImage,
+    beginFormatConversionProcess,
+    prettySvg,
+  } = useImageOperation()
 
   const handleCopyString = useLockFn(
     async (
@@ -53,14 +61,27 @@ function ImageContextMenu() {
     beginCompressProcess([e.props!.image])
   })
 
-  const { showImageDetailModal } = useImageDetail()
-
   const handleCropImage = useLockFn(async (e: ItemParams<{ image: ImageType }>) => {
     if (!e.props?.image) {
       return message.error(t('im.no_image'))
     }
     cropImage(e.props.image)
   })
+
+  const handleConvertFormat = useLockFn(async (e: ItemParams<{ image: ImageType }>) => {
+    beginFormatConversionProcess([e.props!.image])
+  })
+
+  const handlePrettySvg = useLockFn(async (e: ItemParams<{ image: ImageType }>) => {
+    try {
+      await prettySvg(e.props!.image.path)
+      message.success(t('im.pretty_success'))
+    } catch (e) {
+      logger.error(e)
+    }
+  })
+
+  const { showImageDetailModal } = useImageDetail()
 
   return (
     <>
@@ -79,6 +100,15 @@ function ImageContextMenu() {
         </Item>
         <Item onClick={(e) => handleCropImage(e)} hidden={isOperationHidden}>
           {t('im.crop')}
+        </Item>
+        <Item
+          onClick={(e) => handleConvertFormat(e)}
+          hidden={(e) => _isOperationHidden(e as any) || e.props.image?.fileType === 'svg'}
+        >
+          {t('im.convert_format')}
+        </Item>
+        <Item onClick={(e) => handlePrettySvg(e)} hidden={(e) => e.props.image?.fileType !== 'svg'}>
+          {t('im.pretty')} svg
         </Item>
 
         <Separator />

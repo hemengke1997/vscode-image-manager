@@ -13,7 +13,7 @@ module.exports = {
   presets: [require('tailwind-antd-preset')],
   plugins: [
     require('./tailwind-vscode.js'),
-    plugin(function ({ addUtilities }) {
+    plugin(({ addUtilities }) => {
       addUtilities({
         '.text-xxs': {
           fontSize: '0.625rem',

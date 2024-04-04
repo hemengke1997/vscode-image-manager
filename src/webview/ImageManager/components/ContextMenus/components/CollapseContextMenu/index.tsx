@@ -14,6 +14,8 @@ export const COLLAPSE_CONTEXT_MENU = {
   open_in_vscode_explorer: 'open_in_vscode_explorer',
   compress_in_current_directory: 'compress_in_current_directory',
   compress_in_recursive_directories: 'compress_in_recursive_directories',
+  format_conversion_in_current_directory: 'format_conversion_in_current_directory',
+  format_conversion_in_recursive_directories: 'format_conversion_in_recursive_directories',
 }
 
 export type CollapseContextMenuType =
@@ -26,7 +28,8 @@ function CollapseContextMenu() {
   const { t } = useTranslation()
   const { message } = App.useApp()
 
-  const { openInOsExplorer, openInVscodeExplorer, beginCompressProcess } = useImageOperation()
+  const { openInOsExplorer, openInVscodeExplorer, beginCompressProcess, beginFormatConversionProcess } =
+    useImageOperation()
 
   const isItemHidden = (e: PredicateParams<{ contextMenu: CollapseContextMenuType }>) => {
     const { data, props } = e
@@ -57,6 +60,25 @@ function CollapseContextMenu() {
 
   const handleCompressImageDeeply = useMemoizedFn((e: ItemParams<{ underFolderDeeplyImages: ImageType[] }>) => {
     _compressImage(e.props!.underFolderDeeplyImages)
+  })
+
+  const _formatConversion = useMemoizedFn((images: ImageType[] | undefined) => {
+    if (!images?.length) {
+      return message.warning(t('im.no_image_to_convert_format'))
+    }
+    const imagesToConvert = images.filter((image) => image.fileType !== 'svg')
+    if (!imagesToConvert.length) {
+      return message.warning(t('im.svg_format_tip'))
+    }
+    beginFormatConversionProcess(imagesToConvert)
+  })
+
+  const handleFormatConversion = useMemoizedFn((e: ItemParams<{ images: ImageType[] }>) => {
+    _formatConversion(e.props!.images)
+  })
+
+  const handleFormatConversionDeeply = useMemoizedFn((e: ItemParams<{ underFolderDeeplyImages: ImageType[] }>) => {
+    _formatConversion(e.props!.underFolderDeeplyImages)
   })
 
   return (
@@ -101,6 +123,34 @@ function CollapseContextMenu() {
             hidden={isItemHidden}
             onClick={handleCompressImageDeeply}
             data={COLLAPSE_CONTEXT_MENU.compress_in_recursive_directories}
+          >
+            {t('im.recursive_directories')}
+          </Item>
+        </Submenu>
+        <Submenu
+          label={t('im.convert_format')}
+          hidden={(e) =>
+            isItemHidden({
+              ...e,
+              data: [
+                COLLAPSE_CONTEXT_MENU.format_conversion_in_current_directory,
+                COLLAPSE_CONTEXT_MENU.format_conversion_in_recursive_directories,
+              ],
+            })
+          }
+          arrow={<Arrow />}
+        >
+          <Item
+            hidden={isItemHidden}
+            onClick={handleFormatConversion}
+            data={COLLAPSE_CONTEXT_MENU.format_conversion_in_current_directory}
+          >
+            {t('im.current_directory')}
+          </Item>
+          <Item
+            hidden={isItemHidden}
+            onClick={handleFormatConversionDeeply}
+            data={COLLAPSE_CONTEXT_MENU.format_conversion_in_recursive_directories}
           >
             {t('im.recursive_directories')}
           </Item>

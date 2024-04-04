@@ -6,16 +6,17 @@ import { type ParsedPath } from 'node:path'
 import { type ReactElement, memo, useEffect, useMemo, useRef } from 'react'
 import { useTranslation } from 'react-i18next'
 import { isTooManyTries, retry } from 'ts-retry'
-import { type Compressor } from '~/core/compress'
+import { type Compressor, type FormatConverter } from '~/core/operator'
 import { type MessageType } from '~/message'
 import { CmdToVscode, CmdToWebview } from '~/message/cmd'
 import logger from '~/utils/logger'
 import useUpdateWebview from '../hooks/useUpdateWebview'
 import { vscodeApi } from '../vscode-api'
 import ContextMenus from './components/ContextMenus'
+import ImageCompressor from './components/ImageCompressor'
+import ImageConverter from './components/ImageConverter'
 import ImageCropper from './components/ImageCropper'
 import ImageForSize from './components/ImageForSize'
-import ImageOperator from './components/ImageOperator'
 import ImageSearch from './components/ImageSearch'
 import Viewer from './components/Viewer'
 import ViewerSettings, { type ViewerSettingsRef } from './components/ViewerSettings'
@@ -60,10 +61,11 @@ function ImageManager() {
   const { message } = App.useApp()
   const { t } = useTranslation()
 
-  const { setImageState, setCompressor, imageState } = GlobalContext.usePicker([
+  const { setImageState, setCompressor, imageState, setFormatConverter } = GlobalContext.usePicker([
     'setImageState',
     'setCompressor',
     'imageState',
+    'setFormatConverter',
   ])
 
   const { imageRefreshedState, refreshImages, imageSearchOpen, setImageSearchOpen } = ActionContext.usePicker([
@@ -73,7 +75,13 @@ function ImageManager() {
     'setImageSearchOpen',
   ])
 
-  const { operatorModal, setOperatorModal } = OperatorContext.usePicker(['operatorModal', 'setOperatorModal'])
+  const { compressorModal, setCompressorModal, formatConverterModal, setFormatConverterModal } =
+    OperatorContext.usePicker([
+      'compressorModal',
+      'setCompressorModal',
+      'formatConverterModal',
+      'setFormatConverterModal',
+    ])
 
   const { displayImageTypes } = SettingsContext.usePicker(['displayImageTypes'])
 
@@ -151,14 +159,32 @@ function ImageManager() {
     })
   })
 
+  const getFormatConverter = useMemoizedFn(() => {
+    return new Promise<FormatConverter>((resolve, reject) => {
+      vscodeApi.postMessage({ cmd: CmdToVscode.get_format_converter }, (data) => {
+        if (!data) {
+          reject()
+        } else {
+          resolve(data)
+        }
+      })
+    })
+  })
+
+  const getOperator = useMemoizedFn(() => {
+    return Promise.all([getCompressor(), getFormatConverter()])
+  })
+
   useAsyncEffect(async () => {
     try {
-      const c = await retry(getCompressor, {
+      const [compressor, formatConverter] = await retry(getOperator, {
         delay: 1000,
         maxTry: 10,
         until: (data) => !!data,
       })
-      setCompressor(c)
+
+      setCompressor(compressor)
+      setFormatConverter(formatConverter)
     } catch (err) {
       if (isTooManyTries(err)) {
         message.error(t('im.deps_not_found'))
@@ -222,7 +248,8 @@ function ImageManager() {
       <ImageForSize />
       <ImageSearch open={imageSearchOpen} onOpenChange={setImageSearchOpen} />
       <ImageCropper {...cropperProps} onOpenChange={(open) => setCropperProps({ open })} />
-      <ImageOperator {...operatorModal} onOpenChange={(open) => setOperatorModal({ open })} />
+      <ImageCompressor {...compressorModal} onOpenChange={(open) => setCompressorModal({ open })} />
+      <ImageConverter {...formatConverterModal} onOpenChange={(open) => setFormatConverterModal({ open })} />
       <FloatButton.BackTop target={() => document.querySelector('#root') as HTMLElement} />
     </>
   )

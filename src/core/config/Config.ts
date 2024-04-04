@@ -1,8 +1,9 @@
-import { deepMerge, get } from '@minko-fe/lodash-pro'
-import { ConfigurationTarget, workspace } from 'vscode'
+import { get } from '@minko-fe/lodash-pro'
+import { type ConfigurationScope, ConfigurationTarget, workspace } from 'vscode'
 import { EXT_NAMESPACE } from '~/meta'
 import { normalizePath } from '~/utils'
-import { ConfigKey, type ConfigType, defaultConfig } from './common'
+import { type CompressionOptions, type FormatConverterOptions } from '..'
+import { ConfigKey, type ConfigType, DEFAULT_CONFIG } from './common'
 
 export class Config {
   static readonly reloadConfigs = [ConfigKey.file_root, ConfigKey.file_exclude, ConfigKey.file_scan]
@@ -14,12 +15,12 @@ export class Config {
     ConfigKey.viewer_imageWidth,
     ConfigKey.viewer_warningSize,
     ConfigKey.viewer_imageBackgroundColor,
+    ConfigKey.compression,
+    ConfigKey.conversion,
   ]
 
-  static defaultConfig = defaultConfig
-
   static get file_root(): string[] {
-    const userRoot = this.getConfig(ConfigKey.file_root)
+    const userRoot = this.getConfig<string[]>(ConfigKey.file_root)
     if (userRoot?.length) return userRoot
     return workspace.workspaceFolders?.map((t) => normalizePath(t.uri.fsPath)) || []
   }
@@ -44,40 +45,50 @@ export class Config {
     return this.getConfig(ConfigKey.file_scan)
   }
 
-  static get appearance_theme() {
+  static get appearance_theme(): Theme {
     return this.getConfig(ConfigKey.appearance_theme)
   }
 
-  static get appearance_language() {
+  static get appearance_language(): Language {
     return this.getConfig(ConfigKey.appearance_language)
   }
 
-  static get appearance_primaryColor() {
+  static get appearance_primaryColor(): string {
     return this.getConfig(ConfigKey.appearance_primaryColor)
   }
 
-  static get mirror_enabled() {
+  static get mirror_enabled(): boolean {
     return this.getConfig(ConfigKey.mirror_enabled)
   }
 
-  static get mirror_url() {
+  static get mirror_url(): string {
     return this.getConfig(ConfigKey.mirror_url)
   }
 
-  static get all() {
-    const userConfig = workspace.getConfiguration().get(`${EXT_NAMESPACE}`) as ConfigType
-    return deepMerge(defaultConfig, userConfig, { arrayMerge: (_, s) => s })
+  static get compression(): CompressionOptions {
+    return this.getConfig(ConfigKey.compression)
   }
 
-  static updateConfig<T extends ConfigKey, U>(
-    key: T,
-    value: U,
+  static get conversion(): FormatConverterOptions {
+    return this.getConfig(ConfigKey.conversion)
+  }
+
+  static get all(): ConfigType {
+    return workspace.getConfiguration(EXT_NAMESPACE) as any as ConfigType
+  }
+
+  static updateConfig<T, U extends ObjectKeys<ConfigType> = ObjectKeys<ConfigType>>(
+    key: U,
+    value: T,
     target: ConfigurationTarget = ConfigurationTarget.Workspace,
   ) {
-    return workspace.getConfiguration().update(`${EXT_NAMESPACE}.${key}`, value, target)
+    return workspace.getConfiguration(EXT_NAMESPACE).update(key, value, target)
   }
 
-  private static getConfig<T extends ConfigKey>(key: T) {
-    return workspace.getConfiguration().get(`${EXT_NAMESPACE}.${key}`, get(defaultConfig, key))
+  static getConfig<T, U extends ObjectKeys<ConfigType> = ObjectKeys<ConfigType>>(
+    key: U, // like `file.root`
+    scope?: ConfigurationScope | undefined,
+  ): T {
+    return workspace.getConfiguration(EXT_NAMESPACE, scope).get<T>(key) || get(DEFAULT_CONFIG, key as string)
   }
 }

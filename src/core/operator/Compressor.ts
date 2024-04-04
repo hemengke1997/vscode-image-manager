@@ -1,97 +1,92 @@
-import { toString } from '@minko-fe/lodash-pro'
+import { flatten, merge, toString } from '@minko-fe/lodash-pro'
 import fs from 'fs-extra'
 import { addMetadata, getMetadata } from 'meta-png'
-import path from 'node:path'
 import piexif from 'piexifjs'
+import { optimize } from 'svgo'
 import { type SharpNS } from '~/@types/global'
 import { SharpOperator } from '~/core/sharp'
 import { i18n } from '~/i18n'
 import { VscodeMessageCenter } from '~/message'
-import { generateOutputPath, isJpg, isPng } from '~/utils'
+import { isJpg, isPng } from '~/utils'
 import { Channel } from '~/utils/Channel'
-import { COMPRESSED_META } from './meta'
+import logger from '~/utils/logger'
+import { type FormatConverterOptions } from './FormatConverter'
+import { Operator, type OperatorResult } from './Operator'
+import { Svgo } from './Svgo'
+import { COMPRESSED_META, type SvgoPlugin } from './meta'
 
-type ExtendOptions = {
-  fileSuffix?: string
-}
-
-export interface CompressionOptions {
-  /**
-   * @description whether keep original
-   * @default 0
-   */
-  keep?: 0 | 1
+export type CompressionOptions = {
   /**
    * @description skip if the image is already compressed
-   * @default 1
+   * @default true
    */
-  skipCompressed?: 0 | 1
+  skipCompressed?: boolean
+  /**
+   * @description add suffix to the output file if `keepOriginal` is true
+   * @default '.min'
+   */
+  fileSuffix?: string
   /**
    * @description
    * use the lowest number of colours needed to achieve given quality, sets palette to true
-   * @default 80
+   * @default 100
    */
   quality?: number
-  /**
-   * @description
-   * zlib compression level, 0 (fastest, largest) to 9 (slowest, smallest)
-   * @default 9
-   */
-  compressionLevel?: number
-  /**
-   * @description
-   * Maximum number of palette entries, including transparency, between 2 and 256 (optional, default 256)
-   * for gif
-   * @default 256
-   */
-  colors?: number
   /**
    * @description output size
    * @example 1
    * @default 1
    */
   size: number
-  /**
-   * @description output format
-   * @example 'png'
-   * @default ''
-   */
-  format: string
+
+  png: {
+    /**
+     * @description
+     * zlib compression level, 0 (fastest, largest) to 9 (slowest, smallest)
+     * @default 9
+     */
+    compressionLevel?: number
+  }
+  gif: {
+    /**
+     * @description
+     * Maximum number of palette entries, including transparency, between 2 and 256 (optional, default 256)
+     * for gif
+     * @default 256
+     */
+    colors?: number
+  }
+} & FormatConverterOptions &
+  SvgCompressionOptions
+
+export type SvgCompressionOptions = {
+  svg: SvgoPlugin
 }
 
-export class Compressor {
-  config = {
-    exts: ['png', 'jpg', 'jpeg', 'webp', 'gif', 'tiff', 'avif', 'heif'],
-    sizeLimit: 20 * 1024 * 1024, // 20MB
-  }
-  option: CompressionOptions
-
-  constructor(private readonly _extendOptions?: ExtendOptions) {
-    this.option = {
-      compressionLevel: 9,
-      quality: 80,
-      colors: 256,
-      size: 1,
-      format: '',
-      keep: 0,
-      skipCompressed: 0,
-    }
+export class Compressor extends Operator {
+  constructor(public option: CompressionOptions) {
+    super()
   }
 
-  async compress(
-    filePaths: string[],
-    option: CompressionOptions | undefined,
-  ): Promise<
-    {
-      filePath: string
-      originSize?: number
-      compressedSize?: number
-      outputPath?: string
-      error?: any
-    }[]
-  > {
-    this.option = option || this.option
-    const res = await Promise.all(filePaths.map((filePath) => this.compressImage(filePath)))
+  async run<CompressionOptions>(filePaths: string[], option: CompressionOptions | undefined): Promise<OperatorResult> {
+    this.option = merge(this.option, option || {})
+
+    const svgs: string[] = []
+    const rest: string[] = []
+    filePaths.forEach((filePath) => {
+      if (this.getFileExt(filePath) === 'svg') {
+        svgs.push(filePath)
+      } else {
+        rest.push(filePath)
+      }
+    })
+
+    const res = await Promise.all(
+      flatten([
+        svgs.map((filePath) => this.compressSvg(filePath)),
+        rest.map((filePath) => this.compressImage(filePath)),
+      ]),
+    )
 
     return res.filter((r) => {
       if (r.error === new SkipError().message) {
@@ -103,8 +98,12 @@ export class Compressor {
 
   async compressImage(filePath: string) {
     try {
-      await this.tryCompressable(filePath)
-      const res = await this._stream(filePath)
+      try {
+        await this.checkLimit(filePath)
+      } catch (e) {
+        logger.error(e)
+      }
+      const res = await this.core(filePath)
       return {
         filePath,
         ...res,
@@ -119,10 +118,46 @@ export class Compressor {
     }
   }
 
-  private async _stream(filePath: string): Promise<{ originSize: number; compressedSize: number; outputPath: string }> {
+  async compressSvg(filePath: string) {
+    try {
+      const svgString = await fs.readFile(filePath, 'utf-8')
+      const outputPath = this.getOutputPath(filePath, {
+        ext: 'svg',
+        size: 1,
+        fileSuffix: '',
+      })
+
+      const svgoConfig = Svgo.processConfig(this.option.svg, {
+        pretty: false,
+      })
+
+      const inputSize = this.getFileSize(filePath)
+
+      const { data } = optimize(svgString, svgoConfig)
+
+      // write data to file
+      await fs.writeFile(outputPath, data)
+
+      const outputSize = this.getFileSize(outputPath)
+
+      return {
+        filePath,
+        inputSize,
+        outputSize,
+        outputPath,
+      }
+    } catch (e) {
+      return {
+        filePath,
+        error: e,
+      }
+    }
+  }
+
+  private async core(filePath: string): Promise<{ inputSize: number; outputSize: number; outputPath: string }> {
     const { format } = this.option!
 
-    const originExt = path.extname(filePath).slice(1)
+    const originExt = this.getFileExt(filePath)
     const ext = !format ? originExt : format
 
     let compressor: SharpOperator<{
@@ -144,7 +179,13 @@ export class Compressor {
             },
             'before:run': async ({ sharp, runtime }) => {
               const {
-                option: { colors, quality, compressionLevel, size, skipCompressed },
+                option: {
+                  gif: { colors },
+                  quality,
+                  png: { compressionLevel },
+                  size,
+                  skipCompressed,
+                },
                 ext,
                 filePath,
               } = runtime
@@ -195,7 +236,7 @@ export class Compressor {
             },
             'after:run': async ({ runtime: { filePath } }, { outputPath }) => {
               if (filePath === outputPath) return
-              await this._trashFile(filePath)
+              await this.trashFile(filePath)
             },
             'on:generate-output-path': ({
               runtime: {
@@ -204,7 +245,11 @@ export class Compressor {
                 filePath,
               },
             }) => {
-              return this._getOutputPath(filePath, ext, size)
+              return this.getOutputPath(filePath, {
+                ext,
+                size,
+                fileSuffix: this.option.fileSuffix!,
+              })
             },
             'on:finish': async (_, { outputPath }) => {
               // add metadata
@@ -233,7 +278,7 @@ export class Compressor {
     })
 
     try {
-      const inputSize = fs.statSync(filePath).size
+      const inputSize = this.getFileSize(filePath)
       const { outputPath } = await compressor.run({
         ext,
         filePath,
@@ -241,11 +286,11 @@ export class Compressor {
         input: filePath,
       })
       if (outputPath) {
-        const outputSize = fs.statSync(outputPath).size
+        const outputSize = this.getFileSize(outputPath)
 
         return {
-          compressedSize: outputSize,
-          originSize: inputSize,
+          outputSize,
+          inputSize,
           outputPath,
         }
       } else {
@@ -257,57 +302,6 @@ export class Compressor {
       // @ts-expect-error
       compressor = null
     }
-  }
-
-  async tryCompressable(filePath: string) {
-    if (this._isCompressable(filePath)) {
-      return Promise.resolve(true)
-    } else {
-      return Promise.reject(
-        i18n.t('core.compress_fail_reason', this._getFilename(filePath), this.config.sizeLimit / 1024 / 1024),
-      )
-    }
-  }
-
-  private _isCompressable(filePath: string) {
-    const fileStat = fs.statSync(filePath)
-    return fileStat.isFile() && fileStat.size <= this.config.sizeLimit
-  }
-
-  private _getOutputPath(sourcePath: string, ext?: string, size?: number) {
-    const { keep } = this.option || {}
-
-    let outputPath = sourcePath
-    if (size !== 1) {
-      outputPath = generateOutputPath(outputPath, `@${size}x`)
-    }
-
-    if (keep) {
-      outputPath = generateOutputPath(outputPath, this._extendOptions?.fileSuffix || '.min')
-    }
-
-    return this._changeExt(outputPath, ext)
-  }
-
-  private async _trashFile(filePath: string) {
-    try {
-      if (this.option.keep) return
-      await fs.remove(filePath)
-    } catch (e) {
-      Channel.info(`Trash File Error: ${e}`)
-    }
-  }
-
-  private _getFilename(filePath: string) {
-    const { name } = path.parse(filePath)
-    return name
-  }
-
-  private _changeExt(filePath: string, ext?: string) {
-    if (ext) {
-      return filePath.replace(new RegExp(`${path.extname(filePath).slice(1)}$`), ext)
-    }
-    return filePath
   }
 }
 

@@ -58,7 +58,7 @@ export class ImageManagerPanel {
         if (e.affectsConfiguration(key)) {
           affected = true
           reload = true
-          Channel.info(`Config "${key}" changed, reloading`)
+          Channel.info(`[Reload] Config "${key}" changed, reloading`)
           break
         }
       }
@@ -67,7 +67,7 @@ export class ImageManagerPanel {
         const key = `${EXT_NAMESPACE}.${config}`
         if (e.affectsConfiguration(key)) {
           affected = true
-          Channel.info(`Config "${key}" changed`)
+          Channel.info(`[Refresh] Config "${key}" changed`)
           break
         }
       }

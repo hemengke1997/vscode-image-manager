@@ -1,8 +1,8 @@
 import { useSetState } from '@minko-fe/react-hook'
 import { createContainer } from 'context-state'
 import { useState } from 'react'
-import { type Compressor } from '~/core/compress'
 import { ConfigKey } from '~/core/config/common'
+import { type Compressor, type FormatConverter } from '~/core/operator'
 import { useExtConfigState } from '~/webview/hooks/useExtConfigState'
 import FrameworkContext from '~/webview/ui-framework/src/contexts/FrameworkContext'
 import { type ImageType, type ImageVisibleFilterType } from '..'
@@ -37,6 +37,8 @@ function useGlobalContext() {
 
   /* ------------- image compressor ------------ */
   const [compressor, setCompressor] = useState<Compressor>()
+  /* ---------- image format converter ---------- */
+  const [formatConverter, setFormatConverter] = useState<FormatConverter>()
 
   /* --------------- images state --------------- */
   const [imageState, setImageState] = useSetState<{
@@ -78,6 +80,8 @@ function useGlobalContext() {
     workspaceState,
     compressor,
     setCompressor,
+    formatConverter,
+    setFormatConverter,
     extConfig,
     imageState,
     setImageState,

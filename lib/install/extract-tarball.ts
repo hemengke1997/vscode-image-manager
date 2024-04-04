@@ -76,7 +76,7 @@ const extractTarball = function (tarPath: string) {
     // @ts-expect-error
     new zlib.BrotliDecompress(),
     tarFs.extract(versionedVendorPath, { ignore }),
-    function (err) {
+    (err) => {
       if (err) {
         if (/unexpected end of file/.test(err.message)) {
           fail(new Error(`Please delete ${tarPath} as it is not a valid tarball`))

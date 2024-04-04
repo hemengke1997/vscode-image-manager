@@ -8,12 +8,20 @@ import micromatch from 'micromatch'
 import mime from 'mime/lite'
 import path from 'node:path'
 import git from 'simple-git'
+import { optimize } from 'svgo'
 import { type ConfigurationTarget, Uri, type Webview, commands } from 'vscode'
 import { type SharpNS } from '~/@types/global'
-import { Config, Global, SharpOperator } from '~/core'
-import { type CompressionOptions } from '~/core/compress'
-import { COMPRESSED_META } from '~/core/compress/meta'
-import { type ConfigKey } from '~/core/config/common'
+import {
+  type CompressionOptions,
+  Config,
+  type FormatConverterOptions,
+  Global,
+  type OperatorResult,
+  SharpOperator,
+  Svgo,
+} from '~/core'
+import { type ConfigKey, type ConfigType } from '~/core/config/common'
+import { COMPRESSED_META } from '~/core/operator/meta'
 import { WorkspaceState } from '~/core/persist'
 import { type WorkspaceStateKey } from '~/core/persist/workspace/common'
 import { generateOutputPath, isPng, normalizePath } from '~/utils'
@@ -186,6 +194,12 @@ export const VscodeMessageCenter = {
     return compressor
   },
 
+  /* ----------- get format converter ----------- */
+  [CmdToVscode.get_format_converter]: async () => {
+    const formatConverter = Global.formatConverter
+    return formatConverter
+  },
+
   /* ------- open path in vscode explorer ------ */
   [CmdToVscode.open_image_in_vscode_explorer]: (data: { filePath: string }) => {
     const res = commands.executeCommand('revealInExplorer', Uri.file(data.filePath))
@@ -223,25 +237,34 @@ export const VscodeMessageCenter = {
   [CmdToVscode.compress_image]: async (data: {
     filePaths: string[]
     option?: CompressionOptions
-  }): Promise<
-    | {
-        filePath: string
-        originSize?: number
-        compressedSize?: number
-        outputPath?: string
-        error?: any
-      }[]
-    | undefined
-  > => {
+  }): Promise<OperatorResult | undefined> => {
     try {
       const { filePaths, option } = data
       Channel.info(`Compress params: ${JSON.stringify(data)}`)
       const { compressor } = Global
-      const res = await compressor?.compress(filePaths, option)
+      const res = await compressor?.run(filePaths, option)
       Channel.info(`Compress result: ${JSON.stringify(res)}`)
       return res
     } catch (e: any) {
       Channel.info(`Compress error: ${JSON.stringify(e)}`)
+      return e
+    }
+  },
+
+  /* ----------- convert image format ----------- */
+  [CmdToVscode.convert_image_format]: async (data: {
+    filePaths: string[]
+    option: FormatConverterOptions
+  }): Promise<OperatorResult | undefined> => {
+    try {
+      const { filePaths, option } = data
+      Channel.info(`Convert params: ${JSON.stringify(data)}`)
+      const { formatConverter } = Global
+      const res = await formatConverter?.run(filePaths, option)
+      Channel.info(`Convert result: ${JSON.stringify(res)}`)
+      return res
+    } catch (e: any) {
+      Channel.info(`Convert error: ${JSON.stringify(e)}`)
       return e
     }
   },
@@ -375,7 +398,7 @@ export const VscodeMessageCenter = {
       async () => {
         Global.isProgrammaticChangeConfig = true
         try {
-          await Config.updateConfig(key, value, target)
+          await Config.updateConfig(key as ObjectKeys<ConfigType>, value, target)
         } finally {
           Global.isProgrammaticChangeConfig = false
         }
@@ -418,6 +441,18 @@ export const VscodeMessageCenter = {
   /* ------- clear useless workspace state ------ */
   [CmdToVscode.clear_useless_workspace_state]: async () => {
     await WorkspaceState.clear_unused()
+    return true
+  },
+
+  /* ---------------- pretty svg ---------------- */
+  [CmdToVscode.pretty_svg]: async (data: { filePath: string }) => {
+    const { filePath } = data
+    const svgoConfig = Svgo.processConfig(Config.compression.svg, {
+      pretty: true,
+    })
+    const svgString = await fs.readFile(filePath, 'utf-8')
+    const { data: svgStr } = optimize(svgString, svgoConfig)
+    await fs.writeFile(filePath, svgStr)
     return true
   },
 }

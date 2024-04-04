@@ -93,7 +93,7 @@ function ImageCollapse(props: ImageCollapseProps) {
           }}
           tabIndex={-1}
           className={mergeClass(
-            "w-full relative cursor-pointer transition-all after:absolute after:-inset-y-[8px] after:-right-[12px] after:left-0 after:content-['']",
+            "relative w-full cursor-pointer transition-all after:absolute after:-inset-y-[8px] after:-right-[12px] after:left-0 after:content-['']",
           )}
           onClick={() => {
             if (activeKeys?.length) {

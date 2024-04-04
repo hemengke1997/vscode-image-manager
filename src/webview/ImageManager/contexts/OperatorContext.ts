@@ -2,14 +2,24 @@ import { useSetState } from '@minko-fe/react-hook'
 import { createContainer } from 'context-state'
 import { type ImageOperatorProps } from '../components/ImageOperator'
 
+type OperatorType = Pick<ImageOperatorProps, 'images' | 'open'>
+
 function useOperatorContext() {
-  const [operatorModal, setOperatorModal] = useSetState<ImageOperatorProps>({
+  const [compressorModal, setCompressorModal] = useSetState<OperatorType>({
     open: false,
     images: [],
   })
+
+  const [formatConverterModal, setFormatConverterModal] = useSetState<OperatorType>({
+    open: false,
+    images: [],
+  })
+
   return {
-    operatorModal,
-    setOperatorModal,
+    compressorModal,
+    setCompressorModal,
+    formatConverterModal,
+    setFormatConverterModal,
   }
 }
 

@@ -33,6 +33,8 @@ export const enum CmdToVscode {
   get_extension_config = 'get_extension_config',
   // 获取压缩器
   get_compressor = 'get_compressor',
+  // 获取格式转换器
+  get_format_converter = 'get_format_converter',
   // 在vscode中的资源管理器中打开图片
   open_image_in_vscode_explorer = 'open_image_in_vscode_explorer',
   // 在操作系统资源管理器中打开图片
@@ -41,6 +43,8 @@ export const enum CmdToVscode {
   copy_image_as_base64 = 'copy_image_as_base64',
   // 压缩图片
   compress_image = 'compress_image',
+  // 转化图片格式
+  convert_image_format = 'convert_image_format',
   micromatch_ismatch = 'micromatch_ismatch',
   // 保存裁剪后的图片
   save_cropper_image = 'save_cropper_image',
@@ -58,4 +62,6 @@ export const enum CmdToVscode {
   clear_workspace_state = 'clear_workspace_state',
   // 清除无用的工作区缓存
   clear_useless_workspace_state = 'clear_useless_workspace_state',
+  // 格式化svg
+  pretty_svg = 'pretty_svg',
 }

@@ -26,6 +26,20 @@
     "mirror": {
       "enabled": "使用镜像下载依赖",
       "url": "镜像地址"
+    },
+    "compression": {
+      "keepOriginal": "保留原图",
+      "skipCompressed": "跳过已压缩的图片",
+      "quality": "图片质量",
+      "fileSuffix": "压缩后缀",
+      "size": "图片尺寸 (倍数)",
+      "format": "图片格式",
+      "png": {
+        "compressionLevel": "压缩等级"
+      },
+      "gif": {
+        "colors": "色彩"
+      }
     }
   },
   "prompt": {
@@ -44,7 +58,7 @@
   "core": {
     "compress_fail": "压缩失败",
     "dep_not_found": "依赖安装失败",
-    "compress_fail_reason": "文件 [{{filename}}] 不是有效图片. 最大支持体积 {{maxsize}} MB",
+    "compress_fail_reason": "文件 [{0}] 不是有效图片. 最大支持体积 {1} MB",
     "view_solution": "查看解决方案",
     "extension_root": "插件根目录",
     "platform": "系统平台",

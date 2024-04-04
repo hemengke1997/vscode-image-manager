@@ -1,10 +1,10 @@
 {
-  "publisher": "minko",
+  "publisher": "Minko",
   "name": "image-manager",
   "displayName": "Image Manager",
   "version": "0.9.1",
   "private": true,
-  "description": "Compress, crop, convert format and preview images in vscode",
+  "description": "压缩、裁剪、转换格式和预览图片的vscode插件 | Compress, crop, convert format and preview images in vscode",
   "icon": "assets/logo.png",
   "keywords": [
     "image",
@@ -36,7 +36,7 @@
     "Visualization",
     "Other"
   ],
-  "author": "minko",
+  "author": "Minko",
   "main": "./dist/extension.js",
   "activationEvents": [
     "onWebviewPanel:ImageManagerPanel",
@@ -185,7 +185,7 @@
         },
         "image-manager.appearance.primaryColor": {
           "type": "string",
-          "format": "color-hex",
+          "default": "",
           "description": "%pkg.appearance.primaryColor%"
         },
         "image-manager.viewer.warningSize": {
@@ -204,7 +204,6 @@
         "image-manager.viewer.imageBackgroundColor": {
           "type": "string",
           "default": "#1a1a1a",
-          "format": "color-hex",
           "description": "%pkg.viewer.imageBackgroundColor%"
         },
         "image-manager.mirror.enabled": {
@@ -215,6 +214,291 @@
         "image-manager.mirror.url": {
           "type": "string",
           "description": "%pkg.mirror.url%"
+        },
+        "image-manager.compression.keepOriginal": {
+          "type": "boolean",
+          "default": false,
+          "description": "%pkg.compression.keepOriginal%"
+        },
+        "image-manager.compression.fileSuffix": {
+          "type": "string",
+          "default": ".min",
+          "description": "%pkg.compression.fileSuffix%"
+        },
+        "image-manager.compression.skipCompressed": {
+          "type": "boolean",
+          "default": true,
+          "description": "%pkg.compression.skipCompressed%"
+        },
+        "image-manager.compression.quality": {
+          "type": "number",
+          "default": 90,
+          "description": "%pkg.compression.quality%"
+        },
+        "image-manager.compression.size": {
+          "type": "number",
+          "default": 1,
+          "description": "%pkg.compression.size%"
+        },
+        "image-manager.compression.format": {
+          "type": "string",
+          "default": "",
+          "description": "%pkg.compression.format%"
+        },
+        "image-manager.compression.png.compressionLevel": {
+          "type": "number",
+          "default": 9,
+          "description": "%pkg.compression.png.compressionLevel%"
+        },
+        "image-manager.compression.gif.colors": {
+          "type": "number",
+          "default": 256,
+          "description": "%pkg.compression.gif.colors%"
+        },
+        "image-manager.compression.svg.removeDoctype": {
+          "type": "boolean",
+          "default": true,
+          "description": "remove doctype declaration"
+        },
+        "image-manager.compression.svg.removeXMLProcInst": {
+          "type": "boolean",
+          "default": true,
+          "description": "remove XML processing instructions"
+        },
+        "image-manager.compression.svg.removeComments": {
+          "type": "boolean",
+          "default": true,
+          "description": "remove comments"
+        },
+        "image-manager.compression.svg.removeMetadata": {
+          "type": "boolean",
+          "default": true,
+          "description": "remove <metadata>"
+        },
+        "image-manager.compression.svg.removeXMLNS": {
+          "type": "boolean",
+          "default": false,
+          "description": "removes xmlns attribute (for inline svg, disabled by default)"
+        },
+        "image-manager.compression.svg.removeEditorsNSData": {
+          "type": "boolean",
+          "default": true,
+          "description": "remove editors namespaces, elements, and attributes"
+        },
+        "image-manager.compression.svg.cleanupAttrs": {
+          "type": "boolean",
+          "default": true,
+          "description": "cleanup attributes from newlines, trailing, and repeating spaces"
+        },
+        "image-manager.compression.svg.inlineStyles": {
+          "type": "boolean",
+          "default": true,
+          "description": "move and merge styles from <style> elements to element style attributes"
+        },
+        "image-manager.compression.svg.minifyStyles": {
+          "type": "boolean",
+          "default": true,
+          "description": "minify <style> elements content with CSSO"
+        },
+        "image-manager.compression.svg.convertStyleToAttrs": {
+          "type": "boolean",
+          "default": true,
+          "description": "convert styles into attributes"
+        },
+        "image-manager.compression.svg.cleanupIds": {
+          "type": "boolean",
+          "default": true,
+          "description": "remove unused and minify used IDs"
+        },
+        "image-manager.compression.svg.prefixIds": {
+          "type": "boolean",
+          "default": true,
+          "description": "prefix IDs and classes with the SVG filename or an arbitrary string"
+        },
+        "image-manager.compression.svg.removeRasterImages": {
+          "type": "boolean",
+          "default": false,
+          "description": "remove raster images (disabled by default)"
+        },
+        "image-manager.compression.svg.removeUselessDefs": {
+          "type": "boolean",
+          "default": true,
+          "description": "remove elements of <defs> without id"
+        },
+        "image-manager.compression.svg.cleanupNumericValues": {
+          "type": "boolean",
+          "default": true,
+          "description": "round numeric values to the fixed precision, remove default px units"
+        },
+        "image-manager.compression.svg.cleanupListOfValues": {
+          "type": "boolean",
+          "default": true,
+          "description": "round numeric values in attributes that take a list of numbers (like viewBox or enable-background)"
+        },
+        "image-manager.compression.svg.convertColors": {
+          "type": "boolean",
+          "default": true,
+          "description": "convert colors (from rgb() to #rrggbb, from #rrggbb to #rgb)"
+        },
+        "image-manager.compression.svg.removeUnknownsAndDefaults": {
+          "type": "boolean",
+          "default": true,
+          "description": "remove unknown elements content and attributes, remove attrs with default values"
+        },
+        "image-manager.compression.svg.removeNonInheritableGroupAttrs": {
+          "type": "boolean",
+          "default": true,
+          "description": "remove non-inheritable group's presentation attributes"
+        },
+        "image-manager.compression.svg.removeUselessStrokeAndFill": {
+          "type": "boolean",
+          "default": true,
+          "description": "remove useless stroke and fill attrs"
+        },
+        "image-manager.compression.svg.removeViewBox": {
+          "type": "boolean",
+          "default": true,
+          "description": "remove viewBox attribute when possible"
+        },
+        "image-manager.compression.svg.cleanupEnableBackground": {
+          "type": "boolean",
+          "default": true,
+          "description": "remove or cleanup enable-background attribute when possible"
+        },
+        "image-manager.compression.svg.removeHiddenElems": {
+          "type": "boolean",
+          "default": true,
+          "description": "remove hidden elements"
+        },
+        "image-manager.compression.svg.removeEmptyText": {
+          "type": "boolean",
+          "default": true,
+          "description": "remove empty Text elements"
+        },
+        "image-manager.compression.svg.convertShapeToPath": {
+          "type": "boolean",
+          "default": true,
+          "description": "convert some basic shapes to <path>"
+        },
+        "image-manager.compression.svg.moveElemsAttrsToGroup": {
+          "type": "boolean",
+          "default": true,
+          "description": "move elements' attributes to their enclosing group"
+        },
+        "image-manager.compression.svg.moveGroupAttrsToElems": {
+          "type": "boolean",
+          "default": true,
+          "description": "move some group attributes to the contained elements"
+        },
+        "image-manager.compression.svg.collapseGroups": {
+          "type": "boolean",
+          "default": true,
+          "description": "collapse useless groups"
+        },
+        "image-manager.compression.svg.convertPathData": {
+          "type": "boolean",
+          "default": true,
+          "description": "convert Path data to relative or absolute (whichever is shorter), convert one segment to another, trim useless delimiters, smart rounding, and much more"
+        },
+        "image-manager.compression.svg.convertTransform": {
+          "type": "boolean",
+          "default": true,
+          "description": "collapse multiple transforms into one, convert matrices to the short aliases, and much more"
+        },
+        "image-manager.compression.svg.removeEmptyAttrs": {
+          "type": "boolean",
+          "default": true,
+          "description": "remove empty attributes"
+        },
+        "image-manager.compression.svg.removeEmptyContainers": {
+          "type": "boolean",
+          "default": true,
+          "description": "remove empty Container elements"
+        },
+        "image-manager.compression.svg.mergePaths": {
+          "type": "boolean",
+          "default": true,
+          "description": "merge multiple Paths into one"
+        },
+        "image-manager.compression.svg.removeUnusedNS": {
+          "type": "boolean",
+          "default": true,
+          "description": "remove unused namespaces declaration"
+        },
+        "image-manager.compression.svg.sortAttrs": {
+          "type": "boolean",
+          "default": false,
+          "description": "sort element attributes for epic readability (disabled by default)"
+        },
+        "image-manager.compression.svg.removeTitle": {
+          "type": "boolean",
+          "default": false,
+          "description": "remove <title>"
+        },
+        "image-manager.compression.svg.removeDesc": {
+          "type": "boolean",
+          "default": true,
+          "description": "remove <desc>"
+        },
+        "image-manager.compression.svg.removeDimensions": {
+          "type": "boolean",
+          "default": false,
+          "description": "remove width/height attributes if viewBox is present (opposite to removeViewBox, disable it first) (disabled by default)"
+        },
+        "image-manager.compression.svg.removeAttrs": {
+          "type": "boolean",
+          "default": false,
+          "description": "remove attributes by pattern (disabled by default)"
+        },
+        "image-manager.compression.svg.removeAttributesBySelector": {
+          "type": "boolean",
+          "default": false,
+          "description": "removes attributes of elements that match a css selector (disabled by default)"
+        },
+        "image-manager.compression.svg.removeElementsByAttr": {
+          "type": "boolean",
+          "default": false,
+          "description": "remove arbitrary elements by ID or className (disabled by default)"
+        },
+        "image-manager.compression.svg.addClassesToSVGElement": {
+          "type": "boolean",
+          "default": false,
+          "description": "add classnames to an outer <svg> element (disabled by default)"
+        },
+        "image-manager.compression.svg.removeStyleElement": {
+          "type": "boolean",
+          "default": false,
+          "description": "remove <style> elements (disabled by default)"
+        },
+        "image-manager.compression.svg.removeScriptElement": {
+          "type": "boolean",
+          "default": false,
+          "description": "remove <script> elements (disabled by default)"
+        },
+        "image-manager.compression.svg.addAttributesToSVGElement": {
+          "type": "boolean",
+          "default": false,
+          "description": "adds attributes to an outer <svg> element (disabled by default)"
+        },
+        "image-manager.compression.svg.removeOffCanvasPaths": {
+          "type": "boolean",
+          "default": false,
+          "description": "removes elements that are drawn outside of the viewbox (disabled by default)"
+        },
+        "image-manager.compression.svg.reusePaths": {
+          "type": "boolean",
+          "default": false,
+          "description": "Find duplicated elements and replace them with links (disabled by default)"
+        },
+        "image-manager.conversion.format": {
+          "type": "string",
+          "default": "",
+          "description": "%pkg.compression.format%"
+        },
+        "image-manager.conversion.keepOriginal": {
+          "type": "boolean",
+          "default": false,
+          "description": "%pkg.compression.keepOriginal%"
         }
       }
     }
@@ -224,27 +508,28 @@
     "@commitlint/cli": "^19.2.1",
     "@ctrl/tinycolor": "^4.0.3",
     "@minko-fe/commitlint-config": "^2.0.7",
-    "@minko-fe/eslint-config": "^2.1.2",
+    "@minko-fe/eslint-config": "^2.2.2",
     "@minko-fe/hookable": "^6.0.0",
     "@minko-fe/html-transform": "^0.1.17",
-    "@minko-fe/lodash-pro": "^0.2.3",
-    "@minko-fe/react-hook": "^0.2.6",
-    "@minko-fe/tsconfig": "^2.0.7",
-    "@minko-fe/vite-config": "^0.2.4",
-    "@types/eslint": "^8.56.6",
+    "@minko-fe/lodash-pro": "^0.2.4",
+    "@minko-fe/prettier-config": "^2.2.0",
+    "@minko-fe/react-hook": "^0.2.7",
+    "@minko-fe/tsconfig": "^2.0.8",
+    "@minko-fe/vite-config": "^0.2.5",
+    "@types/eslint": "^8.56.7",
     "@types/fs-extra": "^11.0.4",
     "@types/micromatch": "^4.0.6",
     "@types/node": "^18.19.18",
     "@types/pixelmatch": "^5.2.6",
     "@types/react": "^18.2.69",
-    "@types/react-dom": "^18.2.22",
+    "@types/react-dom": "^18.2.24",
     "@types/react-highlight-words": "^0.16.7",
     "@types/tar-fs": "^2.0.4",
     "@types/vscode": "^1.60.0",
     "@types/vscode-webview": "^1.57.5",
     "@vitejs/plugin-react": "^4.2.1",
     "@vscode/vsce": "^2.24.0",
-    "antd": "^5.15.3",
+    "antd": "^5.16.0",
     "bumpp": "^9.4.0",
     "clsx": "^2.1.0",
     "consola": "^3.2.3",
@@ -257,9 +542,11 @@
     "execa": "^8.0.1",
     "exif-reader": "^2.0.1",
     "fast-glob": "^3.3.2",
+    "flat": "^6.0.1",
     "framer-motion": "^11.0.10",
     "fs-extra": "^11.2.0",
     "fuse.js": "^7.0.0",
+    "htmlparser2": "^9.1.0",
     "i18next": "^23.10.1",
     "image-size": "^1.1.1",
     "immer": "^10.0.4",
@@ -280,10 +567,11 @@
     "react-i18next": "^14.1.0",
     "react-icons": "^5.0.1",
     "sharp": "0.32.6",
-    "simple-git": "^3.23.0",
-    "simple-git-hooks": "^2.11.0",
+    "simple-git": "^3.24.0",
+    "simple-git-hooks": "^2.11.1",
     "slash": "^5.1.0",
     "strict-event-emitter": "^0.5.1",
+    "svgo": "^3.2.0",
     "tailwind-antd-preset": "^0.0.4",
     "tailwind-merge": "^2.2.2",
     "tailwindcss": "^3.4.1",
@@ -293,6 +581,7 @@
     "ts-retry": "^4.2.5",
     "tsup": "6.7.0",
     "tsx": "^4.7.1",
+    "type-fest": "^4.15.0",
     "typescript": "^5.4.0",
     "un-detector": "^1.1.0",
     "vite": "^5.2.2",

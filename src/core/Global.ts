@@ -1,5 +1,5 @@
 import { type Event, EventEmitter, type ExtensionContext, ExtensionMode, workspace } from 'vscode'
-import { Compressor } from '~/core/compress/Compressor'
+import { Compressor, FormatConverter } from '~/core/operator'
 import { Installer } from '~/core/sharp'
 import { i18n } from '~/i18n'
 import { Channel } from '~/utils/Channel'
@@ -26,9 +26,13 @@ export class Global {
    */
   static sharp: TSharp
   /**
-   * sharp compressor
+   * compressor
    */
   static compressor: Compressor
+  /**
+   * format converter
+   */
+  static formatConverter: FormatConverter
   /**
    * is programmatic change config
    */
@@ -54,8 +58,8 @@ export class Global {
     await this.updateRootPath()
   }
 
-  static get rootpaths() {
-    return this._rootpaths
+  static get rootpaths(): string[] {
+    return this._rootpaths || []
   }
 
   static async updateRootPath(_rootpaths?: string[]) {
@@ -77,7 +81,10 @@ export class Global {
       .on('install-success', (e) => {
         Channel.info(`✅ ${i18n.t('prompt.deps_init_success')}`)
         Global.sharp = e
-        Global.compressor = new Compressor()
+        // Get compresstion config from vscode
+        Global.compressor = new Compressor(Config.compression)
+        // Get format converter config from vscode
+        Global.formatConverter = new FormatConverter(Config.conversion)
       })
       .on('install-fail', () => {
         Channel.error(i18n.t('prompt.compressor_init_fail'), true)

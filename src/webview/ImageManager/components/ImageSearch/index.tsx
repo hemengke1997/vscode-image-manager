@@ -203,7 +203,7 @@ function IconUI(
   return (
     <div
       className={mergeClass(
-        'flex items-center text-sm h-full p-0.5 border-solid border-transparent rounded-md transition-all cursor-pointer hover:bg-ant-color-bg-text-hover',
+        'hover:bg-ant-color-bg-text-hover flex h-full cursor-pointer items-center rounded-md border-solid border-transparent p-0.5 text-sm transition-all',
         active && '!text-ant-color-primary !border-ant-color-primary hover:bg-transparent',
       )}
       {...rest}

@@ -1,11 +1,3 @@
-.form {
-  :global {
-    .ant-form-item-row {
-      @apply flex items-center;
-    }
-  }
-}
-
 .custom_resize {
   :global {
     .ant-form-item-row {

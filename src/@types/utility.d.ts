@@ -19,3 +19,5 @@ type FlattenIfObject<T, K extends keyof T> = T[K] extends (infer R)[]
 type ObjectKeys<T> = {
   [K in keyof T]: FlattenIfObject<T, K>
 }[keyof T]
+
+type AnyObject = Record<PropertyKey, any>

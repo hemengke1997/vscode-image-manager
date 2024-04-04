@@ -26,6 +26,20 @@
     "mirror": {
       "enabled": "use mirror for downloading dependencies",
       "url": "mirror url"
+    },
+    "compression": {
+      "keepOriginal": "keep original image",
+      "skipCompressed": "skip compressed image",
+      "quality": "image quality",
+      "fileSuffix": "file suffix",
+      "size": "image size (x)",
+      "format": "output image format",
+      "png": {
+        "compressionLevel": "compression level"
+      },
+      "gif": {
+        "colors": "colors"
+      }
     }
   },
   "prompt": {

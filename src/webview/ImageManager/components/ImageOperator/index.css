@@ -1,0 +1,7 @@
+.operator {
+  .center {
+    .ant-form-item-row {
+      @apply flex items-center;
+    }
+  }
+}

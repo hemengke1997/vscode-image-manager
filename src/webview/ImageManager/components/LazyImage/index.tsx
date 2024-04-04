@@ -105,8 +105,8 @@ function LazyImage(props: LazyImageProps) {
         ref={keybindRef}
         tabIndex={-1}
         className={mergeClass(
-          'flex flex-none flex-col items-center p-1.5 space-y-1 transition-colors relative group',
-          'overflow-hidden border-[1px] border-solid border-transparent rounded-md hover:border-ant-color-primary focus:border-ant-color-primary',
+          'group relative flex flex-none flex-col items-center space-y-1 p-1.5 transition-colors',
+          'hover:border-ant-color-primary focus:border-ant-color-primary overflow-hidden rounded-md border-[1px] border-solid border-transparent',
         )}
         initial={{ opacity: 0 }}
         viewport={{ once: true, margin: '20px 0px' }}

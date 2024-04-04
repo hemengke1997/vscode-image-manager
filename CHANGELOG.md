@@ -1,5 +1,24 @@
 # CHANGELOG
 
+## 0.10.0 (2024-04-04)
+
+### Feat
+
+- Support svg compression which is powered by svgo. Thanks `vscode-svgo` for the inspiration.
+- Support standalone format conversion
+- Add configurations
+  - `image-manager.compression.keepOriginal`
+  - `image-manager.compression.fileSuffix`
+  - `image-manager.compression.skipCompressed`
+  - `image-manager.compression.quality`
+  - `image-manager.compression.size`
+  - `image-manager.compression.format`
+  - `image-manager.compression.png.compressionLevel`
+  - `image-manager.compression.gif.colors`
+  - `image-manager.compression.svg.*` (Please refer to svgo official document for more details)
+  - `image-manager.conversion.format`
+  - `image-manager.conversion.keepOriginal`
+
 ## 0.9.1 (2024-03-25)
 
 ### Update

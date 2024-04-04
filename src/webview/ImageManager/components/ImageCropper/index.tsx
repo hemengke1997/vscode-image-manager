@@ -191,7 +191,7 @@ function ImageCropper(props?: ImageCropperProps) {
           <Card>
             <ReactCropper
               src={image?.vscodePath}
-              className={mergeClass('w-full max-w-full h-[500px]', styles.cropper, loading && 'opacity-0 absolute')}
+              className={mergeClass('h-[500px] w-full max-w-full', styles.cropper, loading && 'absolute opacity-0')}
               ready={() => {
                 setLoading(false)
               }}
