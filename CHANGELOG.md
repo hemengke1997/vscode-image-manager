@@ -6,6 +6,7 @@
 
 - Support svg compression which is powered by svgo. Thanks `vscode-svgo` for the inspiration.
 - Support standalone format conversion
+- Support pretty svg format
 - Add configurations
   - `image-manager.compression.keepOriginal`
   - `image-manager.compression.fileSuffix`
