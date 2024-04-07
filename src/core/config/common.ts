@@ -86,7 +86,7 @@ export const DEFAULT_CONFIG: ConfigType = {
     keepOriginal: false,
     skipCompressed: true,
     fileSuffix: '.min',
-    quality: 90,
+    quality: undefined,
     size: 1,
     format: '',
     png: {

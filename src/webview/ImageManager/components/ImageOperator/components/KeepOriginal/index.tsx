@@ -5,7 +5,7 @@ import { useTranslation } from 'react-i18next'
 function KeepOriginal() {
   const { t } = useTranslation()
   return (
-    <Form.Item label={t('im.keep')} name={'keepOriginal'} tooltip={t('im.keep_origin')} className={'center'}>
+    <Form.Item label={t('im.keep')} name={'keepOriginal'} className={'center'}>
       <Segmented
         options={[
           {

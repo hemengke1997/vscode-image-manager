@@ -1,6 +1,7 @@
 import { useLockFn } from '@minko-fe/react-hook'
-import { App, Descriptions, type DescriptionsProps } from 'antd'
+import { App, Descriptions, type DescriptionsProps, Tooltip } from 'antd'
 import { useTranslation } from 'react-i18next'
+import { BsQuestionCircleFill } from 'react-icons/bs'
 import { CmdToVscode } from '~/message/cmd'
 import { type ImageType } from '../..'
 import { vscodeApi } from '../../../vscode-api'
@@ -65,7 +66,28 @@ export default function useImageDetail() {
           },
           {
             label: t('im.compressed'),
-            children: <div>{compressed ? t('im.yes') : t('im.no')}</div>,
+            children:
+              image.fileType === 'svg' ? (
+                <div className={'flex items-center gap-x-1'}>
+                  <a
+                    onClick={() => {
+                      vscodeApi.postMessage({
+                        cmd: CmdToVscode.open_file_in_text_editor,
+                        data: {
+                          filePath: image.path,
+                        },
+                      })
+                    }}
+                  >
+                    {t('im.view_svg')}
+                  </a>
+                  <Tooltip title={t('im.svg_compressed_tip')}>
+                    <BsQuestionCircleFill />
+                  </Tooltip>
+                </div>
+              ) : (
+                <div>{compressed ? t('im.yes') : t('im.no')}</div>
+              ),
           },
         ]
 

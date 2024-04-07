@@ -89,7 +89,7 @@
     "image_compression": "Image Compression",
     "compress_level": "Compression Level",
     "compress_level_tip": "0 to 9 (9 is smallest)",
-    "quality_tip": "0 to 100 (100 is high quality)",
+    "quality_tip": "1 to 100 (100 is high quality)",
     "colors_tip": "2 to 256 (256 is high quality)",
     "image_quality": "Image Quality",
     "image_size": "Image Size",
@@ -100,11 +100,10 @@
     "confirm": "Confirm",
     "suffix": "Add suffix to new image",
     "svg_format_tip": "svg format conversion is not supported",
-    "keep": "Keep",
-    "keep_origin": "Keep original file",
+    "keep": "Keep original file",
     "yes": "Yes",
     "no": "No",
-    "compressed": "Compressed",
+    "compressed": "Is Compressed",
     "git_staged": "Git staged",
     "no_image_to_compress": "No image to compress",
     "no_image_to_convert_format": "No image to convert format",
@@ -125,7 +124,9 @@
     "scale_factor": "scale factor",
     "file_suffix": "file suffix",
     "pretty": "Pretty",
-    "pretty_success": "Pretty Success"
+    "pretty_success": "Pretty Success",
+    "svg_compressed_tip": "Please determine whether it's compressed by examining the SVG code format yourself",
+    "view_svg": "View svg code"
   },
   "fallback": {
     "internal_error": "Internal Error",

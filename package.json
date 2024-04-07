@@ -231,8 +231,11 @@
           "description": "%pkg.compression.skipCompressed%"
         },
         "image-manager.compression.quality": {
-          "type": "number",
-          "default": 90,
+          "type": [
+            "null",
+            "number"
+          ],
+          "default": null,
           "description": "%pkg.compression.quality%"
         },
         "image-manager.compression.size": {

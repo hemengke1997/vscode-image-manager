@@ -2,6 +2,7 @@ import { intersection, isEmpty, merge, omit, pick } from '@minko-fe/lodash-pro'
 import { useMemoizedFn } from '@minko-fe/react-hook'
 import { App, Divider, Form, Input, InputNumber, Segmented, Tooltip } from 'antd'
 import { flatten as flattenObject, unflatten } from 'flat'
+import { motion } from 'framer-motion'
 import { memo, useCallback, useEffect, useMemo, useState } from 'react'
 import { Trans, useTranslation } from 'react-i18next'
 import { BsQuestionCircleFill } from 'react-icons/bs'
@@ -23,12 +24,14 @@ type FormValue = CompressionOptions & {
 type ImageCompressorProps = {} & ImageOperatorProps
 
 function ImageCompressor(props: ImageCompressorProps) {
-  const { images, open, onOpenChange } = props
+  const { images: imagesProp, open, onOpenChange } = props
   const { t } = useTranslation()
 
   const { compressor } = GlobalContext.usePicker(['compressor'])
   const [form] = Form.useForm()
   const { message } = App.useApp()
+
+  const [images, setImages] = useState(imagesProp)
 
   const [submitting, setSubmitting] = useState(false)
 
@@ -272,52 +275,73 @@ function ImageCompressor(props: ImageCompressorProps) {
     }, {} as FormComponent<CompressionOptions>)
   }, [tabList])
 
+  const displayTabs = useMemo(() => tabList.filter((item) => !item.hidden), [tabList])
+
   if (isEmpty(allCompressorOption)) return null
 
   return (
     <ImageOperator
+      title={t('im.image_compression')}
       images={images}
+      onImagesChange={setImages}
       open={open}
       onOpenChange={onOpenChange}
       form={form}
       submitting={submitting}
       onSubmittingChange={setSubmitting}
     >
-      <Form
-        layout='horizontal'
-        colon={false}
-        name='image-compressor'
-        initialValues={allCompressorOption}
-        form={form}
-        requiredMark={false}
-        onFinish={onFinish}
-      >
-        <div className={'max-h-96 overflow-auto'}>
-          {Object.keys(allComponents).map((key, index) => {
-            return (
-              <div key={index} hidden={!displayComponents.keys.includes(key)}>
-                {allComponents[key]?.el()}
-              </div>
-            )
-          })}
-        </div>
+      <div className={'flex flex-col'}>
+        {displayTabs.length > 1 ? (
+          <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ duration: 0.15 }}>
+            <div className={'flex justify-center'}>
+              <Segmented
+                options={displayTabs.map((t) => ({
+                  label: t.label,
+                  value: t.value,
+                }))}
+                value={activeTab}
+                onChange={(value) => setActiveTab(value as any)}
+              ></Segmented>
+            </div>
+            <Divider />
+          </motion.div>
+        ) : null}
+        <Form
+          layout='horizontal'
+          colon={false}
+          name='image-compressor'
+          initialValues={allCompressorOption}
+          form={form}
+          requiredMark={false}
+          onFinish={onFinish}
+        >
+          <div className={'max-h-96 overflow-auto'}>
+            {Object.keys(allComponents).map((key, index) => {
+              return (
+                <div key={index} hidden={!displayComponents.keys.includes(key)}>
+                  {allComponents[key]?.el()}
+                </div>
+              )
+            })}
+          </div>
 
-        <Divider plain className={'!my-0'}>
-          {t('im.universal')}
-        </Divider>
+          <Divider plain className={'!my-0'}>
+            {t('im.universal')}
+          </Divider>
 
-        <KeepOriginal />
+          <KeepOriginal />
 
-        <Form.Item noStyle shouldUpdate={(p, c) => p.keepOriginal !== c.keepOriginal}>
-          {({ getFieldValue }) =>
-            getFieldValue('keepOriginal') ? (
-              <Form.Item label={t('im.suffix')} name={'fileSuffix'} rules={[{ required: true, message: '' }]}>
-                <Input type='text' className='w-auto' placeholder={t('im.file_suffix')} />
-              </Form.Item>
-            ) : null
-          }
-        </Form.Item>
-      </Form>
+          <Form.Item noStyle shouldUpdate={(p, c) => p.keepOriginal !== c.keepOriginal}>
+            {({ getFieldValue }) =>
+              getFieldValue('keepOriginal') ? (
+                <Form.Item label={t('im.suffix')} name={'fileSuffix'} rules={[{ required: true, message: '' }]}>
+                  <Input type='text' className='w-auto' placeholder={t('im.file_suffix')} />
+                </Form.Item>
+              ) : null
+            }
+          </Form.Item>
+        </Form>
+      </div>
     </ImageOperator>
   )
 }

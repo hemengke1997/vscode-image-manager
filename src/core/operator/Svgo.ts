@@ -30,7 +30,6 @@ export class Svgo {
     const restPlugin: PluginConfig[] = Object.keys(pickBy(restConfig, (v) => v === true)) as PluginConfig[]
 
     const config: Config = {
-      multipass: true,
       js2svg: {
         pretty: options.pretty,
       },

@@ -1,4 +1,4 @@
-import { Card, Skeleton } from 'antd'
+import { Card, Empty, Skeleton } from 'antd'
 import { AnimatePresence, motion } from 'framer-motion'
 import { memo } from 'react'
 import { useTranslation } from 'react-i18next'
@@ -40,19 +40,23 @@ function Viewer() {
           ) : (
             <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ duration: 0.2 }}>
               <div className={'space-y-4'}>
-                {imageState.data.map((item, index) => (
-                  <TreeContext.Provider
-                    key={index}
-                    value={{
-                      imageList: item.imgs,
-                      workspaceFolder: item.workspaceFolder,
-                      dirs: item.dirs,
-                      imageTypes: item.fileTypes,
-                    }}
-                  >
-                    <CollapseTree />
-                  </TreeContext.Provider>
-                ))}
+                {imageState.data.length ? (
+                  imageState.data.map((item, index) => (
+                    <TreeContext.Provider
+                      key={index}
+                      value={{
+                        imageList: item.imgs,
+                        workspaceFolder: item.workspaceFolder,
+                        dirs: item.dirs,
+                        imageTypes: item.fileTypes,
+                      }}
+                    >
+                      <CollapseTree />
+                    </TreeContext.Provider>
+                  ))
+                ) : (
+                  <Empty image={Empty.PRESENTED_IMAGE_SIMPLE} description={t('im.no_image')} />
+                )}
               </div>
             </motion.div>
           )}

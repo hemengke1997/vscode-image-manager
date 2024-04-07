@@ -16,10 +16,12 @@ export type ImageOperatorProps = {
 }
 
 type ImageOperatorStaticProps = {
+  title: ReactNode
   form: FormInstance
   children: ReactNode
   submitting: boolean
   onSubmittingChange?: (submitting: boolean) => void
+  onImagesChange: (images: ImageType[]) => void
 }
 
 const LoadingKey = `image-operator-loading`
@@ -30,10 +32,12 @@ function ImageOperator(props: ImageOperatorProps & ImageOperatorStaticProps) {
     open: openProp,
     images: imagesProp,
     onOpenChange,
+    title,
     form,
     children,
     submitting: submittingProp,
     onSubmittingChange,
+    onImagesChange,
   } = props
   const { token } = theme.useToken()
   const { message } = App.useApp()
@@ -62,6 +66,10 @@ function ImageOperator(props: ImageOperatorProps & ImageOperatorStaticProps) {
       message.destroy(LoadingKey)
     }
   }, [open])
+
+  useEffect(() => {
+    onImagesChange(images || [])
+  }, [images])
 
   useHotkeys<HTMLDivElement>(
     `mod+z`,
@@ -99,10 +107,9 @@ function ImageOperator(props: ImageOperatorProps & ImageOperatorStaticProps) {
         )
         form.resetFields(errFields)
       }}
-      title={t('im.image_compression')}
+      title={title}
       footer={null}
       width={'80%'}
-      destroyOnClose
     >
       <div className={'flex w-full flex-col items-center space-y-2 overflow-auto'}>
         <Card className={'max-h-[480px] w-full overflow-y-auto'}>

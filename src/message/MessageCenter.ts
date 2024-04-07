@@ -9,7 +9,7 @@ import mime from 'mime/lite'
 import path from 'node:path'
 import git from 'simple-git'
 import { optimize } from 'svgo'
-import { type ConfigurationTarget, Uri, type Webview, commands } from 'vscode'
+import { type ConfigurationTarget, Uri, ViewColumn, type Webview, commands, window, workspace } from 'vscode'
 import { type SharpNS } from '~/@types/global'
 import {
   type CompressionOptions,
@@ -453,6 +453,14 @@ export const VscodeMessageCenter = {
     const svgString = await fs.readFile(filePath, 'utf-8')
     const { data: svgStr } = optimize(svgString, svgoConfig)
     await fs.writeFile(filePath, svgStr)
+    return true
+  },
+  /* --------- open file in text editor --------- */
+  [CmdToVscode.open_file_in_text_editor]: async (data: { filePath: string }) => {
+    const { filePath } = data
+    workspace.openTextDocument(Uri.file(filePath)).then((document) => {
+      window.showTextDocument(document, ViewColumn.Active)
+    })
     return true
   },
 }

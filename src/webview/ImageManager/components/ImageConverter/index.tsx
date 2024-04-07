@@ -18,11 +18,13 @@ type ImageConverterProps = {} & ImageOperatorProps
 type FormValue = FormatConverterOptions
 
 function ImageConverter(props: ImageConverterProps) {
-  const { images, open, onOpenChange } = props
+  const { images: imagesProp, open, onOpenChange } = props
   const { t } = useTranslation()
   const { message } = App.useApp()
   const { formatConverter } = GlobalContext.usePicker(['formatConverter'])
   const [form] = Form.useForm()
+
+  const [images, setImages] = useState(imagesProp)
 
   const [submitting, setSubmitting] = useState(false)
 
@@ -81,11 +83,19 @@ function ImageConverter(props: ImageConverterProps) {
   if (isEmpty(formatConverter?.option)) return null
 
   return (
-    <ImageOperator images={images} open={open} onOpenChange={onOpenChange} form={form} submitting={submitting}>
+    <ImageOperator
+      title={t('im.convert_format')}
+      images={images}
+      onImagesChange={setImages}
+      open={open}
+      onOpenChange={onOpenChange}
+      form={form}
+      submitting={submitting}
+    >
       <Form
         layout='horizontal'
         colon={false}
-        name='image-compressor'
+        name='image-converter'
         initialValues={formatConverter.option}
         form={form}
         requiredMark={false}

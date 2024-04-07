@@ -248,8 +248,12 @@ function ImageManager() {
       <ImageForSize />
       <ImageSearch open={imageSearchOpen} onOpenChange={setImageSearchOpen} />
       <ImageCropper {...cropperProps} onOpenChange={(open) => setCropperProps({ open })} />
-      <ImageCompressor {...compressorModal} onOpenChange={(open) => setCompressorModal({ open })} />
-      <ImageConverter {...formatConverterModal} onOpenChange={(open) => setFormatConverterModal({ open })} />
+      {compressorModal.open && (
+        <ImageCompressor {...compressorModal} onOpenChange={(open) => setCompressorModal({ open })} />
+      )}
+      {formatConverterModal.open && (
+        <ImageConverter {...formatConverterModal} onOpenChange={(open) => setFormatConverterModal({ open })} />
+      )}
       <FloatButton.BackTop target={() => document.querySelector('#root') as HTMLElement} />
     </>
   )

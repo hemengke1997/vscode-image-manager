@@ -29,7 +29,7 @@ export type CompressionOptions = {
   /**
    * @description
    * use the lowest number of colours needed to achieve given quality, sets palette to true
-   * @default 100
+   * @default undefined
    */
   quality?: number
   /**
@@ -38,7 +38,6 @@ export type CompressionOptions = {
    * @default 1
    */
   size: number
-
   png: {
     /**
      * @description
