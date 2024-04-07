@@ -88,7 +88,7 @@
     "image_compression": "图片压缩",
     "compress_level": "压缩等级",
     "compress_level_tip": "0 至 9 (9压缩至最小)",
-    "quality_tip": "1 至 100 (100质量最高)",
+    "quality_tip": "0 至 100 (100质量最高)",
     "colors_tip": "2 至 256 (256质量最高)",
     "image_quality": "图片质量",
     "image_size": "图片尺寸",
@@ -100,9 +100,10 @@
     "suffix": "新图片添加后缀",
     "svg_format_tip": "不支持 svg 格式转化",
     "keep": "保留原文件",
+    "keep_origin": "保留原文件，压缩后的新图片添加后缀",
     "yes": "是",
     "no": "否",
-    "compressed": "是否已压缩",
+    "compressed": "已压缩",
     "git_staged": "Git staged",
     "no_image_to_compress": "无可压缩的图片",
     "no_image_to_convert_format": "无可转换格式的图片",
@@ -123,10 +124,8 @@
     "refer_to_svgo": "请参考: <0>svgo官方文档</0>",
     "scale_factor": "倍数",
     "file_suffix": "文件后缀",
-    "pretty": "格式化",
-    "pretty_success": "格式化成功",
-    "svg_compressed_tip": "请自行通过svg代码格式判断是否已压缩",
-    "view_svg": "查看svg代码"
+    "pretty": "Pretty",
+    "pretty_success": "格式化成功"
   },
   "fallback": {
     "internal_error": "内部错误",
