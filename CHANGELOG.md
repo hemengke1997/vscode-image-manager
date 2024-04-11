@@ -1,5 +1,16 @@
 # CHANGELOG
 
+## 0.11.0 (2024-04-11)
+
+### Feat
+
+- Support for finding similar images
+- Support for deleting images
+- Support for renaming images
+- Add configurations
+  - `image-manager.file.confirmDelete`: controls whether ask for confirmation when deleting a image
+  - `image-manager.similarity.precision`: determining the precision of image similarity. The smaller the value, the stricter the judgment
+
 ## 0.10.1 (2024-04-07)
 
 ### Fix

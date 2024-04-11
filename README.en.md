@@ -86,7 +86,7 @@ Right click in Explorer, select `Image Manager` to open extension. (Open current
 | image-manager.compression.svg.*                | `svgo 配置`             | svgo config. Please refer to svgo offical docs                                                  | -                                                                                                                            |
 | image-manager.conversion.format                | `string`                | convert format                                                                                  | ''                                                                                                                           |
 | image-manager.conversion.keepOriginal          | `boolean`               | keep original image after format conversion                                                     | false                                                                                                                        |
-| image-manager.similarity.precision             | `number`                | Determining the precision of image similarity. The smaller the value, the stricter the judgment | 10                                                                                                                           |
+| image-manager.similarity.precision             | `number`                | determining the precision of image similarity. The smaller the value, the stricter the judgment | 10                                                                                                                           |
 
 
 ## Tips
