@@ -1,6 +1,6 @@
 import { intersection, isEmpty, merge, omit, pick } from '@minko-fe/lodash-pro'
 import { useMemoizedFn } from '@minko-fe/react-hook'
-import { App, Divider, Form, Input, InputNumber, Segmented, Tooltip } from 'antd'
+import { Divider, Form, Input, InputNumber, Segmented, Tooltip } from 'antd'
 import { flatten as flattenObject, unflatten } from 'flat'
 import { motion } from 'framer-motion'
 import { memo, useCallback, useEffect, useMemo, useState } from 'react'
@@ -30,7 +30,6 @@ function ImageCompressor(props: ImageCompressorProps) {
 
   const { compressor } = GlobalContext.usePicker(['compressor'])
   const [form] = Form.useForm()
-  const { message } = App.useApp()
 
   const [images, setImages] = useState(imagesProp)
 
@@ -62,12 +61,6 @@ function ImageCompressor(props: ImageCompressorProps) {
         value.size = value.customResize!
       }
       value.size = Number(value.size)
-    }
-
-    if (hasSomeImageType('svg') && value.format) {
-      message.warning({
-        content: t('im.svg_format_tip'),
-      })
     }
 
     const imagesToCompress = images?.map((item) => item.path) || []

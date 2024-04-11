@@ -108,35 +108,35 @@ export const VscodeMessageCenter = {
       })
 
       return Promise.all(
-        images.map(async (img) => {
-          img.path = normalizePath(img.path)
-          let vscodePath = webview.asWebviewUri(Uri.file(img.path)).toString()
+        images.map(async (image) => {
+          image.path = normalizePath(image.path)
+          let vscodePath = webview.asWebviewUri(Uri.file(image.path)).toString()
 
           // Browser doesn't support [tiff, tif], convert to png base64
           try {
-            vscodePath = (await convertToBase64IfBrowserNotSupport(img.path)) || vscodePath
+            vscodePath = (await convertToBase64IfBrowserNotSupport(image.path)) || vscodePath
           } catch (e) {
             Channel.error(`Convert to base64 error: ${e}`)
           }
 
-          const fileType = path.extname(img.path).replace('.', '')
+          const fileType = path.extname(image.path).replace('.', '')
           fileTypes && fileTypes.add(fileType)
 
-          const dirPath = _resolveDirPath(absWorkspaceFolder, img.path)
+          const dirPath = _resolveDirPath(absWorkspaceFolder, image.path)
           dirPath && dirs.add(dirPath)
 
           return {
-            name: img.name,
-            path: img.path,
-            stats: img.stats!,
+            name: image.name,
+            path: image.path,
+            stats: image.stats!,
             dirPath,
-            absDirPath: normalizePath(path.dirname(img.path)),
+            absDirPath: normalizePath(path.dirname(image.path)),
             fileType,
-            vscodePath,
+            vscodePath: `${vscodePath}?t=${image.stats?.mtime.getTime()}`,
             workspaceFolder: normalizePath(path.basename(absWorkspaceFolder)),
             absWorkspaceFolder: normalizePath(absWorkspaceFolder),
             basePath: normalizePath(path.dirname(absWorkspaceFolder)),
-            extraPathInfo: path.parse(img.path),
+            extraPathInfo: path.parse(image.path),
           }
         }),
       )

@@ -15,6 +15,11 @@ export type FormatConverterOptions = {
 } & OperatorOptions
 
 export class FormatConverter extends Operator {
+  public limit: { extensions: string[]; size: number } = {
+    extensions: ['png', 'jpg', 'jpeg', 'webp', 'gif', 'tiff', 'avif', 'heif', 'svg'],
+    size: 20 * 1024 * 1024,
+  }
+
   constructor(public option: FormatConverterOptions) {
     super()
   }

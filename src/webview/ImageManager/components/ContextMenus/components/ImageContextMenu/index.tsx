@@ -140,10 +140,7 @@ function ImageContextMenu() {
         <Item onClick={handleCropImage} hidden={isOperationHidden}>
           {t('im.crop')}
         </Item>
-        <Item
-          onClick={handleConvertFormat}
-          hidden={(e) => _isOperationHidden(e as any) || e.props.image?.fileType === 'svg'}
-        >
+        <Item onClick={handleConvertFormat} hidden={isOperationHidden}>
           {t('im.convert_format')}
         </Item>
         <Submenu label={t('im.find_similar_images')} arrow={<Arrow />} hidden={isOperationHidden}>

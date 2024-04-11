@@ -1,6 +1,6 @@
 import { isEmpty, merge } from '@minko-fe/lodash-pro'
 import { useMemoizedFn } from '@minko-fe/react-hook'
-import { App, Form } from 'antd'
+import { Form } from 'antd'
 import { flatten as flattenObject, unflatten } from 'flat'
 import { memo, useState } from 'react'
 import { useTranslation } from 'react-i18next'
@@ -21,7 +21,6 @@ type FormValue = FormatConverterOptions
 function ImageConverter(props: ImageConverterProps) {
   const { images: imagesProp, open, onOpenChange, ...rest } = props
   const { t } = useTranslation()
-  const { message } = App.useApp()
   const { formatConverter } = GlobalContext.usePicker(['formatConverter'])
   const [form] = Form.useForm()
 
@@ -29,9 +28,9 @@ function ImageConverter(props: ImageConverterProps) {
 
   const [submitting, setSubmitting] = useState(false)
 
-  const hasSomeImageType = useMemoizedFn((type: string) => {
-    return images?.some((img) => img.fileType === type)
-  })
+  // const hasSomeImageType = useMemoizedFn((type: string) => {
+  //   return images?.some((img) => img.fileType === type)
+  // })
 
   const { handleOperateImage } = useOperatorModalLogic()
 
@@ -45,12 +44,6 @@ function ImageConverter(props: ImageConverterProps) {
 
   const onFinish = useMemoizedFn((value: FormValue) => {
     value = merge(flattenObject(formatConverter?.option || {}), value)
-
-    if (hasSomeImageType('svg') && value.format) {
-      message.warning({
-        content: t('im.svg_format_tip'),
-      })
-    }
 
     const imagesToConvertFormat = images?.map((item) => item.path) || []
 

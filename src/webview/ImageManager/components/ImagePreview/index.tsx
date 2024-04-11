@@ -146,11 +146,11 @@ function ImagePreview(props: ImagePreviewProps) {
                 <LazyImage
                   {...lazyImageProps}
                   imageProp={{
+                    ...(lazyImageProps?.imageProp || {}),
                     style: { backgroundColor },
                     width: imageWidth,
                     height: imageWidth,
                     src: image.vscodePath,
-                    ...(lazyImageProps?.imageProp || {}),
                   }}
                   preview={preview}
                   onPreviewChange={(p) => {

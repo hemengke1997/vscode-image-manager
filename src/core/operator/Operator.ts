@@ -22,12 +22,9 @@ export type OperatorResult = {
 }[]
 
 export abstract class Operator {
-  public limit: {
+  public abstract limit: {
     extensions: string[]
     size: number
-  } = {
-    extensions: ['png', 'jpg', 'jpeg', 'webp', 'gif', 'tiff', 'avif', 'heif'],
-    size: 20 * 1024 * 1024,
   }
 
   public abstract option: OperatorOptions

@@ -66,11 +66,8 @@ function CollapseContextMenu() {
     if (!images?.length) {
       return message.warning(t('im.no_image_to_convert_format'))
     }
-    const imagesToConvert = images.filter((image) => image.fileType !== 'svg')
-    if (!imagesToConvert.length) {
-      return message.warning(t('im.svg_format_tip'))
-    }
-    beginFormatConversionProcess(imagesToConvert)
+
+    beginFormatConversionProcess(images)
   })
 
   const handleFormatConversion = useMemoizedFn((e: ItemParams<{ images: ImageType[] }>) => {

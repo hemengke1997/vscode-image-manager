@@ -65,6 +65,11 @@ export type SvgCompressionOptions = {
 }
 
 export class Compressor extends Operator {
+  public limit: { extensions: string[]; size: number } = {
+    extensions: ['png', 'jpg', 'jpeg', 'webp', 'gif', 'tiff', 'avif', 'heif'],
+    size: 20 * 1024 * 1024,
+  }
+
   constructor(public option: CompressionOptions) {
     super()
   }
