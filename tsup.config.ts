@@ -26,6 +26,7 @@ function buildExternals(option: Options): Options[] {
       entry: ['lib/**/*.ts'],
       outDir: 'dist/lib',
       format: ['cjs'],
+      target: 'node16',
       minify: !option.watch,
       esbuildPlugins: [
         {
