@@ -152,4 +152,5 @@
 ## 感谢
 
 ❤️ [vscode-image-viewer](https://github.com/ZhangJian1713/vscode-image-viewer)
+
 ❤️ [vscode-svgo](https://github.com/1000ch/vscode-svgo)

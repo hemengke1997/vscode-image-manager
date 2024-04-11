@@ -117,4 +117,5 @@ The first time you open the extension, it will need to download the necessary de
 ## Thanks
 
 ❤️ [vscode-image-viewer](https://github.com/ZhangJian1713/vscode-image-viewer)
+
 ❤️ [vscode-svgo](https://github.com/1000ch/vscode-svgo)
