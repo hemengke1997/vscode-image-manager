@@ -1,5 +1,6 @@
 import path from 'node:path'
 import pMap, { pMapSkip } from 'p-map'
+import logger from '~/utils/logger'
 import { Config } from '..'
 import { hammingDistance, phash } from './phash'
 
@@ -28,9 +29,11 @@ export class Similarity {
     const result = await pMap(scope, async (image) => {
       try {
         if (image.path === source) return pMapSkip
+        if (!this.limit.extensions.includes(image.fileType)) return pMapSkip
         const hash = await phash(image.path)
         return { image, hash }
-      } catch {
+      } catch (e) {
+        logger.error(e)
         return pMapSkip
       }
     })

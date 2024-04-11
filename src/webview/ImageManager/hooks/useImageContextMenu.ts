@@ -7,17 +7,18 @@ export type ImageContextMenuType = {
   /**
    * 同display层级的图片
    */
-  sameLevelImages: ImageType[]
+  sameLevelImages?: ImageType[]
   /**
    * 同目录层级的图片
    */
-  sameDirImages: ImageType[]
+  sameDirImages?: ImageType[]
   /**
    * 同个工作区图片（在同一颗singleTree上)
    */
-  sameWorkspaceImages: ImageType[]
+  sameWorkspaceImages?: ImageType[]
   /**
    * 是否显示操作相关的菜单
+   * 如果是false，则不需要传以上三个参数
    */
   operable?: boolean
 }

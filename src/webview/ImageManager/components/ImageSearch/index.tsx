@@ -95,10 +95,10 @@ function ImageSearch(props: ImageSearchProps) {
     setSearchResults(result)
   }
 
-  // When caseSensitive change, we need to re-search
+  // When condition change, we need to re-search
   useUpdateEffect(() => {
     onSearch(searchValue)
-  }, [caseSensitive])
+  }, [caseSensitive, wholeWord])
 
   return (
     <Modal
@@ -161,7 +161,7 @@ function ImageSearch(props: ImageSearchProps) {
         />
       </div>
 
-      <div className={'flex max-h-96 flex-col space-y-1 overflow-y-auto'}>
+      <div className={'flex max-h-[600px] flex-col space-y-1 overflow-y-auto'}>
         <ImagePreview
           images={searchResults.map((result) => ({
             ...result.item,
@@ -185,6 +185,9 @@ function ImageSearch(props: ImageSearchProps) {
               </>
             ),
           }))}
+          lazyImageProps={{
+            contextMenu: { operable: false },
+          }}
         />
       </div>
     </Modal>

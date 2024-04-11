@@ -49,9 +49,6 @@ function ImageSimilarity(props: ImageSimilarityProps) {
             lazyImageProps={{
               contextMenu: {
                 operable: false,
-                sameDirImages: [],
-                sameLevelImages: [],
-                sameWorkspaceImages: [],
               },
               tooltipDisplayFullPath: true,
             }}
@@ -67,9 +64,6 @@ function ImageSimilarity(props: ImageSimilarityProps) {
               lazyImageProps={{
                 contextMenu: {
                   operable: false,
-                  sameDirImages: [],
-                  sameLevelImages: [],
-                  sameWorkspaceImages: [],
                 },
                 tooltipDisplayFullPath: true,
               }}

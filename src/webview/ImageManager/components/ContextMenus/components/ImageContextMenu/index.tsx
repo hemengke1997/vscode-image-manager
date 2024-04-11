@@ -106,6 +106,7 @@ function ImageContextMenu() {
   const handleFindSimilarInAll = useLockFn(
     async (e: ItemParams<{ image: ImageType; sameWorkspaceImages: ImageType[] }>) => {
       const { image, sameWorkspaceImages } = e.props || {}
+
       await handleFindSimilar(image!, sameWorkspaceImages!)
     },
   )

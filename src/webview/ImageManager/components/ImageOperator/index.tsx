@@ -108,9 +108,6 @@ function ImageOperator(props: ImageOperatorProps & ImageOperatorStaticProps) {
               lazyImageProps={{
                 contextMenu: {
                   operable: false,
-                  sameDirImages: [],
-                  sameLevelImages: [],
-                  sameWorkspaceImages: [],
                 },
                 onRemoveClick:
                   images && images?.length <= 1

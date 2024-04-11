@@ -46,7 +46,8 @@ export type LazyImageProps = {
         /**
          * TODO
          * @description 来源
-         * 根据来源追踪事件链路
+         * 根据来源追踪事件链路，然后就可以在任意地方删除、重命名文件等操作
+         * 现在暂时没想好怎么做
          */
         source?: 'similarity'
       })
@@ -163,6 +164,7 @@ function LazyImage(props: LazyImageProps) {
             event: e,
             props: {
               image,
+              ...contextMenu,
               sameWorkspaceImages: contextMenu?.sameWorkspaceImages || [],
               sameLevelImages: contextMenu?.sameLevelImages || [],
               sameDirImages: contextMenu?.sameDirImages || [],

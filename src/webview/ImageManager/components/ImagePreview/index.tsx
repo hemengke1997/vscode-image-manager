@@ -3,11 +3,11 @@ import { useThrottleFn } from '@minko-fe/react-hook'
 import { isDev } from '@minko-fe/vite-config/client'
 import { ConfigProvider, Image, theme } from 'antd'
 import { motion } from 'framer-motion'
-import { memo, useEffect, useState } from 'react'
+import { memo, useCallback, useEffect, useState } from 'react'
 import GlobalContext from '../../contexts/GlobalContext'
 import SettingsContext from '../../contexts/SettingsContext'
 import useImageContextMenu from '../../hooks/useImageContextMenu'
-import { findSameDirImages, findSameWorkspaceImages } from '../../utils'
+import { findSameDirImages } from '../../utils'
 import LazyImage, { type LazyImageProps } from '../LazyImage'
 import Toast from '../Toast'
 
@@ -21,7 +21,7 @@ function ImagePreview(props: ImagePreviewProps) {
 
   const { token } = theme.useToken()
 
-  const { imageWidth } = GlobalContext.usePicker(['imageWidth'])
+  const { imageWidth, imageState } = GlobalContext.usePicker(['imageWidth', 'imageState'])
   const { isDarkBackground, backgroundColor, tinyBackgroundColor } = SettingsContext.usePicker([
     'isDarkBackground',
     'backgroundColor',
@@ -54,6 +54,13 @@ function ImagePreview(props: ImagePreviewProps) {
       trailing: true,
       wait: 60,
     },
+  )
+
+  const getSameWorkspaceImages = useCallback(
+    (image: ImageType) => {
+      return imageState.data.find((t) => t.workspaceFolder === image.workspaceFolder)?.images || []
+    },
+    [imageState.data],
   )
 
   return (
@@ -101,11 +108,11 @@ function ImagePreview(props: ImagePreviewProps) {
                       show({
                         event: e,
                         props: {
+                          ...lazyImageProps?.contextMenu,
                           image: images[info.current],
                           sameLevelImages: images,
                           sameDirImages: findSameDirImages(images[info.current], images),
-                          sameWorkspaceImages: findSameWorkspaceImages(images[info.current], images),
-                          ...lazyImageProps?.contextMenu,
+                          sameWorkspaceImages: getSameWorkspaceImages(images[info.current]),
                         },
                       })
                     }}
@@ -150,9 +157,10 @@ function ImagePreview(props: ImagePreviewProps) {
                     setPreview(p)
                   }}
                   contextMenu={{
+                    ...lazyImageProps?.contextMenu,
                     sameLevelImages: images,
                     sameDirImages: findSameDirImages(image, images),
-                    sameWorkspaceImages: findSameWorkspaceImages(image, images),
+                    sameWorkspaceImages: getSameWorkspaceImages(image),
                   }}
                   image={image}
                   index={i}
