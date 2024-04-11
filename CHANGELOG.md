@@ -1,5 +1,11 @@
 # CHANGELOG
 
+## 0.11.1 (2024-04-11)
+
+### Fix
+
+- Context-state render bug
+
 ## 0.11.0 (2024-04-11)
 
 ### Feat
