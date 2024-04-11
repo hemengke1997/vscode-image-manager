@@ -1,6 +1,16 @@
 # CHANGELOG
 
-## 0.11.1 (2024-04-11)
+## 0.11.3 (2024-04-11)
+
+### Fix
+
+- Add timestamp to get latest image file
+
+### Chore
+
+- Replace logo
+
+## 0.11.2 (2024-04-11)
 
 ### Fix
 
