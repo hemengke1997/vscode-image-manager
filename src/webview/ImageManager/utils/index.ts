@@ -64,3 +64,13 @@ export function uniqSortByThenMap<T>(images: ImageType[], key: keyof ImageType, 
 export function findSameDirImages(image: ImageType, imageList: ImageType[]) {
   return imageList.filter((item) => getDirFromPath(item.path) === getDirFromPath(image.path))
 }
+
+/**
+ * 从图片列表中找出同工作区的图片
+ * @param image
+ * @param imageList
+ * @returns
+ */
+export function findSameWorkspaceImages(image: ImageType, imageList: ImageType[]) {
+  return imageList.filter((item) => image.workspaceFolder === item.workspaceFolder)
+}

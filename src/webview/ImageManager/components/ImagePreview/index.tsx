@@ -6,9 +6,8 @@ import { motion } from 'framer-motion'
 import { memo, useEffect, useState } from 'react'
 import GlobalContext from '../../contexts/GlobalContext'
 import SettingsContext from '../../contexts/SettingsContext'
-import TreeContext from '../../contexts/TreeContext'
 import useImageContextMenu from '../../hooks/useImageContextMenu'
-import { findSameDirImages } from '../../utils'
+import { findSameDirImages, findSameWorkspaceImages } from '../../utils'
 import LazyImage, { type LazyImageProps } from '../LazyImage'
 import Toast from '../Toast'
 
@@ -28,7 +27,6 @@ function ImagePreview(props: ImagePreviewProps) {
     'backgroundColor',
     'tinyBackgroundColor',
   ])
-  const originalList = TreeContext.useSelector((ctx) => ctx.imageSingleTree.originalList)
 
   const [preview, setPreview] = useState<{ open?: boolean; current?: number }>({ open: false, current: -1 })
 
@@ -106,7 +104,7 @@ function ImagePreview(props: ImagePreviewProps) {
                           image: images[info.current],
                           sameLevelImages: images,
                           sameDirImages: findSameDirImages(images[info.current], images),
-                          sameWorkspaceImages: originalList || [],
+                          sameWorkspaceImages: findSameWorkspaceImages(images[info.current], images),
                           ...lazyImageProps?.contextMenu,
                         },
                       })
@@ -154,7 +152,7 @@ function ImagePreview(props: ImagePreviewProps) {
                   contextMenu={{
                     sameLevelImages: images,
                     sameDirImages: findSameDirImages(image, images),
-                    sameWorkspaceImages: originalList,
+                    sameWorkspaceImages: findSameWorkspaceImages(image, images),
                   }}
                   image={image}
                   index={i}

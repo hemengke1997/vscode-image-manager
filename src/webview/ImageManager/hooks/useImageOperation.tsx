@@ -153,7 +153,7 @@ function useImageOperation() {
             </Trans>
           </div>
         ),
-        duration: LOADING_DURATION.slow,
+        duration: LOADING_DURATION.fast,
       })
     }
   })
