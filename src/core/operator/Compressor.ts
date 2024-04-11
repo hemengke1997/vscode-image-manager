@@ -1,6 +1,8 @@
-import { flatten, merge, toString } from '@minko-fe/lodash-pro'
+import { merge, toString } from '@minko-fe/lodash-pro'
 import fs from 'fs-extra'
 import { addMetadata, getMetadata } from 'meta-png'
+import os from 'node:os'
+import pMap from 'p-map'
 import piexif from 'piexifjs'
 import { optimize } from 'svgo'
 import { type SharpNS } from '~/@types/global'
@@ -80,11 +82,13 @@ export class Compressor extends Operator {
       }
     })
 
-    const res = await Promise.all(
-      flatten([
-        svgs.map((filePath) => this.compressSvg(filePath)),
-        rest.map((filePath) => this.compressImage(filePath)),
-      ]),
+    const res = await pMap(
+      [
+        ...svgs.map((filePath) => () => this.compressSvg(filePath)),
+        ...rest.map((filePath) => () => this.compressImage(filePath)),
+      ],
+      (task) => task(),
+      { concurrency: os.cpus().length },
     )
 
     return res.filter((r) => {
@@ -189,12 +193,21 @@ export class Compressor extends Operator {
                 filePath,
               } = runtime
 
+              let imageMetadata = await VscodeMessageCenter.get_image_metadata({
+                filePath,
+              })
+
+              if (!imageMetadata) {
+                imageMetadata = {
+                  compressed: false,
+                  metadata: { width: 0, height: 0 } as SharpNS.Metadata,
+                }
+              }
+
               const {
                 compressed,
                 metadata: { width, height },
-              } = await VscodeMessageCenter.get_image_metadata({
-                filePath,
-              })
+              } = imageMetadata!
 
               if (skipCompressed && compressed) {
                 return Promise.reject(new SkipError())

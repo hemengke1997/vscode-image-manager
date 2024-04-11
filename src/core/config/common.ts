@@ -15,6 +15,7 @@ export type ConfigType = {
     root: string[]
     exclude: string[]
     scan: string[]
+    confirmDelete: boolean
   }
   appearance: {
     theme: Theme
@@ -27,6 +28,9 @@ export type ConfigType = {
   }
   compression: CompressionOptions
   conversion: FormatConverterOptions
+  similarity: {
+    precision: number
+  }
 }
 
 export const enum ConfigKey {
@@ -37,6 +41,7 @@ export const enum ConfigKey {
   file_root = 'file.root',
   file_exclude = 'file.exclude',
   file_scan = 'file.scan',
+  file_confirmDelete = 'file.confirmDelete',
 
   appearance_theme = 'appearance.theme',
   appearance_language = 'appearance.language',
@@ -59,6 +64,8 @@ export const enum ConfigKey {
   conversion = 'conversion',
   conversion_formt = 'conversion.formt',
   conversion_keepOriginal = 'conversion.keepOriginal',
+
+  similarity_precision = 'similarity.precision',
 }
 
 // !! Care: sync with package.json
@@ -72,6 +79,7 @@ export const DEFAULT_CONFIG: ConfigType = {
     root: [],
     scan: ['svg', 'png', 'jpeg', 'jpg', 'ico', 'gif', 'webp', 'bmp', 'tif', 'apng', 'tiff', 'avif'],
     exclude: [],
+    confirmDelete: true,
   },
   appearance: {
     theme: 'auto',
@@ -101,5 +109,8 @@ export const DEFAULT_CONFIG: ConfigType = {
   conversion: {
     format: '',
     keepOriginal: false,
+  },
+  similarity: {
+    precision: 10,
   },
 }

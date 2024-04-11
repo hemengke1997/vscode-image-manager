@@ -9,6 +9,7 @@ export class Config {
   static readonly reloadConfigs = [ConfigKey.file_root, ConfigKey.file_exclude, ConfigKey.file_scan]
 
   static readonly refreshConfigs = [
+    ConfigKey.file_confirmDelete,
     ConfigKey.appearance_language,
     ConfigKey.appearance_theme,
     ConfigKey.appearance_primaryColor,
@@ -17,6 +18,7 @@ export class Config {
     ConfigKey.viewer_imageBackgroundColor,
     ConfigKey.compression,
     ConfigKey.conversion,
+    ConfigKey.similarity_precision,
   ]
 
   static get file_root(): string[] {
@@ -45,6 +47,10 @@ export class Config {
     return this.getConfig(ConfigKey.file_scan)
   }
 
+  static get file_confirmDelete(): boolean {
+    return this.getConfig(ConfigKey.file_confirmDelete)
+  }
+
   static get appearance_theme(): Theme {
     return this.getConfig(ConfigKey.appearance_theme)
   }
@@ -71,6 +77,10 @@ export class Config {
 
   static get conversion(): FormatConverterOptions {
     return this.getConfig(ConfigKey.conversion)
+  }
+
+  static get similarity_precision(): number {
+    return this.getConfig(ConfigKey.similarity_precision)
   }
 
   static get all(): ConfigType {

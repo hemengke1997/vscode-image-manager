@@ -26,8 +26,8 @@ describe('Glob images', () => {
       cwd: workspaceFolder,
     }
     const { allImagePatterns } = imageGlob(config)
-    const imgs = await glob(allImagePatterns, config.cwd)
-    expect(imgs.every((t) => !t.includes('dist'))).toBe(true)
+    const images = await glob(allImagePatterns, config.cwd)
+    expect(images.every((t) => !t.includes('dist'))).toBe(true)
   })
 
   it('should not ignore dist-1', async () => {
@@ -38,9 +38,9 @@ describe('Glob images', () => {
       exclude: [],
     }
     const { allImagePatterns } = imageGlob(config)
-    const imgs = await glob(allImagePatterns, config.cwd)
+    const images = await glob(allImagePatterns, config.cwd)
 
-    expect(imgs.some((t) => t.includes('dist-1'))).toBe(true)
+    expect(images.some((t) => t.includes('dist-1'))).toBe(true)
   })
 
   it('should ignore png by `scan`', async () => {
@@ -51,9 +51,9 @@ describe('Glob images', () => {
       cwd: workspaceFolder,
     }
     const { allImagePatterns } = imageGlob(config)
-    const imgs = await glob(allImagePatterns, config.cwd)
+    const images = await glob(allImagePatterns, config.cwd)
 
-    expect(imgs.every((t) => !t.includes('.png'))).toBe(true)
+    expect(images.every((t) => !t.includes('.png'))).toBe(true)
   })
 
   it('should ignore png by `exclude`', async () => {
@@ -64,9 +64,9 @@ describe('Glob images', () => {
       cwd: workspaceFolder,
     }
     const { allImagePatterns } = imageGlob(config)
-    const imgs = await glob(allImagePatterns, config.cwd)
+    const images = await glob(allImagePatterns, config.cwd)
 
-    expect(imgs.every((t) => !t.includes('.png'))).toBe(true)
+    expect(images.every((t) => !t.includes('.png'))).toBe(true)
   })
 
   it('should not ignore built-in pattern dist', async () => {
@@ -77,7 +77,7 @@ describe('Glob images', () => {
       cwd: workspaceFolder,
     }
     const { allImagePatterns } = imageGlob(config)
-    const imgs = await glob(allImagePatterns, config.cwd)
-    expect(imgs.some((t) => t.includes('/dist/'))).toBe(true)
+    const images = await glob(allImagePatterns, config.cwd)
+    expect(images.some((t) => t.includes('/dist/'))).toBe(true)
   })
 })

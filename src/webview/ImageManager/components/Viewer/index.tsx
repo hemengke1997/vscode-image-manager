@@ -4,15 +4,24 @@ import { memo } from 'react'
 import { useTranslation } from 'react-i18next'
 import { IoMdImages } from 'react-icons/io'
 import GlobalContext from '../../contexts/GlobalContext'
+import SettingsContext from '../../contexts/SettingsContext'
 import TreeContext from '../../contexts/TreeContext'
 import useWheelScaleEvent from '../../hooks/useWheelScaleEvent'
+import { ANIMATION_DURATION } from '../../utils/duration'
 import CollapseTree from '../CollapseTree'
 import ImageActions from '../ImageActions'
 import TitleIconUI from '../TitleIconUI'
 
 function Viewer() {
   const { t } = useTranslation()
-  const { imageState } = GlobalContext.usePicker(['imageState'])
+  const { imageState, imageFilter } = GlobalContext.usePicker(['imageState', 'imageFilter'])
+
+  const { displayGroup, displayStyle, sort, displayImageTypes } = SettingsContext.usePicker([
+    'displayGroup',
+    'displayStyle',
+    'sort',
+    'displayImageTypes',
+  ])
 
   /* ---------------- image scale --------------- */
   const [containerRef] = useWheelScaleEvent()
@@ -33,25 +42,30 @@ function Viewer() {
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
               exit={{ opacity: 0 }}
-              transition={{ duration: 0.2 }}
+              transition={{ duration: ANIMATION_DURATION.middle }}
             >
               <Skeleton className={'px-4 py-2'} active paragraph={{ rows: 4 }} />
             </motion.div>
           ) : (
-            <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ duration: 0.2 }}>
+            <motion.div
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              transition={{ duration: ANIMATION_DURATION.middle }}
+            >
               <div className={'space-y-4'}>
                 {imageState.data.length ? (
-                  imageState.data.map((item, index) => (
+                  imageState.data.map((item) => (
                     <TreeContext.Provider
-                      key={index}
+                      key={item.workspaceFolder}
                       value={{
-                        imageList: item.imgs,
+                        imageList: item.images,
                         workspaceFolder: item.workspaceFolder,
-                        dirs: item.dirs,
-                        imageTypes: item.fileTypes,
+                        sort,
+                        displayImageTypes,
+                        imageFilter,
                       }}
                     >
-                      <CollapseTree />
+                      <CollapseTree displayGroup={displayGroup} displayStyle={displayStyle} />
                     </TreeContext.Provider>
                   ))
                 ) : (

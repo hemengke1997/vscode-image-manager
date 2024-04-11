@@ -1,8 +1,7 @@
 import { useControlledState, useInViewport, useUpdateEffect } from '@minko-fe/react-hook'
 import { Badge, Image, type ImageProps } from 'antd'
 import { motion } from 'framer-motion'
-import { memo, useRef, useState } from 'react'
-import { useContextMenu } from 'react-contexify'
+import { type ReactNode, memo, useRef, useState } from 'react'
 import { useHotkeys } from 'react-hotkeys-hook'
 import { useTranslation } from 'react-i18next'
 import { FaRegGrinStars } from 'react-icons/fa'
@@ -10,16 +9,19 @@ import { HiOutlineViewfinderCircle } from 'react-icons/hi2'
 import { MdOutlineRemoveCircle } from 'react-icons/md'
 import { RxDimensions } from 'react-icons/rx'
 import { TbResize } from 'react-icons/tb'
+import { Key } from 'ts-key-enum'
 import { type SharpNS } from '~/@types/global'
 import { CmdToVscode } from '~/message/cmd'
 import useImageDetail from '~/webview/ImageManager/hooks/useImageDetail/useImageDetail'
-import { mergeClass } from '~/webview/utils'
+import { cn } from '~/webview/utils'
 import { vscodeApi } from '~/webview/vscode-api'
-import { type ImageType } from '../..'
 import ActionContext from '../../contexts/ActionContext'
 import GlobalContext from '../../contexts/GlobalContext'
+import useImageContextMenu, { type ImageContextMenuType } from '../../hooks/useImageContextMenu'
+import useImageOperation from '../../hooks/useImageOperation'
 import { bytesToKb, formatBytes } from '../../utils'
-import { IMAGE_CONTEXT_MENU_ID } from '../ContextMenus/components/ImageContextMenu'
+import { ANIMATION_DURATION } from '../../utils/duration'
+import ImageName from '../ImageName'
 
 export type LazyImageProps = {
   imageProp: ImageProps
@@ -30,20 +32,43 @@ export type LazyImageProps = {
     current?: number
   }
   onPreviewChange?: (preview: { open?: boolean; current?: number }) => void
-
+  /**
+   * 是否懒加载
+   */
   lazy?: boolean
   onRemoveClick?: (image: ImageType) => void
-  contextMenu?: {
-    /**
-     * @description whether to show operation menu
-     */
-    operable?: boolean
-  }
+  removeRender?: (children: ReactNode, image: ImageType) => ReactNode
+  /**
+   * 图片右键上下文
+   */
+  contextMenu:
+    | (Omit<ImageContextMenuType, 'image'> & {
+        /**
+         * TODO
+         * @description 来源
+         * 根据来源追踪事件链路
+         */
+        source?: 'similarity'
+      })
+    | undefined
+  tooltipDisplayFullPath?: boolean
 }
 
 function LazyImage(props: LazyImageProps) {
-  const { imageProp, image, preview, onPreviewChange, index, lazy = true, onRemoveClick, contextMenu } = props
+  const {
+    imageProp,
+    image,
+    preview,
+    onPreviewChange,
+    index,
+    lazy = true,
+    onRemoveClick,
+    removeRender = (n) => n,
+    contextMenu,
+    tooltipDisplayFullPath,
+  } = props
 
+  const { beginRenameProcess, beginDeleteProcess } = useImageOperation()
   const { t } = useTranslation()
   const { showImageDetailModal } = useImageDetail()
 
@@ -68,8 +93,10 @@ function LazyImage(props: LazyImageProps) {
   const handleMaskMouseOver = () => {
     if (!imageMetadata) {
       vscodeApi.postMessage({ cmd: CmdToVscode.get_image_metadata, data: { filePath: image.path } }, (data) => {
-        const { metadata, compressed } = data
-        setImageMeatadata({ metadata, compressed })
+        if (data) {
+          const { metadata, compressed } = data
+          setImageMeatadata({ metadata, compressed })
+        }
       })
     }
   }
@@ -79,13 +106,32 @@ function LazyImage(props: LazyImageProps) {
     setImageMeatadata(undefined)
   }, [refreshTimes])
 
-  const keybindRef = useHotkeys<HTMLDivElement>(`mod+c`, () => {}, {
-    enabled: inViewport,
-  })
+  const keybindRef = useHotkeys<HTMLDivElement>(
+    [Key.Enter, `mod+${Key.Backspace}`],
+    (e) => {
+      switch (e.code) {
+        case Key.Enter: {
+          hideAll()
+          beginRenameProcess(image, contextMenu?.sameDirImages || [])
+          return
+        }
+        case Key.Backspace: {
+          hideAll()
+          beginDeleteProcess(image)
+          return
+        }
+        default:
+          break
+      }
+    },
+    {
+      enabled: inViewport,
+    },
+  )
 
   const ifWarning = bytesToKb(image.stats.size) > warningSize
 
-  const { show } = useContextMenu<{ image: ImageType }>()
+  const { show, hideAll } = useImageContextMenu()
 
   if (!inViewport && lazy) {
     return (
@@ -104,16 +150,24 @@ function LazyImage(props: LazyImageProps) {
       <motion.div
         ref={keybindRef}
         tabIndex={-1}
-        className={mergeClass(
+        className={cn(
           'group relative flex flex-none flex-col items-center space-y-1 p-1.5 transition-colors',
           'hover:border-ant-color-primary focus:border-ant-color-primary overflow-hidden rounded-md border-[1px] border-solid border-transparent',
         )}
         initial={{ opacity: 0 }}
         viewport={{ once: true, margin: '20px 0px' }}
-        transition={{ duration: 0.6 }}
+        transition={{ duration: ANIMATION_DURATION.slow }}
         whileInView={{ opacity: 1 }}
         onContextMenu={(e) => {
-          show({ event: e, id: IMAGE_CONTEXT_MENU_ID, props: { image, ...contextMenu } })
+          show({
+            event: e,
+            props: {
+              image,
+              sameWorkspaceImages: contextMenu?.sameWorkspaceImages || [],
+              sameLevelImages: contextMenu?.sameLevelImages || [],
+              sameDirImages: contextMenu?.sameDirImages || [],
+            },
+          })
         }}
         onMouseOver={handleMaskMouseOver}
         onDoubleClick={() => {
@@ -128,13 +182,13 @@ function LazyImage(props: LazyImageProps) {
             onClick={() => onRemoveClick(image)}
             title={t('im.remove')}
           >
-            <MdOutlineRemoveCircle />
+            {removeRender(<MdOutlineRemoveCircle />, image)}
           </div>
         )}
         <Badge status='warning' dot={ifWarning}>
           <Image
             {...imageProp}
-            className={mergeClass('rounded-md object-contain p-1 will-change-auto', imageProp.className)}
+            className={cn('rounded-md object-contain p-1 will-change-auto', imageProp.className)}
             preview={
               lazy
                 ? {
@@ -152,7 +206,7 @@ function LazyImage(props: LazyImageProps) {
                         </div>
                         <div className={'flex items-center space-x-1 truncate'}>
                           <TbResize />
-                          <span className={mergeClass(ifWarning && 'text-ant-color-warning-text')}>
+                          <span className={cn(ifWarning && 'text-ant-color-warning-text')}>
                             {formatBytes(image.stats.size)}
                           </span>
                         </div>
@@ -175,12 +229,16 @@ function LazyImage(props: LazyImageProps) {
                   }
                 : false
             }
-            rootClassName={mergeClass('transition-all', imageProp.rootClassName)}
+            rootClassName={cn('transition-all', imageProp.rootClassName)}
             style={{ width: imageProp.width, height: imageProp.height, ...imageProp.style }}
           ></Image>
         </Badge>
-        <div className='max-w-full cursor-default truncate' title={image.name} style={{ maxWidth: imageProp.width }}>
-          {image.nameElement || image.name}
+        <div className='max-w-full truncate' style={{ maxWidth: imageProp.width }}>
+          {image.nameElement || (
+            <ImageName image={image} showFullPath={tooltipDisplayFullPath}>
+              {image.name}
+            </ImageName>
+          )}
         </div>
       </motion.div>
     </>

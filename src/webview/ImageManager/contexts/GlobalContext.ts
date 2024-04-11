@@ -5,7 +5,6 @@ import { ConfigKey } from '~/core/config/common'
 import { type Compressor, type FormatConverter } from '~/core/operator'
 import { useExtConfigState } from '~/webview/hooks/useExtConfigState'
 import FrameworkContext from '~/webview/ui-framework/src/contexts/FrameworkContext'
-import { type ImageType, type ImageVisibleFilterType } from '..'
 import { type DisplayTypeFilter } from '../components/DisplayType'
 import { type ImageFilterAction } from '../components/ImageActions/components/Filter'
 
@@ -45,8 +44,9 @@ function useGlobalContext() {
     loading: boolean
     workspaceFolders: string[]
     data: {
-      imgs: ImageType[]
+      images: ImageType[]
       workspaceFolder: string
+      absWorkspaceFolder: string
       fileTypes: string[]
       dirs: string[]
     }[]

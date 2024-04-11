@@ -3,7 +3,6 @@ import { App, Descriptions, type DescriptionsProps, Tooltip } from 'antd'
 import { useTranslation } from 'react-i18next'
 import { BsQuestionCircleFill } from 'react-icons/bs'
 import { CmdToVscode } from '~/message/cmd'
-import { type ImageType } from '../..'
 import { vscodeApi } from '../../../vscode-api'
 import { formatBytes } from '../../utils'
 import styles from './index.module.css'
@@ -17,6 +16,7 @@ export default function useImageDetail() {
 
     return new Promise((resolve) => {
       vscodeApi.postMessage({ cmd: CmdToVscode.get_image_metadata, data: { filePath: image.path } }, (data) => {
+        if (!data) return Promise.resolve()
         const {
           metadata: { width, height },
           compressed,
@@ -65,7 +65,7 @@ export default function useImageDetail() {
             children: <div>{formatDate(image.stats.ctime)}</div>,
           },
           {
-            label: t('im.compressed'),
+            label: t('im.whether_compressed'),
             children:
               image.fileType === 'svg' ? (
                 <div className={'flex items-center gap-x-1'}>
@@ -109,9 +109,10 @@ export default function useImageDetail() {
             />
           ),
           footer: null,
+          afterClose() {
+            resolve(true)
+          },
         })
-
-        resolve(true)
       })
     })
   })

@@ -12,6 +12,7 @@ import { CmdToVscode } from '~/message/cmd'
 import { vscodeApi } from '~/webview/vscode-api'
 import GlobalContext from '../../contexts/GlobalContext'
 import useOperatorModalLogic, { type FormComponent } from '../../hooks/useOperatorModalLogic'
+import { ANIMATION_DURATION } from '../../utils/duration'
 import ImageOperator, { type ImageOperatorProps } from '../ImageOperator'
 import Format from '../ImageOperator/components/Format'
 import KeepOriginal from '../ImageOperator/components/KeepOriginal'
@@ -24,7 +25,7 @@ type FormValue = CompressionOptions & {
 type ImageCompressorProps = {} & ImageOperatorProps
 
 function ImageCompressor(props: ImageCompressorProps) {
-  const { images: imagesProp, open, onOpenChange } = props
+  const { images: imagesProp, open, onOpenChange, ...rest } = props
   const { t } = useTranslation()
 
   const { compressor } = GlobalContext.usePicker(['compressor'])
@@ -246,12 +247,10 @@ function ImageCompressor(props: ImageCompressorProps) {
   ]
 
   useEffect(() => {
-    if (!open) return
+    if (!open || !images.length) return
     if (hasAllImageType('svg')) {
-      // 1.如果只有svg
       setActiveTab('svg')
     } else if (!hasSomeImageType('svg')) {
-      // 2.如果没有svg
       setActiveTab('not-svg')
     }
   }, [images])
@@ -289,10 +288,15 @@ function ImageCompressor(props: ImageCompressorProps) {
       form={form}
       submitting={submitting}
       onSubmittingChange={setSubmitting}
+      {...rest}
     >
       <div className={'flex flex-col'}>
         {displayTabs.length > 1 ? (
-          <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ duration: 0.15 }}>
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            transition={{ duration: ANIMATION_DURATION.fast }}
+          >
             <div className={'flex justify-center'}>
               <Segmented
                 options={displayTabs.map((t) => ({

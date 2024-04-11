@@ -22,11 +22,11 @@ body {
 #root {
   /* 设置html overflow-y-scroll 会造成图片列表渲染错位问题 */
   /* 所以在 #root 元素上设置 */
-  @apply overflow-y-scroll w-full h-full select-none;
+  @apply h-full w-full select-none overflow-y-scroll;
 }
 
 .ant-btn-icon-only {
-  @apply inline-flex justify-center items-center;
+  @apply inline-flex items-center justify-center;
 }
 
 .ant-checkbox-wrapper {
@@ -34,5 +34,5 @@ body {
 }
 
 .ant-btn {
-  @apply inline-flex justify-center items-center;
+  @apply inline-flex items-center justify-center;
 }

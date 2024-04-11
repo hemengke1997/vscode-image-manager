@@ -11,7 +11,8 @@
     "file": {
       "root": "根工作区",
       "exclude": "排除范围内的图片 (micromatch 匹配语法)",
-      "scan": "扫描图片的类型"
+      "scan": "扫描图片的类型",
+      "confirmDelete": "删除图片时是否询问"
     },
     "viewer": {
       "warningSize": "如果图片大小大于此值 (KB)，则显示警告点",
@@ -40,6 +41,9 @@
       "gif": {
         "colors": "色彩"
       }
+    },
+    "similarity": {
+      "precision": "判断图片相似的精确度。值越小，判断越严格"
     }
   },
   "prompt": {
@@ -66,6 +70,7 @@
     "manual_install_success": "手动安装依赖成功",
     "dep_cache_dir": "依赖缓存目录",
     "start_manual_install": "开始手动安装依赖",
-    "start_auto_install": "开始自动安装依赖"
+    "start_auto_install": "开始自动安装依赖",
+    "format_not_supported": "不支持 {0} 格式"
   }
 }

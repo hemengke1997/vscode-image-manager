@@ -75,6 +75,7 @@ export default defineConfig((option) => [
     external: ['vscode', 'sharp'],
     clean: false,
     dts: false,
+    target: 'node16',
     minify: !option.watch,
     env: {
       NODE_ENV: option.watch ? 'development' : 'production',

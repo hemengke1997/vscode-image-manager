@@ -20,6 +20,7 @@ import {
   SharpOperator,
   Svgo,
 } from '~/core'
+import { Similarity } from '~/core/analysis'
 import { type ConfigKey, type ConfigType } from '~/core/config/common'
 import { COMPRESSED_META } from '~/core/operator/meta'
 import { WorkspaceState } from '~/core/persist'
@@ -27,7 +28,6 @@ import { type WorkspaceStateKey } from '~/core/persist/workspace/common'
 import { generateOutputPath, isPng, normalizePath } from '~/utils'
 import { Channel } from '~/utils/Channel'
 import { imageGlob } from '~/utils/glob'
-import { type ImageType } from '~/webview/ImageManager'
 import { CmdToVscode, CmdToWebview } from './cmd'
 import { convertImageToBase64, convertToBase64IfBrowserNotSupport, debouncePromise } from './utils'
 
@@ -98,7 +98,7 @@ export const VscodeMessageCenter = {
         root: Global.rootpaths,
       })
 
-      const imgs = await fg(allImagePatterns, {
+      const images = await fg(allImagePatterns, {
         cwd: absWorkspaceFolder,
         objectMode: true,
         dot: false,
@@ -108,7 +108,7 @@ export const VscodeMessageCenter = {
       })
 
       return Promise.all(
-        imgs.map(async (img) => {
+        images.map(async (img) => {
           img.path = normalizePath(img.path)
           let vscodePath = webview.asWebviewUri(Uri.file(img.path)).toString()
 
@@ -148,9 +148,9 @@ export const VscodeMessageCenter = {
           const fileTypes: Set<string> = new Set()
           const dirs: Set<string> = new Set()
 
-          const imgs = await _searchImgs(workspaceFolder, webview, fileTypes, dirs)
+          const images = await _searchImgs(workspaceFolder, webview, fileTypes, dirs)
           return {
-            imgs,
+            images,
             workspaceFolder: path.basename(workspaceFolder),
             absWorkspaceFolder: workspaceFolder,
             fileTypes: [...fileTypes].filter(Boolean),
@@ -335,12 +335,25 @@ export const VscodeMessageCenter = {
   },
 
   /* --------- find similar images -------- */
-  // TODO
-  [CmdToVscode.find_similar_images]: async () => {},
+  [CmdToVscode.find_similar_images]: async (data: { image: ImageType; scope: ImageType[] }) => {
+    const { image, scope } = data
+    try {
+      return await Similarity.findSimilar(image, scope)
+    } catch (e) {
+      return e instanceof Error ? e : toString(e)
+    }
+  },
 
   /* ------------ get image metadata ------------ */
   [CmdToVscode.get_image_metadata]: async (data: { filePath: string }) => {
     const { filePath } = data
+
+    try {
+      await fs.exists(filePath)
+    } catch {
+      return undefined
+    }
+
     let compressed = false
     let metadata: SharpNS.Metadata = {} as SharpNS.Metadata
 
@@ -463,6 +476,35 @@ export const VscodeMessageCenter = {
     })
     return true
   },
+  /* ---------------- delete file --------------- */
+  [CmdToVscode.delete_file]: async (data: { filePath: string }) => {
+    try {
+      await workspace.fs.delete(Uri.file(data.filePath), { useTrash: true })
+      return true
+    } catch {
+      return false
+    }
+  },
+  /* ---------------- rename file --------------- */
+  [CmdToVscode.rename_file]: async (data: { source: string; target: string }) => {
+    try {
+      const { source, target } = data
+      await workspace.fs.rename(Uri.file(source), Uri.file(target), {
+        overwrite: false,
+      })
+
+      return true
+    } catch (e) {
+      if (e instanceof Error && e.message.includes('already exists')) {
+        return {
+          error_msg: e.message,
+        }
+      }
+      return false
+    }
+  },
+  /* ----------- copy file to clipbard ---------- */
+  [CmdToVscode.copy_file_to_clipboard]: async () => {},
 }
 
 export class MessageCenter {

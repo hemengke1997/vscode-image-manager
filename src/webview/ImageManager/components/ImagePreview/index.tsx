@@ -4,11 +4,11 @@ import { isDev } from '@minko-fe/vite-config/client'
 import { ConfigProvider, Image, theme } from 'antd'
 import { motion } from 'framer-motion'
 import { memo, useEffect, useState } from 'react'
-import { useContextMenu } from 'react-contexify'
-import { type ImageType } from '../..'
 import GlobalContext from '../../contexts/GlobalContext'
 import SettingsContext from '../../contexts/SettingsContext'
-import { IMAGE_CONTEXT_MENU_ID } from '../ContextMenus/components/ImageContextMenu'
+import TreeContext from '../../contexts/TreeContext'
+import useImageContextMenu from '../../hooks/useImageContextMenu'
+import { findSameDirImages } from '../../utils'
 import LazyImage, { type LazyImageProps } from '../LazyImage'
 import Toast from '../Toast'
 
@@ -28,10 +28,11 @@ function ImagePreview(props: ImagePreviewProps) {
     'backgroundColor',
     'tinyBackgroundColor',
   ])
+  const originalList = TreeContext.useSelector((ctx) => ctx.imageSingleTree.originalList)
 
   const [preview, setPreview] = useState<{ open?: boolean; current?: number }>({ open: false, current: -1 })
 
-  const { show } = useContextMenu<{ image: ImageType; dimensions: { width: number; height: number } }>()
+  const { show } = useImageContextMenu()
 
   useEffect(() => {
     if (!preview.open) {
@@ -101,8 +102,13 @@ function ImagePreview(props: ImagePreviewProps) {
                     onContextMenu={(e) => {
                       show({
                         event: e,
-                        id: IMAGE_CONTEXT_MENU_ID,
-                        props: { image: images[info.current], ...lazyImageProps?.contextMenu },
+                        props: {
+                          image: images[info.current],
+                          sameLevelImages: images,
+                          sameDirImages: findSameDirImages(images[info.current], images),
+                          sameWorkspaceImages: originalList || [],
+                          ...lazyImageProps?.contextMenu,
+                        },
                       })
                     }}
                     className={'contents'}
@@ -139,15 +145,20 @@ function ImagePreview(props: ImagePreviewProps) {
                     width: imageWidth,
                     height: imageWidth,
                     src: image.vscodePath,
-                    ...lazyImageProps?.imageProp,
+                    ...(lazyImageProps?.imageProp || {}),
                   }}
                   preview={preview}
                   onPreviewChange={(p) => {
                     setPreview(p)
                   }}
+                  contextMenu={{
+                    sameLevelImages: images,
+                    sameDirImages: findSameDirImages(image, images),
+                    sameWorkspaceImages: originalList,
+                  }}
                   image={image}
                   index={i}
-                  key={image.path + image.stats.mtime}
+                  key={image.path + image.stats.ctime}
                 />
               ))}
             </ConfigProvider>

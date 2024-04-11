@@ -11,7 +11,8 @@
     "file": {
       "root": "workspace root",
       "exclude": "scan images not in exclude (pattern syntax of micromatch)",
-      "scan": "image type to scan"
+      "scan": "image type to scan",
+      "confirmDelete": "controls whether ask for confirmation when deleting a image"
     },
     "viewer": {
       "warningSize": "show warning dot if image size is larger than this value (KB)",
@@ -40,6 +41,9 @@
       "gif": {
         "colors": "colors"
       }
+    },
+    "similarity": {
+      "precision": "Determining the precision of image similarity. The smaller the value, the stricter the judgment"
     }
   },
   "prompt": {
@@ -66,6 +70,7 @@
     "manual_install_success": "Manual install success",
     "dep_cache_dir": "Dependencies Cache Dir",
     "start_manual_install": "Start manual install dependencies",
-    "start_auto_install": "Start auto install dependencies"
+    "start_auto_install": "Start auto install dependencies",
+    "format_not_supported": "{0} format is not supported"
   }
 }

@@ -7,9 +7,8 @@ import Highlighter from 'react-highlight-words'
 import { useTranslation } from 'react-i18next'
 import { VscCaseSensitive, VscWholeWord } from 'react-icons/vsc'
 import { CmdToVscode } from '~/message/cmd'
-import { mergeClass } from '~/webview/utils'
+import { cn } from '~/webview/utils'
 import { vscodeApi } from '~/webview/vscode-api'
-import { type ImageType } from '../..'
 import GlobalContext from '../../contexts/GlobalContext'
 import ImagePreview from '../ImagePreview'
 
@@ -31,7 +30,7 @@ function ImageSearch(props: ImageSearchProps) {
   const searchInputRef = useRef<InputRef>(null)
 
   const imageData = GlobalContext.useSelector((ctx) => ctx.imageState.data)
-  const allImagePatterns = useMemo(() => imageData.flatMap((item) => item.imgs), [imageData])
+  const allImagePatterns = useMemo(() => imageData.flatMap((item) => item.images), [imageData])
 
   const [caseSensitive, setCaseSensitive] = useState(false)
   const [wholeWord, setWholeWord] = useState(false)
@@ -202,7 +201,7 @@ function IconUI(
   const { active, ...rest } = props
   return (
     <div
-      className={mergeClass(
+      className={cn(
         'hover:bg-ant-color-bg-text-hover flex h-full cursor-pointer items-center rounded-md border-solid border-transparent p-0.5 text-sm transition-all',
         active && '!text-ant-color-primary !border-ant-color-primary hover:bg-transparent',
       )}

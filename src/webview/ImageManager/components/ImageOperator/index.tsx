@@ -1,10 +1,8 @@
-import { flatten } from '@minko-fe/lodash-pro'
-import { useControlledState, useHistoryTravel } from '@minko-fe/react-hook'
+import { useControlledState, useHistoryTravel, useUpdateEffect } from '@minko-fe/react-hook'
 import { Alert, App, Button, Card, ConfigProvider, type FormInstance, Modal, theme } from 'antd'
 import { type ReactNode, memo, useEffect, useState } from 'react'
 import { useHotkeys } from 'react-hotkeys-hook'
 import { useTranslation } from 'react-i18next'
-import { type ImageType } from '../..'
 import { Keybinding } from '../../keybinding'
 import ImagePreview from '../ImagePreview'
 import './index.css'
@@ -56,18 +54,15 @@ function ImageOperator(props: ImageOperatorProps & ImageOperatorStaticProps) {
     onChange: onSubmittingChange,
   })
 
-  const { value: images, setValue: setImages, back, forward, backLength } = useHistoryTravel<ImageType[]>()
+  const { value: images, setValue: setImages, back, forward, backLength } = useHistoryTravel<ImageType[]>(imagesProp)
 
   useEffect(() => {
-    if (open && imagesProp.length) {
-      // images
-      setImages(imagesProp)
-    } else {
+    if (!open) {
       message.destroy(LoadingKey)
     }
   }, [open])
 
-  useEffect(() => {
+  useUpdateEffect(() => {
     onImagesChange(images || [])
   }, [images])
 
@@ -99,17 +94,11 @@ function ImageOperator(props: ImageOperatorProps & ImageOperatorStaticProps) {
       open={open}
       onCancel={() => {
         setOpen(false)
-        const errFields = flatten(
-          form
-            .getFieldsError()
-            .filter((item) => item.errors.length)
-            .map((t) => t.name),
-        )
-        form.resetFields(errFields)
       }}
       title={title}
       footer={null}
       width={'80%'}
+      destroyOnClose
     >
       <div className={'flex w-full flex-col items-center space-y-2 overflow-auto'}>
         <Card className={'max-h-[480px] w-full overflow-y-auto'}>
@@ -119,6 +108,9 @@ function ImageOperator(props: ImageOperatorProps & ImageOperatorStaticProps) {
               lazyImageProps={{
                 contextMenu: {
                   operable: false,
+                  sameDirImages: [],
+                  sameLevelImages: [],
+                  sameWorkspaceImages: [],
                 },
                 onRemoveClick:
                   images && images?.length <= 1

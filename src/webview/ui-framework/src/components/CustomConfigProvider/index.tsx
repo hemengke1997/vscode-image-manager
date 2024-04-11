@@ -6,6 +6,7 @@ import { type PropsWithChildren, memo, useEffect, useRef } from 'react'
 import { useTranslation } from 'react-i18next'
 import { IoSettingsOutline } from 'react-icons/io5'
 import { WorkspaceStateKey } from '~/core/persist/workspace/common'
+import { ANIMATION_DURATION } from '~/webview/ImageManager/utils/duration'
 import { useWorkspaceState } from '~/webview/hooks/useWorkspaceState'
 import Logo from '~/webview/ui-framework/src/images/logo.svg?react'
 import FrameworkContext from '../../contexts/FrameworkContext'
@@ -86,7 +87,7 @@ function CustomConfigProvider(props: PropsWithChildren) {
         <motion.div
           initial={{ opacity: 0 }}
           animate={!isSimpleMode(mode) ? { opacity: 1 } : { opacity: 0, y: '-100%' }}
-          transition={{ duration: 0.15 }}
+          transition={{ duration: ANIMATION_DURATION.fast }}
         >
           <Popover
             trigger={['click']}

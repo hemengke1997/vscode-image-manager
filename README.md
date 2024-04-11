@@ -33,6 +33,7 @@
 - **图片批量压缩** (右键总会发生魔法 🤩)
 - **图片裁剪**
 - **图片大图浏览**
+- **相似图片查找**
 - 查看图片详情（尺寸、体积等）
 - 查找图片
 - 条件筛选图片
@@ -65,6 +66,7 @@
 | image-manager.file.root                        | `string[]`              | 扫描图片的根目录                                | 当前工作区                                                                                                                   |
 | image-manager.file.exclude                     | `string[]`              | 排除目录                                        | `['**/node_modules/**','**/.git/**',`<br>`'**/dist/**','**/coverage/**','**/.next/**',`<br/>`'**/.nuxt/**','**/.vercel/**']` |
 | image-manager.file.scan                        | `string[]`              | 扫描的图片类型                                  | `['svg','png','jpeg','jpg',`<br/>`'ico','gif','webp','bmp',`<br/>`'tif','tiff','apng','avif']`                               |
+| image-manager.file.confirmDelete               | `boolean`               | 删除图片时是否询问                              | true                                                                                                                         |
 | image-manager.appearance.theme                 | `dark \| light \| auto` | 主题                                            | `auto`                                                                                                                       |
 | image-manager.appearance.language              | `en \| zh-CN \| auto`   | 语言                                            | `auto`                                                                                                                       |
 | image-manager.appearance.primaryColor          | `string`                | 主题色                                          | undefined                                                                                                                    |
@@ -84,6 +86,8 @@
 | image-manager.compression.svg.*                | `svgo 配置`             | 压缩svg的配置，具体配置项功能请参考svgo官方文档 | -                                                                                                                            |
 | image-manager.conversion.format                | `string`                | 转化图片格式                                    | ''                                                                                                                           |
 | image-manager.conversion.keepOriginal          | `boolean`               | 转化图片格式后保留原图                          | false                                                                                                                        |
+| image-manager.similarity.precision             | `number`                | 判断图片相似的精确度。值越小，判断越严格        | 10                                                                                                                           |
+
 
 
 ## 小贴士
@@ -148,3 +152,4 @@
 ## 感谢
 
 ❤️ [vscode-image-viewer](https://github.com/ZhangJian1713/vscode-image-viewer)
+❤️ [vscode-svgo](https://github.com/1000ch/vscode-svgo)

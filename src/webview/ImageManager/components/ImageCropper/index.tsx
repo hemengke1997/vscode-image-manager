@@ -11,9 +11,9 @@ import { IoIosArrowDropup } from 'react-icons/io'
 import { LuArrowRightLeft, LuArrowUpDown } from 'react-icons/lu'
 import { RxReset } from 'react-icons/rx'
 import { CmdToVscode } from '~/message/cmd'
-import { mergeClass } from '~/webview/utils'
+import { cn } from '~/webview/utils'
 import { vscodeApi } from '~/webview/vscode-api'
-import { type ImageType } from '../..'
+import { LOADING_DURATION } from '../../utils/duration'
 import ReactCropper, { type ReactCropperElement } from './components/Cropper'
 import { DETAIL_MAP, getAspectRatios, getViewmodes } from './utils'
 import 'cropperjs/dist/cropper.css'
@@ -123,7 +123,7 @@ function ImageCropper(props?: ImageCropperProps) {
             message.destroy(MESSAGE_KEY)
 
             notification.success({
-              duration: 10,
+              duration: LOADING_DURATION.slow,
               message: data.filename,
               description: <div className={'flex flex-col space-y-1'}>{t('im.save_success')}</div>,
             })
@@ -191,7 +191,7 @@ function ImageCropper(props?: ImageCropperProps) {
           <Card>
             <ReactCropper
               src={image?.vscodePath}
-              className={mergeClass('h-[500px] w-full max-w-full', styles.cropper, loading && 'absolute opacity-0')}
+              className={cn('h-[500px] w-full max-w-full', styles.cropper, loading && 'absolute opacity-0')}
               ready={() => {
                 setLoading(false)
               }}
@@ -415,7 +415,7 @@ function ImageCropper(props?: ImageCropperProps) {
         title={t('im.preview')}
       >
         <Card>
-          <div ref={previewRef} className={mergeClass('flex justify-center', styles.canvas_box)}></div>
+          <div ref={previewRef} className={cn('flex justify-center', styles.canvas_box)}></div>
         </Card>
       </Modal>
     </Modal>

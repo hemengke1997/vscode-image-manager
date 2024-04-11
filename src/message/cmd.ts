@@ -66,4 +66,10 @@ export const enum CmdToVscode {
   pretty_svg = 'pretty_svg',
   // 在text editor中打开指定文件
   open_file_in_text_editor = 'open_file_in_text_editor',
+  // 删除指定文件
+  delete_file = 'delete_file',
+  // 重命名指定文件
+  rename_file = 'rename_file',
+  // 复制文件到剪贴板中
+  copy_file_to_clipboard = 'copy_file_to_clipboard',
 }

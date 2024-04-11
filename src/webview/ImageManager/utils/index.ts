@@ -1,5 +1,4 @@
-import { isObject, round, sortBy, uniqBy } from '@minko-fe/lodash-pro'
-import { type ImageType } from '..'
+import { round, sortBy, uniqBy } from '@minko-fe/lodash-pro'
 
 export function formatBytes(bytes: number, decimals: number = 2): string {
   if (bytes === 0) {
@@ -17,25 +16,31 @@ export function bytesToKb(bytes: number | undefined): number {
   return round(bytes / 1024, 2)
 }
 
-export function flattenKeys<T>(list: T[], resolveValue: (current: T) => string[]) {
-  return list.reduce(
-    (acc, current) => {
-      const values = resolveValue(current)
-      return acc.flatMap((item) => values.map((value) => (item ? `${item}/${value}` : value)))
-    },
-    [''],
-  )
+/**
+ * 从路径中获取文件名称
+ * @param filePath
+ * @returns
+ */
+export function getFilenameFromPath(filePath: string) {
+  return filePath.split('/').pop()
 }
 
-export function shouldShowImage(image: ImageType) {
-  if (isObject(image.visible) && Object.keys(image.visible).some((k) => image.visible?.[k] === false)) {
-    return false
-  }
-  return true
+/**
+ * 从路径中获取文件目录
+ * @param filePath
+ * @returns
+ */
+export function getDirFromPath(filePath: string) {
+  return filePath.substring(0, filePath.lastIndexOf('/'))
 }
 
-export function getFilenameFromPath(path: string) {
-  return path.split('/').pop()
+/**
+ * 获取文件的basename
+ * @param filename example.png
+ * @returns example
+ */
+export function getFilebasename(filename: string) {
+  return filename.split('.').slice(0, -1).join('.')
 }
 
 /**
@@ -49,4 +54,13 @@ export function uniqSortByThenMap<T>(images: ImageType[], key: keyof ImageType, 
   if (!images.length) return []
 
   return sortBy(uniqBy(images, key), key).map((item) => convert(item))
+}
+
+/**
+ * 从图片列表中找出同目录层级的图片
+ * @param image 目标图片
+ * @param imageList 图片列表
+ */
+export function findSameDirImages(image: ImageType, imageList: ImageType[]) {
+  return imageList.filter((item) => getDirFromPath(item.path) === getDirFromPath(image.path))
 }

@@ -1,4 +1,6 @@
 import { merge } from '@minko-fe/lodash-pro'
+import os from 'node:os'
+import pMap from 'p-map'
 import { type SharpNS } from '~/@types/global'
 import { SharpOperator } from '..'
 import { Operator, type OperatorOptions, type OperatorResult } from './Operator'
@@ -22,7 +24,13 @@ export class FormatConverter extends Operator {
     option: FormatConverterOptions | undefined,
   ): Promise<OperatorResult> {
     this.option = merge(this.option, option || {})
-    const res = await Promise.all(filePaths.map((filePath) => this.convertImage(filePath)))
+    const res = await pMap(
+      filePaths.map((filePath) => () => this.convertImage(filePath)),
+      (task) => task(),
+      {
+        concurrency: os.cpus().length,
+      },
+    )
     return res
   }
 

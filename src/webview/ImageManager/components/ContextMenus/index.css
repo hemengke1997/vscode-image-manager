@@ -10,7 +10,7 @@
   --contexify-activeItem-color: var(--ant-color-text);
   --contexify-activeItem-bgColor: var(--ant-color-primary-hover);
   --contexify-separator-color: var(--ant-color-border);
-  --contexify-menu-minWidth: 140px;
+  --contexify-menu-minWidth: 170px;
   --contexify-menu-padding: var(--ant-padding-xxs);
   --contexify-itemContent-padding: var(--ant-margin-xxs) var(--ant-padding-xxs);
   --contexify-separator-margin: var(--ant-margin-xxs);
@@ -20,10 +20,10 @@
 
   &::before {
     content: '';
-    @apply rounded-[var(--contexify-menu-radius)] left-0 top-0 right-0 bottom-0 absolute bg-[var(--contexify-menu-bgColor)] backdrop-blur-[35px];
+    @apply absolute bottom-0 left-0 right-0 top-0 rounded-[var(--contexify-menu-radius)] bg-[var(--contexify-menu-bgColor)] backdrop-blur-[35px];
   }
 
-  @apply text-sm border-ant-color-border border-solid border;
+  @apply border-ant-color-border border border-solid text-sm;
 
   .contexify_separator {
     @apply backdrop-blur-0;

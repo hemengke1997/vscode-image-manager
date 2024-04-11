@@ -4,9 +4,9 @@ import { memo } from 'react'
 import { Item, type ItemParams, type PredicateParams, Separator, Submenu } from 'react-contexify'
 import { useTranslation } from 'react-i18next'
 import { os } from 'un-detector'
-import { type ImageType } from '~/webview/ImageManager'
 import useImageOperation from '~/webview/ImageManager/hooks/useImageOperation'
 import MaskMenu from '../../../MaskMenu'
+import Arrow from '../Arrow'
 
 export const COLLAPSE_CONTEXT_MENU_ID = 'COLLAPSE_CONTEXT_MENU_ID'
 export const COLLAPSE_CONTEXT_MENU = {
@@ -157,24 +157,6 @@ function CollapseContextMenu() {
         </Submenu>
       </MaskMenu>
     </>
-  )
-}
-
-function Arrow() {
-  return (
-    <svg
-      xmlns='http://www.w3.org/2000/svg'
-      width='1rem'
-      height='1rem'
-      viewBox='0 0 24 24'
-      fill='none'
-      stroke='currentColor'
-      strokeWidth='2'
-      strokeLinecap='round'
-      strokeLinejoin='round'
-    >
-      <polyline points='9 18 15 12 9 6' />
-    </svg>
   )
 }
 

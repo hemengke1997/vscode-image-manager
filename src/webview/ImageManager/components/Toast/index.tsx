@@ -3,6 +3,7 @@ import { AnimatePresence, motion } from 'framer-motion'
 import { type ReactElement, type ReactNode, useEffect, useLayoutEffect, useRef, useState } from 'react'
 import { type Root, createRoot } from 'react-dom/client'
 import { Emitter } from 'strict-event-emitter'
+import { ANIMATION_DURATION } from '../../utils/duration'
 import Queue, { type ToastMessageType } from './queue'
 
 export type ToastProps = {
@@ -93,7 +94,7 @@ function ToastHolder(props: ToastProps) {
           }}
           exit={{ opacity: 0, scale: 0.8 }}
           transition={{
-            duration: 0.15, // props.duration is not this transition duration
+            duration: ANIMATION_DURATION.fast, // props.duration is not this transition duration
           }}
           onMouseEnter={() => onMouseHover(true)}
           onMouseLeave={() => onMouseHover(false)}

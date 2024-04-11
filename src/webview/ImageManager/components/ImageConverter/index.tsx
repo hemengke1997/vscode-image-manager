@@ -6,6 +6,7 @@ import { memo, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { type FormatConverterOptions, type OperatorResult } from '~/core'
 import { CmdToVscode } from '~/message/cmd'
+import { useTrackState } from '~/webview/hooks/useTrackState'
 import { vscodeApi } from '~/webview/vscode-api'
 import GlobalContext from '../../contexts/GlobalContext'
 import useOperatorModalLogic, { type FormComponent } from '../../hooks/useOperatorModalLogic'
@@ -18,13 +19,13 @@ type ImageConverterProps = {} & ImageOperatorProps
 type FormValue = FormatConverterOptions
 
 function ImageConverter(props: ImageConverterProps) {
-  const { images: imagesProp, open, onOpenChange } = props
+  const { images: imagesProp, open, onOpenChange, ...rest } = props
   const { t } = useTranslation()
   const { message } = App.useApp()
   const { formatConverter } = GlobalContext.usePicker(['formatConverter'])
   const [form] = Form.useForm()
 
-  const [images, setImages] = useState(imagesProp)
+  const [images, setImages] = useTrackState(imagesProp)
 
   const [submitting, setSubmitting] = useState(false)
 
@@ -91,6 +92,7 @@ function ImageConverter(props: ImageConverterProps) {
       onOpenChange={onOpenChange}
       form={form}
       submitting={submitting}
+      {...rest}
     >
       <Form
         layout='horizontal'

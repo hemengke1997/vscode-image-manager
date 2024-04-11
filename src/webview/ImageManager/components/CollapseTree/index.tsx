@@ -6,19 +6,24 @@ import { useTranslation } from 'react-i18next'
 import { FaRegImages } from 'react-icons/fa'
 import { IoMdFolderOpen } from 'react-icons/io'
 import { VscFileMedia } from 'react-icons/vsc'
-import { mergeClass } from '~/webview/utils'
-import SettingsContext from '../../contexts/SettingsContext'
+import { type WorkspaceStateType } from '~/core/persist/workspace/common'
+import { cn } from '~/webview/utils'
 import TreeContext from '../../contexts/TreeContext'
 import { DirTree, type DisplayMapType, type FileNode } from '../../utils/DirTree'
+import { ANIMATION_DURATION } from '../../utils/duration'
 import { type CollapseContextMenuType } from '../ContextMenus/components/CollapseContextMenu'
 import ImageCollapse from '../ImageCollapse'
 import OpenFolder from './components/OpenFolder'
 import styles from './index.module.css'
 
-function CollapseTree() {
-  const { t } = useTranslation()
+type CollapseTreeProps = {
+  displayGroup: WorkspaceStateType['display_group']
+  displayStyle: WorkspaceStateType['display_style']
+}
 
-  const { displayGroup, displayStyle } = SettingsContext.usePicker(['displayGroup', 'displayStyle'])
+function CollapseTree(props: CollapseTreeProps) {
+  const { displayGroup, displayStyle } = props
+  const { t } = useTranslation()
 
   const { dirs, imageTypes, workspaceFolder, originalWorkspaceFolder } = TreeContext.usePicker([
     'dirs',
@@ -113,10 +118,10 @@ function CollapseTree() {
                 collapseProps={{
                   bordered: false,
                   defaultActiveKey: defaultOpen ? [value] : undefined,
-                  className: mergeClass(styles.collapse),
+                  className: cn(styles.collapse),
                   ...collapseProps,
                 }}
-                labelContainer={(label) => (
+                labelRender={(label) => (
                   <div className={'flex items-center space-x-1'}>
                     <div className={'flex items-center'}>{displayMap[groupType].icon({ path: value })}</div>
                     {label}
@@ -129,6 +134,11 @@ function CollapseTree() {
                 images={renderList}
                 underFolderImages={underFolderList}
                 underFolderDeeplyImages={underFolderDeeplyList}
+                imagePreviewProps={{
+                  lazyImageProps: {
+                    tooltipDisplayFullPath: !displayGroup.includes('dir'),
+                  },
+                }}
               ></ImageCollapse>
             )
           })}
@@ -152,7 +162,11 @@ function CollapseTree() {
 
     if (!tree.length) {
       return (
-        <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ duration: 0.15, delay: 0.15 }}>
+        <motion.div
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          transition={{ duration: ANIMATION_DURATION.fast, delay: ANIMATION_DURATION.fast }}
+        >
           <Card
             title={<div className={'text-ant-color-warning'}>{originalWorkspaceFolder}</div>}
             bordered={false}

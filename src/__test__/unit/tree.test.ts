@@ -1,5 +1,4 @@
 import { describe, expect, it } from 'vitest'
-import { type ImageType } from '~/webview/ImageManager'
 import { uniqSortByThenMap } from '~/webview/ImageManager/utils'
 import { DirTree, type TreeParams } from '~/webview/ImageManager/utils/DirTree'
 

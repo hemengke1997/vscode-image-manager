@@ -22,7 +22,7 @@ function DisplayType(props: DisplayTypeProps) {
   const { imageState, setImageFilter } = GlobalContext.usePicker(['imageState', 'setImageFilter'])
 
   const allImageTypes = useMemo(() => uniq(imageState.data.flatMap((item) => item.fileTypes)).sort(), [imageState.data])
-  const allImageFiles = useMemo(() => imageState.data.flatMap((item) => item.imgs), [imageState.data])
+  const allImageFiles = useMemo(() => imageState.data.flatMap((item) => item.images), [imageState.data])
 
   const options = useMemo(() => {
     return allImageTypes.map((item) => {

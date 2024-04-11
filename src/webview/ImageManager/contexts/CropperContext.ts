@@ -1,6 +1,5 @@
 import { useSetState } from '@minko-fe/react-hook'
 import { createContainer } from 'context-state'
-import { type ImageType } from '..'
 
 function useCropperContext() {
   const [cropperProps, setCropperProps] = useSetState<{ open: boolean; image: ImageType | undefined }>({

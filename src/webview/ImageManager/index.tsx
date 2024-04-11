@@ -1,9 +1,7 @@
 import { difference, isEqual } from '@minko-fe/lodash-pro'
 import { useAsyncEffect, useMemoizedFn, useUpdateEffect } from '@minko-fe/react-hook'
 import { App, FloatButton } from 'antd'
-import { type Stats } from 'fs-extra'
-import { type ParsedPath } from 'node:path'
-import { type ReactElement, memo, useEffect, useMemo, useRef } from 'react'
+import { memo, useEffect, useMemo, useRef } from 'react'
 import { useTranslation } from 'react-i18next'
 import { isTooManyTries, retry } from 'ts-retry'
 import { type Compressor, type FormatConverter } from '~/core/operator'
@@ -18,6 +16,7 @@ import ImageConverter from './components/ImageConverter'
 import ImageCropper from './components/ImageCropper'
 import ImageForSize from './components/ImageForSize'
 import ImageSearch from './components/ImageSearch'
+import ImageSimilarity from './components/ImageSimilarity'
 import Viewer from './components/Viewer'
 import ViewerSettings, { type ViewerSettingsRef } from './components/ViewerSettings'
 import ActionContext from './contexts/ActionContext'
@@ -27,35 +26,6 @@ import OperatorContext from './contexts/OperatorContext'
 import SettingsContext from './contexts/SettingsContext'
 
 vscodeApi.registerEventListener()
-
-// The visible of image is determined by 'visible' prop.
-// at present, there are following filetr condition
-// 1. type - image type (i.e png, jpg, gif)
-// 2. size - image size (i.e 1kb)
-// 3. git-staged - whether the image is git staged
-// 4. compressed - whether the image is compressed
-export type ImageVisibleFilterType = 'file_type' | 'size' | 'git_staged' | 'compressed'
-
-export type ImageType = {
-  name: string
-  path: string
-  stats: Stats
-  dirPath: string
-  fileType: string
-  vscodePath: string
-  workspaceFolder: string
-  absWorkspaceFolder: string
-  absDirPath: string
-  basePath: string
-  extraPathInfo: ParsedPath
-} & {
-  // extra
-
-  // image visible
-  visible?: Partial<Record<ImageVisibleFilterType | string, boolean>>
-  // image name for display
-  nameElement?: ReactElement
-}
 
 function ImageManager() {
   const { message } = App.useApp()
@@ -75,13 +45,21 @@ function ImageManager() {
     'setImageSearchOpen',
   ])
 
-  const { compressorModal, setCompressorModal, formatConverterModal, setFormatConverterModal } =
-    OperatorContext.usePicker([
-      'compressorModal',
-      'setCompressorModal',
-      'formatConverterModal',
-      'setFormatConverterModal',
-    ])
+  const {
+    compressorModal,
+    setCompressorModal,
+    formatConverterModal,
+    setFormatConverterModal,
+    similarityModal,
+    setSimilarityModal,
+  } = OperatorContext.usePicker([
+    'compressorModal',
+    'setCompressorModal',
+    'formatConverterModal',
+    'setFormatConverterModal',
+    'similarityModal',
+    'setSimilarityModal',
+  ])
 
   const { displayImageTypes } = SettingsContext.usePicker(['displayImageTypes'])
 
@@ -248,11 +226,15 @@ function ImageManager() {
       <ImageForSize />
       <ImageSearch open={imageSearchOpen} onOpenChange={setImageSearchOpen} />
       <ImageCropper {...cropperProps} onOpenChange={(open) => setCropperProps({ open })} />
+
       {compressorModal.open && (
         <ImageCompressor {...compressorModal} onOpenChange={(open) => setCompressorModal({ open })} />
       )}
       {formatConverterModal.open && (
         <ImageConverter {...formatConverterModal} onOpenChange={(open) => setFormatConverterModal({ open })} />
+      )}
+      {similarityModal.open && (
+        <ImageSimilarity {...similarityModal} onOpenChange={(open) => setSimilarityModal({ open })} />
       )}
       <FloatButton.BackTop target={() => document.querySelector('#root') as HTMLElement} />
     </>

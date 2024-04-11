@@ -24,6 +24,6 @@ export function intelligentPickConfig(
   })
 }
 
-export function mergeClass(...args: ClassValue[]) {
+export function cn(...args: ClassValue[]) {
   return twMerge(clsx(args))
 }

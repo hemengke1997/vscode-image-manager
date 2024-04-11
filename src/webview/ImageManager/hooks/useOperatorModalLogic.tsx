@@ -9,6 +9,7 @@ import { type RequiredDeep } from 'type-fest'
 import { type OperatorResult } from '~/core'
 import logger from '~/utils/logger'
 import { formatBytes, getFilenameFromPath } from '../utils'
+import { LOADING_DURATION } from '../utils/duration'
 
 export type FormComponent<T> = {
   [key in ObjectKeys<RequiredDeep<T>>]?: {
@@ -55,7 +56,7 @@ function useOperatorModalLogic() {
         const increase = percent < 0
 
         notification[increase ? 'warning' : 'success']({
-          duration: 10,
+          duration: LOADING_DURATION.slow,
           message: filename,
           placement: 'topRight',
           description: (

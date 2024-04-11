@@ -1,4 +1,4 @@
-import { isFunction } from '@minko-fe/lodash-pro'
+import { isFunction, isObject } from '@minko-fe/lodash-pro'
 import {
   useAsyncEffect,
   useLatest,
@@ -10,13 +10,12 @@ import {
 import { createContainer } from 'context-state'
 import { diff } from 'deep-object-diff'
 import { useEffect, useMemo, useRef } from 'react'
+import { type WorkspaceStateType } from '~/core/persist/workspace/common'
 import { CmdToVscode } from '~/message/cmd'
 import { vscodeApi } from '~/webview/vscode-api'
-import { type ImageType, type ImageVisibleFilterType } from '..'
 import { FilterRadioValue } from '../components/ImageActions/components/Filter'
-import { bytesToKb, shouldShowImage, uniqSortByThenMap } from '../utils'
-import GlobalContext from './GlobalContext'
-import SettingsContext from './SettingsContext'
+import { bytesToKb, uniqSortByThenMap } from '../utils'
+import { type ImageFilterType } from './GlobalContext'
 
 export type ImageStateType = {
   /**
@@ -87,6 +86,18 @@ function sortImages(sort: string[], images: ImageType[]) {
   return images.sort(sortFunction)
 }
 
+/**
+ * 根据visible字段判断是否应该展示图片
+ * @param image
+ * @returns
+ */
+function shouldShowImage(image: ImageType) {
+  if (isObject(image.visible) && Object.keys(image.visible).some((k) => image.visible?.[k] === false)) {
+    return false
+  }
+  return true
+}
+
 type TreeContextProp = {
   /**
    * 当前树的图片列表
@@ -97,21 +108,26 @@ type TreeContextProp = {
    */
   workspaceFolder: string
   /**
-   * 当前树所有目录
+   * 排序
    */
-  dirs: string[]
+  sort?: WorkspaceStateType['display_sort']
   /**
-   * 当前树所有图片类型
+   * 展示图片类型
    */
-  imageTypes: string[]
+  displayImageTypes?: WorkspaceStateType['display_type']
+  /**
+   * 图片过滤条件
+   */
+  imageFilter?: ImageFilterType
 }
 
 function useTreeContext(props: TreeContextProp) {
   const {
     imageList: imageListProp,
-    dirs: originalDirs,
-    imageTypes: originalImageTypes,
     workspaceFolder: originalWorkspaceFolder,
+    sort,
+    displayImageTypes,
+    imageFilter,
   } = props
 
   const [imageSingleTree, setImageSingleTree] = useSetState<ImageStateType>({
@@ -173,10 +189,15 @@ function useTreeContext(props: TreeContextProp) {
   // compressed filter
   const generateImageList = async (imageList: ImageType[]) => {
     // sort
-    let res = onSortChange(imageList, sort)
+    let res = imageList
+    if (sort) {
+      onSortChange(imageList, sort)
+    }
 
     // filter
-    res = await changeImageVisibleByKeys(res, ['file_type', 'size', 'git_staged', 'compressed'])
+    if (imageFilter) {
+      res = await changeImageVisibleByFilterKeys(res, ['file_type', 'size', 'git_staged', 'compressed'], imageFilter)
+    }
 
     return res
   }
@@ -189,8 +210,6 @@ function useTreeContext(props: TreeContextProp) {
       list,
     })
   }, [imageListProp])
-
-  const { sort, displayImageTypes } = SettingsContext.usePicker(['sort', 'displayImageTypes'])
 
   const onSortChange = useMemoizedFn((imageList: ImageType[], sort: string[] | undefined) => {
     if (sort) {
@@ -210,8 +229,8 @@ function useTreeContext(props: TreeContextProp) {
 
   const git_staged_cache = useRef<string[] | null>(null)
 
-  const changeImageVisibleByKeys = useMemoizedFn(
-    (imageList: ImageType[], key: ImageVisibleFilterType[]): Promise<ImageType[]> => {
+  const changeImageVisibleByFilterKeys = useMemoizedFn(
+    (imageList: ImageType[], key: ImageVisibleFilterType[], imageFilter: ImageFilterType): Promise<ImageType[]> => {
       const builtInConditions: Condition[] = [
         {
           key: 'file_type',
@@ -263,7 +282,9 @@ function useTreeContext(props: TreeContextProp) {
                   vscodeApi.postMessage(
                     { cmd: CmdToVscode.get_image_metadata, data: { filePath: image.path } },
                     (res) => {
-                      resolve(res.compressed)
+                      if (res) {
+                        resolve(res.compressed)
+                      }
                     },
                   )
                 })
@@ -287,8 +308,6 @@ function useTreeContext(props: TreeContextProp) {
     },
   )
 
-  const { imageFilter } = GlobalContext.usePicker(['imageFilter'])
-
   // action image filter change
   // 目前有以下filter
   // 1. size
@@ -299,9 +318,10 @@ function useTreeContext(props: TreeContextProp) {
   // 优化单个副作用导致重复渲染的性能损耗
   const previousImageFilter = usePrevious(imageFilter)
   useUpdateEffect(() => {
+    if (!imageFilter) return
     // 这里需要一个前提：imageFilter 的 key 和 ImageVisibleFilterType 一一对应
     const changedKeys = Object.keys(diff(previousImageFilter!, imageFilter)) as ImageVisibleFilterType[]
-    changeImageVisibleByKeys(latestImageList.current, changedKeys).then((res) => {
+    changeImageVisibleByFilterKeys(latestImageList.current, changedKeys, imageFilter).then((res) => {
       setImageSingleTree({
         list: res,
       })
@@ -313,9 +333,7 @@ function useTreeContext(props: TreeContextProp) {
     workspaceFolder,
     originalWorkspaceFolder,
     dirs,
-    originalDirs,
     imageTypes,
-    originalImageTypes,
   }
 }
 

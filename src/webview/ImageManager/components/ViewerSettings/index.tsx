@@ -9,6 +9,7 @@ import PrimaryColorPicker from '~/webview/ui-framework/src/components/CustomConf
 import GlobalContext from '../../contexts/GlobalContext'
 import SettingsContext from '../../contexts/SettingsContext'
 import { Colors } from '../../utils/color'
+import { ANIMATION_DURATION } from '../../utils/duration'
 import DisplayGroup from '../DisplayGroup'
 import DisplaySort from '../DisplaySort'
 import DisplayStyle from '../DisplayStyle'
@@ -89,7 +90,7 @@ function ViewerSettings(_: any, ref: ForwardedRef<ViewerSettingsRef>) {
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           exit={{ opacity: 0 }}
-          transition={{ duration: 0.15 }}
+          transition={{ duration: ANIMATION_DURATION.fast }}
         >
           <Card title={<TitleIconUI icon={<RiSettingsLine />}>{t('im.settings')}</TitleIconUI>}>
             <div className={'flex flex-col gap-y-3'}>

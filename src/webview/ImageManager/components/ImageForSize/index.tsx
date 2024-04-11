@@ -6,7 +6,7 @@ import LazyImage from '../LazyImage'
 function ImageForSize() {
   const { imageState, setImagePlaceholderSize } = GlobalContext.usePicker(['setImagePlaceholderSize', 'imageState'])
   const imageWidth = GlobalContext.useSelector((ctx) => ctx.extConfig.viewer.imageWidth)
-  const imageForSize = useMemo(() => imageState.data[0]?.imgs[0], [imageState.data])
+  const imageForSize = useMemo(() => imageState.data[0]?.images[0], [imageState.data])
   const imageForSizeRef = useRef<HTMLDivElement>(null)
 
   const size = useSize(imageForSizeRef)
@@ -26,6 +26,7 @@ function ImageForSize() {
         }}
         image={imageForSize}
         lazy={false}
+        contextMenu={undefined}
       />
     </div>
   ) : null

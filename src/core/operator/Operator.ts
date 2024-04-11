@@ -1,5 +1,6 @@
 import fs from 'fs-extra'
 import path from 'node:path'
+import { Uri, workspace } from 'vscode'
 import { i18n } from '~/i18n'
 import { generateOutputPath } from '~/utils'
 import { Channel } from '~/utils/Channel'
@@ -61,7 +62,7 @@ export abstract class Operator {
   async trashFile(filePath: string) {
     try {
       if (this.option.keepOriginal) return
-      await fs.remove(filePath)
+      await workspace.fs.delete(Uri.file(filePath), { useTrash: true })
     } catch (e) {
       Channel.info(`Trash File Error: ${e}`)
     }
