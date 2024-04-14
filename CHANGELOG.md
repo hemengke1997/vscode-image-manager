@@ -1,5 +1,13 @@
 # CHANGELOG
 
+## 0.12.0 (2024-04-14)
+
+### Feat
+
+- Support for opening specified image in viewer
+- Support for renaming folder
+- Support for deleting folder
+
 ## 0.11.3 (2024-04-11)
 
 ### Fix
