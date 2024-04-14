@@ -40,6 +40,7 @@
     "reveal_in_os_windows": "Reveal in File Explorer",
     "reveal_in_os_mac": "Reveal in Finder",
     "reveal_in_explorer": "Reveal in Explorer View",
+    "reveal_in_viewer": "Reveal in Viewer",
     "simple_mode": "Simple Mode",
     "standard_mode": "Standard Mode",
     "compress": "Compress",
@@ -143,11 +144,13 @@
     "delete_tip": "You can restore this file from the {{trash}}",
     "delete_success": "Delete success",
     "delete_failed": "Delete failed",
-    "file_exsits": "File name already exists",
-    "file_name_invalid": "File name invalid",
+    "file_exsits": "{{type}} name already exists",
+    "file_name_invalid": "{{type}} name invalid",
     "rename_success": "Rename success",
     "rename_failed": "Rename failed",
-    "double_click": "Double click"
+    "double_click": "Double click",
+    "disable_filter": "Disable filter",
+    "file": "File"
   },
   "fallback": {
     "internal_error": "Internal Error",

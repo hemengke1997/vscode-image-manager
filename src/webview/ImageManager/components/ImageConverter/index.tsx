@@ -10,6 +10,7 @@ import { useTrackState } from '~/webview/hooks/useTrackState'
 import { vscodeApi } from '~/webview/vscode-api'
 import GlobalContext from '../../contexts/GlobalContext'
 import useOperatorModalLogic, { type FormComponent } from '../../hooks/useOperatorModalLogic'
+import useImageContextMenuEvent from '../ContextMenus/components/ImageContextMenu/hooks/useImageContextMenuEvent'
 import ImageOperator, { type ImageOperatorProps } from '../ImageOperator'
 import Format from '../ImageOperator/components/Format'
 import KeepOriginal from '../ImageOperator/components/KeepOriginal'
@@ -62,6 +63,14 @@ function ImageConverter(props: ImageConverterProps) {
     )
   })
 
+  useImageContextMenuEvent({
+    on: {
+      reveal_in_viewer: () => {
+        onOpenChange(false)
+      },
+    },
+  })
+
   const tab = {
     options: formatConverter?.option,
     componentMap: {
@@ -96,7 +105,7 @@ function ImageConverter(props: ImageConverterProps) {
         requiredMark={false}
         onFinish={onFinish}
       >
-        <div className={'max-h-96 overflow-auto'}>
+        <div className={'max-h-[600px] overflow-auto'}>
           {Object.keys(tab.componentMap).map((key, index) => {
             return <div key={index}>{tab.componentMap[key]?.el()}</div>
           })}

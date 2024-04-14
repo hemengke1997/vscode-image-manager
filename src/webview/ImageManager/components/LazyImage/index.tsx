@@ -1,7 +1,8 @@
-import { useControlledState, useInViewport, useUpdateEffect } from '@minko-fe/react-hook'
+import { trim } from '@minko-fe/lodash-pro'
+import { useInViewport, useMemoizedFn, useUpdateEffect } from '@minko-fe/react-hook'
 import { Badge, Image, type ImageProps } from 'antd'
 import { motion } from 'framer-motion'
-import { type ReactNode, memo, useRef, useState } from 'react'
+import { type ReactNode, memo, useEffect, useRef, useState } from 'react'
 import { useHotkeys } from 'react-hotkeys-hook'
 import { useTranslation } from 'react-i18next'
 import { FaRegGrinStars } from 'react-icons/fa'
@@ -9,71 +10,78 @@ import { HiOutlineViewfinderCircle } from 'react-icons/hi2'
 import { MdOutlineRemoveCircle } from 'react-icons/md'
 import { RxDimensions } from 'react-icons/rx'
 import { TbResize } from 'react-icons/tb'
+import { Events, animateScroll } from 'react-scroll'
 import { Key } from 'ts-key-enum'
 import { type SharpNS } from '~/@types/global'
 import { CmdToVscode } from '~/message/cmd'
 import useImageDetail from '~/webview/ImageManager/hooks/useImageDetail/useImageDetail'
-import { cn } from '~/webview/utils'
+import { cn, getAppRoot } from '~/webview/utils'
 import { vscodeApi } from '~/webview/vscode-api'
 import ActionContext from '../../contexts/ActionContext'
 import GlobalContext from '../../contexts/GlobalContext'
-import useImageContextMenu, { type ImageContextMenuType } from '../../hooks/useImageContextMenu'
 import useImageOperation from '../../hooks/useImageOperation'
 import { bytesToKb, formatBytes } from '../../utils'
 import { ANIMATION_DURATION } from '../../utils/duration'
-import ImageName from '../ImageName'
+import useImageContextMenu, {
+  type ImageContextMenuType,
+} from '../ContextMenus/components/ImageContextMenu/hooks/useImageContextMenu'
+import ImageName, { type ImageNameProps } from '../ImageName'
 
 export type LazyImageProps = {
-  imageProp: ImageProps
+  /**
+   * 图片信息
+   */
   image: ImageType
-  index?: number
-  preview?: {
-    open?: boolean
-    current?: number
-  }
-  onPreviewChange?: (preview: { open?: boolean; current?: number }) => void
+  /**
+   * 点击预览回调
+   * 如果不传此参数，则不会显示预览功能
+   */
+  onPreviewClick?: (image: ImageType) => void
   /**
    * 是否懒加载
+   * @default true
    */
   lazy?: boolean
+  /**
+   * 点击remove icon回调
+   * 如果不传此参数，则不会显示remove icon
+   */
   onRemoveClick?: (image: ImageType) => void
+  /**
+   * 增强渲染remove icon
+   */
   removeRender?: (children: ReactNode, image: ImageType) => ReactNode
   /**
    * 图片右键上下文
    */
-  contextMenu:
-    | (Omit<ImageContextMenuType, 'image'> & {
-        /**
-         * TODO
-         * @description 来源
-         * 根据来源追踪事件链路，然后就可以在任意地方删除、重命名文件等操作
-         * 现在暂时没想好怎么做
-         */
-        source?: 'similarity'
-      })
-    | undefined
-  tooltipDisplayFullPath?: boolean
+  contextMenu: Omit<ImageContextMenuType, 'image'> | undefined
+  /**
+   * 透传给 antd Image 组件的 props
+   */
+  antdImageProps: ImageProps
+  /**
+   * 透传给 ImageName 组件的props
+   */
+  imageNameProps?: ImageNameProps
 }
 
 function LazyImage(props: LazyImageProps) {
   const {
-    imageProp,
     image,
-    preview,
-    onPreviewChange,
-    index,
+    onPreviewClick,
     lazy = true,
     onRemoveClick,
     removeRender = (n) => n,
     contextMenu,
-    tooltipDisplayFullPath,
+    antdImageProps,
+    imageNameProps,
   } = props
 
-  const { beginRenameProcess, beginDeleteProcess } = useImageOperation()
+  const { beginRenameImageProcess, beginDeleteImageProcess } = useImageOperation()
   const { t } = useTranslation()
   const { showImageDetailModal } = useImageDetail()
 
-  const { imagePlaceholderSize } = GlobalContext.usePicker(['imagePlaceholderSize'])
+  const { imagePlaceholderSize, targetImagePath } = GlobalContext.usePicker(['imagePlaceholderSize', 'targetImagePath'])
   const warningSize = GlobalContext.useSelector((ctx) => ctx.extConfig.viewer.warningSize)
 
   const refreshTimes = ActionContext.useSelector((ctx) => ctx.imageRefreshedState.refreshTimes)
@@ -81,12 +89,6 @@ function LazyImage(props: LazyImageProps) {
   const placeholderRef = useRef<HTMLDivElement>(null)
   const [inViewport] = useInViewport(placeholderRef, {
     rootMargin: '100px 0px', // expand 100px area of vertical intersection calculation
-  })
-
-  const [, setPreview] = useControlledState({
-    defaultValue: preview,
-    value: preview,
-    onChange: onPreviewChange,
   })
 
   const [imageMetadata, setImageMeatadata] = useState<{ metadata: SharpNS.Metadata; compressed: boolean }>()
@@ -110,19 +112,21 @@ function LazyImage(props: LazyImageProps) {
   const keybindRef = useHotkeys<HTMLDivElement>(
     [Key.Enter, `mod+${Key.Backspace}`],
     (e) => {
-      switch (e.code) {
-        case Key.Enter: {
-          hideAll()
-          beginRenameProcess(image, contextMenu?.sameDirImages || [])
-          return
+      if (contextMenu?.enable?.fs) {
+        switch (e.code) {
+          case Key.Enter: {
+            hideAll()
+            beginRenameImageProcess(image)
+            return
+          }
+          case Key.Backspace: {
+            hideAll()
+            beginDeleteImageProcess(image)
+            return
+          }
+          default:
+            break
         }
-        case Key.Backspace: {
-          hideAll()
-          beginDeleteProcess(image)
-          return
-        }
-        default:
-          break
       }
     },
     {
@@ -133,6 +137,65 @@ function LazyImage(props: LazyImageProps) {
   const ifWarning = bytesToKb(image.stats.size) > warningSize
 
   const { show, hideAll } = useImageContextMenu()
+
+  const isTargetImage = useMemoizedFn(() => {
+    return (
+      !contextMenu?.enable?.reveal_in_viewer &&
+      trim(image.path).length &&
+      image.path === targetImagePath.slice(0, targetImagePath.lastIndexOf('?'))
+    )
+  })
+
+  useEffect(() => {
+    let timer: number
+    if (isTargetImage()) {
+      Events.scrollEvent.register('end', () => {
+        timer = window.setTimeout(() => {
+          keybindRef.current?.focus()
+          // 清空 targetImagePath，避免下次进入时直接定位
+          vscodeApi.postMessage({ cmd: CmdToVscode.reveal_image_in_viewer, data: { filePath: '' } })
+        }, 100) // TODO: 为什么延迟后才能生效？
+      })
+
+      requestIdleCallback(() => {
+        const y = placeholderRef.current?.getBoundingClientRect().top || keybindRef.current?.getBoundingClientRect().top
+
+        const clientHeight = document.documentElement.clientHeight
+
+        if (y) {
+          animateScroll.scrollTo(
+            y + getAppRoot().scrollTop - clientHeight / 2 + (imagePlaceholderSize?.height || 0) / 2,
+            {
+              duration: 0,
+              smooth: true,
+              delay: 0,
+              containerId: 'root',
+            },
+          )
+        }
+      })
+    }
+
+    return () => {
+      if (isTargetImage()) {
+        keybindRef.current?.blur()
+        Events.scrollEvent.remove('end')
+        clearTimeout(timer)
+      }
+    }
+  }, [targetImagePath])
+
+  const onContextMenu = useMemoizedFn((e: React.MouseEvent<HTMLDivElement>) => {
+    show({
+      event: e,
+      props: {
+        image,
+        ...contextMenu,
+        sameWorkspaceImages: contextMenu?.sameWorkspaceImages || [],
+        sameLevelImages: contextMenu?.sameLevelImages || [],
+      },
+    })
+  })
 
   if (!inViewport && lazy) {
     return (
@@ -153,24 +216,13 @@ function LazyImage(props: LazyImageProps) {
         tabIndex={-1}
         className={cn(
           'group relative flex flex-none flex-col items-center space-y-1 p-1.5 transition-colors',
-          'hover:border-ant-color-primary focus:border-ant-color-primary overflow-hidden rounded-md border-[1px] border-solid border-transparent',
+          'hover:border-ant-color-primary focus:border-ant-color-primary focus-visibile:border-ant-color-primary overflow-hidden rounded-md border-[2px] border-solid border-transparent focus-visible:outline-none',
         )}
         initial={{ opacity: 0 }}
         viewport={{ once: true, margin: '20px 0px' }}
         transition={{ duration: ANIMATION_DURATION.slow }}
         whileInView={{ opacity: 1 }}
-        onContextMenu={(e) => {
-          show({
-            event: e,
-            props: {
-              image,
-              ...contextMenu,
-              sameWorkspaceImages: contextMenu?.sameWorkspaceImages || [],
-              sameLevelImages: contextMenu?.sameLevelImages || [],
-              sameDirImages: contextMenu?.sameDirImages || [],
-            },
-          })
-        }}
+        onContextMenu={onContextMenu}
         onMouseOver={handleMaskMouseOver}
         onDoubleClick={() => {
           showImageDetailModal(image)
@@ -189,23 +241,25 @@ function LazyImage(props: LazyImageProps) {
         )}
         <Badge status='warning' dot={ifWarning}>
           <Image
-            {...imageProp}
-            className={cn('rounded-md object-contain p-1 will-change-auto', imageProp.className)}
+            {...antdImageProps}
+            className={cn('rounded-md object-contain p-1 will-change-auto', antdImageProps.className)}
             preview={
               lazy
                 ? {
                     mask: (
                       <div className={'flex size-full flex-col items-center justify-center space-y-1 text-sm'}>
-                        <div
-                          className={'flex cursor-pointer items-center space-x-1 truncate'}
-                          onClick={(e) => {
-                            e.stopPropagation()
-                            setPreview({ open: true, current: index })
-                          }}
-                        >
-                          <HiOutlineViewfinderCircle />
-                          <span>{t('im.preview')}</span>
-                        </div>
+                        {onPreviewClick && (
+                          <div
+                            className={'flex cursor-pointer items-center space-x-1 truncate'}
+                            onClick={(e) => {
+                              e.stopPropagation()
+                              onPreviewClick(image)
+                            }}
+                          >
+                            <HiOutlineViewfinderCircle />
+                            <span>{t('im.preview')}</span>
+                          </div>
+                        )}
                         <div className={'flex items-center space-x-1 truncate'}>
                           <TbResize />
                           <span className={cn(ifWarning && 'text-ant-color-warning-text')}>
@@ -231,13 +285,13 @@ function LazyImage(props: LazyImageProps) {
                   }
                 : false
             }
-            rootClassName={cn('transition-all', imageProp.rootClassName)}
-            style={{ width: imageProp.width, height: imageProp.height, ...imageProp.style }}
+            rootClassName={cn('transition-all', antdImageProps.rootClassName)}
+            style={{ width: antdImageProps.width, height: antdImageProps.height, ...antdImageProps.style }}
           ></Image>
         </Badge>
-        <div className='max-w-full truncate' style={{ maxWidth: imageProp.width }}>
+        <div className='max-w-full truncate' style={{ maxWidth: antdImageProps.width }}>
           {image.nameElement || (
-            <ImageName image={image} showFullPath={tooltipDisplayFullPath}>
+            <ImageName image={image} {...imageNameProps}>
               {image.name}
             </ImageName>
           )}

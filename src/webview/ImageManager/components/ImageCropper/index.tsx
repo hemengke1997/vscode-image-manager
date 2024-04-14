@@ -1,6 +1,6 @@
 import type Cropperjs from 'cropperjs'
 import { isNil, round } from '@minko-fe/lodash-pro'
-import { useControlledState, useSetState, useThrottleFn, useUpdateEffect } from '@minko-fe/react-hook'
+import { useControlledState, useMemoizedFn, useSetState, useThrottleFn, useUpdateEffect } from '@minko-fe/react-hook'
 import { isDev } from '@minko-fe/vite-config/client'
 import { App, Button, Card, Checkbox, Divider, InputNumber, Modal, Popover, Segmented, Skeleton, Tooltip } from 'antd'
 import { produce } from 'immer'
@@ -52,9 +52,9 @@ function ImageCropper(props?: ImageCropperProps) {
 
   const [loading, setLoading] = useState(true)
 
-  const allTruly = (obj: Record<string, any>) => {
+  const allTruly = useMemoizedFn((obj: Record<string, any>) => {
     return Object.values(obj).every((item) => !isNil(item))
-  }
+  })
 
   const [cropperOptions, setCropperOptions] = useSetState<Cropperjs.Options>({
     aspectRatio: getAspectRatios(i18n)[0].value,
@@ -93,12 +93,12 @@ function ImageCropper(props?: ImageCropperProps) {
 
   const previewRef = useRef<HTMLDivElement>(null)
   const [saveModalOpen, setSaveModalOpen] = useState(false)
-  const handlePreview = () => {
+  const handlePreview = useMemoizedFn(() => {
     previewRef.current?.appendChild(cropperRef.current!.cropper?.getCroppedCanvas())
     setSaveModalOpen(true)
-  }
+  })
 
-  const handleSave = async () => {
+  const handleSave = useMemoizedFn(async () => {
     if (cropperRef.current?.cropper && image) {
       const canvas = cropperRef.current?.cropper.getCroppedCanvas()
       const imageType = mime.getType(image.fileType)
@@ -138,25 +138,25 @@ function ImageCropper(props?: ImageCropperProps) {
       setSaveModalOpen(false)
       setOpen(false)
     }
-  }
+  })
 
-  const getCropBoxCenterPoint = () => {
+  const getCropBoxCenterPoint = useMemoizedFn(() => {
     const { left, top, width, height } = cropperRef.current!.cropper!.getCropBoxData()
     return {
       x: left + width / 2,
       y: top + height / 2,
     }
-  }
+  })
 
-  const getContainerCenterPoint = () => {
+  const getContainerCenterPoint = useMemoizedFn(() => {
     const { width, height } = cropperRef.current!.cropper.getContainerData()
     return {
       x: width / 2,
       y: height / 2,
     }
-  }
+  })
 
-  const moveToCenter = (options?: { centerCrop?: boolean; centerX?: boolean; centerY?: boolean }) => {
+  const moveToCenter = useMemoizedFn((options?: { centerCrop?: boolean; centerX?: boolean; centerY?: boolean }) => {
     const { centerCrop = false, centerX = true, centerY = true } = options || {}
     if (centerCrop) {
       // move crop box to container center
@@ -171,7 +171,7 @@ function ImageCropper(props?: ImageCropperProps) {
     const { width, height } = cropperRef.current!.cropper.getImageData()
     const { top, left } = cropperRef.current!.cropper.getCanvasData()
     cropperRef.current?.cropper?.moveTo(centerX ? cropBoxX - width / 2 : left, centerY ? cropBoxY - height / 2 : top)
-  }
+  })
 
   return (
     <Modal

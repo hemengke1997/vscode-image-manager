@@ -40,6 +40,7 @@
     "reveal_in_os_windows": "在文件资源管理器中显示",
     "reveal_in_os_mac": "在 Finder 中显示",
     "reveal_in_explorer": "在资源管理器视图中显示",
+    "reveal_in_viewer": "在 Viewer 中显示",
     "simple_mode": "简洁模式",
     "standard_mode": "标准模式",
     "compress": "压缩",
@@ -125,7 +126,7 @@
     "refer_to_svgo": "请参考: <0>svgo官方文档</0>",
     "scale_factor": "倍数",
     "file_suffix": "文件后缀",
-    "pretty": "Prettify",
+    "pretty": "格式化",
     "pretty_success": "格式化成功",
     "svg_compressed_tip": "请自行检查svg是否压缩",
     "view_svg": "查看svg代码",
@@ -143,11 +144,13 @@
     "delete_tip": "你可以在{{trash}}中恢复文件",
     "delete_success": "删除成功",
     "delete_failed": "删除失败",
-    "file_exsits": "文件名已存在",
-    "file_name_invalid": "文件名不合法",
+    "file_exsits": "{{type}}名已存在",
+    "file_name_invalid": "{{type}}名不合法",
     "rename_success": "重命名成功",
     "rename_failed": "重命名失败",
-    "double_click": "双击"
+    "double_click": "双击",
+    "disable_filter": "禁用过滤",
+    "file": "文件"
   },
   "fallback": {
     "internal_error": "内部错误",

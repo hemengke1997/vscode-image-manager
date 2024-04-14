@@ -1,6 +1,7 @@
 import { applyHtmlTransforms } from '@minko-fe/html-transform'
 import fs from 'fs-extra'
 import path from 'node:path'
+import onChange from 'on-change'
 import {
   type ConfigurationChangeEvent,
   Disposable,
@@ -26,6 +27,26 @@ export class ImageManagerPanel {
    * Track the currently panel. Only allow a single panel to exist at a time.
    */
   public static currentPanel: ImageManagerPanel | undefined
+
+  /**
+   * 打开指定图片（监听对象）
+   */
+  public static watchedTargetImage = onChange<{
+    /**
+     * 图片路径带query参数，用于强制刷新
+     */
+    path: string
+  }>({ path: '' }, (_, value) => {
+    if (value) {
+      // 用户端切换了图片，需要通知webview重新设置 window.__target_image_path__
+      MessageCenter.postMessage({
+        cmd: CmdToWebview.update_target_image_path,
+        data: {
+          path: value,
+        },
+      })
+    }
+  })
 
   // events
   private static _onDidChanged = new EventEmitter<Webview | false>()
@@ -89,7 +110,19 @@ export class ImageManagerPanel {
     }
   }
 
-  public static createOrShow(ctx: ExtensionContext, reload = false) {
+  public static updateTargetImage(targetImagePath: string) {
+    this.watchedTargetImage.path = targetImagePath ? `${targetImagePath}?t=${Date.now()}` : ''
+  }
+
+  /**
+   * 创建或显示面板webview
+   * @param ctx vscode上下文
+   * @param reload 是否 reload webview
+   * @param targetImagePath 要打开的图片路径
+   * @returns
+   */
+  public static createOrShow(ctx: ExtensionContext, reload = false, targetImagePath: string) {
+    this.updateTargetImage(targetImagePath)
     const panel = this.revive(ctx)
     panel._reveal(reload)
     return panel
@@ -148,8 +181,6 @@ export class ImageManagerPanel {
     const isProd = Global.isProduction()
     const webview = this._panel.webview
 
-    const localServerUrl = `http://localhost:${DEV_PORT}`
-
     let html = ''
     let content_src = ''
     let script_src = ''
@@ -158,6 +189,8 @@ export class ImageManagerPanel {
       const { htmlContent, htmlPath } = this._getHtml(['dist-webview', 'index.html'])
       html = this._transformHtml(htmlPath, htmlContent)
     } else {
+      const localServerUrl = `http://localhost:${DEV_PORT}`
+
       html = this._getHtml(['index.html']).htmlContent
       function joinLocalServerUrl(path: string) {
         return `${localServerUrl}/${path}`

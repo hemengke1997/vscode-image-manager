@@ -1,15 +1,17 @@
-import { useControlledState, useUpdateEffect } from '@minko-fe/react-hook'
-import { Input, Modal } from 'antd'
+import { useControlledState, useDebounceEffect, useMemoizedFn } from '@minko-fe/react-hook'
+import { Input, Modal, Tooltip } from 'antd'
 import { type InputRef } from 'antd/es/input'
 import Fuse, { type FuseResult } from 'fuse.js'
 import { type HTMLAttributes, memo, useMemo, useRef, useState } from 'react'
 import Highlighter from 'react-highlight-words'
 import { useTranslation } from 'react-i18next'
+import { RiFilterOffLine } from 'react-icons/ri'
 import { VscCaseSensitive, VscWholeWord } from 'react-icons/vsc'
 import { CmdToVscode } from '~/message/cmd'
 import { cn } from '~/webview/utils'
 import { vscodeApi } from '~/webview/vscode-api'
 import GlobalContext from '../../contexts/GlobalContext'
+import useImageContextMenuEvent from '../ContextMenus/components/ImageContextMenu/hooks/useImageContextMenuEvent'
 import ImagePreview from '../ImagePreview'
 
 type ImageSearchProps = {
@@ -27,32 +29,56 @@ function ImageSearch(props: ImageSearchProps) {
     onChange: onOpenChange,
   })
 
+  useImageContextMenuEvent({
+    on: {
+      reveal_in_viewer: () => {
+        setOpen(false)
+      },
+    },
+  })
+
   const searchInputRef = useRef<InputRef>(null)
 
   const imageData = GlobalContext.useSelector((ctx) => ctx.imageState.data)
+  const { treeData } = GlobalContext.usePicker(['treeData'])
+
   const allImagePatterns = useMemo(() => imageData.flatMap((item) => item.images), [imageData])
+  const visibleImagePatterns = useMemo(
+    () =>
+      treeData.reduce((prev, cur) => {
+        return prev.concat(cur.visibleList)
+      }, [] as ImageType[]),
+    [treeData],
+  )
 
+  // 大小写敏感
   const [caseSensitive, setCaseSensitive] = useState(false)
+  // 全字匹配
   const [wholeWord, setWholeWord] = useState(false)
+  // 是否搜索全部
+  const [whetherAll, setWhetherAll] = useState(false)
 
+  // includeGlob is a glob pattern to filter the search results
   const [includeGlob, setIncludeGlob] = useState<string>()
 
-  const fuse = useMemo(
-    () =>
-      new Fuse(allImagePatterns, {
-        isCaseSensitive: caseSensitive,
-        minMatchCharLength: 2,
-        includeMatches: true,
-        threshold: wholeWord ? 0 : 0.3,
-        keys: ['name'],
-      }),
-    [allImagePatterns, caseSensitive, wholeWord],
-  )
+  // TODO: fuse 搜索并不太精确，配合highlighter使用时，会出现问题
+  const fuse = useMemoizedFn(() => {
+    return new Fuse(whetherAll ? allImagePatterns : visibleImagePatterns, {
+      isCaseSensitive: caseSensitive,
+      minMatchCharLength: 2,
+      includeMatches: true,
+      threshold: wholeWord ? 0 : 0.3,
+      keys: ['name'],
+      shouldSort: true,
+      distance: 0,
+      location: 0,
+    })
+  })
 
   const [searchValue, setSearchValue] = useState('')
   const [searchResults, setSearchResults] = useState<FuseResult<ImageType>[]>([])
 
-  const filterByGlob = (filePaths: string[], glob: string): Promise<string[]> => {
+  const filterByGlob = useMemoizedFn((filePaths: string[], glob: string): Promise<string[]> => {
     return new Promise((resolve) => {
       vscodeApi.postMessage(
         {
@@ -67,15 +93,15 @@ function ImageSearch(props: ImageSearchProps) {
         },
       )
     })
-  }
+  })
 
-  const generateFullPath = (image: ImageType) => {
+  const generateFullPath = useMemoizedFn((image: ImageType) => {
     return `${image.dirPath}/${image.path}`
-  }
+  })
 
-  const onSearch = async (value: string) => {
+  const onSearch = useMemoizedFn(async (value: string) => {
     setSearchValue(value)
-    let result = fuse.search(value)
+    let result = fuse().search(value)
 
     let filterResult: string[] = []
 
@@ -93,12 +119,19 @@ function ImageSearch(props: ImageSearchProps) {
       result = result.filter((t) => filterResult.includes(generateFullPath(t.item)))
     }
     setSearchResults(result)
-  }
+  })
 
   // When condition change, we need to re-search
-  useUpdateEffect(() => {
-    onSearch(searchValue)
-  }, [caseSensitive, wholeWord])
+  useDebounceEffect(
+    () => {
+      onSearch(searchValue)
+    },
+    [caseSensitive, wholeWord, whetherAll, includeGlob],
+    {
+      leading: true,
+      wait: 100,
+    },
+  )
 
   return (
     <Modal
@@ -113,6 +146,7 @@ function ImageSearch(props: ImageSearchProps) {
           searchInputRef.current?.focus({ cursor: 'all', preventScroll: true })
         }
       }}
+      keyboard={false}
     >
       <div className={'my-4 flex justify-between space-x-4'}>
         <Input.Search
@@ -144,6 +178,15 @@ function ImageSearch(props: ImageSearchProps) {
               >
                 <VscWholeWord />
               </IconUI>
+              <IconUI
+                active={whetherAll}
+                onClick={() => {
+                  setWhetherAll((t) => !t)
+                }}
+                title={t('im.disable_filter')}
+              >
+                <RiFilterOffLine />
+              </IconUI>
             </div>
           }
           enterButton
@@ -154,7 +197,6 @@ function ImageSearch(props: ImageSearchProps) {
           placeholder={t('im.include_glob_placeholder')}
           value={includeGlob}
           onChange={(e) => setIncludeGlob(e.target.value)}
-          allowClear
           onPressEnter={() => {
             onSearch(searchValue)
           }}
@@ -167,26 +209,32 @@ function ImageSearch(props: ImageSearchProps) {
             ...result.item,
             nameElement: (
               <>
-                <Highlighter
-                  key={result.refIndex}
-                  findChunks={() =>
-                    result.matches?.length
-                      ? result.matches?.map((match) => ({
-                          start: match.indices[0][0],
-                          end: match.indices[0][1] + 1,
-                        }))
-                      : []
-                  }
-                  highlightClassName='bg-ant-color-primary rounded-sm text-ant-color-text'
-                  textToHighlight={result.item.name}
-                  searchWords={[]}
-                  caseSensitive={caseSensitive}
-                ></Highlighter>
+                <Tooltip title={result.item.name} arrow={false} placement='bottom'>
+                  <Highlighter
+                    key={result.refIndex}
+                    findChunks={() =>
+                      result.matches?.length
+                        ? result.matches?.map((match) => ({
+                            start: match.indices[0][0],
+                            end: match.indices[0][1] + 1,
+                          }))
+                        : []
+                    }
+                    highlightClassName='bg-ant-color-primary rounded-sm text-ant-color-text'
+                    textToHighlight={result.item.name}
+                    searchWords={[]}
+                    caseSensitive={caseSensitive}
+                  ></Highlighter>
+                </Tooltip>
               </>
             ),
           }))}
           lazyImageProps={{
-            contextMenu: { operable: false },
+            contextMenu: {
+              enable: {
+                reveal_in_viewer: true,
+              },
+            },
           }}
         />
       </div>
@@ -205,7 +253,7 @@ function IconUI(
   return (
     <div
       className={cn(
-        'hover:bg-ant-color-bg-text-hover flex h-full cursor-pointer items-center rounded-md border-solid border-transparent p-0.5 text-sm transition-all',
+        'hover:bg-ant-color-bg-text-hover flex h-full cursor-pointer items-center rounded-md border-solid border-transparent p-0.5 text-lg transition-all',
         active && '!text-ant-color-primary !border-ant-color-primary hover:bg-transparent',
       )}
       {...rest}

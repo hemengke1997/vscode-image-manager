@@ -73,6 +73,12 @@ function useGlobalContext() {
   /* ---------- image placeholder size ---------- */
   const [imagePlaceholderSize, setImagePlaceholderSize] = useState<{ width: number; height: number }>()
 
+  /* ---------- target image path ---------- */
+  const [targetImagePath, setTargetImagePath] = useState<string>(window.__target_image_path__)
+
+  /* ------------- tree context 中的数据 ------------ */
+  const [treeData, setTreeData] = useState<{ workspaceFolder: string; visibleList: ImageType[] }[]>([])
+
   return {
     mode,
     setMode,
@@ -91,6 +97,10 @@ function useGlobalContext() {
     setImagePlaceholderSize,
     imageFilter,
     setImageFilter,
+    targetImagePath,
+    setTargetImagePath,
+    treeData,
+    setTreeData,
   }
 }
 

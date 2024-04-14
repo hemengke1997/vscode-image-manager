@@ -44,6 +44,13 @@ export function getFilebasename(filename: string) {
 }
 
 /**
+ * 获取路径的目录名
+ */
+export function getDirnameFromPath(dirPath: string) {
+  return dirPath.split('/').pop()!
+}
+
+/**
  * 将一定规则去重、排序后的图片列表转为其他列表
  * @param images 图片列表
  * @param key 去重、排序的规则key
@@ -54,15 +61,6 @@ export function uniqSortByThenMap<T>(images: ImageType[], key: keyof ImageType, 
   if (!images.length) return []
 
   return sortBy(uniqBy(images, key), key).map((item) => convert(item))
-}
-
-/**
- * 从图片列表中找出同目录层级的图片
- * @param image 目标图片
- * @param imageList 图片列表
- */
-export function findSameDirImages(image: ImageType, imageList: ImageType[]) {
-  return imageList.filter((item) => getDirFromPath(item.path) === getDirFromPath(image.path))
 }
 
 /**

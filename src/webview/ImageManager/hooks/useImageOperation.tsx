@@ -1,6 +1,7 @@
 import { isObject, isString } from '@minko-fe/lodash-pro'
 import { useLockFn, useMemoizedFn } from '@minko-fe/react-hook'
-import { App, Button, Checkbox, Form, Input, type InputRef, Typography } from 'antd'
+import { App, Button, Checkbox, Form, Input, type InputProps, type InputRef, Typography } from 'antd'
+import escapeStringRegexp from 'escape-string-regexp'
 import { useRef, useState } from 'react'
 import { Trans, useTranslation } from 'react-i18next'
 import { os } from 'un-detector'
@@ -8,10 +9,11 @@ import { ConfigKey } from '~/core/config/common'
 import { CmdToVscode } from '~/message/cmd'
 import { useExtConfigState } from '~/webview/hooks/useExtConfigState'
 import { vscodeApi } from '~/webview/vscode-api'
+import useImageContextMenuEvent from '../components/ContextMenus/components/ImageContextMenu/hooks/useImageContextMenuEvent'
 import CroppoerContext from '../contexts/CropperContext'
 import GlobalContext from '../contexts/GlobalContext'
 import OperatorContext from '../contexts/OperatorContext'
-import { getDirFromPath, getFilebasename } from '../utils'
+import { getDirFromPath, getDirnameFromPath, getFilebasename } from '../utils'
 import { LOADING_DURATION } from '../utils/duration'
 
 const { Text } = Typography
@@ -72,6 +74,7 @@ function useImageOperation() {
     // open compress modal
     setCompressorModal({
       open: true,
+      closed: false,
       images,
     })
   })
@@ -82,6 +85,7 @@ function useImageOperation() {
     // open format conversion modal
     setFormatConverterModal({
       open: true,
+      closed: false,
       images,
     })
   })
@@ -135,6 +139,7 @@ function useImageOperation() {
     } else if (res.length) {
       setSimilarityModal({
         open: true,
+        closed: false,
         image,
         similarImages: res,
       })
@@ -158,155 +163,299 @@ function useImageOperation() {
     }
   })
 
-  const deleteImage = useLockFn((image: ImageType) => {
-    return new Promise<boolean>((resolve) => {
-      vscodeApi.postMessage({ cmd: CmdToVscode.delete_file, data: { filePath: image.path } }, (res) => {
-        if (res) {
-          message.success(t('im.delete_success'))
-          resolve(true)
-        } else {
-          message.error(t('im.delete_failed'))
-          resolve(false)
-        }
+  const deleteFile = useLockFn(
+    (
+      filePath: string,
+      options: {
+        recursive?: boolean
+      },
+    ) => {
+      const { recursive } = options
+      return new Promise<boolean>((resolve) => {
+        vscodeApi.postMessage({ cmd: CmdToVscode.delete_file, data: { filePath, recursive } }, (res) => {
+          if (res) {
+            message.success(t('im.delete_success'))
+            resolve(true)
+          } else {
+            message.error(t('im.delete_failed'))
+            resolve(false)
+          }
+        })
       })
-    })
-  })
+    },
+  )
 
+  // 删除文件
   const { extConfig } = GlobalContext.usePicker(['extConfig'])
   const [confirmDelete, setConfirmDelete] = useExtConfigState(
     ConfigKey.file_confirmDelete,
     extConfig.file.confirmDelete,
   )
   const [askDelete, setAskDelete] = useState(false)
-  const beginDeleteProcess = useLockFn(async (image: ImageType) => {
-    if (confirmDelete) {
-      modal.confirm({
-        width: 300,
-        title: t('im.delete_title', { filename: `'${image.name}'` }),
-        content: (
-          <div className='space-y-2'>
-            <div className={'text-sm'}>
-              {t('im.delete_tip', { trash: os.isMac() ? t('im.trash_macos') : t('im.trash_windows') })}
+  const beginDeleteProcess = useLockFn(
+    async (options: {
+      /**
+       * 要删除的文件名
+       */
+      name: string
+      /**
+       * 完整路径
+       */
+      path: string
+      /**
+       * 是否递归删除
+       */
+      recursive?: boolean
+    }) => {
+      const { name, path, recursive } = options
+      let success = false
+      if (confirmDelete) {
+        await modal.confirm({
+          width: 300,
+          title: t('im.delete_title', { filename: `'${name}'` }),
+          content: (
+            <div className='space-y-2'>
+              <div className={'text-sm'}>
+                {t('im.delete_tip', { trash: os.isMac() ? t('im.trash_macos') : t('im.trash_windows') })}
+              </div>
+              <Checkbox onChange={(e) => setAskDelete(e.target.checked)} defaultChecked={false}>
+                {t('im.dont_ask_again')}
+              </Checkbox>
             </div>
-            <Checkbox onChange={(e) => setAskDelete(e.target.checked)} defaultChecked={false}>
-              {t('im.dont_ask_again')}
-            </Checkbox>
-          </div>
-        ),
-        okText: t('im.confirm'),
-        cancelText: t('im.cancel'),
-        centered: true,
-        onOk: async () => {
-          if (askDelete) {
-            setConfirmDelete(false)
-          }
-          try {
-            await deleteImage(image)
-            return true
-          } catch {
-            return false
-          }
-        },
-      })
-    } else {
-      try {
-        await deleteImage(image)
-        return true
-      } catch {
-        return false
+          ),
+          okText: t('im.confirm'),
+          cancelText: t('im.cancel'),
+          centered: true,
+          onOk: async () => {
+            if (askDelete) {
+              setConfirmDelete(false)
+            }
+            try {
+              await deleteFile(path, { recursive })
+              success = true
+            } catch {
+              success = false
+            }
+          },
+        })
+      } else {
+        try {
+          await deleteFile(path, { recursive })
+          success = true
+        } catch {
+          success = false
+        }
       }
+      return success
+    },
+  )
+
+  const [imageContextMenuEvent] = useImageContextMenuEvent()
+  // 删除图片
+  const beginDeleteImageProcess = useMemoizedFn(async (image: ImageType) => {
+    const success = await beginDeleteProcess({ name: getFilebasename(image.name), path: image.path })
+    if (success) {
+      imageContextMenuEvent.emit('delete', image)
     }
   })
 
+  // 删除目录
+  const beginDeleteDirProcess = useMemoizedFn(async (dirPath: string) => {
+    beginDeleteProcess({ name: getDirnameFromPath(dirPath), path: dirPath, recursive: true })
+  })
+
+  // 重命名
   const [renameForm] = Form.useForm()
   const renameInputRef = useRef<InputRef>(null)
-  const renameFn = useLockFn(async (image: ImageType, target: string) => {
-    return new Promise((resolve) => {
+
+  const renameFn = useLockFn(async (source: string, target: string) => {
+    return new Promise<boolean>((resolve) => {
       vscodeApi.postMessage(
         {
           cmd: CmdToVscode.rename_file,
           data: {
-            source: image.path,
-            target: `${getDirFromPath(image.path)}/${target}.${image.fileType}`,
+            source,
+            target,
           },
         },
         (res) => {
+          let success = false
           if (isObject(res) && res.error_msg) {
             message.error(res.error_msg)
           } else if (res) {
             message.success(t('im.rename_success'))
+            success = true
           } else {
             message.error(t('im.rename_failed'))
           }
-          resolve(true)
+          resolve(success)
         },
       )
     })
   })
-  const beginRenameProcess = useLockFn(async (image: ImageType, sameDirImages: ImageType[]) => {
-    const currentName = getFilebasename(image.name)
-    const instance = modal.confirm({
-      width: 300,
-      content: (
-        <Form
-          form={renameForm}
-          onFinish={(value) => {
-            const { rename } = value
-            if (rename === currentName) {
-              return instance.destroy()
-            }
-            renameFn(image, rename).then(() => {
+
+  const beginRenameProcess = useLockFn(
+    async (options: {
+      /**
+       * 当前名称
+       */
+      currentName: string
+      /**
+       * 完整路径
+       */
+      path: string
+      /**
+       * 表单提交成功回调
+       */
+      onFinish: (newName: string) => Promise<void | boolean>
+      /**
+       * 类型，文件 | 文件夹
+       */
+      type: string
+      /**
+       * 透传给 Input 的 props
+       */
+      inputProps?: InputProps
+    }) => {
+      const { currentName, path, onFinish, inputProps, type } = options
+      const instance = modal.confirm({
+        width: 300,
+        content: (
+          <Form
+            form={renameForm}
+            onFinish={async (value) => {
+              const { rename } = value
+              if (rename === currentName) {
+                return instance.destroy()
+              }
+              await onFinish(rename)
               instance.destroy()
-            })
-          }}
-        >
-          <Form.Item
-            rules={[
-              { required: true, message: '' },
-              () => ({
-                validateTrigger: ['onSubmit'],
-                validator(_, value) {
-                  if (isString(value) && (value.startsWith('/') || value.endsWith('.'))) {
-                    return Promise.reject(t('im.file_name_invalid'))
-                  }
-                  if (value === currentName) {
-                    return Promise.resolve()
-                  }
-                  if (sameDirImages.some((t) => getFilebasename(t.name) === value)) {
-                    return Promise.reject(t('im.file_exsits'))
-                  }
-                  return Promise.resolve()
-                },
-              }),
-            ]}
-            name='rename'
+            }}
           >
-            <Input ref={renameInputRef} placeholder={currentName} addonAfter={`.${image.fileType}`}></Input>
-          </Form.Item>
-        </Form>
-      ),
-      okText: t('im.confirm'),
-      okButtonProps: {
-        htmlType: 'submit',
+            <Form.Item
+              rules={[
+                { required: true, message: '' },
+                () => ({
+                  validateTrigger: ['onSubmit'],
+                  async validator(_, value) {
+                    if (isString(value) && value.match(/[\/]/)) {
+                      return Promise.reject(t('im.file_name_invalid', { type }))
+                    }
+                    if (value === currentName) {
+                      return Promise.resolve()
+                    }
+                    const existNames = await new Promise<string[]>((resolve) => {
+                      vscodeApi.postMessage(
+                        {
+                          cmd: CmdToVscode.get_sibling_resource,
+                          data: {
+                            source: path,
+                          },
+                        },
+                        (res) => {
+                          resolve(res)
+                        },
+                      )
+                    })
+                    if (existNames.some((t) => t === value)) {
+                      return Promise.reject(t('im.file_exsits', { type }))
+                    }
+                    return Promise.resolve()
+                  },
+                }),
+              ]}
+              name='rename'
+            >
+              <Input ref={renameInputRef} placeholder={currentName} {...inputProps}></Input>
+            </Form.Item>
+          </Form>
+        ),
+        okText: t('im.confirm'),
+        cancelText: t('im.cancel'),
+        centered: true,
+        icon: null,
+        async onOk() {
+          renameForm.submit()
+          return Promise.reject('Prevent modal from automatically closing')
+        },
+        afterClose() {
+          renameForm.resetFields()
+        },
+      })
+
+      renameForm.setFieldsValue({ rename: currentName })
+
+      requestIdleCallback(() => {
+        renameInputRef.current?.focus({ cursor: 'end' })
+      })
+    },
+  )
+
+  const beginRenameImageProcess = useMemoizedFn((image: ImageType) => {
+    beginRenameProcess({
+      currentName: getFilebasename(image.name),
+      path: image.path,
+      onFinish: (newName) => {
+        return new Promise<void>((resolve) => {
+          renameFn(image.path, `${getDirFromPath(image.path)}/${newName}.${image.fileType}`).then((res) => {
+            if (res) {
+              const currentNameEscaped = escapeStringRegexp(getFilebasename(image.name))
+              const fileTypeEscaped = escapeStringRegexp(image.fileType)
+              const newPath = image.path.replace(
+                new RegExp(`(${currentNameEscaped})\\.${fileTypeEscaped}$`),
+                `${newName}.${image.fileType}`,
+              )
+              vscodeApi.postMessage(
+                {
+                  cmd: CmdToVscode.get_one_image,
+                  data: { filePath: newPath, cwd: image.absWorkspaceFolder },
+                },
+                (res) => {
+                  imageContextMenuEvent.emit('rename', image, res)
+                },
+              )
+            }
+            resolve()
+          })
+        })
       },
-      cancelText: t('im.cancel'),
-      centered: true,
-      icon: null,
-      async onOk() {
-        await renameForm.validateFields()
-        renameForm.submit()
-      },
-      afterClose() {
-        renameForm.resetFields()
+      type: t('im.file'),
+      inputProps: {
+        addonAfter: `.${image.fileType}`,
       },
     })
+  })
 
-    renameForm.setFieldsValue({ rename: currentName })
+  const beginRenameDirProcess = useMemoizedFn((dirPath: string) => {
+    beginRenameProcess({
+      currentName: getDirnameFromPath(dirPath),
+      path: dirPath,
+      onFinish: (newName) => {
+        return new Promise<boolean>((resolve) => {
+          renameFn(dirPath, `${getDirFromPath(dirPath)}/${newName}`).then((res) => {
+            resolve(res!)
+          })
+        })
+      },
+      type: t('im.folder'),
+    })
+  })
 
-    const timer = setTimeout(() => {
-      renameInputRef.current?.focus({ cursor: 'end' })
-      clearTimeout(timer)
-    }, 1)
+  const beginRevealInViewer = useMemoizedFn((image: ImageType) => {
+    imageContextMenuEvent.emit('reveal_in_viewer', image)
+    requestIdleCallback(() => {
+      new Promise<boolean>((resolve) => {
+        vscodeApi.postMessage(
+          {
+            cmd: CmdToVscode.reveal_image_in_viewer,
+            data: { filePath: image.path },
+          },
+          (res) => {
+            resolve(res)
+          },
+        )
+      })
+    })
   })
 
   return {
@@ -318,8 +467,11 @@ function useImageOperation() {
     cropImage,
     prettySvg,
     beginFindSimilarProcess,
-    beginDeleteProcess,
-    beginRenameProcess,
+    beginDeleteImageProcess,
+    beginDeleteDirProcess,
+    beginRenameImageProcess,
+    beginRevealInViewer,
+    beginRenameDirProcess,
   }
 }
 

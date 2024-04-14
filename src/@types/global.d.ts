@@ -12,6 +12,11 @@ declare global {
   interface Window {
     __react_root__: ReactDOM.Root
     mountApp: (reload?: boolean) => void
+
+    /**
+     * vscode 设置到window上的全局变量
+     */
+    __target_image_path__: string
   }
 
   // The visible of image is determined by 'visible' prop.

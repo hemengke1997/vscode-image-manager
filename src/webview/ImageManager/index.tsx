@@ -1,7 +1,9 @@
 import { difference, isEqual } from '@minko-fe/lodash-pro'
 import { useAsyncEffect, useMemoizedFn, useUpdateEffect } from '@minko-fe/react-hook'
 import { App, FloatButton } from 'antd'
+import { setAutoFreeze } from 'immer'
 import { memo, useEffect, useMemo, useRef } from 'react'
+import { flushSync } from 'react-dom'
 import { useTranslation } from 'react-i18next'
 import { isTooManyTries, retry } from 'ts-retry'
 import { type Compressor, type FormatConverter } from '~/core/operator'
@@ -9,6 +11,7 @@ import { type MessageType } from '~/message'
 import { CmdToVscode, CmdToWebview } from '~/message/cmd'
 import logger from '~/utils/logger'
 import useUpdateWebview from '../hooks/useUpdateWebview'
+import { getAppRoot } from '../utils'
 import { vscodeApi } from '../vscode-api'
 import ContextMenus from './components/ContextMenus'
 import ImageCompressor from './components/ImageCompressor'
@@ -27,15 +30,18 @@ import SettingsContext from './contexts/SettingsContext'
 
 vscodeApi.registerEventListener()
 
+setAutoFreeze(false)
+
 function ImageManager() {
   const { message } = App.useApp()
   const { t } = useTranslation()
 
-  const { setImageState, setCompressor, imageState, setFormatConverter } = GlobalContext.usePicker([
+  const { setImageState, setCompressor, imageState, setFormatConverter, setTargetImagePath } = GlobalContext.usePicker([
     'setImageState',
     'setCompressor',
     'imageState',
     'setFormatConverter',
+    'setTargetImagePath',
   ])
 
   const { imageRefreshedState, refreshImages, imageSearchOpen, setImageSearchOpen } = ActionContext.usePicker([
@@ -178,7 +184,7 @@ function ImageManager() {
   })
 
   const onMessage = useMemoizedFn((e: MessageEvent) => {
-    const { cmd } = e.data as MessageType<Record<string, any>, keyof typeof CmdToWebview>
+    const { cmd, data } = e.data as MessageType<Record<string, any>, keyof typeof CmdToWebview>
     switch (cmd) {
       case CmdToWebview.refresh_images: {
         refreshImages({ type: 'slient-refresh' })
@@ -194,6 +200,14 @@ function ImageManager() {
       }
       case CmdToWebview.update_workspaceState: {
         updateWorkspaceState(allImageTypes)
+        break
+      }
+      case CmdToWebview.update_target_image_path: {
+        logger.debug('update_target_image_path', data.path)
+        window.__target_image_path__ = data.path
+        flushSync(() => {
+          setTargetImagePath(data.path)
+        })
         break
       }
       default:
@@ -227,16 +241,34 @@ function ImageManager() {
       <ImageSearch open={imageSearchOpen} onOpenChange={setImageSearchOpen} />
       <ImageCropper {...cropperProps} onOpenChange={(open) => setCropperProps({ open })} />
 
-      {compressorModal.open && (
-        <ImageCompressor {...compressorModal} onOpenChange={(open) => setCompressorModal({ open })} />
+      {compressorModal.closed ? null : (
+        <ImageCompressor
+          {...compressorModal}
+          onOpenChange={(open) => setCompressorModal({ open })}
+          afterClose={() => {
+            setCompressorModal({ closed: true })
+          }}
+        />
       )}
-      {formatConverterModal.open && (
-        <ImageConverter {...formatConverterModal} onOpenChange={(open) => setFormatConverterModal({ open })} />
+      {formatConverterModal.closed ? null : (
+        <ImageConverter
+          {...formatConverterModal}
+          onOpenChange={(open) => setFormatConverterModal({ open })}
+          afterClose={() => {
+            setFormatConverterModal({ closed: true })
+          }}
+        />
       )}
-      {similarityModal.open && (
-        <ImageSimilarity {...similarityModal} onOpenChange={(open) => setSimilarityModal({ open })} />
+      {similarityModal.closed ? null : (
+        <ImageSimilarity
+          {...similarityModal}
+          onOpenChange={(open) => setSimilarityModal({ open })}
+          afterClose={() => {
+            setSimilarityModal({ closed: true })
+          }}
+        />
       )}
-      <FloatButton.BackTop target={() => document.querySelector('#root') as HTMLElement} />
+      <FloatButton.BackTop target={() => getAppRoot()} duration={0} />
     </>
   )
 }

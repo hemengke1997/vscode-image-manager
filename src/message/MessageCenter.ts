@@ -28,8 +28,9 @@ import { type WorkspaceStateKey } from '~/core/persist/workspace/common'
 import { generateOutputPath, isPng, normalizePath } from '~/utils'
 import { Channel } from '~/utils/Channel'
 import { imageGlob } from '~/utils/glob'
+import { ImageManagerPanel } from '~/webview/Panel'
 import { CmdToVscode, CmdToWebview } from './cmd'
-import { convertImageToBase64, convertToBase64IfBrowserNotSupport, debouncePromise } from './utils'
+import { convertImageToBase64, convertToBase64IfBrowserNotSupport, debouncePromise, isBase64 } from './utils'
 
 export type VscodeMessageCenterType = typeof VscodeMessageCenter
 
@@ -47,7 +48,7 @@ type MessageMethodType<K extends KeyofMessage> = VscodeMessageCenterType[K]
 
 export type ReturnOfMessageCenter<K extends KeyofMessage> = RmPromise<ReturnType<MessageMethodType<K>>>
 
-type FirstParameter<F> = F extends (arg: infer A) => any ? A : never
+type FirstParameter<F> = F extends (arg: infer A, ...args: any) => any ? A : never
 
 export type FirstParameterOfMessageCenter<K extends KeyofMessage> =
   FirstParameter<MessageMethodType<K>> extends Record<string, any> ? FirstParameter<MessageMethodType<K>> : never
@@ -61,10 +62,14 @@ export const VscodeMessageCenter = {
     Channel.debug('Webview is ready')
     const config = await VscodeMessageCenter[CmdToVscode.get_extension_config]()
     const workspaceState = await VscodeMessageCenter[CmdToVscode.get_workspace_state]()
+    const { watchedTargetImage } = ImageManagerPanel
 
     return {
       config,
       workspaceState,
+      windowState: {
+        __target_image_path__: watchedTargetImage.path,
+      },
     }
   },
   /* -------------- reload webview -------------- */
@@ -72,18 +77,72 @@ export const VscodeMessageCenter = {
     const data = await commands.executeCommand('workbench.action.webview.reloadWebviewAction')
     return data
   },
+  /* -------------- get image info -------------- */
+  [CmdToVscode.get_image]: async (
+    options: {
+      glob: string | string[]
+      cwd?: string
+      onResolve?: (image: ImageType) => void
+    },
+    webview: Webview,
+  ) => {
+    const { glob, cwd = process.cwd(), onResolve } = options
 
+    function _resolveDirPath(imagePath: string) {
+      if (cwd === path.dirname(imagePath)) return ''
+      return normalizePath(path.relative(cwd, path.dirname(imagePath)))
+    }
+
+    const images = await fg(glob, {
+      cwd,
+      objectMode: true,
+      dot: false,
+      absolute: true,
+      markDirectories: true,
+      stats: true,
+    })
+
+    return Promise.all<ImageType>(
+      images.map(async (image) => {
+        image.path = normalizePath(image.path)
+        let vscodePath = webview.asWebviewUri(Uri.file(image.path)).toString()
+
+        // Browser doesn't support [tiff, tif], convert to png base64
+        try {
+          vscodePath = (await convertToBase64IfBrowserNotSupport(image.path)) || vscodePath
+        } catch (e) {
+          Channel.error(`Convert to base64 error: ${e}`)
+        }
+
+        const fileType = path.extname(image.path).replace('.', '')
+        const dirPath = _resolveDirPath(image.path)
+
+        const imageInfo: ImageType = {
+          name: image.name,
+          path: image.path,
+          stats: image.stats!,
+          dirPath,
+          absDirPath: normalizePath(path.dirname(image.path)),
+          fileType,
+          vscodePath: isBase64(vscodePath) ? vscodePath : `${vscodePath}?t=${image.stats?.mtime.getTime()}`,
+          workspaceFolder: normalizePath(path.basename(cwd)),
+          absWorkspaceFolder: normalizePath(cwd),
+          basePath: normalizePath(path.dirname(cwd)),
+          extraPathInfo: path.parse(image.path),
+        }
+
+        onResolve?.(imageInfo)
+
+        return imageInfo
+      }),
+    )
+  },
   /* -------------- get all images -------------- */
-  [CmdToVscode.get_all_images]: async (_: any, webview: Webview) => {
+  [CmdToVscode.get_all_images]: async (_data: unknown, webview: Webview) => {
     const absWorkspaceFolders = Global.rootpaths
     const workspaceFolders = absWorkspaceFolders.map((ws) => path.basename(ws))
 
-    function _resolveDirPath(absWorkspaceFolder: string, imgPath: string) {
-      if (absWorkspaceFolder === path.dirname(imgPath)) return ''
-      return normalizePath(path.relative(absWorkspaceFolder, path.dirname(imgPath)))
-    }
-
-    async function _searchImgs(
+    async function _searchImages(
       absWorkspaceFolder: string,
       webview: Webview,
       fileTypes: Set<string>,
@@ -98,47 +157,17 @@ export const VscodeMessageCenter = {
         root: Global.rootpaths,
       })
 
-      const images = await fg(allImagePatterns, {
-        cwd: absWorkspaceFolder,
-        objectMode: true,
-        dot: false,
-        absolute: true,
-        markDirectories: true,
-        stats: true,
-      })
-
-      return Promise.all(
-        images.map(async (image) => {
-          image.path = normalizePath(image.path)
-          let vscodePath = webview.asWebviewUri(Uri.file(image.path)).toString()
-
-          // Browser doesn't support [tiff, tif], convert to png base64
-          try {
-            vscodePath = (await convertToBase64IfBrowserNotSupport(image.path)) || vscodePath
-          } catch (e) {
-            Channel.error(`Convert to base64 error: ${e}`)
-          }
-
-          const fileType = path.extname(image.path).replace('.', '')
-          fileTypes && fileTypes.add(fileType)
-
-          const dirPath = _resolveDirPath(absWorkspaceFolder, image.path)
-          dirPath && dirs.add(dirPath)
-
-          return {
-            name: image.name,
-            path: image.path,
-            stats: image.stats!,
-            dirPath,
-            absDirPath: normalizePath(path.dirname(image.path)),
-            fileType,
-            vscodePath: `${vscodePath}?t=${image.stats?.mtime.getTime()}`,
-            workspaceFolder: normalizePath(path.basename(absWorkspaceFolder)),
-            absWorkspaceFolder: normalizePath(absWorkspaceFolder),
-            basePath: normalizePath(path.dirname(absWorkspaceFolder)),
-            extraPathInfo: path.parse(image.path),
-          }
-        }),
+      return await VscodeMessageCenter[CmdToVscode.get_image](
+        {
+          glob: allImagePatterns,
+          cwd: absWorkspaceFolder,
+          onResolve: (image) => {
+            const { fileType, dirPath } = image
+            fileTypes && fileTypes.add(fileType)
+            dirPath && dirs.add(dirPath)
+          },
+        },
+        webview,
       )
     }
 
@@ -148,7 +177,7 @@ export const VscodeMessageCenter = {
           const fileTypes: Set<string> = new Set()
           const dirs: Set<string> = new Set()
 
-          const images = await _searchImgs(workspaceFolder, webview, fileTypes, dirs)
+          const images = await _searchImages(workspaceFolder, webview, fileTypes, dirs)
           return {
             images,
             workspaceFolder: path.basename(workspaceFolder),
@@ -172,7 +201,24 @@ export const VscodeMessageCenter = {
       }
     }
   },
-
+  /* --------------- get one image -------------- */
+  [CmdToVscode.get_one_image]: async (
+    data: {
+      filePath: string
+      cwd: string
+    },
+    webview: Webview,
+  ) => {
+    const { filePath, cwd } = data
+    const images = await VscodeMessageCenter[CmdToVscode.get_image](
+      {
+        glob: filePath,
+        cwd,
+      },
+      webview,
+    )
+    return images[0]
+  },
   /* ------- get extension & vscode config ------ */
   [CmdToVscode.get_extension_config]: async () => {
     const config = Config.all
@@ -476,16 +522,17 @@ export const VscodeMessageCenter = {
     })
     return true
   },
-  /* ---------------- delete file --------------- */
-  [CmdToVscode.delete_file]: async (data: { filePath: string }) => {
+  /* ---------------- delete file/dir --------------- */
+  [CmdToVscode.delete_file]: async (data: { filePath: string; recursive?: boolean }) => {
+    const { filePath, recursive } = data
     try {
-      await workspace.fs.delete(Uri.file(data.filePath), { useTrash: true })
+      await workspace.fs.delete(Uri.file(filePath), { useTrash: true, recursive })
       return true
     } catch {
       return false
     }
   },
-  /* ---------------- rename file --------------- */
+  /* ---------------- rename file/dir --------------- */
   [CmdToVscode.rename_file]: async (data: { source: string; target: string }) => {
     try {
       const { source, target } = data
@@ -504,11 +551,24 @@ export const VscodeMessageCenter = {
     }
   },
   /* ----------- copy file to clipbard ---------- */
-  [CmdToVscode.copy_file_to_clipboard]: async () => {},
+  [CmdToVscode.copy_file_to_clipboard]: async () => {
+    // TODO: implement copy file to clipboard
+  },
+  /* ---------- reveal image in viewer ---------- */
+  [CmdToVscode.reveal_image_in_viewer]: async (data: { filePath: string }) => {
+    ImageManagerPanel.updateTargetImage(data.filePath)
+    return true
+  },
+  /* --------------- 获取路径下的同级文件(夹)列表 --------------- */
+  [CmdToVscode.get_sibling_resource]: async (data: { source: string }) => {
+    const { source } = data
+    const siblings = await fs.readdir(path.dirname(source))
+    return siblings
+  },
 }
 
 export class MessageCenter {
-  static _webview: Webview
+  static _webview: Webview | undefined
 
   static slientMessages: string[] = [CmdToWebview.webview_callback]
 
@@ -521,14 +581,16 @@ export class MessageCenter {
     if (!this.slientMessages.includes(message.cmd)) {
       Channel.debug(`Post message to webview: ${message.cmd}`)
     }
-    this._webview.postMessage(message)
+    if (this._webview) {
+      this._webview.postMessage(message)
+    }
   }
 
   static async handleMessages(message: MessageType) {
     const handler: (data: Record<string, any>, webview: Webview) => Thenable<any> = VscodeMessageCenter[message.cmd]
 
     if (handler) {
-      const data = await handler(message.data, this._webview)
+      const data = await handler(message.data, this._webview as Webview)
       this.postMessage({ cmd: CmdToWebview.webview_callback, callbackId: message.callbackId, data })
     } else {
       Channel.error(`Handler function "${message.cmd}" doesn't exist!`)

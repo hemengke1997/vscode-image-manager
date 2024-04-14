@@ -27,3 +27,7 @@ export function intelligentPickConfig(
 export function cn(...args: ClassValue[]) {
   return twMerge(clsx(args))
 }
+
+export function getAppRoot() {
+  return document.querySelector('#root') as HTMLElement
+}

@@ -1,4 +1,5 @@
 import { isNil, isObject, upperFirst } from '@minko-fe/lodash-pro'
+import { useMemoizedFn } from '@minko-fe/react-hook'
 import { Button, ConfigProvider, Divider, Form, InputNumber, Popover, Segmented, Space } from 'antd'
 import { produce } from 'immer'
 import { memo, useMemo, useRef, useState } from 'react'
@@ -47,7 +48,7 @@ function Filter() {
 
   const [filterForm] = Form.useForm<ImageFilterAction>()
 
-  const filterImagesByFormResult = (value: ImageFilterAction) => {
+  const filterImagesByFormResult = useMemoizedFn((value: ImageFilterAction) => {
     const { compressed, git_staged, size } = value
 
     setImageFilter(
@@ -58,7 +59,7 @@ function Filter() {
         draft.compressed = compressed
       }),
     )
-  }
+  })
 
   const isActive = useMemo(() => {
     return deepTruly({

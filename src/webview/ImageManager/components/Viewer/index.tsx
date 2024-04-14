@@ -1,5 +1,7 @@
+import { useMemoizedFn } from '@minko-fe/react-hook'
 import { Card, Empty, Skeleton } from 'antd'
 import { AnimatePresence, motion } from 'framer-motion'
+import { produce } from 'immer'
 import { memo } from 'react'
 import { useTranslation } from 'react-i18next'
 import { IoMdImages } from 'react-icons/io'
@@ -14,7 +16,7 @@ import TitleIconUI from '../TitleIconUI'
 
 function Viewer() {
   const { t } = useTranslation()
-  const { imageState, imageFilter } = GlobalContext.usePicker(['imageState', 'imageFilter'])
+  const { imageState, imageFilter, setTreeData } = GlobalContext.usePicker(['imageState', 'imageFilter', 'setTreeData'])
 
   const { displayGroup, displayStyle, sort, displayImageTypes } = SettingsContext.usePicker([
     'displayGroup',
@@ -22,6 +24,21 @@ function Viewer() {
     'sort',
     'displayImageTypes',
   ])
+
+  const onCollectTreeData = useMemoizedFn(
+    ({ visibleList, workspaceFolder }: { visibleList: ImageType[]; workspaceFolder: string }) => {
+      setTreeData(
+        produce((draft) => {
+          const index = draft.findIndex((t) => t.workspaceFolder === workspaceFolder)
+          if (index !== -1) {
+            draft[index].visibleList = [...visibleList]
+          } else {
+            draft.push({ workspaceFolder, visibleList })
+          }
+        }),
+      )
+    },
+  )
 
   /* ---------------- image scale --------------- */
   const [containerRef] = useWheelScaleEvent()
@@ -63,6 +80,7 @@ function Viewer() {
                         sort,
                         displayImageTypes,
                         imageFilter,
+                        onCollectTreeData,
                       }}
                     >
                       <CollapseTree displayGroup={displayGroup} displayStyle={displayStyle} />

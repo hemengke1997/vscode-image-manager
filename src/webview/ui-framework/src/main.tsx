@@ -4,7 +4,7 @@ import { initReactI18next } from 'react-i18next'
 import { setupI18n } from 'vite-plugin-i18n-ally/client'
 import { CmdToVscode } from '~/message/cmd'
 import { FALLBACK_LANGUAGE } from '~/meta'
-import { intelligentPickConfig } from '~/webview/utils'
+import { getAppRoot, intelligentPickConfig } from '~/webview/utils'
 import { vscodeApi } from '~/webview/vscode-api'
 import App from './App'
 import './hmr'
@@ -42,7 +42,12 @@ export function registerApp(webviewComponents: WebviewComponents, reload = false
       const {
         config: { ext, vscode },
         workspaceState,
+        windowState,
       } = data
+
+      Object.keys(windowState).forEach((key) => {
+        window[key] = windowState[key]
+      })
 
       const config = intelligentPickConfig(ext, vscode)
 
@@ -55,7 +60,7 @@ export function registerApp(webviewComponents: WebviewComponents, reload = false
         onInited() {
           try {
             if (!window.__react_root__) {
-              window.__react_root__ = ReactDOM.createRoot(document.querySelector('#root') as HTMLElement)
+              window.__react_root__ = ReactDOM.createRoot(getAppRoot())
             }
           } catch {
           } finally {

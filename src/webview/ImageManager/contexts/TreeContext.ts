@@ -23,7 +23,7 @@ export type ImageStateType = {
    */
   originalList: ImageType[]
   /**
-   * 处理过后的图片列表，在originList的基础上新增了一些属性
+   * 处理过后的图片列表，在originList的基础上新增了一些属性 (extraProps)
    * 不直接供页面使用
    */
   list: ImageType[]
@@ -119,6 +119,10 @@ type TreeContextProp = {
    * 图片过滤条件
    */
   imageFilter?: ImageFilterType
+  /**
+   * 父组件收集树数据
+   */
+  onCollectTreeData: (data: { visibleList: ImageType[]; workspaceFolder: string }) => void
 }
 
 function useTreeContext(props: TreeContextProp) {
@@ -128,6 +132,7 @@ function useTreeContext(props: TreeContextProp) {
     sort,
     displayImageTypes,
     imageFilter,
+    onCollectTreeData,
   } = props
 
   const [imageSingleTree, setImageSingleTree] = useSetState<ImageStateType>({
@@ -137,6 +142,10 @@ function useTreeContext(props: TreeContextProp) {
   })
 
   const latestImageList = useLatest(imageSingleTree.list)
+
+  useEffect(() => {
+    onCollectTreeData({ visibleList: imageSingleTree.visibleList, workspaceFolder: originalWorkspaceFolder })
+  }, [imageSingleTree.visibleList])
 
   // 筛选出当前树显示的工作区
   const workspaceFolder = useMemo(

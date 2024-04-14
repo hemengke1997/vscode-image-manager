@@ -13,6 +13,7 @@ import { vscodeApi } from '~/webview/vscode-api'
 import GlobalContext from '../../contexts/GlobalContext'
 import useOperatorModalLogic, { type FormComponent } from '../../hooks/useOperatorModalLogic'
 import { ANIMATION_DURATION } from '../../utils/duration'
+import useImageContextMenuEvent from '../ContextMenus/components/ImageContextMenu/hooks/useImageContextMenuEvent'
 import ImageOperator, { type ImageOperatorProps } from '../ImageOperator'
 import Format from '../ImageOperator/components/Format'
 import KeepOriginal from '../ImageOperator/components/KeepOriginal'
@@ -78,6 +79,14 @@ function ImageCompressor(props: ImageCompressorProps) {
         },
       },
     )
+  })
+
+  useImageContextMenuEvent({
+    on: {
+      reveal_in_viewer: () => {
+        onOpenChange(false)
+      },
+    },
   })
 
   /* ------------------ 压缩配置相关 ------------------ */
@@ -312,7 +321,7 @@ function ImageCompressor(props: ImageCompressorProps) {
           requiredMark={false}
           onFinish={onFinish}
         >
-          <div className={'max-h-96 overflow-auto'}>
+          <div className={'max-h-[400px] overflow-auto'}>
             {Object.keys(allComponents).map((key, index) => {
               return (
                 <div key={index} hidden={!displayComponents.keys.includes(key)}>

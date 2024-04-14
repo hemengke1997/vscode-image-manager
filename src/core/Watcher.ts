@@ -37,7 +37,11 @@ export class Watcher {
     return !micromatch.all(e.fsPath, ignores)
   }
 
-  private static debouncedHandleEvent = debounce(this._handleEvent, 200)
+  private static debouncedHandleEvent = debounce(this._handleEvent, 150, {
+    leading: true,
+    trailing: false,
+    maxWait: 1000,
+  })
 
   private static _handleEvent(e: Uri) {
     if (e.scheme !== 'file') return

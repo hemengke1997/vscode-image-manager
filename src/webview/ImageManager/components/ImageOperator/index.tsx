@@ -1,5 +1,5 @@
 import { useControlledState, useHistoryTravel, useUpdateEffect } from '@minko-fe/react-hook'
-import { Alert, App, Button, Card, ConfigProvider, type FormInstance, Modal, theme } from 'antd'
+import { Alert, App, Button, Card, ConfigProvider, type FormInstance, Modal, type ModalProps, theme } from 'antd'
 import { type ReactNode, memo, useEffect, useState } from 'react'
 import { useHotkeys } from 'react-hotkeys-hook'
 import { useTranslation } from 'react-i18next'
@@ -11,7 +11,7 @@ export type ImageOperatorProps = {
   images: ImageType[]
   open: boolean
   onOpenChange: (open: boolean) => void
-}
+} & ModalProps
 
 type ImageOperatorStaticProps = {
   title: ReactNode
@@ -36,6 +36,7 @@ function ImageOperator(props: ImageOperatorProps & ImageOperatorStaticProps) {
     submitting: submittingProp,
     onSubmittingChange,
     onImagesChange,
+    ...rest
   } = props
   const { token } = theme.useToken()
   const { message } = App.useApp()
@@ -69,7 +70,7 @@ function ImageOperator(props: ImageOperatorProps & ImageOperatorStaticProps) {
   useHotkeys<HTMLDivElement>(
     `mod+z`,
     () => {
-      if (backLength <= 1) return
+      if (backLength <= 0) return
       back()
     },
     {
@@ -99,6 +100,7 @@ function ImageOperator(props: ImageOperatorProps & ImageOperatorStaticProps) {
       footer={null}
       width={'80%'}
       destroyOnClose
+      {...rest}
     >
       <div className={'flex w-full flex-col items-center space-y-2 overflow-auto'}>
         <Card className={'max-h-[480px] w-full overflow-y-auto'}>
@@ -107,7 +109,9 @@ function ImageOperator(props: ImageOperatorProps & ImageOperatorStaticProps) {
               images={images || []}
               lazyImageProps={{
                 contextMenu: {
-                  operable: false,
+                  enable: {
+                    reveal_in_viewer: true,
+                  },
                 },
                 onRemoveClick:
                   images && images?.length <= 1

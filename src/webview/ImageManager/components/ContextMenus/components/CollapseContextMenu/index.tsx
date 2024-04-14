@@ -7,18 +7,45 @@ import { os } from 'un-detector'
 import useImageOperation from '~/webview/ImageManager/hooks/useImageOperation'
 import MaskMenu from '../../../MaskMenu'
 import Arrow from '../Arrow'
+import { type CollapseContextMenuType } from './hooks/useCollapseContextMenu'
 
 export const COLLAPSE_CONTEXT_MENU_ID = 'COLLAPSE_CONTEXT_MENU_ID'
 export const COLLAPSE_CONTEXT_MENU = {
+  /**
+   * 在系统资源管理器中打开
+   */
   open_in_os_explorer: 'open_in_os_explorer',
+  /**
+   * 在vscode资源管理器中打开
+   */
   open_in_vscode_explorer: 'open_in_vscode_explorer',
+  /**
+   * 压缩当前文件夹下的图片
+   */
   compress_in_current_directory: 'compress_in_current_directory',
+  /**
+   * 压缩当前文件夹下的所有图片（包括子目录）
+   */
   compress_in_recursive_directories: 'compress_in_recursive_directories',
+  /**
+   * 转换当前文件夹下的图片格式
+   */
   format_conversion_in_current_directory: 'format_conversion_in_current_directory',
+  /**
+   * 转换当前文件夹下的所有图片格式（包括子目录）
+   */
   format_conversion_in_recursive_directories: 'format_conversion_in_recursive_directories',
+  /**
+   * 重命名目录
+   */
+  rename_directory: 'rename_directory',
+  /**
+   * 删除目录
+   */
+  delete_directory: 'delete_directory',
 }
 
-export type CollapseContextMenuType =
+export type EnableCollapseContextMenuType =
   | {
       [key in keyof typeof COLLAPSE_CONTEXT_MENU]?: boolean
     }
@@ -28,24 +55,30 @@ function CollapseContextMenu() {
   const { t } = useTranslation()
   const { message } = App.useApp()
 
-  const { openInOsExplorer, openInVscodeExplorer, beginCompressProcess, beginFormatConversionProcess } =
-    useImageOperation()
+  const {
+    openInOsExplorer,
+    openInVscodeExplorer,
+    beginCompressProcess,
+    beginFormatConversionProcess,
+    beginRenameDirProcess,
+    beginDeleteDirProcess,
+  } = useImageOperation()
 
-  const isItemHidden = (e: PredicateParams<{ contextMenu: CollapseContextMenuType }>) => {
+  const isItemHidden = useMemoizedFn((e: PredicateParams<CollapseContextMenuType>) => {
     const { data, props } = e
     if (Array.isArray(data)) {
-      return data.every((d) => props?.contextMenu[d] === false)
+      return data.every((d) => props?.enable[d] === false)
     }
-    return props?.contextMenu[data] === false
-  }
+    return props?.enable[data] === false
+  })
 
-  const handleOpenInOsExplorer = (e: ItemParams<{ targetPath: string }>) => {
-    openInOsExplorer(e.props?.targetPath || '')
-  }
+  const handleOpenInOsExplorer = useMemoizedFn((e: ItemParams<CollapseContextMenuType>) => {
+    openInOsExplorer(e.props?.path || '')
+  })
 
-  const handleOpenInVscodeExplorer = (e: ItemParams<{ targetPath: string }>) => {
-    openInVscodeExplorer(e.props?.targetPath || '')
-  }
+  const handleOpenInVscodeExplorer = useMemoizedFn((e: ItemParams<CollapseContextMenuType>) => {
+    openInVscodeExplorer(e.props?.path || '')
+  })
 
   const _compressImage = useMemoizedFn((images: ImageType[] | undefined) => {
     if (!images?.length) {
@@ -54,11 +87,11 @@ function CollapseContextMenu() {
     beginCompressProcess(images)
   })
 
-  const handleCompressImage = useMemoizedFn((e: ItemParams<{ images: ImageType[] }>) => {
+  const handleCompressImage = useMemoizedFn((e: ItemParams<CollapseContextMenuType>) => {
     _compressImage(e.props!.images)
   })
 
-  const handleCompressImageDeeply = useMemoizedFn((e: ItemParams<{ underFolderDeeplyImages: ImageType[] }>) => {
+  const handleCompressImageDeeply = useMemoizedFn((e: ItemParams<CollapseContextMenuType>) => {
     _compressImage(e.props!.underFolderDeeplyImages)
   })
 
@@ -74,8 +107,16 @@ function CollapseContextMenu() {
     _formatConversion(e.props!.images)
   })
 
-  const handleFormatConversionDeeply = useMemoizedFn((e: ItemParams<{ underFolderDeeplyImages: ImageType[] }>) => {
+  const handleFormatConversionDeeply = useMemoizedFn((e: ItemParams<CollapseContextMenuType>) => {
     _formatConversion(e.props!.underFolderDeeplyImages)
+  })
+
+  const handleRenameDir = useMemoizedFn((e: ItemParams<CollapseContextMenuType>) => {
+    beginRenameDirProcess(e.props?.path || '')
+  })
+
+  const handleDeleteDir = useMemoizedFn((e: ItemParams<CollapseContextMenuType>) => {
+    beginDeleteDirProcess(e.props?.path || '')
   })
 
   return (
@@ -152,6 +193,17 @@ function CollapseContextMenu() {
             {t('im.recursive_directories')}
           </Item>
         </Submenu>
+
+        <Separator
+          hidden={isItemHidden}
+          data={[COLLAPSE_CONTEXT_MENU.rename_directory, COLLAPSE_CONTEXT_MENU.delete_directory]}
+        />
+        <Item hidden={isItemHidden} data={COLLAPSE_CONTEXT_MENU.rename_directory} onClick={handleRenameDir}>
+          {t('im.rename')}
+        </Item>
+        <Item hidden={isItemHidden} data={COLLAPSE_CONTEXT_MENU.delete_directory} onClick={handleDeleteDir}>
+          {t('im.delete')}
+        </Item>
       </MaskMenu>
     </>
   )

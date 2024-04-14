@@ -36,6 +36,10 @@ export function debouncePromise<T extends Function>(
   })
 }
 
+export function isBase64(str: string) {
+  return /^data:([a-z]+\/[a-z]+);base64,/.test(str)
+}
+
 export function toBase64(mimetype: string, buffer: Buffer) {
   return `data:${mimetype};base64,${buffer.toString('base64')}`
 }

@@ -2,10 +2,12 @@ import { isUndefined } from '@minko-fe/lodash-pro'
 import { useControlledState, useMemoizedFn } from '@minko-fe/react-hook'
 import { Collapse, type CollapseProps } from 'antd'
 import { type ReactNode, memo, useEffect, useMemo } from 'react'
-import { useContextMenu } from 'react-contexify'
+import { flushSync } from 'react-dom'
 import { cn } from '~/webview/utils'
 import ActionContext from '../../contexts/ActionContext'
-import { COLLAPSE_CONTEXT_MENU_ID, type CollapseContextMenuType } from '../ContextMenus/components/CollapseContextMenu'
+import { type EnableCollapseContextMenuType } from '../ContextMenus/components/CollapseContextMenu'
+import useCollapseContextMenu from '../ContextMenus/components/CollapseContextMenu/hooks/useCollapseContextMenu'
+import useImageContextMenuEvent from '../ContextMenus/components/ImageContextMenu/hooks/useImageContextMenuEvent'
 import ImagePreview, { type ImagePreviewProps } from '../ImagePreview'
 
 type ImageCollapseProps = {
@@ -46,7 +48,7 @@ type ImageCollapseProps = {
   /**
    * collapse头部菜单上下文
    */
-  contextMenu?: CollapseContextMenuType
+  contextMenu?: EnableCollapseContextMenuType
   /**
    * ImagePreview组件的透传prop
    */
@@ -79,12 +81,7 @@ function ImageCollapse(props: ImageCollapseProps) {
     setActiveKeys(keys)
   })
 
-  const { show } = useContextMenu<{
-    targetPath: string
-    images: ImageType[]
-    underFolderDeeplyImages: ImageType[]
-    contextMenu: CollapseContextMenuType
-  }>({ props: { targetPath: '' } })
+  const { show } = useCollapseContextMenu()
 
   const basePath = useMemo(() => (joinLabel ? id.slice(0, id.lastIndexOf(label)) : id), [id, label, joinLabel])
   const labels = useMemo(() => label.split('/').filter(Boolean), [label])
@@ -97,32 +94,45 @@ function ImageCollapse(props: ImageCollapseProps) {
     }
   }, [collapseOpen])
 
+  useImageContextMenuEvent({
+    on: {
+      reveal_in_viewer: (targetImage) => {
+        if (targetImage && underFolderDeeplyImages?.find((image) => image.path === targetImage.path)) {
+          flushSync(() => {
+            setActiveKeys([id])
+          })
+        }
+      },
+    },
+  })
+
   const getCurrentPath = useMemoizedFn((index: number | undefined) => {
     if (isUndefined(index)) return basePath
     return basePath + labels.slice(0, index + 1).join('/')
+  })
+
+  const onContextMenu = useMemoizedFn((e: React.MouseEvent<HTMLDivElement>, index: number) => {
+    if (!contextMenu) return
+
+    show({
+      event: e,
+      props: {
+        path: getCurrentPath(index) || '',
+        images: [images, underFolderImages].find((arr) => arr?.length) || [],
+        underFolderDeeplyImages: underFolderDeeplyImages || [],
+        enable: contextMenu,
+      },
+    })
   })
 
   const singleLabelNode = useMemoizedFn((label: string, index: number) => {
     return (
       <div className={'w-full flex-1'}>
         <div
-          onContextMenu={(e) => {
-            if (!contextMenu) return
-
-            show({
-              event: e,
-              id: COLLAPSE_CONTEXT_MENU_ID,
-              props: {
-                targetPath: getCurrentPath(index) || '',
-                images: [images, underFolderImages].find((arr) => arr?.length) || [],
-                underFolderDeeplyImages: underFolderDeeplyImages || [],
-                contextMenu,
-              },
-            })
-          }}
+          onContextMenu={(e) => onContextMenu(e, index)}
           tabIndex={-1}
           className={cn(
-            "relative w-full cursor-pointer transition-all after:absolute after:-inset-y-[8px] after:-right-[12px] after:left-0 after:content-['']",
+            "relative w-full cursor-pointer transition-all after:absolute after:-inset-x-0 after:-inset-y-[8px] after:content-[''] hover:underline focus:underline",
           )}
           onClick={() => {
             if (activeKeys?.length) {

@@ -1,6 +1,7 @@
+import { merge } from '@minko-fe/lodash-pro'
 import { useMemoizedFn } from '@minko-fe/react-hook'
 import { type ShowContextMenuParams, useContextMenu } from 'react-contexify'
-import { IMAGE_CONTEXT_MENU_ID } from '../components/ContextMenus/components/ImageContextMenu'
+import { type EnableImageContextMenuType, IMAGE_CONTEXT_MENU_ID } from '..'
 
 export type ImageContextMenuType = {
   image: ImageType
@@ -9,24 +10,42 @@ export type ImageContextMenuType = {
    */
   sameLevelImages?: ImageType[]
   /**
-   * 同目录层级的图片
-   */
-  sameDirImages?: ImageType[]
-  /**
    * 同个工作区图片（在同一颗singleTree上)
    */
   sameWorkspaceImages?: ImageType[]
   /**
-   * 是否显示操作相关的菜单
-   * 如果是false，则不需要传以上三个参数
+   * 要显示的菜单项
+   * @default
+   * ```ts
+   * {
+   *    sharp: false,
+   *    reveal_in_viewer: false,
+   *    fs: false,
+   *    svg_pretty: false,
+   * }
+   * ```
    */
-  operable?: boolean
+  enable?: EnableImageContextMenuType
 }
 
 export default function useImageContextMenu() {
   const contextMenu = useContextMenu<ImageContextMenuType>()
 
   const show = useMemoizedFn((params: Omit<ShowContextMenuParams<ImageContextMenuType>, 'id'>) => {
+    const defaultEnabledContextMenuValue: EnableImageContextMenuType = {
+      sharp: false,
+      reveal_in_viewer: false,
+      fs: false,
+      svg_pretty: false,
+    }
+
+    params.props = merge(
+      {
+        enable: defaultEnabledContextMenuValue,
+      },
+      params.props,
+    )
+
     return contextMenu.show({
       ...params,
       id: IMAGE_CONTEXT_MENU_ID,

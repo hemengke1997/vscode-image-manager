@@ -11,7 +11,7 @@ import { cn } from '~/webview/utils'
 import TreeContext from '../../contexts/TreeContext'
 import { DirTree, type DisplayMapType, type FileNode } from '../../utils/DirTree'
 import { ANIMATION_DURATION } from '../../utils/duration'
-import { type CollapseContextMenuType } from '../ContextMenus/components/CollapseContextMenu'
+import { type EnableCollapseContextMenuType } from '../ContextMenus/components/CollapseContextMenu'
 import ImageCollapse from '../ImageCollapse'
 import OpenFolder from './components/OpenFolder'
 import styles from './index.module.css'
@@ -38,7 +38,7 @@ function CollapseTree(props: CollapseTreeProps) {
 
   const displayMap: DisplayMapType<{
     icon: (props: { path: string }) => ReactNode
-    contextMenu: CollapseContextMenuType
+    contextMenu: EnableCollapseContextMenuType
   }> = useMemo(
     () => ({
       workspace: {
@@ -77,6 +77,9 @@ function CollapseTree(props: CollapseTreeProps) {
           open_in_os_explorer: false,
           open_in_vscode_explorer: false,
           compress_in_recursive_directories: false,
+          format_conversion_in_recursive_directories: false,
+          delete_directory: false,
+          rename_directory: false,
         },
         priority: 3,
       },
@@ -136,7 +139,15 @@ function CollapseTree(props: CollapseTreeProps) {
                 underFolderDeeplyImages={underFolderDeeplyList}
                 imagePreviewProps={{
                   lazyImageProps: {
-                    tooltipDisplayFullPath: !displayGroup.includes('dir'),
+                    contextMenu: {
+                      enable: {
+                        sharp: true,
+                        fs: true,
+                      },
+                    },
+                    imageNameProps: {
+                      tooltipDisplayFullPath: !displayGroup.includes('dir'),
+                    },
                   },
                 }}
               ></ImageCollapse>

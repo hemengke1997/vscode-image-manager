@@ -2,17 +2,32 @@ import { round } from '@minko-fe/lodash-pro'
 import { useThrottleFn } from '@minko-fe/react-hook'
 import { isDev } from '@minko-fe/vite-config/client'
 import { ConfigProvider, Image, theme } from 'antd'
+import { type AliasToken, type ComponentTokenMap } from 'antd/es/theme/interface'
 import { motion } from 'framer-motion'
 import { memo, useCallback, useEffect, useState } from 'react'
 import GlobalContext from '../../contexts/GlobalContext'
 import SettingsContext from '../../contexts/SettingsContext'
-import useImageContextMenu from '../../hooks/useImageContextMenu'
-import { findSameDirImages } from '../../utils'
+import useImageContextMenu from '../ContextMenus/components/ImageContextMenu/hooks/useImageContextMenu'
 import LazyImage, { type LazyImageProps } from '../LazyImage'
 import Toast from '../Toast'
 
+function imageToken(isDarkBackground: boolean): Partial<ComponentTokenMap['Image'] & AliasToken> {
+  return {
+    previewOperationColor: isDarkBackground ? 'rgba(255, 255, 255, 1)' : 'rgba(0, 0, 0, 1)',
+    previewOperationColorDisabled: isDarkBackground ? 'rgba(255, 255, 255, 0.25)' : 'rgba(0, 0, 0, 0.25)',
+    previewOperationHoverColor: isDarkBackground ? 'rgba(255, 255, 255, 0.85)' : 'rgba(0, 0, 0, 0.85)',
+    colorTextLightSolid: isDarkBackground ? 'rgba(255, 255, 255, 1)' : 'rgba(0, 0, 0, 1)',
+  }
+}
+
 export type ImagePreviewProps = {
+  /**
+   * 预览图片列表
+   */
   images: ImageType[]
+  /**
+   * 透传给 LazyImage 组件的 props
+   */
   lazyImageProps?: Partial<LazyImageProps>
 }
 
@@ -30,11 +45,12 @@ function ImagePreview(props: ImagePreviewProps) {
 
   const [preview, setPreview] = useState<{ open?: boolean; current?: number }>({ open: false, current: -1 })
 
-  const { show } = useImageContextMenu()
+  const { show, hideAll } = useImageContextMenu()
 
   useEffect(() => {
     if (!preview.open) {
       Toast.hide()
+      hideAll()
     }
   }, [preview.open])
 
@@ -69,12 +85,7 @@ function ImagePreview(props: ImagePreviewProps) {
         <ConfigProvider
           theme={{
             components: {
-              Image: {
-                previewOperationColor: isDarkBackground ? 'rgba(255, 255, 255, 1)' : 'rgba(0, 0, 0, 1)',
-                previewOperationColorDisabled: isDarkBackground ? 'rgba(255, 255, 255, 0.25)' : 'rgba(0, 0, 0, 0.25)',
-                previewOperationHoverColor: isDarkBackground ? 'rgba(255, 255, 255, 0.85)' : 'rgba(0, 0, 0, 0.85)',
-                colorTextLightSolid: isDarkBackground ? 'rgba(255, 255, 255, 1)' : 'rgba(0, 0, 0, 1)',
-              },
+              Image: imageToken(isDarkBackground),
             },
           }}
         >
@@ -108,11 +119,10 @@ function ImagePreview(props: ImagePreviewProps) {
                       show({
                         event: e,
                         props: {
-                          ...lazyImageProps?.contextMenu,
                           image: images[info.current],
                           sameLevelImages: images,
-                          sameDirImages: findSameDirImages(images[info.current], images),
                           sameWorkspaceImages: getSameWorkspaceImages(images[info.current]),
+                          ...lazyImageProps?.contextMenu,
                         },
                       })
                     }}
@@ -145,25 +155,22 @@ function ImagePreview(props: ImagePreviewProps) {
               {images.map((image, i) => (
                 <LazyImage
                   {...lazyImageProps}
-                  imageProp={{
-                    ...(lazyImageProps?.imageProp || {}),
+                  antdImageProps={{
+                    ...(lazyImageProps?.antdImageProps || {}),
                     style: { backgroundColor },
                     width: imageWidth,
                     height: imageWidth,
                     src: image.vscodePath,
                   }}
-                  preview={preview}
-                  onPreviewChange={(p) => {
-                    setPreview(p)
+                  onPreviewClick={() => {
+                    setPreview({ open: true, current: i })
                   }}
                   contextMenu={{
-                    ...lazyImageProps?.contextMenu,
                     sameLevelImages: images,
-                    sameDirImages: findSameDirImages(image, images),
                     sameWorkspaceImages: getSameWorkspaceImages(image),
+                    ...lazyImageProps?.contextMenu,
                   }}
                   image={image}
-                  index={i}
                   key={image.path + image.stats.ctime}
                 />
               ))}

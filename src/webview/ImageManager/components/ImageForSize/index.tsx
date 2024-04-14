@@ -19,12 +19,15 @@ function ImageForSize() {
   return imageForSize ? (
     <div ref={imageForSizeRef} className={'fixed left-[-9999px] top-[-9999px]'}>
       <LazyImage
-        imageProp={{
+        antdImageProps={{
           width: imageWidth,
           height: imageWidth,
           src: imageForSize.vscodePath,
         }}
-        image={imageForSize}
+        image={{
+          ...imageForSize,
+          path: '',
+        }}
         lazy={false}
         contextMenu={undefined}
       />

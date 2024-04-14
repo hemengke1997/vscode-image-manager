@@ -13,17 +13,23 @@ const tooltipProps: TooltipProps = {
   destroyTooltipOnHide: true,
 }
 
-function ImageName(props: { children: string; image?: ImageType; showFullPath?: boolean }) {
-  const { children, image, showFullPath } = props
+export type ImageNameProps = {
+  children?: string
+  image?: ImageType
+  tooltipDisplayFullPath?: boolean
+}
+
+function ImageName(props: ImageNameProps) {
+  const { children, image, tooltipDisplayFullPath } = props
 
   const suffixCount = last(children?.split('.'))?.length || -1
-  const start = children.slice(0, children.length - suffixCount)
-  const suffix = children.slice(-suffixCount).trim()
+  const start = children?.slice(0, children.length - suffixCount)
+  const suffix = children?.slice(-suffixCount).trim()
 
   const workspaceFolders = GlobalContext.useSelector((ctx) => ctx.imageState.workspaceFolders)
 
   const tooltipTitle = useMemoizedFn(() => {
-    if (showFullPath && image) {
+    if (tooltipDisplayFullPath && image) {
       const prefix = workspaceFolders.length > 1 ? `${image.workspaceFolder}/` : ''
       return `${prefix}${image.dirPath}/${image.name}`
     }
@@ -31,13 +37,13 @@ function ImageName(props: { children: string; image?: ImageType; showFullPath?: 
   })
   return (
     <div id='image-name'>
-      <Tooltip {...tooltipProps} title={showFullPath ? tooltipTitle() : null}>
+      <Tooltip {...tooltipProps} title={tooltipDisplayFullPath ? tooltipTitle() : null}>
         <div>
           <Text
             style={{ maxWidth: '100%' }}
             ellipsis={{
               suffix,
-              tooltip: showFullPath
+              tooltip: tooltipDisplayFullPath
                 ? false
                 : {
                     ...tooltipProps,

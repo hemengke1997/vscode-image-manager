@@ -1,23 +1,63 @@
 import { useControlledState } from '@minko-fe/react-hook'
 import { Card, Divider, Empty, Modal } from 'antd'
+import { produce } from 'immer'
 import { memo, useMemo } from 'react'
 import { useTranslation } from 'react-i18next'
+import useImageContextMenuEvent from '../ContextMenus/components/ImageContextMenu/hooks/useImageContextMenuEvent'
 import { type ImageOperatorProps } from '../ImageOperator'
 import ImagePreview from '../ImagePreview'
 
 export type ImageSimilarityProps = Omit<ImageOperatorProps, 'images'> & {
+  /**
+   * 被比较的图片
+   */
   image: ImageType
+  /**
+   * 相似图片
+   */
   similarImages: { image: ImageType; distance: number }[]
 }
 
 function ImageSimilarity(props: ImageSimilarityProps) {
-  const { open: openProp, onOpenChange, image, similarImages } = props
+  const { open: openProp, onOpenChange, image, similarImages: similarImagesProp } = props
   const { t } = useTranslation()
+
+  const [similarImages, setSimilarImages] = useControlledState({
+    defaultValue: similarImagesProp,
+  })
 
   const [open, setOpen] = useControlledState({
     defaultValue: openProp,
     value: openProp,
     onChange: onOpenChange,
+  })
+
+  useImageContextMenuEvent({
+    on: {
+      reveal_in_viewer: () => {
+        setOpen(false)
+      },
+      rename: (previosImage, newImage) => {
+        setSimilarImages(
+          produce((draft) => {
+            const index = draft.findIndex((t) => t.image.path === previosImage.path)
+            if (index !== -1) {
+              draft[index].image = newImage
+            }
+          }),
+        )
+      },
+      delete: (image) => {
+        setSimilarImages(
+          produce((draft) => {
+            const index = draft.findIndex((t) => t.image.path === image.path)
+            if (index !== -1) {
+              draft.splice(index, 1)
+            }
+          }),
+        )
+      },
+    },
   })
 
   const { images } = useMemo(() => {
@@ -48,9 +88,13 @@ function ImageSimilarity(props: ImageSimilarityProps) {
             images={[image]}
             lazyImageProps={{
               contextMenu: {
-                operable: false,
+                enable: {
+                  reveal_in_viewer: true,
+                },
               },
-              tooltipDisplayFullPath: true,
+              imageNameProps: {
+                tooltipDisplayFullPath: true,
+              },
             }}
           ></ImagePreview>
         </div>
@@ -58,14 +102,19 @@ function ImageSimilarity(props: ImageSimilarityProps) {
       <Divider plain dashed className={'!my-4'} />
       <Card title={t('im.similar_images')}>
         {images.length ? (
-          <div className={'max-h-96 overflow-auto'}>
+          <div className={'max-h-[500px] overflow-auto'}>
             <ImagePreview
               images={images}
               lazyImageProps={{
                 contextMenu: {
-                  operable: false,
+                  enable: {
+                    reveal_in_viewer: true,
+                    fs: true,
+                  },
                 },
-                tooltipDisplayFullPath: true,
+                imageNameProps: {
+                  tooltipDisplayFullPath: true,
+                },
               }}
             ></ImagePreview>
           </div>

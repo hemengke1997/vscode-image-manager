@@ -1,4 +1,4 @@
-import { useControlledState } from '@minko-fe/react-hook'
+import { useControlledState, useMemoizedFn } from '@minko-fe/react-hook'
 import { AnimatePresence, motion } from 'framer-motion'
 import { type ReactElement, type ReactNode, useEffect, useLayoutEffect, useRef, useState } from 'react'
 import { type Root, createRoot } from 'react-dom/client'
@@ -51,29 +51,29 @@ function ToastHolder(props: ToastProps) {
     }
   }, [updatedProps])
 
-  const internalDestroy = () => {
+  const internalDestroy = useMemoizedFn(() => {
     setOpen(false)
-  }
+  })
 
-  const beforeDestory = () => {
+  const beforeDestory = useMemoizedFn(() => {
     internalDestroy()
-  }
+  })
 
-  const delayClear = () => {
+  const delayClear = useMemoizedFn(() => {
     timer.current && clearTimeout(timer.current)
     timer.current = window.setTimeout(() => {
       beforeDestory()
     }, +duration!)
-  }
+  })
 
-  const onMouseHover = (hover: boolean) => {
+  const onMouseHover = useMemoizedFn((hover: boolean) => {
     if (!open) return
     if (hover) {
       timer.current && clearTimeout(timer.current)
     } else if (open && content) {
       delayClear()
     }
-  }
+  })
 
   if (!content) return null
 
