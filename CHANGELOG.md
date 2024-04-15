@@ -1,5 +1,17 @@
 # CHANGELOG
 
+## 0.12.1 (2024-04-15)
+
+### Fix
+
+- Sort not working
+- Similarity modal do not destory after close
+
+### Docs
+
+- Move `configuration` to new docs
+
+
 ## 0.12.0 (2024-04-14)
 
 ### Feat
