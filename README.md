@@ -27,6 +27,7 @@
 ### 裁剪
 ![crop](./screenshots/crop.png)
 
+### 查找相似图片
 
 ## 核心功能
 
@@ -59,35 +60,7 @@
 资源管理器中右键选择 `Image Manager 🏞️` 打开插件
 
 
-## 插件配置项
-
-| 配置项名称                                     | 数据类型                | 描述                                            | 默认值                                                                                                                       |
-| ---------------------------------------------- | ----------------------- | ----------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------- |
-| image-manager.file.root                        | `string[]`              | 扫描图片的根目录                                | 当前工作区                                                                                                                   |
-| image-manager.file.exclude                     | `string[]`              | 排除目录                                        | `['**/node_modules/**','**/.git/**',`<br>`'**/dist/**','**/coverage/**','**/.next/**',`<br/>`'**/.nuxt/**','**/.vercel/**']` |
-| image-manager.file.scan                        | `string[]`              | 扫描的图片类型                                  | `['svg','png','jpeg','jpg',`<br/>`'ico','gif','webp','bmp',`<br/>`'tif','tiff','apng','avif']`                               |
-| image-manager.file.confirmDelete               | `boolean`               | 删除图片时是否询问                              | true                                                                                                                         |
-| image-manager.appearance.theme                 | `dark \| light \| auto` | 主题                                            | `auto`                                                                                                                       |
-| image-manager.appearance.language              | `en \| zh-CN \| auto`   | 语言                                            | `auto`                                                                                                                       |
-| image-manager.appearance.primaryColor          | `string`                | 主题色                                          | undefined                                                                                                                    |
-| image-manager.viewer.warningSize               | `number \| boolean`     | 当图片体积大于此值时右上角展示警告点（KB）      | 1024                                                                                                                         |
-| image-manager.viewer.imageWidth                | `number`                | 图片宽度（px）                                  | 100                                                                                                                          |
-| image-manager.viewer.imageBackgroundColor      | `string`                | 图片背景色                                      | `#1a1a1a`                                                                                                                    |
-| image-manager.mirror.enabled                   | `boolean`               | 使用镜像下载依赖                                | false                                                                                                                        |
-| image-manager.mirror.url                       | `string`                | 镜像地址（通常情况不需要自定义）                | undefined                                                                                                                    |
-| image-manager.compression.keepOriginal         | `boolean`               | 压缩后保留原图                                  | false                                                                                                                        |
-| image-manager.compression.fileSuffix           | `string`                | 压缩图片文件名添加后缀                          | `.min`                                                                                                                       |
-| image-manager.compression.skipCompressed       | `boolean`               | 跳过已压缩的图片                                | true                                                                                                                         |
-| image-manager.compression.quality              | `number`                | 压缩图片质量                                    | -                                                                                                                            |
-| image-manager.compression.size                 | `number`                | 图片尺寸（几倍图）                              | 1                                                                                                                            |
-| image-manager.compression.format               | `string`                | 压缩时转化图片的格式                            | ''                                                                                                                           |
-| image-manager.compression.png.compressionLevel | `number`                | png图片压缩等级                                 | 9                                                                                                                            |
-| image-manager.compression.gif.colors           | `number`                | gif图片色彩                                     | 256                                                                                                                          |
-| image-manager.compression.svg.*                | `svgo 配置`             | 压缩svg的配置，具体配置项功能请参考svgo官方文档 | -                                                                                                                            |
-| image-manager.conversion.format                | `string`                | 转化图片格式                                    | ''                                                                                                                           |
-| image-manager.conversion.keepOriginal          | `boolean`               | 转化图片格式后保留原图                          | false                                                                                                                        |
-| image-manager.similarity.precision             | `number`                | 判断图片相似的精确度。值越小，判断越严格        | 10                                                                                                                           |
-
+## [插件配置项](./docs/vscode-configuration.md)
 
 
 ## 小贴士

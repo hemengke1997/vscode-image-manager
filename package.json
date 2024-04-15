@@ -543,7 +543,7 @@
     "@types/vscode": "^1.60.0",
     "@types/vscode-webview": "^1.57.5",
     "@vitejs/plugin-react": "^4.2.1",
-    "@vscode/vsce": "^2.24.0",
+    "@vscode/vsce": "^2.25.0",
     "antd": "^5.16.0",
     "bumpp": "^9.4.0",
     "clsx": "^2.1.0",

@@ -148,6 +148,7 @@ function LazyImage(props: LazyImageProps) {
 
   useEffect(() => {
     let timer: number
+    let idleTimer: number
     if (isTargetImage()) {
       Events.scrollEvent.register('end', () => {
         timer = window.setTimeout(() => {
@@ -157,7 +158,7 @@ function LazyImage(props: LazyImageProps) {
         }, 100) // TODO: 为什么延迟后才能生效？
       })
 
-      requestIdleCallback(() => {
+      idleTimer = requestIdleCallback(() => {
         const y = placeholderRef.current?.getBoundingClientRect().top || keybindRef.current?.getBoundingClientRect().top
 
         const clientHeight = document.documentElement.clientHeight
@@ -181,6 +182,7 @@ function LazyImage(props: LazyImageProps) {
         keybindRef.current?.blur()
         Events.scrollEvent.remove('end')
         clearTimeout(timer)
+        cancelIdleCallback(idleTimer)
       }
     }
   }, [targetImagePath])

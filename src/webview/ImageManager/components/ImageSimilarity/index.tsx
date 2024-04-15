@@ -19,7 +19,7 @@ export type ImageSimilarityProps = Omit<ImageOperatorProps, 'images'> & {
 }
 
 function ImageSimilarity(props: ImageSimilarityProps) {
-  const { open: openProp, onOpenChange, image, similarImages: similarImagesProp } = props
+  const { open: openProp, onOpenChange, image, similarImages: similarImagesProp, ...rest } = props
   const { t } = useTranslation()
 
   const [similarImages, setSimilarImages] = useControlledState({
@@ -81,6 +81,7 @@ function ImageSimilarity(props: ImageSimilarityProps) {
       onCancel={() => setOpen(false)}
       maskClosable={false}
       destroyOnClose
+      {...rest}
     >
       <Card>
         <div className={'flex justify-center'}>

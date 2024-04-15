@@ -325,7 +325,7 @@ function useImageOperation() {
             form={renameForm}
             onFinish={async (value) => {
               const { rename } = value
-              if (rename === currentName) {
+              if (rename === currentName || !rename) {
                 return instance.destroy()
               }
               await onFinish(rename)
@@ -334,7 +334,6 @@ function useImageOperation() {
           >
             <Form.Item
               rules={[
-                { required: true, message: '' },
                 () => ({
                   validateTrigger: ['onSubmit'],
                   async validator(_, value) {

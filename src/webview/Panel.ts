@@ -1,4 +1,5 @@
 import { applyHtmlTransforms } from '@minko-fe/html-transform'
+import { isNil } from '@minko-fe/lodash-pro'
 import fs from 'fs-extra'
 import path from 'node:path'
 import onChange from 'on-change'
@@ -37,7 +38,7 @@ export class ImageManagerPanel {
      */
     path: string
   }>({ path: '' }, (_, value) => {
-    if (value) {
+    if (!isNil(value)) {
       // 用户端切换了图片，需要通知webview重新设置 window.__target_image_path__
       MessageCenter.postMessage({
         cmd: CmdToWebview.update_target_image_path,

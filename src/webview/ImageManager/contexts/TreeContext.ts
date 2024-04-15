@@ -83,7 +83,7 @@ const sortFunctions = {
 function sortImages(sort: string[], images: ImageType[]) {
   const [sortType, sortOrder] = sort
   const sortFunction = sortFunctions[sortType][sortOrder]
-  return images.sort(sortFunction)
+  return [...images.sort(sortFunction)]
 }
 
 /**
@@ -182,9 +182,7 @@ function useTreeContext(props: TreeContextProp) {
   // !! 修改 visibleList 的唯一入口 !!
   // 只有当list改变时，才会重新生成visibleList
   useEffect(() => {
-    setImageSingleTree((t) => {
-      return { visibleList: t.list.filter(shouldShowImage) }
-    })
+    setImageSingleTree((t) => ({ visibleList: t.list.filter(shouldShowImage) }))
   }, [imageSingleTree.list])
 
   // !!CARE!!: once imageListProp changed, the list will be updated
@@ -196,7 +194,7 @@ function useTreeContext(props: TreeContextProp) {
   // size filter
   // git staged filter
   // compressed filter
-  const generateImageList = async (imageList: ImageType[]) => {
+  const generateImageList = useMemoizedFn(async (imageList: ImageType[]) => {
     // sort
     let res = imageList
     if (sort) {
@@ -209,7 +207,7 @@ function useTreeContext(props: TreeContextProp) {
     }
 
     return res
-  }
+  })
 
   // prop 改变时，重新根据目前已有的限制条件生成list
   useAsyncEffect(async () => {
