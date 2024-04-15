@@ -113,8 +113,8 @@
     "keybindings": [
       {
         "command": "image-manager.open-image-manager",
-        "key": "shift+alt+i",
-        "mac": "cmd+alt+i"
+        "key": "shift+alt+j",
+        "mac": "cmd+alt+j"
       }
     ],
     "configuration": {

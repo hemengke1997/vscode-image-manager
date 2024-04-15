@@ -47,8 +47,8 @@
 
 ### 快捷键
 
-- windows: `shift+alt+i`
-- macos: `cmd+option+i`
+- windows: `shift+alt+j`
+- macos: `cmd+option+j`
 
 
 ### 命令面板
