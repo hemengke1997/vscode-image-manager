@@ -134,7 +134,7 @@ function LazyImage(props: LazyImageProps) {
     },
   )
 
-  const ifWarning = bytesToKb(image.stats.size) > warningSize
+  const ifWarning = !!warningSize && bytesToKb(image.stats.size) > warningSize
 
   const { show, hideAll } = useImageContextMenu()
 

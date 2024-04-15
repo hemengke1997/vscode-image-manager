@@ -195,10 +195,7 @@
           "description": "%pkg.appearance.primaryColor%"
         },
         "image-manager.viewer.warningSize": {
-          "type": [
-            "number",
-            "boolean"
-          ],
+          "type": "number",
           "default": 1024,
           "description": "%pkg.viewer.warningSize%"
         },

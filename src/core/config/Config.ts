@@ -99,6 +99,6 @@ export class Config {
     key: U, // like `file.root`
     scope?: ConfigurationScope | undefined,
   ): T {
-    return workspace.getConfiguration(EXT_NAMESPACE, scope).get<T>(key) || get(DEFAULT_CONFIG, key as string)
+    return workspace.getConfiguration(EXT_NAMESPACE, scope).get<T>(key) ?? get(DEFAULT_CONFIG, key as string)
   }
 }
