@@ -1,6 +1,6 @@
 import { useSetState } from '@minko-fe/react-hook'
 import { createContainer } from 'context-state'
-import { useState } from 'react'
+import { useMemo, useState } from 'react'
 import { ConfigKey } from '~/core/config/common'
 import { type Compressor, type FormatConverter } from '~/core/operator'
 import { useExtConfigState } from '~/webview/hooks/useExtConfigState'
@@ -74,7 +74,14 @@ function useGlobalContext() {
   const [imagePlaceholderSize, setImagePlaceholderSize] = useState<{ width: number; height: number }>()
 
   /* ---------- target image path ---------- */
+  /**
+   * @note targetImagePath 是带t query参数的，用于处理同一张图片的情况
+   */
   const [targetImagePath, setTargetImagePath] = useState<string>(window.__target_image_path__)
+  const targetImagePathWithoutQuery = useMemo(() => {
+    const index = targetImagePath.lastIndexOf('?')
+    return targetImagePath.slice(0, index)
+  }, [targetImagePath])
 
   /* ------------- tree context 中的数据 ------------ */
   const [treeData, setTreeData] = useState<{ workspaceFolder: string; visibleList: ImageType[] }[]>([])
@@ -99,6 +106,7 @@ function useGlobalContext() {
     setImageFilter,
     targetImagePath,
     setTargetImagePath,
+    targetImagePathWithoutQuery,
     treeData,
     setTreeData,
   }

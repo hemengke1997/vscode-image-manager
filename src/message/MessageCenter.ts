@@ -29,7 +29,7 @@ import { generateOutputPath, isPng, normalizePath } from '~/utils'
 import { Channel } from '~/utils/Channel'
 import { imageGlob } from '~/utils/glob'
 import { ImageManagerPanel } from '~/webview/Panel'
-import { CmdToVscode, CmdToWebview } from './cmd'
+import { CmdToVscode } from './cmd'
 import { convertImageToBase64, convertToBase64IfBrowserNotSupport, debouncePromise, isBase64 } from './utils'
 
 export type VscodeMessageCenterType = typeof VscodeMessageCenter
@@ -81,12 +81,12 @@ export const VscodeMessageCenter = {
   [CmdToVscode.get_image]: async (
     options: {
       glob: string | string[]
-      cwd?: string
+      cwd: string
       onResolve?: (image: ImageType) => void
     },
     webview: Webview,
   ) => {
-    const { glob, cwd = process.cwd(), onResolve } = options
+    const { glob, cwd, onResolve } = options
 
     function _resolveDirPath(imagePath: string) {
       if (cwd === path.dirname(imagePath)) return ''
@@ -117,17 +117,26 @@ export const VscodeMessageCenter = {
         const fileType = path.extname(image.path).replace('.', '')
         const dirPath = _resolveDirPath(image.path)
 
+        // 项目绝对路径
+        const basePath = normalizePath(path.dirname(cwd))
+        // 工作区绝对路径
+        const absWorkspaceFolder = normalizePath(cwd)
+
         const imageInfo: ImageType = {
           name: image.name,
           path: image.path,
           stats: image.stats!,
+          basePath,
           dirPath,
           absDirPath: normalizePath(path.dirname(image.path)),
           fileType,
           vscodePath: isBase64(vscodePath) ? vscodePath : `${vscodePath}?t=${image.stats?.mtime.getTime()}`,
           workspaceFolder: normalizePath(path.basename(cwd)),
-          absWorkspaceFolder: normalizePath(cwd),
-          basePath: normalizePath(path.dirname(cwd)),
+          absWorkspaceFolder,
+          relativePath:
+            Global.rootpaths.length > 1
+              ? normalizePath(path.relative(basePath, image.path)) // 多工作区，相对于项目
+              : normalizePath(path.relative(absWorkspaceFolder, image.path)), // 单工作区，相对于工作区
           extraPathInfo: path.parse(image.path),
         }
 
@@ -517,9 +526,8 @@ export const VscodeMessageCenter = {
   /* --------- open file in text editor --------- */
   [CmdToVscode.open_file_in_text_editor]: async (data: { filePath: string }) => {
     const { filePath } = data
-    workspace.openTextDocument(Uri.file(filePath)).then((document) => {
-      window.showTextDocument(document, ViewColumn.Active)
-    })
+    const document = await workspace.openTextDocument(Uri.file(filePath))
+    await window.showTextDocument(document, ViewColumn.Active)
     return true
   },
   /* ---------------- delete file/dir --------------- */
@@ -555,7 +563,7 @@ export const VscodeMessageCenter = {
     // TODO: implement copy file to clipboard
   },
   /* ---------- reveal image in viewer ---------- */
-  [CmdToVscode.reveal_image_in_viewer]: async (data: { filePath: string }) => {
+  [CmdToVscode.reveal_image_in_viewer]: (data: { filePath: string }) => {
     ImageManagerPanel.updateTargetImage(data.filePath)
     return true
   },
@@ -565,35 +573,4 @@ export const VscodeMessageCenter = {
     const siblings = await fs.readdir(path.dirname(source))
     return siblings
   },
-}
-
-export class MessageCenter {
-  static _webview: Webview | undefined
-
-  static slientMessages: string[] = [CmdToWebview.webview_callback]
-
-  static init(webview: Webview) {
-    this._webview = webview
-  }
-
-  static postMessage<T extends keyof typeof CmdToWebview>(message: MessageType<any, T>) {
-    // Filter some message
-    if (!this.slientMessages.includes(message.cmd)) {
-      Channel.debug(`Post message to webview: ${message.cmd}`)
-    }
-    if (this._webview) {
-      this._webview.postMessage(message)
-    }
-  }
-
-  static async handleMessages(message: MessageType) {
-    const handler: (data: Record<string, any>, webview: Webview) => Thenable<any> = VscodeMessageCenter[message.cmd]
-
-    if (handler) {
-      const data = await handler(message.data, this._webview as Webview)
-      this.postMessage({ cmd: CmdToWebview.webview_callback, callbackId: message.callbackId, data })
-    } else {
-      Channel.error(`Handler function "${message.cmd}" doesn't exist!`)
-    }
-  }
 }

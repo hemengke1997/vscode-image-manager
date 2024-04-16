@@ -1,4 +1,4 @@
-import { random } from '@minko-fe/lodash-pro'
+import { isFunction, random } from '@minko-fe/lodash-pro'
 import { type WebviewApi } from 'vscode-webview'
 import {
   type FirstParameterOfMessageCenter,
@@ -41,7 +41,7 @@ class VscodeApi {
       switch (message.cmd) {
         case CmdToWebview.webview_callback: {
           const callback = this._callbacks[callbackId]
-          if (callback && typeof callback === 'function') {
+          if (isFunction(callback)) {
             callback(data)
           }
           delete this._callbacks[callbackId]

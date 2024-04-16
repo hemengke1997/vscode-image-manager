@@ -1,7 +1,6 @@
 import { merge, toString } from '@minko-fe/lodash-pro'
 import fs from 'fs-extra'
 import { addMetadata, getMetadata } from 'meta-png'
-import os from 'node:os'
 import pMap from 'p-map'
 import piexif from 'piexifjs'
 import { optimize } from 'svgo'
@@ -93,7 +92,6 @@ export class Compressor extends Operator {
         ...rest.map((filePath) => () => this.compressImage(filePath)),
       ],
       (task) => task(),
-      { concurrency: os.cpus().length },
     )
 
     return res.filter((r) => {

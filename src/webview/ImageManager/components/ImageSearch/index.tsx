@@ -209,7 +209,7 @@ function ImageSearch(props: ImageSearchProps) {
             ...result.item,
             nameElement: (
               <>
-                <Tooltip title={result.item.name} arrow={false} placement='bottom'>
+                <Tooltip title={result.item.relativePath} arrow={false} placement='bottom'>
                   <Highlighter
                     key={result.refIndex}
                     findChunks={() =>

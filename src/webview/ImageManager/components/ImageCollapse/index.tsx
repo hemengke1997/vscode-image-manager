@@ -2,9 +2,9 @@ import { isUndefined } from '@minko-fe/lodash-pro'
 import { useControlledState, useMemoizedFn } from '@minko-fe/react-hook'
 import { Collapse, type CollapseProps } from 'antd'
 import { type ReactNode, memo, useEffect, useMemo } from 'react'
-import { flushSync } from 'react-dom'
 import { cn } from '~/webview/utils'
 import ActionContext from '../../contexts/ActionContext'
+import GlobalContext from '../../contexts/GlobalContext'
 import { type EnableCollapseContextMenuType } from '../ContextMenus/components/CollapseContextMenu'
 import useCollapseContextMenu from '../ContextMenus/components/CollapseContextMenu/hooks/useCollapseContextMenu'
 import useImageContextMenuEvent from '../ContextMenus/components/ImageContextMenu/hooks/useImageContextMenuEvent'
@@ -70,10 +70,11 @@ function ImageCollapse(props: ImageCollapseProps) {
     imagePreviewProps,
   } = props
 
+  const { targetImagePathWithoutQuery } = GlobalContext.usePicker(['targetImagePathWithoutQuery'])
   const { collapseOpen } = ActionContext.usePicker(['collapseOpen'])
 
   const [activeKeys, setActiveKeys] = useControlledState<string[]>({
-    defaultValue: collapseProps.defaultActiveKey as string[],
+    defaultValue: (collapseProps.defaultActiveKey as string[]) || [],
     onChange: collapseProps.onChange,
   })
 
@@ -94,14 +95,28 @@ function ImageCollapse(props: ImageCollapseProps) {
     }
   }, [collapseOpen])
 
+  const isActive = useMemoizedFn((imagePath: string) => {
+    return imagePath && underFolderDeeplyImages?.find((image) => image.path === imagePath)
+  })
+
+  const onActive = (imagePath: string) => {
+    if (isActive(imagePath)) {
+      setActiveKeys([id])
+    }
+  }
+
+  // 由于collapse的内容默认是不渲染的，
+  // 所以需要在 `reveal_in_viewer` 的时候，主动触发collapse渲染
+  useEffect(() => {
+    if (!activeKeys.length) {
+      onActive(targetImagePathWithoutQuery)
+    }
+  }, [targetImagePathWithoutQuery])
+
   useImageContextMenuEvent({
     on: {
       reveal_in_viewer: (targetImage) => {
-        if (targetImage && underFolderDeeplyImages?.find((image) => image.path === targetImage.path)) {
-          flushSync(() => {
-            setActiveKeys([id])
-          })
-        }
+        onActive(targetImage.path)
       },
     },
   })
@@ -132,7 +147,7 @@ function ImageCollapse(props: ImageCollapseProps) {
           onContextMenu={(e) => onContextMenu(e, index)}
           tabIndex={-1}
           className={cn(
-            "relative w-full cursor-pointer transition-all after:absolute after:-inset-x-0 after:-inset-y-[8px] after:content-[''] hover:underline focus:underline",
+            'relative w-full cursor-pointer transition-all after:absolute after:-inset-x-0 after:-inset-y-[8px] after:content-[""] hover:underline focus:underline',
           )}
           onClick={() => {
             if (activeKeys?.length) {
@@ -177,6 +192,7 @@ function ImageCollapse(props: ImageCollapseProps) {
         onChange={(keys) => onCollapseChange(keys as string[])}
         items={[
           {
+            forceRender: !!activeKeys.length,
             key: id,
             label: labelRender(generateLabel(labels)),
             children: images?.length ? (

@@ -1,5 +1,4 @@
 import { merge } from '@minko-fe/lodash-pro'
-import os from 'node:os'
 import pMap from 'p-map'
 import { type SharpNS } from '~/@types/global'
 import { SharpOperator } from '..'
@@ -32,9 +31,6 @@ export class FormatConverter extends Operator {
     const res = await pMap(
       filePaths.map((filePath) => () => this.convertImage(filePath)),
       (task) => task(),
-      {
-        concurrency: os.cpus().length,
-      },
     )
     return res
   }

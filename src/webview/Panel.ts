@@ -17,7 +17,7 @@ import {
 } from 'vscode'
 import { Config, Global } from '~/core'
 import { i18n } from '~/i18n'
-import { MessageCenter, type MessageType } from '~/message/MessageCenter'
+import { type MessageType, WebviewMessageCenter } from '~/message'
 import { CmdToWebview } from '~/message/cmd'
 import { DEV_PORT, EXT_NAMESPACE } from '~/meta'
 import { Channel } from '~/utils/Channel'
@@ -40,7 +40,7 @@ export class ImageManagerPanel {
   }>({ path: '' }, (_, value) => {
     if (!isNil(value)) {
       // 用户端切换了图片，需要通知webview重新设置 window.__target_image_path__
-      MessageCenter.postMessage({
+      WebviewMessageCenter.postMessage({
         cmd: CmdToWebview.update_target_image_path,
         data: {
           path: value,
@@ -106,7 +106,7 @@ export class ImageManagerPanel {
           Channel.info(`Programmatic change config, skip update webview`)
           return
         }
-        MessageCenter.postMessage({ cmd: CmdToWebview.update_config, data: {} })
+        WebviewMessageCenter.postMessage({ cmd: CmdToWebview.update_config, data: {} })
       }
     }
   }
@@ -152,12 +152,12 @@ export class ImageManagerPanel {
   }
 
   private static _reloadWebview() {
-    MessageCenter.postMessage({ cmd: CmdToWebview.program_reload_webview, data: {} })
+    WebviewMessageCenter.postMessage({ cmd: CmdToWebview.program_reload_webview, data: {} })
   }
 
   private async _handleMessage(message: MessageType) {
     Channel.debug(`Receive cmd: ${message.cmd}`)
-    MessageCenter.handleMessages(message)
+    WebviewMessageCenter.handleMessages(message)
   }
 
   dispose() {
@@ -173,7 +173,7 @@ export class ImageManagerPanel {
   }
 
   init() {
-    MessageCenter.init(this._panel.webview)
+    WebviewMessageCenter.init(this._panel.webview)
 
     this._panel.webview.html = this._getWebviewHtml()
   }

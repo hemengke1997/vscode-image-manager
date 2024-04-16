@@ -5,6 +5,7 @@ import { setAutoFreeze } from 'immer'
 import { memo, useEffect, useMemo, useRef } from 'react'
 import { flushSync } from 'react-dom'
 import { useTranslation } from 'react-i18next'
+import { BiSolidToTop } from 'react-icons/bi'
 import { isTooManyTries, retry } from 'ts-retry'
 import { type Compressor, type FormatConverter } from '~/core/operator'
 import { type MessageType } from '~/message'
@@ -268,7 +269,7 @@ function ImageManager() {
           }}
         />
       )}
-      <FloatButton.BackTop target={() => getAppRoot()} duration={0} />
+      <FloatButton.BackTop target={() => getAppRoot()} duration={0} icon={<BiSolidToTop />} type='primary' />
     </>
   )
 }

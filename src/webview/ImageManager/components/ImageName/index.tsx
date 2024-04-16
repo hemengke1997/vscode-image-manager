@@ -2,7 +2,6 @@ import { last } from '@minko-fe/lodash-pro'
 import { useMemoizedFn } from '@minko-fe/react-hook'
 import { Tooltip, type TooltipProps, Typography } from 'antd'
 import { memo } from 'react'
-import GlobalContext from '../../contexts/GlobalContext'
 import './index.css'
 
 const { Text } = Typography
@@ -26,19 +25,16 @@ function ImageName(props: ImageNameProps) {
   const start = children?.slice(0, children.length - suffixCount)
   const suffix = children?.slice(-suffixCount).trim()
 
-  const workspaceFolders = GlobalContext.useSelector((ctx) => ctx.imageState.workspaceFolders)
-
   const tooltipTitle = useMemoizedFn(() => {
     if (tooltipDisplayFullPath && image) {
-      const prefix = workspaceFolders.length > 1 ? `${image.workspaceFolder}/` : ''
-      return `${prefix}${image.dirPath}/${image.name}`
+      return image.relativePath
     }
     return children
   })
   return (
     <div id='image-name'>
       <Tooltip {...tooltipProps} title={tooltipDisplayFullPath ? tooltipTitle() : null}>
-        <div>
+        <div className={'select-text'}>
           <Text
             style={{ maxWidth: '100%' }}
             ellipsis={{

@@ -44,24 +44,34 @@ export type FileNode = {
    * 渲染图片列表
    */
   renderList?: ImageType[]
-  /**
-   * 节点当前目录下的所有图片（不包括子目录）
-   */
-  underFolderList?: ImageType[]
-  /**
-   * 节点当前目录下的所有图片（包括子目录）
-   */
-  underFolderDeeplyList?: ImageType[]
 }
 
 export type TreeParams = { displayGroup: DisplayGroupType; displayMap: DisplayMapType; visibleList: VisibleListType }
 
-export class DirTree {
+export class DirTree<ExtraProps extends Record<string, any> = Record<string, any>> {
   displayGroup: DisplayGroupType
   displayMap: DisplayMapType
   visibleList: VisibleListType
 
-  constructor(params: TreeParams) {
+  constructor(
+    params: TreeParams,
+    private opts?: {
+      onFilterImages?: (
+        /**
+         * 节点
+         */
+        node: FileNode,
+        /**
+         * 遍历的image
+         */
+        image: ImageType,
+        /**
+         * 是否应该在node上渲染image（即：是否满足渲染条件）
+         */
+        shouldRender: boolean,
+      ) => void
+    },
+  ) {
     this.displayGroup = params.displayGroup
     this.displayMap = params.displayMap
     this.visibleList = [...params.visibleList]
@@ -105,7 +115,7 @@ export class DirTree {
 
     // Maybe we should do this in arrangeIntoTree
     this.renderTree(tree)
-    return tree
+    return tree as (FileNode & ExtraProps)[]
   }
 
   renderTree(tree: FileNode[]) {
@@ -117,54 +127,28 @@ export class DirTree {
       }
 
       if (node) {
-        const { renderList, underFolderList, underFolderDeeplyList } = this._filterImages(node)
-        node.renderList = renderList
-        node.underFolderList = underFolderList
-        node.underFolderDeeplyList = underFolderDeeplyList
+        this._filterImages(node)
       }
     }
   }
 
-  // 从visibileList中筛选出
-  // 1. 符合 renderCondition 条件的图片
-  // 2. 当前节点目录下的所有图片（不包括子目录）
-  // 3. 当前节点目录下的所有图片（包括子目录）
+  // 从visibileList中筛选出符合 renderCondition 条件的图片
   private _filterImages(node: FileNode) {
-    const renderList: ImageType[] = []
-    const underFolderList: ImageType[] = []
-    const underFolderDeeplyList: ImageType[] = []
-
     this.visibleList.forEach((image) => {
-      // 根据渲染条件过滤图片，将符合条件的图片放入 renderList
+      // 根据渲染条件过滤图片，将符合条件的图片放入当前节点的 renderList
       if (!isEmpty(node?.renderCondition)) {
         const shouldRender = this._shouldShowImage(node, image)
 
         if (shouldRender) {
-          renderList.push(image)
+          if (!node.renderList) {
+            node.renderList = []
+          }
+          node.renderList.push(image)
         }
-      }
 
-      // Put all images under the current node into underFolderList
-      if (image.absDirPath.match(new RegExp(`^${node.value}$`))) {
-        underFolderList.push(image)
-      }
-
-      // Put all images under the current node and its subdirectories into underFolderDeeplyList
-      if (image.absDirPath.match(new RegExp(`^${node.value}`))) {
-        underFolderDeeplyList.push(image)
+        this.opts?.onFilterImages?.(node, image, shouldRender)
       }
     })
-
-    return {
-      renderList,
-      underFolderList,
-      underFolderDeeplyList,
-    }
-  }
-
-  private _postFilterd(filterdList: ImageType[]) {
-    const filterdSet = new Set(filterdList.map((item) => item.path))
-    this.visibleList = this.visibleList.filter((item) => !filterdSet.has(item.path))
   }
 
   mergeRenderCondition(prev: FileNode['renderCondition'], add: FileNode['renderCondition']) {

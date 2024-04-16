@@ -1,3 +1,4 @@
+import { isNil } from '@minko-fe/lodash-pro'
 import { useMemoizedFn } from '@minko-fe/react-hook'
 import { Card, type CollapseProps, ConfigProvider, Empty } from 'antd'
 import { motion } from 'framer-motion'
@@ -21,6 +22,57 @@ type CollapseTreeProps = {
   displayStyle: WorkspaceStateType['display_style']
 }
 
+type TreeExtraProps = {
+  /**
+   * 节点当前目录下的所有图片（不包括子目录）
+   */
+  underFolderList?: ImageType[]
+  /**
+   * 节点当前目录下的所有图片（包括子目录）
+   */
+  underFolderDeeplyList?: ImageType[]
+}
+
+/**
+ * 扩展节点属性并注入满足条件的图片
+ * @param node
+ * @param image
+ * @param key
+ * @param conditions
+ */
+function injectUnderfolderImagesToNode(
+  node: FileNode,
+  image: ImageType,
+  key: string,
+  conditions: {
+    type: boolean
+    dir: boolean
+  },
+) {
+  if (!node[key]) {
+    node[key] = []
+  }
+
+  if (!isNil(node.renderCondition.type) && !isNil(node.renderCondition.dir)) {
+    // 按目录和类型分组
+
+    if (conditions.type || conditions.dir) {
+      node[key].push(image)
+    }
+  } else if (!isNil(node.renderCondition.type)) {
+    // 按类型分组
+    // 其实就是renderList
+    if (conditions.type) {
+      node[key].push(image)
+    }
+  } else if (!isNil(node.renderCondition.dir)) {
+    // 按目录分组
+    if (conditions.dir) {
+      node[key].push(image)
+    }
+  }
+}
+
 function CollapseTree(props: CollapseTreeProps) {
   const { displayGroup, displayStyle } = props
   const { t } = useTranslation()
@@ -34,7 +86,7 @@ function CollapseTree(props: CollapseTreeProps) {
 
   const visibleList = TreeContext.useSelector((ctx) => ctx.imageSingleTree.visibleList)
 
-  const dirTree = useRef<DirTree>()
+  const dirTree = useRef<DirTree<TreeExtraProps>>()
 
   const displayMap: DisplayMapType<{
     icon: (props: { path: string }) => ReactNode
@@ -99,7 +151,7 @@ function CollapseTree(props: CollapseTreeProps) {
 
   const nestedDisplay = useMemoizedFn(
     (
-      tree: FileNode[],
+      tree: (FileNode & TreeExtraProps)[],
       collapseProps?: CollapseProps,
       options?: {
         defaultOpen?: boolean
@@ -159,11 +211,26 @@ function CollapseTree(props: CollapseTreeProps) {
   )
 
   const displayByPriority = useMemoizedFn(() => {
-    dirTree.current = new DirTree({
-      displayGroup,
-      displayMap,
-      visibleList,
-    })
+    dirTree.current = new DirTree(
+      {
+        displayGroup,
+        displayMap,
+        visibleList,
+      },
+      {
+        onFilterImages(node, image, shouldRender) {
+          injectUnderfolderImagesToNode(node, image, 'underFolderList', {
+            type: shouldRender,
+            dir: image.absDirPath === node.value,
+          })
+
+          injectUnderfolderImagesToNode(node, image, 'underFolderDeeplyList', {
+            type: shouldRender,
+            dir: image.absDirPath.startsWith(node.value),
+          })
+        },
+      },
+    )
 
     const tree = dirTree.current.buildRenderTree()
 
