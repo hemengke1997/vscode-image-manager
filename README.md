@@ -6,7 +6,7 @@
 
 <h1 align='center'>Image Manager</h1>
 
-> 压缩、裁剪、转换格式和预览图片的vscode插件
+> 压缩、裁剪、转换格式、搜索、查找相似图片的vscode插件
 
 [English README](./README.en.md)
 
@@ -28,6 +28,10 @@
 ![crop](./screenshots/crop.png)
 
 ### 查找相似图片
+![find-similirity](./screenshots/find-similarity.png)
+
+### 搜索图片
+![search](./screenshots/search.png)
 
 ## 核心功能
 

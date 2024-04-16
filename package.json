@@ -4,7 +4,7 @@
   "displayName": "Image Manager",
   "version": "0.13.0",
   "private": true,
-  "description": "压缩、裁剪、转换格式和预览图片的vscode插件 | Compress, crop, convert format and preview images in vscode",
+  "description": "压缩、裁剪、转换格式、搜索、查找相似图片的vscode插件 | Compress, crop, convert format, search and find similary images in vscode",
   "icon": "assets/logo.png",
   "keywords": [
     "image",

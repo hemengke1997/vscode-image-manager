@@ -6,7 +6,7 @@
 
 <h1 align='center'>Image Manager</h1>
 
-> Compress, crop, convert format and preview images in vscode
+> Compress, crop, convert format, search and find similary images in vscode
 
 [中文 README](./README.md)
 
@@ -24,6 +24,12 @@
 
 ### Crop
 ![crop](./screenshots/crop.png)
+
+### Finding Similarities
+![find-similirity](./screenshots/find-similarity.png)
+
+### Search
+![search](./screenshots/search.png)
 
 
 ## Features
