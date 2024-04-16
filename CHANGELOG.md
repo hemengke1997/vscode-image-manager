@@ -1,5 +1,16 @@
 # CHANGELOG
 
+## 0.13.0 (2024-04-16)
+
+### Break Change
+
+- The shortcut key 'i' has been changed to 'j'. The previous shortcut key conflicted with the built-in shortcut key of VS Code.
+- The configuration of WarningSize has been changed to a number. When the value is 0, the dot will be hidden.
+
+### Fix
+
+- Reveal in viewer failed when group by 'file type'
+
 ## 0.12.1 (2024-04-15)
 
 ### Fix
