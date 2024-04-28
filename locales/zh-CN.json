@@ -43,6 +43,7 @@
       "fileSuffix": "压缩后缀",
       "size": "图片尺寸 (倍数)",
       "format": "图片格式",
+      "saveCompressionData": "保存压缩信息",
       "png": {
         "compressionLevel": "压缩等级"
       },

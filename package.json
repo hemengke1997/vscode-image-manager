@@ -259,6 +259,15 @@
           "default": "",
           "description": "%pkg.compression.format%"
         },
+        "image-manager.compression.saveCompressionData": {
+          "type": "string",
+          "default": "metadata",
+          "enum": [
+            "metadata",
+            "none"
+          ],
+          "description": "%pkg.compression.saveCompressionData%"
+        },
         "image-manager.compression.png.compressionLevel": {
           "type": "number",
           "default": 9,
@@ -548,7 +557,7 @@
     "@types/vscode": "^1.60.0",
     "@types/vscode-webview": "^1.57.5",
     "@vitejs/plugin-react": "^4.2.1",
-    "@vscode/vsce": "^2.25.0",
+    "@vscode/vsce": "^2.26.0",
     "antd": "^5.16.0",
     "bumpp": "^9.4.0",
     "clsx": "^2.1.0",

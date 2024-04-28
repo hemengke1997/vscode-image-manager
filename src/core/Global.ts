@@ -74,6 +74,13 @@ export class Global {
     }
   }
 
+  static initOperators() {
+    // Get compresstion config from vscode
+    Global.compressor = new Compressor(Config.compression)
+    // Get format converter config from vscode
+    Global.formatConverter = new FormatConverter(Config.conversion)
+  }
+
   static async installSharp() {
     const installer = new Installer(this.context)
 
@@ -81,10 +88,7 @@ export class Global {
       .on('install-success', (e) => {
         Channel.info(`✅ ${i18n.t('prompt.deps_init_success')}`)
         Global.sharp = e
-        // Get compresstion config from vscode
-        Global.compressor = new Compressor(Config.compression)
-        // Get format converter config from vscode
-        Global.formatConverter = new FormatConverter(Config.conversion)
+        this.initOperators()
       })
       .on('install-fail', () => {
         Channel.error(i18n.t('prompt.compressor_init_fail'), true)

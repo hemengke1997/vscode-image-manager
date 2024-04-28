@@ -90,6 +90,8 @@ export class ImageManagerPanel {
         if (e.affectsConfiguration(key)) {
           affected = true
           Channel.info(`[Refresh] Config "${key}" changed`)
+
+          Global.initOperators()
           break
         }
       }

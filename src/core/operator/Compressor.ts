@@ -11,6 +11,7 @@ import { VscodeMessageCenter } from '~/message'
 import { isJpg, isPng } from '~/utils'
 import { Channel } from '~/utils/Channel'
 import logger from '~/utils/logger'
+import { Config } from '../config'
 import { type FormatConverterOptions } from './FormatConverter'
 import { Operator, type OperatorResult } from './Operator'
 import { Svgo } from './Svgo'
@@ -69,8 +70,11 @@ export class Compressor extends Operator {
     size: 20 * 1024 * 1024,
   }
 
+  private _writeMetadata: boolean
+
   constructor(public option: CompressionOptions) {
     super()
+    this._writeMetadata = Config.compression_save_compression_data === 'metadata'
   }
 
   async run<CompressionOptions>(filePaths: string[], option: CompressionOptions | undefined): Promise<OperatorResult> {
@@ -236,17 +240,20 @@ export class Compressor extends Operator {
               sharp
                 .toFormat(ext as keyof SharpNS.FormatEnum, {
                   ...compressionOption,
+                  palette: true,
                 })
-                .timeout({ seconds: 20 })
+                .timeout({ seconds: 30 })
 
               if (!isPng(ext) && !isJpg(ext)) {
-                sharp.withMetadata({
-                  exif: {
-                    IFD0: {
-                      ImageDescription: COMPRESSED_META,
+                if (this._writeMetadata) {
+                  sharp.withMetadata({
+                    exif: {
+                      IFD0: {
+                        ImageDescription: COMPRESSED_META,
+                      },
                     },
-                  },
-                })
+                  })
+                }
               }
 
               if (size !== 1) {
@@ -275,24 +282,26 @@ export class Compressor extends Operator {
               })
             },
             'on:finish': async (_, { outputPath }) => {
-              // add metadata
-              let PNGUint8Array = new Uint8Array(fs.readFileSync(outputPath))
-              if (isPng(outputPath)) {
-                try {
-                  const compressed = getMetadata(PNGUint8Array, COMPRESSED_META)
-                  if (compressed) return
-                  PNGUint8Array = addMetadata(PNGUint8Array, COMPRESSED_META, '1')
-                } catch {}
-                await fs.writeFile(outputPath, PNGUint8Array)
-              } else if (isJpg(outputPath)) {
-                let binary = fs.readFileSync(outputPath).toString('binary')
-                binary = piexif.remove(binary)
-                const zeroth = {}
-                zeroth[piexif.ImageIFD.ImageDescription] = COMPRESSED_META
-                const exifObj = { '0th': zeroth }
-                const exifbytes = piexif.dump(exifObj)
-                const buffer = Buffer.from(piexif.insert(exifbytes, binary), 'binary')
-                await fs.writeFile(outputPath, buffer)
+              if (this._writeMetadata) {
+                // add metadata
+                let PNGUint8Array = new Uint8Array(fs.readFileSync(outputPath))
+                if (isPng(outputPath)) {
+                  try {
+                    const compressed = getMetadata(PNGUint8Array, COMPRESSED_META)
+                    if (compressed) return
+                    PNGUint8Array = addMetadata(PNGUint8Array, COMPRESSED_META, '1')
+                  } catch {}
+                  await fs.writeFile(outputPath, PNGUint8Array)
+                } else if (isJpg(outputPath)) {
+                  let binary = fs.readFileSync(outputPath).toString('binary')
+                  binary = piexif.remove(binary)
+                  const zeroth = {}
+                  zeroth[piexif.ImageIFD.ImageDescription] = COMPRESSED_META
+                  const exifObj = { '0th': zeroth }
+                  const exifbytes = piexif.dump(exifObj)
+                  const buffer = Buffer.from(piexif.insert(exifbytes, binary), 'binary')
+                  await fs.writeFile(outputPath, buffer)
+                }
               }
             },
           },

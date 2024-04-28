@@ -1,5 +1,5 @@
 import { difference, isEqual } from '@minko-fe/lodash-pro'
-import { useAsyncEffect, useMemoizedFn, useUpdateEffect } from '@minko-fe/react-hook'
+import { useMemoizedFn, useUpdateEffect } from '@minko-fe/react-hook'
 import { App, FloatButton } from 'antd'
 import { setAutoFreeze } from 'immer'
 import { memo, useEffect, useMemo, useRef } from 'react'
@@ -156,13 +156,9 @@ function ImageManager() {
     })
   })
 
-  const getOperator = useMemoizedFn(() => {
-    return Promise.all([getCompressor(), getFormatConverter()])
-  })
-
-  useAsyncEffect(async () => {
+  const getOperator = useMemoizedFn(async () => {
     try {
-      const [compressor, formatConverter] = await retry(getOperator, {
+      const [compressor, formatConverter] = await retry(() => Promise.all([getCompressor(), getFormatConverter()]), {
         delay: 1000,
         maxTry: 10,
         until: (data) => !!data,
@@ -175,6 +171,10 @@ function ImageManager() {
         message.error(t('im.deps_not_found'))
       }
     }
+  })
+
+  useEffect(() => {
+    getOperator()
   }, [])
 
   const { updateConfig, updateWorkspaceState } = useUpdateWebview()
@@ -197,6 +197,7 @@ function ImageManager() {
       }
       case CmdToWebview.update_config: {
         updateConfig()
+        getOperator()
         break
       }
       case CmdToWebview.update_workspaceState: {
