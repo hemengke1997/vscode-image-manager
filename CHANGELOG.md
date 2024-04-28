@@ -1,5 +1,12 @@
 # CHANGELOG
 
+## 0.13.2 (2024-04-28)
+
+### Fix
+
+- Operator config sync with webview
+- Add `palette` to sharp by default
+
 ## 0.13.1 (2024-04-28)
 
 ### Update
