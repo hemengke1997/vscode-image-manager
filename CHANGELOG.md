@@ -1,5 +1,11 @@
 # CHANGELOG
 
+## 0.13.1 (2024-04-28)
+
+### Update
+
+- Optimizing interaction logic of compression. Image compression will not be skipped for now if only compress single image
+
 ## 0.13.0 (2024-04-16)
 
 ### Break Change
