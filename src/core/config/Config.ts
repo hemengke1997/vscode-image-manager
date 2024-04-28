@@ -87,7 +87,7 @@ export class Config {
     return workspace.getConfiguration(EXT_NAMESPACE) as any as ConfigType
   }
 
-  static updateConfig<T, U extends ObjectKeys<ConfigType> = ObjectKeys<ConfigType>>(
+  static updateConfig<T, U extends Flatten<ConfigType> = Flatten<ConfigType>>(
     key: U,
     value: T,
     target: ConfigurationTarget = ConfigurationTarget.Workspace,
@@ -95,7 +95,7 @@ export class Config {
     return workspace.getConfiguration(EXT_NAMESPACE).update(key, value, target)
   }
 
-  static getConfig<T, U extends ObjectKeys<ConfigType> = ObjectKeys<ConfigType>>(
+  static getConfig<T, U extends Flatten<ConfigType, true> = Flatten<ConfigType>>(
     key: U, // like `file.root`
     scope?: ConfigurationScope | undefined,
   ): T {

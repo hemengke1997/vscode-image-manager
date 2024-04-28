@@ -94,11 +94,14 @@ export class Compressor extends Operator {
       (task) => task(),
     )
 
-    return res.filter((r) => {
+    return res.map((r) => {
       if (r.error === new SkipError().message) {
-        return false
+        return {
+          ...r,
+          isSkiped: true,
+        }
       }
-      return true
+      return r
     })
   }
 
@@ -212,7 +215,12 @@ export class Compressor extends Operator {
                 metadata: { width, height },
               } = imageMetadata!
 
-              if (skipCompressed && compressed) {
+              if (
+                skipCompressed &&
+                compressed &&
+                // 格式没变的话跳过压缩
+                originExt === ext
+              ) {
                 return Promise.reject(new SkipError())
               }
 

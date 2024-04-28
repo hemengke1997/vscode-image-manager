@@ -12,7 +12,7 @@ import { vscodeApi } from '~/webview/vscode-api'
 import useImageContextMenuEvent from '../components/ContextMenus/components/ImageContextMenu/hooks/useImageContextMenuEvent'
 import CroppoerContext from '../contexts/CropperContext'
 import GlobalContext from '../contexts/GlobalContext'
-import OperatorContext from '../contexts/OperatorContext'
+import OperatorContext, { type CompressorModalStateType } from '../contexts/OperatorContext'
 import { getDirFromPath, getDirnameFromPath, getFilebasename } from '../utils'
 import { LOADING_DURATION } from '../utils/duration'
 
@@ -47,7 +47,7 @@ function useImageOperation() {
 
   const prettySvg = useMemoizedFn((filePath: string): Promise<boolean> => {
     return new Promise((resolve) => {
-      vscodeApi.postMessage({ cmd: CmdToVscode.pretty_svg, data: { filePath } }, (data) => {
+      vscodeApi.postMessage({ cmd: CmdToVscode.prettify_svg, data: { filePath } }, (data) => {
         resolve(data)
       })
     })
@@ -68,16 +68,19 @@ function useImageOperation() {
     }
   })
 
-  const beginCompressProcess = useMemoizedFn((images: ImageType[]) => {
-    const no = noOperatorTip()
-    if (no) return
-    // open compress modal
-    setCompressorModal({
-      open: true,
-      closed: false,
-      images,
-    })
-  })
+  const beginCompressProcess = useMemoizedFn(
+    (images: ImageType[], compressorModalProps?: Pick<CompressorModalStateType, 'fields'>) => {
+      const no = noOperatorTip()
+      if (no) return
+      // open compress modal
+      setCompressorModal({
+        open: true,
+        closed: false,
+        images,
+        ...compressorModalProps,
+      })
+    },
+  )
 
   const beginFormatConversionProcess = useMemoizedFn((images: ImageType[]) => {
     const no = noOperatorTip()

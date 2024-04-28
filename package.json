@@ -136,10 +136,18 @@
           },
           "default": [],
           "examples": [
-            "[**/some-dist/**]",
-            "[some-dist]",
-            "[**/*.ico]",
-            "[!**/dist/**]"
+            [
+              "**/some-dist/**"
+            ],
+            [
+              "some-dist"
+            ],
+            [
+              "**/*.ico"
+            ],
+            [
+              "!**/dist/**"
+            ]
           ],
           "description": "%pkg.file.exclude%"
         },
@@ -522,9 +530,9 @@
     "@minko-fe/eslint-config": "^2.2.2",
     "@minko-fe/hookable": "^6.0.0",
     "@minko-fe/html-transform": "^0.1.17",
-    "@minko-fe/lodash-pro": "^0.2.4",
+    "@minko-fe/lodash-pro": "^0.3.0",
     "@minko-fe/prettier-config": "^2.2.0",
-    "@minko-fe/react-hook": "^0.2.7",
+    "@minko-fe/react-hook": "^0.3.1",
     "@minko-fe/tsconfig": "^2.0.8",
     "@minko-fe/vite-config": "^0.2.5",
     "@types/eslint": "^8.56.7",
@@ -545,13 +553,14 @@
     "bumpp": "^9.4.0",
     "clsx": "^2.1.0",
     "consola": "^3.2.3",
-    "context-state": "^2.3.0",
+    "context-state": "^3.0.0",
     "conventional-changelog-cli": "^4.1.0",
     "cropperjs": "^1.6.1",
     "deep-object-diff": "^1.1.9",
     "delay": "^6.0.0",
     "escape-string-regexp": "^5.0.0",
     "eslint": "^8.57.0",
+    "eventemitter3": "^5.0.1",
     "execa": "^8.0.1",
     "exif-reader": "^2.0.1",
     "fast-glob": "^3.3.2",
@@ -588,7 +597,6 @@
     "simple-git": "^3.24.0",
     "simple-git-hooks": "^2.11.1",
     "slash": "^5.1.0",
-    "strict-event-emitter": "^0.5.1",
     "svgo": "^3.2.0",
     "tailwind-antd-preset": "^0.0.4",
     "tailwind-merge": "^2.2.2",

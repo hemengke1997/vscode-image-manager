@@ -1,4 +1,4 @@
-import { intersection, isEmpty, merge, omit, pick } from '@minko-fe/lodash-pro'
+import { intersection, isEmpty, mapValues, merge, omit, pick } from '@minko-fe/lodash-pro'
 import { useMemoizedFn } from '@minko-fe/react-hook'
 import { Divider, Form, Input, InputNumber, Segmented, Tooltip } from 'antd'
 import { flatten as flattenObject, unflatten } from 'flat'
@@ -23,10 +23,16 @@ type FormValue = CompressionOptions & {
   customResize?: number
 }
 
-type ImageCompressorProps = {} & ImageOperatorProps
+export type ImageCompressorProps = {
+  /**
+   * 上层控制渲染表单字段
+   */
+  fields?: FormComponent<CompressionOptions>
+} & ImageOperatorProps
 
 function ImageCompressor(props: ImageCompressorProps) {
-  const { images: imagesProp, open, onOpenChange, ...rest } = props
+  const { images: imagesProp, open, onOpenChange, fields, ...rest } = props
+
   const { t } = useTranslation()
 
   const { compressor } = GlobalContext.usePicker(['compressor'])
@@ -55,7 +61,7 @@ function ImageCompressor(props: ImageCompressorProps) {
   })
 
   const onFinish = useMemoizedFn((value: FormValue) => {
-    value = merge(flattenObject(compressor?.option || {}), value)
+    value = merge(flattenObject(compressor?.option || {}), mapValues(fields, 'value'), value)
 
     if (value) {
       if (Number(value.size) === 0) {
@@ -325,7 +331,7 @@ function ImageCompressor(props: ImageCompressorProps) {
             {Object.keys(allComponents).map((key, index) => {
               return (
                 <div key={index} hidden={!displayComponents.keys.includes(key)}>
-                  {allComponents[key]?.el()}
+                  {fields?.[key]?.el ? fields[key]?.el() : allComponents[key]?.el()}
                 </div>
               )
             })}

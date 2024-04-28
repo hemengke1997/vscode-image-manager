@@ -21,7 +21,7 @@ import {
   Svgo,
 } from '~/core'
 import { Similarity } from '~/core/analysis'
-import { type ConfigKey, type ConfigType } from '~/core/config/common'
+import { type ConfigType } from '~/core/config/common'
 import { COMPRESSED_META } from '~/core/operator/meta'
 import { WorkspaceState } from '~/core/persist'
 import { type WorkspaceStateKey } from '~/core/persist/workspace/common'
@@ -459,14 +459,18 @@ export const VscodeMessageCenter = {
   },
 
   /* --------- update user configuration -------- */
-  [CmdToVscode.update_user_configuration]: (data: { key: ConfigKey; value: any; target?: ConfigurationTarget }) => {
+  [CmdToVscode.update_user_configuration]: (data: {
+    key: Flatten<ConfigType>
+    value: any
+    target?: ConfigurationTarget
+  }) => {
     const { key, value, target } = data
 
     debouncePromise(
       async () => {
         Global.isProgrammaticChangeConfig = true
         try {
-          await Config.updateConfig(key as ObjectKeys<ConfigType>, value, target)
+          await Config.updateConfig(key, value, target)
         } finally {
           Global.isProgrammaticChangeConfig = false
         }
@@ -513,7 +517,7 @@ export const VscodeMessageCenter = {
   },
 
   /* ---------------- pretty svg ---------------- */
-  [CmdToVscode.pretty_svg]: async (data: { filePath: string }) => {
+  [CmdToVscode.prettify_svg]: async (data: { filePath: string }) => {
     const { filePath } = data
     const svgoConfig = Svgo.processConfig(Config.compression.svg, {
       pretty: true,

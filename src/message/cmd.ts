@@ -69,7 +69,7 @@ export const enum CmdToVscode {
   // 清除无用的工作区缓存
   clear_useless_workspace_state = 'clear_useless_workspace_state',
   // 格式化svg
-  pretty_svg = 'pretty_svg',
+  prettify_svg = 'prettify_svg',
   // 在text editor中打开指定文件
   open_file_in_text_editor = 'open_file_in_text_editor',
   // 删除指定文件

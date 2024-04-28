@@ -33,10 +33,10 @@ const IMAGE_CONTEXT_MENU = {
    */
   fs: 'fs',
   /**
-   * svg pretty
+   * svg相关操作
    * @default false
    */
-  svg_pretty: 'svg_pretty',
+  svg: 'svg',
   /**
    * 在Viewer中显示
    * @default false
@@ -104,7 +104,19 @@ function ImageContextMenu() {
 
   // 压缩图片
   const handleCompressImage = useMemoizedFn((e: ItemParams<ImageContextMenuType>) => {
-    beginCompressProcess([e.props!.image])
+    beginCompressProcess([e.props!.image], {
+      fields: {
+        /**
+         * 单文件压缩时，不跳过压缩流程
+         */
+        skipCompressed: {
+          el() {
+            return null
+          },
+          value: false,
+        },
+      },
+    })
   })
 
   // 裁剪图片
@@ -158,6 +170,10 @@ function ImageContextMenu() {
     beginRevealInViewer(e.props!.image)
   })
 
+  const isSvg = useMemoizedFn((e: HandlerParams<ImageContextMenuType>) => {
+    return e.props?.image.fileType === 'svg'
+  })
+
   return (
     <>
       <MaskMenu id={IMAGE_CONTEXT_MENU_ID}>
@@ -191,7 +207,7 @@ function ImageContextMenu() {
             isItemHidden({
               ...e,
               data: [IMAGE_CONTEXT_MENU.sharp],
-            })
+            }) || isSvg(e)
           }
         >
           <Item onClick={handleFindSimilarInSameLevel} hidden={isItemHidden} data={IMAGE_CONTEXT_MENU.sharp}>
@@ -204,8 +220,7 @@ function ImageContextMenu() {
         <Item
           onClick={handlePrettySvg}
           hidden={(e: HandlerParams<ImageContextMenuType>) =>
-            // svg格式的图片才能格式化
-            e.props!.image.fileType !== 'svg' || isItemHidden({ ...e, data: [IMAGE_CONTEXT_MENU.svg_pretty] })
+            isItemHidden({ ...e, data: [IMAGE_CONTEXT_MENU.svg] }) || !isSvg(e)
           }
         >
           {t('im.pretty')} svg

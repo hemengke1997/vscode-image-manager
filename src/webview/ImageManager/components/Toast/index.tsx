@@ -1,8 +1,8 @@
 import { useControlledState, useMemoizedFn } from '@minko-fe/react-hook'
+import EventEmitter from 'eventemitter3'
 import { AnimatePresence, motion } from 'framer-motion'
 import { type ReactElement, type ReactNode, useEffect, useLayoutEffect, useRef, useState } from 'react'
 import { type Root, createRoot } from 'react-dom/client'
-import { Emitter } from 'strict-event-emitter'
 import { ANIMATION_DURATION } from '../../utils/duration'
 import Queue, { type ToastMessageType } from './queue'
 
@@ -107,7 +107,7 @@ function ToastHolder(props: ToastProps) {
 }
 
 const queue = new Queue()
-const event = new Emitter<{
+const event = new EventEmitter<{
   init: [message: ToastMessageType]
   update: [message: ToastMessageType]
   destroy: []

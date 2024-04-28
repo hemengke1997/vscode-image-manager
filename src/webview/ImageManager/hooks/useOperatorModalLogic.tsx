@@ -5,15 +5,15 @@ import { type ReactNode } from 'react'
 import { useTranslation } from 'react-i18next'
 import { MdDoubleArrow } from 'react-icons/md'
 import { VscWarning } from 'react-icons/vsc'
-import { type RequiredDeep } from 'type-fest'
 import { type OperatorResult } from '~/core'
 import logger from '~/utils/logger'
 import { formatBytes, getFilenameFromPath } from '../utils'
 import { LOADING_DURATION } from '../utils/duration'
 
-export type FormComponent<T> = {
-  [key in ObjectKeys<RequiredDeep<T>>]?: {
+export type FormComponent<T extends Record<string, any>> = {
+  [key in Flatten<T>]?: {
     el: () => ReactNode
+    value?: T[key]
   }
 }
 
@@ -23,6 +23,7 @@ function useOperatorModalLogic() {
   const { t } = useTranslation()
   const { message, notification } = App.useApp()
 
+  // 压缩结束
   const onEnd = useMemoizedFn(
     (
       result: OperatorResult[number],
@@ -31,7 +32,7 @@ function useOperatorModalLogic() {
         onRetryClick?: (filePath: string) => void
       },
     ) => {
-      const { inputSize, outputSize, filePath, outputPath, error } = result
+      const { inputSize, outputSize, filePath, outputPath, error, isSkiped } = result
 
       let filename: ReactNode = null
       if (outputPath && outputPath !== filePath) {
@@ -51,7 +52,15 @@ function useOperatorModalLogic() {
         filename = getFilenameFromPath(filePath)
       }
 
-      if (inputSize && outputSize) {
+      // 如果跳过了压缩
+      if (isSkiped) {
+        notification.warning({
+          duration: LOADING_DURATION.slow,
+          message: filename,
+          placement: 'topRight',
+          description: t('im.skip_compressed'),
+        })
+      } else if (inputSize && outputSize) {
         const percent = ceil(((inputSize - outputSize) / inputSize) * 100)
         const increase = percent < 0
 

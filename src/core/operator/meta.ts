@@ -73,5 +73,5 @@ export const svgoPlugins = flatten([
 ])
 
 export type SvgoPlugin = {
-  [key in keyof typeof svgoPlugins]?: boolean
+  [key in (typeof svgoPlugins)[number]]?: boolean
 }

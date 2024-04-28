@@ -1,9 +1,9 @@
 import { toLower } from '@minko-fe/lodash-pro'
+import EventEmitter from 'eventemitter3'
 import { execa } from 'execa'
 import fs from 'fs-extra'
 import os from 'node:os'
 import path from 'node:path'
-import { Emitter } from 'strict-event-emitter'
 import * as vscode from 'vscode'
 import { i18n } from '~/i18n'
 import { isValidHttpsUrl } from '~/utils'
@@ -34,7 +34,7 @@ export class Installer {
   private readonly _unstables = ['install', 'json']
   private readonly _osCacheDir: string
 
-  event: Emitter<Events> = new Emitter()
+  event: EventEmitter<Events> = new EventEmitter()
 
   constructor(public ctx: vscode.ExtensionContext) {
     this._cwd = ctx.extensionUri.fsPath

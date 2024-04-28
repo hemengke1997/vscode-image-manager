@@ -36,7 +36,7 @@ export default function useImageContextMenu() {
       sharp: false,
       reveal_in_viewer: false,
       fs: false,
-      svg_pretty: false,
+      svg: false,
     }
 
     params.props = merge(

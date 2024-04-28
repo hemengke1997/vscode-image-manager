@@ -19,6 +19,10 @@ export type OperatorResult = {
   outputSize?: number
   outputPath?: string
   error?: any
+  /**
+   * 是否跳过了压缩
+   */
+  isSkiped?: boolean
 }[]
 
 export abstract class Operator {

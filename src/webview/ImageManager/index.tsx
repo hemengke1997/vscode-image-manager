@@ -247,7 +247,7 @@ function ImageManager() {
           {...compressorModal}
           onOpenChange={(open) => setCompressorModal({ open })}
           afterClose={() => {
-            setCompressorModal({ closed: true })
+            setCompressorModal({ closed: true, fields: {} })
           }}
         />
       )}

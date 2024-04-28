@@ -1,5 +1,5 @@
+import EventEmitter from 'eventemitter3'
 import { useEffect, useRef } from 'react'
-import { Emitter, type EventMap, type Listener } from 'strict-event-emitter'
 
 type Events = {
   /**
@@ -19,7 +19,7 @@ type Events = {
 /**
  * singleton
  */
-class ImageContextMenuEvent extends Emitter<Events> {
+class ImageContextMenuEvent extends EventEmitter<Events> {
   private static instance: ImageContextMenuEvent
 
   private constructor() {
@@ -29,14 +29,14 @@ class ImageContextMenuEvent extends Emitter<Events> {
   static getInstance() {
     if (!ImageContextMenuEvent.instance) {
       ImageContextMenuEvent.instance = new ImageContextMenuEvent()
-      ImageContextMenuEvent.instance.setMaxListeners(Number.MAX_SAFE_INTEGER)
     }
+
     return ImageContextMenuEvent.instance
   }
 }
 
-type Ev<Events extends EventMap, EventName extends keyof Events = keyof Events> = {
-  [key in EventName]?: Listener<Events[key]>
+type Ev<T extends Events, EventName extends EventEmitter.EventNames<T> = EventEmitter.EventNames<T>> = {
+  [key in EventName]?: EventEmitter.EventListener<Events, key>
 }
 
 export default function useImageContextMenuEvent(events?: { on?: Ev<Events>; once?: Ev<Events> }) {
