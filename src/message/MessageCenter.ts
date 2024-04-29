@@ -235,6 +235,7 @@ export const VscodeMessageCenter = {
     const vscodeConfig = {
       theme: Global.vscodeTheme,
       language: Global.vscodeLanguage,
+      reduceMotion: Global.vscodeReduceMotion,
     }
 
     return {

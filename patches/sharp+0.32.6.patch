@@ -1,0 +1,16 @@
+diff --git a/node_modules/sharp/lib/sharp.js b/node_modules/sharp/lib/sharp.js
+index a41e83d..8ad03c7 100644
+--- a/node_modules/sharp/lib/sharp.js
++++ b/node_modules/sharp/lib/sharp.js
+@@ -7,7 +7,10 @@ const platformAndArch = require('./platform')();
+ 
+ /* istanbul ignore next */
+ try {
+-  module.exports = require(`../build/Release/sharp-${platformAndArch}.node`);
++  // https://esbuild.github.io/api/#glob
++  // https://github.com/evanw/esbuild/issues/3337
++  const sharp_node = `../build/Release/sharp-${platformAndArch}.node`
++  module.exports = require(sharp_node);
+ } catch (err) {
+   // Bail early if bindings aren't available
+   const help = ['', 'Something went wrong installing the "sharp" module', '', err.message, '', 'Possible solutions:'];

@@ -24,7 +24,11 @@ function ligherOrDarker(color: string, theme: Theme) {
 }
 
 function AntdConfigProvider({ children }: PropsWithChildren) {
-  const { primaryColor, themeWithoutAuto } = FrameworkContext.usePicker(['primaryColor', 'themeWithoutAuto'])
+  const { primaryColor, themeWithoutAuto, reduceMotionWithoutAuto } = FrameworkContext.usePicker([
+    'primaryColor',
+    'themeWithoutAuto',
+    'reduceMotionWithoutAuto',
+  ])
 
   const vscodeFontSize = getCssVar('--vscode-font-size').split('px')[0]
   const vscodeEditorBackground = getCssVar('--vscode-editor-background')
@@ -49,6 +53,7 @@ function AntdConfigProvider({ children }: PropsWithChildren) {
         cssVar: true,
         algorithm: [getThemeAlgorithm()],
         token: {
+          motion: reduceMotionWithoutAuto === 'on' ? false : true,
           fontSize: Number(vscodeFontSize) - 1 || 12,
           colorPrimary: primaryColor,
           motionDurationSlow: `${DURATION_BASE * 2}s`,

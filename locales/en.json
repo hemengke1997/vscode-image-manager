@@ -30,7 +30,8 @@
     "appearance": {
       "theme": "theme",
       "language": "language",
-      "primaryColor": "primary color"
+      "primaryColor": "primary color",
+      "reducedMotion": "reduce animation"
     },
     "mirror": {
       "enabled": "use mirror for downloading dependencies",

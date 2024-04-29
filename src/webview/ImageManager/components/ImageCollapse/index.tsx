@@ -170,7 +170,7 @@ function ImageCollapse(props: ImageCollapseProps) {
           {labels.map((l, i) => (
             <div key={i} className={cn('flex items-center', i === labels.length - 1 && 'flex-1')}>
               {singleLabelNode(l, i)}
-              {i !== labels.length - 1 && <div className={'px-0.5'}>/</div>}
+              <div className={cn('px-0.5', i !== labels.length - 1 ? 'block' : 'hidden')}>/</div>
             </div>
           ))}
         </div>
@@ -186,6 +186,10 @@ function ImageCollapse(props: ImageCollapseProps) {
   return (
     <>
       <Collapse
+        motion={{
+          motionEnter: false,
+          motionDeadline: 0,
+        }}
         destroyInactivePanel={false}
         {...collapseProps}
         activeKey={activeKeys}

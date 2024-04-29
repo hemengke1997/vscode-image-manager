@@ -10,12 +10,16 @@ export class Config {
 
   static readonly refreshConfigs = [
     ConfigKey.file_confirmDelete,
+
     ConfigKey.appearance_language,
     ConfigKey.appearance_theme,
     ConfigKey.appearance_primaryColor,
+    ConfigKey.appearance_reduceMotion,
+
     ConfigKey.viewer_imageWidth,
     ConfigKey.viewer_warningSize,
     ConfigKey.viewer_imageBackgroundColor,
+
     ConfigKey.compression,
     ConfigKey.conversion,
     ConfigKey.similarity_precision,

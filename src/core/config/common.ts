@@ -3,6 +3,7 @@ import { type CompressionOptions, type FormatConverterOptions } from '..'
 export type VscodeConfigType = {
   theme: Theme
   language: Language
+  reduceMotion: ReduceMotion
 }
 
 export type ConfigType = {
@@ -20,6 +21,7 @@ export type ConfigType = {
   appearance: {
     theme: Theme
     language: Language
+    reduceMotion: ReduceMotion
     primaryColor: string
   }
   mirror: {
@@ -48,6 +50,7 @@ export const enum ConfigKey {
   appearance_theme = 'appearance.theme',
   appearance_language = 'appearance.language',
   appearance_primaryColor = 'appearance.primaryColor',
+  appearance_reduceMotion = 'appearance.reduceMotion',
 
   mirror_enabled = 'mirror.enabled',
   mirror_url = 'mirror.url',
@@ -88,6 +91,7 @@ export const DEFAULT_CONFIG: ConfigType = {
     theme: 'auto',
     language: 'auto',
     primaryColor: '',
+    reduceMotion: 'auto',
   },
   mirror: {
     enabled: false,

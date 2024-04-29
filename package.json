@@ -58,6 +58,7 @@
     "test:dev": "vitest",
     "report": "REPORT=true run-s ui:build",
     "prepare": "simple-git-hooks",
+    "postinstall": "patch-package",
     "lint": "run-s type-check eslint",
     "type-check": "tsc --noEmit",
     "eslint": "eslint .",
@@ -201,6 +202,16 @@
           "type": "string",
           "default": "",
           "description": "%pkg.appearance.primaryColor%"
+        },
+        "image-manager.appearance.reduceMotion": {
+          "type": "string",
+          "enum": [
+            "auto",
+            "on",
+            "off"
+          ],
+          "default": "auto",
+          "description": "%pkg.appearance.reducedMotion%"
         },
         "image-manager.viewer.warningSize": {
           "type": "number",
@@ -558,7 +569,7 @@
     "@types/vscode-webview": "^1.57.5",
     "@vitejs/plugin-react": "^4.2.1",
     "@vscode/vsce": "^2.26.0",
-    "antd": "^5.16.0",
+    "antd": "^5.16.5",
     "bumpp": "^9.4.0",
     "clsx": "^2.1.0",
     "consola": "^3.2.3",
@@ -614,7 +625,7 @@
     "taze": "^0.13.3",
     "ts-key-enum": "^2.0.12",
     "ts-retry": "^4.2.5",
-    "tsup": "6.7.0",
+    "tsup": "^8.0.2",
     "tsx": "^4.7.1",
     "type-fest": "^4.15.0",
     "typescript": "^5.4.0",

@@ -1,5 +1,6 @@
 import { memo, useState } from 'react'
 import { Menu, type MenuProps } from 'react-contexify'
+import { cn } from '~/webview/utils'
 import GlobalContext from '../../contexts/GlobalContext'
 
 function MaskMenu(props: MenuProps) {
@@ -9,7 +10,7 @@ function MaskMenu(props: MenuProps) {
 
   return (
     <>
-      {contextMenuMask && <div className={'fixed inset-0 z-[999]'}></div>}
+      <div className={cn('fixed inset-0 z-[999]', contextMenuMask ? 'block' : 'hidden')}></div>
       <Menu
         {...props}
         theme={theme}

@@ -30,7 +30,8 @@
     "appearance": {
       "theme": "主题",
       "language": "语言",
-      "primaryColor": "主题色"
+      "primaryColor": "主题色",
+      "reducedMotion": "减少动画"
     },
     "mirror": {
       "enabled": "使用镜像下载依赖",

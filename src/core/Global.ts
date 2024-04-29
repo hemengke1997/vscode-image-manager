@@ -2,9 +2,10 @@ import { type Event, EventEmitter, type ExtensionContext, ExtensionMode, workspa
 import { Compressor, FormatConverter } from '~/core/operator'
 import { Installer } from '~/core/sharp'
 import { i18n } from '~/i18n'
+import { EXT_NAMESPACE } from '~/meta'
 import { Channel } from '~/utils/Channel'
 import { Config, Watcher, WorkspaceState } from '.'
-import { type VscodeConfigType } from './config/common'
+import { ConfigKey, type VscodeConfigType } from './config/common'
 
 export class Global {
   private static _rootpaths: string[]
@@ -21,6 +22,10 @@ export class Global {
    * vscode language
    */
   static vscodeLanguage: Language
+  /**
+   * vscode reduce motion
+   */
+  static vscodeReduceMotion: ReduceMotion
   /**
    * sharp
    */
@@ -51,10 +56,24 @@ export class Global {
 
     this.vscodeTheme = settings.theme
     this.vscodeLanguage = settings.language
+    this.vscodeReduceMotion = settings.reduceMotion
 
     await this.installSharp()
 
     context.subscriptions.push(workspace.onDidChangeWorkspaceFolders(() => this.updateRootPath()))
+    context.subscriptions.push(
+      workspace.onDidChangeConfiguration((e) => {
+        for (const config of [ConfigKey.compression, ConfigKey.conversion]) {
+          const key = `${EXT_NAMESPACE}.${config}`
+
+          if (e.affectsConfiguration(key)) {
+            this.initOperators()
+            Channel.info(`[Operators] Config "${key}" changed`)
+            break
+          }
+        }
+      }),
+    )
     await this.updateRootPath()
   }
 

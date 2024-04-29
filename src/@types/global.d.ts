@@ -6,6 +6,7 @@ import { type ReactElement } from 'react'
 declare global {
   type Theme = 'dark' | 'light' | 'auto'
   type Language = 'en' | 'zh-CN' | 'auto'
+  type ReduceMotion = 'auto' | 'on' | 'off'
 
   type TSharp = typeof SharpNS
 

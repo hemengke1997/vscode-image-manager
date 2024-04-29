@@ -32,6 +32,8 @@ const useFrameworkContext = () => {
   const [theme, setTheme] = useExtConfigState(ConfigKey.appearance_theme, extConfig.appearance.theme)
   // 语言
   const [language, setLanguage] = useExtConfigState(ConfigKey.appearance_language, extConfig.appearance.language)
+  // 动画
+  const [reduceMotion] = useExtConfigState(ConfigKey.appearance_reduceMotion, extConfig.appearance.reduceMotion)
 
   // theme without `auto`
   const themeWithoutAuto = useMemo(() => {
@@ -42,6 +44,12 @@ const useFrameworkContext = () => {
   const languageWithoutAuto = useMemo(
     () => intelligentPick(language, vscodeConfig.language, 'auto'),
     [language, vscodeConfig.language],
+  )
+
+  // reduceMotion without `auto`
+  const reduceMotionWithoutAuto = useMemo(
+    () => intelligentPick(reduceMotion, vscodeConfig.reduceMotion, 'auto'),
+    [reduceMotion, vscodeConfig.reduceMotion],
   )
 
   // 清爽模式/标准模式
@@ -61,6 +69,7 @@ const useFrameworkContext = () => {
     setMode,
     themeWithoutAuto,
     languageWithoutAuto,
+    reduceMotionWithoutAuto,
   }
 }
 
