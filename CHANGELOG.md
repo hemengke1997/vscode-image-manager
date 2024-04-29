@@ -1,5 +1,16 @@
 # CHANGELOG
 
+## 0.14.0 (2024-04-29)
+
+### Feat
+
+- Add `reduceMotion` config to avoid animation sluggish
+
+### Fix
+
+- context-menu renders sluggish
+
+
 ## 0.13.2 (2024-04-28)
 
 ### Fix
