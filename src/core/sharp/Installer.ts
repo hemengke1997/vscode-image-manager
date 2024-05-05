@@ -120,12 +120,13 @@ export class Installer {
     try {
       this._statusBarItem = vscode.window.createStatusBarItem(vscode.StatusBarAlignment.Left)
       Global.context.subscriptions.push(this._statusBarItem)
-      const creating_text = i18n.t('prompt.initializing')
+      const creating_text = `🔄 ${i18n.t('prompt.initializing')}`
       this._statusBarItem.text = `$(sync~spin) ${creating_text}`
       this._statusBarItem.tooltip = i18n.t('prompt.initializing_tooltip')
-      Channel.info(creating_text)
+      Channel.info(creating_text, true)
       this._statusBarItem.show()
       await beforeHide()
+      Channel.info(`✅ ${i18n.t('prompt.initialized')}`, true)
     } finally {
       this._statusBarItem?.hide()
       this._statusBarItem?.dispose()
