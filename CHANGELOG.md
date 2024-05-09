@@ -1,5 +1,15 @@
 # CHANGELOG
 
+## 0.15.0 (2024-05-09)
+
+### Feat
+
+- Manual installation of sharp is supported
+
+### Break Change
+
+- `mirror.url` is used by sharp and libvips now. If your mirror url is end with `sharp-libvips`, please remove it
+
 ## 0.14.1 (2024-05-05)
 
 ### Performance
