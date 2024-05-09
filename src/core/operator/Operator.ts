@@ -20,7 +20,7 @@ export type OperatorResult = {
   outputPath?: string
   error?: any
   /**
-   * 是否跳过了压缩
+   * 是否跳过了操作
    */
   isSkiped?: boolean
 }[]

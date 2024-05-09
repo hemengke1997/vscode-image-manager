@@ -296,7 +296,7 @@ export const VscodeMessageCenter = {
   }): Promise<OperatorResult | undefined> => {
     try {
       const { filePaths, option } = data
-      Channel.info(`Compress params: ${JSON.stringify(data)}`)
+      Channel.debug(`Compress params: ${JSON.stringify(data)}`)
       const { compressor } = Global
       const res = await compressor?.run(filePaths, option)
       Channel.info(`Compress result: ${JSON.stringify(res)}`)

@@ -1,3 +1,6 @@
+// 手动安装 libvips
+// Token from sharp/install/libvips.js (Apache-2.0)
+
 import { createHash } from 'node:crypto'
 import fs from 'node:fs'
 import path from 'node:path'

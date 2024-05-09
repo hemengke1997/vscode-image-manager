@@ -82,6 +82,8 @@
     "dep_cache_dir": "依赖缓存目录",
     "start_manual_install": "开始手动安装依赖",
     "start_auto_install": "开始自动安装依赖",
-    "format_not_supported": "不支持 {0} 格式"
+    "format_not_supported": "不支持 {0} 格式",
+    "tip": "温馨提示",
+    "dep_url": "以下是手动下载依赖地址，若自动安装依赖失败请按照文档手动下载以下依赖"
   }
 }

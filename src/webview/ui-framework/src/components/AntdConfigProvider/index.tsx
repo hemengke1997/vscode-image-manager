@@ -46,8 +46,10 @@ function AntdConfigProvider({ children }: PropsWithChildren) {
 
   return (
     <ConfigProvider
-      autoInsertSpaceInButton={false}
       input={{ autoComplete: 'off' }}
+      button={{
+        autoInsertSpace: false,
+      }}
       theme={{
         hashed: false,
         cssVar: true,

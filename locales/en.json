@@ -82,6 +82,8 @@
     "dep_cache_dir": "Dependencies Cache Dir",
     "start_manual_install": "Start manual install dependencies",
     "start_auto_install": "Start auto install dependencies",
-    "format_not_supported": "{0} format is not supported"
+    "format_not_supported": "{0} format is not supported",
+    "tip": "Tip",
+    "dep_url": "The following is the manual download dependencies address, if the automatic installation of dependencies fails, please follow the documentation to manually download the following dependencies"
   }
 }

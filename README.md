@@ -117,9 +117,9 @@
 ##### 如何手动安装依赖
 
 1. 打开命令面板，输入 `Show Output Channel`，选择 Image Manager 对应的选项
-2. 在输出中找到 `插件根目录` 和 `系统平台`，之后需要用到
-3. 去CNPM镜像网站下载依赖：https://registry.npmmirror.com/binary.html?path=sharp-libvips/v8.14.5/ 。找到 步骤2 的`系统平台` 对应的依赖。比如你是 `darwin-arm64v8`，就下载 `libvips-8.14.5-darwin-arm64v8.tar.br` 
-4. 将下载的依赖直接放在 步骤2 的`插件根目录`
+2. 在输出中找到 `插件根目录`，之后需要用到
+3. 下载Output Channel中打印的依赖地址（请注意，有两个依赖）
+4. 将下载的文件放在 步骤2 的`插件根目录`
 5. 重启vscode即可
 
 #### 为什么压缩后文件反而变大了？

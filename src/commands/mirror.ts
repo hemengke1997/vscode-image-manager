@@ -27,15 +27,15 @@ export default <ExtensionModule>function () {
     const mirrors = [
       {
         label: 'cnpm',
-        description: 'https://npmmirror.com/mirrors/sharp-libvips',
+        description: 'https://npmmirror.com/mirrors',
       },
       {
         label: 'cnpm - binary',
-        description: 'https://registry.npmmirror.com/-/binary/sharp-libvips',
+        description: 'https://registry.npmmirror.com/-/binary',
       },
       {
         label: 'cnpm - cdn',
-        description: 'https://cdn.npmmirror.com/binaries/sharp-libvips',
+        description: 'https://cdn.npmmirror.com/binaries',
       },
     ]
 

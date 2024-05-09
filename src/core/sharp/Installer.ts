@@ -26,10 +26,15 @@ type CacheType =
    */
   | 'extension'
 
+const CNPM_BINARY_REGISTRY = 'https://registry.npmmirror.com/-/binary'
+
 export class Installer {
   public platform: string
   private _cwd: string
   private _statusBarItem: vscode.StatusBarItem | undefined
+  private _libvips_bin: string
+  private _sharp_bin: string
+
   private readonly _stables = ['build', 'vendor', 'sharp']
   private readonly _unstables = ['install', 'json']
   private readonly _osCacheDir: string
@@ -47,8 +52,14 @@ export class Installer {
     }
 
     Channel.info(`${i18n.t('core.dep_cache_dir')}: ${this._osCacheDir}`)
-    Channel.info(`${i18n.t('core.extension_root')}: ${this._cwd}`)
-    Channel.info(`${i18n.t('core.platform')}: ${this.platform}`)
+    Channel.info(` ${i18n.t('core.extension_root')}: ${this._cwd}`)
+
+    this._libvips_bin = `libvips-8.14.5-${this.platform}.tar.br`
+    this._sharp_bin = `sharp-v0.32.6-napi-v7-${process.platform}-${process.arch}.tar.gz`
+
+    Channel.info(`${i18n.t('core.tip')}: ${i18n.t('core.dep_url')} ⬇️`)
+    Channel.info(`1: ${CNPM_BINARY_REGISTRY}/sharp-libvips/v8.14.5/${this._libvips_bin}`)
+    Channel.info(`2: ${CNPM_BINARY_REGISTRY}/sharp/v0.32.6/${this._sharp_bin}`)
   }
 
   async run() {
@@ -61,7 +72,7 @@ export class Installer {
         await this._showStausBar({
           beforeHide: this._install.bind(this),
         })
-        this._trySaveCacheToOs(this._stables)
+        await this._trySaveCacheToOs(this._stables)
       } else {
         currentCacheType = cacheTypes[0]
 
@@ -99,7 +110,7 @@ export class Installer {
         await this._trySaveCacheToOs(this._unstables)
         fs.writeJSONSync(pkgCacheFilePath, { version })
       }
-      this.event.emit('install-success', this._loadSharp(this._getInstalledCacheTypes()![0]))
+      this.event.emit('install-success', await this._loadSharp(this._getInstalledCacheTypes()![0]))
     } catch (error) {
       Channel.error(error)
       this.event.emit('install-fail')
@@ -179,12 +190,20 @@ export class Installer {
     return caches
   }
 
-  private _loadSharp(cacheType: CacheType) {
-    const localSharpPath = this._getCaches().find((cache) => cache.type === cacheType)?.sharpFsPath
+  private async _loadSharp(cacheType: CacheType) {
+    const localSharpPath = this._getCaches().find((cache) => cache.type === cacheType)!.sharpFsPath
 
     Channel.debug(`Load sharp from: ${localSharpPath}`)
 
-    return require(localSharpPath!).sharp
+    return new Promise<TSharp>((resolve) => {
+      try {
+        const sharp = require(localSharpPath).default
+        Channel.debug('Require sharp success')
+        resolve(sharp)
+      } catch (e) {
+        Channel.debug(`Load sharp failed: ${e}`)
+      }
+    })
   }
 
   private async _trySaveCacheToOs(cacheDirs: string[]) {
@@ -200,9 +219,9 @@ export class Installer {
           fs.ensureDirSync(this._getDepOsCacheDir())
 
           // Copy stable files to cache directory
-          await this._copyDirsToOsCache(cacheDirs)
+          this._copyDirsToOsCache(cacheDirs)
 
-          Channel.debug(`Copy [${cacheDirs.join(',')}] to ${this._osCacheDir}: ${this._getDepOsCacheDir()}`)
+          Channel.debug(`Copy [${cacheDirs.join(',')}] to ${this._getDepOsCacheDir()}`)
           resolve(true)
         }
       })
@@ -210,8 +229,8 @@ export class Installer {
   }
 
   private _copyDirsToOsCache(dirs: string[]) {
-    return Promise.all(
-      dirs.map((dir) => fs.copy(path.resolve(this._getSharpCwd(), dir), path.resolve(this._getDepOsCacheDir(), dir))),
+    dirs.forEach((dir) =>
+      fs.copySync(path.resolve(this._getSharpCwd(), dir), path.resolve(this._getDepOsCacheDir(), dir)),
     )
   }
 
@@ -234,55 +253,79 @@ export class Installer {
   private async _install() {
     const cwd = this._getSharpCwd()
 
-    // If there is a .tar.br file in the extension root directory,
-    // the user may intend to install the dependency manually
-    const extensionHost = this.ctx.extensionUri.fsPath
-    const tarbr = fs.readdirSync(extensionHost).filter((file) => /^libvips.+\.tar\.br$/.test(file))
-    let manualInstallSuccess: boolean | undefined
-
-    if (tarbr.length) {
-      Channel.info(`${i18n.t('core.start_manual_install')}: ${tarbr.join(', ')}`)
-      for (let i = 0; i < tarbr.length; i++) {
-        // Try install manually
-        try {
-          await execa('node', ['install/extract-tarball.js', path.join(extensionHost, tarbr[i])], {
-            cwd,
-          })
-          manualInstallSuccess = true
-          Channel.info(`${i18n.t('core.manual_install_success')}: ${tarbr[i]}`)
-          break
-        } catch (e) {
-          manualInstallSuccess = false
-        }
-      }
-    }
-
     // If the language is Chinese, it's considered as Chinese region, then set npm mirror
     const languages = [Config.appearance_language, Global.vscodeLanguage].map(toLower)
     const useMirror = languages.includes('zh-cn') || Config.mirror_enabled
 
-    if (!manualInstallSuccess) {
+    Channel.debug(`useMirror: ${useMirror}`)
+
+    function resolveMirrorUrl(name: string, fallbackUrl: string) {
+      if (isValidHttpsUrl(Config.mirror_url)) {
+        return new URL(`${Config.mirror_url}/${name}`).toString()
+      }
+      return fallbackUrl
+    }
+
+    // If there is a .tar.br file in the extension root directory,
+    // the user may intend to install the dependency manually
+    const extensionHost = this.ctx.extensionUri.fsPath
+
+    Channel.debug(`extensionHost: ${extensionHost}`)
+
+    const libvipsBin = fs.readdirSync(extensionHost).filter((file) => /^libvips.+\.tar\.br$/.test(file))
+    const sharpBin = fs.readdirSync(extensionHost).filter((file) => /^sharp.+\.tar\.gz$/.test(file))
+
+    const manualInstallSuccess = {
+      libvips: false,
+      sharp: false,
+    }
+
+    if (libvipsBin.length) {
+      Channel.info(`${i18n.t('core.start_manual_install')}: ${libvipsBin.join(', ')}`)
+      for (let i = 0; i < libvipsBin.length; i++) {
+        // Try install manually
+        try {
+          await execa('node', ['install/extract-tarball.js', path.join(extensionHost, libvipsBin[i])], {
+            cwd,
+          })
+          manualInstallSuccess.libvips = true
+          Channel.info(`${i18n.t('core.manual_install_success')}: ${libvipsBin[i]}`)
+          break
+        } catch (e) {
+          manualInstallSuccess.libvips = false
+        }
+      }
+    }
+
+    if (!manualInstallSuccess.libvips) {
       Channel.info(i18n.t('core.start_auto_install'))
+
       try {
+        const npm_config_sharp_libvips_binary_host = resolveMirrorUrl(
+          'sharp-libvips',
+          `${CNPM_BINARY_REGISTRY}/sharp-libvips`,
+        )
+
+        Channel.debug(`npm_config_sharp_libvips_binary_host: ${npm_config_sharp_libvips_binary_host}`)
+
         await execa('node', ['install/use-libvips.js'], {
           cwd,
           env: {
             ...process.env,
             npm_package_config_libvips: '8.14.5',
             ...(useMirror && {
-              npm_config_sharp_libvips_binary_host: isValidHttpsUrl(Config.mirror_url)
-                ? Config.mirror_url.replace(/\/$/, '')
-                : 'https://registry.npmmirror.com/-/binary/sharp-libvips',
               // Fullpath
               // ${npm_config_sharp_libvips_binary_host}/v8.14.5/libvips-8.14.5-${this.platform}.tar.br
+              // e.g. https://registry.npmmirror.com/-/binary/sharp-libvips/v8.14.5/libvips-8.14.5-darwin-arm64v8.tar.br
+              npm_config_sharp_libvips_binary_host,
             }),
           },
         })
       } catch (e) {
         Channel.error(e)
         // Install failed.
-        if (manualInstallSuccess === false) {
-          Channel.error(`${i18n.t('core.manual_install_failed')}: libvips-8.14.5-${this.platform}.tar.br`)
+        if (manualInstallSuccess.libvips === false) {
+          Channel.error(`${i18n.t('core.manual_install_failed')}: ${this._libvips_bin}`)
           Channel.error(i18n.t('core.manual_install_failed'), true)
         } else {
           Channel.error(i18n.t('core.dep_not_found'), true)
@@ -293,9 +336,61 @@ export class Installer {
     await execa('node', ['install/dll-copy.js'], {
       cwd,
     })
-    await execa('node', ['install/prebuild-install-bin.js'], {
-      cwd,
-    })
+
+    if (sharpBin.length) {
+      Channel.info(`${i18n.t('core.start_manual_install')}: ${sharpBin.join(', ')}`)
+      for (let i = 0; i < sharpBin.length; i++) {
+        try {
+          await execa(
+            'node',
+            [
+              'install/unpack-sharp.js',
+              `--path=${this._getSharpCwd()}`,
+              `--binPath=${path.join(extensionHost, sharpBin[i])}`,
+            ],
+            {
+              cwd,
+            },
+          )
+          manualInstallSuccess.sharp = true
+          Channel.info(`${i18n.t('core.manual_install_success')}: ${sharpBin[i]}`)
+          break
+        } catch (e) {
+          manualInstallSuccess.sharp = false
+        }
+      }
+    }
+
+    if (!manualInstallSuccess.sharp) {
+      // 自动下载依赖
+      try {
+        const npm_config_sharp_binary_host = resolveMirrorUrl('sharp', `${CNPM_BINARY_REGISTRY}/sharp`)
+
+        Channel.debug(`npm_config_sharp_binary_host: ${npm_config_sharp_binary_host}`)
+        await execa('node', ['install/prebuild-install-bin.js'], {
+          cwd,
+          env: {
+            ...(useMirror && {
+              // Fullpath
+              // "{name}-v{version}-{runtime}-v{abi}-{platform}{libc}-{arch}.tar.gz"
+              // ${npm_config_sharp_binary_host}/v0.32.6/sharp-v0.32.6-napi-v7-${this.platform}.tar.gz
+              // e.g. https://registry.npmmirror.com/-/binary/sharp/v0.32.6/sharp-v0.32.6-napi-v7-darwin-arm64.tar.gz
+              npm_config_sharp_binary_host,
+            }),
+          },
+          stdio: 'ignore',
+        })
+      } catch (e) {
+        Channel.error(e)
+        // Install failed.
+        if (manualInstallSuccess.sharp === false) {
+          Channel.error(`${i18n.t('core.manual_install_failed')}: ${this._sharp_bin}`)
+          Channel.error(i18n.t('core.manual_install_failed'), true)
+        } else {
+          Channel.error(i18n.t('core.dep_not_found'), true)
+        }
+      }
+    }
 
     Channel.info('🚐 Dependencies install process finished')
   }
