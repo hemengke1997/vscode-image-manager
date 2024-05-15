@@ -105,6 +105,7 @@ export class Global {
 
     installer.event
       .on('install-success', (e) => {
+        Channel.info(i18n.t('prompt.deps_init_success'))
         Global.sharp = e
         this.initOperators()
       })

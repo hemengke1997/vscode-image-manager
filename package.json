@@ -81,7 +81,6 @@
     "@minko-fe/hookable": "^6.0.0",
     "@minko-fe/html-transform": "^0.1.17",
     "@minko-fe/lodash-pro": "^0.3.0",
-    "@minko-fe/prettier-config": "^2.2.0",
     "@minko-fe/react-hook": "^0.3.1",
     "@minko-fe/tsconfig": "^2.0.8",
     "@minko-fe/vite-config": "^0.2.5",
@@ -158,7 +157,7 @@
     "taze": "^0.13.3",
     "ts-key-enum": "^2.0.12",
     "ts-retry": "^4.2.5",
-    "tsup": "6.7.0",
+    "tsup": "^8.0.2",
     "tsx": "^4.7.1",
     "type-fest": "^4.15.0",
     "typescript": "^5.4.0",
@@ -179,6 +178,12 @@
     "vite": {
       "rollup": "npm:@rollup/wasm-node"
     }
+  },
+  "prettier": "@minko-fe/prettier-config",
+  "commitlint": {
+    "extends": [
+      "@minko-fe"
+    ]
   },
   "contributes": {
     "commands": [

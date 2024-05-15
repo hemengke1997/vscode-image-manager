@@ -1,5 +1,5 @@
 {
   "write": true,
   "interactive": true,
-  "exclude": ["sharp", "@types/node", "@types/vscode"]
+  "exclude": ["sharp", "@types/node", "@types/vscode", "svgo"]
 }

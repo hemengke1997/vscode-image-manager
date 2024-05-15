@@ -20,5 +20,5 @@ package.nls.*
 TODO.md
 CHANGELOG-CODE.md
 
-libvips-8.14.5-darwin-arm64v8.tar.br
-sharp-v0.32.6-napi-v7-darwin-arm64.tar.gz
+*.tar.br
+*.tar.gz

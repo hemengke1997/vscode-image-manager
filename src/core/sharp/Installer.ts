@@ -52,7 +52,7 @@ export class Installer {
     }
 
     Channel.info(`${i18n.t('core.dep_cache_dir')}: ${this._osCacheDir}`)
-    Channel.info(` ${i18n.t('core.extension_root')}: ${this._cwd}`)
+    Channel.info(`${i18n.t('core.extension_root')}: ${this._cwd}`)
 
     this._libvips_bin = `libvips-8.14.5-${this.platform}.tar.br`
     this._sharp_bin = `sharp-v0.32.6-napi-v7-${process.platform}-${process.arch}.tar.gz`
@@ -87,7 +87,7 @@ export class Installer {
           case 'os': {
             // Sharp exists in the os cache, but not in the extension cache
             if (!cacheTypes.includes('extension')) {
-              Channel.info('Dependency exists in the os cache, but not in the extension cache')
+              Channel.info('Dependency exists in the os cache, not in the extension cache')
               // Is it necessary to reinstall?
               // this._install()
             }
@@ -98,18 +98,15 @@ export class Installer {
 
       const pkgCacheFilePath = path.join(this._getDepOsCacheDir(), 'package.json')
       fs.ensureFileSync(pkgCacheFilePath)
-      let pkg: any = fs.readFileSync(pkgCacheFilePath, 'utf-8')
-      if (pkg) {
-        pkg = JSON.parse(pkg)
-      } else {
-        pkg = {}
-      }
+      const pkg = fs.readJSONSync(pkgCacheFilePath, 'utf-8') || {}
+
       Channel.debug(`Cache package.json: ${JSON.stringify(pkg)}`)
       if (pkg.version !== version) {
         Channel.info('Cache extension version is different, copy unstable files to os cache')
         await this._trySaveCacheToOs(this._unstables)
         fs.writeJSONSync(pkgCacheFilePath, { version })
       }
+
       this.event.emit('install-success', await this._loadSharp(this._getInstalledCacheTypes()![0]))
     } catch (error) {
       Channel.error(error)
@@ -197,9 +194,9 @@ export class Installer {
 
     return new Promise<TSharp>((resolve) => {
       try {
-        const sharp = require(localSharpPath).default
+        const sharpModule = require(localSharpPath)
         Channel.debug('Require sharp success')
-        resolve(sharp)
+        resolve(sharpModule.default || sharpModule.sharp)
       } catch (e) {
         Channel.debug(`Load sharp failed: ${e}`)
       }
