@@ -1,5 +1,11 @@
 # CHANGELOG
 
+## 0.15.1 (2024-05-15)
+
+### Fix
+
+- Compatible with older versions
+
 ## 0.15.0 (2024-05-09)
 
 ### Feat
