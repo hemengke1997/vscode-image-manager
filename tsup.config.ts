@@ -83,10 +83,8 @@ export default defineConfig((option) => [
       ...loadEnv('', __dirname, 'IM_'),
     },
     onSuccess() {
-      if (option.watch) {
-        execa('npm', ['run', 'build:i18n'])
-        logger.success('i18n build success')
-      }
+      execa('npm', ['run', 'build:i18n'])
+      logger.success('i18n build success')
       return Promise.resolve()
     },
   },
