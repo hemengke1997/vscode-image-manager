@@ -4,7 +4,7 @@
 
 ### Fix
 
-- 
+- Package.json cache parsing error
 
 ## 0.15.1 (2024-05-15)
 
