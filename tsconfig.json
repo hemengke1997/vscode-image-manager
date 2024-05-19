@@ -1,8 +1,7 @@
 {
-  "extends": "@minko-fe/tsconfig/tsconfig.project",
+  "extends": "@minko-fe/tsconfig/tsconfig.app",
   "compilerOptions": {
     "target": "ES2015",
-    "moduleResolution": "Bundler",
     "baseUrl": ".",
     "paths": {
       "~/*": ["./src/*"]

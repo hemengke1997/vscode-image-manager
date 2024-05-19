@@ -1,4 +1,4 @@
-import { toLower } from '@minko-fe/lodash-pro'
+import { isString, toLower } from '@minko-fe/lodash-pro'
 import EventEmitter from 'eventemitter3'
 import { execa } from 'execa'
 import fs from 'fs-extra'
@@ -98,7 +98,14 @@ export class Installer {
 
       const pkgCacheFilePath = path.join(this._getDepOsCacheDir(), 'package.json')
       fs.ensureFileSync(pkgCacheFilePath)
-      const pkg = fs.readJSONSync(pkgCacheFilePath, 'utf-8') || {}
+
+      const pkgStr = fs.readFileSync(pkgCacheFilePath, 'utf-8')
+      let pkg: { version?: string } = {}
+      if (isString(pkgStr)) {
+        try {
+          pkg = JSON.parse(pkgStr)
+        } catch {}
+      }
 
       Channel.debug(`Cache package.json: ${JSON.stringify(pkg)}`)
       if (pkg.version !== version) {
