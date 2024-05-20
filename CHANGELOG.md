@@ -1,5 +1,12 @@
 # CHANGELOG
 
+## 0.16.0 (2024-05-20)
+
+### Feat
+
+- Support convert format to ico
+- Add `image-manager.conversion.icoSize` configuration to control the size of ico file after conversion. The default value is **32**
+
 ## 0.15.2 (2024-05-19)
 
 ### Fix
