@@ -70,6 +70,7 @@ export const enum ConfigKey {
   conversion = 'conversion',
   conversion_formt = 'conversion.formt',
   conversion_keepOriginal = 'conversion.keepOriginal',
+  conversion_icoSize = 'conversion.icoSize',
 
   similarity_precision = 'similarity.precision',
 }
@@ -100,7 +101,6 @@ export const DEFAULT_CONFIG: ConfigType = {
   compression: {
     // 保存压缩信息至图片的metadata中，可能会导致图片压缩后体积变大
     saveCompressionData: 'metadata',
-
     keepOriginal: false,
     skipCompressed: true,
     fileSuffix: '.min',
@@ -119,6 +119,7 @@ export const DEFAULT_CONFIG: ConfigType = {
   conversion: {
     format: '',
     keepOriginal: false,
+    icoSize: 32,
   },
   similarity: {
     precision: 10,

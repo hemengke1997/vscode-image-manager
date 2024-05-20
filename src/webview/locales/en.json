@@ -150,7 +150,8 @@
     "rename_failed": "Rename failed",
     "double_click": "Double click",
     "disable_filter": "Disable filter",
-    "file": "File"
+    "file": "File",
+    "ico_size": "ico size"
   },
   "fallback": {
     "internal_error": "Internal Error",

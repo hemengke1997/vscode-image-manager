@@ -83,6 +83,10 @@ export class Config {
     return this.getConfig(ConfigKey.conversion)
   }
 
+  static get conversion_icoSize(): number {
+    return this.getConfig(ConfigKey.conversion_icoSize)
+  }
+
   static get similarity_precision(): number {
     return this.getConfig(ConfigKey.similarity_precision)
   }

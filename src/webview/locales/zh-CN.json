@@ -150,7 +150,8 @@
     "rename_failed": "重命名失败",
     "double_click": "双击",
     "disable_filter": "禁用过滤",
-    "file": "文件"
+    "file": "文件",
+    "ico_size": "ico尺寸"
   },
   "fallback": {
     "internal_error": "内部错误",

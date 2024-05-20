@@ -33,6 +33,7 @@ interface RuntimeHooks<T extends AnyObject, RuntimeCtx extends AnyObject = T & O
   'after:run': (ctx: Context<RuntimeCtx>, res: { outputPath: string }) => HookResult
   'on:finish': (ctx: Context<RuntimeCtx>, res: { outputPath: string }) => HookResult
   'on:generate-output-path': (ctx: Context<RuntimeCtx>) => HookResult<string>
+  'on:write-buffer': (ctx: Context<RuntimeCtx>, buffer: Buffer) => HookResult<Buffer | undefined>
 }
 
 class Context<T extends AnyObject, RuntimeCtx extends AnyObject = T & OperatorInput> {
@@ -182,7 +183,7 @@ export class SharpOperator<T extends AnyObject, RuntimeCtx extends AnyObject = T
               }
             })
 
-            fileWritableStream.write(buffer)
+            fileWritableStream.write((await this._hooks.callHook('on:write-buffer', this.ctx, buffer)) || buffer)
             fileWritableStream.end()
           } catch (e) {
             reject(e)

@@ -57,7 +57,7 @@ export type CompressionOptions = {
      */
     colors?: number
   }
-} & FormatConverterOptions &
+} & Omit<FormatConverterOptions, 'icoSize'> &
   SvgCompressionOptions
 
 export type SvgCompressionOptions = {

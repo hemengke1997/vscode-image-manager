@@ -1,6 +1,6 @@
-import { isEmpty, merge } from '@minko-fe/lodash-pro'
+import { isEmpty, merge, toLower } from '@minko-fe/lodash-pro'
 import { useMemoizedFn } from '@minko-fe/react-hook'
-import { Form } from 'antd'
+import { Form, Segmented } from 'antd'
 import { flatten as flattenObject, unflatten } from 'flat'
 import { memo, useState } from 'react'
 import { useTranslation } from 'react-i18next'
@@ -76,6 +76,28 @@ function ImageConverter(props: ImageConverterProps) {
     componentMap: {
       format: {
         el: () => <Format exts={formatConverter?.limit.extensions} />,
+      },
+      icoSize: {
+        el: () => {
+          const sizes = [16, 32, 48, 64, 128, 256]
+          return (
+            <Form.Item noStyle dependencies={['format']}>
+              {({ getFieldValue }) => {
+                if (toLower(getFieldValue('format')) !== 'ico') return null
+                return (
+                  <Form.Item label={t('im.ico_size')} name='icoSize' className={'center'}>
+                    <Segmented
+                      options={sizes.map((size) => ({
+                        value: size,
+                        label: size,
+                      }))}
+                    ></Segmented>
+                  </Form.Item>
+                )
+              }}
+            </Form.Item>
+          )
+        },
       },
       keepOriginal: {
         el: () => <KeepOriginal />,

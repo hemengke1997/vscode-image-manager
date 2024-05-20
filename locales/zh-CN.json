@@ -52,6 +52,9 @@
         "colors": "色彩"
       }
     },
+    "conversion": {
+      "icoSize": "ico 图标尺寸"
+    },
     "similarity": {
       "precision": "判断图片相似的精确度。值越小，判断越严格"
     }

@@ -2,20 +2,26 @@ import { merge } from '@minko-fe/lodash-pro'
 import pMap from 'p-map'
 import { type SharpNS } from '~/@types/global'
 import { SharpOperator } from '..'
+import { encode, resize } from '../sharp/Ico'
 import { Operator, type OperatorOptions, type OperatorResult } from './Operator'
 
 export type FormatConverterOptions = {
   /**
-   * @description output format
+   * @description 输出的图片格式
    * @example 'png'
    * @default ''
    */
   format: string
+  /**
+   * @description ico 图片的尺寸
+   * @default 32
+   */
+  icoSize: number
 } & OperatorOptions
 
 export class FormatConverter extends Operator {
   public limit: { extensions: string[]; size: number } = {
-    extensions: ['png', 'jpg', 'jpeg', 'webp', 'gif', 'tiff', 'avif', 'heif', 'svg'],
+    extensions: ['png', 'jpg', 'jpeg', 'webp', 'gif', 'tiff', 'avif', 'heif', 'svg', 'ico'],
     size: 20 * 1024 * 1024,
   }
 
@@ -54,6 +60,15 @@ export class FormatConverter extends Operator {
     const originExt = this.getFileExt(filePath)
     const ext = !format ? originExt : format
 
+    if (originExt === ext) {
+      const fileSize = this.getFileSize(filePath)
+      return Promise.resolve({
+        inputSize: fileSize,
+        outputSize: fileSize,
+        outputPath: filePath,
+      })
+    }
+
     let converter: SharpOperator<{
       ext: string
       filePath: string
@@ -71,10 +86,14 @@ export class FormatConverter extends Operator {
                 }
               }
             },
-            'before:run': async ({ sharp, runtime }) => {
-              const { ext } = runtime
-
-              sharp.toFormat(ext as keyof SharpNS.FormatEnum).timeout({ seconds: 20 })
+            'before:run': async (ctx) => {
+              let { ext } = ctx.runtime
+              if (ext === 'ico') {
+                // resize
+                ctx.sharp = await resize(ctx.sharp, { size: this.option.icoSize })
+                ext = 'png'
+              }
+              ctx.sharp.toFormat(ext as keyof SharpNS.FormatEnum).timeout({ seconds: 20 })
             },
             'after:run': async ({ runtime: { filePath } }, { outputPath }) => {
               if (filePath === outputPath) return
@@ -86,6 +105,11 @@ export class FormatConverter extends Operator {
                 size: 1,
                 fileSuffix: '',
               })
+            },
+            'on:write-buffer': async ({ runtime: { ext } }, buffer) => {
+              if (ext === 'ico') {
+                return encode([buffer])
+              }
             },
           },
         },
