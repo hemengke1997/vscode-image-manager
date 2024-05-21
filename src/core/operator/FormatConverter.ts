@@ -2,7 +2,6 @@ import { merge } from '@minko-fe/lodash-pro'
 import pMap from 'p-map'
 import { type SharpNS } from '~/@types/global'
 import { SharpOperator } from '..'
-import { encode, resize } from '../sharp/Ico'
 import { Operator, type OperatorOptions, type OperatorResult } from './Operator'
 
 export type FormatConverterOptions = {
@@ -90,7 +89,9 @@ export class FormatConverter extends Operator {
               let { ext } = ctx.runtime
               if (ext === 'ico') {
                 // resize
-                ctx.sharp = await resize(ctx.sharp, { size: this.option.icoSize })
+                ctx.sharp = await this._resizeIco(ctx.sharp, { size: this.option.icoSize })
+
+                // convert to png first, then encode to ico
                 ext = 'png'
               }
               ctx.sharp.toFormat(ext as keyof SharpNS.FormatEnum).timeout({ seconds: 20 })
@@ -108,7 +109,7 @@ export class FormatConverter extends Operator {
             },
             'on:write-buffer': async ({ runtime: { ext } }, buffer) => {
               if (ext === 'ico') {
-                return encode([buffer])
+                return this._encodeIco([buffer])
               }
             },
           },
@@ -137,5 +138,26 @@ export class FormatConverter extends Operator {
       // @ts-expect-error
       converter = null
     }
+  }
+
+  private _encodeIco(bufferList: Buffer[]) {
+    // ico-endec only support cjs
+    const icoEndec = require('ico-endec')
+    return icoEndec.encode(bufferList) as Buffer
+  }
+
+  private async _resizeIco(
+    image: SharpNS.Sharp,
+    { size, resizeOptions }: { size: number; resizeOptions?: SharpNS.ResizeOptions },
+  ) {
+    image = image.clone().resize({
+      fit: 'contain',
+      background: { r: 0, g: 0, b: 0, alpha: 0 },
+      ...resizeOptions,
+      width: size,
+      height: size,
+    })
+
+    return image
   }
 }

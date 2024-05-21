@@ -6,6 +6,7 @@ import { Config, Global } from '~/core'
 import { CmdToWebview } from '~/message/cmd'
 import { Channel } from '~/utils/Channel'
 import { imageGlob } from '~/utils/glob'
+import logger from '~/utils/logger'
 import { ImageManagerPanel } from '~/webview/Panel'
 
 export class Watcher {
@@ -28,13 +29,14 @@ export class Watcher {
   }
 
   private static _isIgnored(e: Uri, isDirectory: boolean) {
-    const ignores = this.glob.ignore
+    const ignores = [...this.glob.ignore]
     if (isDirectory) {
       ignores.unshift(...this.glob.absDirPatterns)
     } else {
       ignores.unshift(...this.glob.absImagePatterns)
     }
-    return !micromatch.all(e.fsPath, ignores)
+
+    return !micromatch.all(e.fsPath || e.path, ignores)
   }
 
   private static debouncedHandleEvent = debounce(this._handleEvent, 150, {
@@ -44,12 +46,14 @@ export class Watcher {
   })
 
   private static _handleEvent(e: Uri) {
+    logger.debug('File Changed:', e)
     if (e.scheme !== 'file') return
-    const isDirectory = !path.extname(e.fsPath)
+    const isDirectory = !path.extname(e.fsPath || e.path)
     if (this._isIgnored(e, isDirectory)) {
+      logger.debug('Ignored Changed File:', e)
       return
     }
-    Channel.debug(`File Changed: ${e.fsPath}, isDirectory: ${isDirectory}, trigger refresh`)
+    Channel.debug(`File Changed: ${e.fsPath || e.path}, isDirectory: ${isDirectory}, trigger refresh`)
     this.webview?.postMessage({
       cmd: CmdToWebview.refresh_images,
     })

@@ -1,14 +1,6 @@
 {
   "pkg": {
     "title": "Image Manager 🏞️",
-    "viewsWelcome": {
-      "open": {
-        "content": "[Open Image Manager](command:image-manager.open-image-manager)"
-      },
-      "action": {
-        "content": "[Reset Settings](command:image-manager.reset-settings) \n \n [Show Output Channel](command:image-manager.open-channel) \n \n [Enable Mirror](command:image-manager.enable-mirror) \n \n [Select Mirror Url](command:image-manager.select-mirror)"
-      }
-    },
     "cmd": {
       "open": "Open Image Manager",
       "reset_settings": "Reset Settings",

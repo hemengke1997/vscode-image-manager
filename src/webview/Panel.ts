@@ -210,7 +210,7 @@ export class ImageManagerPanel {
             type: 'module',
           },
           // Taken from vite-plugin-react for HMR
-          children: `
+          children: /*js*/ `
             import RefreshRuntime from "${reactRefreshUri}"
             RefreshRuntime.injectIntoGlobalHook(window)
             window.$RefreshReg$ = () => { }
