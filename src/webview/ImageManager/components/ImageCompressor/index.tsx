@@ -208,7 +208,7 @@ function ImageCompressor(props: ImageCompressorProps) {
         },
         'format': {
           el: () => {
-            return <Format exts={compressor?.limit.extensions} />
+            return <Format exts={compressor?.limit.to} />
           },
         },
         'skipCompressed': {

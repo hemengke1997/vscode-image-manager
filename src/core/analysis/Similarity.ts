@@ -6,9 +6,9 @@ import { hammingDistance, phash } from './phash'
 
 export class Similarity {
   public static limit: {
-    extensions: string[]
+    from: string[]
   } = {
-    extensions: ['png', 'jpg', 'jpeg', 'webp', 'gif', 'tiff', 'avif', 'heif'],
+    from: ['png', 'jpg', 'jpeg', 'webp', 'gif', 'tiff', 'avif', 'heif'],
   }
 
   static async findSimilar(image: ImageType, scope: ImageType[]) {
@@ -16,7 +16,7 @@ export class Similarity {
 
     const source = image.path
     const ext = this.getFileExt(source)
-    if (!this.limit.extensions.includes(ext)) {
+    if (!this.limit.from.includes(ext)) {
       return Promise.reject('format not supported')
     }
 
@@ -29,7 +29,7 @@ export class Similarity {
     const result = await pMap(scope, async (image) => {
       try {
         if (image.path === source) return pMapSkip
-        if (!this.limit.extensions.includes(image.fileType)) return pMapSkip
+        if (!this.limit.from.includes(image.fileType)) return pMapSkip
         const hash = await phash(image.path)
         return { image, hash }
       } catch (e) {

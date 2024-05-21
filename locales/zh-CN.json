@@ -68,7 +68,9 @@
   "core": {
     "compress_fail": "压缩失败",
     "dep_not_found": "依赖安装失败",
-    "compress_fail_reason": "文件 [{0}] 不是有效图片. 最大支持体积 {1} MB",
+    "compress_fail_reason_extension": "暂不支持 {0} 格式",
+    "compress_fail_reason_unknown": "未知错误",
+    "compress_fail_reason_size": "最大支持体积 {0} MB",
     "view_solution": "查看解决方案",
     "extension_root": "插件根目录",
     "platform": "系统平台",

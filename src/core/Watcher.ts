@@ -6,7 +6,6 @@ import { Config, Global } from '~/core'
 import { CmdToWebview } from '~/message/cmd'
 import { Channel } from '~/utils/Channel'
 import { imageGlob } from '~/utils/glob'
-import logger from '~/utils/logger'
 import { ImageManagerPanel } from '~/webview/Panel'
 
 export class Watcher {
@@ -49,7 +48,6 @@ export class Watcher {
     if (e.scheme !== 'file') return
     const isDirectory = !path.extname(e.fsPath || e.path)
     if (this._isIgnored(e, isDirectory)) {
-      logger.debug('Ignored Changed File:', e)
       return
     }
     Channel.debug(`File Changed: ${e.fsPath || e.path}, isDirectory: ${isDirectory}, trigger refresh`)

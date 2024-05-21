@@ -31,6 +31,8 @@ i18next.use(initReactI18next).init({
   fallbackLng: FALLBACK_LANGUAGE,
 })
 
+const _changeLanguage = i18next.changeLanguage
+
 let key = 0
 
 export function registerApp(webviewComponents: WebviewComponents, reload = false) {
@@ -88,7 +90,6 @@ export function registerApp(webviewComponents: WebviewComponents, reload = false
         },
       })
 
-      const _changeLanguage = i18next.changeLanguage
       i18next.changeLanguage = async (lang: string, ...args) => {
         await loadResourceByLang(lang)
         return _changeLanguage(lang, ...args)

@@ -76,7 +76,7 @@ function ImageConverter(props: ImageConverterProps) {
     options: formatConverter?.option,
     componentMap: {
       format: {
-        el: () => <Format exts={formatConverter?.limit.extensions} />,
+        el: () => <Format exts={formatConverter?.limit.to} />,
       },
       icoSize: {
         el: () => {

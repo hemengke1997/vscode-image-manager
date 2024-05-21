@@ -6,8 +6,10 @@ import { useRef, useState } from 'react'
 import { Trans, useTranslation } from 'react-i18next'
 import { os } from 'un-detector'
 import { ConfigKey } from '~/core/config/common'
+import { WorkspaceStateKey } from '~/core/persist/workspace/common'
 import { CmdToVscode } from '~/message/cmd'
 import { useExtConfigState } from '~/webview/hooks/useExtConfigState'
+import { useWorkspaceState } from '~/webview/hooks/useWorkspaceState'
 import { vscodeApi } from '~/webview/vscode-api'
 import useImageContextMenuEvent from '../components/ContextMenus/components/ImageContextMenu/hooks/useImageContextMenuEvent'
 import CroppoerContext from '../contexts/CropperContext'
@@ -122,6 +124,11 @@ function useImageOperation() {
     })
   })
 
+  const show_precision_tip = GlobalContext.useSelector((ctx) => ctx.workspaceState.show_precision_tip)
+  const [showPrecisionTip, setShowPrecisionTip] = useWorkspaceState(
+    WorkspaceStateKey.show_precision_tip,
+    show_precision_tip,
+  )
   const beginFindSimilarProcess = useLockFn(async (image: ImageType, images: ImageType[]) => {
     const loadingKey = 'similarity-loading'
     const timer = setTimeout(() => {
@@ -149,7 +156,7 @@ function useImageOperation() {
     } else {
       notification.info({
         message: t('im.no_similar_images_title'),
-        description: (
+        description: showPrecisionTip ? (
           <div>
             <Trans
               i18nKey='im.no_similar_images_desc'
@@ -160,8 +167,11 @@ function useImageOperation() {
               <Text code></Text>
             </Trans>
           </div>
-        ),
+        ) : null,
         duration: LOADING_DURATION.fast,
+        onClose() {
+          setShowPrecisionTip(false)
+        },
       })
     }
   })

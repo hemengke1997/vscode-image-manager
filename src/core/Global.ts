@@ -54,6 +54,8 @@ export class Global {
     Watcher.init()
     WorkspaceState.init()
 
+    console.log(settings, 'settings')
+
     this.vscodeTheme = settings.theme
     this.vscodeLanguage = settings.language
     this.vscodeReduceMotion = settings.reduceMotion

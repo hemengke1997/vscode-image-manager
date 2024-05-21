@@ -98,7 +98,7 @@ export class ImageManagerPanel {
 
       if (reload) {
         Channel.info(`Reloading webview`)
-        ImageManagerPanel._reloadWebview()
+        ImageManagerPanel.reloadWebview()
         return
       }
       if (affected) {
@@ -146,12 +146,12 @@ export class ImageManagerPanel {
   private _reveal(reload: boolean) {
     const column = this._panel.viewColumn ?? ViewColumn.One
     if (reload) {
-      ImageManagerPanel._reloadWebview()
+      ImageManagerPanel.reloadWebview()
     }
     this._panel.reveal(column)
   }
 
-  private static _reloadWebview() {
+  static reloadWebview() {
     WebviewMessageCenter.postMessage({ cmd: CmdToWebview.program_reload_webview, data: {} })
   }
 

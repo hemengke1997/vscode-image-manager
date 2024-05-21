@@ -9,6 +9,9 @@ export type WorkspaceStateType = {
   viewer_mode: 'standard' | 'simple'
   rencent_image_backgroundColor: string[]
   rencent_layout_backgroundColor: string[]
+
+  // 调整精确度的提示
+  show_precision_tip: boolean
 }
 
 export const defaultState: WorkspaceStateType = {
@@ -22,6 +25,7 @@ export const defaultState: WorkspaceStateType = {
   viewer_mode: 'standard',
   rencent_image_backgroundColor: [],
   rencent_layout_backgroundColor: [],
+  show_precision_tip: true,
 }
 
 export const enum WorkspaceStateKey {
@@ -32,4 +36,5 @@ export const enum WorkspaceStateKey {
   viewer_mode = 'viewer_mode',
   rencent_image_backgroundColor = 'rencent_image_backgroundColor',
   rencent_layout_backgroundColor = 'rencent_layout_backgroundColor',
+  show_precision_tip = 'show_precision_tip',
 }

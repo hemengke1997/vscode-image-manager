@@ -2,6 +2,7 @@ import { isArray, mergeWith, toNumber } from '@minko-fe/lodash-pro'
 import fs from 'fs-extra'
 import pMap from 'p-map'
 import { type SharpNS } from '~/@types/global'
+import { i18n } from '~/i18n'
 import { SharpOperator } from '..'
 import { DEFAULT_CONFIG } from '../config/common'
 import { Operator, type OperatorOptions, type OperatorResult } from './Operator'
@@ -31,8 +32,11 @@ type ConvertorRuntime = {
 }
 
 export class FormatConverter extends Operator {
-  public limit: { extensions: string[]; size: number } = {
-    extensions: ['png', 'jpg', 'jpeg', 'webp', 'gif', 'tiff', 'avif', 'heif', 'svg', 'ico'],
+  private extensions = ['png', 'jpg', 'jpeg', 'webp', 'gif', 'tiff', 'avif', 'heif', 'svg']
+
+  public limit: { from: string[]; to: string[]; size: number } = {
+    from: [...this.extensions],
+    to: [...this.extensions, 'ico'],
     size: 20 * 1024 * 1024,
   }
 
@@ -63,7 +67,7 @@ export class FormatConverter extends Operator {
         ...res,
       }
     } catch (error) {
-      return { filePath, error }
+      return { filePath, error: error || i18n.t('core.compress_fail_reason_unknown') }
     }
   }
 

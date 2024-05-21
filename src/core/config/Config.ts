@@ -1,5 +1,5 @@
 import { get } from '@minko-fe/lodash-pro'
-import { type ConfigurationScope, ConfigurationTarget, workspace } from 'vscode'
+import { type ConfigurationScope, ConfigurationTarget, type WorkspaceConfiguration, workspace } from 'vscode'
 import { EXT_NAMESPACE } from '~/meta'
 import { normalizePath } from '~/utils'
 import { type CompressionOptions, type FormatConverterOptions } from '..'
@@ -95,8 +95,20 @@ export class Config {
     return this.getConfig(ConfigKey.compression_save_compression_data)
   }
 
-  static get all(): ConfigType {
-    return workspace.getConfiguration(EXT_NAMESPACE) as any as ConfigType
+  static get all() {
+    return workspace.getConfiguration(EXT_NAMESPACE) as WorkspaceConfiguration & ConfigType
+  }
+
+  static async clearAll() {
+    const promises = Object.keys(ConfigKey).map(async (key) => {
+      if (Object.prototype.hasOwnProperty.call(ConfigKey, key)) {
+        const value = ConfigKey[key]
+        await this.updateConfig(value, undefined, ConfigurationTarget.Global)
+        await this.updateConfig(value, undefined, ConfigurationTarget.Workspace)
+      }
+    })
+
+    await Promise.all(promises)
   }
 
   static updateConfig<T, U extends Flatten<ConfigType> = Flatten<ConfigType>>(

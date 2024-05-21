@@ -37,7 +37,7 @@ export type ConfigType = {
   }
 }
 
-export const enum ConfigKey {
+export enum ConfigKey {
   viewer_warningSize = 'viewer.warningSize',
   viewer_imageWidth = 'viewer.imageWidth',
   viewer_imageBackgroundColor = 'viewer.imageBackgroundColor',

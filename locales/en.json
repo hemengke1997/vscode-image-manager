@@ -68,7 +68,9 @@
   "core": {
     "compress_fail": "Compress Fail",
     "dep_not_found": "Dependencies install failed",
-    "compress_fail_reason": "file [{0}] is not a valid image. Only support size less than {1} MB",
+    "compress_fail_reason_extension": "{0} format is not supported yet",
+    "compress_fail_reason_unknown": "Unknown error",
+    "compress_fail_reason_size": "Maximum support size {0} MB",
     "view_solution": "View the Solution",
     "extension_root": "Extension Root",
     "platform": "OS platform",

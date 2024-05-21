@@ -28,10 +28,10 @@ export class VscodeSettings {
   }
 
   static invokeInitMethods() {
-    const properties = Object.getOwnPropertyNames(VscodeSettings.prototype)
+    const properties = Object.getOwnPropertyNames(VscodeSettings)
     const initMethods = properties.filter((name) => name.match(/^init[A-Z].*/) && isFunction(this[name]))
-    initMethods.forEach((property) => {
-      this[property].call(this)
+    initMethods.forEach((method) => {
+      this[method].call(this)
     })
   }
 

@@ -230,6 +230,8 @@ export const VscodeMessageCenter = {
   },
   /* ------- get extension & vscode config ------ */
   [CmdToVscode.get_extension_config]: async () => {
+    Config.clearAll()
+
     const config = Config.all
 
     const vscodeConfig = {

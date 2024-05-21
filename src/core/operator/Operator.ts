@@ -1,3 +1,4 @@
+import { isString } from 'antd/es/button'
 import fs from 'fs-extra'
 import path from 'node:path'
 import { Uri, workspace } from 'vscode'
@@ -27,7 +28,8 @@ export type OperatorResult = {
 
 export abstract class Operator {
   public abstract limit: {
-    extensions: string[]
+    from: string[]
+    to: string[]
     size: number
   }
 
@@ -39,16 +41,22 @@ export abstract class Operator {
     const ext = this.getFileExt(filePath)
     const { size } = fs.statSync(filePath)
 
-    return this.limit.extensions.includes(ext) && size <= this.limit.size
+    if (!this.limit.from.includes(ext)) {
+      return i18n.t('core.compress_fail_reason_extension', ext)
+    }
+    if (size >= this.limit.size) {
+      return i18n.t('core.compress_fail_reason_size', this.limit.size / 1024 / 1024)
+    }
+
+    return true
   }
 
   public checkLimit(filePath: string) {
-    if (this._isSupported(filePath)) {
-      return Promise.resolve(true)
+    const res = this._isSupported(filePath)
+    if (isString(res)) {
+      return Promise.reject(res)
     }
-    return Promise.reject(
-      i18n.t('core.compress_fail_reason', this.getFilename(filePath), this.limit.size / 1024 / 1024),
-    )
+    return Promise.resolve(true)
   }
 
   public getFilename(filePath: string) {
