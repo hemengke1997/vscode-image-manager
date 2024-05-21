@@ -1,5 +1,11 @@
 # CHANGELOG
 
+## 0.16.1 (2024-05-21)
+
+### Fix
+
+- Deleting folder not trigger refresh
+
 ## 0.16.0 (2024-05-20)
 
 ### Feat
