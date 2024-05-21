@@ -1,0 +1,29 @@
+name: Vscode Publish
+
+on:
+  push:
+    branches:
+      - master
+
+jobs:
+  publish-npm:
+    if: "contains(github.event.head_commit.message, 'release')"
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: 16.12.0
+          cache: npm
+
+      - name: Install Dependencies
+        run: npm i --frozen-lockfile
+
+      - uses: lannonbr/vsce-action@3.0.0
+        with:
+          args: publish -p $VSCE_TOKEN
+        env:
+          VSCE_TOKEN: ${{ secrets.VSCE_TOKEN }}
