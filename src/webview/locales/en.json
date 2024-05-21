@@ -151,7 +151,13 @@
     "double_click": "Double click",
     "disable_filter": "Disable filter",
     "file": "File",
-    "ico_size": "ico size"
+    "ico_size": "ico size",
+    "ico_size_empty": "Please select ico size",
+    "ico_16": "This is the most common size used for browser tabs and bookmark bars ",
+    "ico_32": "Images of this size are usually used for site previews on new tabs and system taskbars ",
+    "ico_48": "Images of this size are commonly used for desktop shortcuts and system start menus ",
+    "ico_128": "Images of this size are commonly used in various large-size display scenes ",
+    "ico_256": "This is the largest image size that an ico file can contain. It is usually used for high resolution display scenarios"
   },
   "fallback": {
     "internal_error": "Internal Error",

@@ -1,7 +1,7 @@
-const plugin = require('tailwindcss/plugin')
+import { type Config } from 'tailwindcss'
+import plugin from 'tailwindcss/plugin'
 
-/** @type {import('tailwindcss').Config} */
-module.exports = {
+export default {
   content: ['./src/webview/**/*.tsx'],
   // @see https://tailwindcss.com/docs/dark-mode#customizing-the-class-name
   // You can customize the dark mode selector
@@ -21,4 +21,4 @@ module.exports = {
       })
     }),
   ],
-}
+} as Config

@@ -105,7 +105,6 @@
     "context-state": "^3.0.0",
     "conventional-changelog-cli": "^5.0.0",
     "cropperjs": "^1.6.2",
-    "decode-ico": "^0.4.1",
     "deep-object-diff": "^1.1.9",
     "delay": "^6.0.0",
     "escape-string-regexp": "^5.0.0",
@@ -416,8 +415,14 @@
           "description": "%pkg.compression.keepOriginal%"
         },
         "image-manager.conversion.icoSize": {
-          "type": "number",
-          "default": 32,
+          "type": "array",
+          "items": {
+            "type": "number"
+          },
+          "default": [
+            16,
+            32
+          ],
           "description": "%pkg.conversion.icoSize%"
         },
         "image-manager.similarity.precision": {

@@ -1,7 +1,9 @@
-import { merge } from '@minko-fe/lodash-pro'
+import { isArray, mergeWith, toNumber } from '@minko-fe/lodash-pro'
+import fs from 'fs-extra'
 import pMap from 'p-map'
 import { type SharpNS } from '~/@types/global'
 import { SharpOperator } from '..'
+import { DEFAULT_CONFIG } from '../config/common'
 import { Operator, type OperatorOptions, type OperatorResult } from './Operator'
 
 export type FormatConverterOptions = {
@@ -12,11 +14,21 @@ export type FormatConverterOptions = {
    */
   format: string
   /**
-   * @description ico 图片的尺寸
-   * @default 32
+   * @description ico图标兼容尺寸
+   * @default
+   * ```
+   * [16, 32]
+   * ```
    */
-  icoSize: number
+  icoSize: number[]
 } & OperatorOptions
+
+type ConvertorRuntime = {
+  ext: string
+  filePath: string
+  option: FormatConverterOptions
+  isLast: boolean
+}
 
 export class FormatConverter extends Operator {
   public limit: { extensions: string[]; size: number } = {
@@ -32,7 +44,9 @@ export class FormatConverter extends Operator {
     filePaths: string[],
     option: FormatConverterOptions | undefined,
   ): Promise<OperatorResult> {
-    this.option = merge(this.option, option || {})
+    this.option = mergeWith(this.option, option || {}, (_, srcValue) => {
+      if (isArray(srcValue)) return srcValue
+    })
     const res = await pMap(
       filePaths.map((filePath) => () => this.convertImage(filePath)),
       (task) => task(),
@@ -53,6 +67,54 @@ export class FormatConverter extends Operator {
     }
   }
 
+  private _createConverter(size?: number) {
+    const converter: SharpOperator<ConvertorRuntime> = new SharpOperator({
+      plugins: [
+        {
+          name: 'format-converter',
+          hooks: {
+            'on:configuration': async (ctx) => {
+              if (ctx.runtime.ext === 'gif') {
+                return {
+                  animated: true,
+                  limitInputPixels: false,
+                }
+              }
+            },
+            'before:run': async (ctx) => {
+              let { ext } = ctx.runtime
+              if (this._isIco(ext)) {
+                // resize
+                ctx.sharp = await this._resizeIco(ctx.sharp, { size: size! })
+                // convert to png first, then encode to ico
+                ext = 'png'
+              }
+              ctx.sharp.toFormat(ext as keyof SharpNS.FormatEnum).timeout({ seconds: 20 })
+            },
+            'after:run': async ({ runtime: { filePath, isLast } }, { outputPath }) => {
+              if (filePath === outputPath) return
+
+              isLast && (await this.trashFile(filePath))
+            },
+            'on:generate-output-path': ({ runtime: { ext, filePath } }) => {
+              return this.getOutputPath(filePath, {
+                ext,
+                size: 1,
+                fileSuffix: '',
+              })
+            },
+          },
+        },
+      ],
+    })
+
+    return converter
+  }
+
+  private _isIco(ext: string) {
+    return ext === 'ico'
+  }
+
   private async core(filePath: string): Promise<{ inputSize: number; outputSize: number; outputPath: string }> {
     const { format } = this.option!
 
@@ -68,63 +130,56 @@ export class FormatConverter extends Operator {
       })
     }
 
-    let converter: SharpOperator<{
-      ext: string
-      filePath: string
-      option: FormatConverterOptions
-    }> = new SharpOperator({
-      plugins: [
-        {
-          name: 'format-converter',
-          hooks: {
-            'on:configuration': async (ctx) => {
-              if (ctx.runtime.ext === 'gif') {
-                return {
-                  animated: true,
-                  limitInputPixels: false,
-                }
-              }
-            },
-            'before:run': async (ctx) => {
-              let { ext } = ctx.runtime
-              if (ext === 'ico') {
-                // resize
-                ctx.sharp = await this._resizeIco(ctx.sharp, { size: this.option.icoSize })
-
-                // convert to png first, then encode to ico
-                ext = 'png'
-              }
-              ctx.sharp.toFormat(ext as keyof SharpNS.FormatEnum).timeout({ seconds: 20 })
-            },
-            'after:run': async ({ runtime: { filePath } }, { outputPath }) => {
-              if (filePath === outputPath) return
-              await this.trashFile(filePath)
-            },
-            'on:generate-output-path': ({ runtime: { ext, filePath } }) => {
-              return this.getOutputPath(filePath, {
-                ext,
-                size: 1,
-                fileSuffix: '',
-              })
-            },
-            'on:write-buffer': async ({ runtime: { ext } }, buffer) => {
-              if (ext === 'ico') {
-                return this._encodeIco([buffer])
-              }
-            },
-          },
-        },
-      ],
-    })
+    const inputSize = this.getFileSize(filePath)
+    let outputPath = ''
+    let converters: SharpOperator<ConvertorRuntime>[] | SharpOperator<ConvertorRuntime>
 
     try {
-      const inputSize = this.getFileSize(filePath)
-      const { outputPath } = await converter.run({
-        ext,
-        filePath,
-        option: this.option,
-        input: filePath,
-      })
+      if (this._isIco(ext)) {
+        if (!this.option.icoSize) {
+          this.option.icoSize = DEFAULT_CONFIG.conversion.icoSize
+        }
+        converters = this.option.icoSize
+          .map((size) => toNumber(size))
+          .sort((a, b) => b - a)
+          .map((size) => this._createConverter(size)) as SharpOperator<ConvertorRuntime>[]
+        const len = converters.length
+        const res = await pMap(
+          converters.map(
+            (converter, index) => () =>
+              converter.run(
+                {
+                  ext,
+                  filePath,
+                  option: this.option,
+                  input: filePath,
+                  isLast: index === len - 1,
+                },
+                {
+                  dryRun: true,
+                },
+              ),
+          ),
+          (task) => task(),
+          {
+            concurrency: 1,
+          },
+        )
+        const icoBuffer = this._encodeIco(res.map((r) => r.buffer))
+        // write ico file
+        outputPath = res[0].outputPath
+        await fs.writeFile(outputPath, icoBuffer)
+      } else {
+        converters = this._createConverter()
+        const res = await converters.run({
+          ext,
+          filePath,
+          option: this.option,
+          input: filePath,
+          isLast: true,
+        })
+        outputPath = res.outputPath
+      }
 
       const outputSize = this.getFileSize(outputPath)
       return {
@@ -136,7 +191,7 @@ export class FormatConverter extends Operator {
       return Promise.reject(e)
     } finally {
       // @ts-expect-error
-      converter = null
+      converters = null
     }
   }
 
@@ -150,14 +205,12 @@ export class FormatConverter extends Operator {
     image: SharpNS.Sharp,
     { size, resizeOptions }: { size: number; resizeOptions?: SharpNS.ResizeOptions },
   ) {
-    image = image.clone().resize({
+    return image.clone().resize({
       fit: 'contain',
       background: { r: 0, g: 0, b: 0, alpha: 0 },
       ...resizeOptions,
       width: size,
       height: size,
     })
-
-    return image
   }
 }

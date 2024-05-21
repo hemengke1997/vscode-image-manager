@@ -1,5 +1,11 @@
 # CHANGELOG
 
+## 0.17.0 (2024-05-21)
+
+### Refactor
+
+- Refactor `image-manager.conversion.icoSize` as array number to support multiple sizes. The default value is **[16, 32]**
+
 ## 0.16.1 (2024-05-21)
 
 ### Fix

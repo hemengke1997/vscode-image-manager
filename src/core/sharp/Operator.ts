@@ -33,7 +33,6 @@ interface RuntimeHooks<T extends AnyObject, RuntimeCtx extends AnyObject = T & O
   'after:run': (ctx: Context<RuntimeCtx>, res: { outputPath: string }) => HookResult
   'on:finish': (ctx: Context<RuntimeCtx>, res: { outputPath: string }) => HookResult
   'on:generate-output-path': (ctx: Context<RuntimeCtx>) => HookResult<string>
-  'on:write-buffer': (ctx: Context<RuntimeCtx>, buffer: Buffer) => HookResult<Buffer | undefined>
 }
 
 class Context<T extends AnyObject, RuntimeCtx extends AnyObject = T & OperatorInput> {
@@ -132,8 +131,14 @@ export class SharpOperator<T extends AnyObject, RuntimeCtx extends AnyObject = T
     }
   }
 
-  async run(runtime: RuntimeCtx & OperatorInput): Promise<{
+  async run(
+    runtime: RuntimeCtx & OperatorInput,
+    options?: {
+      dryRun?: boolean
+    },
+  ): Promise<{
     outputPath: string
+    buffer: Buffer
   }> {
     if (!this.ctx.sharp) {
       const noSharpTip = i18n.t('core.dep_not_found')
@@ -145,6 +150,8 @@ export class SharpOperator<T extends AnyObject, RuntimeCtx extends AnyObject = T
       })
       return Promise.reject(new Error(noSharpTip))
     }
+
+    const { dryRun } = options || {}
 
     this.ctx.runtime = runtime
 
@@ -168,14 +175,22 @@ export class SharpOperator<T extends AnyObject, RuntimeCtx extends AnyObject = T
         .then(async (buffer) => {
           const outputPath = await this._hooks.callHook('on:generate-output-path', this.ctx)
 
+          const result = {
+            outputPath,
+            buffer,
+          }
+
           try {
             await this._hooks.callHook('after:run', this.ctx, { outputPath })
+
+            if (dryRun) {
+              await this._hooks.callHook('on:finish', this.ctx, result)
+              return resolve(result)
+            }
+
             const fileWritableStream = fs.createWriteStream(outputPath)
 
             fileWritableStream.on('finish', async () => {
-              const result = {
-                outputPath,
-              }
               try {
                 await this._hooks.callHook('on:finish', this.ctx, result)
               } finally {
@@ -183,7 +198,7 @@ export class SharpOperator<T extends AnyObject, RuntimeCtx extends AnyObject = T
               }
             })
 
-            fileWritableStream.write((await this._hooks.callHook('on:write-buffer', this.ctx, buffer)) || buffer)
+            fileWritableStream.write(buffer)
             fileWritableStream.end()
           } catch (e) {
             reject(e)

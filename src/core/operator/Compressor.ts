@@ -1,4 +1,4 @@
-import { merge, toString } from '@minko-fe/lodash-pro'
+import { isArray, mergeWith, toString } from '@minko-fe/lodash-pro'
 import fs from 'fs-extra'
 import { addMetadata, getMetadata } from 'meta-png'
 import pMap from 'p-map'
@@ -78,7 +78,9 @@ export class Compressor extends Operator {
   }
 
   async run<CompressionOptions>(filePaths: string[], option: CompressionOptions | undefined): Promise<OperatorResult> {
-    this.option = merge(this.option, option || {})
+    this.option = mergeWith(this.option, option || {}, (_, srcValue) => {
+      if (isArray(srcValue)) return srcValue
+    })
 
     const svgs: string[] = []
     const rest: string[] = []

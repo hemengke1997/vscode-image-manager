@@ -1,7 +1,6 @@
-import { isEmpty, merge, toLower } from '@minko-fe/lodash-pro'
+import { isArray, isEmpty, mergeWith, toLower } from '@minko-fe/lodash-pro'
 import { useMemoizedFn } from '@minko-fe/react-hook'
-import { Form, Segmented } from 'antd'
-import { flatten as flattenObject, unflatten } from 'flat'
+import { Checkbox, Form, Tag } from 'antd'
 import { memo, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { type FormatConverterOptions, type OperatorResult } from '~/core'
@@ -44,13 +43,15 @@ function ImageConverter(props: ImageConverterProps) {
   })
 
   const onFinish = useMemoizedFn((value: FormValue) => {
-    value = merge(flattenObject(formatConverter?.option || {}), value)
+    value = mergeWith(formatConverter?.option || {}, value, (objValue, srcValue) => {
+      if (isArray(srcValue)) return srcValue
+    })
 
     const imagesToConvertFormat = images?.map((item) => item.path) || []
 
     handleOperateImage(
       (filePath?: string) => {
-        return convertImages(filePath ? [filePath] : imagesToConvertFormat, unflatten(value))
+        return convertImages(filePath ? [filePath] : imagesToConvertFormat, value)
       },
       {
         onSuccess() {
@@ -84,14 +85,48 @@ function ImageConverter(props: ImageConverterProps) {
             <Form.Item noStyle dependencies={['format']}>
               {({ getFieldValue }) => {
                 if (toLower(getFieldValue('format')) !== 'ico') return null
+                const icoTooltips = [
+                  [16, t('im.ico_16')],
+                  [32, t('im.ico_32')],
+                  [48, t('im.ico_48')],
+                  [128, t('im.ico_128')],
+                  [256, t('im.ico_256')],
+                ]
+
                 return (
-                  <Form.Item label={t('im.ico_size')} name='icoSize' className={'center'}>
-                    <Segmented
-                      options={sizes.map((size) => ({
-                        value: size,
-                        label: size,
-                      }))}
-                    ></Segmented>
+                  <Form.Item
+                    valuePropName='value'
+                    label={t('im.ico_size')}
+                    name='icoSize'
+                    tooltip={
+                      <div className={'space-y-2'}>
+                        {icoTooltips.map(([size, text], index) => {
+                          return (
+                            <div key={index}>
+                              <div className={'flex flex-col'}>
+                                <Tag className={'w-fit'}>
+                                  {size}x{size}
+                                </Tag>
+                                <div>{text}</div>
+                              </div>
+                            </div>
+                          )
+                        })}
+                      </div>
+                    }
+                    rules={[
+                      ({ getFieldValue }) => ({
+                        validator() {
+                          const icoSize = getFieldValue('icoSize')
+                          if (icoSize.length === 0) {
+                            return Promise.reject(t('im.ico_size_empty'))
+                          }
+                          return Promise.resolve()
+                        },
+                      }),
+                    ]}
+                  >
+                    <Checkbox.Group options={sizes.map((size) => ({ label: size, value: size }))}></Checkbox.Group>
                   </Form.Item>
                 )
               }}

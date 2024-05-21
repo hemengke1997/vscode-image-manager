@@ -46,7 +46,6 @@ export class Watcher {
   })
 
   private static _handleEvent(e: Uri) {
-    logger.debug('File Changed:', e)
     if (e.scheme !== 'file') return
     const isDirectory = !path.extname(e.fsPath || e.path)
     if (this._isIgnored(e, isDirectory)) {

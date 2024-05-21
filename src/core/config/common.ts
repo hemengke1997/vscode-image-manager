@@ -119,7 +119,7 @@ export const DEFAULT_CONFIG: ConfigType = {
   conversion: {
     format: '',
     keepOriginal: false,
-    icoSize: 32,
+    icoSize: [16, 32],
   },
   similarity: {
     precision: 10,
