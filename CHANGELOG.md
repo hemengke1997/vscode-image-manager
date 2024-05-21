@@ -1,5 +1,12 @@
 # CHANGELOG
 
+## 0.18.0 (2024-05-21)
+
+### Feat
+
+- `reset-settings` command will reset user configurations
+- Throw warm prompt when convert ico to other format
+
 ## 0.17.0 (2024-05-21)
 
 ### Refactor
