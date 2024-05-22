@@ -1,5 +1,5 @@
 import { type OutputChannel, window } from 'vscode'
-import { Global } from '~/core'
+import { Config, Global } from '~/core'
 import { i18n } from '~/i18n'
 import { EXT_NAME } from '~/meta'
 
@@ -47,7 +47,7 @@ export class Channel {
   }
 
   static debug(message: string, indent = 0) {
-    if (Global.isDevelopment()) {
+    if (Global.isDevelopment() || Config.debug_enabled) {
       this.info(`[DEBUG]: ${message}`, false, indent)
     }
   }

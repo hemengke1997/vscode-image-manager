@@ -1,10 +1,10 @@
 import { isString, toLower } from '@minko-fe/lodash-pro'
 import EventEmitter from 'eventemitter3'
-import { execa } from 'execa'
+import { execaNode } from 'execa'
 import fs from 'fs-extra'
 import os from 'node:os'
 import path from 'node:path'
-import * as vscode from 'vscode'
+import { type ExtensionContext, StatusBarAlignment, type StatusBarItem, commands, window } from 'vscode'
 import { i18n } from '~/i18n'
 import { isValidHttpsUrl, setImmdiateInterval } from '~/utils'
 import { Channel } from '~/utils/Channel'
@@ -31,7 +31,7 @@ const CNPM_BINARY_REGISTRY = 'https://registry.npmmirror.com/-/binary'
 export class Installer {
   public platform: string
   private _cwd: string
-  private _statusBarItem: vscode.StatusBarItem | undefined
+  private _statusBarItem: StatusBarItem | undefined
   private _libvips_bin: string
   private _sharp_bin: string
 
@@ -41,7 +41,7 @@ export class Installer {
 
   event: EventEmitter<Events> = new EventEmitter()
 
-  constructor(public ctx: vscode.ExtensionContext) {
+  constructor(public ctx: ExtensionContext) {
     this._cwd = ctx.extensionUri.fsPath
     this.platform = require(path.resolve(this._getSharpCwd(), 'install/platform')).platform()
     const cacheDir = [os.homedir(), os.tmpdir()].find((dir) => this._isDirectoryWritable(dir))
@@ -68,7 +68,7 @@ export class Installer {
       let currentCacheType: CacheType
 
       // If there is no cache, install
-      if (!cacheTypes?.length) {
+      if (!cacheTypes?.length || Config.debug_forceInstall) {
         await this._showStausBar({
           beforeHide: this._install.bind(this),
         })
@@ -133,7 +133,7 @@ export class Installer {
 
   private async _showStausBar({ beforeHide }: { beforeHide: () => Promise<void> }) {
     try {
-      this._statusBarItem = vscode.window.createStatusBarItem(vscode.StatusBarAlignment.Left)
+      this._statusBarItem = window.createStatusBarItem(StatusBarAlignment.Left)
       Global.context.subscriptions.push(this._statusBarItem)
       const creating_text = `🔄 ${i18n.t('prompt.initializing')}`
       this._statusBarItem.text = `$(sync~spin) ${creating_text}`
@@ -205,16 +205,35 @@ export class Installer {
         Channel.info('Load dependencies successfully')
         resolve(sharpModule.default || sharpModule.sharp)
       } catch (e) {
-        reject()
+        Channel.debug(`Load sharp failed: ${e}`)
+        reject(e)
       }
     })
   }
 
   private async _pollingLoadSharp(cacheType: CacheType) {
+    const maxTimes = 5
+    let time = 0
     return new Promise<TSharp>((resolve) => {
       const interval = setImmdiateInterval(async () => {
+        if (time >= maxTimes) {
+          clearInterval(interval)
+          // clear deps cache
+          fs.removeSync(this._getDepOsCacheDir())
+
+          const restart = i18n.t('prompt.reload_now')
+
+          window.showErrorMessage(i18n.t('prompt.load_sharp_failed'), restart).then((res) => {
+            if (res === restart) {
+              commands.executeCommand('workbench.action.reloadWindow')
+            }
+          })
+          return
+        }
+        time++
+        Channel.debug(`Try polling load sharp: ${time}`)
         try {
-          const res = this._loadSharp(cacheType)
+          const res = await this._loadSharp(cacheType)
           if (res) {
             resolve(res)
             clearInterval(interval)
@@ -303,8 +322,11 @@ export class Installer {
       for (let i = 0; i < libvipsBin.length; i++) {
         // Try install manually
         try {
-          await execa('node', ['install/extract-tarball.js', path.join(extensionHost, libvipsBin[i])], {
+          await execaNode('install/extract-tarball.js', [path.join(extensionHost, libvipsBin[i])], {
             cwd,
+            env: {
+              ...process.env,
+            },
           })
           manualInstallSuccess.libvips = true
           Channel.info(`${i18n.t('core.manual_install_success')}: ${libvipsBin[i]}`)
@@ -326,7 +348,7 @@ export class Installer {
 
         Channel.debug(`npm_config_sharp_libvips_binary_host: ${npm_config_sharp_libvips_binary_host}`)
 
-        await execa('node', ['install/use-libvips.js'], {
+        await execaNode('install/use-libvips.js', {
           cwd,
           env: {
             ...process.env,
@@ -351,7 +373,7 @@ export class Installer {
       }
     }
 
-    await execa('node', ['install/dll-copy.js'], {
+    await execaNode('install/dll-copy.js', {
       cwd,
     })
 
@@ -359,13 +381,9 @@ export class Installer {
       Channel.info(`${i18n.t('core.start_manual_install')}: ${sharpBin.join(', ')}`)
       for (let i = 0; i < sharpBin.length; i++) {
         try {
-          await execa(
-            'node',
-            [
-              'install/unpack-sharp.js',
-              `--path=${this._getSharpCwd()}`,
-              `--binPath=${path.join(extensionHost, sharpBin[i])}`,
-            ],
+          await execaNode(
+            'install/unpack-sharp.js',
+            [`--path=${this._getSharpCwd()}`, `--binPath=${path.join(extensionHost, sharpBin[i])}`],
             {
               cwd,
             },
@@ -385,7 +403,7 @@ export class Installer {
         const npm_config_sharp_binary_host = resolveMirrorUrl('sharp', `${CNPM_BINARY_REGISTRY}/sharp`)
 
         Channel.debug(`npm_config_sharp_binary_host: ${npm_config_sharp_binary_host}`)
-        await execa('node', ['install/prebuild-install-bin.js'], {
+        await execaNode('install/prebuild-install-bin.js', {
           cwd,
           env: {
             ...(useMirror && {

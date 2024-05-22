@@ -8,6 +8,10 @@
       "enable_mirror": "Enable Mirror",
       "select_mirror": "Select Mirror Url"
     },
+    "debug": {
+      "enabled": "enable debug mode",
+      "forceInstall": "force install dependencies"
+    },
     "file": {
       "root": "workspace root",
       "exclude": "scan images not in exclude (pattern syntax of micromatch)",
@@ -64,7 +68,8 @@
     "reload_now": "Reload Now",
     "mirror_already_enabled": "Mirror already enabled.",
     "select_mirror": "Select Mirror Url",
-    "mirror_selected": "Mirror Url Selected: {0}. Please reload vscode to take effect."
+    "mirror_selected": "Mirror Url Selected: {0}. Please reload vscode to take effect.",
+    "load_sharp_failed": "Load core script failed, please retry"
   },
   "core": {
     "compress_fail": "Compress Fail",

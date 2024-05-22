@@ -20,7 +20,6 @@ export function useExtConfigState<T extends Flatten<ConfigType>, U>(key: T, trac
         set(draft, key, state)
       }),
     )
-    console.log({ key, value: state })
     vscodeApi.postMessage({
       cmd: CmdToVscode.update_user_configuration,
       data: {

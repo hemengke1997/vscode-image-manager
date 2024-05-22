@@ -6,7 +6,13 @@ import { type CompressionOptions, type FormatConverterOptions } from '..'
 import { ConfigKey, type ConfigType, DEFAULT_CONFIG } from './common'
 
 export class Config {
-  static readonly reloadConfigs = [ConfigKey.file_root, ConfigKey.file_exclude, ConfigKey.file_scan]
+  static readonly reloadConfigs = [
+    ConfigKey.file_root,
+    ConfigKey.file_exclude,
+    ConfigKey.file_scan,
+    ConfigKey.debug_enabled,
+    ConfigKey.debug_forceInstall,
+  ]
 
   static readonly refreshConfigs = [
     ConfigKey.file_confirmDelete,
@@ -25,6 +31,14 @@ export class Config {
     ConfigKey.conversion,
     ConfigKey.similarity_precision,
   ]
+
+  static get debug_enabled(): boolean {
+    return this.getConfig(ConfigKey.debug_enabled)
+  }
+
+  static get debug_forceInstall(): boolean {
+    return this.getConfig(ConfigKey.debug_forceInstall)
+  }
 
   static get file_root(): string[] {
     const userRoot = this.getConfig<string[]>(ConfigKey.file_root)

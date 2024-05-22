@@ -10,5 +10,6 @@
   "search.exclude": {
     "**/__snapshots__/**": true,
     "CHANGELOG-CODE.md": true
-  }
+  },
+  "image-manager.appearance.language": "zh-CN"
 }

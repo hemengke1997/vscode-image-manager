@@ -8,6 +8,10 @@ export type VscodeConfigType = {
 }
 
 export type ConfigType = {
+  debug: {
+    enabled: boolean
+    forceInstall: boolean
+  }
   viewer: {
     warningSize: number
     // 图片样式
@@ -41,6 +45,9 @@ export type ConfigType = {
 }
 
 export enum ConfigKey {
+  debug_enabled = 'debug.enabled',
+  debug_forceInstall = 'debug.forceInstall',
+
   viewer_warningSize = 'viewer.warningSize',
   viewer_imageWidth = 'viewer.imageWidth',
   viewer_imageBackgroundColor = 'viewer.imageBackgroundColor',
@@ -81,6 +88,10 @@ export enum ConfigKey {
 
 // !! Care: sync with package.json
 export const DEFAULT_CONFIG: ConfigType = {
+  debug: {
+    enabled: false,
+    forceInstall: false,
+  },
   viewer: {
     warningSize: 1024,
     imageWidth: 100,

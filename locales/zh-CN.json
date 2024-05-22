@@ -8,6 +8,10 @@
       "enable_mirror": "启用镜像",
       "select_mirror": "选择镜像源"
     },
+    "debug": {
+      "enabled": "开启调试模式",
+      "forceInstall": "强制安装依赖"
+    },
     "file": {
       "root": "根工作区",
       "exclude": "排除范围内的图片 (micromatch 匹配语法)",
@@ -64,7 +68,8 @@
     "reload_now": "立即重启",
     "mirror_already_enabled": "镜像下载依赖已启用",
     "select_mirror": "选择镜像源",
-    "mirror_selected": "切换镜像源成功: {0}, 请重启vscode生效"
+    "mirror_selected": "切换镜像源成功: {0}, 请重启vscode生效",
+    "load_sharp_failed": "加载核心脚本失败，请重试"
   },
   "core": {
     "compress_fail": "压缩失败",

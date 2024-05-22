@@ -236,6 +236,16 @@
     "configuration": {
       "title": "%pkg.title%",
       "properties": {
+        "image-manager.debug.enabled": {
+          "type": "boolean",
+          "default": false,
+          "description": "%pkg.debug.enabled%"
+        },
+        "image-manager.debug.forceInstall": {
+          "type": "boolean",
+          "default": false,
+          "description": "%pkg.debug.forceInstall%"
+        },
         "image-manager.file.root": {
           "type": "array",
           "items": {
