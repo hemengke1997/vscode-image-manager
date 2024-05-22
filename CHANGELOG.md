@@ -1,5 +1,14 @@
 # CHANGELOG
 
+## 0.20.0 (2024-05-22)
+
+### Feat
+
+- Support debug mode
+  - Add `image-manager.debug.enabled` config to enable debug mode
+  - Add `image-manager.debug.forceInstall` config to force install dependencies
+- Use vscode built-in nodejs to run scripts
+
 ## 0.19.1 (2024-05-22)
 
 ### Fix
