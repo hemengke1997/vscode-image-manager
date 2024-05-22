@@ -41,3 +41,8 @@ export function isValidHttpsUrl(url: string) {
     return false
   }
 }
+
+export function setImmdiateInterval(callback: () => void, interval: number) {
+  callback()
+  return setInterval(callback, interval)
+}

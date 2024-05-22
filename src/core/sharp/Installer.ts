@@ -6,7 +6,7 @@ import os from 'node:os'
 import path from 'node:path'
 import * as vscode from 'vscode'
 import { i18n } from '~/i18n'
-import { isValidHttpsUrl } from '~/utils'
+import { isValidHttpsUrl, setImmdiateInterval } from '~/utils'
 import { Channel } from '~/utils/Channel'
 import { Config, Global } from '..'
 import { version } from '../../../package.json'
@@ -81,7 +81,7 @@ export class Installer {
         switch (currentCacheType) {
           case 'extension': {
             // It's extension cache
-            this._trySaveCacheToOs(this._stables)
+            await this._trySaveCacheToOs(this._stables)
             break
           }
           case 'os': {
@@ -114,7 +114,7 @@ export class Installer {
         fs.writeJSONSync(pkgCacheFilePath, { version })
       }
 
-      this.event.emit('install-success', await this._loadSharp(this._getInstalledCacheTypes()![0]))
+      this.event.emit('install-success', await this._pollingLoadSharp(this._getInstalledCacheTypes()![0]))
     } catch (error) {
       Channel.error(error)
       this.event.emit('install-fail')
@@ -199,14 +199,28 @@ export class Installer {
 
     Channel.debug(`Load sharp from: ${localSharpPath}`)
 
-    return new Promise<TSharp>((resolve) => {
+    return new Promise<TSharp>((resolve, reject) => {
       try {
         const sharpModule = require(localSharpPath)
-        Channel.debug('Require sharp success')
+        Channel.info('Load dependencies successfully')
         resolve(sharpModule.default || sharpModule.sharp)
       } catch (e) {
-        Channel.debug(`Load sharp failed: ${e}`)
+        reject()
       }
+    })
+  }
+
+  private async _pollingLoadSharp(cacheType: CacheType) {
+    return new Promise<TSharp>((resolve) => {
+      const interval = setImmdiateInterval(async () => {
+        try {
+          const res = this._loadSharp(cacheType)
+          if (res) {
+            resolve(res)
+            clearInterval(interval)
+          }
+        } catch {}
+      }, 250)
     })
   }
 
