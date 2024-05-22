@@ -1,5 +1,11 @@
 # CHANGELOG
 
+## 0.19.1 (2024-05-22)
+
+### Fix
+
+- Load sharp failed in macos
+
 ## 0.19.0 (2024-05-22)
 
 ### Feat
