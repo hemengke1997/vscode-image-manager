@@ -1,5 +1,15 @@
 # CHANGELOG
 
+## 0.19.0 (2024-05-22)
+
+### Feat
+
+- Add `image-manager.viewer.imageRendering` config to support pixel style
+
+### Fix
+
+- Always reset settings when extension open
+
 ## 0.18.0 (2024-05-21)
 
 ### Feat
