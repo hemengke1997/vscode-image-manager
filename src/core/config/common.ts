@@ -1,3 +1,4 @@
+import { type CSSProperties } from 'react'
 import { type CompressionOptions, type FormatConverterOptions } from '..'
 
 export type VscodeConfigType = {
@@ -9,8 +10,10 @@ export type VscodeConfigType = {
 export type ConfigType = {
   viewer: {
     warningSize: number
+    // 图片样式
     imageWidth: number
     imageBackgroundColor: string
+    imageRendering: CSSProperties['imageRendering']
   }
   file: {
     root: string[]
@@ -41,6 +44,7 @@ export enum ConfigKey {
   viewer_warningSize = 'viewer.warningSize',
   viewer_imageWidth = 'viewer.imageWidth',
   viewer_imageBackgroundColor = 'viewer.imageBackgroundColor',
+  viewer_imageRendering = 'viewer.imageRendering',
 
   file_root = 'file.root',
   file_exclude = 'file.exclude',
@@ -80,7 +84,8 @@ export const DEFAULT_CONFIG: ConfigType = {
   viewer: {
     warningSize: 1024,
     imageWidth: 100,
-    imageBackgroundColor: '#1a1a1a', // #1a1a1a
+    imageBackgroundColor: '#1a1a1a',
+    imageRendering: 'auto',
   },
   file: {
     root: [],

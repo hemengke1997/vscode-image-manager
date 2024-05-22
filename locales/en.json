@@ -17,7 +17,8 @@
     "viewer": {
       "warningSize": "show warning dot if image size is larger than this value (KB). Hidden if 0",
       "imageWidth": "width of image (px)",
-      "imageBackgroundColor": "image background color"
+      "imageBackgroundColor": "image background color",
+      "imageRendering": "image rendering"
     },
     "appearance": {
       "theme": "theme",

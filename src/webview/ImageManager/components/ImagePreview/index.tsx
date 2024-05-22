@@ -85,12 +85,15 @@ function ImagePreview(props: ImagePreviewProps) {
         <ConfigProvider
           theme={{
             components: {
-              Image: imageToken(isDarkBackground),
+              Image: {
+                ...imageToken(isDarkBackground),
+              },
             },
           }}
         >
           <Image.PreviewGroup
             preview={{
+              destroyOnClose: true,
               visible: preview?.open,
               current: preview?.current,
               maskClosable: false,
@@ -157,7 +160,10 @@ function ImagePreview(props: ImagePreviewProps) {
                   {...lazyImageProps}
                   antdImageProps={{
                     ...(lazyImageProps?.antdImageProps || {}),
-                    style: { backgroundColor },
+                    style: {
+                      backgroundColor,
+                    },
+                    className: 'object-scale-down',
                     width: imageWidth,
                     height: imageWidth,
                     src: image.vscodePath,

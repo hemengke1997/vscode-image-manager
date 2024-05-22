@@ -17,7 +17,8 @@
     "viewer": {
       "warningSize": "如果图片大小大于此值 (KB)，则显示警告点。值为0时不显示",
       "imageWidth": "图片宽度 (px)",
-      "imageBackgroundColor": "图片背景色"
+      "imageBackgroundColor": "图片背景色",
+      "imageRendering": "image rendering"
     },
     "appearance": {
       "theme": "主题",

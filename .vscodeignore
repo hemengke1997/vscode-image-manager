@@ -5,7 +5,6 @@
 .vscode
 .cache/**
 .github/**
-.tazerc.json
 .idea
 
 node_modules
@@ -24,6 +23,8 @@ temp*
 
 eslint.config.*
 commitlint.config.*
+taze.config.*
+.tazerc.json
 tsconfig.json
 package-lock.json
 renovate.json

@@ -343,6 +343,16 @@
           "default": "#1a1a1a",
           "description": "%pkg.viewer.imageBackgroundColor%"
         },
+        "image-manager.viewer.imageRendering": {
+          "type": "string",
+          "enum": [
+            "auto",
+            "pixelated",
+            "crisp-edges"
+          ],
+          "default": "auto",
+          "description": "%pkg.viewer.imageRendering%"
+        },
         "image-manager.mirror.enabled": {
           "type": "boolean",
           "default": false,

@@ -83,7 +83,7 @@ function LazyImage(props: LazyImageProps) {
 
   const { imagePlaceholderSize, targetImagePath } = GlobalContext.usePicker(['imagePlaceholderSize', 'targetImagePath'])
   const warningSize = GlobalContext.useSelector((ctx) => ctx.extConfig.viewer.warningSize)
-
+  const imageRendering = GlobalContext.useSelector((ctx) => ctx.extConfig.viewer.imageRendering)
   const refreshTimes = ActionContext.useSelector((ctx) => ctx.imageRefreshedState.refreshTimes)
 
   const placeholderRef = useRef<HTMLDivElement>(null)
@@ -288,7 +288,10 @@ function LazyImage(props: LazyImageProps) {
                 : false
             }
             rootClassName={cn('transition-all', antdImageProps.rootClassName)}
-            style={{ width: antdImageProps.width, height: antdImageProps.height, ...antdImageProps.style }}
+            style={{
+              imageRendering,
+              ...antdImageProps.style,
+            }}
           ></Image>
         </Badge>
         <div className='max-w-full truncate' style={{ maxWidth: antdImageProps.width }}>

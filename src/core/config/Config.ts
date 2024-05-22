@@ -16,9 +16,10 @@ export class Config {
     ConfigKey.appearance_primaryColor,
     ConfigKey.appearance_reduceMotion,
 
-    ConfigKey.viewer_imageWidth,
     ConfigKey.viewer_warningSize,
+    ConfigKey.viewer_imageWidth,
     ConfigKey.viewer_imageBackgroundColor,
+    ConfigKey.viewer_imageRendering,
 
     ConfigKey.compression,
     ConfigKey.conversion,
@@ -41,6 +42,10 @@ export class Config {
 
   static get viewer_imageBackgroundColor(): string {
     return this.getConfig(ConfigKey.viewer_imageBackgroundColor)
+  }
+
+  static get viewer_imageRendering(): string {
+    return this.getConfig(ConfigKey.viewer_imageRendering)
   }
 
   static get file_exclude(): string[] {
@@ -119,7 +124,7 @@ export class Config {
     return workspace.getConfiguration(EXT_NAMESPACE).update(key, value, target)
   }
 
-  static getConfig<T, U extends Flatten<ConfigType, true> = Flatten<ConfigType>>(
+  static getConfig<T, U extends Flatten<ConfigType> = Flatten<ConfigType>>(
     key: U, // like `file.root`
     scope?: ConfigurationScope | undefined,
   ): T {
