@@ -9,7 +9,7 @@
       "script": "ui:dev",
       "isBackground": true,
       "presentation": {
-        "reveal": "always",
+        "reveal": "silent",
         "panel": "shared",
         "close": true
       },
@@ -32,7 +32,7 @@
       "dependsOn": "Watch Webview",
       "isBackground": true,
       "presentation": {
-        "reveal": "always",
+        "reveal": "silent",
         "panel": "shared",
         "close": true
       },

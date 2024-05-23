@@ -1,4 +1,3 @@
-import { lowerCase } from '@minko-fe/lodash-pro'
 import fs from 'node:fs'
 import path from 'node:path'
 import { type ExtensionContext } from 'vscode'
@@ -11,7 +10,7 @@ export class i18n {
 
   static init(ctx: ExtensionContext) {
     const extensionPath = ctx.extensionUri.fsPath
-    const language = lowerCase(intelligentPick(Config.appearance_language, Global.vscodeLanguage, 'auto'))
+    const language = intelligentPick(Config.appearance_language, Global.vscodeLanguage, 'auto').toLowerCase()
 
     let name = language === FALLBACK_LANGUAGE ? 'package.nls.json' : `package.nls.${language}.json`
     if (!fs.existsSync(path.join(extensionPath, name))) {
