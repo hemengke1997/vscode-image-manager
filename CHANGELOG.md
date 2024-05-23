@@ -1,5 +1,11 @@
 # CHANGELOG
 
+## 0.20.1 (2024-05-23)
+
+### Fix
+
+- Vscode thread i18n error
+
 ## 0.20.0 (2024-05-22)
 
 ### Feat
