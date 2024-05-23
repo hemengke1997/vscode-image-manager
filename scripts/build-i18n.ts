@@ -1,3 +1,4 @@
+import { destrUtil } from '@minko-fe/lodash-pro'
 import fg from 'fast-glob'
 import { flatten } from 'flat'
 import fs from 'fs-extra'
@@ -8,7 +9,7 @@ import { FALLBACK_LANGUAGE } from '~/meta'
 const __dirname = path.dirname(fileURLToPath(import.meta.url))
 
 ;(async () => {
-  const fallbackMessages = JSON.parse(
+  const fallbackMessages = destrUtil.destr<AnyObject>(
     await fs.readFile(path.resolve(__dirname, `../locales/${FALLBACK_LANGUAGE}.json`), 'utf-8'),
   )
 
@@ -19,7 +20,7 @@ const __dirname = path.dirname(fileURLToPath(import.meta.url))
 
   for (const file of files) {
     const { name: locale } = path.parse(file)
-    let messages = JSON.parse(await fs.readFile(file, 'utf-8'))
+    let messages = destrUtil.destr<AnyObject>(await fs.readFile(file, 'utf-8'))
 
     Object.keys(fallbackMessages).forEach((key) => {
       messages[key] = messages[key] || fallbackMessages[key]

@@ -1,4 +1,4 @@
-import { isFunction, random } from '@minko-fe/lodash-pro'
+import { destrUtil, isFunction, random } from '@minko-fe/lodash-pro'
 import { type WebviewApi } from 'vscode-webview'
 import {
   type FirstParameterOfMessageCenter,
@@ -99,7 +99,7 @@ class VscodeApi {
       return this.vsCodeApi.getState()
     } else {
       const state = localStorage.getItem('vscodeState')
-      return state ? JSON.parse(state) : undefined
+      return state ? destrUtil.destr<AnyObject>(state) : undefined
     }
   }
 

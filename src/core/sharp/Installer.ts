@@ -1,4 +1,4 @@
-import { isString, toLower } from '@minko-fe/lodash-pro'
+import { destrUtil, isString, toLower } from '@minko-fe/lodash-pro'
 import EventEmitter from 'eventemitter3'
 import { execaNode } from 'execa'
 import fs from 'fs-extra'
@@ -103,7 +103,7 @@ export class Installer {
       let pkg: { version?: string } = {}
       if (isString(pkgStr)) {
         try {
-          pkg = JSON.parse(pkgStr)
+          pkg = destrUtil.destr<AnyObject>(pkgStr)
         } catch {}
       }
 

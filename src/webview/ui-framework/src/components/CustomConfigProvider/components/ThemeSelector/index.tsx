@@ -18,15 +18,15 @@ function ThemeSelector(props: ThemeSelectorProps) {
   const themes = [
     {
       key: 'light',
-      label: <MdOutlineLightMode title='light' className={'text-2xl'} />,
+      label: <MdOutlineLightMode className={'text-2xl'} />,
     },
     {
       key: 'dark',
-      label: <MdOutlineDarkMode title='dark' className={'text-2xl'} />,
+      label: <MdOutlineDarkMode className={'text-2xl'} />,
     },
     {
       key: 'auto',
-      label: <VscColorMode title='auto' className={'text-2xl'} />,
+      label: <VscColorMode className={'text-2xl'} />,
     },
   ]
 
@@ -50,7 +50,7 @@ function ThemeSelector(props: ThemeSelectorProps) {
       placement='bottom'
     >
       <Button
-        icon={<div className={'flex items-center text-2xl'}>{themes.find((t) => t!.key === theme)!.label}</div>}
+        icon={<div className={'flex items-center text-2xl'}>{themes.find((t) => t!.key === theme)?.label}</div>}
         type='text'
         title={t('im.theme')}
       ></Button>

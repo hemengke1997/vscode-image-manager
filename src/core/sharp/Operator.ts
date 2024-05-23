@@ -7,7 +7,7 @@ import { Global } from '..'
 
 type HookResult<T = void> = Promise<T> | T
 
-const PluginIndicator = '__operator_plugin'
+const PluginIndicator = '__operator_plugin__'
 
 interface PluginMeta {
   name: string

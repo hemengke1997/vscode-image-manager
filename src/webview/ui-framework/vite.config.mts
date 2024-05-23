@@ -10,14 +10,13 @@ export default defineConfig((env) => {
     {
       plugins: [react()],
       css: {
-        postcss: path.resolve(__dirname, './postcss.config.js'),
+        postcss: path.join(__dirname, './postcss.config.js'),
       },
     },
     {
       publicTypescript: false,
-      compress: false,
       legacy: false,
-      splitVendorChunk: true,
+      splitVendorChunk: false,
     },
   )
 })
