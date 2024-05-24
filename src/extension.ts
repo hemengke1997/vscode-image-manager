@@ -7,7 +7,7 @@ import { i18n } from './i18n'
 import { Channel } from './utils/Channel'
 
 export async function activate(ctx: vscode.ExtensionContext) {
-  Channel.info(`🈶️ Activated, v${version}`)
+  Channel.info(`Activated, v${version}`)
 
   const settings = VscodeSettings.init(ctx)
 
@@ -23,5 +23,5 @@ export async function activate(ctx: vscode.ExtensionContext) {
 }
 
 export function deactivate() {
-  Channel.info('🈚️ Deactivated')
+  Channel.info('Deactivated')
 }

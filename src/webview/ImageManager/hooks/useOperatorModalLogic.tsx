@@ -55,9 +55,9 @@ function useOperatorModalLogic() {
       // 如果跳过了压缩
       if (isSkiped) {
         notification.warning({
-          duration: LOADING_DURATION.slow,
+          duration: LOADING_DURATION.fast,
           message: filename,
-          placement: 'topRight',
+          placement: 'bottomRight',
           description: t('im.skip_compressed'),
         })
       } else if (inputSize && outputSize) {

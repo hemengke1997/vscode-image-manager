@@ -132,6 +132,14 @@
 - 可以配置 `image-manager.appearance.reduceMotion: 'on'` 减少动画效果
 - 可以使用右键文件夹的方式打开指定的目录，从而减少渲染的图片数量
 
+## 赞赏
+> 如果这个插件能帮助到您，请作者喝杯咖啡吧:) ☕️
+
+| 微信                                                   | 支付宝                                              |
+| ------------------------------------------------------ | --------------------------------------------------- |
+| <img src="./screenshots/wechatpay.jpeg" width="200" /> | <img src="./screenshots/alipay.jpeg" width="200" /> |
+
+
 ## 感谢
 
 ❤️ [vscode-image-viewer](https://github.com/ZhangJian1713/vscode-image-viewer)

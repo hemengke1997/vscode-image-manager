@@ -1,4 +1,4 @@
-import { destrUtil } from '@minko-fe/lodash-pro'
+import { destrUtil, isUndefined } from '@minko-fe/lodash-pro'
 import fs from 'node:fs'
 import path from 'node:path'
 import { type ExtensionContext } from 'vscode'
@@ -23,7 +23,7 @@ export class i18n {
 
   static format(str: string, args: any[]) {
     return str.replace(/{(\d+)}/g, (match, number) => {
-      return typeof args[number] !== 'undefined' ? args[number].toString() : match
+      return !isUndefined(args[number]) ? args[number].toString() : match
     })
   }
 
