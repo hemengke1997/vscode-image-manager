@@ -11,7 +11,7 @@ export async function activate(ctx: vscode.ExtensionContext) {
 
   const settings = VscodeSettings.init(ctx)
 
-  i18n.init(ctx)
+  i18n.init(ctx, settings.language)
 
   await Global.init(ctx, settings)
 

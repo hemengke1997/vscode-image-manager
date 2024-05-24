@@ -1,17 +1,21 @@
-import { destrUtil, isUndefined } from '@minko-fe/lodash-pro'
+import { destrUtil, isUndefined, toLower } from '@minko-fe/lodash-pro'
 import fs from 'node:fs'
 import path from 'node:path'
 import { type ExtensionContext } from 'vscode'
-import { Config, Global } from './core'
+import { Config } from './core'
 import { FALLBACK_LANGUAGE } from './meta'
+import { Channel } from './utils/Channel'
 import { intelligentPick } from './utils/intelligent-pick'
 
 export class i18n {
   static messages: Record<string, string> = {}
 
-  static init(ctx: ExtensionContext) {
+  static init(ctx: ExtensionContext, vscodeLanguage: Language) {
     const extensionPath = ctx.extensionUri.fsPath
-    const language = intelligentPick(Config.appearance_language, Global.vscodeLanguage, 'auto').toLowerCase()
+
+    const language = toLower(intelligentPick(Config.appearance_language, vscodeLanguage, 'auto'))
+
+    Channel.info(`[i18n] language: ${language}`)
 
     let name = language === FALLBACK_LANGUAGE ? 'package.nls.json' : `package.nls.${language}.json`
     if (!fs.existsSync(path.join(extensionPath, name))) {
