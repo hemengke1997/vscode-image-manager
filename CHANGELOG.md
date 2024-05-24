@@ -1,5 +1,15 @@
 # CHANGELOG
 
+## 0.20.2 (2024-05-24)
+
+### Fix
+
+- Move skiped warning to bottomRight placement
+
+### Docs
+
+- 添加「微信」、「支付宝」打赏，谢谢支持
+
 ## 0.20.1 (2024-05-23)
 
 ### Fix
