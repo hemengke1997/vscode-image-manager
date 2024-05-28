@@ -1,4 +1,5 @@
 .npmrc
+.nvmrc
 .github
 .gitignore
 .gitattributes

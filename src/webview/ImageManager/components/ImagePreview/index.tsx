@@ -3,7 +3,6 @@ import { useThrottleFn } from '@minko-fe/react-hook'
 import { isDev } from '@minko-fe/vite-config/client'
 import { ConfigProvider, Image, theme } from 'antd'
 import { type AliasToken, type ComponentTokenMap } from 'antd/es/theme/interface'
-import { motion } from 'framer-motion'
 import { memo, useCallback, useEffect, useState } from 'react'
 import GlobalContext from '../../contexts/GlobalContext'
 import SettingsContext from '../../contexts/SettingsContext'
@@ -81,7 +80,7 @@ function ImagePreview(props: ImagePreviewProps) {
 
   return (
     <>
-      <motion.div className={'flex flex-wrap gap-2'}>
+      <div className={'flex flex-wrap gap-2'}>
         <ConfigProvider
           theme={{
             components: {
@@ -183,7 +182,7 @@ function ImagePreview(props: ImagePreviewProps) {
             </ConfigProvider>
           </Image.PreviewGroup>
         </ConfigProvider>
-      </motion.div>
+      </div>
     </>
   )
 }

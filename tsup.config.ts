@@ -72,7 +72,7 @@ function buildExternals(option: Options): Options[] {
 export default defineConfig((option) => [
   {
     entry: ['src/extension.ts'],
-    format: ['cjs'],
+    format: 'cjs',
     external: ['vscode', 'sharp'],
     clean: !option.watch,
     dts: false,
