@@ -12,10 +12,6 @@ declare global {
 
   interface Window {
     /**
-     * react root
-     */
-    __react_root__: ReactDOM.Root
-    /**
      * 挂载app
      * @param reload 为 true 则刷新app
      */

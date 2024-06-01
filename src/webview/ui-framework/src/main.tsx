@@ -1,7 +1,7 @@
 import i18next from 'i18next'
 import ReactDOM from 'react-dom/client'
 import { initReactI18next } from 'react-i18next'
-import { setupI18n } from 'vite-plugin-i18n-ally/client'
+import { i18nAlly } from 'vite-plugin-i18n-ally/client'
 import { CmdToVscode } from '~/message/cmd'
 import { FALLBACK_LANGUAGE } from '~/meta'
 import { getAppRoot, intelligentPickConfig } from '~/webview/utils'
@@ -10,6 +10,15 @@ import App from './App'
 import './hmr'
 import './styles/index.css'
 import 'antd/dist/reset.css'
+
+declare global {
+  interface Window {
+    /**
+     * react root
+     */
+    __react_root__: ReactDOM.Root
+  }
+}
 
 type WebviewComponents = {
   [key: string]: () => JSX.Element
@@ -20,10 +29,10 @@ i18next.use(initReactI18next).init({
   react: {
     useSuspense: true,
   },
-  debug: false,
+  debug: true,
   resources: {},
-  nsSeparator: '.',
-  keySeparator: false,
+  nsSeparator: false,
+  keySeparator: '.',
   interpolation: {
     escapeValue: false,
   },
@@ -31,7 +40,7 @@ i18next.use(initReactI18next).init({
   fallbackLng: FALLBACK_LANGUAGE,
 })
 
-const _changeLanguage = i18next.changeLanguage
+const i18nChangeLanguage = i18next.changeLanguage
 
 let key = 0
 
@@ -57,7 +66,7 @@ export function registerApp(webviewComponents: WebviewComponents, reload = false
 
       i18next.changeLanguage(language)
 
-      const { loadResourceByLang } = setupI18n({
+      const { beforeLanguageChange } = i18nAlly({
         language,
         onInited() {
           try {
@@ -79,10 +88,8 @@ export function registerApp(webviewComponents: WebviewComponents, reload = false
             )
           }
         },
-        onResourceLoaded: (langs, currentLang) => {
-          Object.keys(langs).forEach((ns) => {
-            i18next.addResourceBundle(currentLang, ns, langs[ns], true, true)
-          })
+        onResourceLoaded: (resource, currentLang) => {
+          i18next.addResourceBundle(currentLang, i18next.options.defaultNS?.[0], resource)
         },
         fallbackLng: FALLBACK_LANGUAGE,
         cache: {
@@ -91,8 +98,8 @@ export function registerApp(webviewComponents: WebviewComponents, reload = false
       })
 
       i18next.changeLanguage = async (lang: string, ...args) => {
-        await loadResourceByLang(lang)
-        return _changeLanguage(lang, ...args)
+        await beforeLanguageChange(lang)
+        return i18nChangeLanguage(lang, ...args)
       }
     },
   )

@@ -34,7 +34,6 @@ export default defineConfig(async (env) => {
       }),
       i18nAlly({
         root: __dirname,
-        useVscodeI18nAllyConfig: true,
         localesPaths: [path.resolve(__dirname, './src/webview/locales')],
       }),
     ],

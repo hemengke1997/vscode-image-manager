@@ -1,0 +1,95 @@
+{
+  // package.json
+  pkg: {
+    title: 'Image Manager 🏞️',
+    cmd: {
+      open: '打开 Image Manager',
+      reset_settings: '重置设置',
+      show_channel: '显示输出',
+      enable_mirror: '启用镜像',
+      select_mirror: '选择镜像源',
+    },
+    debug: {
+      enabled: '开启调试模式',
+      forceInstall: '强制安装依赖',
+    },
+    file: {
+      root: '根工作区',
+      exclude: '排除范围内的图片 (micromatch 匹配语法)',
+      scan: '扫描图片的类型',
+      confirmDelete: '删除图片时是否询问',
+    },
+    viewer: {
+      warningSize: '如果图片大小大于此值 (KB)，则显示警告点。值为0时不显示',
+      imageWidth: '图片宽度 (px)',
+      imageBackgroundColor: '图片背景色',
+      imageRendering: 'image rendering',
+    },
+    appearance: {
+      theme: '主题',
+      language: '语言',
+      primaryColor: '主题色',
+      reducedMotion: '减少动画',
+    },
+    mirror: {
+      enabled: '使用镜像下载依赖',
+      url: '镜像地址',
+    },
+    compression: {
+      keepOriginal: '保留原图',
+      skipCompressed: '跳过已压缩的图片',
+      quality: '图片质量',
+      fileSuffix: '压缩后缀',
+      size: '图片尺寸 (倍数)',
+      format: '图片格式',
+      saveCompressionData: '保存压缩信息',
+      png: {
+        compressionLevel: '压缩等级',
+      },
+      gif: {
+        colors: '色彩',
+      },
+    },
+    conversion: {
+      icoSize: 'ico 图标尺寸',
+    },
+    similarity: {
+      precision: '判断图片相似的精确度。值越小，判断越严格',
+    },
+  },
+  // 提示
+  prompt: {
+    reload_tip: '配置已更改，请重新加载',
+    compressor_init_fail: '依赖安装失败，请检查网络',
+    deps_init_success: '依赖安装成功',
+    initializing: 'Image Manager 初始化...',
+    initializing_tooltip: '正在下载必要依赖',
+    initialized: 'Image Manager 初始化完成',
+    show_logs: '显示日志',
+    mirror_enabled: '镜像下载依赖已启用, 请重启vscode生效',
+    reload_now: '立即重启',
+    mirror_already_enabled: '镜像下载依赖已启用',
+    select_mirror: '选择镜像源',
+    mirror_selected: '切换镜像源成功: {0}, 请重启vscode生效',
+    load_sharp_failed: '加载核心脚本失败，请重试',
+  },
+  // 核心代码
+  core: {
+    compress_fail: '压缩失败',
+    dep_not_found: '依赖安装失败',
+    compress_fail_reason_extension: '暂不支持 {0} 格式',
+    compress_fail_reason_unknown: '未知错误',
+    compress_fail_reason_size: '最大支持体积 {0} MB',
+    view_solution: '查看解决方案',
+    extension_root: '插件根目录',
+    platform: '系统平台',
+    manual_install_failed: '手动安装依赖失败，请确保安装对应版本',
+    manual_install_success: '手动安装依赖成功',
+    dep_cache_dir: '依赖缓存目录',
+    start_manual_install: '开始手动安装依赖',
+    start_auto_install: '开始自动安装依赖',
+    format_not_supported: '不支持 {0} 格式',
+    tip: '温馨提示',
+    dep_url: '以下是手动下载依赖地址，若自动安装依赖失败请按照文档手动下载以下依赖',
+  },
+}
