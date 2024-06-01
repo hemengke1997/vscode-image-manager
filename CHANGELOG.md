@@ -1,5 +1,16 @@
 # CHANGELOG
 
+## 0.20.4 (2024-06-01)
+
+### Fix
+
+- Warning about unsupported image extensions
+
+### Chore
+
+- Follow kebab-case file naming convention
+- Use json5 to store i18n resources
+
 ## 0.20.3 (2024-05-24)
 
 ### Fix
