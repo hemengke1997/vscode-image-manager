@@ -32,7 +32,7 @@ function useOperatorModalLogic() {
         onRetryClick?: (filePath: string) => void
       },
     ) => {
-      const { inputSize, outputSize, filePath, outputPath, error, isSkiped } = result
+      const { inputSize, outputSize, filePath, outputPath, error, isSkiped, isLimited } = result
 
       let filename: ReactNode = null
       if (outputPath && outputPath !== filePath) {
@@ -59,6 +59,13 @@ function useOperatorModalLogic() {
           message: filename,
           placement: 'bottomRight',
           description: t('im.skip_compressed'),
+        })
+      } else if (isLimited) {
+        notification.warning({
+          duration: LOADING_DURATION.fast,
+          message: filename,
+          placement: 'bottomRight',
+          description: error,
         })
       } else if (inputSize && outputSize) {
         const percent = ceil(((inputSize - outputSize) / inputSize) * 100)

@@ -10,11 +10,10 @@ import { i18n } from '~/i18n'
 import { VscodeMessageCenter } from '~/message'
 import { isJpg, isPng } from '~/utils'
 import { Channel } from '~/utils/channel'
-import logger from '~/utils/logger'
 import { Config } from '../config'
 import { type FormatConverterOptions } from './format-converter'
 import { COMPRESSED_META, type SvgoPlugin } from './meta'
-import { Operator, type OperatorResult } from './operator'
+import { LimitError, Operator, type OperatorResult } from './operator'
 import { Svgo } from './svgo'
 
 export type CompressionOptions = {
@@ -104,33 +103,29 @@ export class Compressor extends Operator {
     )
 
     return res.map((r) => {
-      if (r.error === new SkipError().message) {
-        return {
-          ...r,
-          isSkiped: true,
-        }
+      const isSkiped = r.error instanceof SkipError
+      const isLimited = r.error instanceof LimitError
+      return {
+        ...r,
+        error: r.error ? r.error.message : toString(r.error),
+        isSkiped,
+        isLimited,
       }
-      return r
     })
   }
 
   async compressImage(filePath: string) {
     try {
-      try {
-        await this.checkLimit(filePath)
-      } catch (e) {
-        logger.error(e)
-      }
+      await this.checkLimit(filePath)
       const res = await this.core(filePath)
       return {
         filePath,
         ...res,
       }
-    } catch (e) {
-      const error = e instanceof Error ? e.message : toString(e)
-      Channel.info(`Compress Error: ${error}`)
+    } catch (e: any) {
+      Channel.info(`Compress Error: ${toString(e)}`)
       return {
-        error,
+        error: e,
         filePath,
       }
     }
@@ -164,12 +159,16 @@ export class Compressor extends Operator {
         outputSize,
         outputPath,
       }
-    } catch (e) {
+    } catch (e: any) {
       return {
         filePath,
         error: e,
       }
     }
+  }
+
+  private _isPiexifSupported(filePath: string) {
+    return isJpg(filePath)
   }
 
   private async core(filePath: string): Promise<{ inputSize: number; outputSize: number; outputPath: string }> {
@@ -249,7 +248,7 @@ export class Compressor extends Operator {
                 })
                 .timeout({ seconds: 30 })
 
-              if (!isPng(ext) && !isJpg(ext)) {
+              if (!isPng(ext) && !this._isPiexifSupported(ext)) {
                 if (this._writeMetadata) {
                   sharp.withMetadata({
                     exif: {
@@ -297,7 +296,7 @@ export class Compressor extends Operator {
                     PNGUint8Array = addMetadata(PNGUint8Array, COMPRESSED_META, '1')
                   } catch {}
                   await fs.writeFile(outputPath, PNGUint8Array)
-                } else if (isJpg(outputPath)) {
+                } else if (this._isPiexifSupported(outputPath)) {
                   let binary = fs.readFileSync(outputPath).toString('binary')
                   binary = piexif.remove(binary)
                   const zeroth = {}

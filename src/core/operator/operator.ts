@@ -24,6 +24,10 @@ export type OperatorResult = {
    * 是否跳过了操作
    */
   isSkiped?: boolean
+  /**
+   * 图片类型是否被限制支持
+   */
+  isLimited?: boolean
 }[]
 
 export abstract class Operator {
@@ -54,7 +58,7 @@ export abstract class Operator {
   public checkLimit(filePath: string) {
     const res = this._isSupported(filePath)
     if (isString(res)) {
-      return Promise.reject(res)
+      return Promise.reject(new LimitError(res))
     }
     return Promise.resolve(true)
   }
@@ -113,5 +117,12 @@ export abstract class Operator {
 
   public getFileSize(filePath: string) {
     return fs.statSync(filePath).size
+  }
+}
+
+export class LimitError extends Error {
+  constructor(message: string) {
+    super(message)
+    this.name = 'LimitError'
   }
 }

@@ -31,7 +31,7 @@ i18next.use(initReactI18next).init({
   },
   debug: true,
   resources: {},
-  nsSeparator: false,
+  nsSeparator: '.',
   keySeparator: '.',
   interpolation: {
     escapeValue: false,

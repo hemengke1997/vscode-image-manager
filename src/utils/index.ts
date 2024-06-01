@@ -14,6 +14,10 @@ export function isJpg(filePath: string) {
   return isSomeImageType(filePath, ['jpg', 'jpeg'])
 }
 
+export function isTiff(filePath: string) {
+  return isSomeImageType(filePath, ['tiff', 'tif'])
+}
+
 function isSomeImageType(filePath: string, type: string[]) {
   const ext = path.extname(filePath).toLowerCase()
   if (!ext) return type.some((t) => t === filePath)
