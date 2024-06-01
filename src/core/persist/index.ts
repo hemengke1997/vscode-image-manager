@@ -1,1 +1,1 @@
-export * from './workspace/WorkspaceState'
+export * from './workspace/workspace-state'

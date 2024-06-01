@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest'
-import { uniqSortByThenMap } from '~/webview/ImageManager/utils'
-import { DirTree, type TreeParams } from '~/webview/ImageManager/utils/DirTree'
+import { uniqSortByThenMap } from '~/webview/image-manager/utils'
+import { DirTree, type TreeParams } from '~/webview/image-manager/utils/dir-tree'
 
 function displayMapFixture(visibleListFixture: ImageType[]) {
   return {

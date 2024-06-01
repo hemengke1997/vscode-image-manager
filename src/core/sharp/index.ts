@@ -1,2 +1,2 @@
-export * from './Operator'
-export * from './Installer'
+export * from './operator'
+export * from './installer'

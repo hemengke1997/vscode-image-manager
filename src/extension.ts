@@ -4,7 +4,7 @@ import commandsModules from '~/commands'
 import { version } from '../package.json'
 import { Global, VscodeSettings } from './core'
 import { i18n } from './i18n'
-import { Channel } from './utils/Channel'
+import { Channel } from './utils/channel'
 
 export async function activate(ctx: vscode.ExtensionContext) {
   Channel.info(`Activated, v${version}`)

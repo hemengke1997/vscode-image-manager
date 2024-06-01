@@ -1,2 +1,2 @@
-export * from './MessageCenter'
-export * from './WebviewMessageCenter'
+export * from './message-center'
+export * from './webview-message-center'

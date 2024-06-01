@@ -1,1 +1,1 @@
-export * from './Similarity'
+export * from './similarity'

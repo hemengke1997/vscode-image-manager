@@ -1,6 +1,6 @@
 import { commands } from 'vscode'
 import { type ExtensionModule } from '~/module'
-import { Channel } from '~/utils/Channel'
+import { Channel } from '~/utils/channel'
 import { Commands } from '.'
 
 export default <ExtensionModule>function () {

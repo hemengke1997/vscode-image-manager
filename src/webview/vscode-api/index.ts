@@ -1,12 +1,12 @@
 import { destrUtil, isFunction, random } from '@minko-fe/lodash-pro'
 import { type WebviewApi } from 'vscode-webview'
+import { CmdToWebview } from '~/message/cmd'
 import {
   type FirstParameterOfMessageCenter,
   type KeyofMessage,
   type MessageType,
   type ReturnOfMessageCenter,
-} from '~/message/MessageCenter'
-import { CmdToWebview } from '~/message/cmd'
+} from '~/message/message-center'
 import logger from '~/utils/logger'
 
 export type MessageCallbackFn<T extends KeyofMessage> = (data: ReturnOfMessageCenter<T>) => void

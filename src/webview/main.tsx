@@ -1,9 +1,9 @@
-import ImageManager from './ImageManager'
-import ActionContext from './ImageManager/contexts/ActionContext'
-import CroppoerContext from './ImageManager/contexts/CropperContext'
-import GlobalContext from './ImageManager/contexts/GlobalContext'
-import OperatorContext from './ImageManager/contexts/OperatorContext'
-import SettingsContext from './ImageManager/contexts/SettingsContext'
+import ImageManager from './image-manager'
+import ActionContext from './image-manager/contexts/action-context'
+import CroppoerContext from './image-manager/contexts/cropper-context'
+import GlobalContext from './image-manager/contexts/global-context'
+import OperatorContext from './image-manager/contexts/operator-context'
+import SettingsContext from './image-manager/contexts/settings-context'
 import { registerApp } from './ui-framework/src/main'
 
 const webviewComponents = {

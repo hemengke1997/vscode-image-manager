@@ -3,7 +3,7 @@ import { Config, Global } from '~/core'
 import { WorkspaceState } from '~/core/persist'
 import { CmdToWebview } from '~/message/cmd'
 import { type ExtensionModule } from '~/module'
-import { ImageManagerPanel } from '~/webview/Panel'
+import { ImageManagerPanel } from '~/webview/panel'
 import { Commands } from '.'
 
 export default <ExtensionModule>function () {
