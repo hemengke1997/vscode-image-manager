@@ -3,7 +3,7 @@ import { AnimatePresence, motion } from 'framer-motion'
 import { type ForwardedRef, type ReactNode, forwardRef, memo, useImperativeHandle } from 'react'
 import { useTranslation } from 'react-i18next'
 import { RiSettingsLine } from 'react-icons/ri'
-import { WorkspaceStateKey } from '~/core/persist/workspace/common'
+import { WorkspaceStateKey, type WorkspaceStateType } from '~/core/persist/workspace/common'
 import { useWorkspaceState } from '~/webview/hooks/use-workspace-state'
 import PrimaryColorPicker from '~/webview/ui-framework/src/components/custom-config-provider/components/primary-color-picker'
 import GlobalContext from '../../contexts/global-context'
@@ -73,7 +73,7 @@ function ViewerSettings(_: any, ref: ForwardedRef<ViewerSettingsRef>) {
     },
   ]
 
-  const onSortChange = (value: string[]) => {
+  const onSortChange = (value: WorkspaceStateType['display_sort']) => {
     setSort(value)
   }
 
@@ -106,7 +106,7 @@ function ViewerSettings(_: any, ref: ForwardedRef<ViewerSettingsRef>) {
                   <DisplayStyle value={displayStyle} onChange={setDisplayStyle} />
                 </OperationItemUI>
                 <OperationItemUI title={t('im.sort')}>
-                  <DisplaySort options={sortOptions} value={sort} onChange={onSortChange} />
+                  <DisplaySort options={sortOptions} value={sort} onChange={onSortChange as any} />
                 </OperationItemUI>
                 <OperationItemUI title={t('im.image_background_color')}>
                   <PrimaryColorPicker

@@ -1,9 +1,12 @@
+export type SortByType = 'name' | 'size'
+export type SortType = 'desc' | 'asc'
+
 export type WorkspaceStateType = {
   display_type: {
     checked: string[]
     unchecked: string[]
   }
-  display_sort: string[]
+  display_sort: [SortByType, SortType]
   display_group: ('workspace' | 'dir' | 'type')[]
   display_style: 'compact' | 'nested'
   viewer_mode: 'standard' | 'simple'
@@ -19,7 +22,7 @@ export const defaultState: WorkspaceStateType = {
     checked: [],
     unchecked: [],
   },
-  display_sort: ['size', 'asc'],
+  display_sort: ['name', 'asc'],
   display_group: ['dir'],
   display_style: 'compact',
   viewer_mode: 'standard',

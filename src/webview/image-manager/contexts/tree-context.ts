@@ -10,7 +10,7 @@ import {
 import { createContainer } from 'context-state'
 import { diff } from 'deep-object-diff'
 import { useEffect, useMemo, useRef } from 'react'
-import { type WorkspaceStateType } from '~/core/persist/workspace/common'
+import { type SortByType, type SortType, type WorkspaceStateType } from '~/core/persist/workspace/common'
 import { CmdToVscode } from '~/message/cmd'
 import { vscodeApi } from '~/webview/vscode-api'
 import { FilterRadioValue } from '../components/image-actions/components/filter'
@@ -67,7 +67,11 @@ async function changeImageVisible(imageList: ImageType[], conditions: Condition[
 }
 
 // 图片排序
-const sortFunctions = {
+const sortFunctions: {
+  [key in SortByType]: {
+    [key in SortType]: (a: ImageType, b: ImageType) => number
+  }
+} = {
   size: {
     asc: (a: ImageType, b: ImageType) => a.stats.size - b.stats.size,
     desc: (a: ImageType, b: ImageType) => b.stats.size - a.stats.size,
@@ -78,10 +82,10 @@ const sortFunctions = {
   },
 }
 
-// 1. 按照文件大小排序
-// 2. 按照文件名排序
-function sortImages(sort: string[], images: ImageType[]) {
-  const [sortType, sortOrder] = sort
+// 1. 按照文件大小排序 -- size
+// 2. 按照文件名排序 -- nmae
+function sortImages(sort: TreeContextProp['sort'], images: ImageType[]) {
+  const [sortType, sortOrder] = sort!
   const sortFunction = sortFunctions[sortType][sortOrder]
   return [...images.sort(sortFunction)]
 }
@@ -218,7 +222,7 @@ function useTreeContext(props: TreeContextProp) {
     })
   }, [imageListProp])
 
-  const onSortChange = useMemoizedFn((imageList: ImageType[], sort: string[] | undefined) => {
+  const onSortChange = useMemoizedFn((imageList: ImageType[], sort: TreeContextProp['sort']) => {
     if (sort) {
       return sortImages(sort, imageList)
     }

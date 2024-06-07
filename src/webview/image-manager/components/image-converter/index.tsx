@@ -43,7 +43,7 @@ function ImageConverter(props: ImageConverterProps) {
   })
 
   const onFinish = useMemoizedFn((value: FormValue) => {
-    value = mergeWith(formatConverter?.option || {}, value, (objValue, srcValue) => {
+    value = mergeWith(formatConverter?.option || {}, value, (_, srcValue) => {
       if (isArray(srcValue)) return srcValue
     })
 

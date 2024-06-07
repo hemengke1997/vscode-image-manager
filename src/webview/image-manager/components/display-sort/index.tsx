@@ -4,14 +4,13 @@ import { type PropsWithChildren, type ReactNode, memo, startTransition } from 'r
 import { useTranslation } from 'react-i18next'
 import { BsSortDown, BsSortUpAlt } from 'react-icons/bs'
 import { MdOutlineKeyboardDoubleArrowRight } from 'react-icons/md'
+import { type SortType } from '~/core/persist/workspace/common'
 
 type DisplaySortProps = {
   options: { label: ReactNode; value: string }[]
   value: string[] | undefined
   onChange: (value: string[]) => void
 }
-
-type SortType = 'desc' | 'asc'
 
 function DisplaySort(props: DisplaySortProps) {
   const { options, value, onChange } = props

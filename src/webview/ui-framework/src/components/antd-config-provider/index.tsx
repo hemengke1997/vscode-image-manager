@@ -76,7 +76,10 @@ function AntdConfigProvider({ children }: PropsWithChildren) {
           top: 70,
           maxCount: 3,
         }}
-        notification={{}}
+        notification={{
+          showProgress: true,
+          pauseOnHover: true,
+        }}
       >
         {children}
       </App>
