@@ -37,6 +37,9 @@ export default defineConfig(async (env) => {
         localesPaths: [path.resolve(__dirname, './src/webview/locales')],
       }),
     ],
+    optimizeDeps: {
+      force: true,
+    },
     build: {
       outDir: path.resolve(__dirname, './dist-webview/'),
       emptyOutDir: true,

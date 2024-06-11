@@ -14,12 +14,13 @@ type PrimaryColorPickerProps = {
   children?: ReactNode
   rencentColors: string[]
   onRencentColorsChange: (colors: string[]) => void
+  title?: string
 }
 
 function PrimaryColorPicker(props: PrimaryColorPickerProps) {
   const { t } = useTranslation()
 
-  const { value, onChange, extraColors, rencentColors, onRencentColorsChange } = props
+  const { value, onChange, extraColors, rencentColors, onRencentColorsChange, title } = props
 
   const color = new TinyColor(value).toHex8String()
 
@@ -76,7 +77,7 @@ function PrimaryColorPicker(props: PrimaryColorPickerProps) {
       placement='bottom'
     >
       <Button
-        title={t('im.primary_color')}
+        title={title}
         type='text'
         icon={
           <div className={'flex items-center text-2xl'}>

@@ -20,7 +20,7 @@ index 66f3294..e6a55b2 100644
  interface PanelProps {
      isActive?: boolean;
 diff --git a/node_modules/antd/es/collapse/Collapse.js b/node_modules/antd/es/collapse/Collapse.js
-index e8ded1f..44a53d3 100644
+index 0591d39..b87902b 100644
 --- a/node_modules/antd/es/collapse/Collapse.js
 +++ b/node_modules/antd/es/collapse/Collapse.js
 @@ -29,7 +29,8 @@ const Collapse = /*#__PURE__*/React.forwardRef((props, ref) => {
@@ -43,3 +43,28 @@ index e8ded1f..44a53d3 100644
    });
    const items = React.useMemo(() => children ? toArray(children).map((child, index) => {
      var _a, _b;
+diff --git a/node_modules/antd/es/notification/useNotification.js b/node_modules/antd/es/notification/useNotification.js
+index f167e85..eb66e77 100644
+--- a/node_modules/antd/es/notification/useNotification.js
++++ b/node_modules/antd/es/notification/useNotification.js
+@@ -54,7 +54,9 @@ const Holder = /*#__PURE__*/React.forwardRef((props, ref) => {
+     rtl,
+     onAllRemoved,
+     stack,
+-    duration
++    duration,
++    pauseOnHover = true,
++    showProgress,
+   } = props;
+   const {
+     getPrefixCls,
+@@ -80,7 +82,8 @@ const Holder = /*#__PURE__*/React.forwardRef((props, ref) => {
+     closable: true,
+     closeIcon: getCloseIcon(prefixCls),
+     duration: duration !== null && duration !== void 0 ? duration : DEFAULT_DURATION,
+-    pauseOnHover: true,
++    pauseOnHover,
++    showProgress,
+     getContainer: () => (staticGetContainer === null || staticGetContainer === void 0 ? void 0 : staticGetContainer()) || (getPopupContainer === null || getPopupContainer === void 0 ? void 0 : getPopupContainer()) || document.body,
+     maxCount,
+     onAllRemoved,

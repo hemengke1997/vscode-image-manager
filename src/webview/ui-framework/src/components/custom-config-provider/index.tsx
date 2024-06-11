@@ -101,6 +101,7 @@ function CustomConfigProvider(props: PropsWithChildren) {
                   onChange={setPrimaryColor}
                   rencentColors={recentBackgroundColors}
                   onRencentColorsChange={setRencentBackgroundColors}
+                  title={t('im.primary_color')}
                 ></PrimaryColorPicker>
               </div>
             }
