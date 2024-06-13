@@ -1,5 +1,11 @@
 # CHANGELOG
 
+## 0.21.0 (2024-06-13)
+
+### Feat
+
+- Add notification progress
+
 ## 0.20.4 (2024-06-01)
 
 ### Fix
