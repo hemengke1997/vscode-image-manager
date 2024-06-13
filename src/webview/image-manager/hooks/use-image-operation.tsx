@@ -21,7 +21,11 @@ import { LOADING_DURATION } from '../utils/duration'
 const { Text } = Typography
 
 function useImageOperation() {
-  const { compressor, formatConverter } = GlobalContext.usePicker(['compressor', 'formatConverter'])
+  const { compressor, formatConverter, extConfig } = GlobalContext.usePicker([
+    'compressor',
+    'formatConverter',
+    'extConfig',
+  ])
   const { notification, message, modal } = App.useApp()
   const { t } = useTranslation()
 
@@ -199,7 +203,6 @@ function useImageOperation() {
   )
 
   // 删除文件
-  const { extConfig } = GlobalContext.usePicker(['extConfig'])
   const [confirmDelete, setConfirmDelete] = useExtConfigState(
     ConfigKey.file_confirmDelete,
     extConfig.file.confirmDelete,

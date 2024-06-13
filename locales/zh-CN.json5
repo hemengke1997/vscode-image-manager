@@ -18,6 +18,7 @@
       exclude: '排除范围内的图片 (micromatch 匹配语法)',
       scan: '扫描图片的类型',
       confirmDelete: '删除图片时是否询问',
+      revealFileInOsDeeply: '在OS中显示文件夹时进入到文件夹中',
     },
     viewer: {
       warningSize: '如果图片大小大于此值 (KB)，则显示警告点。值为0时不显示',

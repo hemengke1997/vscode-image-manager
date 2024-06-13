@@ -263,10 +263,10 @@ export const VscodeMessageCenter = {
   },
 
   /* --------- open path in os explorer -------- */
-  [CmdToVscode.open_image_in_os_explorer]: async (data: { filePath: string; deep?: boolean }) => {
-    const { filePath, deep = true } = data
+  [CmdToVscode.open_image_in_os_explorer]: async (data: { filePath: string }) => {
+    const { filePath } = data
     let targetPath = filePath
-    if (deep) {
+    if (Config.file_revealFileInOsDeeply) {
       try {
         const files = fs.readdirSync(targetPath)
         targetPath = path.join(targetPath, files[0])

@@ -74,6 +74,10 @@ export class Config {
     return this.getConfig(ConfigKey.file_confirmDelete)
   }
 
+  static get file_revealFileInOsDeeply(): boolean {
+    return this.getConfig(ConfigKey.file_revealFileInOsDeeply)
+  }
+
   static get appearance_theme(): Theme {
     return this.getConfig(ConfigKey.appearance_theme)
   }

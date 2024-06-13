@@ -24,6 +24,7 @@ export type ConfigType = {
     exclude: string[]
     scan: string[]
     confirmDelete: boolean
+    revealFileInOsDeeply: boolean
   }
   appearance: {
     theme: Theme
@@ -57,6 +58,7 @@ export enum ConfigKey {
   file_exclude = 'file.exclude',
   file_scan = 'file.scan',
   file_confirmDelete = 'file.confirmDelete',
+  file_revealFileInOsDeeply = 'file.revealFileInOsDeeply',
 
   appearance_theme = 'appearance.theme',
   appearance_language = 'appearance.language',
@@ -103,6 +105,7 @@ export const DEFAULT_CONFIG: ConfigType = {
     scan: ['svg', 'png', 'jpeg', 'jpg', 'ico', 'gif', 'webp', 'bmp', 'tif', 'apng', 'tiff', 'avif'],
     exclude: [],
     confirmDelete: true,
+    revealFileInOsDeeply: false,
   },
   appearance: {
     theme: 'auto',

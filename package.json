@@ -304,6 +304,11 @@
           "default": true,
           "description": "%pkg.file.confirmDelete%"
         },
+        "image-manager.file.revealFileInOsDeeply": {
+          "type": "boolean",
+          "default": false,
+          "description": "%pkg.file.revealFileInOsDeeply%"
+        },
         "image-manager.appearance.theme": {
           "type": "string",
           "default": "auto",
