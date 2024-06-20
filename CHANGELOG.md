@@ -1,5 +1,15 @@
 # CHANGELOG
 
+## 0.22.0 (2024-06-20)
+
+### Feat
+
+- Add `image-manager.file.revealFileInOsDeeply` config to control whether reveal file in os deep **one** level
+
+### Fix
+
+- Fix filename ellipsis not working
+
 ## 0.21.0 (2024-06-13)
 
 ### Feat
