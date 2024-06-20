@@ -2,7 +2,7 @@ import { last } from '@minko-fe/lodash-pro'
 import { useMemoizedFn } from '@minko-fe/react-hook'
 import { Tooltip, type TooltipProps, Typography } from 'antd'
 import { memo } from 'react'
-import './index.css'
+import styles from './index.module.css'
 
 const { Text } = Typography
 
@@ -31,12 +31,13 @@ function ImageName(props: ImageNameProps) {
     }
     return children
   })
+
   return (
-    <div id='image-name'>
+    <div id={styles.imageName}>
       <Tooltip {...tooltipProps} title={tooltipDisplayFullPath ? tooltipTitle() : null}>
         <div className={'select-text'}>
           <Text
-            style={{ maxWidth: '100%' }}
+            className={'max-w-full'}
             ellipsis={{
               suffix,
               tooltip: tooltipDisplayFullPath

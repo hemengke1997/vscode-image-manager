@@ -147,7 +147,7 @@ function ImageCompressor(props: ImageCompressorProps) {
         'quality': {
           el: () => (
             <Form.Item label={t('im.image_quality')} name='quality' tooltip={t('im.quality_tip')}>
-              <InputNumber min={20} max={100} step={10} />
+              <InputNumber min={1} max={100} step={10} />
             </Form.Item>
           ),
         },

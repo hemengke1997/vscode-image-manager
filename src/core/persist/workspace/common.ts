@@ -15,6 +15,8 @@ export type WorkspaceStateType = {
 
   // 调整精确度的提示
   show_precision_tip: boolean
+  // 撤销/恢复提示
+  show_undo_redo_tip: boolean
 }
 
 export const defaultState: WorkspaceStateType = {
@@ -29,6 +31,7 @@ export const defaultState: WorkspaceStateType = {
   rencent_image_backgroundColor: [],
   rencent_layout_backgroundColor: [],
   show_precision_tip: true,
+  show_undo_redo_tip: true,
 }
 
 export const enum WorkspaceStateKey {
@@ -39,5 +42,8 @@ export const enum WorkspaceStateKey {
   viewer_mode = 'viewer_mode',
   rencent_image_backgroundColor = 'rencent_image_backgroundColor',
   rencent_layout_backgroundColor = 'rencent_layout_backgroundColor',
+  // 精度提示
   show_precision_tip = 'show_precision_tip',
+  // 撤销/恢复提示
+  show_undo_redo_tip = 'show_undo_redo_tip',
 }

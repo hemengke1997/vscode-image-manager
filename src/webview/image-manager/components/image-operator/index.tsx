@@ -1,8 +1,23 @@
 import { useControlledState, useHistoryTravel, useUpdateEffect } from '@minko-fe/react-hook'
-import { Alert, App, Button, Card, ConfigProvider, type FormInstance, Modal, type ModalProps, theme } from 'antd'
+import {
+  Alert,
+  App,
+  Button,
+  Card,
+  ConfigProvider,
+  type FormInstance,
+  Modal,
+  type ModalProps,
+  Tooltip,
+  theme,
+} from 'antd'
 import { type ReactNode, memo, useEffect, useState } from 'react'
 import { useHotkeys } from 'react-hotkeys-hook'
 import { useTranslation } from 'react-i18next'
+import { VscChromeClose } from 'react-icons/vsc'
+import { WorkspaceStateKey } from '~/core/persist/workspace/common'
+import { useWorkspaceState } from '~/webview/hooks/use-workspace-state'
+import GlobalContext from '../../contexts/global-context'
 import { Keybinding } from '../../keybinding'
 import ImagePreview from '../image-preview'
 import './index.css'
@@ -88,6 +103,13 @@ function ImageOperator(props: ImageOperatorProps & ImageOperatorStaticProps) {
     },
   )
 
+  const { workspaceState } = GlobalContext.usePicker(['workspaceState'])
+
+  const [showUndoRedoTip, setShowUndoRedoTip] = useWorkspaceState(
+    WorkspaceStateKey.show_undo_redo_tip,
+    workspaceState.show_undo_redo_tip,
+  )
+
   return (
     <Modal
       maskClosable={false}
@@ -122,14 +144,23 @@ function ImageOperator(props: ImageOperatorProps & ImageOperatorStaticProps) {
                       },
               }}
             ></ImagePreview>
-            {removed && (
+            {removed && showUndoRedoTip && (
               <Alert
                 type='info'
                 message={t('im.undo_redo_tip', {
                   undo: Keybinding.Undo,
                   redo: Keybinding.Redo,
                 })}
-                closable
+                closable={{
+                  closeIcon: (
+                    <Tooltip title={t('im.no_tip')}>
+                      <VscChromeClose className={'anticon-close text-base'} />
+                    </Tooltip>
+                  ),
+                }}
+                onClose={() => {
+                  setShowUndoRedoTip(false)
+                }}
               />
             )}
           </div>
