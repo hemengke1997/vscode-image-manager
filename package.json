@@ -98,7 +98,7 @@
     "@types/vscode": "^1.60.0",
     "@types/vscode-webview": "^1.57.5",
     "@vitejs/plugin-react": "^4.3.1",
-    "@vscode/vsce": "^2.27.0",
+    "@vscode/vsce": "^2.29.0",
     "antd": "5.18.3",
     "bumpp": "^9.4.1",
     "clsx": "^2.1.1",
