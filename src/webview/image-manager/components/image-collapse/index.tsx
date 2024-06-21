@@ -2,7 +2,7 @@ import { isUndefined } from '@minko-fe/lodash-pro'
 import { useControlledState, useMemoizedFn } from '@minko-fe/react-hook'
 import { Collapse, type CollapseProps } from 'antd'
 import { type ReactNode, memo, useEffect, useMemo } from 'react'
-import { cn } from '~/webview/utils'
+import { classnames } from 'tw-clsx'
 import ActionContext from '../../contexts/action-context'
 import GlobalContext from '../../contexts/global-context'
 import { type EnableCollapseContextMenuType } from '../context-menus/components/collapse-context-menu'
@@ -146,7 +146,7 @@ function ImageCollapse(props: ImageCollapseProps) {
         <div
           onContextMenu={(e) => onContextMenu(e, index)}
           tabIndex={-1}
-          className={cn(
+          className={classnames(
             'relative w-full cursor-pointer transition-all after:absolute after:-inset-x-0 after:-inset-y-[8px] after:content-[""] hover:underline focus:underline',
           )}
           onClick={() => {
@@ -168,9 +168,9 @@ function ImageCollapse(props: ImageCollapseProps) {
       return (
         <div className={'flex w-full items-center'}>
           {labels.map((l, i) => (
-            <div key={i} className={cn('flex items-center', i === labels.length - 1 && 'flex-1')}>
+            <div key={i} className={classnames('flex items-center', i === labels.length - 1 && 'flex-1')}>
               {singleLabelNode(l, i)}
-              <div className={cn('px-0.5', i !== labels.length - 1 ? 'block' : 'hidden')}>/</div>
+              <div className={classnames('px-0.5', i !== labels.length - 1 ? 'block' : 'hidden')}>/</div>
             </div>
           ))}
         </div>

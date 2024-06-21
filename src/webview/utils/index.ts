@@ -1,6 +1,4 @@
-import clsx, { type ClassValue } from 'clsx'
 import { produce } from 'immer'
-import { twMerge } from 'tailwind-merge'
 import { type ConfigType } from '~/core/config/common'
 import { intelligentPick } from '~/utils/intelligent-pick'
 
@@ -22,10 +20,6 @@ export function intelligentPickConfig(
     draft.appearance.theme = intelligentPick(extTheme, theme, 'auto')
     draft.appearance.language = intelligentPick(extLanguage, language, 'auto')
   })
-}
-
-export function cn(...args: ClassValue[]) {
-  return twMerge(clsx(args))
 }
 
 export function getAppRoot() {

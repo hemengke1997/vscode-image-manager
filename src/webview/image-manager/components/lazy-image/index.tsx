@@ -12,9 +12,10 @@ import { RxDimensions } from 'react-icons/rx'
 import { TbResize } from 'react-icons/tb'
 import { Events, animateScroll } from 'react-scroll'
 import { Key } from 'ts-key-enum'
+import classnames from 'tw-clsx'
 import { type SharpNS } from '~/@types/global'
 import { CmdToVscode } from '~/message/cmd'
-import { cn, getAppRoot } from '~/webview/utils'
+import { getAppRoot } from '~/webview/utils'
 import { vscodeApi } from '~/webview/vscode-api'
 import ActionContext from '../../contexts/action-context'
 import GlobalContext from '../../contexts/global-context'
@@ -216,7 +217,7 @@ function LazyImage(props: LazyImageProps) {
       <motion.div
         ref={keybindRef}
         tabIndex={-1}
-        className={cn(
+        className={classnames(
           'group relative flex flex-none flex-col items-center space-y-1 p-1.5 transition-colors',
           'hover:border-ant-color-primary focus:border-ant-color-primary focus-visibile:border-ant-color-primary overflow-hidden rounded-md border-[2px] border-solid border-transparent focus-visible:outline-none',
         )}
@@ -244,7 +245,7 @@ function LazyImage(props: LazyImageProps) {
         <Badge status='warning' dot={ifWarning}>
           <Image
             {...antdImageProps}
-            className={cn('rounded-md object-contain p-1 will-change-auto', antdImageProps.className)}
+            className={classnames('rounded-md object-contain p-1 will-change-auto', antdImageProps.className)}
             preview={
               lazy
                 ? {
@@ -264,7 +265,7 @@ function LazyImage(props: LazyImageProps) {
                         )}
                         <div className={'flex items-center space-x-1 truncate'}>
                           <TbResize />
-                          <span className={cn(ifWarning && 'text-ant-color-warning-text')}>
+                          <span className={classnames(ifWarning && 'text-ant-color-warning-text')}>
                             {formatBytes(image.stats.size)}
                           </span>
                         </div>
@@ -287,7 +288,7 @@ function LazyImage(props: LazyImageProps) {
                   }
                 : false
             }
-            rootClassName={cn('transition-all', antdImageProps.rootClassName)}
+            rootClassName={classnames('transition-all', antdImageProps.rootClassName)}
             style={{
               imageRendering,
               ...antdImageProps.style,
