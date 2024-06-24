@@ -1,5 +1,11 @@
 # CHANGELOG
 
+## 0.23.0 (2024-06-24)
+
+### Feat
+
+- Support shift/cmd/ctrl multiple selection. You can use `shift` to select a range of images, `cmd` or `ctrl` to select multiple images.
+
 ## 0.22.0 (2024-06-20)
 
 ### Feat
