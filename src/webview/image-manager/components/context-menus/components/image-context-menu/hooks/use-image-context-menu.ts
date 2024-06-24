@@ -4,7 +4,10 @@ import { type ShowContextMenuParams, useContextMenu } from 'react-contexify'
 import { type EnableImageContextMenuType, IMAGE_CONTEXT_MENU_ID } from '..'
 
 export type ImageContextMenuType = {
-  image: ImageType
+  /**
+   * 图片数组
+   */
+  images: ImageType[]
   /**
    * 同display层级的图片
    */

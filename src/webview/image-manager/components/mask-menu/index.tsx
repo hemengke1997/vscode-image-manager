@@ -10,7 +10,10 @@ function MaskMenu(props: MenuProps) {
 
   return (
     <>
-      <div className={classnames('fixed inset-0 z-[999]', contextMenuMask ? 'block' : 'hidden')}></div>
+      <div
+        className={classnames('fixed inset-0 z-[999]', contextMenuMask ? 'block' : 'hidden')}
+        id='context-menu-mask'
+      ></div>
       <Menu
         {...props}
         theme={theme}

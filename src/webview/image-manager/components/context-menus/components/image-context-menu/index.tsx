@@ -1,3 +1,4 @@
+import { last } from '@minko-fe/lodash-pro'
 import { useLockFn, useMemoizedFn } from '@minko-fe/react-hook'
 import { App } from 'antd'
 import { memo } from 'react'
@@ -73,7 +74,7 @@ function ImageContextMenu() {
       type: 'name' | 'path',
       callback?: (s: string) => Promise<string | undefined>,
     ) => {
-      const s = e.props?.image[type] || ''
+      const s = last(e.props?.images)?.[type] || ''
       if (!s) {
         message.error(t('im.copy_fail'))
         return
@@ -86,12 +87,12 @@ function ImageContextMenu() {
 
   // 在os中打开图片
   const handleOpenInOsExplorer = useMemoizedFn((e: ItemParams<ImageContextMenuType>) => {
-    openInOsExplorer(e.props!.image.path)
+    openInOsExplorer(last(e.props!.images)!.path)
   })
 
   // 在vscode中打开图片
   const handleOpenInVscodeExplorer = useMemoizedFn((e: ItemParams<ImageContextMenuType>) => {
-    openInVscodeExplorer(e.props!.image.path)
+    openInVscodeExplorer(last(e.props!.images)!.path)
   })
 
   const isItemHidden = useMemoizedFn((e: PredicateParams<ImageContextMenuType>) => {
@@ -104,7 +105,7 @@ function ImageContextMenu() {
 
   // 压缩图片
   const handleCompressImage = useMemoizedFn((e: ItemParams<ImageContextMenuType>) => {
-    beginCompressProcess([e.props!.image], {
+    beginCompressProcess(e.props!.images, {
       fields: {
         /**
          * 单文件压缩时，不跳过压缩流程
@@ -121,22 +122,22 @@ function ImageContextMenu() {
 
   // 裁剪图片
   const handleCropImage = useLockFn(async (e: ItemParams<ImageContextMenuType>) => {
-    if (!e.props?.image) {
+    if (!e.props?.images.length) {
       return message.error(t('im.no_image'))
     }
-    cropImage(e.props.image)
+    cropImage(last(e.props.images)!)
   })
 
   // 转化格式
   const handleConvertFormat = useLockFn(async (e: ItemParams<ImageContextMenuType>) => {
-    beginFormatConversionProcess([e.props!.image])
+    beginFormatConversionProcess(e.props!.images)
   })
 
   // 格式化svg
   const handlePrettySvg = useLockFn(async (e: ItemParams<ImageContextMenuType>) => {
     try {
-      const { image } = e.props!
-      await prettySvg(image.path)
+      const image = last(e.props!.images)
+      await prettySvg(image!.path)
       message.success(t('im.pretty_success'))
     } catch (e) {
       logger.error(e)
@@ -147,31 +148,31 @@ function ImageContextMenu() {
     beginFindSimilarProcess(image, images)
   })
   const handleFindSimilarInSameLevel = useLockFn(async (e: ItemParams<ImageContextMenuType>) => {
-    const { image, sameLevelImages } = e.props || {}
-    await handleFindSimilar(image!, sameLevelImages!)
+    const { images, sameLevelImages } = e.props || {}
+    await handleFindSimilar(last(images)!, sameLevelImages!)
   })
   const handleFindSimilarInAll = useLockFn(async (e: ItemParams<ImageContextMenuType>) => {
-    const { image, sameWorkspaceImages } = e.props || {}
+    const { images, sameWorkspaceImages } = e.props || {}
 
-    await handleFindSimilar(image!, sameWorkspaceImages!)
+    await handleFindSimilar(last(images)!, sameWorkspaceImages!)
   })
 
   const handleDelete = useMemoizedFn(async (e: ItemParams<ImageContextMenuType>) => {
-    beginDeleteImageProcess(e.props!.image)
+    beginDeleteImageProcess(e.props!.images)
   })
 
   const handleRename = useMemoizedFn((e: ItemParams<ImageContextMenuType>) => {
-    beginRenameImageProcess(e.props!.image)
+    beginRenameImageProcess(last(e.props!.images)!)
   })
 
   const { showImageDetailModal } = useImageDetail()
 
   const handleRevealInViewer = useLockFn(async (e: ItemParams<ImageContextMenuType>) => {
-    beginRevealInViewer(e.props!.image)
+    beginRevealInViewer(last(e.props!.images)!)
   })
 
   const isSvg = useMemoizedFn((e: HandlerParams<ImageContextMenuType>) => {
-    return e.props?.image.fileType === 'svg'
+    return e.props?.images.every((image) => image.fileType === 'svg') || false
   })
 
   return (
@@ -236,7 +237,7 @@ function ImageContextMenu() {
         </Item>
 
         <Separator />
-        <Item onClick={(e: ItemParams<ImageContextMenuType>) => showImageDetailModal(e.props!.image)}>
+        <Item onClick={(e: ItemParams<ImageContextMenuType>) => showImageDetailModal(last(e.props!.images)!)}>
           {t('im.detail')}
           <RightSlot>{t('im.double_click')}</RightSlot>
         </Item>

@@ -209,26 +209,29 @@ function useImageOperation() {
   )
   const [askDelete, setAskDelete] = useState(false)
   const beginDeleteProcess = useLockFn(
-    async (options: {
-      /**
-       * 要删除的文件名
-       */
-      name: string
-      /**
-       * 完整路径
-       */
-      path: string
-      /**
-       * 是否递归删除
-       */
-      recursive?: boolean
-    }) => {
-      const { name, path, recursive } = options
+    async (
+      options: {
+        /**
+         * 要删除的文件名
+         */
+        name: string
+        /**
+         * 完整路径
+         */
+        path: string
+        /**
+         * 是否递归删除
+         */
+        recursive?: boolean
+      }[],
+    ) => {
+      const filenames = options.map((t) => t.name).join(', ')
+      // const { name, path, recursive } = options
       let success = false
       if (confirmDelete) {
         await modal.confirm({
-          width: 300,
-          title: t('im.delete_title', { filename: `'${name}'` }),
+          width: 400,
+          title: t('im.delete_title', { filename: `'${filenames}'` }),
           content: (
             <div className='space-y-2'>
               <div className={'text-sm'}>
@@ -247,7 +250,7 @@ function useImageOperation() {
               setConfirmDelete(false)
             }
             try {
-              await deleteFile(path, { recursive })
+              await Promise.all(options.map(async ({ path, recursive }) => await deleteFile(path, { recursive })))
               success = true
             } catch {
               success = false
@@ -256,7 +259,7 @@ function useImageOperation() {
         })
       } else {
         try {
-          await deleteFile(path, { recursive })
+          await Promise.all(options.map(async ({ path, recursive }) => await deleteFile(path, { recursive })))
           success = true
         } catch {
           success = false
@@ -268,16 +271,16 @@ function useImageOperation() {
 
   const [imageContextMenuEvent] = useImageContextMenuEvent()
   // 删除图片
-  const beginDeleteImageProcess = useMemoizedFn(async (image: ImageType) => {
-    const success = await beginDeleteProcess({ name: getFilebasename(image.name), path: image.path })
+  const beginDeleteImageProcess = useMemoizedFn(async (images: ImageType[]) => {
+    const success = await beginDeleteProcess(images.map((t) => ({ name: getFilebasename(t.name), path: t.path })))
     if (success) {
-      imageContextMenuEvent.emit('delete', image)
+      imageContextMenuEvent.emit('delete', images)
     }
   })
 
   // 删除目录
   const beginDeleteDirProcess = useMemoizedFn(async (dirPath: string) => {
-    beginDeleteProcess({ name: getDirnameFromPath(dirPath), path: dirPath, recursive: true })
+    beginDeleteProcess([{ name: getDirnameFromPath(dirPath), path: dirPath, recursive: true }])
   })
 
   // 重命名
@@ -335,7 +338,7 @@ function useImageOperation() {
     }) => {
       const { currentName, path, onFinish, inputProps, type } = options
       const instance = modal.confirm({
-        width: 300,
+        width: 400,
         content: (
           <Form
             form={renameForm}

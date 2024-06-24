@@ -5,7 +5,7 @@ type Events = {
   /**
    * 删除图片
    */
-  delete: [image: ImageType]
+  delete: [images: ImageType[]]
   /**
    * 重命名
    */
@@ -40,34 +40,30 @@ type Ev<T extends Events, EventName extends EventEmitter.EventNames<T> = EventEm
 }
 
 export default function useImageContextMenuEvent(events?: { on?: Ev<Events>; once?: Ev<Events> }) {
-  const ref = useRef<ImageContextMenuEvent>()
-  if (!ref.current) {
-    ref.current = ImageContextMenuEvent.getInstance()
-  }
+  const ref = useRef<ImageContextMenuEvent>(ImageContextMenuEvent.getInstance())
 
   useEffect(() => {
-    const registerEvent = () => {
-      if (ref.current && events) {
+    const hanleEvent = (type: 'on' | 'off') => {
+      if (events) {
         Object.keys(events).forEach((key) => {
           if (events[key]) {
             for (const eventName in events[key]) {
-              ref.current![key](eventName as keyof Events, events[key][eventName])
+              ref.current[type](eventName as keyof Events, events[key][eventName])
             }
           }
         })
-        return () => {
-          Object.keys(events).forEach((key) => {
-            if (events[key]) {
-              for (const eventName in events[key]) {
-                ref.current!.off(eventName as keyof Events, events[key][eventName])
-              }
-            }
-          })
-        }
+      }
+    }
+
+    const registerEvent = () => {
+      hanleEvent('on')
+      return () => {
+        hanleEvent('off')
       }
     }
 
     const unregister = registerEvent()
+
     return () => {
       unregister?.()
     }

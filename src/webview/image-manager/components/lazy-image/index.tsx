@@ -1,5 +1,5 @@
 import { trim } from '@minko-fe/lodash-pro'
-import { useInViewport, useMemoizedFn, useUpdateEffect } from '@minko-fe/react-hook'
+import { useControlledState, useInViewport, useMemoizedFn, useUpdateEffect } from '@minko-fe/react-hook'
 import { Badge, Image, type ImageProps } from 'antd'
 import { motion } from 'framer-motion'
 import { type ReactNode, memo, useEffect, useRef, useState } from 'react'
@@ -53,9 +53,13 @@ export type LazyImageProps = {
    */
   removeRender?: (children: ReactNode, image: ImageType) => ReactNode
   /**
+   * 右键上下文回调
+   */
+  onContextMenu?: (e: React.MouseEvent<HTMLDivElement>) => void
+  /**
    * 图片右键上下文
    */
-  contextMenu: Omit<ImageContextMenuType, 'image'> | undefined
+  contextMenu: Omit<ImageContextMenuType, 'images'> | undefined
   /**
    * 透传给 antd Image 组件的 props
    */
@@ -64,6 +68,14 @@ export type LazyImageProps = {
    * 透传给 ImageName 组件的props
    */
   imageNameProps?: ImageNameProps
+  /**
+   * 图片状态
+   */
+  active?: boolean
+  /**
+   * 图片状态改变回调
+   */
+  onActiveChange?: (active: boolean) => void
 }
 
 function LazyImage(props: LazyImageProps) {
@@ -76,11 +88,22 @@ function LazyImage(props: LazyImageProps) {
     contextMenu,
     antdImageProps,
     imageNameProps,
+    active,
+    onActiveChange,
+    onContextMenu,
   } = props
 
   const { beginRenameImageProcess, beginDeleteImageProcess } = useImageOperation()
   const { t } = useTranslation()
   const { showImageDetailModal } = useImageDetail()
+
+  const [interactive, setInteractive] = useControlledState<boolean>({
+    defaultValue: active,
+    value: active,
+    onChange(value) {
+      onActiveChange?.(value)
+    },
+  })
 
   const { imagePlaceholderSize, targetImagePath } = GlobalContext.usePicker(['imagePlaceholderSize', 'targetImagePath'])
   const warningSize = GlobalContext.useSelector((ctx) => ctx.extConfig.viewer.warningSize)
@@ -122,7 +145,7 @@ function LazyImage(props: LazyImageProps) {
           }
           case Key.Backspace: {
             hideAll()
-            beginDeleteImageProcess(image)
+            beginDeleteImageProcess([image])
             return
           }
           default:
@@ -137,7 +160,7 @@ function LazyImage(props: LazyImageProps) {
 
   const ifWarning = !!warningSize && bytesToKb(image.stats.size) > warningSize
 
-  const { show, hideAll } = useImageContextMenu()
+  const { hideAll } = useImageContextMenu()
 
   const isTargetImage = useMemoizedFn(() => {
     return (
@@ -153,10 +176,10 @@ function LazyImage(props: LazyImageProps) {
     if (isTargetImage()) {
       Events.scrollEvent.register('end', () => {
         timer = window.setTimeout(() => {
-          keybindRef.current?.focus()
+          setInteractive(true)
           // 清空 targetImagePath，避免下次进入时直接定位
           vscodeApi.postMessage({ cmd: CmdToVscode.reveal_image_in_viewer, data: { filePath: '' } })
-        }, 100) // TODO: 为什么延迟后才能生效？
+        }, 0)
       })
 
       idleTimer = requestIdleCallback(() => {
@@ -180,25 +203,13 @@ function LazyImage(props: LazyImageProps) {
 
     return () => {
       if (isTargetImage()) {
-        keybindRef.current?.blur()
+        setInteractive(false)
         Events.scrollEvent.remove('end')
         clearTimeout(timer)
         cancelIdleCallback(idleTimer)
       }
     }
   }, [targetImagePath])
-
-  const onContextMenu = useMemoizedFn((e: React.MouseEvent<HTMLDivElement>) => {
-    show({
-      event: e,
-      props: {
-        image,
-        ...contextMenu,
-        sameWorkspaceImages: contextMenu?.sameWorkspaceImages || [],
-        sameLevelImages: contextMenu?.sameLevelImages || [],
-      },
-    })
-  })
 
   if (!inViewport && lazy) {
     return (
@@ -220,6 +231,7 @@ function LazyImage(props: LazyImageProps) {
         className={classnames(
           'group relative flex flex-none flex-col items-center space-y-1 p-1.5 transition-colors',
           'hover:border-ant-color-primary focus:border-ant-color-primary focus-visibile:border-ant-color-primary overflow-hidden rounded-md border-[2px] border-solid border-transparent focus-visible:outline-none',
+          interactive && 'border-ant-color-primary',
         )}
         initial={{ opacity: 0 }}
         viewport={{ once: true, margin: '20px 0px' }}

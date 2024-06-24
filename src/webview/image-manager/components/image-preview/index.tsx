@@ -1,9 +1,9 @@
-import { round } from '@minko-fe/lodash-pro'
-import { useThrottleFn } from '@minko-fe/react-hook'
+import { range, round } from '@minko-fe/lodash-pro'
+import { useClickAway, useMemoizedFn, useThrottleFn } from '@minko-fe/react-hook'
 import { isDev } from '@minko-fe/vite-config/client'
 import { ConfigProvider, Image, theme } from 'antd'
 import { type AliasToken, type ComponentTokenMap } from 'antd/es/theme/interface'
-import { memo, useCallback, useEffect, useState } from 'react'
+import { memo, useCallback, useEffect, useRef, useState } from 'react'
 import GlobalContext from '../../contexts/global-context'
 import SettingsContext from '../../contexts/settings-context'
 import useImageContextMenu from '../context-menus/components/image-context-menu/hooks/use-image-context-menu'
@@ -78,6 +78,26 @@ function ImagePreview(props: ImagePreviewProps) {
     [imageState.data],
   )
 
+  const selectedImageRefs = useRef<HTMLDivElement[]>([])
+  const [selectedImages, setSelectedImages] = useState<number[]>([])
+
+  useClickAway(() => {
+    setSelectedImages([])
+  }, [...selectedImageRefs.current, document.querySelector('#context-menu-mask')])
+
+  const onContextMenu = useMemoizedFn((e: React.MouseEvent<HTMLDivElement>, image: ImageType) => {
+    const selected = selectedImages.map((i) => images[i])
+    show({
+      event: e,
+      props: {
+        images: selected.length ? selected : [image],
+        sameLevelImages: images,
+        sameWorkspaceImages: getSameWorkspaceImages(image),
+        ...lazyImageProps?.contextMenu,
+      },
+    })
+  })
+
   return (
     <>
       <div className={'flex flex-wrap gap-2'}>
@@ -121,7 +141,7 @@ function ImagePreview(props: ImagePreviewProps) {
                       show({
                         event: e,
                         props: {
-                          image: images[info.current],
+                          images: [images[info.current]],
                           sameLevelImages: images,
                           sameWorkspaceImages: getSameWorkspaceImages(images[info.current]),
                           ...lazyImageProps?.contextMenu,
@@ -155,29 +175,70 @@ function ImagePreview(props: ImagePreviewProps) {
               }}
             >
               {images.map((image, i) => (
-                <LazyImage
-                  {...lazyImageProps}
-                  antdImageProps={{
-                    ...(lazyImageProps?.antdImageProps || {}),
-                    style: {
-                      backgroundColor,
-                    },
-                    className: 'object-scale-down',
-                    width: imageWidth,
-                    height: imageWidth,
-                    src: image.vscodePath,
-                  }}
-                  onPreviewClick={() => {
-                    setPreview({ open: true, current: i })
-                  }}
-                  contextMenu={{
-                    sameLevelImages: images,
-                    sameWorkspaceImages: getSameWorkspaceImages(image),
-                    ...lazyImageProps?.contextMenu,
-                  }}
-                  image={image}
+                <div
                   key={image.path + image.stats.ctime}
-                />
+                  onClick={(e) => {
+                    if (e.metaKey || e.ctrlKey) {
+                      // 点击多选
+                      setSelectedImages((t) => {
+                        const index = t.indexOf(i)
+                        if (index === -1) {
+                          return [...t, i]
+                        } else {
+                          return t.filter((t) => t !== i)
+                        }
+                      })
+                      return
+                    }
+
+                    if (e.shiftKey) {
+                      if (!selectedImages.length) {
+                        setSelectedImages([i])
+                        return
+                      }
+                      // start-end 多选
+                      const start = selectedImages[0]
+                      const end = i
+                      setSelectedImages([...range(start, end), end])
+                      return
+                    }
+
+                    setSelectedImages([i])
+                  }}
+                  ref={(ref) => {
+                    selectedImageRefs.current[i] = ref!
+                  }}
+                >
+                  <LazyImage
+                    {...lazyImageProps}
+                    antdImageProps={{
+                      ...(lazyImageProps?.antdImageProps || {}),
+                      style: {
+                        backgroundColor,
+                      },
+                      className: 'object-scale-down',
+                      width: imageWidth,
+                      height: imageWidth,
+                      src: image.vscodePath,
+                    }}
+                    onPreviewClick={() => {
+                      setPreview({ open: true, current: i })
+                    }}
+                    contextMenu={lazyImageProps?.contextMenu}
+                    onContextMenu={(e) => onContextMenu(e, image)}
+                    image={image}
+                    active={selectedImages.includes(i)}
+                    onActiveChange={(active) => {
+                      setSelectedImages((t) => {
+                        if (active) {
+                          return [...t, i]
+                        } else {
+                          return t.filter((t) => t !== i)
+                        }
+                      })
+                    }}
+                  />
+                </div>
               ))}
             </ConfigProvider>
           </Image.PreviewGroup>

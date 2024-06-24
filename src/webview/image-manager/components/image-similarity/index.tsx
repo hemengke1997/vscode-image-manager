@@ -1,3 +1,4 @@
+import { remove } from '@minko-fe/lodash-pro'
 import { useControlledState } from '@minko-fe/react-hook'
 import { Card, Divider, Empty, Modal } from 'antd'
 import { produce } from 'immer'
@@ -47,13 +48,17 @@ function ImageSimilarity(props: ImageSimilarityProps) {
           }),
         )
       },
-      delete: (image) => {
+      delete: (images) => {
         setSimilarImages(
           produce((draft) => {
-            const index = draft.findIndex((t) => t.image.path === image.path)
-            if (index !== -1) {
-              draft.splice(index, 1)
-            }
+            const removedIndex: number[] = []
+            images.forEach((image) => {
+              const index = draft.findIndex((t) => t.image.path === image.path)
+              if (index !== -1) {
+                removedIndex.push(index)
+              }
+            })
+            remove(draft, (_, index) => removedIndex.includes(index))
           }),
         )
       },
