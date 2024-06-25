@@ -1,5 +1,11 @@
 # CHANGELOG
 
+## 0.23.1 (2024-06-25)
+
+### Fix
+
+- Multiple selected the wrong image 
+
 ## 0.23.0 (2024-06-24)
 
 ### Feat
