@@ -98,6 +98,10 @@ function ToastHolder(props: ToastProps) {
           }}
           onMouseEnter={() => onMouseHover(true)}
           onMouseLeave={() => onMouseHover(false)}
+          onClick={(e) => {
+            // prevent click away
+            e.stopPropagation()
+          }}
         >
           {content}
         </motion.div>

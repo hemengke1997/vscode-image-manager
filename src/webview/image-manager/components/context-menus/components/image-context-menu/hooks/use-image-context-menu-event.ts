@@ -14,6 +14,10 @@ type Events = {
    * 在viewer中显示图片
    */
   reveal_in_viewer: [image: ImageType]
+  /**
+   * 右键图片
+   */
+  context_menu: [image: ImageType, id: string]
 }
 
 /**
@@ -69,5 +73,7 @@ export default function useImageContextMenuEvent(events?: { on?: Ev<Events>; onc
     }
   }, [])
 
-  return [ref.current] as const
+  return {
+    imageContextMenuEvent: ref.current,
+  }
 }

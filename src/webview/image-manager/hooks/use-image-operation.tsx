@@ -226,7 +226,6 @@ function useImageOperation() {
       }[],
     ) => {
       const filenames = options.map((t) => t.name).join(', ')
-      // const { name, path, recursive } = options
       let success = false
       if (confirmDelete) {
         await modal.confirm({
@@ -269,10 +268,10 @@ function useImageOperation() {
     },
   )
 
-  const [imageContextMenuEvent] = useImageContextMenuEvent()
+  const { imageContextMenuEvent } = useImageContextMenuEvent()
   // 删除图片
   const beginDeleteImageProcess = useMemoizedFn(async (images: ImageType[]) => {
-    const success = await beginDeleteProcess(images.map((t) => ({ name: getFilebasename(t.name), path: t.path })))
+    const success = await beginDeleteProcess(images.map((t) => ({ name: t.name, path: t.path })))
     if (success) {
       imageContextMenuEvent.emit('delete', images)
     }

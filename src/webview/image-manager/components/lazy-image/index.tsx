@@ -59,7 +59,7 @@ export type LazyImageProps = {
   /**
    * 图片右键上下文
    */
-  contextMenu: Omit<ImageContextMenuType, 'images'> | undefined
+  contextMenu: Omit<ImageContextMenuType, 'image' | 'images'> | undefined
   /**
    * 透传给 antd Image 组件的 props
    */
@@ -227,11 +227,10 @@ function LazyImage(props: LazyImageProps) {
     <>
       <motion.div
         ref={keybindRef}
-        tabIndex={-1}
         className={classnames(
           'group relative flex flex-none flex-col items-center space-y-1 p-1.5 transition-colors',
-          'hover:border-ant-color-primary focus:border-ant-color-primary focus-visibile:border-ant-color-primary overflow-hidden rounded-md border-[2px] border-solid border-transparent focus-visible:outline-none',
-          interactive && 'border-ant-color-primary',
+          'hover:border-ant-color-primary-active overflow-hidden rounded-md border-[2px] border-solid border-transparent',
+          interactive && 'border-ant-color-primary-hover hover:border-ant-color-primary-hover',
         )}
         initial={{ opacity: 0 }}
         viewport={{ once: true, margin: '20px 0px' }}
@@ -248,7 +247,11 @@ function LazyImage(props: LazyImageProps) {
             className={
               'text-ant-color-error absolute left-0 top-0 z-[99] cursor-pointer opacity-0 transition-opacity group-hover:opacity-100'
             }
-            onClick={() => onRemoveClick(image)}
+            onClick={(e) => {
+              // prevent click away
+              e.stopPropagation()
+              onRemoveClick(image)
+            }}
             title={t('im.remove')}
           >
             {removeRender(<MdOutlineRemoveCircle />, image)}
@@ -267,6 +270,7 @@ function LazyImage(props: LazyImageProps) {
                           <div
                             className={'flex cursor-pointer items-center space-x-1 truncate'}
                             onClick={(e) => {
+                              // prevent click away
                               e.stopPropagation()
                               onPreviewClick(image)
                             }}

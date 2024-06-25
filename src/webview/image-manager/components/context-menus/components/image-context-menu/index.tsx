@@ -1,4 +1,3 @@
-import { last } from '@minko-fe/lodash-pro'
 import { useLockFn, useMemoizedFn } from '@minko-fe/react-hook'
 import { App } from 'antd'
 import { memo } from 'react'
@@ -49,6 +48,8 @@ export type EnableImageContextMenuType = {
   [key in keyof typeof IMAGE_CONTEXT_MENU]?: boolean
 }
 
+type ItemParamsContextMenu = ItemParams<Required<ImageContextMenuType>>
+
 function ImageContextMenu() {
   const { t } = useTranslation()
   const { message } = App.useApp()
@@ -69,12 +70,8 @@ function ImageContextMenu() {
 
   // 复制图片 name | path | base64
   const handleCopyString = useLockFn(
-    async (
-      e: ItemParams<ImageContextMenuType>,
-      type: 'name' | 'path',
-      callback?: (s: string) => Promise<string | undefined>,
-    ) => {
-      const s = last(e.props?.images)?.[type] || ''
+    async (e: ItemParamsContextMenu, type: 'name' | 'path', callback?: (s: string) => Promise<string | undefined>) => {
+      const s = e.props?.image[type] || ''
       if (!s) {
         message.error(t('im.copy_fail'))
         return
@@ -86,13 +83,13 @@ function ImageContextMenu() {
   )
 
   // 在os中打开图片
-  const handleOpenInOsExplorer = useMemoizedFn((e: ItemParams<ImageContextMenuType>) => {
-    openInOsExplorer(last(e.props!.images)!.path)
+  const handleOpenInOsExplorer = useMemoizedFn((e: ItemParamsContextMenu) => {
+    openInOsExplorer(e.props!.image.path)
   })
 
   // 在vscode中打开图片
-  const handleOpenInVscodeExplorer = useMemoizedFn((e: ItemParams<ImageContextMenuType>) => {
-    openInVscodeExplorer(last(e.props!.images)!.path)
+  const handleOpenInVscodeExplorer = useMemoizedFn((e: ItemParamsContextMenu) => {
+    openInVscodeExplorer(e.props!.image.path)
   })
 
   const isItemHidden = useMemoizedFn((e: PredicateParams<ImageContextMenuType>) => {
@@ -104,7 +101,7 @@ function ImageContextMenu() {
   })
 
   // 压缩图片
-  const handleCompressImage = useMemoizedFn((e: ItemParams<ImageContextMenuType>) => {
+  const handleCompressImage = useMemoizedFn((e: ItemParamsContextMenu) => {
     beginCompressProcess(e.props!.images, {
       fields: {
         /**
@@ -121,22 +118,22 @@ function ImageContextMenu() {
   })
 
   // 裁剪图片
-  const handleCropImage = useLockFn(async (e: ItemParams<ImageContextMenuType>) => {
-    if (!e.props?.images.length) {
+  const handleCropImage = useLockFn(async (e: ItemParamsContextMenu) => {
+    if (!e.props?.image) {
       return message.error(t('im.no_image'))
     }
-    cropImage(last(e.props.images)!)
+    cropImage(e.props.image)
   })
 
   // 转化格式
-  const handleConvertFormat = useLockFn(async (e: ItemParams<ImageContextMenuType>) => {
+  const handleConvertFormat = useLockFn(async (e: ItemParamsContextMenu) => {
     beginFormatConversionProcess(e.props!.images)
   })
 
   // 格式化svg
-  const handlePrettySvg = useLockFn(async (e: ItemParams<ImageContextMenuType>) => {
+  const handlePrettySvg = useLockFn(async (e: ItemParamsContextMenu) => {
     try {
-      const image = last(e.props!.images)
+      const image = e.props!.image
       await prettySvg(image!.path)
       message.success(t('im.pretty_success'))
     } catch (e) {
@@ -147,32 +144,33 @@ function ImageContextMenu() {
   const handleFindSimilar = useMemoizedFn(async (image: ImageType, images: ImageType[]) => {
     beginFindSimilarProcess(image, images)
   })
-  const handleFindSimilarInSameLevel = useLockFn(async (e: ItemParams<ImageContextMenuType>) => {
-    const { images, sameLevelImages } = e.props || {}
-    await handleFindSimilar(last(images)!, sameLevelImages!)
-  })
-  const handleFindSimilarInAll = useLockFn(async (e: ItemParams<ImageContextMenuType>) => {
-    const { images, sameWorkspaceImages } = e.props || {}
 
-    await handleFindSimilar(last(images)!, sameWorkspaceImages!)
+  const handleFindSimilarInSameLevel = useLockFn(async (e: ItemParamsContextMenu) => {
+    const { image, sameLevelImages } = e.props || {}
+    await handleFindSimilar(image!, sameLevelImages!)
   })
 
-  const handleDelete = useMemoizedFn(async (e: ItemParams<ImageContextMenuType>) => {
+  const handleFindSimilarInAll = useLockFn(async (e: ItemParamsContextMenu) => {
+    const { image, sameWorkspaceImages } = e.props || {}
+    await handleFindSimilar(image!, sameWorkspaceImages!)
+  })
+
+  const handleDelete = useMemoizedFn(async (e: ItemParamsContextMenu) => {
     beginDeleteImageProcess(e.props!.images)
   })
 
-  const handleRename = useMemoizedFn((e: ItemParams<ImageContextMenuType>) => {
-    beginRenameImageProcess(last(e.props!.images)!)
+  const handleRename = useMemoizedFn((e: ItemParamsContextMenu) => {
+    beginRenameImageProcess(e.props!.image)
   })
 
   const { showImageDetailModal } = useImageDetail()
 
-  const handleRevealInViewer = useLockFn(async (e: ItemParams<ImageContextMenuType>) => {
-    beginRevealInViewer(last(e.props!.images)!)
+  const handleRevealInViewer = useLockFn(async (e: ItemParamsContextMenu) => {
+    beginRevealInViewer(e.props!.image)
   })
 
-  const isSvg = useMemoizedFn((e: HandlerParams<ImageContextMenuType>) => {
-    return e.props?.images.every((image) => image.fileType === 'svg') || false
+  const isSvg = useMemoizedFn((e: HandlerParams<Required<ImageContextMenuType>>) => {
+    return e.props!.images.every((image) => image.fileType === 'svg') || false
   })
 
   return (
@@ -220,9 +218,7 @@ function ImageContextMenu() {
         </Submenu>
         <Item
           onClick={handlePrettySvg}
-          hidden={(e: HandlerParams<ImageContextMenuType>) =>
-            isItemHidden({ ...e, data: [IMAGE_CONTEXT_MENU.svg] }) || !isSvg(e)
-          }
+          hidden={(e) => isItemHidden({ ...e, data: [IMAGE_CONTEXT_MENU.svg] }) || !isSvg(e)}
         >
           {t('im.pretty')} svg
         </Item>
@@ -237,7 +233,7 @@ function ImageContextMenu() {
         </Item>
 
         <Separator />
-        <Item onClick={(e: ItemParams<ImageContextMenuType>) => showImageDetailModal(last(e.props!.images)!)}>
+        <Item onClick={(e: ItemParamsContextMenu) => showImageDetailModal(e.props!.image)}>
           {t('im.detail')}
           <RightSlot>{t('im.double_click')}</RightSlot>
         </Item>

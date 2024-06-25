@@ -1,12 +1,13 @@
-import { range, round } from '@minko-fe/lodash-pro'
+import { isString, range, round } from '@minko-fe/lodash-pro'
 import { useClickAway, useMemoizedFn, useThrottleFn } from '@minko-fe/react-hook'
 import { isDev } from '@minko-fe/vite-config/client'
 import { ConfigProvider, Image, theme } from 'antd'
 import { type AliasToken, type ComponentTokenMap } from 'antd/es/theme/interface'
-import { memo, useCallback, useEffect, useRef, useState } from 'react'
+import { memo, useCallback, useEffect, useId, useRef, useState } from 'react'
 import GlobalContext from '../../contexts/global-context'
 import SettingsContext from '../../contexts/settings-context'
 import useImageContextMenu from '../context-menus/components/image-context-menu/hooks/use-image-context-menu'
+import useImageContextMenuEvent from '../context-menus/components/image-context-menu/hooks/use-image-context-menu-event'
 import LazyImage, { type LazyImageProps } from '../lazy-image'
 import Toast from '../toast'
 
@@ -80,22 +81,76 @@ function ImagePreview(props: ImagePreviewProps) {
 
   const selectedImageRefs = useRef<HTMLDivElement[]>([])
   const [selectedImages, setSelectedImages] = useState<number[]>([])
+  const [triggeredByContextMenu, setTriggeredByContextMenu] = useState(false)
 
-  useClickAway(() => {
-    setSelectedImages([])
-  }, [...selectedImageRefs.current, document.querySelector('#context-menu-mask')])
+  const preventCliakAway = useMemoizedFn((el: HTMLElement, classNames: string[]) => {
+    let parent = el.parentElement
+    while (parent) {
+      if (isString(parent.className) && classNames.some((className) => parent?.className.includes(className))) {
+        return true
+      }
+      parent = parent.parentElement!
+    }
+    return false
+  })
 
-  const onContextMenu = useMemoizedFn((e: React.MouseEvent<HTMLDivElement>, image: ImageType) => {
-    const selected = selectedImages.map((i) => images[i])
+  useClickAway(
+    (e) => {
+      const targetEl = e.target as HTMLElement
+      if (preventCliakAway(targetEl, ['ant-modal', 'ant-image-preview'])) return
+      if (targetEl.id === 'context-menu-mask') {
+        if (triggeredByContextMenu) {
+          setTriggeredByContextMenu(false)
+          setSelectedImages([])
+          return
+        }
+        return
+      }
+      setSelectedImages([])
+    },
+    selectedImageRefs.current,
+    ['click', 'contextmenu'],
+  )
+
+  const id = useId()
+
+  const { imageContextMenuEvent } = useImageContextMenuEvent({
+    on: {
+      context_menu(_, _id) {
+        // 清除非当前层级的选中
+        if (id !== _id) {
+          setSelectedImages([])
+        }
+      },
+    },
+  })
+
+  const onContextMenu = useMemoizedFn((e: React.MouseEvent<HTMLDivElement>, image: ImageType, i: number) => {
+    imageContextMenuEvent.emit('context_menu', image, id)
+    let selected = selectedImages
+    if (selectedImages.length <= 1 || !selectedImages.includes(i)) {
+      selected = [i]
+      setTriggeredByContextMenu(true)
+    }
+    setSelectedImages(selected)
     show({
       event: e,
       props: {
-        images: selected.length ? selected : [image],
+        image,
+        images: selected.map((i) => images[i]),
         sameLevelImages: images,
         sameWorkspaceImages: getSameWorkspaceImages(image),
         ...lazyImageProps?.contextMenu,
       },
     })
+  })
+
+  const multipleClick = useMemoizedFn((previous: number[], i: number, shouldAdd: boolean) => {
+    if (shouldAdd) {
+      return [...previous, i]
+    } else {
+      return previous.filter((t) => t !== i)
+    }
   })
 
   return (
@@ -123,6 +178,7 @@ function ImagePreview(props: ImagePreviewProps) {
               keyboard: true,
               onChange(current) {
                 setPreview({ current, open: true })
+                Toast.hide()
               },
               onVisibleChange: (v, _, current) => {
                 if (!v) {
@@ -141,7 +197,7 @@ function ImagePreview(props: ImagePreviewProps) {
                       show({
                         event: e,
                         props: {
-                          images: [images[info.current]],
+                          image: images[info.current],
                           sameLevelImages: images,
                           sameWorkspaceImages: getSameWorkspaceImages(images[info.current]),
                           ...lazyImageProps?.contextMenu,
@@ -182,11 +238,7 @@ function ImagePreview(props: ImagePreviewProps) {
                       // 点击多选
                       setSelectedImages((t) => {
                         const index = t.indexOf(i)
-                        if (index === -1) {
-                          return [...t, i]
-                        } else {
-                          return t.filter((t) => t !== i)
-                        }
+                        return multipleClick(t, i, index === -1)
                       })
                       return
                     }
@@ -205,9 +257,7 @@ function ImagePreview(props: ImagePreviewProps) {
 
                     setSelectedImages([i])
                   }}
-                  ref={(ref) => {
-                    selectedImageRefs.current[i] = ref!
-                  }}
+                  ref={(ref) => (selectedImageRefs.current[i] = ref!)}
                 >
                   <LazyImage
                     {...lazyImageProps}
@@ -221,22 +271,16 @@ function ImagePreview(props: ImagePreviewProps) {
                       height: imageWidth,
                       src: image.vscodePath,
                     }}
-                    onPreviewClick={() => {
-                      setPreview({ open: true, current: i })
-                    }}
+                    onPreviewClick={() => setPreview({ open: true, current: i })}
                     contextMenu={lazyImageProps?.contextMenu}
-                    onContextMenu={(e) => onContextMenu(e, image)}
+                    onContextMenu={(e) => onContextMenu(e, image, i)}
                     image={image}
                     active={selectedImages.includes(i)}
-                    onActiveChange={(active) => {
+                    onActiveChange={(active) =>
                       setSelectedImages((t) => {
-                        if (active) {
-                          return [...t, i]
-                        } else {
-                          return t.filter((t) => t !== i)
-                        }
+                        return multipleClick(t, i, active)
                       })
-                    }}
+                    }
                   />
                 </div>
               ))}

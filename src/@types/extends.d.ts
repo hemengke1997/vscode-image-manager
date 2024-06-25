@@ -22,6 +22,13 @@ declare module 'react-contexify' {
      */
     data?: Data
   }
+  interface ItemParams<Props = any, Data = any> extends HandlerParams<Props, Data> {
+    event:
+      | React.MouseEvent<HTMLElement>
+      | React.TouchEvent<HTMLElement>
+      | React.KeyboardEvent<HTMLElement>
+      | KeyboardEvent
+  }
 }
 
 export {}

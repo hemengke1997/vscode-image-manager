@@ -5,9 +5,13 @@ import { type EnableImageContextMenuType, IMAGE_CONTEXT_MENU_ID } from '..'
 
 export type ImageContextMenuType = {
   /**
+   * 右键选择的图片
+   */
+  image: ImageType
+  /**
    * 图片数组
    */
-  images: ImageType[]
+  images?: ImageType[]
   /**
    * 同display层级的图片
    */
@@ -51,6 +55,10 @@ export default function useImageContextMenu() {
 
     return contextMenu.show({
       ...params,
+      props: {
+        ...params.props,
+        images: params.props.images?.length ? params.props.images : [params.props.image],
+      },
       id: IMAGE_CONTEXT_MENU_ID,
     })
   })
