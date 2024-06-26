@@ -1,5 +1,16 @@
 # CHANGELOG
 
+## 0.24.0 (2024-06-26)
+
+### Feat
+
+- Add `cmd+c` shortcut to copy image file name
+- Disable preview when selecting multiple images
+
+### Fix
+
+- Reveal specified image in viewer leading to image always selected
+
 ## 0.23.2 (2024-06-26)
 
 ### Fix
@@ -17,7 +28,7 @@
 
 ### Feat
 
-- Support shift/cmd/ctrl multiple selection. You can use `shift` to select a range of images, `cmd` or `ctrl` to select multiple images.
+- Support shift/cmd/ctrl multiple selection. You can use `shift` to select a range of images, `cmd` or `ctrl` to select multiple images
 
 ## 0.22.0 (2024-06-20)
 
