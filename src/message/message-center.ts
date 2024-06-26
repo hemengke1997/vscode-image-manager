@@ -536,10 +536,12 @@ export const VscodeMessageCenter = {
     return true
   },
   /* ---------------- delete file/dir --------------- */
-  [CmdToVscode.delete_file]: async (data: { filePath: string; recursive?: boolean }) => {
-    const { filePath, recursive } = data
+  [CmdToVscode.delete_file]: async (data: { filePaths: string[]; recursive?: boolean }) => {
+    const { filePaths, recursive } = data
     try {
-      await workspace.fs.delete(Uri.file(filePath), { useTrash: true, recursive })
+      await Promise.all(
+        filePaths.map((filePath) => workspace.fs.delete(Uri.file(filePath), { useTrash: true, recursive })),
+      )
       return true
     } catch {
       return false

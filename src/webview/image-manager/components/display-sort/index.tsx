@@ -1,4 +1,4 @@
-import { useControlledState } from '@minko-fe/react-hook'
+import { useControlledState, useMemoizedFn } from '@minko-fe/react-hook'
 import { Cascader, ConfigProvider, theme } from 'antd'
 import { type PropsWithChildren, type ReactNode, memo, startTransition } from 'react'
 import { useTranslation } from 'react-i18next'
@@ -43,12 +43,12 @@ function DisplaySort(props: DisplaySortProps) {
     },
   }
 
-  const sortOptions = () => {
+  const sortOptions = useMemoizedFn(() => {
     return Object.keys(sortMap).map((key) => ({
       label: sortMap[key as SortType].label,
       value: key,
     }))
-  }
+  })
 
   return (
     <>

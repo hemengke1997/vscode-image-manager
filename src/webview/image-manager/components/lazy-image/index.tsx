@@ -227,6 +227,7 @@ function LazyImage(props: LazyImageProps) {
     <>
       <motion.div
         ref={keybindRef}
+        tabIndex={-1}
         className={classnames(
           'group relative flex flex-none flex-col items-center space-y-1 p-1.5 transition-colors',
           'hover:border-ant-color-primary-active overflow-hidden rounded-md border-[2px] border-solid border-transparent',

@@ -1,5 +1,12 @@
 # CHANGELOG
 
+## 0.23.2 (2024-06-26)
+
+### Fix
+
+- Keyboard shortcuts not working
+- Delete multiple images only delete one
+
 ## 0.23.1 (2024-06-25)
 
 ### Fix

@@ -3,6 +3,7 @@ import { useClickAway, useMemoizedFn, useThrottleFn } from '@minko-fe/react-hook
 import { isDev } from '@minko-fe/vite-config/client'
 import { ConfigProvider, Image, theme } from 'antd'
 import { type AliasToken, type ComponentTokenMap } from 'antd/es/theme/interface'
+import { produce } from 'immer'
 import { memo, useCallback, useEffect, useId, useRef, useState } from 'react'
 import GlobalContext from '../../contexts/global-context'
 import SettingsContext from '../../contexts/settings-context'
@@ -79,13 +80,19 @@ function ImagePreview(props: ImagePreviewProps) {
     [imageState.data],
   )
 
-  const selectedImageRefs = useRef<HTMLDivElement[]>([])
-  const [selectedImages, setSelectedImages] = useState<number[]>([])
+  const selectedImageRefs = useRef<Record<string, HTMLDivElement>>({})
+  /* ------------------- 选择的图片 ------------------ */
+  // 使用图片的绝对路径path作为唯一标识
+  // index并不能保证选择的图片是正确的
+  const [selectedImages, setSelectedImages] = useState<ImageType['path'][]>([])
   const [triggeredByContextMenu, setTriggeredByContextMenu] = useState(false)
 
   const preventCliakAway = useMemoizedFn((el: HTMLElement, classNames: string[]) => {
     let parent = el.parentElement
     while (parent) {
+      if (parent.id === 'root') {
+        return false
+      }
       if (isString(parent.className) && classNames.some((className) => parent?.className.includes(className))) {
         return true
       }
@@ -108,7 +115,9 @@ function ImagePreview(props: ImagePreviewProps) {
       }
       setSelectedImages([])
     },
-    selectedImageRefs.current,
+    Object.keys(selectedImageRefs.current)
+      .map((t) => selectedImageRefs.current[t])
+      .filter((t) => !!t),
     ['click', 'contextmenu'],
   )
 
@@ -125,11 +134,11 @@ function ImagePreview(props: ImagePreviewProps) {
     },
   })
 
-  const onContextMenu = useMemoizedFn((e: React.MouseEvent<HTMLDivElement>, image: ImageType, i: number) => {
+  const onContextMenu = useMemoizedFn((e: React.MouseEvent<HTMLDivElement>, image: ImageType) => {
     imageContextMenuEvent.emit('context_menu', image, id)
     let selected = selectedImages
-    if (selectedImages.length <= 1 || !selectedImages.includes(i)) {
-      selected = [i]
+    if (selectedImages.length <= 1 || !selectedImages.includes(image.path)) {
+      selected = [image.path]
       setTriggeredByContextMenu(true)
     }
     setSelectedImages(selected)
@@ -137,7 +146,7 @@ function ImagePreview(props: ImagePreviewProps) {
       event: e,
       props: {
         image,
-        images: selected.map((i) => images[i]),
+        images: selected.map((t) => images.find((i) => i.path === t)!),
         sameLevelImages: images,
         sameWorkspaceImages: getSameWorkspaceImages(image),
         ...lazyImageProps?.contextMenu,
@@ -145,13 +154,50 @@ function ImagePreview(props: ImagePreviewProps) {
     })
   })
 
-  const multipleClick = useMemoizedFn((previous: number[], i: number, shouldAdd: boolean) => {
+  const onClick = useMemoizedFn((e: React.MouseEvent<HTMLDivElement, MouseEvent>, image: ImageType) => {
+    if (e.metaKey || e.ctrlKey) {
+      // 点击多选
+      setSelectedImages((t) => {
+        const index = t.indexOf(image.path)
+        return multipleClick(t, image.path, index === -1)
+      })
+      return
+    }
+
+    if (e.shiftKey) {
+      if (!selectedImages.length) {
+        setSelectedImages([image.path])
+        return
+      }
+      // start-end 多选
+      const start = selectedImages[0]
+      const end = image.path
+      const indexOfStart = images.findIndex((t) => t.path === start)
+      const indexOfEnd = images.findIndex((t) => t.path === end)
+      setSelectedImages([...range(indexOfStart, indexOfEnd), indexOfEnd].map((i) => images[i].path))
+      return
+    }
+
+    setSelectedImages([image.path])
+  })
+
+  const multipleClick = useMemoizedFn((previous: string[], path: string, shouldAdd: boolean) => {
     if (shouldAdd) {
-      return [...previous, i]
+      return [...previous, path]
     } else {
-      return previous.filter((t) => t !== i)
+      return previous.filter((t) => t !== path)
     }
   })
+
+  useEffect(() => {
+    if (selectedImages.length && selectedImages.some((t) => !images.find((i) => i.path === t))) {
+      setSelectedImages(
+        produce((draft) => {
+          return draft.filter((t) => images.find((i) => i.path === t))
+        }),
+      )
+    }
+  }, [images])
 
   return (
     <>
@@ -232,32 +278,9 @@ function ImagePreview(props: ImagePreviewProps) {
             >
               {images.map((image, i) => (
                 <div
-                  key={image.path + image.stats.ctime}
-                  onClick={(e) => {
-                    if (e.metaKey || e.ctrlKey) {
-                      // 点击多选
-                      setSelectedImages((t) => {
-                        const index = t.indexOf(i)
-                        return multipleClick(t, i, index === -1)
-                      })
-                      return
-                    }
-
-                    if (e.shiftKey) {
-                      if (!selectedImages.length) {
-                        setSelectedImages([i])
-                        return
-                      }
-                      // start-end 多选
-                      const start = selectedImages[0]
-                      const end = i
-                      setSelectedImages([...range(start, end), end])
-                      return
-                    }
-
-                    setSelectedImages([i])
-                  }}
-                  ref={(ref) => (selectedImageRefs.current[i] = ref!)}
+                  key={image.vscodePath}
+                  onClick={(e) => onClick(e, image)}
+                  ref={(ref) => (selectedImageRefs.current[image.path] = ref!)}
                 >
                   <LazyImage
                     {...lazyImageProps}
@@ -273,12 +296,12 @@ function ImagePreview(props: ImagePreviewProps) {
                     }}
                     onPreviewClick={() => setPreview({ open: true, current: i })}
                     contextMenu={lazyImageProps?.contextMenu}
-                    onContextMenu={(e) => onContextMenu(e, image, i)}
+                    onContextMenu={(e) => onContextMenu(e, image)}
                     image={image}
-                    active={selectedImages.includes(i)}
+                    active={selectedImages.includes(image.path)}
                     onActiveChange={(active) =>
                       setSelectedImages((t) => {
-                        return multipleClick(t, i, active)
+                        return multipleClick(t, image.path, active)
                       })
                     }
                   />

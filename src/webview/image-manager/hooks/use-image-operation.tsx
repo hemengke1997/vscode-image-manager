@@ -182,14 +182,14 @@ function useImageOperation() {
 
   const deleteFile = useLockFn(
     (
-      filePath: string,
+      filePaths: string[],
       options: {
         recursive?: boolean
       },
     ) => {
       const { recursive } = options
       return new Promise<boolean>((resolve) => {
-        vscodeApi.postMessage({ cmd: CmdToVscode.delete_file, data: { filePath, recursive } }, (res) => {
+        vscodeApi.postMessage({ cmd: CmdToVscode.delete_file, data: { filePaths, recursive } }, (res) => {
           if (res) {
             message.success(t('im.delete_success'))
             resolve(true)
@@ -210,7 +210,7 @@ function useImageOperation() {
   const [askDelete, setAskDelete] = useState(false)
   const beginDeleteProcess = useLockFn(
     async (
-      options: {
+      files: {
         /**
          * 要删除的文件名
          */
@@ -219,14 +219,29 @@ function useImageOperation() {
          * 完整路径
          */
         path: string
+      }[],
+      option?: {
         /**
          * 是否递归删除
          */
         recursive?: boolean
-      }[],
+      },
     ) => {
-      const filenames = options.map((t) => t.name).join(', ')
+      const filenames = files.map((t) => t.name).join(', ')
       let success = false
+
+      async function handleDelete() {
+        try {
+          await deleteFile(
+            files.map((t) => t.path),
+            { recursive: option?.recursive },
+          )
+          success = true
+        } catch {
+          success = false
+        }
+      }
+
       if (confirmDelete) {
         await modal.confirm({
           width: 400,
@@ -248,21 +263,11 @@ function useImageOperation() {
             if (askDelete) {
               setConfirmDelete(false)
             }
-            try {
-              await Promise.all(options.map(async ({ path, recursive }) => await deleteFile(path, { recursive })))
-              success = true
-            } catch {
-              success = false
-            }
+            await handleDelete()
           },
         })
       } else {
-        try {
-          await Promise.all(options.map(async ({ path, recursive }) => await deleteFile(path, { recursive })))
-          success = true
-        } catch {
-          success = false
-        }
+        await handleDelete()
       }
       return success
     },
@@ -279,7 +284,7 @@ function useImageOperation() {
 
   // 删除目录
   const beginDeleteDirProcess = useMemoizedFn(async (dirPath: string) => {
-    beginDeleteProcess([{ name: getDirnameFromPath(dirPath), path: dirPath, recursive: true }])
+    beginDeleteProcess([{ name: getDirnameFromPath(dirPath), path: dirPath }], { recursive: true })
   })
 
   // 重命名

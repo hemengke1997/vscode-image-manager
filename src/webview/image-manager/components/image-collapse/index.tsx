@@ -99,11 +99,11 @@ function ImageCollapse(props: ImageCollapseProps) {
     return imagePath && underFolderDeeplyImages?.find((image) => image.path === imagePath)
   })
 
-  const onActive = (imagePath: string) => {
+  const onActive = useMemoizedFn((imagePath: string) => {
     if (isActive(imagePath)) {
       setActiveKeys([id])
     }
-  }
+  })
 
   // 由于collapse的内容默认是不渲染的，
   // 所以需要在 `reveal_in_viewer` 的时候，主动触发collapse渲染

@@ -97,6 +97,7 @@ export default function useImageDetail() {
           closable: true,
           title: t('im.image_detail'),
           className: styles.detail_modal,
+          centered: true,
           content: (
             <Descriptions
               className={'mt-2'}
