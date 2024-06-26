@@ -43,6 +43,28 @@ function useImageOperation() {
     vscodeApi.postMessage({ cmd: CmdToVscode.open_image_in_os_explorer, data: { filePath } })
   })
 
+  // 复制图片 name | path | base64
+  const handleCopyString = useLockFn(
+    async (
+      image: ImageType,
+      options: {
+        proto: 'name' | 'path'
+        silent?: boolean
+      },
+      callback?: (s: string) => Promise<string | undefined>,
+    ) => {
+      const { proto, silent = false } = options
+      const s = image[proto] || ''
+      if (!s) {
+        message.error(t('im.copy_fail'))
+        return
+      }
+      const res = await callback?.(s)
+      navigator.clipboard.writeText(res || s)
+      !silent && message.success(t('im.copy_success'))
+    },
+  )
+
   const copyImageAsBase64 = useMemoizedFn((filePath: string): Promise<string> => {
     return new Promise((resolve) => {
       vscodeApi.postMessage({ cmd: CmdToVscode.copy_image_as_base64, data: { filePath } }, (data) => {
@@ -483,6 +505,7 @@ function useImageOperation() {
   return {
     openInVscodeExplorer,
     openInOsExplorer,
+    handleCopyString,
     copyImageAsBase64,
     beginCompressProcess,
     beginFormatConversionProcess,

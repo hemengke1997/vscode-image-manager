@@ -93,7 +93,7 @@ function LazyImage(props: LazyImageProps) {
     onContextMenu,
   } = props
 
-  const { beginRenameImageProcess, beginDeleteImageProcess } = useImageOperation()
+  const { beginRenameImageProcess, beginDeleteImageProcess, handleCopyString } = useImageOperation()
   const { t } = useTranslation()
   const { showImageDetailModal } = useImageDetail()
 
@@ -138,10 +138,10 @@ function LazyImage(props: LazyImageProps) {
   }, [refreshTimes])
 
   const keybindRef = useHotkeys<HTMLDivElement>(
-    [Key.Enter, `mod+${Key.Backspace}`],
+    [Key.Enter, `mod+${Key.Backspace}`, `mod+c`],
     (e) => {
       if (contextMenu?.enable?.fs) {
-        switch (e.code) {
+        switch (e.key) {
           case Key.Enter: {
             hideAll()
             beginRenameImageProcess(image)
@@ -150,6 +150,11 @@ function LazyImage(props: LazyImageProps) {
           case Key.Backspace: {
             hideAll()
             beginDeleteImageProcess([image])
+            return
+          }
+          case 'c': {
+            hideAll()
+            handleCopyString(image, { proto: 'name' })
             return
           }
           default:
@@ -170,6 +175,10 @@ function LazyImage(props: LazyImageProps) {
     return (
       !contextMenu?.enable?.reveal_in_viewer && trim(image.path).length && image.path === targetImagePathWithoutQuery
     )
+  })
+
+  const isSelecting = useMemoizedFn((e: React.MouseEvent<HTMLDivElement, MouseEvent>) => {
+    return e.metaKey || e.ctrlKey || e.shiftKey
   })
 
   useEffect(() => {
@@ -237,7 +246,7 @@ function LazyImage(props: LazyImageProps) {
         onContextMenu={onContextMenu}
         onMouseOver={handleMaskMouseOver}
         onDoubleClick={(e) => {
-          if (e.metaKey || e.ctrlKey || e.shiftKey) return
+          if (isSelecting(e)) return
           showImageDetailModal(image)
         }}
       >
@@ -269,7 +278,7 @@ function LazyImage(props: LazyImageProps) {
                           <div
                             className={classnames('flex cursor-pointer items-center space-x-1 truncate')}
                             onClick={(e) => {
-                              if (e.metaKey || e.ctrlKey || e.shiftKey) return
+                              if (isSelecting(e)) return
                               // prevent click away
                               e.stopPropagation()
                               onPreviewClick(image)

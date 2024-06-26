@@ -57,6 +57,7 @@ function ImageContextMenu() {
   const {
     openInOsExplorer,
     openInVscodeExplorer,
+    handleCopyString,
     copyImageAsBase64,
     beginCompressProcess,
     cropImage,
@@ -67,20 +68,6 @@ function ImageContextMenu() {
     beginRenameImageProcess,
     beginRevealInViewer,
   } = useImageOperation()
-
-  // 复制图片 name | path | base64
-  const handleCopyString = useLockFn(
-    async (e: ItemParamsContextMenu, type: 'name' | 'path', callback?: (s: string) => Promise<string | undefined>) => {
-      const s = e.props?.image[type] || ''
-      if (!s) {
-        message.error(t('im.copy_fail'))
-        return
-      }
-      const res = await callback?.(s)
-      navigator.clipboard.writeText(res || s)
-      message.success(t('im.copy_success'))
-    },
-  )
 
   // 在os中打开图片
   const handleOpenInOsExplorer = useMemoizedFn((e: ItemParamsContextMenu) => {
@@ -184,9 +171,14 @@ function ImageContextMenu() {
           {t('im.reveal_in_viewer')}
         </Item>
         <Separator />
-        <Item onClick={(e) => handleCopyString(e, 'name')}>{t('im.copy_image_name')}</Item>
-        <Item onClick={(e) => handleCopyString(e, 'path')}>{t('im.copy_image_path')}</Item>
-        <Item onClick={(e) => handleCopyString(e, 'path', copyImageAsBase64)}>{t('im.copy_image_base64')}</Item>
+        <Item onClick={(e) => handleCopyString(e.props!.image, { proto: 'name' })}>
+          {t('im.copy_image_name')}
+          <RightSlot>{Keybinding.Copy}</RightSlot>
+        </Item>
+        <Item onClick={(e) => handleCopyString(e.props!.image, { proto: 'path' })}>{t('im.copy_image_path')}</Item>
+        <Item onClick={(e) => handleCopyString(e.props!.image, { proto: 'path' }, copyImageAsBase64)}>
+          {t('im.copy_image_base64')}
+        </Item>
 
         {/* sharp operation menu */}
         <Separator hidden={isItemHidden} data={[IMAGE_CONTEXT_MENU.sharp]} />

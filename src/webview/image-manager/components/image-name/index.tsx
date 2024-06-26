@@ -37,23 +37,21 @@ function ImageName(props: ImageNameProps) {
 
   return (
     <div id={styles.imageName}>
-      <Tooltip {...tooltipProps} title={tooltipDisplayFullPath ? tooltipTitle() : null}>
-        <div className={'select-text'}>
-          <Text
-            className={'max-w-full'}
-            ellipsis={{
-              suffix,
-              tooltip: tooltipDisplayFullPath
-                ? false
-                : {
-                    ...tooltipProps,
-                    title: tooltipTitle(),
-                  },
-            }}
-          >
-            {start}
-          </Text>
-        </div>
+      <Tooltip {...tooltipProps} title={tooltipDisplayFullPath ? tooltipTitle() : ''}>
+        <Text
+          className={'max-w-full'}
+          ellipsis={{
+            suffix,
+            tooltip: tooltipDisplayFullPath
+              ? false
+              : {
+                  ...tooltipProps,
+                  title: tooltipTitle(),
+                },
+          }}
+        >
+          {start}
+        </Text>
       </Tooltip>
     </div>
   )
