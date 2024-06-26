@@ -112,6 +112,7 @@ export class ImageManagerPanel {
   }
 
   public static updateTargetImage(targetImagePath: string) {
+    // 加时间戳是为了重复打开同一图片时，能够触发 targetImagePath 的 effect
     this.watchedTargetImage.path = targetImagePath ? `${targetImagePath}?t=${Date.now()}` : ''
   }
 

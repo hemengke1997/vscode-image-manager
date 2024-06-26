@@ -1,5 +1,7 @@
 import { os } from 'un-detector'
 
+// mod (which listens for ctrl on Windows/Linux and cmd on macOS)
+
 type SymbolTypes = {
   mod: string
   shift: string

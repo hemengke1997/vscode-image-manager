@@ -105,7 +105,11 @@ function LazyImage(props: LazyImageProps) {
     },
   })
 
-  const { imagePlaceholderSize, targetImagePath } = GlobalContext.usePicker(['imagePlaceholderSize', 'targetImagePath'])
+  const { imagePlaceholderSize, targetImagePath, targetImagePathWithoutQuery } = GlobalContext.usePicker([
+    'imagePlaceholderSize',
+    'targetImagePath',
+    'targetImagePathWithoutQuery',
+  ])
   const warningSize = GlobalContext.useSelector((ctx) => ctx.extConfig.viewer.warningSize)
   const imageRendering = GlobalContext.useSelector((ctx) => ctx.extConfig.viewer.imageRendering)
   const refreshTimes = ActionContext.useSelector((ctx) => ctx.imageRefreshedState.refreshTimes)
@@ -164,23 +168,15 @@ function LazyImage(props: LazyImageProps) {
 
   const isTargetImage = useMemoizedFn(() => {
     return (
-      !contextMenu?.enable?.reveal_in_viewer &&
-      trim(image.path).length &&
-      image.path === targetImagePath.slice(0, targetImagePath.lastIndexOf('?'))
+      !contextMenu?.enable?.reveal_in_viewer && trim(image.path).length && image.path === targetImagePathWithoutQuery
     )
   })
 
   useEffect(() => {
-    let timer: number
     let idleTimer: number
+
     if (isTargetImage()) {
-      Events.scrollEvent.register('end', () => {
-        timer = window.setTimeout(() => {
-          setInteractive(true)
-          // 清空 targetImagePath，避免下次进入时直接定位
-          vscodeApi.postMessage({ cmd: CmdToVscode.reveal_image_in_viewer, data: { filePath: '' } })
-        }, 0)
-      })
+      setInteractive(true)
 
       idleTimer = requestIdleCallback(() => {
         const y = placeholderRef.current?.getBoundingClientRect().top || keybindRef.current?.getBoundingClientRect().top
@@ -199,13 +195,14 @@ function LazyImage(props: LazyImageProps) {
           )
         }
       })
+    } else {
+      setInteractive(false)
     }
 
     return () => {
       if (isTargetImage()) {
         setInteractive(false)
         Events.scrollEvent.remove('end')
-        clearTimeout(timer)
         cancelIdleCallback(idleTimer)
       }
     }
@@ -230,7 +227,7 @@ function LazyImage(props: LazyImageProps) {
         tabIndex={-1}
         className={classnames(
           'group relative flex flex-none flex-col items-center space-y-1 p-1.5 transition-colors',
-          'hover:border-ant-color-primary-active overflow-hidden rounded-md border-[2px] border-solid border-transparent',
+          'hover:border-ant-color-primary overflow-hidden rounded-md border-[2px] border-solid border-transparent',
           interactive && 'border-ant-color-primary-hover hover:border-ant-color-primary-hover',
         )}
         initial={{ opacity: 0 }}
@@ -239,7 +236,8 @@ function LazyImage(props: LazyImageProps) {
         whileInView={{ opacity: 1 }}
         onContextMenu={onContextMenu}
         onMouseOver={handleMaskMouseOver}
-        onDoubleClick={() => {
+        onDoubleClick={(e) => {
+          if (e.metaKey || e.ctrlKey || e.shiftKey) return
           showImageDetailModal(image)
         }}
       >
@@ -269,8 +267,9 @@ function LazyImage(props: LazyImageProps) {
                       <div className={'flex size-full flex-col items-center justify-center space-y-1 text-sm'}>
                         {onPreviewClick && (
                           <div
-                            className={'flex cursor-pointer items-center space-x-1 truncate'}
+                            className={classnames('flex cursor-pointer items-center space-x-1 truncate')}
                             onClick={(e) => {
+                              if (e.metaKey || e.ctrlKey || e.shiftKey) return
                               // prevent click away
                               e.stopPropagation()
                               onPreviewClick(image)

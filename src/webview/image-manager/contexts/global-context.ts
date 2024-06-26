@@ -80,7 +80,8 @@ function useGlobalContext() {
   const [targetImagePath, setTargetImagePath] = useState<string>(window.__target_image_path__)
   const targetImagePathWithoutQuery = useMemo(() => {
     const index = targetImagePath.lastIndexOf('?')
-    return targetImagePath.slice(0, index)
+    if (index !== -1) return targetImagePath.slice(0, index)
+    return targetImagePath
   }, [targetImagePath])
 
   /* ------------- tree context 中的数据 ------------ */

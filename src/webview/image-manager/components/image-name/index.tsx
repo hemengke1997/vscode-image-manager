@@ -9,7 +9,10 @@ const { Text } = Typography
 const tooltipProps: TooltipProps = {
   arrow: false,
   placement: 'bottom',
-  destroyTooltipOnHide: true,
+  destroyTooltipOnHide: false,
+  align: {
+    offset: [0, 8],
+  },
 }
 
 export type ImageNameProps = {
