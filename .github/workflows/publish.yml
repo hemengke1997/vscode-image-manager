@@ -33,10 +33,12 @@ jobs:
           args: publish -p $VSCE_TOKEN
         env:
           VSCE_TOKEN: ${{ secrets.VSCE_TOKEN }}
-  create-release:
-    name: Create Release
-    runs-on: ubuntu-latest
 
+  create-release:
+    needs: publish-vscode
+    name: Create Release
+    if: "contains(github.event.head_commit.message, 'release')"
+    runs-on: ubuntu-latest
     steps:
       - name: Checkout code
         uses: actions/checkout@master
