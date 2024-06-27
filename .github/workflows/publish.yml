@@ -4,6 +4,8 @@ on:
   push:
     branches:
       - master
+    tags:
+      - v*
 
 permissions: {}
 
@@ -31,3 +33,20 @@ jobs:
           args: publish -p $VSCE_TOKEN
         env:
           VSCE_TOKEN: ${{ secrets.VSCE_TOKEN }}
+  create-release:
+    name: Create Release
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@master
+
+      - name: Create Release for Tag
+        id: release_tag
+        uses: yyx990803/release-tag@master
+        env:
+          GITHUB_TOKEN: ${{ secrets.GHB_TOKEN }}
+        with:
+          tag_name: ${{ github.ref }}
+          body: |
+            Please refer to [CHANGELOG.md](https://github.com/hemengke1997/vscode-image-manager/blob/master/CHANGELOG.md) for details.

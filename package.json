@@ -84,7 +84,7 @@
     "@minko-fe/html-transform": "^0.1.17",
     "@minko-fe/lodash-pro": "^0.3.3",
     "@minko-fe/react-hook": "^0.3.6",
-    "@minko-fe/sharp": "1.0.0-alpha.4",
+    "@minko-fe/sharp": "1.1.0",
     "@minko-fe/tsconfig": "^2.1.0",
     "@minko-fe/vite-config": "^1.0.1",
     "@types/fs-extra": "^11.0.4",
