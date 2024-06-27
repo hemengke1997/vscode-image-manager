@@ -38,6 +38,7 @@
 - **Images Cropper**
 - **Image Viewer**
 - **Finding similar images**
+- Multi-select (shift/ctrl/cmd)
 - View image details
 - Finding images
 - Conditional filtering of images

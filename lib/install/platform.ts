@@ -1,3 +1,3 @@
-import platform from 'sharp/lib/platform'
+import platform from '@minko-fe/sharp/lib/platform'
 
 export { platform }

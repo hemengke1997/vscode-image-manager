@@ -1,4 +1,4 @@
-import type SharpNS from 'sharp'
+import type SharpNS from '@minko-fe/sharp'
 import { type Stats } from 'fs-extra'
 import { type ParsedPath } from 'node:path'
 import { type ReactElement } from 'react'

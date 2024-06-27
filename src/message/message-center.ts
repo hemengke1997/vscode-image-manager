@@ -3,7 +3,6 @@ import exif from 'exif-reader'
 import fg from 'fast-glob'
 import fs from 'fs-extra'
 import imageSize from 'image-size'
-import { getMetadata } from 'meta-png'
 import micromatch from 'micromatch'
 import mime from 'mime/lite'
 import path from 'node:path'
@@ -25,7 +24,7 @@ import { type ConfigType } from '~/core/config/common'
 import { COMPRESSED_META } from '~/core/operator/meta'
 import { WorkspaceState } from '~/core/persist'
 import { type WorkspaceStateKey } from '~/core/persist/workspace/common'
-import { generateOutputPath, isPng, normalizePath } from '~/utils'
+import { generateOutputPath, normalizePath } from '~/utils'
 import { Channel } from '~/utils/channel'
 import { imageGlob } from '~/utils/glob'
 import { ImageManagerPanel } from '~/webview/panel'
@@ -414,18 +413,13 @@ export const VscodeMessageCenter = {
     let metadata: SharpNS.Metadata = {} as SharpNS.Metadata
 
     try {
+      Global.sharp.cache({ files: 0 })
       metadata = await Global.sharp(filePath).metadata()
     } catch {
       metadata = imageSize(filePath) as SharpNS.Metadata
     } finally {
       if (metadata.exif) {
         compressed = !!exif(metadata.exif).Image?.ImageDescription?.includes(COMPRESSED_META)
-      }
-      if (!compressed && isPng(filePath)) {
-        const PNGUint8Array = new Uint8Array(fs.readFileSync(filePath))
-        try {
-          compressed = !!getMetadata(PNGUint8Array, COMPRESSED_META)
-        } catch {}
       }
     }
 

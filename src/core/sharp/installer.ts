@@ -6,6 +6,7 @@ import os from 'node:os'
 import path from 'node:path'
 import { type ExtensionContext, StatusBarAlignment, type StatusBarItem, commands, window } from 'vscode'
 import { i18n } from '~/i18n'
+import { SHARP_LIBVIPS_VERSION } from '~/meta'
 import { isValidHttpsUrl, setImmdiateInterval } from '~/utils'
 import { Channel } from '~/utils/channel'
 import { Config, Global } from '..'
@@ -33,15 +34,32 @@ export class Installer {
   private _cwd: string
   private _statusBarItem: StatusBarItem | undefined
   private _libvips_bin: string
-  private _sharp_bin: string
+  private _useMirror = false
 
-  private readonly _stables = ['build', 'vendor', 'sharp']
-  private readonly _unstables = ['install', 'json']
+  /**
+   * vendor 里面是 sharp libvips 依赖
+   * 需要用户端下载
+   * 为了避免用户每次安装扩展后都下载此依赖，需要把依赖缓存到本地中
+   */
+  private readonly _stables = ['vendor']
+
+  /**
+   * build 里面是 sharp binary
+   * 由于 sharp@0.33.0 之后无法再本地编译，所以我fork了sharp，更新其核心功能。所以无法从npm镜像上下载了
+   * 为了更好的用户体验，把常见系统的二进制文件打包到了扩展内
+   * 从 v1.0.0 开始，内置在扩展源码中了
+   */
+  private readonly _unstables = ['build', 'json', 'sharp']
+
   private readonly _osCacheDir: string
 
   event: EventEmitter<Events> = new EventEmitter()
 
   constructor(public ctx: ExtensionContext) {
+    // If the language is Chinese, it's considered as Chinese region, then set npm mirror
+    const languages = [Config.appearance_language, Global.vscodeLanguage].map(toLower)
+    this._useMirror = languages.includes('zh-cn') || Config.mirror_enabled
+
     this._cwd = ctx.extensionUri.fsPath
     this.platform = require(path.resolve(this._getSharpCwd(), 'install/platform')).platform()
     const cacheDir = [os.homedir(), os.tmpdir()].find((dir) => this._isDirectoryWritable(dir))
@@ -54,12 +72,10 @@ export class Installer {
     Channel.info(`${i18n.t('core.dep_cache_dir')}: ${this._osCacheDir}`)
     Channel.info(`${i18n.t('core.extension_root')}: ${this._cwd}`)
 
-    this._libvips_bin = `libvips-8.14.5-${this.platform}.tar.br`
-    this._sharp_bin = `sharp-v0.32.6-napi-v7-${process.platform}-${process.arch}.tar.gz`
+    this._libvips_bin = `libvips-${SHARP_LIBVIPS_VERSION}-${this.platform}.tar.gz`
 
     Channel.info(`${i18n.t('core.tip')}: ${i18n.t('core.dep_url')} ⬇️`)
-    Channel.info(`1: ${CNPM_BINARY_REGISTRY}/sharp-libvips/v8.14.5/${this._libvips_bin}`)
-    Channel.info(`2: ${CNPM_BINARY_REGISTRY}/sharp/v0.32.6/${this._sharp_bin}`)
+    Channel.info(`${CNPM_BINARY_REGISTRY}/sharp-libvips/v${SHARP_LIBVIPS_VERSION}/${this._libvips_bin}`)
   }
 
   async run() {
@@ -100,7 +116,7 @@ export class Installer {
       fs.ensureFileSync(pkgCacheFilePath)
 
       const pkgStr = fs.readFileSync(pkgCacheFilePath, 'utf-8')
-      let pkg: { version?: string } = {}
+      let pkg: { version?: string; libvips?: string } = {}
       if (isString(pkgStr)) {
         try {
           pkg = destrUtil.destr<AnyObject>(pkgStr)
@@ -108,11 +124,22 @@ export class Installer {
       }
 
       Channel.debug(`Cache package.json: ${JSON.stringify(pkg)}`)
+
+      if (pkg.libvips !== SHARP_LIBVIPS_VERSION) {
+        fs.emptyDirSync(path.resolve(this._getDepOsCacheDir(), 'vendor'))
+        Channel.info(`libvips version is different, copy stables files to os cache`)
+        await this._trySaveCacheToOs(this._stables)
+      }
+
       if (pkg.version !== version) {
         Channel.info('Cache extension version is different, copy unstable files to os cache')
         await this._trySaveCacheToOs(this._unstables)
-        fs.writeJSONSync(pkgCacheFilePath, { version })
       }
+
+      fs.writeJSONSync(pkgCacheFilePath, {
+        version,
+        libvips: SHARP_LIBVIPS_VERSION,
+      })
 
       this.event.emit('install-success', await this._pollingLoadSharp(this._getInstalledCacheTypes()![0]))
     } catch (error) {
@@ -150,7 +177,7 @@ export class Installer {
 
   private _getCaches() {
     const RELEASE_DIR = 'build/Release'
-    const VENDOR_DIR = 'vendor/8.14.5'
+    const VENDOR_DIR = `vendor/${SHARP_LIBVIPS_VERSION}`
     const SHARP_FS = 'sharp/index.js'
 
     const caches: { releaseDirPath: string; vendorDirPath: string; sharpFsPath: string; type: CacheType }[] = [
@@ -180,7 +207,7 @@ export class Installer {
           // .node file exists
           fs.existsSync(releaseDirPath) &&
           fs.readdirSync(releaseDirPath).some((t) => t.includes('.node')) &&
-          // vendor/8.14.5 exists
+          // vendor exists
           fs.existsSync(vendorDirPath) &&
           // sharp/index.js exists
           fs.existsSync(sharpFsPath)
@@ -290,46 +317,46 @@ export class Installer {
   private async _install() {
     const cwd = this._getSharpCwd()
 
-    // If the language is Chinese, it's considered as Chinese region, then set npm mirror
-    const languages = [Config.appearance_language, Global.vscodeLanguage].map(toLower)
-    const useMirror = languages.includes('zh-cn') || Config.mirror_enabled
+    Channel.debug(`useMirror: ${this._useMirror}`)
 
-    Channel.debug(`useMirror: ${useMirror}`)
-
-    function resolveMirrorUrl(name: string, fallbackUrl: string) {
-      if (isValidHttpsUrl(Config.mirror_url)) {
-        return new URL(`${Config.mirror_url}/${name}`).toString()
+    const resolveMirrorUrl = (name: string, fallbackUrl: string) => {
+      if (this._useMirror) {
+        if (isValidHttpsUrl(Config.mirror_url)) {
+          return new URL(`${Config.mirror_url}/${name}`).toString()
+        }
+        return fallbackUrl
       }
-      return fallbackUrl
+      return ''
     }
 
     // If there is a .tar.br file in the extension root directory,
     // the user may intend to install the dependency manually
     const extensionHost = this.ctx.extensionUri.fsPath
+    const sharpBinaryReleaseDir = path.resolve(extensionHost, 'releases')
 
     Channel.debug(`extensionHost: ${extensionHost}`)
+    Channel.debug(`sharpBinaryReleaseDir: ${sharpBinaryReleaseDir}`)
 
-    const libvipsBin = fs.readdirSync(extensionHost).filter((file) => /^libvips.+\.tar\.br$/.test(file))
-    const sharpBin = fs.readdirSync(extensionHost).filter((file) => /^sharp.+\.tar\.gz$/.test(file))
+    const libvipsBins = fs.readdirSync(extensionHost).filter((file) => /^libvips.+\.tar\.gz$/.test(file))
+    const sharpBins = fs.readdirSync(sharpBinaryReleaseDir).filter((file) => /^sharp.+\.tar\.gz$/.test(file))
 
     const manualInstallSuccess = {
       libvips: false,
-      sharp: false,
     }
 
-    if (libvipsBin.length) {
-      Channel.info(`${i18n.t('core.start_manual_install')}: ${libvipsBin.join(', ')}`)
-      for (let i = 0; i < libvipsBin.length; i++) {
+    if (libvipsBins.length) {
+      Channel.info(`libvips ${i18n.t('core.start_manual_install')}: ${libvipsBins.join(', ')}`)
+      for (let i = 0; i < libvipsBins.length; i++) {
         // Try install manually
         try {
-          await execaNode('install/extract-tarball.js', [path.join(extensionHost, libvipsBin[i])], {
+          await execaNode('install/unpack-libvips.js', [path.join(extensionHost, libvipsBins[i])], {
             cwd,
             env: {
               ...process.env,
             },
           })
           manualInstallSuccess.libvips = true
-          Channel.info(`${i18n.t('core.manual_install_success')}: ${libvipsBin[i]}`)
+          Channel.info(`${i18n.t('core.manual_install_success')}: ${libvipsBins[i]}`)
           break
         } catch (e) {
           manualInstallSuccess.libvips = false
@@ -338,7 +365,7 @@ export class Installer {
     }
 
     if (!manualInstallSuccess.libvips) {
-      Channel.info(i18n.t('core.start_auto_install'))
+      Channel.info(`libvips ${i18n.t('core.start_auto_install')}`)
 
       try {
         const npm_config_sharp_libvips_binary_host = resolveMirrorUrl(
@@ -348,17 +375,12 @@ export class Installer {
 
         Channel.debug(`npm_config_sharp_libvips_binary_host: ${npm_config_sharp_libvips_binary_host}`)
 
-        await execaNode('install/use-libvips.js', {
+        await execaNode('install/install-libvips.js', {
           cwd,
           env: {
             ...process.env,
-            npm_package_config_libvips: '8.14.5',
-            ...(useMirror && {
-              // Fullpath
-              // ${npm_config_sharp_libvips_binary_host}/v8.14.5/libvips-8.14.5-${this.platform}.tar.br
-              // e.g. https://registry.npmmirror.com/-/binary/sharp-libvips/v8.14.5/libvips-8.14.5-darwin-arm64v8.tar.br
-              npm_config_sharp_libvips_binary_host,
-            }),
+            npm_package_config_libvips: SHARP_LIBVIPS_VERSION,
+            npm_config_sharp_libvips_binary_host,
           },
         })
       } catch (e) {
@@ -377,55 +399,24 @@ export class Installer {
       cwd,
     })
 
-    if (sharpBin.length) {
-      Channel.info(`${i18n.t('core.start_manual_install')}: ${sharpBin.join(', ')}`)
-      for (let i = 0; i < sharpBin.length; i++) {
+    if (sharpBins.length) {
+      Channel.info(`sharp binary ${i18n.t('core.start_manual_install')}: ${sharpBins.join(', ')}`)
+
+      for (let i = 0; i < sharpBins.length; i++) {
         try {
           await execaNode(
             'install/unpack-sharp.js',
-            [`--path=${this._getSharpCwd()}`, `--binPath=${path.join(extensionHost, sharpBin[i])}`],
+            [`--path=${this._getSharpCwd()}`, `--binPath=${path.join(sharpBinaryReleaseDir, sharpBins[i])}`],
             {
               cwd,
             },
           )
-          manualInstallSuccess.sharp = true
-          Channel.info(`${i18n.t('core.manual_install_success')}: ${sharpBin[i]}`)
+          Channel.info(`${i18n.t('core.manual_install_success')}: ${sharpBins[i]}`)
           break
-        } catch (e) {
-          manualInstallSuccess.sharp = false
-        }
+        } catch (e) {}
       }
-    }
-
-    if (!manualInstallSuccess.sharp) {
-      // 自动下载依赖
-      try {
-        const npm_config_sharp_binary_host = resolveMirrorUrl('sharp', `${CNPM_BINARY_REGISTRY}/sharp`)
-
-        Channel.debug(`npm_config_sharp_binary_host: ${npm_config_sharp_binary_host}`)
-        await execaNode('install/prebuild-install-bin.js', {
-          cwd,
-          env: {
-            ...(useMirror && {
-              // Fullpath
-              // "{name}-v{version}-{runtime}-v{abi}-{platform}{libc}-{arch}.tar.gz"
-              // ${npm_config_sharp_binary_host}/v0.32.6/sharp-v0.32.6-napi-v7-${this.platform}.tar.gz
-              // e.g. https://registry.npmmirror.com/-/binary/sharp/v0.32.6/sharp-v0.32.6-napi-v7-darwin-arm64.tar.gz
-              npm_config_sharp_binary_host,
-            }),
-          },
-          stdio: 'ignore',
-        })
-      } catch (e) {
-        Channel.error(e)
-        // Install failed.
-        if (manualInstallSuccess.sharp === false) {
-          Channel.error(`${i18n.t('core.manual_install_failed')}: ${this._sharp_bin}`)
-          Channel.error(i18n.t('core.manual_install_failed'), true)
-        } else {
-          Channel.error(i18n.t('core.dep_not_found'), true)
-        }
-      }
+    } else {
+      Channel.error(i18n.t('core.dep_not_found'), true)
     }
 
     Channel.info('🚐 Dependencies install process finished')

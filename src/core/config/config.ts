@@ -114,10 +114,6 @@ export class Config {
     return this.getConfig(ConfigKey.similarity_precision)
   }
 
-  static get compression_save_compression_data(): 'metadata' | 'none' {
-    return this.getConfig(ConfigKey.compression_save_compression_data)
-  }
-
   static get all() {
     return workspace.getConfiguration(EXT_NAMESPACE) as WorkspaceConfiguration & ConfigType
   }

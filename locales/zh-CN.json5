@@ -43,7 +43,6 @@
       fileSuffix: '压缩后缀',
       size: '图片尺寸 (倍数)',
       format: '图片格式',
-      saveCompressionData: '保存压缩信息',
       png: {
         compressionLevel: '压缩等级',
       },
@@ -63,7 +62,7 @@
     reload_tip: '配置已更改，请重新加载',
     compressor_init_fail: '依赖安装失败，请检查网络',
     deps_init_success: '依赖安装成功',
-    initializing: 'Image Manager 初始化...',
+    initializing: 'Image Manager 初始化中...',
     initializing_tooltip: '正在下载必要依赖',
     initialized: 'Image Manager 初始化完成',
     show_logs: '显示日志',

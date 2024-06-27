@@ -1,13 +1,13 @@
 // 手动安装 libvips
 // Token from sharp/install/libvips.js (Apache-2.0)
 
-import { createHash } from 'node:crypto'
+import libvips from '@minko-fe/sharp/lib/libvips'
 import fs from 'node:fs'
 import path from 'node:path'
 import stream from 'node:stream'
 import zlib from 'node:zlib'
-import libvips from 'sharp/lib/libvips'
 import tarFs from 'tar-fs'
+import { SHARP_LIBVIPS_VERSION } from '~/meta'
 import { platform } from './platform'
 
 const hasSharpPrebuild = [
@@ -23,36 +23,6 @@ const hasSharpPrebuild = [
 
 const platformAndArch = platform()
 
-const verifyIntegrity = function () {
-  const expected = libvips.integrity(platformAndArch)
-
-  const hash = createHash('sha512')
-  return new stream.Transform({
-    transform(chunk, _encoding, done) {
-      hash.update(chunk)
-      done(null, chunk)
-    },
-    flush(done) {
-      const digest = `sha512-${hash.digest('base64')}`
-      if (expected !== digest) {
-        try {
-          libvips.removeVendoredLibvips()
-        } catch (err) {
-          if (err instanceof Error) {
-            libvips.log(err.message)
-          }
-        }
-        libvips.log(`Integrity expected: ${expected}`)
-        libvips.log(`Integrity received: ${digest}`)
-        done(new Error(`Integrity check failed for ${platformAndArch}`))
-      } else {
-        libvips.log(`Integrity check passed for ${platformAndArch}`)
-        done()
-      }
-    },
-  })
-}
-
 const fail = function (err) {
   libvips.log(err)
   if (err.code === 'EACCES') {
@@ -64,8 +34,8 @@ const fail = function (err) {
   process.exit(1)
 }
 
-const extractTarball = function (tarPath: string) {
-  const versionedVendorPath = path.join(__dirname, '..', 'vendor', '8.14.5', platformAndArch)
+const unpackLibvips = function (tarPath: string) {
+  const versionedVendorPath = path.join(__dirname, '..', 'vendor', SHARP_LIBVIPS_VERSION, platformAndArch)
   libvips.mkdirSync(versionedVendorPath)
 
   const ignoreVendorInclude = hasSharpPrebuild.includes(platformAndArch)
@@ -75,9 +45,7 @@ const extractTarball = function (tarPath: string) {
 
   stream.pipeline(
     fs.createReadStream(tarPath),
-    verifyIntegrity(),
-    // @ts-expect-error
-    new zlib.BrotliDecompress(),
+    zlib.createGunzip(),
     tarFs.extract(versionedVendorPath, { ignore }),
     (err) => {
       if (err) {
@@ -90,4 +58,4 @@ const extractTarball = function (tarPath: string) {
   )
 }
 
-extractTarball(process.argv[2])
+unpackLibvips(process.argv[2])

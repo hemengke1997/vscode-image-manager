@@ -1,73 +1,89 @@
 # CHANGELOG
 
+## 1.0.0 (2024-06-27)
+
+### Feat
+
+- 支持 sharp@0.34.4，libvips@8.15.2
+- 内置 sharp 依赖，不再需要安装
+
+### Fix
+
+- 修复了压缩后文件变大的问题
+
+### Break Change
+
+- 废弃 `image-manager.compression.saveCompressionData` 配置
+- 最低支持 vscode@1.70.0
+
 ## 0.24.0 (2024-06-26)
 
 ### Feat
 
-- Add `cmd+c` shortcut to copy image file name
-- Disable preview when selecting multiple images
+- 添加 `cmd+c` 快捷键复制图片文件名
+- 多选时禁用预览
 
 ### Fix
 
-- Reveal specified image in viewer leading to image always selected
+- 打开指定图片时，之前被选中的图片未失焦
 
 ## 0.23.2 (2024-06-26)
 
 ### Fix
 
-- Keyboard shortcuts not working
-- Delete multiple images only delete one
+- 键盘快捷键失效的问题
+- 删除多张图片时，只有最后一张选中的图片被删除
 
 ## 0.23.1 (2024-06-25)
 
 ### Fix
 
-- Multiple selected the wrong image 
+- 多选错误
 
 ## 0.23.0 (2024-06-24)
 
 ### Feat
 
-- Support shift/cmd/ctrl multiple selection. You can use `shift` to select a range of images, `cmd` or `ctrl` to select multiple images
+- 支持 shift/cmd/ctrl 多选。你可以使用 `shift` 选择一段图片，`cmd` 或 `ctrl` 选择多张图片
 
 ## 0.22.0 (2024-06-20)
 
 ### Feat
 
-- Add `image-manager.file.revealFileInOsDeeply` config to control whether reveal file in os deep **one** level
+- 添加 `image-manager.file.revealFileInOsDeeply` 配置，控制是否在操作系统中深度展示文件 **一** 层
 
 ### Fix
 
-- Fix filename ellipsis not working
+- 修复文件名省略号不生效的问题
 
 ## 0.21.0 (2024-06-13)
 
 ### Feat
 
-- Add notification progress
+- 添加 notification 进度条
 
 ## 0.20.4 (2024-06-01)
 
 ### Fix
 
-- Warning about unsupported image extensions
+- 警告不支持的图片扩展名
 
 ### Chore
 
-- Follow kebab-case file naming convention
-- Use json5 to store i18n resources
+- 使用 kebab-case 文件命名规范
+- 使用 json5 存储 i18n 资源
 
 ## 0.20.3 (2024-05-24)
 
 ### Fix
 
-- Fix i18n
+- 翻译错误
 
 ## 0.20.2 (2024-05-24)
 
 ### Fix
 
-- Move skiped warning to bottomRight placement
+- 警告通知移动到右下角
 
 ### Docs
 
@@ -77,80 +93,76 @@
 
 ### Fix
 
-- Vscode thread i18n error
+- i18n 错误
 
 ## 0.20.0 (2024-05-22)
 
 ### Feat
 
-- Support debug mode
-  - Add `image-manager.debug.enabled` config to enable debug mode
-  - Add `image-manager.debug.forceInstall` config to force install dependencies
-- Use vscode built-in nodejs to run scripts
+- 支持 debug 调试模式
+  - 添加 `image-manager.debug.enabled` 配置开启 debug 模式
+  - 添加 `image-manager.debug.forceInstall` 配置强制安装依赖
+- 使用 vscode 内置 nodejs 运行脚本
 
 ## 0.19.1 (2024-05-22)
 
 ### Fix
 
-- Load sharp failed in macos
+- macOS 下加载 sharp 失败
 
 ## 0.19.0 (2024-05-22)
 
 ### Feat
 
-- Add `image-manager.viewer.imageRendering` config to support pixel style
+- 添加 `image-manager.viewer.imageRendering` 配置支持像素风格
 
 ### Fix
 
-- Always reset settings when extension open
+- 在扩展打开时重置设置的问题
 
 ## 0.18.0 (2024-05-21)
 
 ### Feat
 
-- `reset-settings` command will reset user configurations
-- Throw warm prompt when convert ico to other format
+- `reset-settings` 命令将重置用户配置
+- 警告提示当转换 ico 格式为其他格式时
 
 ## 0.17.0 (2024-05-21)
 
 ### Refactor
 
-- Refactor `image-manager.conversion.icoSize` as array number to support multiple sizes. The default value is **[16, 32]**
+- 重构 `image-manager.conversion.icoSize` 为数组数字，支持多个尺寸。默认值为 **[16, 32]**
 
 ## 0.16.1 (2024-05-21)
 
 ### Fix
 
-- Deleting folder not trigger refresh
+- 删除文件夹时未触发刷新
 
 ## 0.16.0 (2024-05-20)
 
 ### Feat
 
-- Support convert format to ico
-- Add `image-manager.conversion.icoSize` configuration to control the size of ico file after conversion. The default value is **32**
+- 支持转化为 ico 格式
+- 添加 `image-manager.conversion.icoSize` 配置控制转换为 ico 文件后的尺寸，默认值为 **32**
 
 ## 0.15.2 (2024-05-19)
 
 ### Fix
 
-- Package.json cache parsing error
+- package.json 缓存解析错误
 
 ## 0.15.1 (2024-05-15)
 
 ### Fix
 
-- Compatible with older versions
+- 兼容旧版本
 
 ## 0.15.0 (2024-05-09)
 
 ### Feat
 
-- Manual installation of sharp is supported
-
-### Break Change
-
-- `mirror.url` is used by sharp and libvips now. If your mirror url is end with `sharp-libvips`, please remove it
+- 支持手动安装 sharp
 
 ## 0.14.1 (2024-05-05)
 
@@ -162,105 +174,99 @@
 
 ### Feat
 
-- Add `reduceMotion` config to avoid animation sluggish
+- 添加 `reduceMotion` 配置，避免动画卡顿
 
 ### Fix
 
-- context-menu renders sluggish
-
+- 右键菜单渲染卡顿
 
 ## 0.13.2 (2024-04-28)
 
 ### Fix
 
-- Operator config sync with webview
-- Add `palette` to sharp by default
+- 操作配置同步到 webview
+- sharp 默认添加 `palette` 
 
 ## 0.13.1 (2024-04-28)
 
 ### Update
 
-- Optimizing interaction logic of compression. Image compression will not be skipped for now if only compress single image
+- 优化压缩交互逻辑。现在只压缩单张图片不会跳过压缩
 
 ## 0.13.0 (2024-04-16)
 
 ### Break Change
 
-- The shortcut key 'i' has been changed to 'j'. The previous shortcut key conflicted with the built-in shortcut key of VS Code.
-- The configuration of WarningSize has been changed to a number. When the value is 0, the dot will be hidden.
+- 快捷键 'i' 已更改为 'j'。之前的快捷键与 VS Code 的内置快捷键冲突。
+- `warningSize` 配置已更改为数字。当值为 0 时，省略号将被隐藏。
 
 ### Fix
 
-- Reveal in viewer failed when group by 'file type'
+- 当分组为 '文件类型'，viewer 展示错误的问题
 
 ## 0.12.1 (2024-04-15)
 
 ### Fix
 
-- Sort not working
-- Similarity modal do not destory after close
-
-### Docs
-
-- Move `configuration` to new docs
-
+- 排序不生效的问题
+- 查找相似图片弹窗关闭后不销毁的问题
 
 ## 0.12.0 (2024-04-14)
 
 ### Feat
 
-- Support for opening specified image in viewer
-- Support for renaming folder
-- Support for deleting folder
+- 支持在viewer中打开指定图片
+- 支持重命名文件夹
+- 支持删除文件夹
 
 ## 0.11.3 (2024-04-11)
 
 ### Fix
 
-- Add timestamp to get latest image file
+- 添加时间戳以获取最新的图片文件
 
 ### Chore
 
-- Replace logo
+- 替换logo
 
 ## 0.11.2 (2024-04-11)
 
 ### Fix
 
-- Find all similar images bug
+- 查找相似图片的问题
 
 ## 0.11.1 (2024-04-11)
 
 ### Fix
 
-- Context-state render bug
+- 右键菜单渲染bug
 
 ## 0.11.0 (2024-04-11)
 
 ### Feat
 
-- Support for finding similar images
-- Support for deleting images
-- Support for renaming images
-- Add configurations
-  - `image-manager.file.confirmDelete`: controls whether ask for confirmation when deleting a image
-  - `image-manager.similarity.precision`: determining the precision of image similarity. The smaller the value, the stricter the judgment
+- 支持查找相似图片
+- 支持删除图片
+- 支持重命名图片
+- 添加配置
+  - `image-manager.file.confirmDelete`: 控制删除图片时是否询问确认
+  - `image-manager.similarity.precision`: 确定图片相似度的精度。值越小，判断越严格
 
 ## 0.10.1 (2024-04-07)
 
 ### Fix
 
-- Opeartor modal state messup
-- i18n
+- 修复操作弹窗状态混乱
+- 修复国际化
 
 ## 0.10.0 (2024-04-04)
 
 ### Feat
 
-- Support svg compression which is powered by svgo. Thanks `vscode-svgo` for the inspiration.
-- Support standalone format conversion
-- Support pretty svg format
-- Add configurations
+- 支持 svg 压缩，由 svgo 提供支持。感谢 `vscode-svgo` 的启发。
+- 支持独立格式转换
+- 支持美化 svg 格式
+- 添加配置
   - `image-manager.compression.keepOriginal`
   - `image-manager.compression.fileSuffix`
   - `image-manager.compression.skipCompressed`
@@ -269,7 +275,7 @@
   - `image-manager.compression.format`
   - `image-manager.compression.png.compressionLevel`
   - `image-manager.compression.gif.colors`
-  - `image-manager.compression.svg.*` (Please refer to svgo official document for more details)
+  - `image-manager.compression.svg.*` (更多细节请参考 svgo 官方文档)
   - `image-manager.conversion.format`
   - `image-manager.conversion.keepOriginal`
 
@@ -277,458 +283,448 @@
 
 ### Update
 
-- Normal update
+- 常规更新
 
 ## 0.9.0 (2024-03-22)
 
 ### Feat
 
-- Support manual dependency installation
-- Highlight workspace folder name when images empty
-- Add `select-mirror` command to select mirror url
+- 支持手动安装依赖
+- 当图片为空时，高亮工作区文件夹名称
+- 添加 `select-mirror` 命令选择镜像地址
 
 ### Fix
 
-- Compression custom resize not working
+- 修复自定义压缩尺寸不生效的问题
 
 ## 0.8.1 (2024-03-21)
 
 ### Fix
 
-- Prompt solutions when dependencies init fails
+- 当依赖项初始化失败时，提示解决方案
 
 ### Docs
 
-- Add Chinese README
-- Add Common Questions and Answers
+- 添加中文文档
+- 添加常见问题和解答
 
 ## 0.8.0 (2024-03-20)
 
 ### Feat
 
-- Add `image-manager.mirror.enabled` config to support mirror for downloading dependencies
-- Add `image-manager.mirror.url` config to support custom mirror url
-
-### Docs
-
-- Add common questions and answers
+- 添加 `image-manager.mirror.enabled` 配置支持镜像下载依赖
+- 添加 `image-manager.mirror.url` 配置支持自定义镜像地址
 
 ## 0.7.3 (2024-03-20)
 
 ### Fix
 
-- Cropper keep internal data on options changed
-- I18n
+- 裁剪器选项改变时保留内部数据
 
 ## 0.7.2 (2024-03-19)
 
 ### Update
 
-- Improve translations
-- Separate the collapse image compression context-menu into submenus
+- 改进翻译
+- 将折叠图像压缩上下文菜单分离为子菜单
 
 ## 0.7.1 (2024-03-19)
 
 ### Feat
 
-- Add compress recursive directories in context menu
+- 添加右键菜单压缩文件夹
 
 ### Fix
 
-- Complement missing i18n
+- 完善缺失的国际化
 
 ## 0.7.0 (2024-03-18)
 
 ### Feat
 
-- Add `show ouput channel` command
+- 添加 `show ouput channel` 命令
 
 ### Fix
 
-- Catch `getMetadata` error which cause compress fail
+- 修复压缩时 `getMetadata` 错误导致压缩失败的问题
 
 ## 0.6.4 (2024-03-18)
 
 ### Fix
 
-- Update state in webview trigger endless loop
+- 更新状态时，webview 状态混乱
 
 ## 0.6.3 (2024-03-18)
 
 ### Fix
 
-- Track debounced config make webview state mess up
-- Sync workspaceState to webview when `reset` command triggerd
+- 跟踪防抖使 webview 状态混乱的问题
+- 当 `reset` 命令触发时未同步工作区状态到 webview 
 
 ## 0.6.2 (2024-03-16)
 
 ### Fix
 
-- Support recent colors in workspaceState
-- Fix copy ico base64 failed
-- Copy tiff base64 as png (for brower compatibility)
+- 工作区状态中支持最近的颜色
+- 修复复制 ico base64 失败
+- 复制 tiff base64 为 png 格式（为了浏览器兼容性）
 
 ## 0.6.1 (2024-03-16)
 
 ### Fix
 
-- I18n don't sync with vscode config
+- i18n 未与 vscode 配置同步
 
 ## 0.6.0 (2024-03-16)
 
 ### Feat
 
-- Add `image-manager.reset-settings` command to reset viewer settings, including `group/sort/style/type` etc.
+- 添加 `image-manager.reset-settings` 命令重置 viewer 设置，包括 `group/sort/style/type` 等
 
 ### Fix
 
-- Get `ico` image dimession failed
+- 获取 `ico` 图片尺寸失败
 
 ## 0.5.2 (2024-03-14)
 
 ### Feat
 
-- Keep image original file type after cropped
+- 保持裁剪后的图片原始文件类型
 
 ### Performance
 
-- Reduce filter changed leading to render serveral times
+- 减少过滤变化导致渲染多次的问题
 
 ## 0.5.1
 
 ### Fix (2024-03-13)
 
-- Filter git staged/unstaged images not correct
+- 过滤 git staged/unstaged 图片不正确
 
 ### Optimize
 
-- Update better icons
+- 更新icons
 
 ## 0.5.0 (2024-03-12)
 
 ### Feat
 
-- Add `image-manager.appearance.primaryColor` config to support custom primary color
+- 添加 `image-manager.appearance.primaryColor` 配置支持自定义主题色
 
 ### Performance
 
-- Optimize toast render performance
-- Optimize config changed leading to webview slow render
+- 优化toast渲染性能
+- 优化配置变化导致webview渲染缓慢的问题
 
 ## 0.4.3 (2024-03-11)
 
 ### Fix
 
-- Compressor init error
+- 压缩器初始化错误
 
 ## 0.4.2 (2024-03-10)
 
 ### Fix
 
-- Batch compression messup (caused by 0.4.1 change)
+- 批量压缩混乱（由 0.4.1 更改引起）
 
 ## 0.4.1 (2024-03-09)
 
 ### Feat
 
-- Add `skip compressed` option in operator modal
-- Change webview background to user's vscode editor background if theme is the same
-- Splite compress error and success notification placement, the error will show on left-top placement
+- 在操作弹窗中添加 `skip compressed` 选项
+- 如果主题与 vscode 编辑器主题相同，则将 webview 背景更改为用户的 vscode 编辑器背景
+- 将压缩错误和成功通知分开，错误通知将显示在左上角
 
 ## 0.4.0 (2024-03-08)
 
 ### Feat
 
-- Support filter compressed/uncompressed images
-- Support filter git-staged/unstaged images
-- Show compressed status when hover on image
+- 支持过滤已压缩/未压缩的图片
+- 支持过滤 git staged/unstaged 图片
+- 鼠标悬停在图片上时显示压缩状态
 
 ### Fix
 
-- Render twice when open extension
-- Git staged command execute too many times
+- 修复打开扩展时渲染两次
+- 修复 git staged 命令执行多次
 
 ## 0.3.0 (2024-03-07)
 
 ### Feat
 
-- Support dependency os cache, improve performance
+- 支持依赖项 os 缓存，提高性能
 
 ## 0.2.3 (2024-03-06)
 
 ### Fix
 
-- Can't compress images when `group by type` option checked
+- 修复 `按类型分组` 选项勾选时无法压缩图片的问题
 
 ## 0.2.2 (2024-03-05)
 
 ### Chore
 
-- Add animation icon for extension initializing statusbar of vscode
+- 添加 vscode 状态栏初始化动画图标
 
 ## 0.2.1 (2024-03-04)
 
 ### Performance
 
-- Optimize image list rendering, reduce memory usage
-- Improve UX
+- 优化图片列表渲染，减少内存使用
+- 改进用户体验
 
 ## 0.2.0 (2024-03-01)
 
 ### Refactor
 
-- Refactor extension's vscode configuration
+- 重构扩展的 vscode 配置
 
-Please use
+请使用
 
-- `image-manager.file.root` replace `image-manager.root`
-- `image-manager.file.exclude` replace `image-manager.exclude`
-- `image-manager.file.scan` replace `image-manager.imageType`
-- `image-manager.viewer.warningSize` replace `image-manager.warningSize`
-- `image-manager.viewer.imageWidth` replace `image-manager.imageDefaultWidth`
+- `image-manager.file.root` 替换 `image-manager.root`
+- `image-manager.file.exclude` 替换 `image-manager.exclude`
+- `image-manager.file.scan` 替换 `image-manager.imageType`
+- `image-manager.viewer.warningSize` 替换 `image-manager.warningSize`
+- `image-manager.viewer.imageWidth` 替换 `image-manager.imageDefaultWidth`
 
 ### Feat
 
-- Add more configuration
-  
+- 添加更多配置
   - `image-manager.appearance.theme`
   - `image-manager.appearance.language`
   - `image-manager.viewer.imageBackgroundColor`
-  
 
 ## 0.1.2 (2024-02-29)
 
 ### Fix
 
-- i18n change not working
+- 修复 i18n 无法切换的问题
 
 ## 0.1.1 (2024-02-28)
 
 ### Feat
 
-- Support gif colors in compression
+- 支持 gif 颜色压缩
 
 ### Docs
 
-- Compression tips
+- 压缩提示文档
 
 ## 0.1.0 (2024-02-28)
 
 ### Feat
 
-- Add `git-staged` filter in Filter Action
-- Add `compressed` flag to image metadata, you can find it in the image detail modal
-- Auto refresh image list when config changed
-- Reuse webview when open different workspace for better performance
+- 添加 `git-staged` 过滤器
+- 添加 `compressed` 标志到图片元数据，你可以在图片详情弹窗中找到
+- 当配置变化时自动刷新图片列表
+- 在打开不同的工作区时重用 webview 以提高性能
 
 ### Break-Change
 
-Currently, we use sharp as compressor only due to its performance and stability. So we remove `tinypng` support.
+插件将使用 sharp 作为压缩器，因为它的性能和稳定性。所以我们移除了 `tinypng` 支持
 
-- Deprecate `image-manager.compress.method`
-- Deprecate `image-manager.compress.tinypngKey`
-
+- 废弃 `image-manager.compress.method`
+- 废弃 `image-manager.compress.tinypngKey`
 
 ## 0.0.26 (2024-02-08)
 
 ### Feat
 
-- Support VSCode i10n
+- 支持 VSCode 国际化
 
 ## 0.0.25 (2024-01-31)
 
 ### Fix
 
-- Compress group error 😥
+- 批量压缩失败的问题
 
 ## 0.0.24 (2024-01-29)
 
 ### Performance
 
-- No `npm` relay, faster install
+- 不再依赖 npm, 安装更快
 
 ## 0.0.23 (2024-01-25)
 
 ### Feat
 
-- Image operator, added more image interactivity
+- 图片操作器，添加更多图片交互
 
 ### Break-Change
 
-- Deprecate `image-manager.compress.replace`
-- Deprecate `image-manager.compress.quality`
-- Deprecate `image-manager.compress.compressionLevel`
-- All above configs you can find in Image operator now.
+- 废弃 `image-manager.compress.replace`
+- 废弃 `image-manager.compress.quality`
+- 废弃 `image-manager.compress.compressionLevel`
+- 以上所有配置现在都可以在图片操作器中找到
 
 ## 0.0.22 (2024-01-22)
 
 ### Fix
 
-- Render sort order not working
+- 修复排序顺序不生效的问题
 
 ## 0.0.21 (2024-01-22)
 
 ### Fix
 
-- Missing windows path condition when render image
+- 修复渲染图片时缺少 windows 路径条件
 
 ## 0.0.20 (2024-01-22)
 
 ### Feat
 
-- Support more user-custom cropper options
+- 添加更多用户自定义裁剪器选项
 
 ### Fix
 
-- Images in root directory don't render
+- 修复根目录中的图片不渲染
 
 ## 0.0.19 (2024-01-18)
 
 ### Performance
 
-- Mask image compressor more stable
+- 图片压缩器更稳定
 
 ### Style
 
-- Mask menu to aviod misclick
-- Add collapse content border
-- Make cropper modal width flexible
+- 添加蒙层避免误点
+- 添加折叠内容边框
+- 使裁剪器模态框宽度灵活
 
 ## 0.0.18 (2024-01-17)
 
 ### Fix
 
-- Windows compress fail
+- Windows上压缩失败
 
 ## 0.0.17 (2024-01-16)
 
 ### Fix
 
-- Windows open extension fail
+- Windows上打开插件失败
 
 ## 0.0.16 (2024-01-16)
 
 ### Feat
 
-- Support crop image!
+- 支持图片裁剪
 
 ### Fix
 
-- Install sharp failed
+- 安装sharp失败的问题
 
 ### Performance
 
-- Remove `user-agent` lib to reduce pack size
+- 移除 `user-agent` 依赖减少包大小
 
 ## 0.0.15 (2024-01-13)
 
 ### Feat
 
-- Support search image. Just use `cmd + f` or `ctrl + f`!
+- 支持图片搜索，使用 `cmd + f` 或 `ctrl + f` 即可搜索图片
 
 ## 0.0.14 (2024-01-13)
 
 ### Feat
 
-- Support compress image! Please refer to README(./README.md) for more details
-- Windows compatibility, though it's not perfect, but it works. (I don't have a windows machine, so I can't test it. If you get any problems, please submit an issue)
+- 支持压缩图片！请参阅 README 了解更多细节
+- Windows 兼容性，虽然不完美，但它可以工作。 (我没有 Windows 电脑，所以我无法测试。如果您遇到任何问题，请提交issue)
 
 ## 0.0.13 (2024-01-08)
 
 ### Feat
 
-- Support multiple workspaces, you can right-clik on vscode explorer to choose workspace. If using vscode command or keybinding, it will open all workspaces
+- 支持多工作区，你可以右键点击 vscode explorer 选择工作区。如果使用 vscode 命令或快捷键，它将打开所有工作区
 
 ### Performance
 
-- Optimized rendering logic, smoother now
+- 优化渲染逻辑，现在更流畅
 
 ## 0.0.12 (2024-01-06)
 
 ### Feat
 
-- Support dir context-menu to open folder or highlight vscode explorer
-- Add copy image as base64 to context-menu
-- Add simple mode for clear layout, you can click left-top icon to change mode
+- 支持目录右键菜单打开文件夹或高亮 vscode explorer
+- 添加复制图片为 base64 到右键菜单
+- 添加简单模式，你可以点击左上角图标切换模式
 
 ### Fix
 
-- Compact dir display wrong
+- 修复紧凑目录显示错误
 
 ## 0.0.11 (2024-01-04)
 
 ### Feat
 
-- Support compact dir style just like vscode, user friendly
-- Introduce `imageType` config, user can choose which type of image to display
+- 支持紧凑目录样式，就像 vscode 一样，用户友好
+- 引入 `imageType` 配置，用户可以选择要显示的图片类型
 
 ### Break Change
 
-- **Rename `image-manager.excludePath` to `image-manager.exclude`**
+- **重命名 `image-manager.excludePath` 为 `image-manager.exclude`**
 
 ## 0.0.10 (2024-01-04)
 
 ### Feat
 
-- Context-menu copy image(mod+c for shortcut), then you can paste it to other place
+- 支持右键菜单复制图片(mod+c快捷键)，然后你可以粘贴到其他地方
 
 ## 0.0.9 (2024-01-03)
 
 ### Break Change
 
-- Rename extension to `Image Manager`
+- 将扩展名更改为 `Image Manager`
 
 ### Feat
 
-- Error boundary
-
-If any internal error occurs, the extension will display a friendly error message instead of crashing. Furthermore, user could report the error to the author or choose to restart.
+- 支持错误边界
+如果发生任何内部错误，扩展将显示友好的错误消息，而不是崩溃。此外，用户可以向作者报告错误或选择重新启动。
 
 ## 0.0.8 (2024-01-02)
 
 ### Fix
 
-- Filter action reset to previous values if user didn't trigger form submit real
+- 如果用户没有真正触发表单提交过滤器操作重置为上一个值的问题
 
 ## 0.0.7 (2024-01-02)
 
 ### Chore
 
-- Improve UX, show tip when hover on icons
+- 优化用户体验，当鼠标悬停在图标上时显示提示
 
 ## 0.0.6 (2024-01-01)
 
 ### Feat
 
-- Build in vscode primary colors
-- Support `excludePath` vscode config
-- Support display style(nested or flat) for visual
+- 内置 vscode 主题颜色
+- 支持 vscode 配置 `excludePath`，用户可以选择要排除的目录
+- 支持显示风格（嵌套或平面）的可视化
 
 ## 0.0.5 (2023-12-30)
 
 ### Fix
 
-- Sync theme to localstorage
+- 同步主题到本地存储
 
 ## 0.0.4 (2023-12-30)
 
 ### Feat
 
-- I18n, support only English and Chinese now
+- I18n，现在只支持英文和中文
 
 ### Fix
 
-- Display images wrong when type filter change
-- Deduplicate image types when exists multiple dirs
+- 修复当类型过滤器更改时显示图像错误
+- 当存在多个目录时，去重图像类型
 
 ## 0.0.3 (2023-12-29)
 
 ### Feat
 
-- Support vscode configuration.
+- 支持 vscode 配置文件
 
-You can configure the following items in the vscode configuration file.
-For example:
+你可以在 vscode 配置文件中配置以下项目，例如：
 
 ```json
 {
@@ -739,19 +735,20 @@ For example:
 }
 ```
 
-- Support vscode keybinding to open extension
-  - Open Image Manager: `shift+alt+i` (macos: `cmd+alt+i`)
+- 支持 vscode 快捷键打开扩展
+  - 打开 Image Manager: `shift+alt+i` (macos: `cmd+alt+i`)
 
 ## 0.0.2 (2023-12-29)
 
 ### Chore
 
-- Downgrade vscode version limit to ^1.60.0
+- 降级 vscode 版本限制到 ^1.60.0
 
 ## 0.0.1 (2023-12-28)
 
 ### Feat
 
-- Init vscode-image-manager.
 
-Currently support basic feature, includes viwer, preview, explorer context,etc
+- 初始化 vscode-image-manager
+
+目前支持基本功能，包括查看、预览、资源管理器上下文等

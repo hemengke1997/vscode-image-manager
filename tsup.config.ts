@@ -42,7 +42,7 @@ function buildExternals(option: Options): Options[] {
 
                 const matchTarget = [SEARCH_RESOLVE_JSON, SEARCH_EXISTS_JSJON]
 
-                const sharp = path.resolve(__dirname, 'node_modules/sharp/package.json')
+                const sharp = path.resolve(__dirname, 'node_modules/@minko-fe/sharp/package.json')
                 const jsonFolder = path.resolve(__dirname, 'dist/lib/json')
 
                 let code = fs.readFileSync(args.path, 'utf-8')
@@ -73,7 +73,7 @@ export default defineConfig((option) => [
   {
     entry: ['src/extension.ts'],
     format: 'cjs',
-    external: ['vscode', 'sharp'],
+    external: ['vscode', '@minko-fe/sharp'],
     clean: !option.watch,
     dts: false,
     target: 'node16',

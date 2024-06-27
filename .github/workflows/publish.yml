@@ -5,8 +5,12 @@ on:
     branches:
       - master
 
+permissions: {}
+
 jobs:
   publish-vscode:
+    permissions:
+      contents: write
     if: "contains(github.event.head_commit.message, 'release')"
     runs-on: ubuntu-latest
     steps:
@@ -20,7 +24,7 @@ jobs:
           cache: npm
 
       - name: Install Dependencies
-        run: npm i --frozen-lockfile
+        run: npm i --frozen-lockfile --ignore-scripts
 
       - uses: lannonbr/vsce-action@3.0.0
         with:

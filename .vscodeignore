@@ -21,6 +21,7 @@ patches
 
 index.html
 temp*
+temp/**
 
 eslint.config.*
 commitlint.config.*
@@ -36,6 +37,3 @@ CHANGELOG-CODE.md
 *.yaml
 **/*.ts
 *.mts
-
-*.tar.br
-*.tar.gz

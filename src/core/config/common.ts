@@ -36,9 +36,7 @@ export type ConfigType = {
     enabled: boolean
     url: string
   }
-  compression: CompressionOptions & {
-    saveCompressionData?: 'metadata' | 'none'
-  }
+  compression: CompressionOptions & {}
   conversion: FormatConverterOptions
   similarity: {
     precision: number
@@ -78,7 +76,6 @@ export enum ConfigKey {
   compression_png_compressionLevel = 'compression.png.compressionLevel',
   compression_gif_colors = 'compression.gif.colors',
   compression_svg = 'compression.svg',
-  compression_save_compression_data = 'compression.saveCompressionData',
 
   conversion = 'conversion',
   conversion_formt = 'conversion.formt',
@@ -118,8 +115,6 @@ export const DEFAULT_CONFIG: ConfigType = {
     url: '',
   },
   compression: {
-    // 保存压缩信息至图片的metadata中，可能会导致图片压缩后体积变大
-    saveCompressionData: 'metadata',
     keepOriginal: false,
     skipCompressed: true,
     fileSuffix: '.min',

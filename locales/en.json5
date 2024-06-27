@@ -42,7 +42,6 @@
       fileSuffix: 'File suffix',
       size: 'Image size (x)',
       format: 'Output image format',
-      saveCompressionData: 'Save compression data',
       png: {
         compressionLevel: 'Compression level',
       },

@@ -1,1 +1,1 @@
-import 'sharp/install/dll-copy'
+import '@minko-fe/sharp/install/dll-copy'

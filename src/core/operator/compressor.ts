@@ -1,16 +1,12 @@
 import { isArray, mergeWith, toString } from '@minko-fe/lodash-pro'
 import fs from 'fs-extra'
-import { addMetadata, getMetadata } from 'meta-png'
 import pMap from 'p-map'
-import piexif from 'piexifjs'
 import { optimize } from 'svgo'
 import { type SharpNS } from '~/@types/global'
 import { SharpOperator } from '~/core/sharp'
 import { i18n } from '~/i18n'
 import { VscodeMessageCenter } from '~/message'
-import { isJpg, isPng } from '~/utils'
 import { Channel } from '~/utils/channel'
-import { Config } from '../config'
 import { type FormatConverterOptions } from './format-converter'
 import { COMPRESSED_META, type SvgoPlugin } from './meta'
 import { LimitError, Operator, type OperatorResult } from './operator'
@@ -72,11 +68,8 @@ export class Compressor extends Operator {
     size: 20 * 1024 * 1024,
   }
 
-  private _writeMetadata: boolean
-
   constructor(public option: CompressionOptions) {
     super()
-    this._writeMetadata = Config.compression_save_compression_data === 'metadata'
   }
 
   async run<CompressionOptions>(filePaths: string[], option: CompressionOptions | undefined): Promise<OperatorResult> {
@@ -167,10 +160,6 @@ export class Compressor extends Operator {
     }
   }
 
-  private _isPiexifSupported(filePath: string) {
-    return isJpg(filePath)
-  }
-
   private async core(filePath: string): Promise<{ inputSize: number; outputSize: number; outputPath: string }> {
     const { format } = this.option!
 
@@ -248,17 +237,11 @@ export class Compressor extends Operator {
                 })
                 .timeout({ seconds: 30 })
 
-              if (!isPng(ext) && !this._isPiexifSupported(ext)) {
-                if (this._writeMetadata) {
-                  sharp.withMetadata({
-                    exif: {
-                      IFD0: {
-                        ImageDescription: COMPRESSED_META,
-                      },
-                    },
-                  })
-                }
-              }
+              sharp.withExifMerge({
+                IFD0: {
+                  ImageDescription: COMPRESSED_META,
+                },
+              })
 
               if (size !== 1) {
                 sharp.resize({
@@ -284,29 +267,6 @@ export class Compressor extends Operator {
                 size,
                 fileSuffix: this.option.fileSuffix!,
               })
-            },
-            'on:finish': async (_, { outputPath }) => {
-              if (this._writeMetadata) {
-                // add metadata
-                let PNGUint8Array = new Uint8Array(fs.readFileSync(outputPath))
-                if (isPng(outputPath)) {
-                  try {
-                    const compressed = getMetadata(PNGUint8Array, COMPRESSED_META)
-                    if (compressed) return
-                    PNGUint8Array = addMetadata(PNGUint8Array, COMPRESSED_META, '1')
-                  } catch {}
-                  await fs.writeFile(outputPath, PNGUint8Array)
-                } else if (this._isPiexifSupported(outputPath)) {
-                  let binary = fs.readFileSync(outputPath).toString('binary')
-                  binary = piexif.remove(binary)
-                  const zeroth = {}
-                  zeroth[piexif.ImageIFD.ImageDescription] = COMPRESSED_META
-                  const exifObj = { '0th': zeroth }
-                  const exifbytes = piexif.dump(exifObj)
-                  const buffer = Buffer.from(piexif.insert(exifbytes, binary), 'binary')
-                  await fs.writeFile(outputPath, buffer)
-                }
-              }
             },
           },
         },
