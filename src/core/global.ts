@@ -1,6 +1,6 @@
-import { type Event, EventEmitter, type ExtensionContext, ExtensionMode, workspace } from 'vscode'
+import { type Event, EventEmitter, type ExtensionContext, ExtensionMode, window, workspace } from 'vscode'
 import { Compressor, FormatConverter } from '~/core/operator'
-import { Installer } from '~/core/sharp'
+import { AbortError, Installer, TimeoutError } from '~/core/sharp'
 import { i18n } from '~/i18n'
 import { EXT_NAMESPACE } from '~/meta'
 import { Channel } from '~/utils/channel'
@@ -43,6 +43,11 @@ export class Global {
    */
   static isProgrammaticChangeConfig = false
 
+  /**
+   * sharp 安装器
+   */
+  static installer: Installer
+
   // events
   private static _onDidChangeRootPath: EventEmitter<string[]> = new EventEmitter()
 
@@ -53,12 +58,11 @@ export class Global {
 
     Watcher.init()
     WorkspaceState.init()
+    this.initSharp()
 
     this.vscodeTheme = settings.theme
     this.vscodeLanguage = settings.language
     this.vscodeReduceMotion = settings.reduceMotion
-
-    await this.installSharp()
 
     context.subscriptions.push(workspace.onDidChangeWorkspaceFolders(() => this.updateRootPath()))
     context.subscriptions.push(
@@ -68,7 +72,7 @@ export class Global {
 
           if (e.affectsConfiguration(key)) {
             this.initOperators()
-            Channel.info(`[Operators] Config "${key}" changed`)
+            Channel.info(i18n.t('core.config_changed', key))
             break
           }
         }
@@ -87,7 +91,7 @@ export class Global {
       rootpaths = [workspace.rootPath]
     }
     if (rootpaths?.length) {
-      Channel.info(`💼 Workspace root changed to ${rootpaths.join(',')}`)
+      Channel.info(i18n.t('core.workspace_changed', rootpaths.join(',')))
       this._rootpaths = rootpaths
       this._onDidChangeRootPath.fire(this._rootpaths)
     }
@@ -100,20 +104,29 @@ export class Global {
     Global.formatConverter = new FormatConverter(Config.conversion)
   }
 
-  static async installSharp() {
-    const installer = new Installer(this.context)
+  static initSharp() {
+    this.installer = new Installer(this.context)
+  }
 
-    installer.event
+  static async installSharp() {
+    this.installer.event
       .on('install-success', (e) => {
         Channel.info(i18n.t('prompt.deps_init_success'))
         Global.sharp = e
         this.initOperators()
       })
-      .on('install-fail', () => {
-        Channel.error(i18n.t('prompt.compressor_init_fail'), true)
+      .on('install-fail', (e) => {
+        if (e instanceof TimeoutError) {
+          Channel.error(i18n.t('prompt.deps_init_timeout'), true)
+        } else if (e instanceof AbortError) {
+          window.showErrorMessage(i18n.t('prompt.deps_init_aborted'))
+        } else {
+          Channel.error(i18n.t('prompt.compressor_init_fail'), true)
+        }
+        throw e
       })
 
-    await installer.run()
+    await this.installer.run()
   }
 
   static isDevelopment() {

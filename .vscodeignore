@@ -7,6 +7,7 @@
 .cache/**
 .github/**
 .idea
+.env
 
 node_modules
 src

@@ -44,7 +44,7 @@ export default <ExtensionModule>function () {
         label: t.label,
       })),
       {
-        placeHolder: i18n.t('prompt.select_mirror'),
+        placeHolder: i18n.t('pkg.cmd.select_mirror'),
       },
     )
 

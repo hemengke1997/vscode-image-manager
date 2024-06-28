@@ -9,6 +9,7 @@ import { Commands } from './commands'
 
 export default <ExtensionModule>function (ctx) {
   let previousRoot: string[] = []
+  let sharpInstalled = false
 
   async function openWebview(uri: Uri | undefined) {
     let imagePath = ''
@@ -30,11 +31,23 @@ export default <ExtensionModule>function (ctx) {
       // Open via command palette or shortcut
     }
 
-    // Whether to reload the webview panel
-    const reload = !isEqual(previousRoot, Global.rootpaths)
-    ImageManagerPanel.createOrShow(ctx, reload, imagePath)
+    // init sharp here
+    if (!sharpInstalled) {
+      try {
+        await Global.installSharp()
+        sharpInstalled = true
+      } catch {
+        sharpInstalled = false
+      }
+    }
 
-    previousRoot = Global.rootpaths
+    if (sharpInstalled) {
+      // Whether to reload the webview panel
+      const reload = !isEqual(previousRoot, Global.rootpaths)
+      ImageManagerPanel.createOrShow(ctx, reload, imagePath)
+
+      previousRoot = Global.rootpaths
+    }
   }
 
   return [commands.registerCommand(Commands.open_webview, openWebview)]

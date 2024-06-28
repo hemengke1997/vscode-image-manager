@@ -8,6 +8,7 @@
       show_channel: '显示输出',
       enable_mirror: '启用镜像',
       select_mirror: '选择镜像源',
+      select_language: '选择语言',
     },
     debug: {
       enabled: '开启调试模式',
@@ -59,19 +60,21 @@
   },
   // 提示
   prompt: {
-    reload_tip: '配置已更改，请重新加载',
+    cancel: '取消',
+    config_changed_tip: '配置已更改',
     compressor_init_fail: '依赖安装失败，请检查网络',
     deps_init_success: '依赖安装成功',
-    initializing: 'Image Manager 初始化中...',
+    initializing: 'Image Manager 初始化中，请稍等...',
     initializing_tooltip: '正在下载必要依赖',
     initialized: 'Image Manager 初始化完成',
     show_logs: '显示日志',
     mirror_enabled: '镜像下载依赖已启用, 请重启vscode生效',
     reload_now: '立即重启',
     mirror_already_enabled: '镜像下载依赖已启用',
-    select_mirror: '选择镜像源',
     mirror_selected: '切换镜像源成功: {0}, 请重启vscode生效',
     load_sharp_failed: '加载核心脚本失败，请重试',
+    deps_init_aborted: '已取消安装依赖',
+    deps_init_timeout: '依赖安装超时，请尝试切换镜像源',
   },
   // 核心代码
   core: {
@@ -90,6 +93,14 @@
     start_auto_install: '开始自动安装依赖',
     format_not_supported: '不支持 {0} 格式',
     tip: '温馨提示',
-    dep_url: '以下是手动下载依赖地址，若自动安装依赖失败请按照文档手动下载以下依赖',
+    dep_url_tip: '以下是手动下载依赖地址。如果自动安装依赖失败，请参考README文档，手动下载依赖，放在插件根目录下',
+    dep_url: '依赖下载地址',
+    workspace_changed: '根工作区: {0}',
+    load_dep_success: '依赖加载成功',
+    config_changed: '"{0}" 配置已更改',
+    load_from_cache: '依赖已安装，从缓存加载',
+    libvips_diff: 'libvips 版本不同，复制libvips文件到系统缓存',
+    version_diff: '插件版本与缓存的版本不同',
+    install_finished: '依赖安装流程结束',
   },
 }
