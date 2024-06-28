@@ -5,6 +5,21 @@ import { i18n } from '~/i18n'
 import { type ExtensionModule } from '~/module'
 import { Commands } from '.'
 
+export const mirrors = [
+  {
+    label: 'cnpm',
+    description: 'https://npmmirror.com/mirrors',
+  },
+  {
+    label: 'cnpm - binary',
+    description: 'https://registry.npmmirror.com/-/binary',
+  },
+  {
+    label: 'cnpm - cdn',
+    description: 'https://cdn.npmmirror.com/binaries',
+  },
+]
+
 export default <ExtensionModule>function () {
   async function enableMirror() {
     if (!Config.mirror_enabled) {
@@ -23,21 +38,6 @@ export default <ExtensionModule>function () {
   // 选择内置镜像
   async function selectMirror() {
     const previousMirrorUrl = Config.mirror_url
-
-    const mirrors = [
-      {
-        label: 'cnpm',
-        description: 'https://npmmirror.com/mirrors',
-      },
-      {
-        label: 'cnpm - binary',
-        description: 'https://registry.npmmirror.com/-/binary',
-      },
-      {
-        label: 'cnpm - cdn',
-        description: 'https://cdn.npmmirror.com/binaries',
-      },
-    ]
 
     const mirror = await window.showQuickPick(
       mirrors.map((t) => ({
