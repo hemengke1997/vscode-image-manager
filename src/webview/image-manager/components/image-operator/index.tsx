@@ -148,8 +148,8 @@ function ImageOperator(props: ImageOperatorProps & ImageOperatorStaticProps) {
               <Alert
                 type='info'
                 message={t('im.undo_redo_tip', {
-                  undo: Keybinding.Undo,
-                  redo: Keybinding.Redo,
+                  undo: Keybinding.Undo(),
+                  redo: Keybinding.Redo(),
                 })}
                 closable={{
                   closeIcon: (

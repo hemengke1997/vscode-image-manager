@@ -67,6 +67,7 @@
     "download-sharp-releases": "tsx scripts/download-sharp-releases",
     "changelog": "conventional-changelog -p conventionalcommits -i CHANGELOG-CODE.md -s -r 0",
     "bump": "bumpp package.json --no-commit --tag --no-push --all -x \"npm run changelog\"",
+    "vscode:prepublish": "run-p build download-sharp-releases",
     "pack": "vsce package",
     "publish": "vsce publish"
   },

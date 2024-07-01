@@ -108,6 +108,7 @@
     config_changed: '"{0}" 配置已更改',
     load_from_cache: '依赖已安装，从缓存加载',
     libvips_diff: 'libvips 版本不同，复制libvips文件到系统缓存',
+    sharp_diff: 'sharp 版本不同，复制sharp文件到系统缓存',
     version_diff: '插件版本与缓存的版本不同',
     install_finished: '依赖安装流程结束',
     trash_error: '回收文件错误',

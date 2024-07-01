@@ -105,6 +105,7 @@
     config_changed: '"{0}" Config Changed',
     load_from_cache: 'Dependency already installed, load from cache',
     libvips_diff: 'libvips version is different, copy libvips files to os cache',
+    sharp_diff: 'sharp version is different, copy sharp files to os cache',
     version_diff: 'extension version is different from the cached version',
     install_finished: 'Dependencies install process finished',
     trash_error: 'Trash File Error',

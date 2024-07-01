@@ -138,7 +138,7 @@ function LazyImage(props: LazyImageProps) {
   }, [refreshTimes])
 
   const keybindRef = useHotkeys<HTMLDivElement>(
-    [Key.Enter, `mod+${Key.Backspace}`, `mod+c`],
+    [Key.Enter, `mod+${Key.Backspace}`, Key.Delete, `mod+c`],
     (e) => {
       if (contextMenu?.enable?.fs) {
         switch (e.key) {
@@ -147,7 +147,14 @@ function LazyImage(props: LazyImageProps) {
             beginRenameImageProcess(image)
             return
           }
+          // mac delete key
           case Key.Backspace: {
+            hideAll()
+            beginDeleteImageProcess([image])
+            return
+          }
+          // windows delete key
+          case Key.Delete: {
             hideAll()
             beginDeleteImageProcess([image])
             return

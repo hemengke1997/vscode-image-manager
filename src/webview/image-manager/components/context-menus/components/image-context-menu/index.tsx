@@ -183,7 +183,7 @@ function ImageContextMenu() {
         <Separator />
         <Item onClick={(e) => handleCopyString(e.props!.image, { proto: 'name' })}>
           {t('im.copy_image_name')}
-          <RightSlot>{Keybinding.Copy}</RightSlot>
+          <RightSlot>{Keybinding.Copy()}</RightSlot>
         </Item>
         <Item onClick={(e) => handleCopyString(e.props!.image, { proto: 'path' })}>{t('im.copy_image_path')}</Item>
         <Item onClick={(e) => handleCopyString(e.props!.image, { proto: 'path' }, copyImageAsBase64)}>
@@ -228,10 +228,10 @@ function ImageContextMenu() {
         {/* file operation menu */}
         <Separator hidden={isItemHidden} data={[IMAGE_CONTEXT_MENU.fs]} />
         <Item onClick={handleRename} hidden={isItemHidden} data={IMAGE_CONTEXT_MENU.fs}>
-          {t('im.rename')} <RightSlot>{Keybinding.Enter}</RightSlot>
+          {t('im.rename')} <RightSlot>{Keybinding.Enter()}</RightSlot>
         </Item>
         <Item onClick={handleDelete} hidden={isItemHidden} data={IMAGE_CONTEXT_MENU.fs}>
-          {t('im.delete')} <RightSlot>{Keybinding.Delete}</RightSlot>
+          {t('im.delete')} <RightSlot>{Keybinding.Delete()}</RightSlot>
         </Item>
 
         <Separator />

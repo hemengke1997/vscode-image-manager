@@ -7,12 +7,13 @@ import os from 'node:os'
 import path from 'node:path'
 import pTimout from 'p-timeout'
 import { type ExtensionContext, StatusBarAlignment, type StatusBarItem, commands, window } from 'vscode'
+import { mirrors } from '~/commands/mirror'
 import { i18n } from '~/i18n'
 import { SHARP_LIBVIPS_VERSION } from '~/meta'
-import { isValidHttpsUrl, normalizePath, setImmdiateInterval } from '~/utils'
+import { cleanVersion, isValidHttpsUrl, normalizePath, setImmdiateInterval } from '~/utils'
 import { Channel } from '~/utils/channel'
 import { Config, Global } from '..'
-import { version } from '../../../package.json'
+import { devDependencies, version } from '../../../package.json'
 
 export class TimeoutError extends Error {
   constructor(message?: string) {
@@ -45,7 +46,7 @@ enum CacheType {
   extension = 'extension',
 }
 
-const CNPM_BINARY_REGISTRY = 'https://registry.npmmirror.com/-/binary'
+const CNPM_BINARY_REGISTRY = mirrors[0].description
 const SHARP_LIBVIPS = 'sharp-libvips'
 const VENDOR = 'vendor'
 const BUILD = 'build'
@@ -180,11 +181,6 @@ export class Installer {
         await this._trySaveCacheToOs(this._cacheable)
       } else {
         Channel.info(`${i18n.t('core.load_from_cache')}: ${cacheTypes[0]}`)
-
-        // 如果os中没有缓存，则设置os缓存
-        if (!cacheTypes.includes(CacheType.os)) {
-          await this._trySaveCacheToOs(this._cacheable)
-        }
       }
 
       fs.ensureFileSync(this._pkgCacheFilePath)
@@ -197,6 +193,14 @@ export class Installer {
         Channel.info(i18n.t('core.libvips_diff'))
         await this._trySaveCacheToOs([VENDOR], { force: true })
         this._writePkgJson({ libvips: SHARP_LIBVIPS_VERSION })
+      }
+
+      const SHARP_VERSION = cleanVersion(devDependencies['@minko-fe/sharp'])
+      if (pkg.sharp !== SHARP_VERSION) {
+        fs.emptyDirSync(path.resolve(this.getDepOsCacheDir(), BUILD))
+        Channel.info(i18n.t('core.sharp_diff'))
+        await this._trySaveCacheToOs([BUILD], { force: true })
+        this._writePkgJson({ sharp: SHARP_VERSION })
       }
 
       if (pkg.version !== version) {
@@ -216,7 +220,7 @@ export class Installer {
 
   private _readPkgJson() {
     const pkgStr = fs.readFileSync(this._pkgCacheFilePath, 'utf-8')
-    let pkg: { version?: string; libvips?: string } = {}
+    let pkg: { version?: string; libvips?: string; sharp?: string } = {}
     if (isString(pkgStr)) {
       try {
         pkg = destrUtil.destr<AnyObject>(pkgStr)
@@ -447,13 +451,13 @@ export class Installer {
   }
 
   public async clearCaches() {
-    // 清除 os cache
-    await this._rmDir(this.getDepOsCacheDir())
+    Promise.all([
+      // 清除 os cache
+      this._rmDir(this.getDepOsCacheDir()),
 
-    // 清除 extension cache
-    ;[VENDOR, BUILD].forEach(async (dir) => {
-      await this._rmDir(path.resolve(this.getSharpCwd(), dir))
-    })
+      // 清除 extension cache
+      ...[VENDOR, BUILD].map((dir) => this._rmDir(path.resolve(this.getSharpCwd(), dir))),
+    ])
   }
 
   private async _install() {

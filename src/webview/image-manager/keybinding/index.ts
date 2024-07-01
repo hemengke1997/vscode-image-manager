@@ -28,6 +28,10 @@ const symbols: Record<string, SymbolTypes> = {
 }
 
 class Symbol {
+  private static getSymbol(key: keyof SymbolTypes) {
+    return os.isMac() ? symbols.mac[key] : symbols.other[key]
+  }
+
   static get mod() {
     return this.getSymbol('mod')
   }
@@ -43,17 +47,14 @@ class Symbol {
   static get backspace() {
     return this.getSymbol('backspace')
   }
-  private static getSymbol(key: keyof SymbolTypes) {
-    return os.isMac() ? symbols.mac[key] : symbols.other[key]
-  }
 }
 
 export const Keybinding = {
-  Copy: `${Symbol.mod}C`,
-  Paste: `${Symbol.mod}V`,
-  Search: `${Symbol.mod}F`,
-  Undo: `${Symbol.mod}Z`,
-  Redo: `${Symbol.mod}${Symbol.shift}Z`,
-  Delete: `${Symbol.mod}${Symbol.backspace}`,
-  Enter: Symbol.enter,
+  Copy: () => `${Symbol.mod}C`,
+  Paste: () => `${Symbol.mod}V`,
+  Search: () => `${Symbol.mod}F`,
+  Undo: () => `${Symbol.mod}Z`,
+  Redo: () => `${Symbol.mod}${Symbol.shift}Z`,
+  Delete: () => (os.isMac() ? `${Symbol.mod}${Symbol.delete_str}` : Symbol.delete_str),
+  Enter: () => Symbol.enter,
 }

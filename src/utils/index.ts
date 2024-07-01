@@ -50,3 +50,7 @@ export function setImmdiateInterval(callback: () => void, interval: number) {
   callback()
   return setInterval(callback, interval)
 }
+
+export function cleanVersion(version: string) {
+  return version.replace(/^[^0-9]+/, '')
+}

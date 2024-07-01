@@ -31,7 +31,7 @@ function Search() {
         </div>
       }
       onClick={() => setImageSearchOpen(true)}
-      title={`${t('im.search')} (${Keybinding.Search})`}
+      title={`${t('im.search')} (${Keybinding.Search()})`}
     ></Button>
   )
 }
