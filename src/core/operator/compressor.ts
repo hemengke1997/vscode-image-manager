@@ -65,7 +65,6 @@ export class Compressor extends Operator {
   public limit = {
     from: [...this.extensions],
     to: [...this.extensions],
-    size: 20 * 1024 * 1024,
   }
 
   constructor(public option: CompressionOptions) {
@@ -116,7 +115,7 @@ export class Compressor extends Operator {
         ...res,
       }
     } catch (e: any) {
-      Channel.info(`Compress Error: ${toString(e)}`)
+      Channel.debug(`${i18n.t('core.compress_error')}: ${toString(e)}`)
       return {
         error: e,
         filePath,
@@ -233,7 +232,10 @@ export class Compressor extends Operator {
               sharp
                 .toFormat(ext as keyof SharpNS.FormatEnum, {
                   ...compressionOption,
+                  // 提高png的压缩率
                   palette: true,
+                  // 提高jpeg的压缩率
+                  mozjpeg: true,
                 })
                 .timeout({ seconds: 30 })
 
@@ -251,8 +253,7 @@ export class Compressor extends Operator {
                 })
               }
             },
-            'after:run': async ({ runtime: { filePath } }, { outputPath }) => {
-              if (filePath === outputPath) return
+            'after:run': async ({ runtime: { filePath } }) => {
               await this.trashFile(filePath)
             },
             'on:generate-output-path': ({
@@ -283,7 +284,6 @@ export class Compressor extends Operator {
       })
       if (outputPath) {
         const outputSize = this.getFileSize(outputPath)
-
         return {
           outputSize,
           inputSize,

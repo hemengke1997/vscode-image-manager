@@ -3,6 +3,8 @@ import fs from 'fs-extra'
 import { Uri, env, window } from 'vscode'
 import { type SharpNS } from '~/@types/global'
 import { i18n } from '~/i18n'
+import { Channel } from '~/utils/channel'
+import logger from '~/utils/logger'
 import { Global } from '..'
 
 type HookResult<T = void> = Promise<T> | T
@@ -141,7 +143,7 @@ export class SharpOperator<T extends AnyObject, RuntimeCtx extends AnyObject = T
     buffer: Buffer
   }> {
     if (!this.ctx.sharp) {
-      const noSharpTip = i18n.t('core.dep_not_found')
+      const noSharpTip = i18n.t('core.dep_install_fail')
       const viewSolutionTip = i18n.t('core.view_solution')
       window.showErrorMessage(noSharpTip, viewSolutionTip).then((res) => {
         if (res === viewSolutionTip) {
@@ -167,7 +169,11 @@ export class SharpOperator<T extends AnyObject, RuntimeCtx extends AnyObject = T
       ...((await this._hooks.callHook('on:configuration', this.ctx)) || {}),
     })
 
-    await this._hooks.callHook('before:run', this.ctx)
+    try {
+      await this._hooks.callHook('before:run', this.ctx)
+    } catch (e) {
+      logger.error(e)
+    }
 
     return new Promise((resolve, reject) => {
       this.ctx.sharp
@@ -183,23 +189,29 @@ export class SharpOperator<T extends AnyObject, RuntimeCtx extends AnyObject = T
           try {
             await this._hooks.callHook('after:run', this.ctx, { outputPath })
 
+            fs.ensureFileSync(outputPath)
+
             if (dryRun) {
               await this._hooks.callHook('on:finish', this.ctx, result)
               return resolve(result)
             }
 
-            const fileWritableStream = fs.createWriteStream(outputPath)
-
-            fileWritableStream.on('finish', async () => {
-              try {
-                await this._hooks.callHook('on:finish', this.ctx, result)
-              } finally {
-                resolve(result)
+            fs.access(outputPath, fs.constants.W_OK, (err) => {
+              if (err) {
+                Channel.error(err.message)
+              } else {
+                const fileWritableStream = fs.createWriteStream(outputPath)
+                fileWritableStream.on('finish', async () => {
+                  try {
+                    await this._hooks.callHook('on:finish', this.ctx, result)
+                  } finally {
+                    resolve(result)
+                  }
+                })
+                fileWritableStream.write(buffer)
+                fileWritableStream.end()
               }
             })
-
-            fileWritableStream.write(buffer)
-            fileWritableStream.end()
           } catch (e) {
             reject(e)
           }

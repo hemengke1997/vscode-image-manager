@@ -5,6 +5,7 @@ import { Uri, workspace } from 'vscode'
 import { i18n } from '~/i18n'
 import { generateOutputPath } from '~/utils'
 import { Channel } from '~/utils/channel'
+import logger from '~/utils/logger'
 
 export type OperatorOptions = {
   /**
@@ -32,9 +33,18 @@ export type OperatorResult = {
 
 export abstract class Operator {
   public abstract limit: {
+    /**
+     * 支持接收的图片格式
+     */
     from: string[]
+    /**
+     * 支持输出的图片格式
+     */
     to: string[]
-    size: number
+    /**
+     * 图片大小限制
+     */
+    size?: number
   }
 
   public abstract option: OperatorOptions
@@ -43,14 +53,15 @@ export abstract class Operator {
 
   private _isSupported(filePath: string) {
     const ext = this.getFileExt(filePath)
-    const { size } = fs.statSync(filePath)
 
     if (!this.limit.from.includes(ext)) {
       return i18n.t('core.compress_fail_reason_extension', ext)
     }
-    if (size >= this.limit.size) {
-      return i18n.t('core.compress_fail_reason_size', this.limit.size / 1024 / 1024)
-    }
+
+    // const { size } = fs.statSync(filePath)
+    // if (this.limit.size && size >= this.limit.size) {
+    //   return i18n.t('core.compress_fail_reason_size', this.limit.size / 1024 / 1024)
+    // }
 
     return true
   }
@@ -75,9 +86,10 @@ export abstract class Operator {
   async trashFile(filePath: string) {
     try {
       if (this.option.keepOriginal) return
+      logger.debug(`trash file: ${filePath}`)
       await workspace.fs.delete(Uri.file(filePath), { useTrash: true })
     } catch (e) {
-      Channel.info(`Trash File Error: ${e}`)
+      Channel.info(`${i18n.t('core.trash_error')}: ${e}`)
     }
   }
 

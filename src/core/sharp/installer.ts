@@ -11,7 +11,6 @@ import { i18n } from '~/i18n'
 import { SHARP_LIBVIPS_VERSION } from '~/meta'
 import { isValidHttpsUrl, normalizePath, setImmdiateInterval } from '~/utils'
 import { Channel } from '~/utils/channel'
-import logger from '~/utils/logger'
 import { Config, Global } from '..'
 import { version } from '../../../package.json'
 
@@ -338,10 +337,10 @@ export class Installer {
     return new Promise<TSharp>((resolve, reject) => {
       try {
         const sharpModule = require(localSharpPath)
-        Channel.info(i18n.t('core.load_dep_success'))
+        Channel.info(i18n.t('core.load_core_script_success'))
         resolve(sharpModule.default || sharpModule.sharp)
       } catch (e) {
-        Channel.debug(`Load sharp failed: ${e}`)
+        Channel.error(`${i18n.t('core.load_core_script_fail')}: ${e}`)
         reject(e)
       }
     })
@@ -396,10 +395,9 @@ export class Installer {
             fs.ensureDirSync(this.getDepOsCacheDir())
 
             // Copy stable files to cache directory
-            this._copyDirsToOsCache(cacheDirs)
+            await this._copyDirsToOsCache(cacheDirs)
             if (!force) this._isCached = true
           }
-
           resolve(true)
         }
       })
@@ -407,10 +405,19 @@ export class Installer {
   }
 
   private _copyDirsToOsCache(dirs: string[]) {
-    dirs.forEach((dir) =>
-      fs.copySync(path.resolve(this.getSharpCwd(), dir), path.resolve(this.getDepOsCacheDir(), dir)),
-    )
     Channel.debug(`Copy [${dirs.join(',')}] to ${this.getDepOsCacheDir()}`)
+
+    return Promise.all(
+      dirs.map(async (dir) => {
+        const source = path.resolve(this.getSharpCwd(), dir)
+        if (fs.existsSync(source)) {
+          await fs.copy(path.resolve(this.getSharpCwd(), dir), path.resolve(this.getDepOsCacheDir(), dir))
+          Channel.debug(`Copy ${dir} success`)
+        } else {
+          Channel.debug(`${dir} not exists`)
+        }
+      }),
+    )
   }
 
   /**
@@ -510,7 +517,7 @@ export class Installer {
           cwd,
           env: {
             ...process.env,
-            // npm_package_config_libvips: SHARP_LIBVIPS_VERSION,
+            npm_package_config_libvips: SHARP_LIBVIPS_VERSION,
             npm_config_sharp_libvips_binary_host,
           },
           stdout: 'pipe',
@@ -522,7 +529,7 @@ export class Installer {
           Channel.error(`${i18n.t('core.manual_install_failed')}: ${this._libvips_bin}`)
           Channel.error(i18n.t('core.manual_install_failed'), true)
         } else {
-          Channel.error(i18n.t('core.dep_not_found'), true)
+          Channel.error(i18n.t('core.dep_install_fail'), true)
         }
       }
     }
@@ -534,6 +541,8 @@ export class Installer {
     if (sharpBins.length) {
       Channel.info(`sharp binary ${i18n.t('core.start_auto_install')}: ${sharpBins.join(', ')}`)
 
+      let installSuccess = false
+
       for (let i = 0; i < sharpBins.length; i++) {
         try {
           await execaNode(
@@ -544,13 +553,17 @@ export class Installer {
             },
           )
           Channel.info(`${i18n.t('core.auto_install_success')}: ${sharpBins[i]}`)
+          installSuccess = true
           break
         } catch {
-          logger.error(`${i18n.t('core.dep_not_found')}: ${sharpBins[i]}`)
+          installSuccess = false
         }
       }
+      if (!installSuccess) {
+        Channel.error(`sharp ${i18n.t('core.dep_install_fail')}`, true)
+      }
     } else {
-      Channel.error(i18n.t('core.dep_not_found'), true)
+      Channel.error(`sharp ${i18n.t('core.dep_install_fail')}`, true)
     }
 
     Channel.info(i18n.t('core.install_finished'))

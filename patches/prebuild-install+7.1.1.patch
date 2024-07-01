@@ -1,0 +1,33 @@
+diff --git a/node_modules/prebuild-install/bin.js b/node_modules/prebuild-install/bin.js
+index e5260cc..4d03fc9 100755
+--- a/node_modules/prebuild-install/bin.js
++++ b/node_modules/prebuild-install/bin.js
+@@ -64,15 +64,18 @@ const startDownload = function (downloadUrl) {
+   })
+ }
+ 
+-if (opts.token) {
+-  asset(opts, function (err, assetId) {
+-    if (err) {
+-      log.warn('install', err.message)
+-      return process.exit(1)
+-    }
++// if (opts.token) {
++//   asset(opts, function (err, assetId) {
++//     if (err) {
++//       log.warn('install', err.message)
++//       return process.exit(1)
++//     }
+ 
+-    startDownload(util.getAssetUrl(opts, assetId))
+-  })
+-} else {
+-  startDownload(util.getDownloadUrl(opts))
++//     startDownload(util.getAssetUrl(opts, assetId))
++//   })
++// } else {
++//   startDownload(util.getDownloadUrl(opts))
++// }
++module.exports = function resolveDownloadUrl() {
++  return util.getDownloadUrl(opts)
+ }

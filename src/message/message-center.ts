@@ -24,6 +24,7 @@ import { type ConfigType } from '~/core/config/common'
 import { COMPRESSED_META } from '~/core/operator/meta'
 import { WorkspaceState } from '~/core/persist'
 import { type WorkspaceStateKey } from '~/core/persist/workspace/common'
+import { i18n } from '~/i18n'
 import { generateOutputPath, normalizePath } from '~/utils'
 import { Channel } from '~/utils/channel'
 import { imageGlob } from '~/utils/glob'
@@ -58,7 +59,7 @@ export type FirstParameterOfMessageCenter<K extends KeyofMessage> =
  */
 export const VscodeMessageCenter = {
   [CmdToVscode.on_webview_ready]: async () => {
-    Channel.debug('Webview is ready')
+    Channel.info(i18n.t('core.webview_ready'))
     const config = await VscodeMessageCenter[CmdToVscode.get_extension_config]()
     const workspaceState = await VscodeMessageCenter[CmdToVscode.get_workspace_state]()
     const { watchedTargetImage } = ImageManagerPanel
@@ -110,7 +111,7 @@ export const VscodeMessageCenter = {
         try {
           vscodePath = (await convertToBase64IfBrowserNotSupport(image.path)) || vscodePath
         } catch (e) {
-          Channel.error(`Convert to base64 error: ${e}`)
+          Channel.error(`${i18n.t('core.covert_base64_error')}: ${e}`)
         }
 
         const fileType = path.extname(image.path).replace('.', '')
@@ -283,7 +284,7 @@ export const VscodeMessageCenter = {
     try {
       return await convertImageToBase64(filePath)
     } catch (e) {
-      Channel.error(`Copy image as base64 error: ${toString(e)}`)
+      Channel.error(`${i18n.t('core.copy_base64_error')}: ${toString(e)}`)
       return ''
     }
   },
@@ -298,10 +299,10 @@ export const VscodeMessageCenter = {
       Channel.debug(`Compress params: ${JSON.stringify(data)}`)
       const { compressor } = Global
       const res = await compressor?.run(filePaths, option)
-      Channel.info(`Compress result: ${JSON.stringify(res)}`)
+      Channel.debug(`Compress result: ${JSON.stringify(res)}`)
       return res
     } catch (e: any) {
-      Channel.info(`Compress error: ${JSON.stringify(e)}`)
+      Channel.debug(`${i18n.t('core.compress_error')}: ${JSON.stringify(e)}`)
       return e
     }
   },
@@ -313,13 +314,13 @@ export const VscodeMessageCenter = {
   }): Promise<OperatorResult | undefined> => {
     try {
       const { filePaths, option } = data
-      Channel.info(`Convert params: ${JSON.stringify(data)}`)
+      Channel.debug(`Convert params: ${JSON.stringify(data)}`)
       const { formatConverter } = Global
       const res = await formatConverter?.run(filePaths, option)
-      Channel.info(`Convert result: ${JSON.stringify(res)}`)
+      Channel.debug(`Convert result: ${JSON.stringify(res)}`)
       return res
     } catch (e: any) {
-      Channel.info(`Convert error: ${JSON.stringify(e)}`)
+      Channel.debug(`Convert error: ${JSON.stringify(e)}`)
       return e
     }
   },
@@ -377,7 +378,7 @@ export const VscodeMessageCenter = {
       try {
         await fs.promises.writeFile(outputPath, imageBuffer)
       } catch (e) {
-        Channel.error(`save_cropper_image ${e}`)
+        Channel.error(`${i18n.t('core.save_cropper_image_error')} ${e}`)
         return null
       }
     }
@@ -443,7 +444,7 @@ export const VscodeMessageCenter = {
         imageFiles = imageFiles.map((file) => path.join(gitRoot, file))
         return imageFiles
       } catch (e) {
-        Channel.debug(`Get git staged images error: ${e}`)
+        Channel.debug(`${i18n.t('core.get_git_staged_error')}: ${e}`)
         return []
       }
     }

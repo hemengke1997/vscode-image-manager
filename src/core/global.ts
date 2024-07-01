@@ -10,7 +10,6 @@ import { ConfigKey, type VscodeConfigType } from './config/common'
 
 export class Global {
   private static _rootpaths: string[]
-
   /**
    * extension context
    */
@@ -49,7 +48,9 @@ export class Global {
    */
   static installer: Installer
 
-  // events
+  /**
+   * events
+   */
   private static _onDidChangeRootPath: EventEmitter<string[]> = new EventEmitter()
 
   static readonly onDidChangeRootPath: Event<string[]> = Global._onDidChangeRootPath.event

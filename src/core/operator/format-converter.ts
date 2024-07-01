@@ -34,10 +34,9 @@ type ConvertorRuntime = {
 export class FormatConverter extends Operator {
   private extensions = ['png', 'jpg', 'jpeg', 'webp', 'gif', 'tiff', 'avif', 'heif', 'svg']
 
-  public limit: { from: string[]; to: string[]; size: number } = {
+  public limit = {
     from: [...this.extensions],
     to: [...this.extensions, 'ico'],
-    size: 20 * 1024 * 1024,
   }
 
   constructor(public option: FormatConverterOptions) {
@@ -95,9 +94,7 @@ export class FormatConverter extends Operator {
               }
               ctx.sharp.toFormat(ext as keyof SharpNS.FormatEnum).timeout({ seconds: 20 })
             },
-            'after:run': async ({ runtime: { filePath, isLast } }, { outputPath }) => {
-              if (filePath === outputPath) return
-
+            'after:run': async ({ runtime: { filePath, isLast } }) => {
               isLast && (await this.trashFile(filePath))
             },
             'on:generate-output-path': ({ runtime: { ext, filePath } }) => {
