@@ -5,7 +5,6 @@ import { Uri, workspace } from 'vscode'
 import { i18n } from '~/i18n'
 import { generateOutputPath } from '~/utils'
 import { Channel } from '~/utils/channel'
-import logger from '~/utils/logger'
 
 export type OperatorOptions = {
   /**
@@ -86,7 +85,6 @@ export abstract class Operator {
   async trashFile(filePath: string) {
     try {
       if (this.option.keepOriginal) return
-      logger.debug(`trash file: ${filePath}`)
       await workspace.fs.delete(Uri.file(filePath), { useTrash: true })
     } catch (e) {
       Channel.info(`${i18n.t('core.trash_error')}: ${e}`)

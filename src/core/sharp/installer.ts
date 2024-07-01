@@ -48,6 +48,7 @@ enum CacheType {
 const CNPM_BINARY_REGISTRY = 'https://registry.npmmirror.com/-/binary'
 const SHARP_LIBVIPS = 'sharp-libvips'
 const VENDOR = 'vendor'
+const BUILD = 'build'
 
 const INITIALIZING_TEXT = () => `🔄 ${i18n.t('prompt.initializing')}`
 
@@ -95,7 +96,7 @@ export class Installer {
    *
    * sharp 里面是 sharp 的 index.js 源码
    */
-  private readonly _cacheable = [VENDOR, 'build', 'json', 'sharp']
+  private readonly _cacheable = [VENDOR, BUILD, 'json', 'sharp']
 
   public readonly cacheDir: string
 
@@ -263,7 +264,7 @@ export class Installer {
    * 预定义的缓存依赖数组
    */
   public getCaches() {
-    const RELEASE_DIR = 'build/Release'
+    const RELEASE_DIR = `${BUILD}/Release`
     const VENDOR_DIR = `${VENDOR}/${SHARP_LIBVIPS_VERSION}`
     const SHARP_FS = 'sharp/index.js'
 
@@ -354,10 +355,13 @@ export class Installer {
         if (time >= maxTimes) {
           clearInterval(interval)
 
-          const restart = i18n.t('prompt.reload_now')
+          const RETRY = i18n.t('prompt.retry')
 
-          window.showErrorMessage(i18n.t('prompt.load_sharp_failed'), restart).then((res) => {
-            if (res === restart) {
+          window.showErrorMessage(i18n.t('prompt.load_sharp_failed'), RETRY).then(async (res) => {
+            if (res === RETRY) {
+              try {
+                await this.clearCaches()
+              } catch {}
               commands.executeCommand('workbench.action.reloadWindow')
             }
           })
@@ -425,7 +429,7 @@ export class Installer {
    * @returns /{extension-cwd}/dist/lib
    */
   private getSharpCwd() {
-    return path.resolve(this.cwd, 'dist/lib')
+    return normalizePath(path.resolve(this.cwd, 'dist/lib'))
   }
 
   /**
@@ -433,7 +437,7 @@ export class Installer {
    * @returns /{tmpdir}/vscode-image-manager-cache/lib
    */
   public getDepOsCacheDir() {
-    return path.resolve(this.cacheDir, 'lib')
+    return normalizePath(path.resolve(this.cacheDir, 'lib'))
   }
 
   private async _rmDir(dir: string) {
@@ -447,7 +451,7 @@ export class Installer {
     await this._rmDir(this.getDepOsCacheDir())
 
     // 清除 extension cache
-    ;[VENDOR].forEach(async (dir) => {
+    ;[VENDOR, BUILD].forEach(async (dir) => {
       await this._rmDir(path.resolve(this.getSharpCwd(), dir))
     })
   }
@@ -520,7 +524,6 @@ export class Installer {
             npm_package_config_libvips: SHARP_LIBVIPS_VERSION,
             npm_config_sharp_libvips_binary_host,
           },
-          stdout: 'pipe',
         })
       } catch (e) {
         Channel.error(e)

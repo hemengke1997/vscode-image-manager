@@ -80,6 +80,7 @@
     current_language: '当前语言',
     clear_cache_success: '清除缓存成功，请重启vscode生效',
     cache_not_found: '未找到缓存文件',
+    retry: '重试',
   },
   // 核心代码
   core: {

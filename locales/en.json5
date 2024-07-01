@@ -78,6 +78,7 @@
     current_language: 'Current Language',
     clear_cache_success: 'Clear cache success, please reload vscode to take effect',
     cache_not_found: 'Cache not found',
+    retry: 'Retry',
   },
   core: {
     compress_fail: 'Compress Fail',
