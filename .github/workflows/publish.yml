@@ -32,7 +32,7 @@ jobs:
   #         VSCE_TOKEN: ${{ secrets.VSCE_TOKEN }}
 
   create-release:
-    needs: publish-vscode
+    # needs: publish-vscode
     name: Create Release
     if: "contains(github.event.head_commit.message, 'release')"
     runs-on: ubuntu-latest
