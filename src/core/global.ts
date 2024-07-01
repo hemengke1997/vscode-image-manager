@@ -120,8 +120,8 @@ export class Global {
           this.initOperators()
         })
         .on('install-fail', async (e) => {
+          reject(e)
           if (e instanceof TimeoutError) {
-            reject(e)
             const SELECT_MIRROR = i18n.t('pkg.cmd.select_mirror')
             const result = await window.showErrorMessage(i18n.t('prompt.deps_init_timeout'), SELECT_MIRROR)
             if (result === SELECT_MIRROR) {

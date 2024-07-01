@@ -354,10 +354,6 @@ export class Installer {
       const interval = setImmdiateInterval(async () => {
         if (time >= maxTimes) {
           clearInterval(interval)
-          // clear deps cache
-          try {
-            await this.clearCaches()
-          } catch {}
 
           const restart = i18n.t('prompt.reload_now')
 

@@ -34,7 +34,8 @@ export default <ExtensionModule>function (ctx) {
     // init sharp here
     if (!sharpInstalled) {
       try {
-        sharpInstalled = await Global.installSharp()
+        await Global.installSharp()
+        sharpInstalled = true
       } catch {
         sharpInstalled = false
       }
