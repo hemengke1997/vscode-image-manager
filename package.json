@@ -67,7 +67,6 @@
     "download-sharp-releases": "tsx scripts/download-sharp-releases",
     "changelog": "conventional-changelog -p conventionalcommits -i CHANGELOG-CODE.md -s -r 0",
     "bump": "bumpp package.json --no-commit --tag --no-push --all -x \"npm run changelog\"",
-    "vscode:prepublish": "run-p build download-sharp-releases",
     "pack": "vsce package",
     "publish": "vsce publish"
   },
@@ -121,6 +120,7 @@
     "image-size": "^1.1.1",
     "immer": "^10.1.1",
     "json5": "^2.2.3",
+    "local-pkg": "^0.5.0",
     "micromatch": "^4.0.7",
     "mime": "^4.0.3",
     "minimist": "^1.2.8",
@@ -132,7 +132,6 @@
     "p-timeout": "^6.1.2",
     "patch-package": "^8.0.0",
     "postcss": "^8.4.39",
-    "prebuild-install": "7.1.1",
     "prettier-plugin-tailwindcss": "^0.6.5",
     "pump": "^3.0.0",
     "query-string": "^9.0.0",

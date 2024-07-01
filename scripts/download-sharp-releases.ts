@@ -1,15 +1,15 @@
 import fs from 'fs-extra'
+import { getPackageInfo } from 'local-pkg'
 import path from 'node:path'
 import stream from 'node:stream'
 import { promisify } from 'node:util'
 import fetch from 'node-fetch'
 import logger from '~/utils/logger'
-import { devDependencies } from '../package.json'
 
 const pipeline = promisify(stream.pipeline)
 
 ;(async () => {
-  const url = `https://api.github.com/repos/hemengke1997/sharp/releases/tags/v${devDependencies['@minko-fe/sharp']}`
+  const url = `https://api.github.com/repos/hemengke1997/sharp/releases/tags/v${(await getPackageInfo('@minko-fe/sharp'))?.version}`
 
   try {
     const response = await fetch(url)

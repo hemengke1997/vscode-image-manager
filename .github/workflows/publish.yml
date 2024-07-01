@@ -8,28 +8,28 @@ on:
 permissions: {}
 
 jobs:
-  publish-vscode:
-    permissions:
-      contents: write
-    runs-on: ubuntu-latest
-    steps:
-      - name: Checkout
-        uses: actions/checkout@v3
+  # publish-vscode:
+  #   permissions:
+  #     contents: write
+  #   runs-on: ubuntu-latest
+  #   steps:
+  #     - name: Checkout
+  #       uses: actions/checkout@v3
 
-      - name: Setup Node.js
-        uses: actions/setup-node@v3
-        with:
-          node-version: 18
-          cache: npm
+  #     - name: Setup Node.js
+  #       uses: actions/setup-node@v3
+  #       with:
+  #         node-version: 18
+  #         cache: npm
 
-      - name: Install Dependencies
-        run: npm i --frozen-lockfile --ignore-scripts
+  #     - name: Install Dependencies
+  #       run: npm i --frozen-lockfile
 
-      - uses: lannonbr/vsce-action@3.0.0
-        with:
-          args: publish -p $VSCE_TOKEN
-        env:
-          VSCE_TOKEN: ${{ secrets.VSCE_TOKEN }}
+  #     - uses: lannonbr/vsce-action@3.0.0
+  #       with:
+  #         args: publish -p $VSCE_TOKEN
+  #       env:
+  #         VSCE_TOKEN: ${{ secrets.VSCE_TOKEN }}
 
   create-release:
     needs: publish-vscode
