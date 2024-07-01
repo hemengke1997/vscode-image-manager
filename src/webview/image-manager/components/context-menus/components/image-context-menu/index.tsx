@@ -23,17 +23,24 @@ import { type ImageContextMenuType } from './hooks/use-image-context-menu'
 export const IMAGE_CONTEXT_MENU_ID = 'IMAGE_CONTEXT_MENU_ID'
 const IMAGE_CONTEXT_MENU = {
   /**
-   * sharp相关操作
+   * sharp相关操作，包括：
+   * 1. 压缩
+   * 2. 裁剪
+   * 3. 转化格式
+   * 4. 查找相似图片
    * @default false
    */
   sharp: 'sharp',
   /**
-   * 文件操作
+   * 文件操作，包括：
+   * 1. 重命名
+   * 2. 删除
    * @default false
    */
   fs: 'fs',
   /**
-   * svg相关操作
+   * svg相关操作，包括
+   * 1. 格式化svg
    * @default false
    */
   svg: 'svg',
@@ -89,19 +96,22 @@ function ImageContextMenu() {
 
   // 压缩图片
   const handleCompressImage = useMemoizedFn((e: ItemParamsContextMenu) => {
-    beginCompressProcess(e.props!.images, {
-      fields: {
-        /**
-         * 单文件压缩时，不跳过压缩流程
-         */
-        skipCompressed: {
-          el() {
-            return null
-          },
-          value: false,
-        },
-      },
-    })
+    beginCompressProcess(
+      e.props!.images,
+      //   {
+      //   fields:
+      //     images.length === 1
+      //       ? {
+      //           /**
+      //            * 单文件压缩时，默认不跳过压缩流程
+      //            */
+      //           skipCompressed: {
+      //             value: false,
+      //           },
+      //         }
+      //       : {},
+      // }
+    )
   })
 
   // 裁剪图片

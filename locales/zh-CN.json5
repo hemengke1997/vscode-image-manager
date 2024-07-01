@@ -9,6 +9,7 @@
       enable_mirror: '启用镜像',
       select_mirror: '选择镜像源',
       select_language: '选择语言',
+      clear_cache: '清除本地缓存',
     },
     debug: {
       enabled: '开启调试模式',
@@ -71,10 +72,14 @@
     mirror_enabled: '镜像下载依赖已启用, 请重启vscode生效',
     reload_now: '立即重启',
     mirror_already_enabled: '镜像下载依赖已启用',
-    mirror_selected: '切换镜像源成功: {0}, 请重启vscode生效',
+    mirror_selected: '切换镜像源成功，请重启vscode生效',
     load_sharp_failed: '加载核心脚本失败，请重试',
     deps_init_aborted: '已取消安装依赖',
     deps_init_timeout: '依赖安装超时，请尝试切换镜像源',
+    current_mirror: '当前镜像',
+    current_language: '当前语言',
+    clear_cache_success: '清除缓存成功，请重启vscode生效',
+    cache_not_found: '未找到缓存文件',
   },
   // 核心代码
   core: {
@@ -88,6 +93,7 @@
     platform: '系统平台',
     manual_install_failed: '手动安装依赖失败，请确保安装对应版本',
     manual_install_success: '手动安装依赖成功',
+    auto_install_success: '自动安装依赖成功',
     dep_cache_dir: '依赖缓存目录',
     start_manual_install: '开始手动安装依赖',
     start_auto_install: '开始自动安装依赖',

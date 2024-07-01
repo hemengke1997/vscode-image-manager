@@ -61,7 +61,7 @@ function ImageCompressor(props: ImageCompressorProps) {
   })
 
   const onFinish = useMemoizedFn((value: FormValue) => {
-    value = merge(flattenObject(compressor?.option || {}), mapValues(fields, 'value'), value)
+    value = merge(flattenObject(compressor?.option || {}), value)
 
     if (value) {
       if (Number(value.size) === 0) {
@@ -271,7 +271,10 @@ function ImageCompressor(props: ImageCompressorProps) {
     }
   }, [tabList, activeTab])
 
-  const allCompressorOption = useMemo(() => flattenObject(compressor?.option || {}) as AnyObject, [compressor?.option])
+  const allCompressorOption = useMemo(
+    () => merge(flattenObject(compressor?.option || {}), mapValues(fields, 'value')) as AnyObject,
+    [compressor?.option, fields],
+  )
 
   const allComponents = useMemo(() => {
     return tabList.reduce((prev, current) => {

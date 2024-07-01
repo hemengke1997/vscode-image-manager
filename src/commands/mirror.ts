@@ -1,4 +1,4 @@
-import { ConfigurationTarget, commands, window } from 'vscode'
+import { ConfigurationTarget, type QuickPickItem, commands, window } from 'vscode'
 import { Config } from '~/core'
 import { ConfigKey } from '~/core/config/common'
 import { i18n } from '~/i18n'
@@ -7,15 +7,15 @@ import { Commands } from '.'
 
 export const mirrors = [
   {
-    label: 'cnpm',
-    description: 'https://npmmirror.com/mirrors',
-  },
-  {
-    label: 'cnpm - binary',
+    label: 'registry站点镜像',
     description: 'https://registry.npmmirror.com/-/binary',
   },
   {
-    label: 'cnpm - cdn',
+    label: '二进制文件镜像',
+    description: 'https://npmmirror.com/mirrors',
+  },
+  {
+    label: 'cdn二进制文件镜像',
     description: 'https://cdn.npmmirror.com/binaries',
   },
 ]
@@ -25,9 +25,9 @@ export default <ExtensionModule>function () {
     if (!Config.mirror_enabled) {
       await Config.updateConfig(ConfigKey.mirror_enabled, true, ConfigurationTarget.Global)
 
-      const restart = i18n.t('prompt.reload_now')
-      const r = await window.showInformationMessage(i18n.t('prompt.mirror_enabled'), restart)
-      if (r === restart) {
+      const RESTART = i18n.t('prompt.reload_now')
+      const r = await window.showInformationMessage(i18n.t('prompt.mirror_enabled'), RESTART)
+      if (r === RESTART) {
         commands.executeCommand('workbench.action.reloadWindow')
       }
     } else {
@@ -40,9 +40,13 @@ export default <ExtensionModule>function () {
     const previousMirrorUrl = Config.mirror_url
 
     const mirror = await window.showQuickPick(
-      mirrors.map((t) => ({
-        label: t.label,
-      })),
+      mirrors.map(
+        (t) =>
+          ({
+            label: t.label,
+            description: previousMirrorUrl === t.description ? i18n.t('prompt.current_mirror') : '',
+          }) as QuickPickItem,
+      ),
       {
         placeHolder: i18n.t('pkg.cmd.select_mirror'),
       },
@@ -59,7 +63,7 @@ export default <ExtensionModule>function () {
         // updated
         const restart = i18n.t('prompt.reload_now')
 
-        await window.showInformationMessage(i18n.t('prompt.mirror_selected', mirror.label), restart).then((r) => {
+        await window.showInformationMessage(i18n.t('prompt.mirror_selected'), restart).then((r) => {
           if (r === restart) {
             commands.executeCommand('workbench.action.reloadWindow')
           }

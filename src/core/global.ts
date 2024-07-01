@@ -1,4 +1,5 @@
-import { type Event, EventEmitter, type ExtensionContext, ExtensionMode, window, workspace } from 'vscode'
+import { type Event, EventEmitter, type ExtensionContext, ExtensionMode, commands, window, workspace } from 'vscode'
+import { Commands } from '~/commands'
 import { Compressor, FormatConverter } from '~/core/operator'
 import { AbortError, Installer, TimeoutError } from '~/core/sharp'
 import { i18n } from '~/i18n'
@@ -105,28 +106,38 @@ export class Global {
   }
 
   static initSharp() {
-    this.installer = new Installer(this.context)
+    this.installer = new Installer(this.context, {
+      timeout: 30 * 1000, // 30s
+    })
   }
 
   static async installSharp() {
-    this.installer.event
-      .on('install-success', (e) => {
-        Channel.info(i18n.t('prompt.deps_init_success'))
-        Global.sharp = e
-        this.initOperators()
-      })
-      .on('install-fail', (e) => {
-        if (e instanceof TimeoutError) {
-          Channel.error(i18n.t('prompt.deps_init_timeout'), true)
-        } else if (e instanceof AbortError) {
-          window.showErrorMessage(i18n.t('prompt.deps_init_aborted'))
-        } else {
-          Channel.error(i18n.t('prompt.compressor_init_fail'), true)
-        }
-        throw e
-      })
+    return new Promise<boolean>(async (resolve, reject) => {
+      this.installer.event
+        .on('install-success', (e) => {
+          Channel.info(i18n.t('prompt.deps_init_success'))
+          Global.sharp = e
+          this.initOperators()
+        })
+        .on('install-fail', async (e) => {
+          if (e instanceof TimeoutError) {
+            reject(e)
+            const SELECT_MIRROR = i18n.t('pkg.cmd.select_mirror')
+            const result = await window.showErrorMessage(i18n.t('prompt.deps_init_timeout'), SELECT_MIRROR)
+            if (result === SELECT_MIRROR) {
+              commands.executeCommand(Commands.select_mirror)
+            }
+          } else if (e instanceof AbortError) {
+            window.showErrorMessage(i18n.t('prompt.deps_init_aborted'))
+          } else {
+            Channel.error(i18n.t('prompt.compressor_init_fail'), true)
+          }
+          reject(e)
+        })
 
-    await this.installer.run()
+      await this.installer.run()
+      resolve(true)
+    })
   }
 
   static isDevelopment() {

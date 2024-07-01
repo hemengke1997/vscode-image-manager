@@ -12,7 +12,7 @@ import { LOADING_DURATION } from '../utils/duration'
 
 export type FormComponent<T extends Record<string, any>> = {
   [key in Flatten<T>]?: {
-    el: () => ReactNode
+    el?: () => ReactNode
     value?: T[key]
   }
 }

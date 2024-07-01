@@ -8,7 +8,7 @@ import { devDependencies } from '../package.json'
 
 const pipeline = promisify(stream.pipeline)
 
-async function downloadSharpReleases() {
+;(async () => {
   const url = `https://api.github.com/repos/hemengke1997/sharp/releases/tags/v${devDependencies['@minko-fe/sharp']}`
 
   try {
@@ -43,6 +43,4 @@ async function downloadSharpReleases() {
   } catch (error) {
     logger.error('Error downloading releases:', error)
   }
-}
-
-downloadSharpReleases()
+})()
