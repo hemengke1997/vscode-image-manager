@@ -1,5 +1,4 @@
 import { destrUtil, isString, toLower } from '@minko-fe/lodash-pro'
-// import delay from 'delay'
 import EventEmitter from 'eventemitter3'
 import { execaNode } from 'execa'
 import fs from 'fs-extra'
@@ -17,7 +16,7 @@ import { devDependencies, version } from '../../../package.json'
 
 type Events = {
   'install-success': [TSharp]
-  'install-fail': [TimeoutError | AbortError]
+  'install-fail': [TimeoutError | AbortError | Error]
 }
 
 enum CacheType {
@@ -152,7 +151,7 @@ export class Installer {
         }
 
         Channel.info(`✅ ${i18n.t('prompt.initialized')}`, true)
-        await this._trySaveCacheToOs(this._cacheable)
+        await this._tryCopyCacheToOs(this._cacheable)
       } else {
         Channel.info(`${i18n.t('core.load_from_cache')}: ${cacheTypes[0]}`)
       }
@@ -165,7 +164,7 @@ export class Installer {
       if (pkg.libvips !== SHARP_LIBVIPS_VERSION) {
         fs.emptyDirSync(path.resolve(this.getDepOsCacheDir(), VENDOR))
         Channel.info(i18n.t('core.libvips_diff'))
-        await this._trySaveCacheToOs([VENDOR], { force: true })
+        await this._tryCopyCacheToOs([VENDOR], { force: true })
         this._writePkgJson({ libvips: SHARP_LIBVIPS_VERSION })
       }
 
@@ -173,13 +172,13 @@ export class Installer {
       if (pkg.sharp !== SHARP_VERSION) {
         fs.emptyDirSync(path.resolve(this.getDepOsCacheDir(), BUILD))
         Channel.info(i18n.t('core.sharp_diff'))
-        await this._trySaveCacheToOs([BUILD], { force: true })
+        await this._tryCopyCacheToOs([BUILD], { force: true })
         this._writePkgJson({ sharp: SHARP_VERSION })
       }
 
       if (pkg.version !== version) {
         Channel.info(i18n.t('core.version_diff'))
-        await this._trySaveCacheToOs(this._cacheable)
+        await this._tryCopyCacheToOs(this._cacheable)
         this._writePkgJson({ version })
       }
 
@@ -242,22 +241,18 @@ export class Installer {
    * 预定义的缓存依赖数组
    */
   public getCaches() {
-    const RELEASE_DIR = `${BUILD}/Release`
-    const VENDOR_DIR = `${VENDOR}/${SHARP_LIBVIPS_VERSION}`
-    const SHARP_FS = 'sharp/index.js'
-
     const cachedFiles = [
       {
         key: 'releaseDirPath',
-        value: RELEASE_DIR,
+        value: `${BUILD}/Release`,
       },
       {
         key: 'vendorDirPath',
-        value: VENDOR_DIR,
+        value: `${VENDOR}/${SHARP_LIBVIPS_VERSION}`,
       },
       {
         key: 'sharpFsPath',
-        value: SHARP_FS,
+        value: 'sharp/index.js',
       },
     ]
 
@@ -358,7 +353,7 @@ export class Installer {
     })
   }
 
-  private async _trySaveCacheToOs(
+  private async _tryCopyCacheToOs(
     cacheDirs: string[],
     options: {
       force?: boolean

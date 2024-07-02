@@ -11,6 +11,7 @@ import { createContainer } from 'context-state'
 import { diff } from 'deep-object-diff'
 import { useEffect, useMemo, useRef } from 'react'
 import { type SortByType, type SortType, type WorkspaceStateType } from '~/core/persist/workspace/common'
+import { ImageVisibleFilter } from '~/enums'
 import { CmdToVscode } from '~/message/cmd'
 import { vscodeApi } from '~/webview/vscode-api'
 import { FilterRadioValue } from '../components/image-actions/components/filter'
@@ -38,7 +39,7 @@ type Condition = {
   /**
    * visible的key
    */
-  key: ImageVisibleFilterType
+  key: ImageVisibleFilter
   /**
    * 判断是否显示图片
    * @returns should show or not
@@ -207,7 +208,16 @@ function useTreeContext(props: TreeContextProp) {
 
     // filter
     if (imageFilter) {
-      res = await changeImageVisibleByFilterKeys(res, ['file_type', 'size', 'git_staged', 'compressed'], imageFilter)
+      res = await changeImageVisibleByFilterKeys(
+        res,
+        [
+          ImageVisibleFilter.file_type,
+          ImageVisibleFilter.size,
+          ImageVisibleFilter.git_staged,
+          ImageVisibleFilter.compressed,
+        ],
+        imageFilter,
+      )
     }
 
     return res
@@ -241,21 +251,21 @@ function useTreeContext(props: TreeContextProp) {
   const git_staged_cache = useRef<string[] | null>(null)
 
   const changeImageVisibleByFilterKeys = useMemoizedFn(
-    (imageList: ImageType[], key: ImageVisibleFilterType[], imageFilter: ImageFilterType): Promise<ImageType[]> => {
+    (imageList: ImageType[], key: ImageVisibleFilter[], imageFilter: ImageFilterType): Promise<ImageType[]> => {
       const builtInConditions: Condition[] = [
         {
-          key: 'file_type',
+          key: ImageVisibleFilter.file_type,
           condition: (image) =>
             displayImageTypes?.checked ? displayImageTypes.checked.includes(image.fileType) : true,
         },
         {
-          key: 'size',
+          key: ImageVisibleFilter.size,
           condition: (image) =>
             bytesToKb(image.stats.size) >= (imageFilter.size?.min || 0) &&
             bytesToKb(image.stats.size) <= (imageFilter.size?.max || Number.POSITIVE_INFINITY),
         },
         {
-          key: 'git_staged',
+          key: ImageVisibleFilter.git_staged,
           condition: async (image, index) => {
             if (imageFilter.git_staged) {
               // Get staged images when needed to improve performance
@@ -284,7 +294,7 @@ function useTreeContext(props: TreeContextProp) {
           },
         },
         {
-          key: 'compressed',
+          key: ImageVisibleFilter.compressed,
           condition: async (image) => {
             if (imageFilter.compressed) {
               let compressed = false
@@ -330,8 +340,8 @@ function useTreeContext(props: TreeContextProp) {
   const previousImageFilter = usePrevious(imageFilter)
   useUpdateEffect(() => {
     if (!imageFilter) return
-    // 这里需要一个前提：imageFilter 的 key 和 ImageVisibleFilterType 一一对应
-    const changedKeys = Object.keys(diff(previousImageFilter!, imageFilter)) as ImageVisibleFilterType[]
+    // 这里需要一个前提：imageFilter 的 key 和 ImageVisibleFilter 一一对应
+    const changedKeys = Object.keys(diff(previousImageFilter!, imageFilter)) as ImageVisibleFilter[]
     changeImageVisibleByFilterKeys(latestImageList.current, changedKeys, imageFilter).then((res) => {
       setImageSingleTree({
         list: res,

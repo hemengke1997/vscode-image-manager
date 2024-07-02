@@ -2,13 +2,23 @@ import type SharpNS from '@minko-fe/sharp'
 import { type Stats } from 'fs-extra'
 import { type ParsedPath } from 'node:path'
 import { type ReactElement } from 'react'
+import {
+  type ImageVisibleFilter as ImageVisibleFilterEnum,
+  type Language as LanguageEnum,
+  type ReduceMotion as ReduceMotionEnum,
+  type Theme as ThemeEnum,
+} from '~/enums'
 
 declare global {
-  type Theme = 'dark' | 'light' | 'auto'
-  type Language = 'en' | 'zh-CN' | 'auto'
-  type ReduceMotion = 'auto' | 'on' | 'off'
-
   type TSharp = typeof SharpNS
+
+  type Theme = ThemeEnum
+
+  type Language = LanguageEnum
+
+  type ReduceMotion = ReduceMotionEnum
+
+  type ImageVisibleFilterType = ImageVisibleFilterEnum
 
   interface Window {
     /**
@@ -23,19 +33,13 @@ declare global {
     __target_image_path__: string
   }
 
-  // The visible of image is determined by 'visible' prop.
-  // at present, there are following filetr condition
-  // 1. type - image type (i.e png, jpg, gif)
-  // 2. size - image size (i.e 1kb)
-  // 3. git-staged - whether the image is git staged
-  // 4. compressed - whether the image is compressed
-  type ImageVisibleFilterType = 'file_type' | 'size' | 'git_staged' | 'compressed'
-
   /**
    * 全局图片类型
    */
   type ImageType = {
-    // 来自vscode的属性
+    /**
+     * 来自vscode的属性
+     */
 
     /**
      * 图片名称
@@ -86,11 +90,17 @@ declare global {
      */
     extraPathInfo: ParsedPath
   } & {
-    // 应用在webview的额外属性
+    /**
+     * 应用在webview的额外属性
+     */
 
-    // image visible
+    /**
+     * 图片 visible
+     */
     visible?: Partial<Record<ImageVisibleFilterType | string, boolean>>
-    // image name for display
+    /**
+     * 用于展示的图片名称
+     */
     nameElement?: ReactElement
   }
 }

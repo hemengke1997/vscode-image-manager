@@ -1,4 +1,5 @@
 import { type CSSProperties } from 'react'
+import { Language, ReduceMotion, Theme } from '~/enums'
 import { type CompressionOptions, type FormatConverterOptions } from '..'
 
 export type VscodeConfigType = {
@@ -105,10 +106,10 @@ export const DEFAULT_CONFIG: ConfigType = {
     revealFileInOsDeeply: false,
   },
   appearance: {
-    theme: 'auto',
-    language: 'auto',
+    theme: Theme.auto,
+    language: Language.auto,
     primaryColor: '',
-    reduceMotion: 'auto',
+    reduceMotion: ReduceMotion.auto,
   },
   mirror: {
     enabled: false,

@@ -74,11 +74,7 @@ export class SharpOperator<T extends AnyObject, RuntimeCtx extends AnyObject = T
 
     const { input } = this.ctx.runtime
 
-    this.ctx.sharpFactory.cache({
-      files: 20,
-      items: 100,
-      memory: 200,
-    })
+    this.ctx.sharpFactory.cache({ memory: 200 })
 
     this.ctx.sharp = this.ctx.sharpFactory(input, {
       ...((await this.hooks.callHook('on:configuration', this.ctx)) || {}),

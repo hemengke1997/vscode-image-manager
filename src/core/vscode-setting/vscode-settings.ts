@@ -1,5 +1,6 @@
-import { isFunction, lowerCase } from '@minko-fe/lodash-pro'
-import { type ExtensionContext, env, window, workspace } from 'vscode'
+import { isFunction, toLower } from '@minko-fe/lodash-pro'
+import { ColorThemeKind, type ExtensionContext, env, window, workspace } from 'vscode'
+import { Language, Theme } from '~/enums'
 import { FALLBACK_LANGUAGE } from '~/meta'
 import { type VscodeConfigType } from '../config/common'
 
@@ -41,12 +42,12 @@ export class VscodeSettings {
   }
 
   static initLanguage() {
-    switch (lowerCase(env.language)) {
+    switch (toLower(env.language)) {
       case 'en':
-        this.language = 'en'
+        this.language = Language.en
         break
       case 'zh-cn':
-        this.language = 'zh-CN'
+        this.language = Language.zh_CN
         break
       default:
         this.language = FALLBACK_LANGUAGE
@@ -56,14 +57,14 @@ export class VscodeSettings {
 
   static initTheme() {
     switch (window.activeColorTheme.kind) {
-      case 1:
-        this.theme = 'light'
+      case ColorThemeKind.Light:
+        this.theme = Theme.light
         break
-      case 2:
-        this.theme = 'dark'
+      case ColorThemeKind.Dark:
+        this.theme = Theme.dark
         break
       default:
-        this.theme = 'dark'
+        this.theme = Theme.dark
         break
     }
   }

@@ -6,14 +6,14 @@ import { Global, VscodeSettings } from './core'
 import { i18n } from './i18n'
 import { Channel } from './utils/channel'
 
-export async function activate(ctx: vscode.ExtensionContext) {
+export function activate(ctx: vscode.ExtensionContext) {
   Channel.info(`Activated, v${version}`)
 
   const settings = VscodeSettings.init(ctx)
 
   i18n.init(ctx, settings.language)
 
-  await Global.init(ctx, settings)
+  Global.init(ctx, settings)
 
   const modules = [commandsModules]
 

@@ -55,6 +55,7 @@ function AntdConfigProvider({ children }: PropsWithChildren) {
         cssVar: true,
         algorithm: [getThemeAlgorithm()],
         token: {
+          fontFamily: 'var(--vscode-font-family)',
           motion: reduceMotionWithoutAuto === 'on' ? false : true,
           fontSize: Number(vscodeFontSize) - 1 || 12,
           colorPrimary: primaryColor,
@@ -75,7 +76,6 @@ function AntdConfigProvider({ children }: PropsWithChildren) {
         message={{
           top: 70,
           maxCount: 3,
-          duration: 3,
         }}
         notification={{
           showProgress: true,

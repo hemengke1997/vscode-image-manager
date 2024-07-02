@@ -86,13 +86,13 @@ export default function useImageDetail() {
                   </Tooltip>
                 </div>
               ) : (
-                <div>{compressed ? t('im.yes') : t('im.no')}</div>
+                <div>{compressed ? `✅ ${t('im.yes')}` : `❎ ${t('im.no')}`}</div>
               ),
           },
         ]
 
         modal.confirm({
-          width: '50%',
+          width: 500,
           icon: null,
           closable: true,
           title: t('im.image_detail'),

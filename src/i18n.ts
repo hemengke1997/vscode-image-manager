@@ -3,6 +3,7 @@ import fs from 'node:fs'
 import path from 'node:path'
 import { type ExtensionContext } from 'vscode'
 import { Config } from './core'
+import { Language } from './enums'
 import { FALLBACK_LANGUAGE } from './meta'
 import { Channel } from './utils/channel'
 import { intelligentPick } from './utils/intelligent-pick'
@@ -13,7 +14,7 @@ export class i18n {
   static init(ctx: ExtensionContext, vscodeLanguage: Language) {
     const extensionPath = ctx.extensionUri.fsPath
 
-    const language = toLower(intelligentPick(Config.appearance_language, vscodeLanguage, 'auto'))
+    const language = toLower(intelligentPick(Config.appearance_language, vscodeLanguage, Language.auto))
 
     Channel.info(`[i18n] language: ${language}`)
 

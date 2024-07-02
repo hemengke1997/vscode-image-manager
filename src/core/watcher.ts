@@ -38,7 +38,7 @@ export class Watcher {
     return !micromatch.all(e.fsPath || e.path, ignores)
   }
 
-  private static debouncedHandleEvent = debounce(this._handleEvent, 150, {
+  private static debouncedHandleEvent = debounce(this._handleEvent, 500, {
     leading: true,
     trailing: false,
     maxWait: 1000,

@@ -57,7 +57,7 @@ export class Global {
 
   static readonly onDidChangeRootPath: Event<string[]> = Global._onDidChangeRootPath.event
 
-  static async init(context: ExtensionContext, settings: VscodeConfigType) {
+  static init(context: ExtensionContext, settings: VscodeConfigType) {
     this.context = context
 
     Watcher.init()
@@ -82,14 +82,14 @@ export class Global {
         }
       }),
     )
-    await this.updateRootPath()
+    this.updateRootPath()
   }
 
   static get rootpaths(): string[] {
     return this._rootpaths || []
   }
 
-  static async updateRootPath(_rootpaths?: string[]) {
+  static updateRootPath(_rootpaths?: string[]) {
     let rootpaths = _rootpaths?.length ? _rootpaths : Config.file_root
     if (!rootpaths && workspace.rootPath) {
       rootpaths = [workspace.rootPath]

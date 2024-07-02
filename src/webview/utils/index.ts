@@ -1,5 +1,6 @@
 import { produce } from 'immer'
 import { type ConfigType } from '~/core/config/common'
+import { Language, Theme } from '~/enums'
 import { intelligentPick } from '~/utils/intelligent-pick'
 
 /**
@@ -17,8 +18,8 @@ export function intelligentPickConfig(
   const { theme: extTheme, language: extLanguage } = appearance
 
   return produce(extConfig, (draft) => {
-    draft.appearance.theme = intelligentPick(extTheme, theme, 'auto')
-    draft.appearance.language = intelligentPick(extLanguage, language, 'auto')
+    draft.appearance.theme = intelligentPick(extTheme, theme, Theme.auto)
+    draft.appearance.language = intelligentPick(extLanguage, language, Language.auto)
   })
 }
 

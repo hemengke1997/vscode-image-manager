@@ -96,22 +96,7 @@ function ImageContextMenu() {
 
   // 压缩图片
   const handleCompressImage = useMemoizedFn((e: ItemParamsContextMenu) => {
-    beginCompressProcess(
-      e.props!.images,
-      //   {
-      //   fields:
-      //     images.length === 1
-      //       ? {
-      //           /**
-      //            * 单文件压缩时，默认不跳过压缩流程
-      //            */
-      //           skipCompressed: {
-      //             value: false,
-      //           },
-      //         }
-      //       : {},
-      // }
-    )
+    beginCompressProcess(e.props!.images)
   })
 
   // 裁剪图片

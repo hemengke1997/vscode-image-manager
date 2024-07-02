@@ -1,4 +1,4 @@
-import { lowerCase } from '@minko-fe/lodash-pro'
+import { toLower } from '@minko-fe/lodash-pro'
 import { useUpdateEffect } from '@minko-fe/react-hook'
 import Logo from '~/../assets/logo.svg?react'
 import { Button, Popover, Tooltip } from 'antd'
@@ -113,7 +113,7 @@ function CustomConfigProvider(props: PropsWithChildren) {
                   <IoSettingsOutline />
                 </div>
               }
-              title={lowerCase(t('im.settings'))}
+              title={toLower(t('im.settings'))}
             ></Button>
           </Popover>
         </motion.div>

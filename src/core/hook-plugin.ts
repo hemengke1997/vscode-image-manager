@@ -21,7 +21,7 @@ export function defineOperatorPlugin(plugin: ObjectPlugin): ObjectPlugin {
 }
 
 export class HookPlugin<RuntimeHooks extends AnyObject = AnyObject> {
-  hooksMap: Map<string, Partial<RuntimeHooks>> = new Map()
+  private hooksMap: Map<string, Partial<RuntimeHooks>> = new Map()
   hooks: Hookable<RuntimeHooks>
 
   constructor(option?: { plugins: ObjectPlugin<RuntimeHooks>[] }) {

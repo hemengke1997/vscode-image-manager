@@ -102,7 +102,7 @@
     "@types/vscode-webview": "^1.57.5",
     "@vitejs/plugin-react": "^4.3.1",
     "@vscode/vsce": "^2.29.0",
-    "antd": "5.18.3",
+    "antd": "5.19.0",
     "bumpp": "^9.4.1",
     "consola": "^3.2.3",
     "context-state": "^3.0.0",
@@ -125,7 +125,6 @@
     "image-size": "^1.1.1",
     "immer": "^10.1.1",
     "json5": "^2.2.3",
-    "local-pkg": "^0.5.0",
     "micromatch": "^4.0.7",
     "mime": "^4.0.3",
     "minimist": "^1.2.8",
@@ -336,7 +335,9 @@
           "enum": [
             "auto",
             "en",
-            "zh-CN"
+            "zh-CN",
+            "zh-TW",
+            "ja"
           ],
           "description": "%pkg.appearance.language%"
         },

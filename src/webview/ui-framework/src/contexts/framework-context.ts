@@ -3,6 +3,7 @@ import { createContainer } from 'context-state'
 import { useMemo } from 'react'
 import { ConfigKey } from '~/core/config/common'
 import { WorkspaceStateKey } from '~/core/persist/workspace/common'
+import { Language, ReduceMotion, Theme } from '~/enums'
 import { intelligentPick } from '~/utils/intelligent-pick'
 import { useExtConfigState } from '~/webview/hooks/use-ext-config-state'
 import { useWorkspaceState } from '~/webview/hooks/use-workspace-state'
@@ -37,18 +38,18 @@ const useFrameworkContext = () => {
 
   // theme without `auto`
   const themeWithoutAuto = useMemo(() => {
-    return intelligentPick(theme, vscodeConfig.theme, 'auto')
+    return intelligentPick(theme, vscodeConfig.theme, Theme.auto)
   }, [theme, vscodeConfig.theme])
 
   // language without `auto`
   const languageWithoutAuto = useMemo(
-    () => intelligentPick(language, vscodeConfig.language, 'auto'),
+    () => intelligentPick(language, vscodeConfig.language, Language.auto),
     [language, vscodeConfig.language],
   )
 
   // reduceMotion without `auto`
   const reduceMotionWithoutAuto = useMemo(
-    () => intelligentPick(reduceMotion, vscodeConfig.reduceMotion, 'auto'),
+    () => intelligentPick(reduceMotion, vscodeConfig.reduceMotion, ReduceMotion.auto),
     [reduceMotion, vscodeConfig.reduceMotion],
   )
 

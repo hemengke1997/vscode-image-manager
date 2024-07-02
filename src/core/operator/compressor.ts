@@ -237,9 +237,9 @@ export class Compressor extends Operator {
                   // 提高jpeg的压缩率
                   mozjpeg: true,
                 })
-                .timeout({ seconds: 30 })
+                .timeout({ seconds: 10 })
 
-              sharp.withExifMerge({
+              sharp.withExif({
                 IFD0: {
                   ImageDescription: COMPRESSED_META,
                 },
