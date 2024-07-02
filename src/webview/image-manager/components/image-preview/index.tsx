@@ -104,7 +104,7 @@ function ImagePreview(props: ImagePreviewProps) {
   useClickAway(
     (e) => {
       const targetEl = e.target as HTMLElement
-      if (preventCliakAway(targetEl, ['ant-modal', 'ant-image-preview'])) return
+      if (preventCliakAway(targetEl, ['ant-modal', 'ant-image-preview', 'ant-message'])) return
       if (targetEl.id === 'context-menu-mask') {
         if (triggeredByContextMenu) {
           setTriggeredByContextMenu(false)

@@ -159,6 +159,10 @@
     ico_128: '这个尺寸的图像通常用于各种大尺寸的显示场景',
     ico_256: '这是ico文件可以包含的最大尺寸的图像，通常用于高分辨率的显示场景',
     no_tip: '不再提示',
+    timout: '操作超时，请重试',
+    canceled: '操作已取消',
+    irreversible_operation: '操作不可逆！',
+    cancel_operation_tip: '确定要取消此操作?',
   },
   fallback: {
     internal_error: '内部错误',

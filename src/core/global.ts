@@ -1,10 +1,12 @@
 import { type Event, EventEmitter, type ExtensionContext, ExtensionMode, commands, window, workspace } from 'vscode'
 import { Commands } from '~/commands'
 import { Compressor, FormatConverter } from '~/core/operator'
-import { AbortError, Installer, TimeoutError } from '~/core/sharp'
+import { Installer } from '~/core/sharp'
 import { i18n } from '~/i18n'
 import { EXT_NAMESPACE } from '~/meta'
+import { AbortError, TimeoutError } from '~/utils/abort-promise'
 import { Channel } from '~/utils/channel'
+import logger from '~/utils/logger'
 import { Config, Watcher, WorkspaceState } from '.'
 import { ConfigKey, type VscodeConfigType } from './config/common'
 
@@ -121,6 +123,7 @@ export class Global {
           this.initOperators()
         })
         .on('install-fail', async (e) => {
+          logger.info(e, 'eee')
           reject(e)
           if (e instanceof TimeoutError) {
             const SELECT_MIRROR = i18n.t('pkg.cmd.select_mirror')

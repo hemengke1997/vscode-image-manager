@@ -159,6 +159,10 @@
     ico_128: 'Images of this size are commonly used in various large-size display scenes ',
     ico_256: 'This is the largest image size that an ico file can contain. It is usually used for high resolution display scenarios',
     no_tip: 'Do not show again',
+    timout: 'Operation timeout, please try again',
+    canceled: 'Operation canceled',
+    irreversible_operation: 'Operation is irreversible!',
+    cancel_operation_tip: 'Are you sure to cancel this operation?',
   },
   fallback: {
     internal_error: 'Internal Error',

@@ -9,8 +9,10 @@ import { BsQuestionCircleFill } from 'react-icons/bs'
 import { type CompressionOptions, type OperatorResult } from '~/core'
 import { svgoPlugins } from '~/core/operator/meta'
 import { CmdToVscode } from '~/message/cmd'
+import { abortPromise } from '~/utils/abort-promise'
 import { vscodeApi } from '~/webview/vscode-api'
 import GlobalContext from '../../contexts/global-context'
+import useAbortController from '../../hooks/use-abort-controller'
 import useOperatorModalLogic, { type FormComponent } from '../../hooks/use-operator-modal-logic'
 import { ANIMATION_DURATION } from '../../utils/duration'
 import useImageContextMenuEvent from '../context-menus/components/image-context-menu/hooks/use-image-context-menu-event'
@@ -36,6 +38,9 @@ function ImageCompressor(props: ImageCompressorProps) {
   const { t } = useTranslation()
 
   const { compressor } = GlobalContext.usePicker(['compressor'])
+
+  const abortController = useAbortController()
+
   const [form] = Form.useForm()
 
   const [images, setImages] = useState(imagesProp)
@@ -52,11 +57,17 @@ function ImageCompressor(props: ImageCompressorProps) {
 
   const { handleOperateImage } = useOperatorModalLogic()
 
-  const compressImage = useMemoizedFn((filePaths: string[], option: FormValue): Promise<OperatorResult | undefined> => {
-    return new Promise((resolve) => {
-      vscodeApi.postMessage({ cmd: CmdToVscode.compress_image, data: { filePaths, option } }, (data) => {
-        resolve(data)
+  const compressImage = useMemoizedFn((filePaths: string[], option: FormValue, abortController: AbortController) => {
+    const fn = () =>
+      new Promise<OperatorResult | undefined>((resolve) => {
+        vscodeApi.postMessage({ cmd: CmdToVscode.compress_image, data: { filePaths, option } }, (data) => {
+          resolve(data)
+        })
       })
+
+    return abortPromise(fn, {
+      abortController,
+      timeout: (15 + filePaths.length) * 1000,
     })
   })
 
@@ -74,11 +85,14 @@ function ImageCompressor(props: ImageCompressorProps) {
 
     handleOperateImage(
       (filePath?: string) => {
-        return compressImage(filePath ? [filePath] : imagesToCompress, unflatten(value))
+        return compressImage(filePath ? [filePath] : imagesToCompress, unflatten(value), abortController)
       },
       {
         onSuccess() {
           onOpenChange(false)
+        },
+        onCancel() {
+          abortController.abort()
         },
         onFinal() {
           setSubmitting(false)

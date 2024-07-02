@@ -1,11 +1,12 @@
 import { ceil, isObject } from '@minko-fe/lodash-pro'
-import { useMemoizedFn } from '@minko-fe/react-hook'
-import { App, Button } from 'antd'
+import { useLockFn, useMemoizedFn } from '@minko-fe/react-hook'
+import { App, Button, Popconfirm } from 'antd'
 import { type ReactNode } from 'react'
 import { useTranslation } from 'react-i18next'
 import { MdDoubleArrow } from 'react-icons/md'
 import { VscWarning } from 'react-icons/vsc'
 import { type OperatorResult } from '~/core'
+import { AbortError, TimeoutError } from '~/utils/abort-promise'
 import logger from '~/utils/logger'
 import { formatBytes, getFilenameFromPath } from '../utils'
 import { LOADING_DURATION } from '../utils/duration'
@@ -134,16 +135,34 @@ function useOperatorModalLogic() {
     },
   )
 
-  const handleOperateImage = useMemoizedFn(
+  const handleOperateImage = useLockFn(
     async (
       fn: (filePath?: string) => Promise<OperatorResult | undefined>,
       option: {
         onSuccess: () => void
+        onCancel: () => void
         onFinal: () => void
       },
     ) => {
+      const { onSuccess, onCancel, onFinal } = option
       message.loading({
-        content: t('im.wait'),
+        content: (
+          <div className={'flex items-center space-x-4'}>
+            <div>{t('im.wait')}</div>
+            <Popconfirm
+              title={t('im.irreversible_operation')}
+              description={t('im.cancel_operation_tip')}
+              onConfirm={() => {
+                onCancel?.()
+                message.destroy(LoadingKey)
+              }}
+              okText={t('im.yes')}
+              cancelText={t('im.no')}
+            >
+              <Button danger>{t('im.cancel')}</Button>
+            </Popconfirm>
+          </div>
+        ),
         duration: 0,
         key: LoadingKey,
       })
@@ -158,12 +177,23 @@ function useOperatorModalLogic() {
             })
           })
         }
-        option.onSuccess()
+        onSuccess()
       } catch (e) {
+        if (e instanceof TimeoutError) {
+          // 超时
+          message.error({
+            content: t('im.timout'),
+          })
+        } else if (e instanceof AbortError) {
+          // 用户手动取消
+          message.error({
+            content: t('im.canceled'),
+          })
+        }
         logger.error(e)
       } finally {
         message.destroy(LoadingKey)
-        option.onFinal()
+        onFinal()
       }
     },
   )

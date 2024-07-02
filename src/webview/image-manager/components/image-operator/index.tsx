@@ -64,7 +64,7 @@ function ImageOperator(props: ImageOperatorProps & ImageOperatorStaticProps) {
 
   const [removed, setRemoved] = useState(false)
 
-  const [submitting, _setSubmitting] = useControlledState({
+  const [submitting, setSubmitting] = useControlledState({
     defaultValue: submittingProp,
     value: submittingProp,
     onChange: onSubmittingChange,
@@ -183,7 +183,15 @@ function ImageOperator(props: ImageOperatorProps & ImageOperatorStaticProps) {
           </ConfigProvider>
         </Card>
         <div className={'flex w-full justify-center pt-4'}>
-          <Button loading={submitting} type='primary' size='middle' onClick={() => form.submit()}>
+          <Button
+            loading={submitting}
+            type='primary'
+            size='middle'
+            onClick={() => {
+              setSubmitting(true)
+              form.submit()
+            }}
+          >
             {t('im.confirm')}
           </Button>
         </div>

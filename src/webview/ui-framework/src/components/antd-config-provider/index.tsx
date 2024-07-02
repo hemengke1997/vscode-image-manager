@@ -75,6 +75,7 @@ function AntdConfigProvider({ children }: PropsWithChildren) {
         message={{
           top: 70,
           maxCount: 3,
+          duration: 3,
         }}
         notification={{
           showProgress: true,

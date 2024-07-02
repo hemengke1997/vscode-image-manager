@@ -5,9 +5,11 @@ import { memo, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { type FormatConverterOptions, type OperatorResult } from '~/core'
 import { CmdToVscode } from '~/message/cmd'
+import { abortPromise } from '~/utils/abort-promise'
 import { useTrackState } from '~/webview/hooks/use-track-state'
 import { vscodeApi } from '~/webview/vscode-api'
 import GlobalContext from '../../contexts/global-context'
+import useAbortController from '../../hooks/use-abort-controller'
 import useOperatorModalLogic, { type FormComponent } from '../../hooks/use-operator-modal-logic'
 import useImageContextMenuEvent from '../context-menus/components/image-context-menu/hooks/use-image-context-menu-event'
 import ImageOperator, { type ImageOperatorProps } from '../image-operator'
@@ -26,6 +28,8 @@ function ImageConverter(props: ImageConverterProps) {
 
   const [images, setImages] = useTrackState(imagesProp)
 
+  const abortController = useAbortController()
+
   const [submitting, setSubmitting] = useState(false)
 
   // const hasSomeImageType = useMemoizedFn((type: string) => {
@@ -34,11 +38,16 @@ function ImageConverter(props: ImageConverterProps) {
 
   const { handleOperateImage } = useOperatorModalLogic()
 
-  const convertImages = useMemoizedFn((filePaths: string[], option: FormValue): Promise<OperatorResult | undefined> => {
-    return new Promise((resolve) => {
-      vscodeApi.postMessage({ cmd: CmdToVscode.convert_image_format, data: { filePaths, option } }, (data) => {
-        resolve(data)
+  const convertImages = useMemoizedFn((filePaths: string[], option: FormValue, abortController: AbortController) => {
+    const fn = () =>
+      new Promise<OperatorResult | undefined>((resolve) => {
+        vscodeApi.postMessage({ cmd: CmdToVscode.convert_image_format, data: { filePaths, option } }, (data) => {
+          resolve(data)
+        })
       })
+    return abortPromise(fn, {
+      abortController,
+      timeout: (15 + filePaths.length) * 1000,
     })
   })
 
@@ -51,11 +60,14 @@ function ImageConverter(props: ImageConverterProps) {
 
     handleOperateImage(
       (filePath?: string) => {
-        return convertImages(filePath ? [filePath] : imagesToConvertFormat, value)
+        return convertImages(filePath ? [filePath] : imagesToConvertFormat, value, abortController)
       },
       {
         onSuccess() {
           onOpenChange(false)
+        },
+        onCancel() {
+          abortController.abort()
         },
         onFinal() {
           setSubmitting(false)
@@ -151,6 +163,7 @@ function ImageConverter(props: ImageConverterProps) {
       onOpenChange={onOpenChange}
       form={form}
       submitting={submitting}
+      onSubmittingChange={setSubmitting}
       {...rest}
     >
       <Form

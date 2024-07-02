@@ -5,29 +5,15 @@ import { execaNode } from 'execa'
 import fs from 'fs-extra'
 import os from 'node:os'
 import path from 'node:path'
-import pTimout from 'p-timeout'
 import { type ExtensionContext, StatusBarAlignment, type StatusBarItem, commands, window } from 'vscode'
 import { mirrors } from '~/commands/mirror'
 import { i18n } from '~/i18n'
 import { SHARP_LIBVIPS_VERSION } from '~/meta'
 import { cleanVersion, isValidHttpsUrl, normalizePath, setImmdiateInterval } from '~/utils'
+import { type AbortError, type TimeoutError, abortPromise } from '~/utils/abort-promise'
 import { Channel } from '~/utils/channel'
 import { Config, Global } from '..'
 import { devDependencies, version } from '../../../package.json'
-
-export class TimeoutError extends Error {
-  constructor(message?: string) {
-    super(message)
-    this.name = 'TimeoutError'
-  }
-}
-
-export class AbortError extends Error {
-  constructor(message?: string) {
-    super(message)
-    this.name = 'AbortError'
-  }
-}
 
 type Events = {
   'install-success': [TSharp]
@@ -156,22 +142,10 @@ export class Installer {
           }
         })
         try {
-          await pTimout(
-            // delay(this.options.timeout),
-            this._install(),
-            {
-              milliseconds: this.options.timeout,
-              signal: abortController.signal,
-            },
-          )
-        } catch (e) {
-          const message = e instanceof Error ? e.message : ''
-          if (message.includes('timed out')) {
-            throw new TimeoutError()
-          } else if (message.includes('aborted')) {
-            throw new AbortError()
-          }
-          throw e
+          await abortPromise(this._install.bind(this), {
+            timeout: this.options.timeout,
+            abortController,
+          })
         } finally {
           // 隐藏左下角状态栏
           this._hideStatusBar()

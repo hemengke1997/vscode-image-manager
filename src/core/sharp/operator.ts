@@ -3,7 +3,6 @@ import { Uri, env, window } from 'vscode'
 import { type SharpNS } from '~/@types/global'
 import { i18n } from '~/i18n'
 import { Channel } from '~/utils/channel'
-import logger from '~/utils/logger'
 import { Global } from '..'
 import { HookPlugin, type ObjectPlugin } from '../hook-plugin'
 
@@ -85,11 +84,7 @@ export class SharpOperator<T extends AnyObject, RuntimeCtx extends AnyObject = T
       ...((await this.hooks.callHook('on:configuration', this.ctx)) || {}),
     })
 
-    try {
-      await this.hooks.callHook('before:run', this.ctx)
-    } catch (e) {
-      logger.error(e)
-    }
+    await this.hooks.callHook('before:run', this.ctx)
 
     return new Promise((resolve, reject) => {
       this.ctx.sharp
