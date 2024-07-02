@@ -23,7 +23,7 @@ jobs:
   #         cache: npm
 
   #     - name: Install Dependencies
-  #       run: npm i --frozen-lockfile
+  #       run: npm i
 
   #     - uses: lannonbr/vsce-action@3.0.0
   #       with:
