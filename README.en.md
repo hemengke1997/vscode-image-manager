@@ -43,7 +43,7 @@
 - Finding images
 - Conditional filtering of images
 - Dark/light theme
-- I18n. Currently support `english` and `简体中文`
+- I18n. Currently support `english`, `简体中文`, `繁體中文`, `日本語`
 
 
 ## Usage
