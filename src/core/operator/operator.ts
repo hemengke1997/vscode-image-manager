@@ -1,8 +1,9 @@
 import { isString } from '@minko-fe/lodash-pro'
 import fs from 'fs-extra'
 import path from 'node:path'
-import { Uri, workspace } from 'vscode'
 import { i18n } from '~/i18n'
+import { VscodeMessageCenter } from '~/message'
+import { CmdToVscode } from '~/message/cmd'
 import { generateOutputPath } from '~/utils'
 import { Channel } from '~/utils/channel'
 
@@ -85,7 +86,7 @@ export abstract class Operator {
   async trashFile(filePath: string) {
     try {
       if (this.option.keepOriginal) return
-      await workspace.fs.delete(Uri.file(filePath), { useTrash: true })
+      await VscodeMessageCenter[CmdToVscode.delete_file]({ filePaths: [filePath] })
     } catch (e) {
       Channel.info(`${i18n.t('core.trash_error')}: ${e}`)
     }
@@ -96,7 +97,7 @@ export abstract class Operator {
     outputOptions: {
       ext: string
       size: number
-      fileSuffix: string
+      fileSuffix?: string
     } = {
       ext: '',
       size: 1,

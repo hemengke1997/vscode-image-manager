@@ -139,7 +139,7 @@ export class Config {
   }
 
   static getConfig<T, U extends Flatten<ConfigType> = Flatten<ConfigType>>(
-    key: U, // like `file.root`
+    key: U, // e.g. `file.root`
     scope?: ConfigurationScope | undefined,
   ): T {
     return workspace.getConfiguration(EXT_NAMESPACE, scope).get<T>(key) ?? get(DEFAULT_CONFIG, key as string)

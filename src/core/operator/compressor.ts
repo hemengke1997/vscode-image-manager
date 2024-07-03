@@ -6,6 +6,7 @@ import { type SharpNS } from '~/@types/global'
 import { SharpOperator } from '~/core/sharp'
 import { i18n } from '~/i18n'
 import { VscodeMessageCenter } from '~/message'
+import { CmdToVscode } from '~/message/cmd'
 import { Channel } from '~/utils/channel'
 import { type FormatConverterOptions } from './format-converter'
 import { COMPRESSED_META, type SvgoPlugin } from './meta'
@@ -14,22 +15,26 @@ import { Svgo } from './svgo'
 
 export type CompressionOptions = {
   /**
+   * @description 是否跳过已经压缩过的图片
    * @description skip if the image is already compressed
    * @default true
    */
   skipCompressed?: boolean
   /**
+   * @description 添加的文件后缀
    * @description add suffix to the output file if `keepOriginal` is true
    * @default '.min'
    */
   fileSuffix?: string
   /**
+   * @description 压缩后的图片质量
    * @description
    * use the lowest number of colours needed to achieve given quality, sets palette to true
    * @default undefined
    */
   quality?: number
   /**
+   * @description 压缩后的图片尺寸。比如，设置为 2，则输出图**尺寸**是原图的 2 倍
    * @description output size
    * @example 1
    * @default 1
@@ -37,6 +42,7 @@ export type CompressionOptions = {
   size: number
   png: {
     /**
+     * @description zlib压缩等级，0（最快，最大）到9（最慢，最小）
      * @description
      * zlib compression level, 0 (fastest, largest) to 9 (slowest, smallest)
      * @default 9
@@ -45,6 +51,7 @@ export type CompressionOptions = {
   }
   gif: {
     /**
+     * @description 最大调色板条目数，包括透明度，介于2和256之间（可选，默认256）
      * @description
      * Maximum number of palette entries, including transparency, between 2 and 256 (optional, default 256)
      * for gif
@@ -123,40 +130,97 @@ export class Compressor extends Operator {
     }
   }
 
+  private _writeStreamFile({ path, data }: { path: string; data: string }) {
+    return new Promise<boolean>((resolve, reject) => {
+      try {
+        const fileWritableStream = fs.createWriteStream(path)
+        fileWritableStream.on('finish', () => {
+          resolve(true)
+        })
+
+        fileWritableStream.write(data)
+        fileWritableStream.end()
+      } catch (e) {
+        reject(e)
+      }
+    })
+  }
+
   async compressSvg(filePath: string) {
     try {
-      const svgString = await fs.readFile(filePath, 'utf-8')
-      const outputPath = this.getOutputPath(filePath, {
-        ext: 'svg',
-        size: 1,
-        fileSuffix: '',
-      })
-
-      const svgoConfig = Svgo.processConfig(this.option.svg, {
-        pretty: false,
-      })
-
-      const inputSize = this.getFileSize(filePath)
-
-      const { data } = optimize(svgString, svgoConfig)
-
-      // write data to file
-      await fs.writeFile(outputPath, data)
-
-      const outputSize = this.getFileSize(outputPath)
-
+      const res = await this.svgCore(filePath)
       return {
+        ...res,
         filePath,
-        inputSize,
-        outputSize,
-        outputPath,
       }
     } catch (e: any) {
+      Channel.debug(`${i18n.t('core.compress_error')}: ${toString(e)}`)
       return {
-        filePath,
         error: e,
+        filePath,
       }
     }
+  }
+
+  async svgCore(filePath: string) {
+    return new Promise<{
+      outputPath: string
+      inputSize: number
+      outputSize: number
+    }>(async (resolve, reject) => {
+      try {
+        const svgString = await fs.readFile(filePath, 'utf-8')
+        const outputPath = this.getOutputPath(filePath, {
+          ext: 'svg',
+          size: 1,
+          fileSuffix: this.option.fileSuffix,
+        })
+
+        if (!outputPath) {
+          return reject(i18n.t('core.output_path_not_exist'))
+        }
+
+        const svgoConfig = Svgo.processConfig(this.option.svg, {
+          pretty: false,
+        })
+
+        const inputSize = this.getFileSize(filePath)
+
+        const { data } = optimize(svgString, svgoConfig)
+
+        // 如果压缩后的svg和原来的一样
+        // 说明已经压缩过了
+        // 直接跳过
+        if (this.option.skipCompressed && svgString === data) {
+          return reject(new SkipError())
+        }
+
+        const result = {
+          outputPath,
+          inputSize,
+        }
+
+        fs.ensureFileSync(outputPath)
+
+        fs.access(outputPath, fs.constants.W_OK, async (err) => {
+          if (err) {
+            // 删除文件，重新创建svg文件
+            await VscodeMessageCenter[CmdToVscode.delete_file]({ filePaths: [filePath] })
+            fs.ensureFileSync(outputPath)
+          }
+          await this._writeStreamFile({ path: outputPath, data })
+          resolve({
+            ...result,
+            outputSize: this.getFileSize(outputPath),
+          })
+        })
+      } catch (e: any) {
+        reject({
+          filePath,
+          error: e,
+        })
+      }
+    })
   }
 
   private async core(filePath: string): Promise<{ inputSize: number; outputSize: number; outputPath: string }> {
@@ -266,7 +330,7 @@ export class Compressor extends Operator {
               return this.getOutputPath(filePath, {
                 ext,
                 size,
-                fileSuffix: this.option.fileSuffix!,
+                fileSuffix: this.option.fileSuffix,
               })
             },
           },
@@ -290,7 +354,7 @@ export class Compressor extends Operator {
           outputPath,
         }
       } else {
-        return Promise.reject(i18n.t('core.compress_fail'))
+        return Promise.reject(i18n.t('core.output_path_not_exist'))
       }
     } catch (e) {
       return Promise.reject(e)

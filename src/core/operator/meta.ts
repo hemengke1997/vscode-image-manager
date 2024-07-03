@@ -14,7 +14,7 @@ export const svgoDefaultPlugins: Array<keyof DefaultPlugins> = [
   'removeMetadata',
   'removeEditorsNSData',
   'cleanupAttrs',
-  // 'mergeStyles',
+  // 'mergeStyles', // 同步vscode-svgo
   'inlineStyles',
   'minifyStyles',
   'cleanupIds',
@@ -29,7 +29,7 @@ export const svgoDefaultPlugins: Array<keyof DefaultPlugins> = [
   'removeHiddenElems',
   'removeEmptyText',
   'convertShapeToPath',
-  // 'convertEllipseToCircle',
+  // 'convertEllipseToCircle', // 同步vscode-svgo
   'moveElemsAttrsToGroup',
   'moveGroupAttrsToElems',
   'collapseGroups',
@@ -40,7 +40,7 @@ export const svgoDefaultPlugins: Array<keyof DefaultPlugins> = [
   'mergePaths',
   'removeUnusedNS',
   'sortAttrs',
-  // 'sortDefsChildren',
+  // 'sortDefsChildren', // 同步vscode-svgo
   'removeTitle',
   'removeDesc',
 ]

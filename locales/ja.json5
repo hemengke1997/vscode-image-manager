@@ -118,5 +118,6 @@
     webview_ready: 'Webviewが準備完了しました',
     post_message_to_webview: 'Webviewにメッセージを送信',
     handler_fn_not_exist: '処理関数 "{0}" が存在しません',
+    output_path_not_exist: '出力パスが存在しません',
   },
 }

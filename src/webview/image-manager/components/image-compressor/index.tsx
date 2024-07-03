@@ -19,6 +19,7 @@ import useImageContextMenuEvent from '../context-menus/components/image-context-
 import ImageOperator, { type ImageOperatorProps } from '../image-operator'
 import Format from '../image-operator/components/format'
 import KeepOriginal from '../image-operator/components/keep-original'
+import SkipCompressed from '../image-operator/components/skip-compressed'
 import styles from './index.module.css'
 
 type FormValue = CompressionOptions & {
@@ -225,24 +226,6 @@ function ImageCompressor(props: ImageCompressorProps) {
             return <Format exts={compressor?.limit.to} />
           },
         },
-        'skipCompressed': {
-          el: () => (
-            <Form.Item label={t('im.skip_compressed')} name={'skipCompressed'} className={'center'}>
-              <Segmented
-                options={[
-                  {
-                    value: true,
-                    label: t('im.yes'),
-                  },
-                  {
-                    value: false,
-                    label: t('im.no'),
-                  },
-                ]}
-              />
-            </Form.Item>
-          ),
-        },
       } as FormComponent<CompressionOptions>,
       hidden: hasAllImageType('svg'),
     },
@@ -271,8 +254,10 @@ function ImageCompressor(props: ImageCompressorProps) {
   useEffect(() => {
     if (!open || !images.length) return
     if (hasAllImageType('svg')) {
+      // 全都是svg
       setActiveTab('svg')
     } else if (!hasSomeImageType('svg')) {
+      // 全都不是svg
       setActiveTab('not-svg')
     }
   }, [images])
@@ -357,6 +342,8 @@ function ImageCompressor(props: ImageCompressorProps) {
           <Divider plain className={'!my-0'}>
             {t('im.universal')}
           </Divider>
+
+          <SkipCompressed />
 
           <KeepOriginal />
 

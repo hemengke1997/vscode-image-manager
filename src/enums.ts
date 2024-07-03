@@ -3,6 +3,7 @@ export enum Theme {
   light = 'light',
   auto = 'auto',
 }
+
 export enum Language {
   en = 'en',
   zh_CN = 'zh-CN',
@@ -10,6 +11,7 @@ export enum Language {
   ja = 'ja',
   auto = 'auto',
 }
+
 export enum ReduceMotion {
   auto = 'auto',
   on = 'on',

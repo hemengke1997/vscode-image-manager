@@ -1,2 +1,2 @@
-export * from './operator'
+export * from './sharp-operator'
 export * from './installer'

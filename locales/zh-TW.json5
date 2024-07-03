@@ -120,5 +120,6 @@
     webview_ready: 'Webview準備就緒',
     post_message_to_webview: '向Webview發送消息',
     handler_fn_not_exist: '處理方法 "{0}" 不存在',
+    output_path_not_exist: '輸出路徑不存在',
   },
 }
