@@ -163,7 +163,7 @@ function useImageOperation() {
         key: loadingKey,
       })
       clearTimeout(timer)
-    }, 200)
+    }, 500)
     const res = await findSimilarImages(image, images)
     clearTimeout(timer)
     message.destroy(loadingKey)

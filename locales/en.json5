@@ -118,5 +118,6 @@
     post_message_to_webview: 'Post message to webview',
     handler_fn_not_exist: 'Handler function "{0}" dose not exist',
     output_path_not_exist: 'Output path not exist',
+    svgo_error_tip: 'Please ensure the svgo configuration is correct',
   },
 }

@@ -106,7 +106,7 @@ export class Compressor extends Operator {
       const isLimited = r.error instanceof LimitError
       return {
         ...r,
-        error: r.error ? r.error.message : toString(r.error),
+        error: r.error?.message ? r.error.message : toString(r.error),
         isSkiped,
         isLimited,
       }
@@ -154,9 +154,8 @@ export class Compressor extends Operator {
         filePath,
       }
     } catch (e: any) {
-      Channel.debug(`${i18n.t('core.compress_error')}: ${toString(e)}`)
       return {
-        error: e,
+        error: e instanceof TypeError ? i18n.t('core.svgo_error_tip') : e,
         filePath,
       }
     }
@@ -215,10 +214,7 @@ export class Compressor extends Operator {
           })
         })
       } catch (e: any) {
-        reject({
-          filePath,
-          error: e,
-        })
+        reject(e)
       }
     })
   }

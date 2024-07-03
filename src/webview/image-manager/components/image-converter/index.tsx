@@ -10,6 +10,7 @@ import { useTrackState } from '~/webview/hooks/use-track-state'
 import { vscodeApi } from '~/webview/vscode-api'
 import GlobalContext from '../../contexts/global-context'
 import useAbortController from '../../hooks/use-abort-controller'
+import useImageOperation from '../../hooks/use-image-operation'
 import useOperatorModalLogic, { type FormComponent } from '../../hooks/use-operator-modal-logic'
 import useImageContextMenuEvent from '../context-menus/components/image-context-menu/hooks/use-image-context-menu-event'
 import ImageOperator, { type ImageOperatorProps } from '../image-operator'
@@ -36,7 +37,8 @@ function ImageConverter(props: ImageConverterProps) {
   //   return images?.some((img) => img.fileType === type)
   // })
 
-  const { handleOperateImage } = useOperatorModalLogic()
+  const { beginFormatConversionProcess } = useImageOperation()
+  const { handleOperateImage } = useOperatorModalLogic({ images })
 
   const convertImages = useMemoizedFn((filePaths: string[], option: FormValue, abortController: AbortController) => {
     const fn = () =>
@@ -71,6 +73,9 @@ function ImageConverter(props: ImageConverterProps) {
         },
         onFinal() {
           setSubmitting(false)
+        },
+        onRetryClick() {
+          beginFormatConversionProcess(images)
         },
       },
     )

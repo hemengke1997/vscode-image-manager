@@ -13,6 +13,7 @@ import { abortPromise } from '~/utils/abort-promise'
 import { vscodeApi } from '~/webview/vscode-api'
 import GlobalContext from '../../contexts/global-context'
 import useAbortController from '../../hooks/use-abort-controller'
+import useImageOperation from '../../hooks/use-image-operation'
 import useOperatorModalLogic, { type FormComponent } from '../../hooks/use-operator-modal-logic'
 import { ANIMATION_DURATION } from '../../utils/duration'
 import useImageContextMenuEvent from '../context-menus/components/image-context-menu/hooks/use-image-context-menu-event'
@@ -56,7 +57,8 @@ function ImageCompressor(props: ImageCompressorProps) {
     return images?.every((img) => img.fileType === type)
   })
 
-  const { handleOperateImage } = useOperatorModalLogic()
+  const { beginCompressProcess } = useImageOperation()
+  const { handleOperateImage } = useOperatorModalLogic({ images })
 
   const compressImage = useMemoizedFn((filePaths: string[], option: FormValue, abortController: AbortController) => {
     const fn = () =>
@@ -85,8 +87,8 @@ function ImageCompressor(props: ImageCompressorProps) {
     const imagesToCompress = images?.map((item) => item.path) || []
 
     handleOperateImage(
-      (filePath?: string) => {
-        return compressImage(filePath ? [filePath] : imagesToCompress, unflatten(value), abortController)
+      () => {
+        return compressImage(imagesToCompress, unflatten(value), abortController)
       },
       {
         onSuccess() {
@@ -97,6 +99,9 @@ function ImageCompressor(props: ImageCompressorProps) {
         },
         onFinal() {
           setSubmitting(false)
+        },
+        onRetryClick(images) {
+          beginCompressProcess(images)
         },
       },
     )

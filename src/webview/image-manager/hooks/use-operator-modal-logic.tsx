@@ -1,7 +1,7 @@
 import { ceil, isObject } from '@minko-fe/lodash-pro'
 import { useLockFn, useMemoizedFn } from '@minko-fe/react-hook'
 import { App, Button, Popconfirm } from 'antd'
-import { type ReactNode } from 'react'
+import { type ReactNode, useRef } from 'react'
 import { useTranslation } from 'react-i18next'
 import { MdDoubleArrow } from 'react-icons/md'
 import { VscWarning } from 'react-icons/vsc'
@@ -18,11 +18,14 @@ export type FormComponent<T extends Record<string, any>> = {
   }
 }
 
-const LoadingKey = 'operator-loading'
+const MessageLoadingKey = 'operator-loading'
 
-function useOperatorModalLogic() {
+function useOperatorModalLogic(props: { images: ImageType[] }) {
+  const { images } = props
   const { t } = useTranslation()
   const { message, notification } = App.useApp()
+
+  const failedImages = useRef<ImageType[]>([])
 
   // 压缩结束
   const onEnd = useMemoizedFn(
@@ -30,7 +33,7 @@ function useOperatorModalLogic() {
       result: OperatorResult[number],
       options: {
         onError?: (filePath: string, error: string) => void
-        onRetryClick?: (filePath: string) => void
+        onRetryClick?: (images: ImageType[]) => void
       },
     ) => {
       const { inputSize, outputSize, filePath, outputPath, error, isSkiped, isLimited } = result
@@ -105,12 +108,12 @@ function useOperatorModalLogic() {
       } else if (error) {
         const { onError, onRetryClick } = options
         const _error = isObject(error) ? JSON.stringify(error) : error
-
+        failedImages.current = [...failedImages.current, images.find((item) => item.path === filePath)!]
         onError?.(filePath, _error || '')
-        const notificationKey = `${filename}-compress-fail`
+        const notificationKey = (key: string) => `${key}-compress-fail`
         notification.error({
-          duration: null,
-          key: notificationKey,
+          duration: LOADING_DURATION.slow,
+          key: notificationKey(filePath),
           message: filename,
           placement: 'topLeft',
           description: (
@@ -121,8 +124,10 @@ function useOperatorModalLogic() {
               <div>
                 <Button
                   onClick={() => {
-                    notification.destroy(notificationKey)
-                    onRetryClick?.(filePath)
+                    failedImages.current.forEach((item) => {
+                      notification.destroy(notificationKey(item.path))
+                    })
+                    onRetryClick?.(failedImages.current)
                   }}
                 >
                   {t('im.retry')}
@@ -137,43 +142,49 @@ function useOperatorModalLogic() {
 
   const handleOperateImage = useLockFn(
     async (
-      fn: (filePath?: string) => Promise<OperatorResult | undefined>,
+      fn: () => Promise<OperatorResult | undefined>,
       option: {
         onSuccess: () => void
         onCancel: () => void
         onFinal: () => void
+        onRetryClick: (images: ImageType[]) => void
       },
     ) => {
-      const { onSuccess, onCancel, onFinal } = option
-      message.loading({
-        content: (
-          <div className={'flex items-center space-x-4'}>
-            <div>{t('im.wait')}</div>
-            <Popconfirm
-              title={t('im.irreversible_operation')}
-              description={t('im.cancel_operation_tip')}
-              onConfirm={() => {
-                onCancel?.()
-                message.destroy(LoadingKey)
-              }}
-              okText={t('im.yes')}
-              cancelText={t('im.no')}
-            >
-              <Button danger>{t('im.cancel')}</Button>
-            </Popconfirm>
-          </div>
-        ),
-        duration: 0,
-        key: LoadingKey,
-      })
+      failedImages.current = []
+      const { onSuccess, onCancel, onFinal, onRetryClick } = option
+      const timer = setTimeout(() => {
+        message.loading({
+          content: (
+            <div className={'flex items-center space-x-4'}>
+              <div>{t('im.wait')}</div>
+              <Popconfirm
+                title={t('im.irreversible_operation')}
+                description={t('im.cancel_operation_tip')}
+                onConfirm={() => {
+                  onCancel?.()
+                  message.destroy(MessageLoadingKey)
+                }}
+                okText={t('im.yes')}
+                cancelText={t('im.no')}
+              >
+                <Button danger>{t('im.cancel')}</Button>
+              </Popconfirm>
+            </div>
+          ),
+          duration: 0,
+          key: MessageLoadingKey,
+        })
+        clearTimeout(timer)
+      }, 500)
+
       try {
         const res = await fn()
+        clearTimeout(timer)
+
         if (Array.isArray(res)) {
           res.forEach((item) => {
             onEnd(item, {
-              onRetryClick: (filePath) => {
-                handleOperateImage(() => fn(filePath), option)
-              },
+              onRetryClick,
             })
           })
         }
@@ -192,7 +203,7 @@ function useOperatorModalLogic() {
         }
         logger.error(e)
       } finally {
-        message.destroy(LoadingKey)
+        message.destroy(MessageLoadingKey)
         onFinal()
       }
     },

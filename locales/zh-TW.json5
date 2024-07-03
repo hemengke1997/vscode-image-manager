@@ -121,5 +121,6 @@
     post_message_to_webview: '向Webview發送消息',
     handler_fn_not_exist: '處理方法 "{0}" 不存在',
     output_path_not_exist: '輸出路徑不存在',
+    svgo_error_tip: '請確保svgo配置正確',
   },
 }
