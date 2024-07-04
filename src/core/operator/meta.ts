@@ -69,7 +69,7 @@ export const svgoBuiltinsWithRequiredParamsPlugins: Array<keyof BuiltinsWithRequ
 export const svgoPlugins = flatten([
   svgoDefaultPlugins,
   svgoBuiltinsWithOptionalParamsPlugins,
-  svgoBuiltinsWithRequiredParamsPlugins,
+  // svgoBuiltinsWithRequiredParamsPlugins, // 这些插件需要额外的参数，暂时不支持
 ])
 
 export type SvgoPlugin = {

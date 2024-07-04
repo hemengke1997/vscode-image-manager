@@ -51,6 +51,9 @@
       gif: {
         colors: '色彩',
       },
+      svg: {
+        compressedAttribute: 'svg壓縮後添加「已壓縮」屬性。如果設置為 null，則禁用功能',
+      },
     },
     conversion: {
       icoSize: 'ico 圖標尺寸',

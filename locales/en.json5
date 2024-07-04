@@ -50,6 +50,9 @@
       gif: {
         colors: 'Colors',
       },
+      svg: {
+        compressedAttribute: 'Add "compressed" attribute to svg after compression. Set to null to disable',
+      },
     },
     conversion: {
       icoSize: 'Size of ico',

@@ -460,6 +460,14 @@
           "default": 10,
           "description": "%pkg.similarity.precision%"
         },
+        "image-manager.compression.svg.compressedAttribute": {
+          "type": [
+            "string",
+            "null"
+          ],
+          "default": "c",
+          "description": "%pkg.compression.svg.compressedAttribute%"
+        },
         "image-manager.compression.svg.removeDoctype": {
           "type": "boolean",
           "default": true,

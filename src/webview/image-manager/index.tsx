@@ -108,12 +108,16 @@ function ImageManager() {
   useEffect(() => {
     const isRefresh = refreshTimes && refreshType === 'refresh'
     const messageKey = 'refresh_images'
+    let timer: number
     if (isRefresh) {
-      message.loading({
-        content: t('im.img_refreshing'),
-        key: messageKey,
-        duration: 0,
-      })
+      timer = window.setTimeout(() => {
+        message.loading({
+          content: t('im.img_refreshing'),
+          key: messageKey,
+          duration: 0,
+        })
+        clearTimeout(timer)
+      }, 250)
     }
 
     vscodeApi.postMessage({ cmd: CmdToVscode.get_all_images }, ({ data, workspaceFolders }) => {
@@ -126,6 +130,7 @@ function ImageManager() {
       })
 
       if (isRefresh) {
+        clearTimeout(timer)
         message.destroy(messageKey)
         message.success(t('im.img_refreshed'))
       }

@@ -10,7 +10,7 @@ import { HiOutlineViewfinderCircle } from 'react-icons/hi2'
 import { MdOutlineRemoveCircle } from 'react-icons/md'
 import { RxDimensions } from 'react-icons/rx'
 import { TbResize } from 'react-icons/tb'
-import { Events, animateScroll } from 'react-scroll'
+import { animateScroll } from 'react-scroll'
 import { Key } from 'ts-key-enum'
 import classnames from 'tw-clsx'
 import { type SharpNS } from '~/@types/global'
@@ -194,6 +194,9 @@ function LazyImage(props: LazyImageProps) {
     if (isTargetImage()) {
       setInteractive(true)
 
+      // 清空 targetImagePath，避免下次进入时直接定位
+      vscodeApi.postMessage({ cmd: CmdToVscode.reveal_image_in_viewer, data: { filePath: '' } })
+
       idleTimer = requestIdleCallback(() => {
         const y = placeholderRef.current?.getBoundingClientRect().top || keybindRef.current?.getBoundingClientRect().top
 
@@ -211,14 +214,13 @@ function LazyImage(props: LazyImageProps) {
           )
         }
       })
-    } else {
+    } else if (targetImagePath) {
       setInteractive(false)
     }
 
     return () => {
       if (isTargetImage()) {
         setInteractive(false)
-        Events.scrollEvent.remove('end')
         cancelIdleCallback(idleTimer)
       }
     }

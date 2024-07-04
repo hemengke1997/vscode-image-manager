@@ -51,6 +51,9 @@
       gif: {
         colors: '色数',
       },
+      svg: {
+        compressedAttribute: '圧縮後のsvgに「圧縮済み」属性を追加します。無効にするにはnullを設定します',
+      },
     },
     conversion: {
       icoSize: 'ICOアイコンサイズ',

@@ -404,14 +404,17 @@ export const VscodeMessageCenter = {
   [CmdToVscode.get_image_metadata]: async (data: { filePath: string }) => {
     const { filePath } = data
 
+    let compressed = false
+    let metadata: SharpNS.Metadata = {} as SharpNS.Metadata
+
     try {
       await fs.exists(filePath)
     } catch {
-      return undefined
+      return {
+        metadata,
+        compressed,
+      }
     }
-
-    let compressed = false
-    let metadata: SharpNS.Metadata = {} as SharpNS.Metadata
 
     try {
       Global.sharp.cache({ files: 0 })
@@ -421,6 +424,8 @@ export const VscodeMessageCenter = {
     } finally {
       if (metadata.exif) {
         compressed = !!exif(metadata.exif).Image?.ImageDescription?.includes(COMPRESSED_META)
+      } else if (path.extname(filePath) === '.svg') {
+        compressed = Svgo.isCompressed(await fs.readFile(filePath, 'utf-8'), Config.compression.svg)
       }
     }
 

@@ -1,5 +1,16 @@
 # CHANGELOG
 
+## 1.6.0 (2024-07-04)
+
+### Feat
+
+- 添加 `image-manager.compression.svg.compressedAttribute` 配置，在svg压缩后添加已压缩属性。默认值为 `c`。即压缩后会在svg的根元素上添加 `data-c="1"`。如需禁用功能，可设置为 `null`
+
+### Fix
+
+- 移除需要必传参数的svgo插件，避免压缩失败
+- 刷新图片后延迟250ms展示loading，避免闪烁
+
 ## 1.5.1 (2024-07-04)
 
 ### Fix

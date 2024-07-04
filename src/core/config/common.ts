@@ -129,7 +129,9 @@ export const DEFAULT_CONFIG: ConfigType = {
       colors: 256,
     },
     // svg 单向存储，不需要从webview同步到settings，所以不需要在此设置默认值
-    svg: {},
+    svg: {
+      compressedAttribute: 'c', // data-c. "c" means "compressed"
+    },
   },
   conversion: {
     format: '',

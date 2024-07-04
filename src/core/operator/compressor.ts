@@ -60,10 +60,19 @@ export type CompressionOptions = {
     colors?: number
   }
 } & Omit<FormatConverterOptions, 'icoSize'> &
-  SvgCompressionOptions
+  SvgCompressionOptions<CustomSvgCompressionOptions>
 
-export type SvgCompressionOptions = {
-  svg: SvgoPlugin
+export type CustomSvgCompressionOptions = {
+  /**
+   * @description 压缩svg后添加自定义属性，用于判断是否已经压缩过
+   * 如果设置 null，则禁用功能
+   * @default 'c' // compressed
+   */
+  compressedAttribute: string | null
+}
+
+export type SvgCompressionOptions<T> = {
+  svg: SvgoPlugin & T
 }
 
 export class Compressor extends Operator {
@@ -175,25 +184,26 @@ export class Compressor extends Operator {
           fileSuffix: this.option.fileSuffix,
         })
 
+        // 如果压缩后的svg和原来的一样
+        // 说明已经压缩过了
+        // 直接跳过
+        if (
+          this.option.skipCompressed &&
+          Svgo.isCompressed(svgString, { compressedAttribute: this.option.svg.compressedAttribute })
+        ) {
+          return reject(new SkipError())
+        }
+
         if (!outputPath) {
           return reject(i18n.t('core.output_path_not_exist'))
         }
 
+        // omit 自定义的svg压缩选项
         const svgoConfig = Svgo.processConfig(this.option.svg, {
           pretty: false,
         })
 
         const inputSize = this.getFileSize(filePath)
-
-        const { data } = optimize(svgString, svgoConfig)
-
-        // 如果压缩后的svg和原来的一样
-        // 说明已经压缩过了
-        // 直接跳过
-        if (this.option.skipCompressed && svgString === data) {
-          return reject(new SkipError())
-        }
-
         const result = {
           outputPath,
           inputSize,
@@ -207,7 +217,12 @@ export class Compressor extends Operator {
             await VscodeMessageCenter[CmdToVscode.delete_file]({ filePaths: [filePath] })
             fs.ensureFileSync(outputPath)
           }
-          await this._writeStreamFile({ path: outputPath, data })
+          const { data } = optimize(svgString, svgoConfig)
+
+          await this._writeStreamFile({
+            path: outputPath,
+            data,
+          })
           resolve({
             ...result,
             outputSize: this.getFileSize(outputPath),

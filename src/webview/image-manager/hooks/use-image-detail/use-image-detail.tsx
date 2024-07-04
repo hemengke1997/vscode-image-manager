@@ -1,7 +1,6 @@
 import { useLockFn } from '@minko-fe/react-hook'
-import { App, Descriptions, type DescriptionsProps, Tooltip } from 'antd'
+import { App, Descriptions, type DescriptionsProps, Divider } from 'antd'
 import { useTranslation } from 'react-i18next'
-import { BsQuestionCircleFill } from 'react-icons/bs'
 import { CmdToVscode } from '~/message/cmd'
 import { vscodeApi } from '../../../vscode-api'
 import { formatBytes } from '../../utils'
@@ -66,28 +65,30 @@ export default function useImageDetail() {
           },
           {
             label: t('im.whether_compressed'),
-            children:
-              image.fileType === 'svg' ? (
-                <div className={'flex items-center gap-x-1'}>
-                  <a
-                    onClick={() => {
-                      vscodeApi.postMessage({
-                        cmd: CmdToVscode.open_file_in_text_editor,
-                        data: {
-                          filePath: image.path,
-                        },
-                      })
-                    }}
-                  >
-                    {t('im.view_svg')}
-                  </a>
-                  <Tooltip title={t('im.svg_compressed_tip')}>
-                    <BsQuestionCircleFill />
-                  </Tooltip>
-                </div>
-              ) : (
+            children: (
+              <div className={'flex items-center'}>
                 <div>{compressed ? `✅ ${t('im.yes')}` : `❎ ${t('im.no')}`}</div>
-              ),
+                {image.fileType === 'svg' ? (
+                  <>
+                    <Divider type='vertical' />
+                    <div className={'flex items-center gap-x-1'}>
+                      <a
+                        onClick={() => {
+                          vscodeApi.postMessage({
+                            cmd: CmdToVscode.open_file_in_text_editor,
+                            data: {
+                              filePath: image.path,
+                            },
+                          })
+                        }}
+                      >
+                        {t('im.view_svg')}
+                      </a>
+                    </div>
+                  </>
+                ) : null}
+              </div>
+            ),
           },
         ]
 

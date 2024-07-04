@@ -1,11 +1,14 @@
-import { pickBy } from '@minko-fe/lodash-pro'
+import { omit, pick, pickBy } from '@minko-fe/lodash-pro'
 import { type Config, type PluginConfig } from 'svgo'
 import { type DefaultPlugins } from 'svgo/plugins/plugins-types'
+import { type CustomSvgCompressionOptions } from './compressor'
 import { type SvgoPlugin, svgoDefaultPlugins } from './meta'
 
 export class Svgo {
+  static customOptions: (keyof CustomSvgCompressionOptions)[] = ['compressedAttribute']
+
   static processConfig(
-    svgOptions: SvgoPlugin,
+    _svgOptions: SvgoPlugin & CustomSvgCompressionOptions,
     options: {
       pretty: boolean
     },
@@ -14,6 +17,9 @@ export class Svgo {
     const defaultConfig: SvgoPlugin = {}
     // svgo非默认启用插件
     const restConfig: SvgoPlugin = {}
+
+    const svgOptions = omit(_svgOptions, this.customOptions)
+    const customOptions = pick(_svgOptions, this.customOptions)
 
     Object.keys(svgOptions).forEach((k) => {
       const current: boolean = svgOptions[k]
@@ -42,9 +48,38 @@ export class Svgo {
       js2svg: {
         pretty: options.pretty,
       },
-      plugins: [defaultPlugin, ...restPlugin],
+      plugins: [
+        defaultPlugin,
+        ...restPlugin,
+        {
+          name: 'removeAttrs',
+          params: {
+            attrs: ['data-.*'],
+          },
+        },
+        {
+          name: 'addAttributesToSVGElement',
+          params: {
+            attributes: customOptions.compressedAttribute
+              ? [
+                  {
+                    [`data-${customOptions.compressedAttribute}`]: '1',
+                  },
+                ]
+              : [],
+          },
+        },
+      ] as PluginConfig[],
     }
 
     return config
+  }
+
+  static isCompressed(svg: string, config: CustomSvgCompressionOptions) {
+    if (!config.compressedAttribute) {
+      return false
+    }
+    const regex = new RegExp(`<svg[^>]*?\\sdata-${config.compressedAttribute}=([\\'\\"])1\\1[^>]*>`)
+    return regex.test(svg)
   }
 }
