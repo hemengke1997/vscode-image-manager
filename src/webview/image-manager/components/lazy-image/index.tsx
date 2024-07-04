@@ -224,6 +224,27 @@ function LazyImage(props: LazyImageProps) {
     }
   }, [targetImagePath])
 
+  /**
+   * @param depth 父元素查找深度，默认向上查找3层，如果查不到 [data-disable-dbclick] 元素，则可以双击
+   */
+  const preventDbClick = useMemoizedFn((el: HTMLElement, depth: number = 3) => {
+    let parent = el
+    let count = 0
+    while (parent) {
+      if (count > depth) {
+        return false
+      }
+      if (parent.dataset.disableDbclick) {
+        // prevent double-click
+        return true
+      }
+      parent = parent.parentElement!
+      count++
+    }
+
+    return false
+  })
+
   if (!inViewport && lazy) {
     return (
       <div
@@ -254,6 +275,8 @@ function LazyImage(props: LazyImageProps) {
         onMouseOver={handleMaskMouseOver}
         onDoubleClick={(e) => {
           if (isSelecting(e)) return
+          const el = e.target as HTMLElement
+          if (preventDbClick(el)) return
           showImageDetailModal(image)
         }}
       >
@@ -288,8 +311,10 @@ function LazyImage(props: LazyImageProps) {
                               if (isSelecting(e)) return
                               // prevent click away
                               e.stopPropagation()
+                              e.preventDefault()
                               onPreviewClick(image)
                             }}
+                            data-disable-dbclick
                           >
                             <HiOutlineViewfinderCircle />
                             <span>{t('im.preview')}</span>

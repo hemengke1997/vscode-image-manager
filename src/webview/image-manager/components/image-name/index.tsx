@@ -29,10 +29,12 @@ function ImageName(props: ImageNameProps) {
   const suffix = children?.slice(-suffixCount).trim()
 
   const tooltipTitle = useMemoizedFn(() => {
+    let title = ''
     if (tooltipDisplayFullPath && image) {
-      return image.relativePath
+      title = image.relativePath
     }
-    return children
+    title = children || ''
+    return <div data-disable-dbclick>{title}</div>
   })
 
   return (
