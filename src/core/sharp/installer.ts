@@ -35,6 +35,7 @@ const CNPM_BINARY_REGISTRY = mirrors[0].description
 const SHARP_LIBVIPS = 'sharp-libvips'
 const VENDOR = 'vendor'
 const BUILD = 'build'
+const CACHE_JSON = 'cache.json'
 
 const INITIALIZING_TEXT = () => `🔄 ${i18n.t('prompt.initializing')}`
 
@@ -64,9 +65,9 @@ export class Installer {
    */
   private _isCached = false
   /**
-   * 缓存 package.json 文件路径
+   * 缓存 cache.json 文件路径
    */
-  private _pkgCacheFilePath: string
+  private _cacheFilePath: string
 
   /**
    * vendor 里面是 libvips binary
@@ -85,6 +86,7 @@ export class Installer {
   private readonly _cacheable = [VENDOR, BUILD, 'json', 'sharp']
 
   public readonly cacheDir: string
+  private _osCacheDirWritable: boolean = false
 
   event: EventEmitter<Events> = new EventEmitter()
 
@@ -101,16 +103,19 @@ export class Installer {
     this.cwd = ctx.extensionUri.fsPath
     this.platform = require(path.resolve(this.getSharpCwd(), 'install/platform')).platform()
 
-    const osCacheDirWritable = [os.homedir(), os.tmpdir()].find((dir) => this._isDirectoryWritable(dir))
-    if (osCacheDirWritable) {
+    const osCacheDir = [os.homedir(), os.tmpdir()].find((dir) => this._isDirectoryWritable(dir))
+    if (osCacheDir) {
       // 可以写到系统临时盘中
-      this.cacheDir = path.resolve(osCacheDirWritable, '.vscode-image-manager-cache')
+      this._osCacheDirWritable = true
+      this.cacheDir = path.resolve(osCacheDir, '.vscode-image-manager-cache')
     } else {
+      this._osCacheDirWritable = false
       // 否则写到扩展根目录下的 dist 目录中
       this.cacheDir = path.join(this.cwd, 'dist')
     }
+    Channel.debug(`OS缓存是否可写: ${this._osCacheDirWritable}`)
+    this._cacheFilePath = path.join(this.getDepCacheDir(), CACHE_JSON)
 
-    this._pkgCacheFilePath = path.join(this.getDepOsCacheDir(), 'package.json')
     this._libvips_bin = `libvips-${SHARP_LIBVIPS_VERSION}-${this.platform}.tar.gz`
 
     Channel.divider()
@@ -127,7 +132,7 @@ export class Installer {
     try {
       const cacheTypes = this._getInstalledCacheTypes()
 
-      Channel.debug(`Installed cache types: ${cacheTypes}`)
+      Channel.debug(`Installed cache types: ${cacheTypes?.length ? cacheTypes.join(',') : 'none'}`)
 
       // 如果系统/扩展均无满足版本条件的缓存，则安装依赖
       if (!cacheTypes?.length || Config.debug_forceInstall) {
@@ -156,30 +161,34 @@ export class Installer {
         Channel.info(`${i18n.t('core.load_from_cache')}: ${cacheTypes[0]}`)
       }
 
-      fs.ensureFileSync(this._pkgCacheFilePath)
-      const pkg = this._readPkgJson()
+      this._initCacheJson()
+
+      const pkg = this._readCacheJson()
 
       Channel.debug(`Cached package.json: ${JSON.stringify(pkg)}`)
 
       if (pkg.libvips !== SHARP_LIBVIPS_VERSION) {
-        fs.emptyDirSync(path.resolve(this.getDepOsCacheDir(), VENDOR))
-        Channel.info(i18n.t('core.libvips_diff'))
-        await this._tryCopyCacheToOs([VENDOR], { force: true })
-        this._writePkgJson({ libvips: SHARP_LIBVIPS_VERSION })
+        fs.emptyDirSync(path.resolve(this.getDepCacheDir(), VENDOR))
+        if (await this._tryCopyCacheToOs([VENDOR], { force: true })) {
+          Channel.info(i18n.t('core.libvips_diff'))
+        }
+        this._writeCacheJson({ libvips: SHARP_LIBVIPS_VERSION })
       }
 
       const SHARP_VERSION = cleanVersion(devDependencies['@minko-fe/sharp'])
       if (pkg.sharp !== SHARP_VERSION) {
-        fs.emptyDirSync(path.resolve(this.getDepOsCacheDir(), BUILD))
-        Channel.info(i18n.t('core.sharp_diff'))
-        await this._tryCopyCacheToOs([BUILD], { force: true })
-        this._writePkgJson({ sharp: SHARP_VERSION })
+        fs.emptyDirSync(path.resolve(this.getDepCacheDir(), BUILD))
+        if (await this._tryCopyCacheToOs([BUILD], { force: true })) {
+          Channel.info(i18n.t('core.sharp_diff'))
+        }
+        this._writeCacheJson({ sharp: SHARP_VERSION })
       }
 
       if (pkg.version !== version) {
-        Channel.info(i18n.t('core.version_diff'))
-        await this._tryCopyCacheToOs(this._cacheable)
-        this._writePkgJson({ version })
+        if (await this._tryCopyCacheToOs(this._cacheable)) {
+          Channel.info(i18n.t('core.version_diff'))
+        }
+        this._writeCacheJson({ version })
       }
 
       const currentCacheType = this._getInstalledCacheTypes()![0]
@@ -191,8 +200,28 @@ export class Installer {
     return this
   }
 
-  private _readPkgJson() {
-    const pkgStr = fs.readFileSync(this._pkgCacheFilePath, 'utf-8')
+  private _initCacheJson() {
+    let shouldInit = false
+    if (!fs.existsSync(this._cacheFilePath)) {
+      fs.ensureFileSync(this._cacheFilePath)
+      shouldInit = true
+    } else {
+      const pkgRaw = fs.readFileSync(this._cacheFilePath, 'utf-8')
+      if (!pkgRaw) {
+        shouldInit = true
+      }
+    }
+    if (shouldInit) {
+      this._writeCacheJson({
+        version,
+        libvips: SHARP_LIBVIPS_VERSION,
+        sharp: cleanVersion(devDependencies['@minko-fe/sharp']),
+      })
+    }
+  }
+
+  private _readCacheJson() {
+    const pkgStr = fs.readFileSync(this._cacheFilePath, 'utf-8')
     let pkg: { version?: string; libvips?: string; sharp?: string } = {}
     if (isString(pkgStr)) {
       try {
@@ -202,9 +231,9 @@ export class Installer {
     return pkg
   }
 
-  private _writePkgJson(value: Record<string, string>) {
-    fs.writeJSONSync(this._pkgCacheFilePath, {
-      ...this._readPkgJson(),
+  private _writeCacheJson(value: Record<string, string>) {
+    fs.writeJSONSync(this._cacheFilePath, {
+      ...this._readCacheJson(),
       ...value,
     })
   }
@@ -259,21 +288,25 @@ export class Installer {
     const caches = [
       {
         type: CacheType.os,
-        cwd: this.getDepOsCacheDir(),
+        cwd: this.getDepCacheDir(),
+        exists: this._osCacheDirWritable,
       },
       {
         type: CacheType.extension,
         cwd: this.getSharpCwd(),
+        exists: true,
       },
-    ].map(({ type, cwd }) => {
-      return cachedFiles.reduce((prev, current) => {
-        return {
-          ...prev,
-          [current.key]: normalizePath(path.resolve(cwd, current.value)),
-          type,
-        }
-      }, {})
-    }) as { releaseDirPath: string; vendorDirPath: string; sharpFsPath: string; type: CacheType }[]
+    ]
+      .filter(({ exists }) => !!exists)
+      .map(({ type, cwd }) => {
+        return cachedFiles.reduce((prev, current) => {
+          return {
+            ...prev,
+            [current.key]: normalizePath(path.resolve(cwd, current.value)),
+            type,
+          }
+        }, {})
+      }) as { releaseDirPath: string; vendorDirPath: string; sharpFsPath: string; type: CacheType }[]
 
     return caches
   }
@@ -359,6 +392,7 @@ export class Installer {
       force?: boolean
     } = {},
   ) {
+    if (!this._osCacheDirWritable) return false
     return new Promise<boolean>((resolve) => {
       fs.access(this.cacheDir, fs.constants.W_OK, async (err) => {
         if (err) {
@@ -369,7 +403,7 @@ export class Installer {
           const { force } = options
           if (!this._isCached || force) {
             // Ensure the existence of the cache directory
-            fs.ensureDirSync(this.getDepOsCacheDir())
+            fs.ensureDirSync(this.getDepCacheDir())
 
             // Copy stable files to cache directory
             await this._copyDirsToOsCache(cacheDirs)
@@ -382,13 +416,13 @@ export class Installer {
   }
 
   private _copyDirsToOsCache(dirs: string[]) {
-    Channel.debug(`Copy [${dirs.join(',')}] to ${this.getDepOsCacheDir()}`)
+    Channel.debug(`Copy [${dirs.join(',')}] to ${this.getDepCacheDir()}`)
 
     return Promise.all(
       dirs.map(async (dir) => {
         const source = path.resolve(this.getSharpCwd(), dir)
         if (fs.existsSync(source)) {
-          await fs.copy(path.resolve(this.getSharpCwd(), dir), path.resolve(this.getDepOsCacheDir(), dir))
+          await fs.copy(path.resolve(this.getSharpCwd(), dir), path.resolve(this.getDepCacheDir(), dir))
           Channel.debug(`Copy ${dir} success`)
         } else {
           Channel.debug(`${dir} not exists`)
@@ -406,26 +440,34 @@ export class Installer {
   }
 
   /**
-   * 获取系统缓存中依赖的目录路径
-   * @returns /{tmpdir}/vscode-image-manager-cache/lib
+   * 获取缓存中依赖的目录路径
+   * @returns
+   * /{tmpdir}/vscode-image-manager-cache/lib
+   * or
+   * /{homedir}/vscode-image-manager-cache/lib
+   * or
+   * /{extension-cwd}/dist/lib
    */
-  public getDepOsCacheDir() {
+  public getDepCacheDir() {
     return normalizePath(path.resolve(this.cacheDir, 'lib'))
   }
 
-  private async _rmDir(dir: string) {
-    if (fs.existsSync(dir)) {
-      await fs.rmdir(dir, { recursive: true })
+  private async _rm(path: string) {
+    if (fs.existsSync(path)) {
+      await fs.rm(path, { recursive: true })
     }
   }
 
   public async clearCaches() {
     Promise.all([
-      // 清除 os cache
-      this._rmDir(this.getDepOsCacheDir()),
-
+      () => {
+        if (this._osCacheDirWritable) {
+          // 如果有系统级缓存，清除
+          this._rm(this.cacheDir)
+        }
+      },
       // 清除 extension cache
-      ...[VENDOR, BUILD].map((dir) => this._rmDir(path.resolve(this.getSharpCwd(), dir))),
+      ...[VENDOR, BUILD, CACHE_JSON].map((dir) => this._rm(path.resolve(this.getSharpCwd(), dir))),
     ])
   }
 

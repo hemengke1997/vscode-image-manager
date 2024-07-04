@@ -48,7 +48,7 @@
   "scripts": {
     "ui:dev": "vite -m development",
     "vsc:dev": "run-p dev",
-    "dev": "tsup --watch",
+    "dev": "rimraf dist && tsup --watch",
     "build": "run-p vsc:build ui:build",
     "ui:build": "vite build -m production",
     "vsc:build": "rimraf dist && tsup",

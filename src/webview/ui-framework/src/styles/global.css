@@ -37,6 +37,6 @@ body {
   @apply inline-flex items-center justify-center;
 }
 
-.ant-modal[role='dialog'] {
+[role='dialog'] {
   @apply !origin-center;
 }

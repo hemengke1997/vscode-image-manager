@@ -49,6 +49,12 @@ export class VscodeSettings {
       case 'zh-cn':
         this.language = Language.zh_CN
         break
+      case 'zh-tw':
+        this.language = Language.zh_TW
+        break
+      case 'ja':
+        this.language = Language.ja
+        break
       default:
         this.language = FALLBACK_LANGUAGE
         break
