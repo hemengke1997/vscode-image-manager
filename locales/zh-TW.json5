@@ -10,6 +10,7 @@
       select_mirror: '選擇鏡像源',
       select_language: '選擇語言',
       clear_cache: '清除本地緩存',
+      configure_svgo: '配置svgo',
     },
     debug: {
       enabled: '開啟調試模式',
@@ -53,6 +54,7 @@
       },
       svg: {
         compressedAttribute: 'svg壓縮後添加「已壓縮」屬性。如果設置為 null，則禁用功能',
+        removeDataAttributes: '刪除svg中的 data-* 屬性。除了 data-[compressedAttribute]',
       },
     },
     conversion: {

@@ -124,6 +124,7 @@
     universal: '通用',
     not_svg: '非svg',
     refer_to_svgo: '請參考: <0>svgo官方文檔</0>',
+    svgo_config: '我们已经预设svg压缩配置，你也可以通过修改<0>svgo.config.js</0>定制化压缩。（重启插件后生效）',
     scale_factor: '倍數',
     file_suffix: '文件後綴',
     pretty: '格式化',

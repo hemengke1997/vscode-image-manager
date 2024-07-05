@@ -1,7 +1,6 @@
 import { isArray, mergeWith, toString } from '@minko-fe/lodash-pro'
 import fs from 'fs-extra'
 import pMap from 'p-map'
-import { optimize } from 'svgo'
 import { type SharpNS } from '~/@types/global'
 import { SharpOperator } from '~/core/sharp'
 import { i18n } from '~/i18n'
@@ -9,9 +8,9 @@ import { VscodeMessageCenter } from '~/message'
 import { CmdToVscode } from '~/message/cmd'
 import { Channel } from '~/utils/channel'
 import { type FormatConverterOptions } from './format-converter'
-import { COMPRESSED_META, type SvgoPlugin } from './meta'
+import { COMPRESSED_META } from './meta'
 import { LimitError, Operator, type OperatorResult } from './operator'
-import { Svgo } from './svgo'
+import { Svgo } from './svgo/svgo'
 
 export type CompressionOptions = {
   /**
@@ -69,10 +68,15 @@ export type CustomSvgCompressionOptions = {
    * @default 'c' // compressed
    */
   compressedAttribute: string | null
+  /**
+   * @description 移除svg中的 data-* 属性（除了 data-*compressedAttribute*）
+   * @default true
+   */
+  removeDataAttributes: boolean
 }
 
 export type SvgCompressionOptions<T> = {
-  svg: SvgoPlugin & T
+  svg: T
 }
 
 export class Compressor extends Operator {
@@ -93,19 +97,19 @@ export class Compressor extends Operator {
     })
 
     const svgs: string[] = []
-    const rest: string[] = []
+    const nonSvgs: string[] = []
     filePaths.forEach((filePath) => {
       if (this.getFileExt(filePath) === 'svg') {
         svgs.push(filePath)
       } else {
-        rest.push(filePath)
+        nonSvgs.push(filePath)
       }
     })
 
     const res = await pMap(
       [
         ...svgs.map((filePath) => () => this.compressSvg(filePath)),
-        ...rest.map((filePath) => () => this.compressImage(filePath)),
+        ...nonSvgs.map((filePath) => () => this.compressImage(filePath)),
       ],
       (task) => task(),
     )
@@ -198,11 +202,6 @@ export class Compressor extends Operator {
           return reject(i18n.t('core.output_path_not_exist'))
         }
 
-        // omit 自定义的svg压缩选项
-        const svgoConfig = Svgo.processConfig(this.option.svg, {
-          pretty: false,
-        })
-
         const inputSize = this.getFileSize(filePath)
         const result = {
           outputPath,
@@ -217,11 +216,11 @@ export class Compressor extends Operator {
             await VscodeMessageCenter[CmdToVscode.delete_file]({ filePaths: [filePath] })
             fs.ensureFileSync(outputPath)
           }
-          const { data } = optimize(svgString, svgoConfig)
+          const minifiedSvg = await Svgo.minify(svgString, this.option.svg)
 
           await this._writeStreamFile({
             path: outputPath,
-            data,
+            data: minifiedSvg,
           })
           resolve({
             ...result,

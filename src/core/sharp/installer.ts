@@ -2,16 +2,15 @@ import { destrUtil, isString, toLower } from '@minko-fe/lodash-pro'
 import EventEmitter from 'eventemitter3'
 import { execaNode } from 'execa'
 import fs from 'fs-extra'
-import os from 'node:os'
 import path from 'node:path'
-import { type ExtensionContext, StatusBarAlignment, type StatusBarItem, commands, window } from 'vscode'
+import { StatusBarAlignment, type StatusBarItem, commands, window } from 'vscode'
 import { mirrors } from '~/commands/mirror'
 import { i18n } from '~/i18n'
 import { SHARP_LIBVIPS_VERSION } from '~/meta'
 import { cleanVersion, isValidHttpsUrl, normalizePath, setImmdiateInterval } from '~/utils'
 import { type AbortError, type TimeoutError, abortPromise } from '~/utils/abort-promise'
 import { Channel } from '~/utils/channel'
-import { Config, Global } from '..'
+import { Config, FileCache, Global } from '..'
 import { devDependencies, version } from '../../../package.json'
 
 type Events = {
@@ -85,13 +84,9 @@ export class Installer {
    */
   private readonly _cacheable = [VENDOR, BUILD, 'json', 'sharp']
 
-  public readonly cacheDir: string
-  private _osCacheDirWritable: boolean = false
-
   event: EventEmitter<Events> = new EventEmitter()
 
   constructor(
-    public ctx: ExtensionContext,
     public options: {
       timeout: number
     },
@@ -100,26 +95,17 @@ export class Installer {
     const languages = [Config.appearance_language, Global.vscodeLanguage].map(toLower)
     this._useMirror = languages.includes('zh-cn') || Config.mirror_enabled
 
-    this.cwd = ctx.extensionUri.fsPath
+    this.cwd = Global.context.extensionUri.fsPath
     this.platform = require(path.resolve(this.getSharpCwd(), 'install/platform')).platform()
 
-    const osCacheDir = [os.homedir(), os.tmpdir()].find((dir) => this._isDirectoryWritable(dir))
-    if (osCacheDir) {
-      // 可以写到系统临时盘中
-      this._osCacheDirWritable = true
-      this.cacheDir = path.resolve(osCacheDir, '.vscode-image-manager-cache')
-    } else {
-      this._osCacheDirWritable = false
-      // 否则写到扩展根目录下的 dist 目录中
-      this.cacheDir = path.join(this.cwd, 'dist')
-    }
-    Channel.debug(`OS缓存是否可写: ${this._osCacheDirWritable}`)
     this._cacheFilePath = path.join(this.getDepCacheDir(), CACHE_JSON)
 
     this._libvips_bin = `libvips-${SHARP_LIBVIPS_VERSION}-${this.platform}.tar.gz`
 
+    Channel.debug(`OS缓存是否可写: ${FileCache.cacheDir}`)
+
     Channel.divider()
-    Channel.info(`${i18n.t('core.dep_cache_dir')}: ${this.cacheDir}`)
+    Channel.info(`${i18n.t('core.dep_cache_dir')}: ${FileCache.cacheDir}`)
     Channel.info(`${i18n.t('core.extension_root')}: ${this.cwd}`)
     Channel.info(`${i18n.t('core.tip')}: ${i18n.t('core.dep_url_tip')} ⬇️`)
     Channel.info(
@@ -238,15 +224,6 @@ export class Installer {
     })
   }
 
-  private _isDirectoryWritable(dirPath: string) {
-    try {
-      fs.accessSync(dirPath, fs.constants.W_OK)
-      return true
-    } catch (err) {
-      return false
-    }
-  }
-
   /**
    * 显示状态栏
    */
@@ -289,7 +266,7 @@ export class Installer {
       {
         type: CacheType.os,
         cwd: this.getDepCacheDir(),
-        exists: this._osCacheDirWritable,
+        exists: FileCache.osCachable,
       },
       {
         type: CacheType.extension,
@@ -392,27 +369,17 @@ export class Installer {
       force?: boolean
     } = {},
   ) {
-    if (!this._osCacheDirWritable) return false
-    return new Promise<boolean>((resolve) => {
-      fs.access(this.cacheDir, fs.constants.W_OK, async (err) => {
-        if (err) {
-          Channel.info(`${this.cacheDir} not writable`)
-          resolve(false)
-        } else {
-          // Os Cache is writable
-          const { force } = options
-          if (!this._isCached || force) {
-            // Ensure the existence of the cache directory
-            fs.ensureDirSync(this.getDepCacheDir())
+    if (!FileCache.osCachable) return false
+    const { force } = options
+    if (!this._isCached || force) {
+      // Ensure the existence of the cache directory
+      fs.ensureDirSync(this.getDepCacheDir())
 
-            // Copy stable files to cache directory
-            await this._copyDirsToOsCache(cacheDirs)
-            if (!force) this._isCached = true
-          }
-          resolve(true)
-        }
-      })
-    })
+      // Copy stable files to cache directory
+      await this._copyDirsToOsCache(cacheDirs)
+      if (!force) this._isCached = true
+    }
+    return true
   }
 
   private _copyDirsToOsCache(dirs: string[]) {
@@ -449,7 +416,7 @@ export class Installer {
    * /{extension-cwd}/dist/lib
    */
   public getDepCacheDir() {
-    return normalizePath(path.resolve(this.cacheDir, 'lib'))
+    return normalizePath(path.resolve(FileCache.cacheDir, 'lib'))
   }
 
   private async _rm(path: string) {
@@ -461,9 +428,9 @@ export class Installer {
   public async clearCaches() {
     Promise.all([
       () => {
-        if (this._osCacheDirWritable) {
+        if (FileCache.osCachable) {
           // 如果有系统级缓存，清除
-          this._rm(this.cacheDir)
+          this._rm(this.getDepCacheDir())
         }
       },
       // 清除 extension cache
@@ -486,14 +453,12 @@ export class Installer {
       return ''
     }
 
-    const extensionHost = this.ctx.extensionUri.fsPath
-    const sharpBinaryReleaseDir = path.resolve(extensionHost, 'releases')
+    const sharpBinaryReleaseDir = path.resolve(this.cwd, 'releases')
 
-    Channel.debug(`extensionHost: ${extensionHost}`)
     Channel.debug(`sharpBinaryReleaseDir: ${sharpBinaryReleaseDir}`)
 
     // 如果扩展根目录有 libvips 的 .tar.gz 文件，用户可能有意手动安装依赖
-    const libvipsBins = fs.readdirSync(extensionHost).filter((file) => /^libvips.+\.tar\.gz$/.test(file))
+    const libvipsBins = fs.readdirSync(this.cwd).filter((file) => /^libvips.+\.tar\.gz$/.test(file))
 
     const sharpBins = fs.readdirSync(sharpBinaryReleaseDir).filter((file) => /^sharp.+\.tar\.gz$/.test(file))
 
@@ -506,7 +471,7 @@ export class Installer {
       for (let i = 0; i < libvipsBins.length; i++) {
         // 尝试手动安装
         try {
-          await execaNode('install/unpack-libvips.js', [path.join(extensionHost, libvipsBins[i])], {
+          await execaNode('install/unpack-libvips.js', [path.join(this.cwd, libvipsBins[i])], {
             cwd,
             env: {
               ...process.env,

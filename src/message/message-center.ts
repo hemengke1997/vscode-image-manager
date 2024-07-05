@@ -7,9 +7,9 @@ import micromatch from 'micromatch'
 import mime from 'mime/lite'
 import path from 'node:path'
 import git from 'simple-git'
-import { optimize } from 'svgo'
 import { type ConfigurationTarget, Uri, ViewColumn, type Webview, commands, window, workspace } from 'vscode'
 import { type SharpNS } from '~/@types/global'
+import { Commands } from '~/commands'
 import {
   type CompressionOptions,
   Config,
@@ -520,12 +520,9 @@ export const VscodeMessageCenter = {
   /* ---------------- pretty svg ---------------- */
   [CmdToVscode.prettify_svg]: async (data: { filePath: string }) => {
     const { filePath } = data
-    const svgoConfig = Svgo.processConfig(Config.compression.svg, {
-      pretty: true,
-    })
     const svgString = await fs.readFile(filePath, 'utf-8')
-    const { data: svgStr } = optimize(svgString, svgoConfig)
-    await fs.writeFile(filePath, svgStr)
+    const svg = await Svgo.prettify(svgString, Config.compression.svg)
+    await fs.writeFile(filePath, svg)
     return true
   },
   /* --------- open file in text editor --------- */
@@ -579,5 +576,10 @@ export const VscodeMessageCenter = {
     const { source } = data
     const siblings = await fs.readdir(path.dirname(source))
     return siblings
+  },
+  /* ---------------- 打开svgo配置文件 ---------------- */
+  [CmdToVscode.open_svgo_config]: async () => {
+    await commands.executeCommand(Commands.configure_svgo)
+    return true
   },
 }

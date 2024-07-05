@@ -1,6 +1,6 @@
 import { type Event, EventEmitter, type ExtensionContext, ExtensionMode, commands, window, workspace } from 'vscode'
 import { Commands } from '~/commands'
-import { Compressor, FormatConverter } from '~/core/operator'
+import { Compressor, FormatConverter, Svgo } from '~/core/operator'
 import { Installer } from '~/core/sharp'
 import { i18n } from '~/i18n'
 import { EXT_NAMESPACE } from '~/meta'
@@ -61,7 +61,8 @@ export class Global {
 
     Watcher.init()
     WorkspaceState.init()
-    this.initSharp()
+    Svgo.init()
+    this.initSharpInstaller()
 
     this.vscodeTheme = settings.theme
     this.vscodeLanguage = settings.language
@@ -107,8 +108,8 @@ export class Global {
     Global.formatConverter = new FormatConverter(Config.conversion)
   }
 
-  static initSharp() {
-    this.installer = new Installer(this.context, {
+  static initSharpInstaller() {
+    this.installer = new Installer({
       timeout: 30 * 1000, // 30s
     })
   }

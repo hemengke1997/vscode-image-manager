@@ -10,6 +10,7 @@
       select_mirror: 'ミラーソースを選択',
       select_language: '言語を選択',
       clear_cache: 'ローカルキャッシュをクリア',
+      configure_svgo: 'svgoを設定',
     },
     debug: {
       enabled: 'デバッグモードを有効にする',
@@ -53,6 +54,7 @@
       },
       svg: {
         compressedAttribute: '圧縮後のsvgに「圧縮済み」属性を追加します。無効にするにはnullを設定します',
+        removeDataAttributes: 'svgからdata-*属性を削除します。data-[compressedAttribute]を除きます',
       },
     },
     conversion: {

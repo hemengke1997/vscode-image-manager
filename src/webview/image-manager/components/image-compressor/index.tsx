@@ -1,13 +1,12 @@
-import { intersection, isEmpty, mapValues, merge, omit, pick } from '@minko-fe/lodash-pro'
+import { intersection, isEmpty, mapValues, merge, omit } from '@minko-fe/lodash-pro'
 import { useMemoizedFn } from '@minko-fe/react-hook'
-import { Divider, Form, Input, InputNumber, Segmented, Tooltip } from 'antd'
+import { Alert, Button, Divider, Form, Input, InputNumber, Segmented, Tooltip } from 'antd'
 import { flatten as flattenObject, unflatten } from 'flat'
 import { motion } from 'framer-motion'
-import { memo, useCallback, useEffect, useMemo, useState } from 'react'
+import { memo, useEffect, useMemo, useState } from 'react'
 import { Trans, useTranslation } from 'react-i18next'
 import { BsQuestionCircleFill } from 'react-icons/bs'
 import { type CompressionOptions, type OperatorResult } from '~/core'
-import { svgoPlugins } from '~/core/operator/meta'
 import { CmdToVscode } from '~/message/cmd'
 import { abortPromise } from '~/utils/abort-promise'
 import { vscodeApi } from '~/webview/vscode-api'
@@ -120,30 +119,7 @@ function ImageCompressor(props: ImageCompressorProps) {
   const [activeTab, setActiveTab] = useState<'not-svg' | 'svg'>('not-svg')
   const SVG_FIELDS = ['svg']
 
-  const generateSvgoFormItem = useCallback(() => {
-    const svgoFormItem = {} as FormComponent<CompressionOptions>
-    svgoPlugins.forEach((item) => {
-      svgoFormItem[`svg.${item}`] = {
-        el: () => (
-          <Form.Item name={`svg.${item}`} label={item} className={'center'}>
-            <Segmented
-              options={[
-                {
-                  value: true,
-                  label: t('im.yes'),
-                },
-                {
-                  value: false,
-                  label: t('im.no'),
-                },
-              ]}
-            />
-          </Form.Item>
-        ),
-      }
-    })
-    return svgoFormItem
-  }, [t])
+  const [svgoOpenLoading, setSvgoOpenLoading] = useState(false)
 
   const tabList = [
     {
@@ -236,22 +212,47 @@ function ImageCompressor(props: ImageCompressorProps) {
     },
     {
       value: 'svg',
-      label: (
-        <div className={'flex items-center gap-x-2'}>
-          <span>svg</span>
-          <Tooltip
-            title={
-              <Trans i18nKey='im.refer_to_svgo'>
-                <a href='https://svgo.dev/docs/preset-default/'></a>
-              </Trans>
-            }
-          >
-            <BsQuestionCircleFill />
-          </Tooltip>
-        </div>
-      ),
-      compressorOption: flattenObject(pick(compressor?.option, SVG_FIELDS)) as AnyObject,
-      componentMap: generateSvgoFormItem(),
+      label: 'svg',
+      compressorOption: { 'svg.tip': true },
+      componentMap: {
+        'svg.tip': {
+          el: () => (
+            <Alert
+              className={'mb-3'}
+              message={
+                <div className={'flex items-center justify-center gap-x-2'}>
+                  <Trans
+                    i18nKey='im.svgo_config'
+                    components={[
+                      <Button
+                        type='dashed'
+                        className={'mx-1 text-lg font-semibold'}
+                        loading={svgoOpenLoading}
+                        onClick={() => {
+                          setSvgoOpenLoading(true)
+                          vscodeApi.postMessage({ cmd: CmdToVscode.open_svgo_config }, () => {
+                            setSvgoOpenLoading(false)
+                          })
+                        }}
+                      ></Button>,
+                    ]}
+                  ></Trans>
+                  <Tooltip
+                    title={
+                      <Trans i18nKey='im.refer_to_svgo'>
+                        <a href='https://svgo.dev/'></a>
+                      </Trans>
+                    }
+                  >
+                    <BsQuestionCircleFill className={'cursor-pointer'} />
+                  </Tooltip>
+                </div>
+              }
+              type='success'
+            />
+          ),
+        },
+      },
       hidden: !hasSomeImageType('svg'),
     },
   ]
@@ -344,9 +345,11 @@ function ImageCompressor(props: ImageCompressorProps) {
             })}
           </div>
 
-          <Divider plain className={'!my-0'}>
-            {t('im.universal')}
-          </Divider>
+          {displayTabs.length > 1 ? (
+            <Divider plain className={'!my-0'}>
+              {t('im.universal')}
+            </Divider>
+          ) : null}
 
           <SkipCompressed />
 

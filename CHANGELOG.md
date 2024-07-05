@@ -1,5 +1,16 @@
 # CHANGELOG
 
+## 1.7.0 (2024-07-05)
+
+### Feat
+
+- 重构svg配置逻辑，收敛并预设配置，减少用户的使用负担。对svg有深度需求的用户，可以使用命令 `image-manager.configure-svg` 进行配置
+- 添加 `image-manager.compression.svg.removeDataAttributes` 配置，用于移除svg中的data属性，默认为`true`
+
+### Break Change
+
+- 移除了插件贡献点的所有 svgo 相关的配置，只能通过命令 `image-manager.configure-svg` 进行配置
+
 ## 1.6.0 (2024-07-04)
 
 ### Feat

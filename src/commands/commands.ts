@@ -6,4 +6,5 @@ export const enum Commands {
   select_mirror = 'image-manager.select-mirror',
   select_language = 'image-manager.select-language',
   clear_cache = 'image-manager.clear-cache',
+  configure_svgo = 'image-manager.configure-svgo',
 }

@@ -54,3 +54,12 @@ export function setImmdiateInterval(callback: () => void, interval: number) {
 export function cleanVersion(version: string) {
   return version.replace(/^[^0-9]+/, '')
 }
+
+export function isFsWritable(path: string) {
+  try {
+    fs.accessSync(path, fs.constants.W_OK)
+    return true
+  } catch (err) {
+    return false
+  }
+}

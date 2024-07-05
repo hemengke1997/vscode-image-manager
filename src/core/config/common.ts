@@ -131,6 +131,7 @@ export const DEFAULT_CONFIG: ConfigType = {
     // svg 单向存储，不需要从webview同步到settings，所以不需要在此设置默认值
     svg: {
       compressedAttribute: 'c', // data-c. "c" means "compressed"
+      removeDataAttributes: true,
     },
   },
   conversion: {

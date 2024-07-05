@@ -124,6 +124,7 @@
     universal: 'Universal',
     not_svg: 'Not svg',
     refer_to_svgo: 'Please refer to: <0>svgo official documentation</0>',
+    svgo_config: 'We have preset svg compression configuration, you can also customize compression by modifying <0>svgo.config.js</0>. (Take effect after restarting the extension)',
     scale_factor: 'scale factor',
     file_suffix: 'file suffix',
     pretty: 'Prettify',

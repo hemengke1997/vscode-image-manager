@@ -82,4 +82,6 @@ export const enum CmdToVscode {
   reveal_image_in_viewer = 'reveal_image_in_viewer',
   // 获取路径下的同级文件(夹)列表
   get_sibling_resource = 'get_sibling_resource',
+  // 打开svgo配置文件
+  open_svgo_config = 'open_svgo_config',
 }

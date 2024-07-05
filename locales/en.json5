@@ -9,6 +9,7 @@
       select_mirror: 'Select Mirror Url',
       select_language: 'Select Language',
       clear_cache: 'Clear Local Cache',
+      configure_svgo: 'Configure svgo',
     },
     debug: {
       enabled: 'Enable debug mode',
@@ -52,6 +53,7 @@
       },
       svg: {
         compressedAttribute: 'Add "compressed" attribute to svg after compression. Set to null to disable',
+        removeDataAttributes: 'Remove data-* attributes from svg. Except data-[compressedAttribute]',
       },
     },
     conversion: {
