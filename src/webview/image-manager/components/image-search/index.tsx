@@ -9,6 +9,7 @@ import { RiFilterOffLine } from 'react-icons/ri'
 import { VscCaseSensitive, VscWholeWord } from 'react-icons/vsc'
 import { classnames } from 'tw-clsx'
 import { CmdToVscode } from '~/message/cmd'
+import { useScrollRef } from '~/webview/hooks/use-scroll-ref'
 import { vscodeApi } from '~/webview/vscode-api'
 import GlobalContext from '../../contexts/global-context'
 import useImageContextMenuEvent from '../context-menus/components/image-context-menu/hooks/use-image-context-menu-event'
@@ -133,6 +134,8 @@ function ImageSearch(props: ImageSearchProps) {
     },
   )
 
+  const { scrollRef } = useScrollRef()
+
   return (
     <Modal
       width={'80%'}
@@ -203,7 +206,7 @@ function ImageSearch(props: ImageSearchProps) {
         />
       </div>
 
-      <div className={'flex max-h-[600px] flex-col space-y-1 overflow-y-auto'}>
+      <div className={'flex max-h-[600px] flex-col space-y-1 overflow-y-auto'} ref={scrollRef}>
         <ImagePreview
           images={searchResults.map((result) => ({
             ...result.item,
@@ -234,6 +237,9 @@ function ImageSearch(props: ImageSearchProps) {
               enable: {
                 reveal_in_viewer: true,
               },
+            },
+            lazy: {
+              root: scrollRef.current!,
             },
           }}
         />

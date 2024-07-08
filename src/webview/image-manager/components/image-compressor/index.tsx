@@ -248,7 +248,7 @@ function ImageCompressor(props: ImageCompressorProps) {
                   </Tooltip>
                 </div>
               }
-              type='success'
+              type='info'
             />
           ),
         },

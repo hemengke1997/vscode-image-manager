@@ -124,7 +124,7 @@
     universal: 'ユニバーサル',
     not_svg: 'SVGではありません',
     refer_to_svgo: '参照してください: <0>svgo公式ドキュメント</0>',
-    svgo_config: 'SVG圧縮設定を予め設定していますが、<0>svgo.config.js</0>を変更してカスタマイズすることもできます。（プラグインを再起動すると有効になります）',
+    svgo_config: 'SVG圧縮設定を予め設定していますが、<0>svgo config</0>を変更してカスタマイズすることもできます。（プラグインを再起動すると有効になります）',
     scale_factor: 'スケールファクター',
     file_suffix: 'ファイル接尾辞',
     pretty: '整形',

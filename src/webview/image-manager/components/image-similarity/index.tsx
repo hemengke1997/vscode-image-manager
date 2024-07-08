@@ -4,6 +4,7 @@ import { Card, Divider, Empty, Modal } from 'antd'
 import { produce } from 'immer'
 import { memo, useMemo } from 'react'
 import { useTranslation } from 'react-i18next'
+import { useScrollRef } from '~/webview/hooks/use-scroll-ref'
 import useImageContextMenuEvent from '../context-menus/components/image-context-menu/hooks/use-image-context-menu-event'
 import { type ImageOperatorProps } from '../image-operator'
 import ImagePreview from '../image-preview'
@@ -77,6 +78,8 @@ function ImageSimilarity(props: ImageSimilarityProps) {
     }
   }, [similarImages])
 
+  const { scrollRef } = useScrollRef()
+
   return (
     <Modal
       title={t('im.find_similar_images')}
@@ -108,7 +111,7 @@ function ImageSimilarity(props: ImageSimilarityProps) {
       <Divider plain dashed className={'!my-4'} />
       <Card title={t('im.similar_images')}>
         {images.length ? (
-          <div className={'max-h-[500px] overflow-auto'}>
+          <div className={'max-h-[500px] overflow-auto'} ref={scrollRef}>
             <ImagePreview
               images={images}
               lazyImageProps={{
@@ -120,6 +123,9 @@ function ImageSimilarity(props: ImageSimilarityProps) {
                 },
                 imageNameProps: {
                   tooltipDisplayFullPath: true,
+                },
+                lazy: {
+                  root: scrollRef.current!,
                 },
               }}
             ></ImagePreview>

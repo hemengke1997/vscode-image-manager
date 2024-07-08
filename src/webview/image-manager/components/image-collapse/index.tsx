@@ -190,7 +190,11 @@ function ImageCollapse(props: ImageCollapseProps) {
           motionEnter: false,
           motionDeadline: 0,
         }}
-        destroyInactivePanel={false}
+        /**
+         * 由于图片数量可能很多，如果打开了collapse之后，即使关闭了也会一直渲染
+         * 所以需要在关闭的时候销毁inactive的panel
+         */
+        destroyInactivePanel
         {...collapseProps}
         activeKey={activeKeys}
         onChange={(keys) => onCollapseChange(keys as string[])}
@@ -201,7 +205,7 @@ function ImageCollapse(props: ImageCollapseProps) {
             label: labelRender(generateLabel(labels)),
             children: images?.length ? (
               <div className={'space-y-2'}>
-                <ImagePreview {...imagePreviewProps} images={images} />
+                <ImagePreview {...imagePreviewProps} images={images} enableMultipleSelect />
                 {nestedChildren}
               </div>
             ) : (

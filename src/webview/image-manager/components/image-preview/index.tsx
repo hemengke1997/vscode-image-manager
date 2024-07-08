@@ -30,10 +30,14 @@ export type ImagePreviewProps = {
    * 透传给 LazyImage 组件的 props
    */
   lazyImageProps?: Partial<LazyImageProps>
+  /**
+   * 是否开启多选功能
+   */
+  enableMultipleSelect?: boolean
 }
 
 function ImagePreview(props: ImagePreviewProps) {
-  const { images, lazyImageProps } = props
+  const { images, lazyImageProps, enableMultipleSelect = false } = props
 
   const { token } = theme.useToken()
 
@@ -87,13 +91,16 @@ function ImagePreview(props: ImagePreviewProps) {
   const [selectedImages, setSelectedImages] = useState<ImageType['path'][]>([])
   const [triggeredByContextMenu, setTriggeredByContextMenu] = useState(false)
 
-  const preventCliakAway = useMemoizedFn((el: HTMLElement, classNames: string[]) => {
+  const preventClickAway = useMemoizedFn((el: HTMLElement, classNames: string[]) => {
     let parent = el.parentElement
     while (parent) {
-      if (parent.id === 'root') {
+      if (parent.tagName === 'body') {
         return false
       }
-      if (isString(parent.className) && classNames.some((className) => parent?.className.includes(className))) {
+      if (
+        isString(parent.className) &&
+        classNames.filter(Boolean).some((className) => parent?.className.includes(className))
+      ) {
         return true
       }
       parent = parent.parentElement!
@@ -104,7 +111,15 @@ function ImagePreview(props: ImagePreviewProps) {
   useClickAway(
     (e) => {
       const targetEl = e.target as HTMLElement
-      if (preventCliakAway(targetEl, ['ant-modal', 'ant-image-preview', 'ant-message', 'ant-tooltip'])) return
+      if (
+        preventClickAway(targetEl, [
+          'ant-image-preview',
+          'ant-message',
+          'ant-tooltip',
+          enableMultipleSelect ? 'ant-modal' : '',
+        ])
+      )
+        return
       if (targetEl.id === 'context-menu-mask') {
         if (triggeredByContextMenu) {
           setTriggeredByContextMenu(false)
@@ -155,29 +170,34 @@ function ImagePreview(props: ImagePreviewProps) {
   })
 
   const onClick = useMemoizedFn((e: React.MouseEvent<HTMLDivElement, MouseEvent>, image: ImageType) => {
-    if (e.metaKey || e.ctrlKey) {
-      // 点击多选
-      setSelectedImages((t) => {
-        const index = t.indexOf(image.path)
-        return multipleClick(t, image.path, index === -1)
-      })
-      return
-    }
-
-    if (e.shiftKey) {
-      if (!selectedImages.length) {
-        setSelectedImages([image.path])
+    if (enableMultipleSelect) {
+      if (e.metaKey || e.ctrlKey) {
+        // 点击多选
+        setSelectedImages((t) => {
+          const index = t.indexOf(image.path)
+          return multipleClick(t, image.path, index === -1)
+        })
         return
       }
-      // start-end 多选
-      const start = selectedImages[0]
-      const end = image.path
-      const indexOfStart = images.findIndex((t) => t.path === start)
-      const indexOfEnd = images.findIndex((t) => t.path === end)
-      setSelectedImages([...range(indexOfStart, indexOfEnd), indexOfEnd].map((i) => images[i].path))
-      return
+
+      if (e.shiftKey) {
+        if (!selectedImages.length) {
+          setSelectedImages([image.path])
+          return
+        }
+        // start-end 多选
+        const start = selectedImages[0]
+        const end = image.path
+        const indexOfStart = images.findIndex((t) => t.path === start)
+        const indexOfEnd = images.findIndex((t) => t.path === end)
+        setSelectedImages([...range(indexOfStart, indexOfEnd), indexOfEnd].map((i) => images[i].path))
+        return
+      }
     }
 
+    if (selectedImages.length === 1 && selectedImages[0] === image.path) {
+      return
+    }
     setSelectedImages([image.path])
   })
 
@@ -198,6 +218,10 @@ function ImagePreview(props: ImagePreviewProps) {
       )
     }
   }, [images])
+
+  const multipleSelect = useMemoizedFn((e: React.MouseEvent<HTMLDivElement, MouseEvent>) => {
+    return enableMultipleSelect ? e.metaKey || e.ctrlKey || e.shiftKey : false
+  })
 
   return (
     <>
@@ -304,6 +328,7 @@ function ImagePreview(props: ImagePreviewProps) {
                         return multipleClick(t, image.path, active)
                       })
                     }
+                    multipleSelect={multipleSelect}
                   />
                 </div>
               ))}

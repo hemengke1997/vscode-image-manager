@@ -9,6 +9,7 @@ import { IoMdFolderOpen } from 'react-icons/io'
 import { VscFileMedia } from 'react-icons/vsc'
 import { classnames } from 'tw-clsx'
 import { type WorkspaceStateType } from '~/core/persist/workspace/common'
+import { getAppRoot } from '~/webview/utils'
 import TreeContext from '../../contexts/tree-context'
 import { DirTree, type DisplayMapType, type FileNode } from '../../utils/dir-tree'
 import { ANIMATION_DURATION } from '../../utils/duration'
@@ -191,6 +192,9 @@ function CollapseTree(props: CollapseTreeProps) {
                 underFolderDeeplyImages={underFolderDeeplyList}
                 imagePreviewProps={{
                   lazyImageProps: {
+                    lazy: {
+                      root: getAppRoot(),
+                    },
                     contextMenu: {
                       enable: {
                         sharp: true,

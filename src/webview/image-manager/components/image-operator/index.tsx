@@ -16,6 +16,7 @@ import { useHotkeys } from 'react-hotkeys-hook'
 import { useTranslation } from 'react-i18next'
 import { VscChromeClose } from 'react-icons/vsc'
 import { WorkspaceStateKey } from '~/core/persist/workspace/common'
+import { useScrollRef } from '~/webview/hooks/use-scroll-ref'
 import { useWorkspaceState } from '~/webview/hooks/use-workspace-state'
 import GlobalContext from '../../contexts/global-context'
 import { Keybinding } from '../../keybinding'
@@ -110,6 +111,8 @@ function ImageOperator(props: ImageOperatorProps & ImageOperatorStaticProps) {
     workspaceState.show_undo_redo_tip,
   )
 
+  const { scrollRef } = useScrollRef()
+
   return (
     <Modal
       maskClosable={false}
@@ -125,7 +128,7 @@ function ImageOperator(props: ImageOperatorProps & ImageOperatorStaticProps) {
       {...rest}
     >
       <div className={'flex w-full flex-col items-center space-y-2 overflow-auto'}>
-        <Card className={'max-h-[480px] w-full overflow-y-auto'}>
+        <Card className={'max-h-[480px] w-full overflow-y-auto'} ref={scrollRef}>
           <div className={'flex flex-col gap-y-4'}>
             <ImagePreview
               images={images || []}
@@ -142,6 +145,9 @@ function ImageOperator(props: ImageOperatorProps & ImageOperatorStaticProps) {
                         setImages(images?.filter((item) => item.path !== image.path) || [])
                         setRemoved(true)
                       },
+                lazy: {
+                  root: scrollRef.current!,
+                },
               }}
             ></ImagePreview>
             {removed && showUndoRedoTip && (

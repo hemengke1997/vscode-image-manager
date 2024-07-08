@@ -14,6 +14,7 @@ import { animateScroll } from 'react-scroll'
 import { Key } from 'ts-key-enum'
 import classnames from 'tw-clsx'
 import { type SharpNS } from '~/@types/global'
+import { DEFAULT_CONFIG } from '~/core/config/common'
 import { CmdToVscode } from '~/message/cmd'
 import { getAppRoot } from '~/webview/utils'
 import { vscodeApi } from '~/webview/vscode-api'
@@ -40,9 +41,16 @@ export type LazyImageProps = {
   onPreviewClick?: (image: ImageType) => void
   /**
    * 是否懒加载
-   * @default true
+   * @default
+   * {
+   *   root: null
+   * }
    */
-  lazy?: boolean
+  lazy?:
+    | false
+    | {
+        root: HTMLElement
+      }
   /**
    * 点击remove icon回调
    * 如果不传此参数，则不会显示remove icon
@@ -76,13 +84,19 @@ export type LazyImageProps = {
    * 图片状态改变回调
    */
   onActiveChange?: (active: boolean) => void
+  /**
+   * 多选状态
+   */
+  multipleSelect?: (e: React.MouseEvent<HTMLDivElement, MouseEvent>) => boolean
 }
 
 function LazyImage(props: LazyImageProps) {
   const {
     image,
     onPreviewClick,
-    lazy = true,
+    lazy = {
+      root: null,
+    },
     onRemoveClick,
     removeRender = (n) => n,
     contextMenu,
@@ -91,8 +105,10 @@ function LazyImage(props: LazyImageProps) {
     active,
     onActiveChange,
     onContextMenu,
+    multipleSelect = () => false,
   } = props
 
+  const root = lazy ? lazy.root : null
   const { beginRenameImageProcess, beginDeleteImageProcess, handleCopyString } = useImageOperation()
   const { t } = useTranslation()
   const { showImageDetailModal } = useImageDetail()
@@ -114,10 +130,9 @@ function LazyImage(props: LazyImageProps) {
   const imageRendering = GlobalContext.useSelector((ctx) => ctx.extConfig.viewer.imageRendering)
   const refreshTimes = ActionContext.useSelector((ctx) => ctx.imageRefreshedState.refreshTimes)
 
-  const placeholderRef = useRef<HTMLDivElement>(null)
-  const [inViewport] = useInViewport(placeholderRef, {
-    rootMargin: '100px 0px', // expand 100px area of vertical intersection calculation
-  })
+  const rootMargin = `${(imagePlaceholderSize?.height || DEFAULT_CONFIG.viewer.imageWidth) * 2.5}px 0px` // expand area of vertical intersection calculation
+
+  const elRef = useRef<HTMLDivElement>(null)
 
   const [imageMetadata, setImageMeatadata] = useState<{ metadata: SharpNS.Metadata; compressed: boolean }>()
 
@@ -136,6 +151,11 @@ function LazyImage(props: LazyImageProps) {
     // clear cache
     setImageMeatadata(undefined)
   }, [refreshTimes])
+
+  const [elInView] = useInViewport(elRef, {
+    root,
+    rootMargin,
+  })
 
   const keybindRef = useHotkeys<HTMLDivElement>(
     [Key.Enter, `mod+${Key.Backspace}`, Key.Delete, `mod+c`],
@@ -170,7 +190,7 @@ function LazyImage(props: LazyImageProps) {
       }
     },
     {
-      enabled: inViewport,
+      enabled: elInView,
     },
   )
 
@@ -184,10 +204,6 @@ function LazyImage(props: LazyImageProps) {
     )
   })
 
-  const isSelecting = useMemoizedFn((e: React.MouseEvent<HTMLDivElement, MouseEvent>) => {
-    return e.metaKey || e.ctrlKey || e.shiftKey
-  })
-
   useEffect(() => {
     let idleTimer: number
 
@@ -198,7 +214,7 @@ function LazyImage(props: LazyImageProps) {
       vscodeApi.postMessage({ cmd: CmdToVscode.reveal_image_in_viewer, data: { filePath: '' } })
 
       idleTimer = requestIdleCallback(() => {
-        const y = placeholderRef.current?.getBoundingClientRect().top || keybindRef.current?.getBoundingClientRect().top
+        const y = elRef.current?.getBoundingClientRect().top
 
         const clientHeight = document.documentElement.clientHeight
 
@@ -227,7 +243,7 @@ function LazyImage(props: LazyImageProps) {
   }, [targetImagePath])
 
   /**
-   * @param depth 父元素查找深度，默认向上查找3层，如果查不到 [data-disable-dbclick] 元素，则可以双击
+   * @param depth 父元素查找深度，默认向上查找3层，如果查不到 [data-disable_dbclick] 元素，则可以双击
    */
   const preventDbClick = useMemoizedFn((el: HTMLElement, depth: number = 3) => {
     let parent = el
@@ -236,7 +252,7 @@ function LazyImage(props: LazyImageProps) {
       if (count > depth) {
         return false
       }
-      if (parent.dataset.disableDbclick) {
+      if (parent.dataset.disable_dbclick) {
         // prevent double-click
         return true
       }
@@ -247,122 +263,123 @@ function LazyImage(props: LazyImageProps) {
     return false
   })
 
-  if (!inViewport && lazy) {
-    return (
-      <div
-        ref={placeholderRef}
-        style={{
-          width: imagePlaceholderSize?.width,
-          height: imagePlaceholderSize?.height,
-        }}
-      ></div>
-    )
-  }
-
   return (
-    <>
-      <motion.div
-        ref={keybindRef}
-        tabIndex={-1}
-        className={classnames(
-          'group relative flex flex-none flex-col items-center space-y-1 p-1.5 transition-colors',
-          'hover:border-ant-color-primary overflow-hidden rounded-md border-[2px] border-solid border-transparent',
-          interactive && 'border-ant-color-primary-hover hover:border-ant-color-primary-hover',
-        )}
-        initial={{ opacity: 0 }}
-        viewport={{ once: true, margin: '20px 0px' }}
-        transition={{ duration: ANIMATION_DURATION.slow }}
-        whileInView={{ opacity: 1 }}
-        onContextMenu={onContextMenu}
-        onMouseOver={handleMaskMouseOver}
-        onDoubleClick={(e) => {
-          if (isSelecting(e)) return
-          const el = e.target as HTMLElement
-          if (preventDbClick(el)) return
-          showImageDetailModal(image)
-        }}
-      >
-        {onRemoveClick && (
-          <div
-            className={
-              'text-ant-color-error absolute left-0 top-0 z-[99] cursor-pointer opacity-0 transition-opacity group-hover:opacity-100'
-            }
-            onClick={(e) => {
-              // prevent click away
-              e.stopPropagation()
-              onRemoveClick(image)
-            }}
-            title={t('im.remove')}
-          >
-            {removeRender(<MdOutlineRemoveCircle />, image)}
-          </div>
-        )}
-        <Badge status='warning' dot={ifWarning}>
-          <Image
-            {...antdImageProps}
-            className={classnames('rounded-md object-contain p-1 will-change-auto', antdImageProps.className)}
-            preview={
-              lazy
-                ? {
-                    mask: (
-                      <div className={'flex size-full flex-col items-center justify-center space-y-1 text-sm'}>
-                        {onPreviewClick && (
-                          <div
-                            className={classnames('flex cursor-pointer items-center space-x-1 truncate')}
-                            onClick={(e) => {
-                              if (isSelecting(e)) return
-                              // prevent click away
-                              e.stopPropagation()
-                              e.preventDefault()
-                              onPreviewClick(image)
-                            }}
-                            data-disable-dbclick
-                          >
-                            <HiOutlineViewfinderCircle />
-                            <span>{t('im.preview')}</span>
-                          </div>
-                        )}
-                        <div className={'flex items-center space-x-1 truncate'}>
-                          <TbResize />
-                          <span className={classnames(ifWarning && 'text-ant-color-warning-text')}>
-                            {formatBytes(image.stats.size)}
-                          </span>
-                        </div>
-                        <div className={'flex items-center space-x-1 truncate'}>
-                          <RxDimensions />
-                          <span className={'flex items-center'}>
-                            {imageMetadata?.metadata.width}x{imageMetadata?.metadata.height}
-                          </span>
-                        </div>
-                        {imageMetadata?.compressed ? (
-                          <div className={'flex items-center space-x-1 truncate'}>
-                            <FaRegGrinStars />
-                            <span>{t('im.compressed')}</span>
-                          </div>
-                        ) : null}
-                      </div>
-                    ),
-                    maskClassName: 'rounded-md !cursor-default',
-                    className: 'min-w-24',
-                  }
-                : false
-            }
-            rootClassName={classnames('transition-all', antdImageProps.rootClassName)}
-            style={{
-              imageRendering,
-              ...antdImageProps.style,
-            }}
-          ></Image>
-        </Badge>
-        <div className='max-w-full truncate' style={{ maxWidth: antdImageProps.width }}>
-          {image.nameElement || (
-            <ImageName image={image} {...imageNameProps}>
-              {image.name}
-            </ImageName>
+    <div ref={elRef} className={'select-none'}>
+      {elInView || !lazy ? (
+        <motion.div
+          ref={keybindRef}
+          tabIndex={-1}
+          className={classnames(
+            'group relative flex flex-none flex-col items-center space-y-1 p-1.5 transition-colors',
+            'hover:border-ant-color-primary overflow-hidden rounded-md border-[2px] border-solid border-transparent',
+            interactive && 'border-ant-color-primary-hover hover:border-ant-color-primary-hover',
           )}
-        </div>
-      </motion.div>
-    </>
+          initial={{ opacity: 0 }}
+          viewport={{
+            once: true,
+            margin: rootMargin,
+            root: { current: root },
+          }}
+          transition={{ duration: ANIMATION_DURATION.middle }}
+          whileInView={{ opacity: 1 }}
+          onContextMenu={onContextMenu}
+          onMouseOver={handleMaskMouseOver}
+          onDoubleClick={(e) => {
+            if (multipleSelect(e)) return
+            const el = e.target as HTMLElement
+            if (preventDbClick(el)) return
+            showImageDetailModal(image)
+          }}
+        >
+          {onRemoveClick && (
+            <div
+              className={
+                'text-ant-color-error absolute left-0 top-0 z-[99] cursor-pointer opacity-0 transition-opacity group-hover:opacity-100'
+              }
+              onClick={(e) => {
+                // prevent click away
+                e.stopPropagation()
+                onRemoveClick(image)
+              }}
+              title={t('im.remove')}
+            >
+              {removeRender(<MdOutlineRemoveCircle />, image)}
+            </div>
+          )}
+          <Badge status='warning' dot={ifWarning}>
+            <Image
+              {...antdImageProps}
+              className={classnames('rounded-md object-contain p-1 will-change-auto', antdImageProps.className)}
+              preview={
+                lazy
+                  ? {
+                      mask: (
+                        <div className={'flex size-full flex-col items-center justify-center space-y-1 text-sm'}>
+                          {onPreviewClick && (
+                            <div
+                              className={classnames('flex cursor-pointer items-center space-x-1 truncate')}
+                              onClick={(e) => {
+                                if (multipleSelect(e)) return
+                                // prevent click away
+                                e.stopPropagation()
+                                e.preventDefault()
+                                onPreviewClick(image)
+                              }}
+                              data-disable_dbclick
+                            >
+                              <HiOutlineViewfinderCircle />
+                              <span>{t('im.preview')}</span>
+                            </div>
+                          )}
+                          <div className={'flex items-center space-x-1 truncate'}>
+                            <TbResize />
+                            <span className={classnames(ifWarning && 'text-ant-color-warning-text')}>
+                              {formatBytes(image.stats.size)}
+                            </span>
+                          </div>
+                          <div className={'flex items-center space-x-1 truncate'}>
+                            <RxDimensions />
+                            <span className={'flex items-center'}>
+                              {imageMetadata?.metadata.width}x{imageMetadata?.metadata.height}
+                            </span>
+                          </div>
+                          {imageMetadata?.compressed ? (
+                            <div className={'flex items-center space-x-1 truncate'}>
+                              <FaRegGrinStars />
+                              <span>{t('im.compressed')}</span>
+                            </div>
+                          ) : null}
+                        </div>
+                      ),
+                      maskClassName: 'rounded-md !cursor-default',
+                      className: 'min-w-24',
+                    }
+                  : false
+              }
+              rootClassName={classnames('transition-all', antdImageProps.rootClassName)}
+              style={{
+                imageRendering,
+                ...antdImageProps.style,
+              }}
+            ></Image>
+          </Badge>
+          <div className='max-w-full truncate' style={{ maxWidth: antdImageProps.width }}>
+            {image.nameElement || (
+              <ImageName image={image} {...imageNameProps}>
+                {image.name}
+              </ImageName>
+            )}
+          </div>
+        </motion.div>
+      ) : (
+        <div
+          style={{
+            width: imagePlaceholderSize?.width,
+            height: imagePlaceholderSize?.height,
+          }}
+        ></div>
+      )}
+    </div>
   )
 }
 
