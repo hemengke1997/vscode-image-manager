@@ -29,7 +29,7 @@ i18next.use(initReactI18next).init({
   react: {
     useSuspense: true,
   },
-  debug: true,
+  debug: false,
   resources: {},
   nsSeparator: '.',
   keySeparator: '.',

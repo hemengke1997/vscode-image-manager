@@ -70,7 +70,7 @@ function ImageCollapse(props: ImageCollapseProps) {
     imagePreviewProps,
   } = props
 
-  const { targetImagePathWithoutQuery } = GlobalContext.usePicker(['targetImagePathWithoutQuery'])
+  const { imageRevealWithoutQuery } = GlobalContext.usePicker(['imageRevealWithoutQuery'])
   const { collapseOpen } = ActionContext.usePicker(['collapseOpen'])
 
   const [activeKeys, setActiveKeys] = useControlledState<string[]>({
@@ -109,14 +109,14 @@ function ImageCollapse(props: ImageCollapseProps) {
   // 所以需要在 `reveal_in_viewer` 的时候，主动触发collapse渲染
   useEffect(() => {
     if (!activeKeys.length) {
-      onActive(targetImagePathWithoutQuery)
+      onActive(imageRevealWithoutQuery)
     }
-  }, [targetImagePathWithoutQuery])
+  }, [imageRevealWithoutQuery])
 
   useImageContextMenuEvent({
     on: {
-      reveal_in_viewer: (targetImage) => {
-        onActive(targetImage.path)
+      reveal_in_viewer: (image) => {
+        onActive(image.path)
       },
     },
   })
@@ -186,10 +186,6 @@ function ImageCollapse(props: ImageCollapseProps) {
   return (
     <>
       <Collapse
-        motion={{
-          motionEnter: false,
-          motionDeadline: 0,
-        }}
         /**
          * 由于图片数量可能很多，如果打开了collapse之后，即使关闭了也会一直渲染
          * 所以需要在关闭的时候销毁inactive的panel

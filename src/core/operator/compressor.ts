@@ -143,22 +143,6 @@ export class Compressor extends Operator {
     }
   }
 
-  private _writeStreamFile({ path, data }: { path: string; data: string }) {
-    return new Promise<boolean>((resolve, reject) => {
-      try {
-        const fileWritableStream = fs.createWriteStream(path)
-        fileWritableStream.on('finish', () => {
-          resolve(true)
-        })
-
-        fileWritableStream.write(data)
-        fileWritableStream.end()
-      } catch (e) {
-        reject(e)
-      }
-    })
-  }
-
   async compressSvg(filePath: string) {
     try {
       const res = await this.svgCore(filePath)
@@ -174,6 +158,9 @@ export class Compressor extends Operator {
     }
   }
 
+  /**
+   * 压缩svg
+   */
   async svgCore(filePath: string) {
     return new Promise<{
       outputPath: string
@@ -211,21 +198,25 @@ export class Compressor extends Operator {
         fs.ensureFileSync(outputPath)
 
         fs.access(outputPath, fs.constants.W_OK, async (err) => {
-          if (err) {
-            // 删除文件，重新创建svg文件
-            await VscodeMessageCenter[CmdToVscode.delete_file]({ filePaths: [filePath] })
-            fs.ensureFileSync(outputPath)
-          }
-          const minifiedSvg = await Svgo.minify(svgString, this.option.svg)
+          try {
+            if (err) {
+              // 删除文件，重新创建svg文件
+              await VscodeMessageCenter[CmdToVscode.delete_file]({ filePaths: [filePath] })
+              fs.ensureFileSync(outputPath)
+            }
+            const minifiedSvg = await Svgo.minify(svgString, this.option.svg)
 
-          await this._writeStreamFile({
-            path: outputPath,
-            data: minifiedSvg,
-          })
-          resolve({
-            ...result,
-            outputSize: this.getFileSize(outputPath),
-          })
+            await this._writeStreamFile({
+              path: outputPath,
+              data: minifiedSvg,
+            })
+            resolve({
+              ...result,
+              outputSize: this.getFileSize(outputPath),
+            })
+          } catch (e) {
+            reject(e)
+          }
         })
       } catch (e: any) {
         reject(e)
@@ -233,6 +224,9 @@ export class Compressor extends Operator {
     })
   }
 
+  /**
+   * 压缩非svg图片
+   */
   private async core(filePath: string): Promise<{ inputSize: number; outputSize: number; outputPath: string }> {
     const { format } = this.option!
 
@@ -372,6 +366,22 @@ export class Compressor extends Operator {
       // @ts-expect-error
       compressor = null
     }
+  }
+
+  private _writeStreamFile({ path, data }: { path: string; data: string }) {
+    return new Promise<boolean>((resolve, reject) => {
+      try {
+        const fileWritableStream = fs.createWriteStream(path)
+        fileWritableStream.on('finish', () => {
+          resolve(true)
+        })
+
+        fileWritableStream.write(data)
+        fileWritableStream.end()
+      } catch (e) {
+        reject(e)
+      }
+    })
   }
 }
 

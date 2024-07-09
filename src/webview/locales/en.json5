@@ -124,7 +124,7 @@
     universal: 'Universal',
     not_svg: 'Not svg',
     refer_to_svgo: 'Please refer to: <0>svgo official documentation</0>',
-    svgo_config: 'We have preset svg compression configuration, you can also customize compression by modifying <0>svgo config</0>. (Take effect after restarting the extension)',
+    svgo_config: 'The extension has preset svg compression configuration, you can also customize compression by modifying <0>svgo config</0>. (Take effect after restarting the extension)',
     scale_factor: 'scale factor',
     file_suffix: 'file suffix',
     pretty: 'Prettify',
@@ -164,6 +164,7 @@
     canceled: 'Operation canceled',
     irreversible_operation: 'Operation is irreversible!',
     cancel_operation_tip: 'Are you sure to cancel this operation?',
+    changelog: 'Changelog',
   },
   fallback: {
     internal_error: 'Internal Error',

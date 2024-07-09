@@ -3,7 +3,7 @@ import { vscodeApi } from '~/webview/vscode-api'
 
 if (import.meta.hot) {
   function avoidEmptyWebview() {
-    if (window.__target_image_path__) {
+    if (window.__reveal_image_path__) {
       vscodeApi.postMessage(
         {
           cmd: CmdToVscode.reveal_image_in_viewer,

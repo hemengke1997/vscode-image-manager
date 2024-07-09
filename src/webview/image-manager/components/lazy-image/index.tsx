@@ -65,6 +65,10 @@ export type LazyImageProps = {
    */
   onContextMenu?: (e: React.MouseEvent<HTMLDivElement>) => void
   /**
+   * 删除回调
+   */
+  onDelete?: (image: ImageType) => void
+  /**
    * 图片右键上下文
    */
   contextMenu: Omit<ImageContextMenuType, 'image' | 'images'> | undefined
@@ -98,6 +102,7 @@ function LazyImage(props: LazyImageProps) {
       root: null,
     },
     onRemoveClick,
+    onDelete,
     removeRender = (n) => n,
     contextMenu,
     antdImageProps,
@@ -121,10 +126,10 @@ function LazyImage(props: LazyImageProps) {
     },
   })
 
-  const { imagePlaceholderSize, targetImagePath, targetImagePathWithoutQuery } = GlobalContext.usePicker([
+  const { imagePlaceholderSize, imageReveal, imageRevealWithoutQuery } = GlobalContext.usePicker([
     'imagePlaceholderSize',
-    'targetImagePath',
-    'targetImagePathWithoutQuery',
+    'imageReveal',
+    'imageRevealWithoutQuery',
   ])
   const warningSize = GlobalContext.useSelector((ctx) => ctx.extConfig.viewer.warningSize)
   const imageRendering = GlobalContext.useSelector((ctx) => ctx.extConfig.viewer.imageRendering)
@@ -157,6 +162,15 @@ function LazyImage(props: LazyImageProps) {
     rootMargin,
   })
 
+  const handleDelete = useMemoizedFn(() => {
+    if (onDelete) {
+      onDelete(image)
+      return
+    }
+    hideAll()
+    beginDeleteImageProcess([image])
+  })
+
   const keybindRef = useHotkeys<HTMLDivElement>(
     [Key.Enter, `mod+${Key.Backspace}`, Key.Delete, `mod+c`],
     (e) => {
@@ -169,14 +183,12 @@ function LazyImage(props: LazyImageProps) {
           }
           // mac delete key
           case Key.Backspace: {
-            hideAll()
-            beginDeleteImageProcess([image])
+            handleDelete()
             return
           }
           // windows delete key
           case Key.Delete: {
-            hideAll()
-            beginDeleteImageProcess([image])
+            handleDelete()
             return
           }
           case 'c': {
@@ -199,9 +211,7 @@ function LazyImage(props: LazyImageProps) {
   const { hideAll } = useImageContextMenu()
 
   const isTargetImage = useMemoizedFn(() => {
-    return (
-      !contextMenu?.enable?.reveal_in_viewer && trim(image.path).length && image.path === targetImagePathWithoutQuery
-    )
+    return !contextMenu?.enable?.reveal_in_viewer && trim(image.path).length && image.path === imageRevealWithoutQuery
   })
 
   useEffect(() => {
@@ -210,7 +220,7 @@ function LazyImage(props: LazyImageProps) {
     if (isTargetImage()) {
       setInteractive(true)
 
-      // 清空 targetImagePath，避免下次进入时直接定位
+      // 清空 imageReveal，避免下次进入时直接定位
       vscodeApi.postMessage({ cmd: CmdToVscode.reveal_image_in_viewer, data: { filePath: '' } })
 
       idleTimer = requestIdleCallback(() => {
@@ -230,7 +240,7 @@ function LazyImage(props: LazyImageProps) {
           )
         }
       })
-    } else if (targetImagePath) {
+    } else if (imageReveal) {
       setInteractive(false)
     }
 
@@ -240,7 +250,7 @@ function LazyImage(props: LazyImageProps) {
         cancelIdleCallback(idleTimer)
       }
     }
-  }, [targetImagePath])
+  }, [imageReveal])
 
   /**
    * @param depth 父元素查找深度，默认向上查找3层，如果查不到 [data-disable_dbclick] 元素，则可以双击
@@ -337,12 +347,14 @@ function LazyImage(props: LazyImageProps) {
                               {formatBytes(image.stats.size)}
                             </span>
                           </div>
-                          <div className={'flex items-center space-x-1 truncate'}>
-                            <RxDimensions />
-                            <span className={'flex items-center'}>
-                              {imageMetadata?.metadata.width}x{imageMetadata?.metadata.height}
-                            </span>
-                          </div>
+                          {imageMetadata?.metadata.width && imageMetadata?.metadata.height ? (
+                            <div className={'flex items-center space-x-1 truncate'}>
+                              <RxDimensions />
+                              <span className={'flex items-center'}>
+                                {imageMetadata?.metadata.width}x{imageMetadata?.metadata.height}
+                              </span>
+                            </div>
+                          ) : null}
                           {imageMetadata?.compressed ? (
                             <div className={'flex items-center space-x-1 truncate'}>
                               <FaRegGrinStars />

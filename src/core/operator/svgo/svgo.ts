@@ -99,7 +99,6 @@ export class Svgo {
     const finalConfig = await this.getConfig(options, config)
 
     const { data } = optimize(svg, finalConfig)
-
     return data
   }
 

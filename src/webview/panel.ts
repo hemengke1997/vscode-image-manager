@@ -1,8 +1,7 @@
 import { applyHtmlTransforms } from '@minko-fe/html-transform'
-import { isNil } from '@minko-fe/lodash-pro'
+import { trim } from '@minko-fe/lodash-pro'
 import fs from 'fs-extra'
 import path from 'node:path'
-import onChange from 'on-change'
 import {
   type ConfigurationChangeEvent,
   Disposable,
@@ -30,24 +29,9 @@ export class ImageManagerPanel {
   public static currentPanel: ImageManagerPanel | undefined
 
   /**
-   * 打开指定图片（监听对象）
+   * 要在viewer中打开的指定图片
    */
-  public static watchedTargetImage = onChange<{
-    /**
-     * 图片路径带query参数，用于强制刷新
-     */
-    path: string
-  }>({ path: '' }, (_, value) => {
-    if (!isNil(value)) {
-      // 用户端切换了图片，需要通知webview重新设置 window.__target_image_path__
-      WebviewMessageCenter.postMessage({
-        cmd: CmdToWebview.update_target_image_path,
-        data: {
-          path: value,
-        },
-      })
-    }
-  })
+  public static imageReveal: string = ''
 
   // events
   private static _onDidChanged = new EventEmitter<Webview | false>()
@@ -97,7 +81,7 @@ export class ImageManagerPanel {
       if (!affected) return
 
       if (reload) {
-        Channel.info(`Reloading webview`)
+        Channel.debug(`Reloading webview`)
         ImageManagerPanel.reloadWebview()
         return
       }
@@ -111,22 +95,19 @@ export class ImageManagerPanel {
     }
   }
 
-  public static updateTargetImage(targetImagePath: string) {
-    // 加时间戳是为了重复打开同一图片时，能够触发 targetImagePath 的 effect
-    this.watchedTargetImage.path = targetImagePath ? `${targetImagePath}?t=${Date.now()}` : ''
-  }
-
   /**
    * 创建或显示面板webview
    * @param ctx vscode上下文
    * @param reload 是否 reload webview
-   * @param targetImagePath 要打开的图片路径
+   * @param imageReveal 要打开的图片路径
    * @returns
    */
-  public static createOrShow(ctx: ExtensionContext, reload = false, targetImagePath: string) {
-    this.updateTargetImage(targetImagePath)
+  public static createOrShow(ctx: ExtensionContext, reload = false, imageReveal: string) {
+    // 加时间戳是为了重复打开同一图片时，能够触发 imageReveal 的 effect
+    this.imageReveal = trim(imageReveal).length ? `${trim(imageReveal)}?t=${Date.now()}` : ''
+
     const panel = this.revive(ctx)
-    panel._reveal(reload)
+    panel._reveal(reload, this.imageReveal)
     return panel
   }
 
@@ -144,16 +125,34 @@ export class ImageManagerPanel {
     return ImageManagerPanel.currentPanel
   }
 
-  private _reveal(reload: boolean) {
+  private _reveal(reload: boolean, imageReveal: string) {
     const column = this._panel.viewColumn ?? ViewColumn.One
+
     if (reload) {
       ImageManagerPanel.reloadWebview()
+    } else if (imageReveal) {
+      // reloadWebview中，会在 [CmdToVscode.on_webview_ready] 时把 imageReveal 设置到 window.__reveal_image_path__
+      // 所以不需要在realod中调用 revealImageInViewer
+      ImageManagerPanel.revealImageInViewer(imageReveal)
     }
     this._panel.reveal(column)
   }
 
+  /**
+   * 在viewer中打开指定图片
+   */
+  static revealImageInViewer(imageReveal: string) {
+    WebviewMessageCenter[CmdToWebview.reveal_image_in_viewer](imageReveal)
+  }
+
+  /**
+   * 重启webview
+   */
   static reloadWebview() {
-    WebviewMessageCenter.postMessage({ cmd: CmdToWebview.program_reload_webview, data: {} })
+    WebviewMessageCenter.postMessage({
+      cmd: CmdToWebview.program_reload_webview,
+      data: {},
+    })
   }
 
   private async _handleMessage(message: MessageType) {

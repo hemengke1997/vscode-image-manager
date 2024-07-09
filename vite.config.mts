@@ -4,6 +4,7 @@ import path from 'node:path'
 import { defineConfig, loadConfigFromFile, mergeConfig } from 'vite'
 import { createHtmlPlugin } from 'vite-plugin-html'
 import { i18nAlly } from 'vite-plugin-i18n-ally'
+import { Mode, plugin as markdown } from 'vite-plugin-markdown'
 import { DEV_PORT } from './src/meta'
 
 export default defineConfig(async (env) => {
@@ -36,6 +37,7 @@ export default defineConfig(async (env) => {
         root: __dirname,
         localesPaths: [path.resolve(__dirname, './src/webview/locales')],
       }),
+      markdown({ mode: [Mode.MARKDOWN] }),
     ],
     optimizeDeps: {
       force: true,
@@ -52,6 +54,7 @@ export default defineConfig(async (env) => {
           assetFileNames: 'assets/[name].[ext]',
         },
       },
+      target: 'es2020',
     },
     test: {
       include: ['**/__test__/**/*.test.ts'],

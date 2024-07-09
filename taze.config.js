@@ -13,7 +13,6 @@ export default defineConfig({
     // execa@9 requires Node ^18.19.0 || >=20.5.0
     'execa',
   ],
-  include: ['antd', 'react-contexify'],
   force: true,
   write: true,
   install: true,

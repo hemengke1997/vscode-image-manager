@@ -75,14 +75,15 @@ function useGlobalContext() {
 
   /* ---------- target image path ---------- */
   /**
-   * @note targetImagePath 是带t query参数的，用于处理同一张图片的情况
+   * @note imageReveal 是带t query参数的，用于处理同一张图片的情况
    */
-  const [targetImagePath, setTargetImagePath] = useState<string>(window.__target_image_path__)
-  const targetImagePathWithoutQuery = useMemo(() => {
-    const index = targetImagePath.lastIndexOf('?')
-    if (index !== -1) return targetImagePath.slice(0, index)
-    return targetImagePath
-  }, [targetImagePath])
+  const [imageReveal, setImageReveal] = useState<string | undefined>(window.__reveal_image_path__)
+  const imageRevealWithoutQuery = useMemo(() => {
+    if (!imageReveal) return ''
+    const index = imageReveal.lastIndexOf('?')
+    if (index !== -1) return imageReveal.slice(0, index)
+    return imageReveal
+  }, [imageReveal])
 
   /* ------------- tree context 中的数据 ------------ */
   const [treeData, setTreeData] = useState<{ workspaceFolder: string; visibleList: ImageType[] }[]>([])
@@ -105,9 +106,9 @@ function useGlobalContext() {
     setImagePlaceholderSize,
     imageFilter,
     setImageFilter,
-    targetImagePath,
-    setTargetImagePath,
-    targetImagePathWithoutQuery,
+    imageReveal,
+    setImageReveal,
+    imageRevealWithoutQuery,
     treeData,
     setTreeData,
   }

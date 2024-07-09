@@ -43,14 +43,17 @@ export default function useImageDetail() {
             label: t('im.directory'),
             children: <div>{image.dirPath || '/'}</div>,
           },
-          {
-            label: `${t('im.dimensions')}(px)`,
-            children: (
-              <div>
-                {width} x {height}
-              </div>
-            ),
-          },
+
+          width && height
+            ? {
+                label: `${t('im.dimensions')}(px)`,
+                children: (
+                  <div>
+                    {width} x {height}
+                  </div>
+                ),
+              }
+            : (null as any),
           {
             label: t('im.size'),
             children: <div>{formatBytes(image.stats.size)}</div>,
@@ -90,7 +93,7 @@ export default function useImageDetail() {
               </div>
             ),
           },
-        ]
+        ].filter((t) => !!t)
 
         modal.confirm({
           width: 500,

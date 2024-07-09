@@ -29,8 +29,9 @@ import { generateOutputPath, normalizePath } from '~/utils'
 import { Channel } from '~/utils/channel'
 import { imageGlob } from '~/utils/glob'
 import { ImageManagerPanel } from '~/webview/panel'
-import { CmdToVscode } from './cmd'
+import { CmdToVscode, CmdToWebview } from './cmd'
 import { convertImageToBase64, convertToBase64IfBrowserNotSupport, debouncePromise, isBase64 } from './utils'
+import { WebviewMessageCenter } from './webview-message-center'
 
 export type VscodeMessageCenterType = typeof VscodeMessageCenter
 
@@ -62,13 +63,13 @@ export const VscodeMessageCenter = {
     Channel.info(i18n.t('core.webview_ready'))
     const config = await VscodeMessageCenter[CmdToVscode.get_extension_config]()
     const workspaceState = await VscodeMessageCenter[CmdToVscode.get_workspace_state]()
-    const { watchedTargetImage } = ImageManagerPanel
+    const { imageReveal } = ImageManagerPanel
 
     return {
       config,
       workspaceState,
       windowState: {
-        __target_image_path__: watchedTargetImage.path,
+        __reveal_image_path__: imageReveal,
       },
     }
   },
@@ -265,15 +266,15 @@ export const VscodeMessageCenter = {
   /* --------- open path in os explorer -------- */
   [CmdToVscode.open_image_in_os_explorer]: async (data: { filePath: string }) => {
     const { filePath } = data
-    let targetPath = filePath
+    let revealPath = filePath
     if (Config.file_revealFileInOsDeeply) {
       try {
-        const files = fs.readdirSync(targetPath)
-        targetPath = path.join(targetPath, files[0])
+        const files = fs.readdirSync(revealPath)
+        revealPath = path.join(revealPath, files[0])
       } catch {}
     }
 
-    const res = await commands.executeCommand('revealFileInOS', Uri.file(targetPath))
+    const res = await commands.executeCommand('revealFileInOS', Uri.file(revealPath))
     return res
   },
 
@@ -420,7 +421,11 @@ export const VscodeMessageCenter = {
       Global.sharp.cache({ files: 0 })
       metadata = await Global.sharp(filePath).metadata()
     } catch {
-      metadata = imageSize(filePath) as SharpNS.Metadata
+      try {
+        metadata = imageSize(filePath) as SharpNS.Metadata
+      } catch (e: any) {
+        Channel.error(e)
+      }
     } finally {
       if (metadata.exif) {
         compressed = !!exif(metadata.exif).Image?.ImageDescription?.includes(COMPRESSED_META)
@@ -568,7 +573,7 @@ export const VscodeMessageCenter = {
   },
   /* ---------- reveal image in viewer ---------- */
   [CmdToVscode.reveal_image_in_viewer]: (data: { filePath: string }) => {
-    ImageManagerPanel.updateTargetImage(data.filePath)
+    WebviewMessageCenter[CmdToWebview.reveal_image_in_viewer](data.filePath)
     return true
   },
   /* --------------- 获取路径下的同级文件(夹)列表 --------------- */

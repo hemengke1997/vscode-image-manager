@@ -33,4 +33,16 @@ export class WebviewMessageCenter {
       Channel.error(i18n.t('core.handler_fn_not_exist', message.cmd))
     }
   }
+
+  /**
+   * 在viewer中打开指定图片
+   */
+  static [CmdToWebview.reveal_image_in_viewer](imagePath: string) {
+    this.postMessage({
+      cmd: CmdToWebview.reveal_image_in_viewer,
+      data: {
+        imagePath,
+      },
+    })
+  }
 }

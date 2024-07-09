@@ -16,8 +16,8 @@ export const enum CmdToWebview {
   update_config = 'update_config',
   // 更新工作区缓存
   update_workspaceState = 'update_workspaceState',
-  // 更新 window.__target_image_path__
-  update_target_image_path = 'update_target_image_path',
+  // 在viewer中打开指定图片
+  reveal_image_in_viewer = 'reveal_image_in_viewer',
 }
 
 /**

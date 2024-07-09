@@ -7,6 +7,7 @@ import { produce } from 'immer'
 import { memo, useCallback, useEffect, useId, useRef, useState } from 'react'
 import GlobalContext from '../../contexts/global-context'
 import SettingsContext from '../../contexts/settings-context'
+import useImageOperation from '../../hooks/use-image-operation'
 import useImageContextMenu from '../context-menus/components/image-context-menu/hooks/use-image-context-menu'
 import useImageContextMenuEvent from '../context-menus/components/image-context-menu/hooks/use-image-context-menu-event'
 import LazyImage, { type LazyImageProps } from '../lazy-image'
@@ -47,6 +48,8 @@ function ImagePreview(props: ImagePreviewProps) {
     'backgroundColor',
     'tinyBackgroundColor',
   ])
+
+  const { beginDeleteImageProcess } = useImageOperation()
 
   const [preview, setPreview] = useState<{ open?: boolean; current?: number }>({ open: false, current: -1 })
 
@@ -116,6 +119,7 @@ function ImagePreview(props: ImagePreviewProps) {
           'ant-image-preview',
           'ant-message',
           'ant-tooltip',
+          'ant-popover',
           enableMultipleSelect ? 'ant-modal' : '',
         ])
       )
@@ -221,6 +225,10 @@ function ImagePreview(props: ImagePreviewProps) {
 
   const multipleSelect = useMemoizedFn((e: React.MouseEvent<HTMLDivElement, MouseEvent>) => {
     return enableMultipleSelect ? e.metaKey || e.ctrlKey || e.shiftKey : false
+  })
+
+  const onDelete = useMemoizedFn(() => {
+    beginDeleteImageProcess(selectedImages.map((t) => images.find((i) => i.path === t)!))
   })
 
   return (
@@ -329,6 +337,7 @@ function ImagePreview(props: ImagePreviewProps) {
                       })
                     }
                     multipleSelect={multipleSelect}
+                    onDelete={onDelete}
                   />
                 </div>
               ))}

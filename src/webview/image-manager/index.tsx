@@ -37,12 +37,12 @@ function ImageManager() {
   const { message } = App.useApp()
   const { t } = useTranslation()
 
-  const { setImageState, setCompressor, imageState, setFormatConverter, setTargetImagePath } = GlobalContext.usePicker([
+  const { setImageState, setCompressor, imageState, setFormatConverter, setImageReveal } = GlobalContext.usePicker([
     'setImageState',
     'setCompressor',
     'imageState',
     'setFormatConverter',
-    'setTargetImagePath',
+    'setImageReveal',
   ])
 
   const { imageRefreshedState, refreshImages, imageSearchOpen, setImageSearchOpen } = ActionContext.usePicker([
@@ -191,6 +191,7 @@ function ImageManager() {
 
   const onMessage = useMemoizedFn((e: MessageEvent) => {
     const { cmd, data } = e.data as MessageType<Record<string, any>, keyof typeof CmdToWebview>
+
     switch (cmd) {
       case CmdToWebview.refresh_images: {
         refreshImages({ type: 'slient-refresh' })
@@ -209,11 +210,16 @@ function ImageManager() {
         updateWorkspaceState(allImageTypes)
         break
       }
-      case CmdToWebview.update_target_image_path: {
-        logger.debug('update_target_image_path', data.path)
-        window.__target_image_path__ = data.path
+      case CmdToWebview.reveal_image_in_viewer: {
+        if (data.imagePath) {
+          logger.debug('reveal_image_in_viewer', data.imagePath)
+        } else {
+          logger.debug('reveal_image_in_viewer', '清除')
+        }
+        const { imagePath } = data
+        window.__reveal_image_path__ = imagePath
         flushSync(() => {
-          setTargetImagePath(data.path)
+          setImageReveal(imagePath)
         })
         break
       }

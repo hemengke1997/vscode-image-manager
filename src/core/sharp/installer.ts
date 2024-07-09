@@ -1,4 +1,5 @@
 import { destrUtil, isString, toLower } from '@minko-fe/lodash-pro'
+import { devDependencies, version } from '~root/package.json'
 import EventEmitter from 'eventemitter3'
 import { execaNode } from 'execa'
 import fs from 'fs-extra'
@@ -11,7 +12,6 @@ import { cleanVersion, isValidHttpsUrl, normalizePath, setImmdiateInterval } fro
 import { type AbortError, type TimeoutError, abortPromise } from '~/utils/abort-promise'
 import { Channel } from '~/utils/channel'
 import { Config, FileCache, Global } from '..'
-import { devDependencies, version } from '../../../package.json'
 
 type Events = {
   'install-success': [TSharp]
