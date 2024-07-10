@@ -4,7 +4,7 @@ import { isDev } from '@minko-fe/vite-config/client'
 import { ConfigProvider, Image, theme } from 'antd'
 import { type AliasToken, type ComponentTokenMap } from 'antd/es/theme/interface'
 import { produce } from 'immer'
-import { memo, useCallback, useEffect, useId, useRef, useState } from 'react'
+import { type ForwardedRef, forwardRef, memo, useCallback, useEffect, useId, useRef, useState } from 'react'
 import GlobalContext from '../../contexts/global-context'
 import SettingsContext from '../../contexts/settings-context'
 import useImageOperation from '../../hooks/use-image-operation'
@@ -37,7 +37,7 @@ export type ImagePreviewProps = {
   enableMultipleSelect?: boolean
 }
 
-function ImagePreview(props: ImagePreviewProps) {
+function ImagePreview(props: ImagePreviewProps, ref: ForwardedRef<HTMLDivElement>) {
   const { images, lazyImageProps, enableMultipleSelect = false } = props
 
   const { token } = theme.useToken()
@@ -233,7 +233,7 @@ function ImagePreview(props: ImagePreviewProps) {
 
   return (
     <>
-      <div className={'flex flex-wrap gap-2'}>
+      <div className={'flex flex-wrap gap-2'} ref={ref}>
         <ConfigProvider
           theme={{
             components: {
@@ -349,4 +349,4 @@ function ImagePreview(props: ImagePreviewProps) {
   )
 }
 
-export default memo(ImagePreview)
+export default memo(forwardRef(ImagePreview))

@@ -44,7 +44,7 @@ type TreeExtraProps = {
 function injectUnderfolderImagesToNode(
   node: FileNode,
   image: ImageType,
-  key: string,
+  key: keyof TreeExtraProps,
   conditions: {
     type: boolean
     dir: boolean

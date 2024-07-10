@@ -2,7 +2,7 @@ import { trim } from '@minko-fe/lodash-pro'
 import { useControlledState, useInViewport, useMemoizedFn, useUpdateEffect } from '@minko-fe/react-hook'
 import { Badge, Image, type ImageProps } from 'antd'
 import { motion } from 'framer-motion'
-import { type ReactNode, memo, useEffect, useRef, useState } from 'react'
+import { type ReactNode, memo, useEffect, useMemo, useRef, useState } from 'react'
 import { useHotkeys } from 'react-hotkeys-hook'
 import { useTranslation } from 'react-i18next'
 import { FaRegGrinStars } from 'react-icons/fa'
@@ -43,12 +43,16 @@ export type LazyImageProps = {
    * 是否懒加载
    * @default
    * {
-   *   root: null
+   *    root: getAppRoot()
    * }
    */
   lazy?:
     | false
     | {
+        /**
+         * 懒加载根节点
+         * 必传
+         */
         root: HTMLElement
       }
   /**
@@ -99,7 +103,7 @@ function LazyImage(props: LazyImageProps) {
     image,
     onPreviewClick,
     lazy = {
-      root: null,
+      root: getAppRoot(),
     },
     onRemoveClick,
     onDelete,
@@ -114,6 +118,7 @@ function LazyImage(props: LazyImageProps) {
   } = props
 
   const root = lazy ? lazy.root : null
+
   const { beginRenameImageProcess, beginDeleteImageProcess, handleCopyString } = useImageOperation()
   const { t } = useTranslation()
   const { showImageDetailModal } = useImageDetail()
@@ -135,7 +140,10 @@ function LazyImage(props: LazyImageProps) {
   const imageRendering = GlobalContext.useSelector((ctx) => ctx.extConfig.viewer.imageRendering)
   const refreshTimes = ActionContext.useSelector((ctx) => ctx.imageRefreshedState.refreshTimes)
 
-  const rootMargin = `${(imagePlaceholderSize?.height || DEFAULT_CONFIG.viewer.imageWidth) * 2.5}px 0px` // expand area of vertical intersection calculation
+  const rootMargin = useMemo(
+    () => `${(imagePlaceholderSize?.height || DEFAULT_CONFIG.viewer.imageWidth) * 2.5}px 0px`,
+    [imagePlaceholderSize?.height],
+  ) // expand area of vertical intersection calculation
 
   const elRef = useRef<HTMLDivElement>(null)
 
@@ -273,6 +281,12 @@ function LazyImage(props: LazyImageProps) {
     return false
   })
 
+  // 目前 framer-motion viewport root 有bug，在 root 改变后不会重新observe
+  // 所以这里需要判断 root 是否存在
+  if (lazy && !lazy.root) {
+    return null
+  }
+
   return (
     <div ref={elRef} className={'select-none'}>
       {elInView || !lazy ? (
@@ -287,6 +301,7 @@ function LazyImage(props: LazyImageProps) {
           initial={{ opacity: 0 }}
           viewport={{
             once: true,
+            amount: 'some',
             margin: rootMargin,
             root: { current: root },
           }}

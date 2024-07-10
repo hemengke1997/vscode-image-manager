@@ -10,11 +10,14 @@
       }
     }
     .ant-collapse-header {
-      @apply !rounded-t-ant-border-radius-lg !rounded-b-none relative;
+      @apply !rounded-t-ant-border-radius-lg relative !rounded-b-none;
       &:hover,
       &:focus-within {
         @apply bg-ant-control-item-bg-hover;
       }
+    }
+    .ant-collapse-content-box {
+      @apply !py-ant-padding-xs;
     }
   }
 }

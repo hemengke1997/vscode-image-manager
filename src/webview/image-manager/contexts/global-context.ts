@@ -88,6 +88,9 @@ function useGlobalContext() {
   /* ------------- tree context 中的数据 ------------ */
   const [treeData, setTreeData] = useState<{ workspaceFolder: string; visibleList: ImageType[] }[]>([])
 
+  /* ------------ 图片sticky header的高度 ------------ */
+  const [viewerHeaderStickyHeight, setViewerHeaderStickyHeight] = useState<number>(0)
+
   return {
     mode,
     setMode,
@@ -111,6 +114,8 @@ function useGlobalContext() {
     imageRevealWithoutQuery,
     treeData,
     setTreeData,
+    viewerHeaderStickyHeight,
+    setViewerHeaderStickyHeight,
   }
 }
 

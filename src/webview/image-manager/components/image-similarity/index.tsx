@@ -4,7 +4,7 @@ import { Card, Divider, Empty, Modal } from 'antd'
 import { produce } from 'immer'
 import { memo, useMemo } from 'react'
 import { useTranslation } from 'react-i18next'
-import { useScrollRef } from '~/webview/hooks/use-scroll-ref'
+import { useScrollRef } from '~/webview/image-manager/hooks/use-scroll-ref'
 import useImageContextMenuEvent from '../context-menus/components/image-context-menu/hooks/use-image-context-menu-event'
 import { type ImageOperatorProps } from '../image-operator'
 import ImagePreview from '../image-preview'
@@ -104,6 +104,7 @@ function ImageSimilarity(props: ImageSimilarityProps) {
               imageNameProps: {
                 tooltipDisplayFullPath: true,
               },
+              lazy: false,
             }}
           ></ImagePreview>
         </div>
