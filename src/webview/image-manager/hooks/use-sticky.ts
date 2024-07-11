@@ -4,22 +4,41 @@ import { type DependencyList, useEffect, useLayoutEffect, useRef } from 'react'
 import { getAppRoot } from '~/webview/utils'
 
 type Props = {
+  /**
+   * 需要sticky的元素
+   */
   target: HTMLElement | null
+  /**
+   * sticky外层容器
+   */
   holder?: HTMLElement | null
+  /**
+   * sticky触发的偏移量
+   */
   topOffset?: number
+  /**
+   * sticky相对根节点
+   */
   root?: HTMLElement
+  /**
+   * sticky状态切换回调
+   */
   onStickyToogle: (
     sticky: boolean,
     args: {
-      style: string
+      rawStyle: string
     },
   ) => void
+  /**
+   * 是否启用sticky
+   */
   enable?: boolean
 }
 
 export function useSticky(props: Props, deps?: DependencyList) {
   const { target, topOffset = 0, root = getAppRoot(), holder, onStickyToogle, enable = true } = props
 
+  const previousSticky = useRef<boolean>()
   const targetStyle = useRef<string>()
 
   useEffect(() => {
@@ -40,13 +59,19 @@ export function useSticky(props: Props, deps?: DependencyList) {
       const { top } = target.getBoundingClientRect()
 
       const args = {
-        style: targetStyle.current || '',
+        rawStyle: targetStyle.current || '',
       }
 
+      let isSticky: boolean
+
       if (top <= topOffset && inView) {
-        onStickyToogle(true, args)
+        isSticky = true
       } else {
-        onStickyToogle(false, args)
+        isSticky = false
+      }
+      if (previousSticky.current !== isSticky) {
+        onStickyToogle(isSticky, args)
+        previousSticky.current = isSticky
       }
     }
   })

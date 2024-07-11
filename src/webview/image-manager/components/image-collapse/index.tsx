@@ -3,6 +3,7 @@ import { useControlledState, useMemoizedFn } from '@minko-fe/react-hook'
 import { styleObjectToString } from '@minko-fe/style-object-to-string'
 import { Collapse, type CollapseProps } from 'antd'
 import { type ReactNode, memo, useEffect, useMemo, useRef, useState } from 'react'
+import { Element, scroller } from 'react-scroll'
 import { classnames } from 'tw-clsx'
 import ActionContext from '../../contexts/action-context'
 import GlobalContext from '../../contexts/global-context'
@@ -13,6 +14,9 @@ import useImageContextMenuEvent from '../context-menus/components/image-context-
 import ImagePreview, { type ImagePreviewProps } from '../image-preview'
 
 type ImageCollapseProps = {
+  /**
+   * 透传给 antd collapse 的 props
+   */
   collapseProps: CollapseProps
   /**
    * collapase展示的title
@@ -85,6 +89,19 @@ function ImageCollapse(props: ImageCollapseProps) {
 
   const onCollapseChange = useMemoizedFn((keys: string[]) => {
     setActiveKeys(keys)
+
+    if (!keys.length) {
+      // 关闭collapse
+      // 如果sticky状态，需要滚动collapse的header到顶部
+      if (isSticky) {
+        scroller.scrollTo(id, {
+          duration: 0,
+          smooth: false,
+          offset: -viewerHeaderStickyHeight,
+          containerId: 'root',
+        })
+      }
+    }
   })
 
   const { show } = useCollapseContextMenu()
@@ -189,11 +206,13 @@ function ImageCollapse(props: ImageCollapseProps) {
   const holderRef = useRef<HTMLDivElement>(null)
 
   const target = stickyRef.current?.querySelector('.ant-collapse-header') as HTMLElement
+  const [isSticky, setIsSticky] = useState(false)
 
   useSticky({
     target,
     holder: holderRef.current,
-    onStickyToogle(sticky, { style: rawStyle }) {
+    onStickyToogle(sticky, { rawStyle }) {
+      setIsSticky(sticky)
       if (sticky) {
         const style =
           styleObjectToString({
@@ -201,7 +220,7 @@ function ImageCollapse(props: ImageCollapseProps) {
             top: `${viewerHeaderStickyHeight}px`,
             position: 'sticky',
             backgroundColor: 'var(--custom-contexify-menu-bgColor)',
-            backdropFilter: 'blur(200px)',
+            backdropFilter: 'blur(100px)',
             boxShadow: 'var(--ant-box-shadow)',
           }) || ''
         target.setAttribute('style', rawStyle + style)
@@ -213,17 +232,21 @@ function ImageCollapse(props: ImageCollapseProps) {
     enable: !!(activeKeys.length && holderRef.current),
   })
 
-  const [fresh, setFresh] = useState(0)
+  /**
+   * hack
+   * 解决非手动打开collapse时，sticky失效的问题
+   */
+  const [, update] = useState(0)
   useEffect(() => {
-    setFresh((t) => ~t)
+    if (activeKeys.length) {
+      update((t) => ~t)
+    }
   }, [activeKeys])
 
   if (!images?.length && !nestedChildren) return null
 
   return (
-    <div>
-      {/* hack，解决sticky失效的问题 */}
-      <div className={'hidden'}>{fresh}</div>
+    <Element name={id}>
       <Collapse
         /**
          * 由于图片数量可能很多，如果打开了collapse之后，即使关闭了也会一直渲染
@@ -231,9 +254,9 @@ function ImageCollapse(props: ImageCollapseProps) {
          */
         destroyInactivePanel
         {...collapseProps}
+        ref={stickyRef}
         activeKey={activeKeys}
         onChange={(keys) => onCollapseChange(keys as string[])}
-        ref={stickyRef}
         items={[
           {
             forceRender: !!activeKeys.length,
@@ -241,7 +264,7 @@ function ImageCollapse(props: ImageCollapseProps) {
             label: labelRender(generateLabel(labels)),
             children: images?.length ? (
               <div className={'space-y-2'}>
-                <ImagePreview ref={holderRef} {...imagePreviewProps} images={images} enableMultipleSelect />
+                <ImagePreview ref={holderRef} {...imagePreviewProps} images={images} />
                 {nestedChildren}
               </div>
             ) : (
@@ -250,7 +273,7 @@ function ImageCollapse(props: ImageCollapseProps) {
           },
         ]}
       ></Collapse>
-    </div>
+    </Element>
   )
 }
 

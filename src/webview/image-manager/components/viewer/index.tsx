@@ -3,7 +3,7 @@ import styleObjectToString from '@minko-fe/style-object-to-string'
 import { Card, Empty, Skeleton } from 'antd'
 import { AnimatePresence, motion } from 'framer-motion'
 import { produce } from 'immer'
-import { memo, useEffect, useRef } from 'react'
+import { memo, useEffect, useMemo, useRef } from 'react'
 import { useTranslation } from 'react-i18next'
 import { IoMdImages } from 'react-icons/io'
 import GlobalContext from '../../contexts/global-context'
@@ -50,13 +50,12 @@ function Viewer() {
   /* ---------------- image scale --------------- */
   const [containerRef] = useWheelScaleEvent()
 
+  /* --------------- header sticky -------------- */
   const stickyRef = useRef<HTMLDivElement>(null)
-
-  const target = stickyRef.current?.querySelector('.ant-card-head') as HTMLElement
-
+  const target = useMemo(() => stickyRef.current?.querySelector('.ant-card-head') as HTMLElement, [stickyRef.current])
   useSticky({
     target,
-    onStickyToogle(sticky, { style: rawStyle }) {
+    onStickyToogle(sticky, { rawStyle }) {
       if (sticky) {
         const style =
           styleObjectToString({
@@ -65,6 +64,7 @@ function Viewer() {
             zIndex: 5,
             backgroundColor: 'var(--ant-color-bg-container)',
             top: '0px',
+            borderRadius: '0px',
           }) || ''
         target.setAttribute('style', rawStyle + style)
       } else {
@@ -72,7 +72,6 @@ function Viewer() {
       }
     },
   })
-
   useEffect(() => {
     if (target) {
       setViewerHeaderStickyHeight(target.getBoundingClientRect().height)

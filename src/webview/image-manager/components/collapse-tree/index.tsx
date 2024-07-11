@@ -191,6 +191,7 @@ function CollapseTree(props: CollapseTreeProps) {
                 underFolderImages={underFolderList}
                 underFolderDeeplyImages={underFolderDeeplyList}
                 imagePreviewProps={{
+                  enableMultipleSelect: true,
                   lazyImageProps: {
                     lazy: {
                       root: getAppRoot(),

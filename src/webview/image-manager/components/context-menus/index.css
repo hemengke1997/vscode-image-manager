@@ -20,7 +20,7 @@
 
   &::before {
     content: '';
-    @apply absolute bottom-0 left-0 right-0 top-0 rounded-[var(--contexify-menu-radius)] bg-[var(--contexify-menu-bgColor)] backdrop-blur-[70px];
+    @apply absolute bottom-0 left-0 right-0 top-0 rounded-[var(--contexify-menu-radius)] bg-[var(--contexify-menu-bgColor)] backdrop-blur-[50px];
   }
 
   @apply border-ant-color-border border border-solid text-sm;
