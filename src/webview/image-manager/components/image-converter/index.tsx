@@ -37,12 +37,12 @@ function ImageConverter(props: ImageConverterProps) {
   //   return images?.some((img) => img.fileType === type)
   // })
 
-  const { beginFormatConversionProcess } = useImageOperation()
+  const { beginFormatConversionProcess, beginUndoProcess } = useImageOperation()
   const { handleOperateImage } = useOperatorModalLogic({ images })
 
   const convertImages = useMemoizedFn((filePaths: string[], option: FormValue, abortController: AbortController) => {
     const fn = () =>
-      new Promise<OperatorResult | undefined>((resolve) => {
+      new Promise<OperatorResult[] | undefined>((resolve) => {
         vscodeApi.postMessage({ cmd: CmdToVscode.convert_image_format, data: { filePaths, option } }, (data) => {
           resolve(data)
         })
@@ -54,7 +54,7 @@ function ImageConverter(props: ImageConverterProps) {
   })
 
   const onFinish = useMemoizedFn((value: FormValue) => {
-    value = mergeWith(formatConverter?.option || {}, value, (_, srcValue) => {
+    value = mergeWith({}, formatConverter?.option || {}, value, (_, srcValue) => {
       if (isArray(srcValue)) return srcValue
     })
 
@@ -76,6 +76,9 @@ function ImageConverter(props: ImageConverterProps) {
         },
         onRetryClick() {
           beginFormatConversionProcess(images)
+        },
+        onUndoClick(...args) {
+          beginUndoProcess(...args)
         },
       },
     )

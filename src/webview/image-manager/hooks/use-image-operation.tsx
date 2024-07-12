@@ -1,4 +1,4 @@
-import { isObject, isString } from '@minko-fe/lodash-pro'
+import { isObject, isString, toString } from '@minko-fe/lodash-pro'
 import { useLockFn, useMemoizedFn } from '@minko-fe/react-hook'
 import { App, Button, Checkbox, Form, Input, type InputProps, type InputRef, Typography } from 'antd'
 import escapeStringRegexp from 'escape-string-regexp'
@@ -502,6 +502,55 @@ function useImageOperation() {
     })
   })
 
+  // 撤销操作
+  const undo = useMemoizedFn((id: string) => {
+    return new Promise<boolean>((resolve, reject) => {
+      vscodeApi.postMessage(
+        {
+          cmd: CmdToVscode.undo_operation,
+          data: {
+            id,
+          },
+        },
+        (res) => {
+          if (isObject(res) && 'error' in res) {
+            return reject(res.error)
+          }
+          return resolve(res)
+        },
+      )
+    })
+  })
+
+  const beginUndoProcess = useMemoizedFn(async (id: string, image: ImageType) => {
+    const getUndoMessageKey = (id: string) => `undo-${id}`
+    let errorMsg = ''
+    try {
+      await undo(id)
+    } catch (e: any) {
+      errorMsg = toString(e)
+    } finally {
+      message[errorMsg ? 'error' : 'success']({
+        key: getUndoMessageKey(id),
+        content: (
+          <div className={'flex items-center space-x-2'}>
+            <div>{errorMsg ? `${t('im.undo_fail')}: ${errorMsg}` : `${t('im.undo_success')}: ${image.name}`}</div>
+            {errorMsg ? null : (
+              <Button
+                onClick={() => {
+                  message.destroy(getUndoMessageKey(id))
+                  beginRevealInViewer(image)
+                }}
+              >
+                {t('im.reveal_in_viewer')}
+              </Button>
+            )}
+          </div>
+        ),
+      })
+    }
+  })
+
   return {
     openInVscodeExplorer,
     openInOsExplorer,
@@ -517,6 +566,7 @@ function useImageOperation() {
     beginRenameImageProcess,
     beginRevealInViewer,
     beginRenameDirProcess,
+    beginUndoProcess,
   }
 }
 

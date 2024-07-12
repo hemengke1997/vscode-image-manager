@@ -21,15 +21,6 @@ export default function useImageDetail() {
           compressed,
         } = data
 
-        const formatDate = (date: Date) => {
-          return new Date(date).toLocaleDateString(undefined, {
-            hour12: false,
-            hour: '2-digit',
-            minute: '2-digit',
-            second: '2-digit',
-          })
-        }
-
         const descItems: DescriptionsProps['items'] = [
           {
             label: t('im.name'),
@@ -57,14 +48,6 @@ export default function useImageDetail() {
           {
             label: t('im.size'),
             children: <div>{formatBytes(image.stats.size)}</div>,
-          },
-          {
-            label: t('im.birth_time'),
-            children: <div>{formatDate(image.stats.birthtime)}</div>,
-          },
-          {
-            label: t('im.last_status_changed_time'),
-            children: <div>{formatDate(image.stats.ctime)}</div>,
           },
           {
             label: t('im.whether_compressed'),

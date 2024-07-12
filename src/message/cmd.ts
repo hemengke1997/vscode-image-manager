@@ -51,6 +51,13 @@ export const enum CmdToVscode {
   compress_image = 'compress_image',
   // 转化图片格式
   convert_image_format = 'convert_image_format',
+  // 撤销操作
+  undo_operation = 'undo_operation',
+  // 清除指定操作缓存
+  remove_operation_cmd_cache = 'remove_operation_cmd_cache',
+  // 清空操作缓存
+  clear_operation_cmd_cache = 'clear_operation_cmd_cache',
+  // 匹配
   micromatch_ismatch = 'micromatch_ismatch',
   // 保存裁剪后的图片
   save_cropper_image = 'save_cropper_image',

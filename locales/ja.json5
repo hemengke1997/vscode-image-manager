@@ -125,5 +125,7 @@
     handler_fn_not_exist: '処理関数 "{0}" が存在しません',
     output_path_not_exist: '出力パスが存在しません',
     svgo_error_tip: 'svgoの設定が正しいことを確認してください',
+    file_exist: 'ファイルが既に存在します',
+    file_not_exist: 'ファイルが存在しません',
   },
 }

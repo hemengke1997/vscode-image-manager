@@ -1,6 +1,5 @@
 import { type Event, EventEmitter, type ExtensionContext, ExtensionMode, commands, window, workspace } from 'vscode'
 import { Commands } from '~/commands'
-import { Compressor, FormatConverter, Svgo } from '~/core/operator'
 import { Installer } from '~/core/sharp'
 import { i18n } from '~/i18n'
 import { EXT_NAMESPACE } from '~/meta'
@@ -8,6 +7,7 @@ import { AbortError, TimeoutError } from '~/utils/abort-promise'
 import { Channel } from '~/utils/channel'
 import { Config, Watcher, WorkspaceState } from '.'
 import { ConfigKey, type VscodeConfigType } from './config/common'
+import { Svgo } from './operator/svgo'
 
 export class Global {
   private static _rootpaths: string[]
@@ -31,14 +31,6 @@ export class Global {
    * sharp
    */
   static sharp: TSharp
-  /**
-   * compressor
-   */
-  static compressor: Compressor
-  /**
-   * format converter
-   */
-  static formatConverter: FormatConverter
   /**
    * is programmatic change config
    */
@@ -75,7 +67,6 @@ export class Global {
           const key = `${EXT_NAMESPACE}.${config}`
 
           if (e.affectsConfiguration(key)) {
-            this.initOperators()
             Channel.info(i18n.t('core.config_changed', key))
             break
           }
@@ -101,13 +92,6 @@ export class Global {
     }
   }
 
-  static initOperators() {
-    // Get compresstion config from vscode
-    Global.compressor = new Compressor(Config.compression)
-    // Get format converter config from vscode
-    Global.formatConverter = new FormatConverter(Config.conversion)
-  }
-
   static initSharpInstaller() {
     this.installer = new Installer({
       timeout: 30 * 1000, // 30s
@@ -120,7 +104,6 @@ export class Global {
         .on('install-success', (e) => {
           Channel.info(i18n.t('prompt.deps_init_success'))
           Global.sharp = e
-          this.initOperators()
         })
         .on('install-fail', async (e) => {
           reject(e)

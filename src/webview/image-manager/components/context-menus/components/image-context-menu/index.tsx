@@ -180,11 +180,11 @@ function ImageContextMenu() {
         <Item hidden={isItemHidden} onClick={handleCompressImage} data={IMAGE_CONTEXT_MENU.sharp}>
           {t('im.compress')}
         </Item>
-        <Item onClick={handleCropImage} hidden={isItemHidden} data={IMAGE_CONTEXT_MENU.sharp}>
-          {t('im.crop')}
-        </Item>
         <Item onClick={handleConvertFormat} hidden={isItemHidden} data={IMAGE_CONTEXT_MENU.sharp}>
           {t('im.convert_format')}
+        </Item>
+        <Item onClick={handleCropImage} hidden={isItemHidden} data={IMAGE_CONTEXT_MENU.sharp}>
+          {t('im.crop')}
         </Item>
         <Submenu
           label={t('im.find_similar_images')}

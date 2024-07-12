@@ -165,6 +165,9 @@
     irreversible_operation: '操作は取り消し不可能です！',
     cancel_operation_tip: '本当にこの操作をキャンセルしますか？',
     changelog: '変更履歴',
+    undo: '元に戻す',
+    undo_success: '元に戻しました',
+    undo_fail: '元に戻しに失敗しました',
   },
   fallback: {
     internal_error: '内部エラー',

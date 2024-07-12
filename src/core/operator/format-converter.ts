@@ -1,11 +1,12 @@
-import { isArray, mergeWith, toNumber } from '@minko-fe/lodash-pro'
+import { toNumber } from '@minko-fe/lodash-pro'
 import fs from 'fs-extra'
 import pMap from 'p-map'
 import { type SharpNS } from '~/@types/global'
 import { i18n } from '~/i18n'
 import { SharpOperator } from '..'
+import { Commander } from '../commander'
 import { DEFAULT_CONFIG } from '../config/common'
-import { Operator, type OperatorOptions, type OperatorResult } from './operator'
+import { Operator, type OperatorOptions, type OperatorResult, SkipError } from './operator'
 
 export type FormatConverterOptions = {
   /**
@@ -32,7 +33,12 @@ type ConvertorRuntime = {
 }
 
 export class FormatConverter extends Operator {
-  private extensions = ['png', 'jpg', 'jpeg', 'webp', 'gif', 'tiff', 'avif', 'heif', 'svg']
+  public inputPath: string = ''
+  public commander: Commander | null = null
+  public outputPath: string = ''
+  public inputBuffer: Buffer = Buffer.from('')
+
+  public extensions = ['png', 'jpg', 'jpeg', 'webp', 'gif', 'tiff', 'avif', 'heif', 'svg']
 
   public limit = {
     from: [...this.extensions],
@@ -44,29 +50,33 @@ export class FormatConverter extends Operator {
   }
 
   async run<FormatConverterOptions>(
-    filePaths: string[],
+    filePath: string,
     option: FormatConverterOptions | undefined,
   ): Promise<OperatorResult> {
-    this.option = mergeWith(this.option, option || {}, (_, srcValue) => {
-      if (isArray(srcValue)) return srcValue
-    })
-    const res = await pMap(
-      filePaths.map((filePath) => () => this.convertImage(filePath)),
-      (task) => task(),
-    )
-    return res
+    this.option = this.mergeOption(option)
+
+    this.inputPath = filePath
+    this.commander = new Commander(this.inputPath, this.undo.bind(this))
+
+    const r = await this.convertImage(filePath)
+
+    return this.resolveResult(r)
   }
 
   async convertImage(filePath: string) {
+    const result = {
+      id: this.inputPath,
+      filePath,
+    }
     try {
       await this.checkLimit(filePath)
       const res = await this.core(filePath)
       return {
-        filePath,
+        ...result,
         ...res,
       }
     } catch (error) {
-      return { filePath, error: error || i18n.t('core.compress_fail_reason_unknown') }
+      return { ...result, error: error || i18n.t('core.compress_fail_reason_unknown') }
     }
   }
 
@@ -95,7 +105,9 @@ export class FormatConverter extends Operator {
               ctx.sharp.toFormat(ext as keyof SharpNS.FormatEnum).timeout({ seconds: 20 })
             },
             'after:run': async ({ runtime: { filePath, isLast } }) => {
-              isLast && (await this.trashFile(filePath))
+              if (!this.option.keepOriginal) {
+                isLast && (await this.trashFile(filePath))
+              }
             },
             'on:generate-output-path': ({ runtime: { ext, filePath } }) => {
               return this.getOutputPath(filePath, {
@@ -112,26 +124,21 @@ export class FormatConverter extends Operator {
     return converter
   }
 
-  private _isIco(ext: string) {
-    return ext === 'ico'
-  }
-
-  private async core(filePath: string): Promise<{ inputSize: number; outputSize: number; outputPath: string }> {
+  async core(
+    filePath: string,
+  ): Promise<{ inputSize: number; outputSize: number; outputPath: string; inputBuffer: Buffer }> {
     const { format } = this.option!
 
     const originExt = this.getFileExt(filePath)
     const ext = !format ? originExt : format
 
+    // 保留原格式，跳过
     if (originExt === ext) {
-      const fileSize = this.getFileSize(filePath)
-      return Promise.resolve({
-        inputSize: fileSize,
-        outputSize: fileSize,
-        outputPath: filePath,
-      })
+      return Promise.reject(new SkipError())
     }
 
-    const inputSize = this.getFileSize(filePath)
+    const inputBuffer = await fs.readFile(filePath)
+    const inputSize = await this.getFileSize(filePath)
     let outputPath = ''
     let converters: SharpOperator<ConvertorRuntime>[] | SharpOperator<ConvertorRuntime>
 
@@ -182,8 +189,9 @@ export class FormatConverter extends Operator {
         outputPath = res.outputPath
       }
 
-      const outputSize = this.getFileSize(outputPath)
+      const outputSize = await this.getFileSize(outputPath)
       return {
+        inputBuffer,
         inputSize,
         outputSize,
         outputPath,
@@ -196,12 +204,22 @@ export class FormatConverter extends Operator {
     }
   }
 
+  private _isIco(ext: string) {
+    return ext === 'ico'
+  }
+
+  /**
+   * @description encode ico
+   */
   private _encodeIco(bufferList: Buffer[]) {
     // ico-endec only support cjs
     const icoEndec = require('ico-endec')
     return icoEndec.encode(bufferList) as Buffer
   }
 
+  /**
+   * @description resize ico
+   */
   private async _resizeIco(
     image: SharpNS.Sharp,
     { size, resizeOptions }: { size: number; resizeOptions?: SharpNS.ResizeOptions },

@@ -54,6 +54,12 @@ function AntdConfigProvider({ children }: PropsWithChildren) {
         hashed: false,
         cssVar: true,
         algorithm: [getThemeAlgorithm()],
+        components: {
+          Message: {
+            // higher than notification
+            zIndexPopupBase: 1100,
+          },
+        },
         token: {
           fontFamily: 'var(--vscode-font-family)',
           motion: reduceMotionWithoutAuto === 'on' ? false : true,

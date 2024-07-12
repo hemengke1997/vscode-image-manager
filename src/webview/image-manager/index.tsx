@@ -7,7 +7,6 @@ import { flushSync } from 'react-dom'
 import { useTranslation } from 'react-i18next'
 import { GoMoveToTop } from 'react-icons/go'
 import { isTooManyTries, retry } from 'ts-retry'
-import { type Compressor, type FormatConverter } from '~/core/operator'
 import { type MessageType } from '~/message'
 import { CmdToVscode, CmdToWebview } from '~/message/cmd'
 import logger from '~/utils/logger'
@@ -25,7 +24,7 @@ import Viewer from './components/viewer'
 import ViewerSettings, { type ViewerSettingsRef } from './components/viewer-settings'
 import ActionContext from './contexts/action-context'
 import CroppoerContext from './contexts/cropper-context'
-import GlobalContext from './contexts/global-context'
+import GlobalContext, { type WebviewCompressorType, type WebviewFormatConverterType } from './contexts/global-context'
 import OperatorContext from './contexts/operator-context'
 import SettingsContext from './contexts/settings-context'
 
@@ -138,7 +137,7 @@ function ImageManager() {
   }, [refreshTimes])
 
   const getCompressor = useMemoizedFn(() => {
-    return new Promise<Compressor>((resolve, reject) => {
+    return new Promise<WebviewCompressorType>((resolve, reject) => {
       vscodeApi.postMessage({ cmd: CmdToVscode.get_compressor }, (data) => {
         if (!data) {
           reject()
@@ -150,7 +149,7 @@ function ImageManager() {
   })
 
   const getFormatConverter = useMemoizedFn(() => {
-    return new Promise<FormatConverter>((resolve, reject) => {
+    return new Promise<WebviewFormatConverterType>((resolve, reject) => {
       vscodeApi.postMessage({ cmd: CmdToVscode.get_format_converter }, (data) => {
         if (!data) {
           reject()

@@ -1,8 +1,9 @@
 import { useSetState } from '@minko-fe/react-hook'
 import { createContainer } from 'context-state'
 import { useMemo, useState } from 'react'
+import { type FormatConverterOptions } from '~/core'
 import { ConfigKey } from '~/core/config/common'
-import { type Compressor, type FormatConverter } from '~/core/operator'
+import { type CompressionOptions } from '~/core/operator/compressor/type'
 import { useExtConfigState } from '~/webview/hooks/use-ext-config-state'
 import FrameworkContext from '~/webview/ui-framework/src/contexts/framework-context'
 import { type DisplayTypeFilter } from '../components/display-type'
@@ -23,7 +24,24 @@ export type RestrictImageFilterType<T extends RestrictHelper> = T
  *
  * DisplayTypeFilter: 来源于 settings 的 image file type
  */
+
 export type ImageFilterType = ImageFilterAction & DisplayTypeFilter
+
+export type WebviewCompressorType = {
+  option: CompressionOptions
+  limit: {
+    from: string[]
+    to: string[]
+  }
+}
+
+export type WebviewFormatConverterType = {
+  option: FormatConverterOptions
+  limit: {
+    from: string[]
+    to: string[]
+  }
+}
 
 function useGlobalContext() {
   const { extConfig, mode, setMode, theme, workspaceState } = FrameworkContext.usePicker([
@@ -35,9 +53,9 @@ function useGlobalContext() {
   ])
 
   /* ------------- image compressor ------------ */
-  const [compressor, setCompressor] = useState<Compressor>()
+  const [compressor, setCompressor] = useState<WebviewCompressorType>()
   /* ---------- image format converter ---------- */
-  const [formatConverter, setFormatConverter] = useState<FormatConverter>()
+  const [formatConverter, setFormatConverter] = useState<WebviewFormatConverterType>()
 
   /* --------------- images state --------------- */
   const [imageState, setImageState] = useSetState<{

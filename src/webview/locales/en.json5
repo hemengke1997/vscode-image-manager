@@ -165,6 +165,9 @@
     irreversible_operation: 'Operation is irreversible!',
     cancel_operation_tip: 'Are you sure to cancel this operation?',
     changelog: 'Changelog',
+    undo: 'Undo',
+    undo_success: 'Undo success',
+    undo_fail: 'Undo failed',
   },
   fallback: {
     internal_error: 'Internal Error',

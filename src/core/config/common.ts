@@ -1,6 +1,7 @@
 import { type CSSProperties } from 'react'
 import { Language, ReduceMotion, Theme } from '~/enums'
-import { type CompressionOptions, type FormatConverterOptions } from '..'
+import { type FormatConverterOptions } from '..'
+import { type CompressionOptions } from '../operator/compressor/type'
 
 export type VscodeConfigType = {
   theme: Theme
@@ -128,7 +129,6 @@ export const DEFAULT_CONFIG: ConfigType = {
     gif: {
       colors: 256,
     },
-    // svg 单向存储，不需要从webview同步到settings，所以不需要在此设置默认值
     svg: {
       compressedAttribute: 'c', // data-c. "c" means "compressed"
       removeDataAttributes: true,

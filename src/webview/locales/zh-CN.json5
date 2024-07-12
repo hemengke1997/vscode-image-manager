@@ -165,6 +165,9 @@
     irreversible_operation: '操作不可逆！',
     cancel_operation_tip: '确定要取消此操作?',
     changelog: '更新日志',
+    undo: '撤销',
+    undo_success: '撤销成功',
+    undo_fail: '撤销失败',
   },
   fallback: {
     internal_error: '内部错误',

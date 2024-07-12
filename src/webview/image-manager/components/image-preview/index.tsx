@@ -120,6 +120,7 @@ function ImagePreview(props: ImagePreviewProps, ref: ForwardedRef<HTMLDivElement
           'ant-message',
           'ant-tooltip',
           'ant-popover',
+          'ant-notification',
           enableMultipleSelect ? 'ant-modal' : '',
         ])
       )

@@ -2,7 +2,8 @@ import { get } from '@minko-fe/lodash-pro'
 import { type ConfigurationScope, ConfigurationTarget, type WorkspaceConfiguration, workspace } from 'vscode'
 import { EXT_NAMESPACE } from '~/meta'
 import { normalizePath } from '~/utils'
-import { type CompressionOptions, type FormatConverterOptions } from '..'
+import { type FormatConverterOptions } from '..'
+import { type CompressionOptions } from '../operator/compressor/type'
 import { ConfigKey, type ConfigType, DEFAULT_CONFIG } from './common'
 
 export class Config {
@@ -10,8 +11,13 @@ export class Config {
     ConfigKey.file_root,
     ConfigKey.file_exclude,
     ConfigKey.file_scan,
+
     ConfigKey.debug_enabled,
     ConfigKey.debug_forceInstall,
+
+    ConfigKey.compression,
+    ConfigKey.conversion,
+    ConfigKey.similarity_precision,
   ]
 
   static readonly refreshConfigs = [
@@ -26,10 +32,6 @@ export class Config {
     ConfigKey.viewer_imageWidth,
     ConfigKey.viewer_imageBackgroundColor,
     ConfigKey.viewer_imageRendering,
-
-    ConfigKey.compression,
-    ConfigKey.conversion,
-    ConfigKey.similarity_precision,
   ]
 
   static get debug_enabled(): boolean {

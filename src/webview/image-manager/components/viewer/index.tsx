@@ -1,3 +1,4 @@
+import { floor } from '@minko-fe/lodash-pro'
 import { useMemoizedFn } from '@minko-fe/react-hook'
 import styleObjectToString from '@minko-fe/style-object-to-string'
 import { Card, Empty, Skeleton } from 'antd'
@@ -74,7 +75,8 @@ function Viewer() {
   })
   useEffect(() => {
     if (target) {
-      setViewerHeaderStickyHeight(target.getBoundingClientRect().height)
+      // Windows PC 上可能会高度计算不准确
+      setViewerHeaderStickyHeight(floor(target.getBoundingClientRect().height) - 0.5)
     }
   }, [target])
 

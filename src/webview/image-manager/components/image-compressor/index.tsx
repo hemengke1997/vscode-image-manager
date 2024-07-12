@@ -6,7 +6,8 @@ import { motion } from 'framer-motion'
 import { memo, useEffect, useMemo, useState } from 'react'
 import { Trans, useTranslation } from 'react-i18next'
 import { BsQuestionCircleFill } from 'react-icons/bs'
-import { type CompressionOptions, type OperatorResult } from '~/core'
+import { type OperatorResult } from '~/core'
+import { type CompressionOptions } from '~/core/operator/compressor/type'
 import { CmdToVscode } from '~/message/cmd'
 import { abortPromise } from '~/utils/abort-promise'
 import { vscodeApi } from '~/webview/vscode-api'
@@ -56,12 +57,12 @@ function ImageCompressor(props: ImageCompressorProps) {
     return images?.every((img) => img.fileType === type)
   })
 
-  const { beginCompressProcess } = useImageOperation()
+  const { beginCompressProcess, beginUndoProcess } = useImageOperation()
   const { handleOperateImage } = useOperatorModalLogic({ images })
 
   const compressImage = useMemoizedFn((filePaths: string[], option: FormValue, abortController: AbortController) => {
     const fn = () =>
-      new Promise<OperatorResult | undefined>((resolve) => {
+      new Promise<OperatorResult[] | undefined>((resolve) => {
         vscodeApi.postMessage({ cmd: CmdToVscode.compress_image, data: { filePaths, option } }, (data) => {
           resolve(data)
         })
@@ -101,6 +102,9 @@ function ImageCompressor(props: ImageCompressorProps) {
         },
         onRetryClick(images) {
           beginCompressProcess(images)
+        },
+        onUndoClick(...args) {
+          beginUndoProcess(...args)
         },
       },
     )

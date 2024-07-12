@@ -1,5 +1,6 @@
 import EventEmitter from 'eventemitter3'
 import { useEffect, useRef } from 'react'
+import { type SetRequired } from 'type-fest'
 
 type Events = {
   /**
@@ -13,7 +14,7 @@ type Events = {
   /**
    * 在viewer中显示图片
    */
-  reveal_in_viewer: [image: ImageType]
+  reveal_in_viewer: [image: SetRequired<Partial<ImageType>, 'path'>]
   /**
    * 右键图片
    */

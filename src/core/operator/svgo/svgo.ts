@@ -4,7 +4,7 @@ import path from 'node:path'
 import { type Config, loadConfig, optimize } from 'svgo'
 import { FileCache } from '~/core'
 import { Channel } from '~/utils/channel'
-import { type CustomSvgCompressionOptions } from '../compressor'
+import { type CustomSvgCompressionOptions } from '../compressor/type'
 import { type SvgoPlugin } from './meta'
 
 type AllOptions = SvgoPlugin & CustomSvgCompressionOptions

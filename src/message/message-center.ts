@@ -6,13 +6,14 @@ import imageSize from 'image-size'
 import micromatch from 'micromatch'
 import mime from 'mime/lite'
 import path from 'node:path'
+import pMap from 'p-map'
 import git from 'simple-git'
 import { type ConfigurationTarget, Uri, ViewColumn, type Webview, commands, window, workspace } from 'vscode'
 import { type SharpNS } from '~/@types/global'
 import { Commands } from '~/commands'
 import {
-  type CompressionOptions,
   Config,
+  FormatConverter,
   type FormatConverterOptions,
   Global,
   type OperatorResult,
@@ -20,7 +21,11 @@ import {
   Svgo,
 } from '~/core'
 import { Similarity } from '~/core/analysis'
+import { commandCache } from '~/core/commander'
 import { type ConfigType } from '~/core/config/common'
+import { SvgCompressor } from '~/core/operator/compressor/svg'
+import { type CompressionOptions } from '~/core/operator/compressor/type'
+import { UsualCompressor } from '~/core/operator/compressor/usual'
 import { COMPRESSED_META } from '~/core/operator/meta'
 import { WorkspaceState } from '~/core/persist'
 import { type WorkspaceStateKey } from '~/core/persist/workspace/common'
@@ -247,14 +252,26 @@ export const VscodeMessageCenter = {
 
   /* ----------- get compressor ---------- */
   [CmdToVscode.get_compressor]: async () => {
-    const compressor = Global.compressor
-    return compressor
+    let compressor = new UsualCompressor(Config.compression)
+    const { option, limit } = compressor
+    // @ts-expect-error
+    compressor = null
+    return {
+      option,
+      limit,
+    }
   },
 
   /* ----------- get format converter ----------- */
   [CmdToVscode.get_format_converter]: async () => {
-    const formatConverter = Global.formatConverter
-    return formatConverter
+    let converter = new FormatConverter(Config.conversion)
+    const { option, limit } = converter
+    // @ts-expect-error
+    converter = null
+    return {
+      option,
+      limit,
+    }
   },
 
   /* ------- open path in vscode explorer ------ */
@@ -293,13 +310,46 @@ export const VscodeMessageCenter = {
   /* -------------- compress image -------------- */
   [CmdToVscode.compress_image]: async (data: {
     filePaths: string[]
-    option?: CompressionOptions
-  }): Promise<OperatorResult | undefined> => {
+    option: CompressionOptions
+  }): Promise<OperatorResult[] | undefined> => {
     try {
       const { filePaths, option } = data
       Channel.debug(`Compress params: ${JSON.stringify(data)}`)
-      const { compressor } = Global
-      const res = await compressor?.run(filePaths, option)
+
+      const svgs: string[] = []
+      const usuals: string[] = []
+
+      filePaths.forEach((filePath) => {
+        if (path.extname(filePath) === '.svg') {
+          svgs.push(filePath)
+        } else {
+          usuals.push(filePath)
+        }
+      })
+
+      const res = await pMap(
+        [
+          ...svgs.map((filePath) => async () => {
+            let compressor = new SvgCompressor(option)
+            try {
+              return await compressor.run(filePath, option)
+            } finally {
+              // @ts-expect-error
+              compressor = null
+            }
+          }),
+          ...usuals.map((filePath) => async () => {
+            let compressor = new UsualCompressor(option)
+            try {
+              return await compressor.run(filePath, option)
+            } finally {
+              // @ts-expect-error
+              compressor = null
+            }
+          }),
+        ],
+        (task) => task(),
+      )
       Channel.debug(`Compress result: ${JSON.stringify(res)}`)
       return res
     } catch (e: any) {
@@ -312,18 +362,56 @@ export const VscodeMessageCenter = {
   [CmdToVscode.convert_image_format]: async (data: {
     filePaths: string[]
     option: FormatConverterOptions
-  }): Promise<OperatorResult | undefined> => {
+  }): Promise<OperatorResult[] | undefined> => {
     try {
       const { filePaths, option } = data
       Channel.debug(`Convert params: ${JSON.stringify(data)}`)
-      const { formatConverter } = Global
-      const res = await formatConverter?.run(filePaths, option)
+      const res = await pMap(
+        filePaths.map((filePath) => async () => {
+          let converter = new FormatConverter(Config.conversion)
+          try {
+            return await converter.run(filePath, option)
+          } finally {
+            // @ts-expect-error
+            converter = null
+          }
+        }),
+        (task) => task(),
+      )
       Channel.debug(`Convert result: ${JSON.stringify(res)}`)
       return res
     } catch (e: any) {
       Channel.debug(`Convert error: ${JSON.stringify(e)}`)
       return e
     }
+  },
+
+  /* -------------- undo operation -------------- */
+  [CmdToVscode.undo_operation]: async (data: {
+    /**
+     * 操作id
+     */
+    id: string
+  }) => {
+    const { id } = data
+    try {
+      await commandCache.executeUndo(id)
+      return true
+    } catch (e: any) {
+      return {
+        error: e instanceof Error ? e.message : toString(e),
+      }
+    }
+  },
+
+  /* ------ delete operation command cache ------ */
+  [CmdToVscode.remove_operation_cmd_cache]: async (data: { id: string }) => {
+    commandCache.remove(data.id)
+  },
+
+  /* ------- clear operation command cache ------ */
+  [CmdToVscode.clear_operation_cmd_cache]: async () => {
+    commandCache.clear()
   },
 
   /* -------- match glob with micromatch -------- */
@@ -538,12 +626,10 @@ export const VscodeMessageCenter = {
     return true
   },
   /* ---------------- delete file/dir --------------- */
-  [CmdToVscode.delete_file]: async (data: { filePaths: string[]; recursive?: boolean }) => {
-    const { filePaths, recursive } = data
+  [CmdToVscode.delete_file]: async (data: { filePaths: string[]; recursive?: boolean; useTrash?: boolean }) => {
+    const { filePaths, recursive, useTrash = true } = data
     try {
-      await Promise.all(
-        filePaths.map((filePath) => workspace.fs.delete(Uri.file(filePath), { useTrash: true, recursive })),
-      )
+      await Promise.all(filePaths.map((filePath) => workspace.fs.delete(Uri.file(filePath), { useTrash, recursive })))
       return true
     } catch {
       return false

@@ -82,12 +82,12 @@ export class SharpOperator<T extends AnyObject, RuntimeCtx extends AnyObject = T
 
     await this.hooks.callHook('before:run', this.ctx)
 
+    const outputPath = await this.hooks.callHook('on:generate-output-path', this.ctx)
+
     return new Promise((resolve, reject) => {
       this.ctx.sharp
         .toBuffer()
         .then(async (buffer) => {
-          const outputPath = await this.hooks.callHook('on:generate-output-path', this.ctx)
-
           const result = {
             outputPath,
             buffer,

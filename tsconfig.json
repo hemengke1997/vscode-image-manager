@@ -7,5 +7,5 @@
       "~root/*": ["./*"]
     }
   },
-  "exclude": ["temp/*", "**/dist", "dist-webview"]
+  "exclude": ["temp", "dist", "dist-webview"]
 }
