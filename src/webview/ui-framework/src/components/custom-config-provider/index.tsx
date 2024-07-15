@@ -1,5 +1,5 @@
 import { toLower } from '@minko-fe/lodash-pro'
-import { useUpdateEffect } from '@minko-fe/react-hook'
+import { useMemoizedFn, useUpdateEffect } from '@minko-fe/react-hook'
 import Logo from '~/../assets/logo.svg?react'
 import { Button, Popover, Tooltip } from 'antd'
 import { motion } from 'framer-motion'
@@ -44,9 +44,9 @@ function CustomConfigProvider(props: PropsWithChildren) {
 
   const { t } = useTranslation()
 
-  const isSimpleMode = (m: string | undefined) => {
+  const isSimpleMode = useMemoizedFn((m: string | undefined) => {
     return m === 'simple'
-  }
+  })
 
   const domRef = useRef<HTMLDivElement>(null)
   useEffect(() => {

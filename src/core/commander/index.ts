@@ -30,8 +30,10 @@ class Cache {
    * 从缓存中删除Commander
    */
   remove(id: string): void {
-    this.cache.delete(id)
-    logger.debug(`Commander with id ${id} removed from cache`)
+    if (this.cache.has(id)) {
+      this.cache.delete(id)
+      logger.debug(`Commander with id ${id} removed from cache`)
+    }
   }
 
   /**

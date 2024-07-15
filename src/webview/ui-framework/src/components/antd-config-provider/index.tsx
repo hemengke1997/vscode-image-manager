@@ -1,6 +1,6 @@
 import { TinyColor } from '@ctrl/tinycolor'
 import { App, ConfigProvider, theme as antdTheme } from 'antd'
-import { type PropsWithChildren, memo } from 'react'
+import { type PropsWithChildren, memo, useEffect } from 'react'
 import FrameworkContext from '../../contexts/framework-context'
 import { getCssVar } from '../../utils/theme'
 
@@ -44,6 +44,12 @@ function AntdConfigProvider({ children }: PropsWithChildren) {
     }
   }
 
+  const docFontSize = Number(vscodeFontSize) - 1 || 12
+
+  useEffect(() => {
+    document.documentElement.style.setProperty('font-size', `${docFontSize}px`)
+  }, [docFontSize])
+
   return (
     <ConfigProvider
       input={{ autoComplete: 'off' }}
@@ -63,7 +69,7 @@ function AntdConfigProvider({ children }: PropsWithChildren) {
         token: {
           fontFamily: 'var(--vscode-font-family)',
           motion: reduceMotionWithoutAuto === 'on' ? false : true,
-          fontSize: Number(vscodeFontSize) - 1 || 12,
+          fontSize: docFontSize,
           colorPrimary: primaryColor,
           motionDurationSlow: `${DURATION_BASE * 2}s`,
           motionDurationMid: `${DURATION_BASE}s`,

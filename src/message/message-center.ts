@@ -33,6 +33,7 @@ import { i18n } from '~/i18n'
 import { generateOutputPath, normalizePath } from '~/utils'
 import { Channel } from '~/utils/channel'
 import { imageGlob } from '~/utils/glob'
+import logger from '~/utils/logger'
 import { ImageManagerPanel } from '~/webview/panel'
 import { CmdToVscode, CmdToWebview } from './cmd'
 import { convertImageToBase64, convertToBase64IfBrowserNotSupport, debouncePromise, isBase64 } from './utils'
@@ -152,6 +153,7 @@ export const VscodeMessageCenter = {
       }),
     )
   },
+
   /* -------------- get all images -------------- */
   [CmdToVscode.get_all_images]: async (_data: unknown, webview: Webview) => {
     const absWorkspaceFolders = Global.rootpaths
@@ -216,6 +218,7 @@ export const VscodeMessageCenter = {
       }
     }
   },
+
   /* --------------- get one image -------------- */
   [CmdToVscode.get_one_image]: async (
     data: {
@@ -234,6 +237,7 @@ export const VscodeMessageCenter = {
     )
     return images[0]
   },
+
   /* ------- get extension & vscode config ------ */
   [CmdToVscode.get_extension_config]: async () => {
     const config = Config.all
@@ -496,9 +500,18 @@ export const VscodeMessageCenter = {
     let compressed = false
     let metadata: SharpNS.Metadata = {} as SharpNS.Metadata
 
+    let fileExists = false
     try {
-      await fs.exists(filePath)
+      fileExists = await fs.exists(filePath)
     } catch {
+      logger.debug('testestetes')
+      return {
+        metadata,
+        compressed,
+      }
+    }
+
+    if (!fileExists) {
       return {
         metadata,
         compressed,

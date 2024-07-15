@@ -1,4 +1,4 @@
-import { isNull, isUndefined } from '@minko-fe/lodash-pro'
+import { isUndefined } from '@minko-fe/lodash-pro'
 import { useInViewport, useMemoizedFn } from '@minko-fe/react-hook'
 import { type DependencyList, useEffect, useLayoutEffect, useRef } from 'react'
 import { getAppRoot } from '~/webview/utils'
@@ -42,7 +42,7 @@ export function useSticky(props: Props, deps?: DependencyList) {
   const targetStyle = useRef<string>()
 
   useEffect(() => {
-    if (target && isNull(targetStyle.current)) {
+    if (target && isUndefined(targetStyle.current)) {
       targetStyle.current = target.getAttribute('style') || ''
     }
   }, [target])

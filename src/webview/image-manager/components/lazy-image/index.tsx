@@ -342,7 +342,9 @@ function LazyImage(props: LazyImageProps) {
                         <div className={'flex size-full flex-col items-center justify-center space-y-1 text-sm'}>
                           {onPreviewClick && (
                             <div
-                              className={classnames('flex cursor-pointer items-center space-x-1 truncate')}
+                              className={classnames(
+                                'hover:text-ant-color-text active:text-ant-color-text-label flex cursor-pointer items-center space-x-1 truncate transition-colors',
+                              )}
                               onClick={(e) => {
                                 if (multipleSelect(e)) return
                                 // prevent click away

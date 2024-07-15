@@ -1,5 +1,5 @@
 import { isFunction } from '@minko-fe/lodash-pro'
-import { useUpdateEffect } from '@minko-fe/react-hook'
+import { useMemoizedFn, useUpdateEffect } from '@minko-fe/react-hook'
 import { type DependencyList, type Dispatch, type SetStateAction, useState } from 'react'
 
 export const enum Trigger {
@@ -8,7 +8,7 @@ export const enum Trigger {
 }
 
 /**
- * 追踪状态变化，当依赖变化后，重新获取状态
+ * 追踪依赖状态变化，当依赖变化后，重新获取状态
  * @param tracedState 被追踪的状态
  * @param options
  * deps: 依赖
@@ -51,7 +51,7 @@ export function useTrackState<S>(
     )
   }, [...(deps || []), _trackState])
 
-  const setState: Dispatch<SetStateAction<S>> = (newState) => {
+  const setState: Dispatch<SetStateAction<S>> = useMemoizedFn((newState) => {
     if (isFunction(newState)) {
       setTrackState((t) => ({
         state: newState(t.state),
@@ -63,7 +63,7 @@ export function useTrackState<S>(
         trigger: Trigger.set,
       })
     }
-  }
+  })
 
   useUpdateEffect(() => {
     switch (trigger) {

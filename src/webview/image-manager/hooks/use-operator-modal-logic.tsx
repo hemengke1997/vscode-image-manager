@@ -130,7 +130,6 @@ function useOperatorModalLogic(props: { images: ImageType[] }) {
                     name: getFilenameFromPath(filePath),
                   } as ImageType)
                   notification.destroy(currentKey)
-                  removeOperatorCmdCache(id)
                 }}
               >
                 {t('im.undo')}

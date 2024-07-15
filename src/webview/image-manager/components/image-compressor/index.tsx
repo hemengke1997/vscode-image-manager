@@ -242,6 +242,7 @@ function ImageCompressor(props: ImageCompressorProps) {
                     ]}
                   ></Trans>
                   <Tooltip
+                    mouseEnterDelay={0}
                     title={
                       <Trans i18nKey='im.refer_to_svgo'>
                         <a href='https://svgo.dev/'></a>

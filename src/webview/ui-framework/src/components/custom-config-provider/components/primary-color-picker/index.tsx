@@ -1,8 +1,8 @@
 import { TinyColor } from '@ctrl/tinycolor'
 import { uniq } from '@minko-fe/lodash-pro'
-import { useControlledState } from '@minko-fe/react-hook'
+import { useControlledState, useMemoizedFn } from '@minko-fe/react-hook'
 import { Button, ColorPicker, type ColorPickerProps } from 'antd'
-import { type ReactNode, memo, startTransition } from 'react'
+import { type ReactNode, memo, useMemo } from 'react'
 import { useTranslation } from 'react-i18next'
 import { MdOutlineColorLens } from 'react-icons/md'
 import { builtInColors, vscodeColors } from '~/webview/ui-framework/src/utils/theme'
@@ -22,9 +22,9 @@ function PrimaryColorPicker(props: PrimaryColorPickerProps) {
 
   const { value, onChange, extraColors, rencentColors, onRencentColorsChange, title } = props
 
-  const color = new TinyColor(value).toHex8String()
+  const color = useMemo(() => new TinyColor(value).toHex8String(), [value])
 
-  const formattedExtraColors = extraColors?.map((t) => new TinyColor(t).toHexString())
+  const formattedExtraColors = useMemo(() => extraColors?.map((t) => new TinyColor(t).toHexString()), [extraColors])
 
   const [selectedColor, setSelectedColor] = useControlledState({
     defaultValue: color,
@@ -38,11 +38,11 @@ function PrimaryColorPicker(props: PrimaryColorPickerProps) {
     onChange: onRencentColorsChange,
   })
 
-  const _onColorChange: ColorPickerProps['onChangeComplete'] = (color) => {
-    startTransition(() => setSelectedColor(color.toHexString()))
-  }
+  const onColorChange: ColorPickerProps['onChangeComplete'] = useMemoizedFn((color) => {
+    setSelectedColor(color.toHexString())
+  })
 
-  const onOpenChange: ColorPickerProps['onOpenChange'] = () => {
+  const onOpenChange: ColorPickerProps['onOpenChange'] = useMemoizedFn(() => {
     if (selectedColor === recentColorsQueue?.[0]) return
     let newRecentColorsQueue = [...(recentColorsQueue || [])]
     newRecentColorsQueue.unshift(selectedColor)
@@ -52,7 +52,7 @@ function PrimaryColorPicker(props: PrimaryColorPickerProps) {
       newRecentColorsQueue.pop()
     }
     setRecentColorsQueue(newRecentColorsQueue)
-  }
+  })
 
   return (
     <ColorPicker
@@ -72,7 +72,7 @@ function PrimaryColorPicker(props: PrimaryColorPickerProps) {
         },
       ]}
       value={selectedColor}
-      onChangeComplete={_onColorChange}
+      onChangeComplete={onColorChange}
       onOpenChange={onOpenChange}
       placement='bottom'
     >
