@@ -311,6 +311,7 @@ function ImagePreview(props: ImagePreviewProps, ref: ForwardedRef<HTMLDivElement
             >
               {images.map((image, i) => (
                 <div
+                  // vscodePath 是带了时间戳的，可以避免图片文件名未改变但内容改变，导致图片不刷新的问题
                   key={image.vscodePath}
                   onClick={(e) => onClick(e, image)}
                   ref={(ref) => (selectedImageRefs.current[image.path] = ref!)}

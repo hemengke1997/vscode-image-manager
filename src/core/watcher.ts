@@ -6,6 +6,7 @@ import { Config, Global } from '~/core'
 import { CmdToWebview } from '~/message/cmd'
 import { Channel } from '~/utils/channel'
 import { imageGlob } from '~/utils/glob'
+import logger from '~/utils/logger'
 import { ImageManagerPanel } from '~/webview/panel'
 
 export class Watcher {
@@ -38,34 +39,30 @@ export class Watcher {
     return !micromatch.all(e.fsPath || e.path, ignores)
   }
 
-  private static debouncedHandleEvent = debounce(this._handleEvent, 500, {
-    leading: true,
-    trailing: false,
-    maxWait: 1000,
-  })
+  private static debouncedHandleEvent = debounce(this._handleEvent, 500, { maxWait: 1000 })
 
-  private static _handleEvent(e: Uri) {
+  private static _handleEvent(e: Uri, type: 'change' | 'create' | 'delete') {
     if (e.scheme !== 'file') return
     const isDirectory = !path.extname(e.fsPath || e.path)
     if (this._isIgnored(e, isDirectory)) {
       return
     }
-    Channel.debug(`File Changed: ${e.fsPath || e.path}, isDirectory: ${isDirectory}, trigger refresh`)
+    logger.debug(`File ${type}: ${e.fsPath || e.path}, isDirectory: ${isDirectory}, trigger refresh`)
     this.webview?.postMessage({
       cmd: CmdToWebview.refresh_images,
     })
   }
 
   private static _onDidChange(e: Uri) {
-    this.debouncedHandleEvent(e)
+    this.debouncedHandleEvent(e, 'change')
   }
 
   private static _onDidCreate(e: Uri) {
-    this.debouncedHandleEvent(e)
+    this.debouncedHandleEvent(e, 'create')
   }
 
   private static _onDidDelete(e: Uri) {
-    this.debouncedHandleEvent(e)
+    this.debouncedHandleEvent(e, 'delete')
   }
 
   private static _start() {

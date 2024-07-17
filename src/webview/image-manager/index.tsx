@@ -104,7 +104,13 @@ function ImageManager() {
     setupImageDisplayTypes()
   }, [allImageTypes])
 
+  const refreshingRef = useRef(false)
+
   useEffect(() => {
+    if (refreshingRef.current) return
+
+    refreshingRef.current = true
+
     const isRefresh = refreshTimes && refreshType === 'refresh'
     const messageKey = 'refresh_images'
     let timer: number
@@ -133,6 +139,8 @@ function ImageManager() {
         message.destroy(messageKey)
         message.success(t('im.img_refreshed'))
       }
+
+      refreshingRef.current = false
     })
   }, [refreshTimes])
 

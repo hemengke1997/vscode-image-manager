@@ -1,8 +1,8 @@
 import { useControlledState, useMemoizedFn } from '@minko-fe/react-hook'
 import EventEmitter from 'eventemitter3'
 import { AnimatePresence, motion } from 'framer-motion'
-import { type ReactElement, type ReactNode, useEffect, useLayoutEffect, useRef, useState } from 'react'
-import { type Root, createRoot } from 'react-dom/client'
+import { type ReactNode, useEffect, useLayoutEffect, useRef, useState } from 'react'
+import { render, unmount } from '~/webview/utils/imperative/render'
 import { ANIMATION_DURATION } from '../../utils/duration'
 import Queue, { type ToastMessageType } from './queue'
 
@@ -117,34 +117,14 @@ const event = new EventEmitter<{
   destroy: []
 }>()
 
-const MARK = '__toast_react_root__'
-
-type ContainerType = (Element | DocumentFragment) & {
-  [MARK]?: Root
-}
-
-async function concurrentUnmount(container: ContainerType) {
-  // Delay to unmount to avoid React 18 sync warning
-  return Promise.resolve().then(() => {
-    container[MARK]?.unmount()
-    delete container[MARK]
-  })
-}
-
-function reactRender(node: ReactElement, container: ContainerType) {
-  const root = container[MARK] || createRoot(container)
-  root.render(node)
-  container[MARK] = root
-}
-
 event.on('init', (args) => {
   const container = document.createElement('div')
   document.body.appendChild(container)
-  reactRender(
+  render(
     <ToastHolder
       {...args}
       onClosed={() => {
-        concurrentUnmount(container)
+        unmount(container)
         container.remove()
         args.onClosed?.()
         queue.shift()

@@ -137,7 +137,7 @@ export const VscodeMessageCenter = {
           dirPath,
           absDirPath: normalizePath(path.dirname(image.path)),
           fileType,
-          vscodePath: isBase64(vscodePath) ? vscodePath : `${vscodePath}?t=${image.stats?.mtime.getTime()}`,
+          vscodePath: isBase64(vscodePath) ? vscodePath : `${vscodePath}?t=${image.stats?.mtimeMs}`,
           workspaceFolder: normalizePath(path.basename(cwd)),
           absWorkspaceFolder,
           relativePath:
@@ -566,14 +566,14 @@ export const VscodeMessageCenter = {
   },
 
   /* --------- update user configuration -------- */
-  [CmdToVscode.update_user_configuration]: (data: {
+  [CmdToVscode.update_user_configuration]: async (data: {
     key: Flatten<ConfigType>
     value: any
     target?: ConfigurationTarget
   }) => {
     const { key, value, target } = data
 
-    debouncePromise(
+    await debouncePromise(
       async () => {
         Global.isProgrammaticChangeConfig = true
         try {
