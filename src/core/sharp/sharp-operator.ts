@@ -45,7 +45,7 @@ export class SharpOperator<T extends AnyObject, RuntimeCtx extends AnyObject = T
     try {
       const sharp = Global.sharp
       this.ctx.sharpFactory = sharp
-    } catch (e) {}
+    } catch {}
   }
 
   async run(

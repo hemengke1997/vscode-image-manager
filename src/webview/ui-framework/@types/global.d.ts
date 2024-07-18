@@ -1,5 +1,10 @@
 declare global {
-  interface Window {}
+  interface Window {
+    /**
+     * react root
+     */
+    __react_root__: ReactDOM.Root
+  }
 }
 
 export {}

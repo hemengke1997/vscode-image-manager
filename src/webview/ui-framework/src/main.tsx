@@ -11,15 +11,6 @@ import './hmr'
 import './styles/index.css'
 import 'antd/dist/reset.css'
 
-declare global {
-  interface Window {
-    /**
-     * react root
-     */
-    __react_root__: ReactDOM.Root
-  }
-}
-
 type WebviewComponents = {
   [key: string]: () => JSX.Element
 }

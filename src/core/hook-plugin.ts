@@ -31,7 +31,7 @@ export class HookPlugin<RuntimeHooks extends AnyObject = AnyObject> {
       if (plugins?.length) {
         this._applyPlugins(plugins as ObjectPlugin[])
       }
-    } catch (e) {}
+    } catch {}
   }
 
   use(plugins: ObjectPlugin[]) {

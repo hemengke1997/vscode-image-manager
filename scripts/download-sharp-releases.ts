@@ -19,7 +19,7 @@ function isVersionDiff() {
 
   try {
     lastVersion = fs.readJSONSync(versionJsonFile).version
-  } catch (error) {
+  } catch {
     isDiff = true
   }
 
