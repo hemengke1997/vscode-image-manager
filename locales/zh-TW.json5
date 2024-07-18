@@ -22,6 +22,7 @@
       scan: '掃描圖片的類型',
       confirmDelete: '刪除圖片時是否詢問',
       revealFileInOsDeeply: '在OS中顯示文件夾時進入到文件夾中',
+      trashAfterProcessing: '圖片處理之後是否放入回收站中',
     },
     viewer: {
       warningSize: '如果圖片大小大於此值 (KB)，則顯示警告點。值為0時不顯示',

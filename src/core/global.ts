@@ -10,7 +10,7 @@ import { ConfigKey, type VscodeConfigType } from './config/common'
 import { Svgo } from './operator/svgo'
 
 export class Global {
-  private static _rootpaths: string[]
+  static rootpaths: string[]
   /**
    * extension context
    */
@@ -32,10 +32,9 @@ export class Global {
    */
   static sharp: TSharp
   /**
-   * is programmatic change config
+   * 程序式更改配置
    */
   static isProgrammaticChangeConfig = false
-
   /**
    * sharp 安装器
    */
@@ -75,20 +74,21 @@ export class Global {
     )
     this.updateRootPath()
   }
-
-  static get rootpaths(): string[] {
-    return this._rootpaths || []
-  }
-
   static updateRootPath(_rootpaths?: string[]) {
     let rootpaths = _rootpaths?.length ? _rootpaths : Config.file_root
-    if (!rootpaths && workspace.rootPath) {
-      rootpaths = [workspace.rootPath]
+    if (!rootpaths) {
+      if (workspace.rootPath) {
+        rootpaths = [workspace.rootPath]
+      }
+      if (workspace.workspaceFolders) {
+        rootpaths = workspace.workspaceFolders.map((f) => f.uri.fsPath)
+      }
     }
+
     if (rootpaths?.length) {
       Channel.info(i18n.t('core.workspace_changed', rootpaths.join(',')))
-      this._rootpaths = rootpaths
-      this._onDidChangeRootPath.fire(this._rootpaths)
+      this.rootpaths = rootpaths
+      this._onDidChangeRootPath.fire(this.rootpaths)
     }
   }
 

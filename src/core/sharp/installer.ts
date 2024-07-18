@@ -480,7 +480,7 @@ export class Installer {
           manualInstallSuccess.libvips = true
           Channel.info(`${i18n.t('core.manual_install_success')}: ${libvipsBins[i]}`)
           break
-        } catch (e) {
+        } catch {
           manualInstallSuccess.libvips = false
         }
       }

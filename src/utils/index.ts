@@ -2,30 +2,21 @@ import fs from 'fs-extra'
 import path from 'node:path'
 import slash from 'slash'
 
+/**
+ * 格式化路径
+ */
 export function normalizePath(id: string): string {
   return slash(id)
 }
 
-export function isPng(filePath: string) {
-  return isSomeImageType(filePath, ['png'])
-}
-
-export function isJpg(filePath: string) {
-  return isSomeImageType(filePath, ['jpg', 'jpeg'])
-}
-
-export function isTiff(filePath: string) {
-  return isSomeImageType(filePath, ['tiff', 'tif'])
-}
-
-function isSomeImageType(filePath: string, type: string[]) {
-  const ext = path.extname(filePath).toLowerCase()
-  if (!ext) return type.some((t) => t === filePath)
-  return type.some((t) => ext === `.${t}`)
-}
-
-export function generateOutputPath(filePath: string, suffix: string) {
-  const { name, ext, dir } = path.parse(filePath)
+/**
+ * 生成输入路径
+ * @param input 输入路径
+ * @param suffix 后缀
+ * @returns
+ */
+export function generateOutputPath(input: string, suffix: string) {
+  const { name, ext, dir } = path.parse(input)
   const filename = `${name}${suffix}`
   const outputPath = `${dir}/${filename}${ext}`
 
@@ -37,29 +28,48 @@ export function generateOutputPath(filePath: string, suffix: string) {
   return outputPath
 }
 
+/**
+ * 判断url是否合法
+ * @param url
+ * @returns
+ */
 export function isValidHttpsUrl(url: string) {
   try {
     const urlObj = new URL(url)
     return urlObj.protocol === 'https:'
-  } catch (e) {
+  } catch {
     return false
   }
 }
 
+/**
+ * 首次立即执行定时器
+ * @returns
+ */
 export function setImmdiateInterval(callback: () => void, interval: number) {
   callback()
   return setInterval(callback, interval)
 }
 
+/**
+ * 把版本号前面的非数字字符去掉
+ * @param version
+ * @returns
+ */
 export function cleanVersion(version: string) {
   return version.replace(/^[^0-9]+/, '')
 }
 
+/**
+ * 文件路径是否可写
+ * @param path
+ * @returns
+ */
 export function isFsWritable(path: string) {
   try {
     fs.accessSync(path, fs.constants.W_OK)
     return true
-  } catch (err) {
+  } catch {
     return false
   }
 }

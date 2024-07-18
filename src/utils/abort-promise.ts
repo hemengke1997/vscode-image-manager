@@ -18,12 +18,12 @@ export class AbortError extends Error {
 export async function abortPromise<T = any>(
   promise: () => Promise<T>,
   options: {
-    timeout: number
+    timeout?: number
     abortController: AbortController
     mock?: boolean
   },
 ) {
-  const { timeout, abortController, mock } = options
+  const { timeout = Infinity, abortController, mock } = options
 
   try {
     const res = await pTimeout<T>(mock ? delay(timeout * 100) : promise(), {
@@ -34,10 +34,37 @@ export async function abortPromise<T = any>(
   } catch (e) {
     const message = e instanceof Error ? e.message : ''
     if (message.includes('timed out')) {
-      throw new TimeoutError()
+      throw new TimeoutError(message)
     } else if (message.includes('aborted')) {
-      throw new AbortError()
+      throw new AbortError(message)
     }
     throw e
   }
+}
+
+const abortPromiseMap = new Map<string, AbortController>()
+export async function controlledAbortPromise<T = any>(
+  promise: () => Promise<T>,
+  options: {
+    key: string
+    timeout?: number
+    mock?: boolean
+  },
+) {
+  const { key, timeout, mock } = options
+
+  if (abortPromiseMap.has(key)) {
+    abortPromiseMap.get(key)?.abort()
+  }
+
+  const controller = new AbortController()
+  abortPromiseMap.set(key, controller)
+
+  return abortPromise(promise, {
+    timeout,
+    abortController: controller,
+    mock,
+  }).finally(() => {
+    abortPromiseMap.delete(key)
+  })
 }

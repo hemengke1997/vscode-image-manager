@@ -7,7 +7,7 @@ import { useTranslation } from 'react-i18next'
 import { FaRegImages } from 'react-icons/fa'
 import { IoMdFolderOpen } from 'react-icons/io'
 import { VscFileMedia } from 'react-icons/vsc'
-import { classnames } from 'tw-clsx'
+import { classNames } from 'tw-clsx'
 import { type WorkspaceStateType } from '~/core/persist/workspace/common'
 import { getAppRoot } from '~/webview/utils'
 import TreeContext from '../../contexts/tree-context'
@@ -174,7 +174,7 @@ function CollapseTree(props: CollapseTreeProps) {
                 collapseProps={{
                   bordered: false,
                   defaultActiveKey: defaultOpen ? [value] : undefined,
-                  className: classnames(styles.collapse),
+                  className: classNames(styles.collapse),
                   ...collapseProps,
                 }}
                 labelRender={(label) => (

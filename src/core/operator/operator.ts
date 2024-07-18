@@ -7,6 +7,7 @@ import { CmdToVscode } from '~/message/cmd'
 import { generateOutputPath } from '~/utils'
 import { Channel } from '~/utils/channel'
 import { type Commander } from '../commander'
+import { Config } from '../config'
 
 export type OperatorOptions = {
   /**
@@ -237,7 +238,7 @@ export abstract class Operator {
     },
   ) {
     try {
-      const { useTrash = false } = options || {}
+      const { useTrash = Config.file_trashAfterProcessing } = options || {}
       await VscodeMessageCenter[CmdToVscode.delete_file]({ filePaths: [filePath], useTrash })
     } catch (e) {
       Channel.info(`${i18n.t('core.trash_error')}: ${e}`)

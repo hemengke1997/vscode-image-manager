@@ -10,7 +10,7 @@ import { useTranslation } from 'react-i18next'
 import { IoIosArrowDropup } from 'react-icons/io'
 import { LuArrowRightLeft, LuArrowUpDown } from 'react-icons/lu'
 import { RxReset } from 'react-icons/rx'
-import { classnames } from 'tw-clsx'
+import { classNames } from 'tw-clsx'
 import { CmdToVscode } from '~/message/cmd'
 import { vscodeApi } from '~/webview/vscode-api'
 import { LOADING_DURATION } from '../../utils/duration'
@@ -191,7 +191,7 @@ function ImageCropper(props?: ImageCropperProps) {
           <Card>
             <ReactCropper
               src={image?.vscodePath}
-              className={classnames('h-[500px] w-full max-w-full', styles.cropper, loading && 'absolute opacity-0')}
+              className={classNames('h-[500px] w-full max-w-full', styles.cropper, loading && 'absolute opacity-0')}
               ready={() => {
                 setLoading(false)
               }}
@@ -415,7 +415,7 @@ function ImageCropper(props?: ImageCropperProps) {
         title={t('im.preview')}
       >
         <Card>
-          <div ref={previewRef} className={classnames('flex justify-center', styles.canvas_box)}></div>
+          <div ref={previewRef} className={classNames('flex justify-center', styles.canvas_box)}></div>
         </Card>
       </Modal>
     </Modal>

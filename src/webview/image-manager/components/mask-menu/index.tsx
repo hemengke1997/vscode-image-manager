@@ -1,6 +1,6 @@
 import { memo, useState } from 'react'
 import { Menu, type MenuProps } from 'react-contexify'
-import { classnames } from 'tw-clsx'
+import { classNames } from 'tw-clsx'
 import GlobalContext from '../../contexts/global-context'
 
 function MaskMenu(props: MenuProps) {
@@ -11,7 +11,7 @@ function MaskMenu(props: MenuProps) {
   return (
     <>
       <div
-        className={classnames('fixed inset-0 z-[999]', contextMenuMask ? 'block' : 'hidden')}
+        className={classNames('fixed inset-0 z-[999]', contextMenuMask ? 'block' : 'hidden')}
         id='context-menu-mask'
       ></div>
       <Menu

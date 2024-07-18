@@ -1,5 +1,5 @@
 import { difference, isEqual } from '@minko-fe/lodash-pro'
-import { useMemoizedFn, useUpdateEffect } from '@minko-fe/react-hook'
+import { useDebounceEffect, useMemoizedFn, useUpdateEffect } from '@minko-fe/react-hook'
 import { App, FloatButton } from 'antd'
 import { setAutoFreeze } from 'immer'
 import { memo, useEffect, useMemo, useRef } from 'react'
@@ -104,45 +104,44 @@ function ImageManager() {
     setupImageDisplayTypes()
   }, [allImageTypes])
 
-  const refreshingRef = useRef(false)
-
-  useEffect(() => {
-    if (refreshingRef.current) return
-
-    refreshingRef.current = true
-
-    const isRefresh = refreshTimes && refreshType === 'refresh'
-    const messageKey = 'refresh_images'
-    let timer: number
-    if (isRefresh) {
-      timer = window.setTimeout(() => {
-        message.loading({
-          content: t('im.img_refreshing'),
-          key: messageKey,
-          duration: 0,
-        })
-        clearTimeout(timer)
-      }, 250)
-    }
-
-    vscodeApi.postMessage({ cmd: CmdToVscode.get_all_images }, ({ data, workspaceFolders }) => {
-      logger.debug('get_all_images', data, workspaceFolders)
-
-      setImageState({
-        data,
-        workspaceFolders,
-        loading: false,
-      })
-
+  useDebounceEffect(
+    () => {
+      const isRefresh = refreshTimes && refreshType === 'refresh'
+      const messageKey = 'refresh_images'
+      let timer: number
       if (isRefresh) {
-        clearTimeout(timer)
-        message.destroy(messageKey)
-        message.success(t('im.img_refreshed'))
+        timer = window.setTimeout(() => {
+          message.loading({
+            content: t('im.img_refreshing'),
+            key: messageKey,
+            duration: 0,
+          })
+          clearTimeout(timer)
+        }, 250)
       }
 
-      refreshingRef.current = false
-    })
-  }, [refreshTimes])
+      vscodeApi.postMessage({ cmd: CmdToVscode.get_all_images }, ({ data, workspaceFolders }) => {
+        logger.debug('get_all_images', data, workspaceFolders)
+
+        setImageState({
+          data,
+          workspaceFolders,
+          loading: false,
+        })
+
+        if (isRefresh) {
+          clearTimeout(timer)
+          message.destroy(messageKey)
+          message.success(t('im.img_refreshed'))
+        }
+      })
+    },
+    [refreshTimes],
+    {
+      wait: 500,
+      leading: true,
+    },
+  )
 
   const getCompressor = useMemoizedFn(() => {
     return new Promise<WebviewCompressorType>((resolve, reject) => {

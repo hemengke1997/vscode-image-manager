@@ -27,6 +27,7 @@ export type ConfigType = {
     scan: string[]
     confirmDelete: boolean
     revealFileInOsDeeply: boolean
+    trashAfterProcessing: boolean
   }
   appearance: {
     theme: Theme
@@ -59,6 +60,7 @@ export enum ConfigKey {
   file_scan = 'file.scan',
   file_confirmDelete = 'file.confirmDelete',
   file_revealFileInOsDeeply = 'file.revealFileInOsDeeply',
+  file_trashAfterProcessing = 'file.trashAfterProcessing',
 
   appearance_theme = 'appearance.theme',
   appearance_language = 'appearance.language',
@@ -105,6 +107,7 @@ export const DEFAULT_CONFIG: ConfigType = {
     exclude: [],
     confirmDelete: true,
     revealFileInOsDeeply: false,
+    trashAfterProcessing: false,
   },
   appearance: {
     theme: Theme.auto,

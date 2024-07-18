@@ -12,7 +12,7 @@ import { RxDimensions } from 'react-icons/rx'
 import { TbResize } from 'react-icons/tb'
 import { animateScroll } from 'react-scroll'
 import { Key } from 'ts-key-enum'
-import classnames from 'tw-clsx'
+import { classNames } from 'tw-clsx'
 import { type SharpNS } from '~/@types/global'
 import { DEFAULT_CONFIG } from '~/core/config/common'
 import { CmdToVscode } from '~/message/cmd'
@@ -293,7 +293,7 @@ function LazyImage(props: LazyImageProps) {
         <motion.div
           ref={keybindRef}
           tabIndex={-1}
-          className={classnames(
+          className={classNames(
             'group relative flex flex-none flex-col items-center space-y-1 p-1.5 transition-colors',
             'hover:border-ant-color-primary overflow-hidden rounded-md border-[2px] border-solid border-transparent',
             interactive && 'border-ant-color-primary-hover hover:border-ant-color-primary-hover',
@@ -334,7 +334,7 @@ function LazyImage(props: LazyImageProps) {
           <Badge status='warning' dot={ifWarning}>
             <Image
               {...antdImageProps}
-              className={classnames('rounded-md object-contain p-1 will-change-auto', antdImageProps.className)}
+              className={classNames('rounded-md object-contain p-1 will-change-auto', antdImageProps.className)}
               preview={
                 lazy
                   ? {
@@ -342,7 +342,7 @@ function LazyImage(props: LazyImageProps) {
                         <div className={'flex size-full flex-col items-center justify-center space-y-1 text-sm'}>
                           {onPreviewClick && (
                             <div
-                              className={classnames(
+                              className={classNames(
                                 'hover:text-ant-color-text active:text-ant-color-text-label flex cursor-pointer items-center space-x-1 truncate transition-colors',
                               )}
                               onClick={(e) => {
@@ -360,7 +360,7 @@ function LazyImage(props: LazyImageProps) {
                           )}
                           <div className={'flex items-center space-x-1 truncate'}>
                             <TbResize />
-                            <span className={classnames(ifWarning && 'text-ant-color-warning-text')}>
+                            <span className={classNames(ifWarning && 'text-ant-color-warning-text')}>
                               {formatBytes(image.stats.size)}
                             </span>
                           </div>
@@ -385,7 +385,7 @@ function LazyImage(props: LazyImageProps) {
                     }
                   : false
               }
-              rootClassName={classnames('transition-all', antdImageProps.rootClassName)}
+              rootClassName={classNames('transition-all', antdImageProps.rootClassName)}
               style={{
                 imageRendering,
                 ...antdImageProps.style,

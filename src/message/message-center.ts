@@ -31,12 +31,13 @@ import { WorkspaceState } from '~/core/persist'
 import { type WorkspaceStateKey } from '~/core/persist/workspace/common'
 import { i18n } from '~/i18n'
 import { generateOutputPath, normalizePath } from '~/utils'
+import { controlledAbortPromise } from '~/utils/abort-promise'
 import { Channel } from '~/utils/channel'
 import { imageGlob } from '~/utils/glob'
+import { convertImageToBase64, convertToBase64IfBrowserNotSupport, isBase64 } from '~/utils/image-type'
 import logger from '~/utils/logger'
 import { ImageManagerPanel } from '~/webview/panel'
 import { CmdToVscode, CmdToWebview } from './cmd'
-import { convertImageToBase64, convertToBase64IfBrowserNotSupport, debouncePromise, isBase64 } from './utils'
 import { WebviewMessageCenter } from './webview-message-center'
 
 export type VscodeMessageCenterType = typeof VscodeMessageCenter
@@ -100,7 +101,7 @@ export const VscodeMessageCenter = {
       return normalizePath(path.relative(cwd, path.dirname(imagePath)))
     }
 
-    const images = await fg(glob, {
+    const images = fg.sync(glob, {
       cwd,
       objectMode: true,
       dot: false,
@@ -108,6 +109,10 @@ export const VscodeMessageCenter = {
       markDirectories: true,
       stats: true,
     })
+
+    if (!images.length) {
+      console.error(cwd, glob)
+    }
 
     return Promise.all<ImageType>(
       images.map(async (image) => {
@@ -174,7 +179,7 @@ export const VscodeMessageCenter = {
         root: Global.rootpaths,
       })
 
-      return await VscodeMessageCenter[CmdToVscode.get_image](
+      return VscodeMessageCenter[CmdToVscode.get_image](
         {
           glob: allImagePatterns,
           cwd: absWorkspaceFolder,
@@ -189,27 +194,34 @@ export const VscodeMessageCenter = {
     }
 
     try {
-      const data = await Promise.all(
-        absWorkspaceFolders.map(async (workspaceFolder) => {
-          const fileTypes: Set<string> = new Set()
-          const dirs: Set<string> = new Set()
+      return await controlledAbortPromise(
+        async () => {
+          const data = await Promise.all(
+            absWorkspaceFolders.map(async (workspaceFolder) => {
+              const fileTypes: Set<string> = new Set()
+              const dirs: Set<string> = new Set()
 
-          const images = await _searchImages(workspaceFolder, webview, fileTypes, dirs)
+              const images = await _searchImages(workspaceFolder, webview, fileTypes, dirs)
+              return {
+                images,
+                workspaceFolder: path.basename(workspaceFolder),
+                absWorkspaceFolder: workspaceFolder,
+                fileTypes: [...fileTypes].filter(Boolean),
+                dirs: [...dirs].filter(Boolean),
+              }
+            }),
+          )
+
           return {
-            images,
-            workspaceFolder: path.basename(workspaceFolder),
-            absWorkspaceFolder: workspaceFolder,
-            fileTypes: [...fileTypes].filter(Boolean),
-            dirs: [...dirs].filter(Boolean),
+            data,
+            absWorkspaceFolders,
+            workspaceFolders,
           }
-        }),
+        },
+        {
+          key: CmdToVscode.get_all_images,
+        },
       )
-
-      return {
-        data,
-        absWorkspaceFolders,
-        workspaceFolders,
-      }
     } catch {
       return {
         data: [],
@@ -333,19 +345,19 @@ export const VscodeMessageCenter = {
 
       const res = await pMap(
         [
-          ...svgs.map((filePath) => async () => {
-            let compressor = new SvgCompressor(option)
+          ...usuals.map((filePath) => () => {
+            let compressor = new UsualCompressor(option)
             try {
-              return await compressor.run(filePath, option)
+              return compressor.run(filePath, option)
             } finally {
               // @ts-expect-error
               compressor = null
             }
           }),
-          ...usuals.map((filePath) => async () => {
-            let compressor = new UsualCompressor(option)
+          ...svgs.map((filePath) => () => {
+            let compressor = new SvgCompressor(option)
             try {
-              return await compressor.run(filePath, option)
+              return compressor.run(filePath, option)
             } finally {
               // @ts-expect-error
               compressor = null
@@ -371,10 +383,10 @@ export const VscodeMessageCenter = {
       const { filePaths, option } = data
       Channel.debug(`Convert params: ${JSON.stringify(data)}`)
       const res = await pMap(
-        filePaths.map((filePath) => async () => {
+        filePaths.map((filePath) => () => {
           let converter = new FormatConverter(Config.conversion)
           try {
-            return await converter.run(filePath, option)
+            return converter.run(filePath, option)
           } finally {
             // @ts-expect-error
             converter = null
@@ -573,7 +585,7 @@ export const VscodeMessageCenter = {
   }) => {
     const { key, value, target } = data
 
-    await debouncePromise(
+    await controlledAbortPromise(
       async () => {
         Global.isProgrammaticChangeConfig = true
         try {
@@ -601,12 +613,7 @@ export const VscodeMessageCenter = {
     value: U | undefined
   }) => {
     const { key, value } = data
-    await debouncePromise(
-      () => {
-        WorkspaceState.update(key, value)
-      },
-      { key },
-    )
+    await controlledAbortPromise(() => WorkspaceState.update(key, value), { key })
     return true
   },
 

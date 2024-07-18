@@ -21,6 +21,7 @@
       scan: 'Image type to scan',
       confirmDelete: 'Controls whether ask for confirmation when deleting a image',
       revealFileInOsDeeply: 'Enter folder when it is revealed in OS',
+      trashAfterProcessing: 'Move image to trash after processing',
     },
     viewer: {
       warningSize: 'Show warning dot if image size is larger than this value (KB). Hidden if 0',

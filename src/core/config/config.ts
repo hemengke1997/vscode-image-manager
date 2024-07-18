@@ -11,6 +11,8 @@ export class Config {
     ConfigKey.file_root,
     ConfigKey.file_exclude,
     ConfigKey.file_scan,
+    ConfigKey.file_revealFileInOsDeeply,
+    ConfigKey.file_trashAfterProcessing,
 
     ConfigKey.debug_enabled,
     ConfigKey.debug_forceInstall,
@@ -78,6 +80,10 @@ export class Config {
 
   static get file_revealFileInOsDeeply(): boolean {
     return this.getConfig(ConfigKey.file_revealFileInOsDeeply)
+  }
+
+  static get file_trashAfterProcessing(): boolean {
+    return this.getConfig(ConfigKey.file_trashAfterProcessing)
   }
 
   static get appearance_theme(): Theme {

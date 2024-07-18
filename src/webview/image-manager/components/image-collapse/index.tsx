@@ -4,7 +4,7 @@ import { styleObjectToString } from '@minko-fe/style-object-to-string'
 import { Collapse, type CollapseProps } from 'antd'
 import { type ReactNode, memo, useEffect, useMemo, useRef, useState } from 'react'
 import { Element, scroller } from 'react-scroll'
-import { classnames } from 'tw-clsx'
+import { classNames } from 'tw-clsx'
 import ActionContext from '../../contexts/action-context'
 import GlobalContext from '../../contexts/global-context'
 import { useSticky } from '../../hooks/use-sticky'
@@ -168,7 +168,7 @@ function ImageCollapse(props: ImageCollapseProps) {
         <div
           onContextMenu={(e) => onContextMenu(e, index)}
           tabIndex={-1}
-          className={classnames(
+          className={classNames(
             'relative w-full cursor-pointer transition-all after:absolute after:-inset-x-0 after:-inset-y-[8px] after:content-[""] hover:underline focus:underline',
           )}
           onClick={() => {
@@ -190,9 +190,9 @@ function ImageCollapse(props: ImageCollapseProps) {
       return (
         <div className={'flex w-full items-center'}>
           {labels.map((l, i) => (
-            <div key={i} className={classnames('flex items-center', i === labels.length - 1 && 'flex-1')}>
+            <div key={i} className={classNames('flex items-center', i === labels.length - 1 && 'flex-1')}>
               {singleLabelNode(l, i)}
-              <div className={classnames('px-0.5', i !== labels.length - 1 ? 'block' : 'hidden')}>/</div>
+              <div className={classNames('px-0.5', i !== labels.length - 1 ? 'block' : 'hidden')}>/</div>
             </div>
           ))}
         </div>

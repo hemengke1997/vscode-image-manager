@@ -7,7 +7,7 @@ import Highlighter from 'react-highlight-words'
 import { useTranslation } from 'react-i18next'
 import { RiFilterOffLine } from 'react-icons/ri'
 import { VscCaseSensitive, VscWholeWord } from 'react-icons/vsc'
-import { classnames } from 'tw-clsx'
+import { classNames } from 'tw-clsx'
 import { CmdToVscode } from '~/message/cmd'
 import { useScrollRef } from '~/webview/image-manager/hooks/use-scroll-ref'
 import { vscodeApi } from '~/webview/vscode-api'
@@ -258,7 +258,7 @@ function IconUI(
   const { active, ...rest } = props
   return (
     <div
-      className={classnames(
+      className={classNames(
         'hover:bg-ant-color-bg-text-hover flex h-full cursor-pointer items-center rounded-md border-solid border-transparent p-0.5 text-lg transition-all',
         active && '!text-ant-color-primary !border-ant-color-primary hover:bg-transparent',
       )}

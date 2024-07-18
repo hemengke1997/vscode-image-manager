@@ -1,4 +1,4 @@
-import { debounce } from '@minko-fe/lodash-pro'
+import debounce from 'debounce'
 import micromatch from 'micromatch'
 import path from 'node:path'
 import { type FileSystemWatcher, RelativePattern, type Uri, type Webview, workspace } from 'vscode'
@@ -23,8 +23,12 @@ export class Watcher {
       } else {
         // webview opened
         this.webview = e
-        this._start()
+        this._start(Global.rootpaths)
       }
+    })
+
+    Global.onDidChangeRootPath((rootpaths: string[]) => {
+      this._start(rootpaths)
     })
   }
 
@@ -39,7 +43,9 @@ export class Watcher {
     return !micromatch.all(e.fsPath || e.path, ignores)
   }
 
-  private static debouncedHandleEvent = debounce(this._handleEvent, 500, { maxWait: 1000 })
+  private static debouncedHandleEvent = debounce(this._handleEvent, 500, {
+    immediate: true,
+  })
 
   private static _handleEvent(e: Uri, type: 'change' | 'create' | 'delete') {
     if (e.scheme !== 'file') return
@@ -47,7 +53,7 @@ export class Watcher {
     if (this._isIgnored(e, isDirectory)) {
       return
     }
-    logger.debug(`File ${type}: ${e.fsPath || e.path}, isDirectory: ${isDirectory}, trigger refresh`)
+    logger.debug(`文件 ${type}: ${e.fsPath || e.path}, 是否为目录: ${isDirectory}, 触发刷新`)
     this.webview?.postMessage({
       cmd: CmdToWebview.refresh_images,
     })
@@ -65,22 +71,26 @@ export class Watcher {
     this.debouncedHandleEvent(e, 'delete')
   }
 
-  private static _start() {
-    if (!Config.file_root.length) return
+  private static _start(rootpaths: string[]) {
+    this.dispose()
+
+    if (!rootpaths.length || !this.webview) {
+      return
+    }
 
     this.glob = imageGlob({
       scan: Config.file_scan,
       exclude: Config.file_exclude,
-      root: Config.file_root,
+      root: rootpaths,
     })
 
-    Channel.debug(`Watch Root: ${Config.file_root}`)
+    Channel.debug(`监听根目录: ${rootpaths.join(',')}`)
 
-    const imageWatchers = Config.file_root.map((r) => {
+    const imageWatchers = rootpaths.map((r) => {
       return workspace.createFileSystemWatcher(new RelativePattern(r, this.glob.imagePattern))
     })
 
-    const folderWatchers = Config.file_root.map((r) => {
+    const folderWatchers = rootpaths.map((r) => {
       return workspace.createFileSystemWatcher(new RelativePattern(r, '**/*'))
     })
 
@@ -91,8 +101,6 @@ export class Watcher {
     this.watchers?.forEach((w) => w.onDidChange(this._onDidChange, this))
     this.watchers?.forEach((w) => w.onDidCreate(this._onDidCreate, this))
     this.watchers?.forEach((w) => w.onDidDelete(this._onDidDelete, this))
-
-    return this
   }
 
   public static dispose() {

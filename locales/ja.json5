@@ -22,6 +22,7 @@
       scan: 'スキャンする画像のタイプ',
       confirmDelete: '画像を削除する際に確認する',
       revealFileInOsDeeply: 'OSでファイルを表示する際にフォルダ内に入る',
+      trashAfterProcessing: '処理後に画像をゴミ箱に移動する',
     },
     viewer: {
       warningSize: 'この値 (KB) より大きい画像の場合、警告を表示。0の場合は表示しない',

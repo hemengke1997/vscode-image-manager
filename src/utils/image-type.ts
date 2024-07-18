@@ -3,40 +3,22 @@ import mime from 'mime/lite'
 import path from 'node:path'
 import { Global } from '~/core'
 
-/**
- * Promise 防抖
- */
-const timerMap = new Map()
-export function debouncePromise<T extends Function>(
-  fn: T,
-  option: {
-    key: string
-    wait?: number
-  },
-) {
-  return new Promise<boolean>((resolve, reject) => {
-    const { key, wait = 2000 } = option
+export function isPng(filePath: string) {
+  return isSomeImageType(filePath, ['png'])
+}
 
-    let isLeading = false
-    if (timerMap.get(key)) {
-      clearTimeout(timerMap.get(key))
-    } else {
-      isLeading = true
-      fn()
-    }
+export function isJpg(filePath: string) {
+  return isSomeImageType(filePath, ['jpg', 'jpeg'])
+}
 
-    const timer = setTimeout(async () => {
-      try {
-        !isLeading && (await fn())
-        resolve(true)
-      } catch (error) {
-        reject(error)
-      } finally {
-        timerMap.set(key, null)
-      }
-    }, wait)
-    timerMap.set(key, timer)
-  })
+export function isTiff(filePath: string) {
+  return isSomeImageType(filePath, ['tiff', 'tif'])
+}
+
+function isSomeImageType(filePath: string, type: string[]) {
+  const ext = path.extname(filePath).toLowerCase()
+  if (!ext) return type.some((t) => t === filePath)
+  return type.some((t) => ext === `.${t}`)
 }
 
 /**
