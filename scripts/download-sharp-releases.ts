@@ -60,14 +60,15 @@ function isVersionDiff() {
 
     if (data.assets && data.assets.length > 0) {
       fs.ensureDirSync(ReleaseDir)
-      // clean up old releases
-      fs.readdirSync(ReleaseDir).forEach((file) => {
-        if (file !== 'version.json') {
-          fs.unlinkSync(path.resolve(ReleaseDir, file))
-        }
-      })
 
+      // record old releases
+      const oldReleases = fs.readdirSync(ReleaseDir).filter((file) => file !== 'version.json')
+
+      // download all release files
       await Promise.all(data.assets.map(downloadFile))
+
+      // clean up old releases
+      await Promise.all(oldReleases.map((file) => fs.unlink(file)))
     } else {
       logger.error('No releases found.')
     }

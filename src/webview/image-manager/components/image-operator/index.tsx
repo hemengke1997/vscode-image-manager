@@ -128,7 +128,7 @@ function ImageOperator(props: ImageOperatorProps & ImageOperatorStaticProps) {
       {...rest}
     >
       <div className={'flex w-full flex-col items-center space-y-2 overflow-auto'}>
-        <Card className={'max-h-[400px] w-full overflow-y-auto'} ref={scrollRef}>
+        <Card className={'max-h-[360px] w-full overflow-y-auto'} ref={scrollRef}>
           <div className={'flex flex-col gap-y-4'}>
             <ImagePreview
               images={images || []}

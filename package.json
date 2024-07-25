@@ -75,7 +75,7 @@
   "optionalDependencies": {
     "@rollup/rollup-linux-x64-gnu": "4.18.0",
     "@rollup/rollup-win32-x64-msvc": "4.18.0",
-    "@swc/core": "^1.7.0"
+    "@swc/core": "^1.7.1"
   },
   "devDependencies": {
     "@ant-design/colors": "^7.1.0",
@@ -105,8 +105,8 @@
     "@types/vscode": "^1.70.0",
     "@types/vscode-webview": "^1.57.5",
     "@vitejs/plugin-react": "^4.3.1",
-    "@vscode/vsce": "^2.31.0",
-    "antd": "^5.19.2",
+    "@vscode/vsce": "^2.31.1",
+    "antd": "^5.19.3",
     "bumpp": "^9.4.1",
     "consola": "^3.2.3",
     "context-state": "^3.0.0",
@@ -122,10 +122,10 @@
     "exif-reader": "^2.0.1",
     "fast-glob": "^3.3.2",
     "flat": "^6.0.1",
-    "framer-motion": "^11.3.6",
+    "framer-motion": "^11.3.17",
     "fs-extra": "^11.2.0",
     "fuse.js": "^7.0.0",
-    "i18next": "^23.12.1",
+    "i18next": "^23.12.2",
     "ico-endec": "^0.1.6",
     "image-size": "^1.1.1",
     "immer": "^10.1.1",
@@ -142,10 +142,9 @@
     "p-map": "^7.0.2",
     "p-timeout": "^6.1.2",
     "patch-package": "^8.0.0",
-    "postcss": "^8.4.39",
+    "postcss": "^8.4.40",
     "prettier-plugin-tailwindcss": "^0.6.5",
     "pump": "3.0.0",
-    "query-string": "^9.0.0",
     "react": "^18.3.1",
     "react-contexify": "^6.0.0",
     "react-dom": "^18.3.1",
@@ -167,17 +166,17 @@
     "taze": "^0.16.1",
     "ts-key-enum": "^2.0.12",
     "ts-retry": "^4.2.5",
-    "tsup": "^8.1.2",
+    "tsup": "^8.2.3",
     "tsx": "^4.16.2",
     "tw-clsx": "^0.1.0",
-    "type-fest": "^4.22.0",
-    "typescript": "^5.5.3",
+    "type-fest": "^4.23.0",
+    "typescript": "^5.5.4",
     "un-detector": "^1.1.0",
     "vite": "^5.3.4",
     "vite-plugin-html": "^3.2.2",
     "vite-plugin-i18n-ally": "^4.1.1",
     "vite-plugin-markdown": "^2.2.0",
-    "vitest": "^2.0.3"
+    "vitest": "^2.0.4"
   },
   "engines": {
     "vscode": "^1.70.0"

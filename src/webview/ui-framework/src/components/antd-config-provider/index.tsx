@@ -67,7 +67,7 @@ function AntdConfigProvider({ children }: PropsWithChildren) {
           },
         },
         token: {
-          fontFamily: 'var(--vscode-font-family)',
+          fontFamily: getCssVar('var(--vscode-font-family)'),
           motion: reduceMotionWithoutAuto === 'on' ? false : true,
           fontSize: docFontSize,
           colorPrimary: primaryColor,
