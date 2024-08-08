@@ -1,6 +1,6 @@
 import { isEqual } from '@minko-fe/lodash-pro'
 import path from 'node:path'
-import { FileType, type Uri, commands, workspace } from 'vscode'
+import { commands, FileType, type Uri, workspace } from 'vscode'
 import { Global } from '~/core/global'
 import { type ExtensionModule } from '~/module'
 import { normalizePath } from '~/utils'

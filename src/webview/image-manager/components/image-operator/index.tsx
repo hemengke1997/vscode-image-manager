@@ -8,10 +8,10 @@ import {
   type FormInstance,
   Modal,
   type ModalProps,
-  Tooltip,
   theme,
+  Tooltip,
 } from 'antd'
-import { type ReactNode, memo, useEffect, useState } from 'react'
+import { memo, type ReactNode, useEffect, useState } from 'react'
 import { useHotkeys } from 'react-hotkeys-hook'
 import { useTranslation } from 'react-i18next'
 import { VscChromeClose } from 'react-icons/vsc'

@@ -1,4 +1,4 @@
-import { type ReactNode, memo } from 'react'
+import { memo, type ReactNode } from 'react'
 
 function TitleIconUI(props: { children: ReactNode; icon: ReactNode }) {
   const { icon, children } = props

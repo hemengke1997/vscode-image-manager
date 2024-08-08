@@ -1,4 +1,4 @@
-import { type Hookable, type NestedHooks, createHooks } from '@minko-fe/hookable'
+import { createHooks, type Hookable, type NestedHooks } from '@minko-fe/hookable'
 
 const PluginIndicator = '__plugin_indicator__'
 

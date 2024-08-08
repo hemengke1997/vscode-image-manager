@@ -19,18 +19,23 @@
 ![overview](./screenshots/overview.png)
 
 ### 大图预览
+
 ![preview](./screenshots/preview.png)
 
 ### 压缩
+
 ![compression](./screenshots/compression.png)
 
 ### 裁剪
+
 ![crop](./screenshots/crop.png)
 
 ### 查找相似图片
+
 ![find-similirity](./screenshots/find-similarity.png)
 
 ### 搜索图片
+
 ![search](./screenshots/search.png)
 
 ## 核心功能
@@ -50,23 +55,20 @@
 
 **有以下几种方式打开插件**
 
-### 快捷键
+### 1.快捷键
 
 - windows: `shift+alt+j`
 - macos: `cmd+option+j`
 
-
-### 命令面板
-
-`ctrl+shift+p` (macos `cmd+shift+p`) 打开命令面板, 输入 `Image Manager` 选择打开
-
-### 右键菜单
+### 2.右键菜单
 
 资源管理器中右键选择 `Image Manager 🏞️` 打开插件
 
+### 3.命令面板
+
+`ctrl+shift+p` (macos `cmd+shift+p`) 打开命令面板, 输入 `Image Manager` 选择打开
 
 ## [插件配置项](./docs/vscode-configuration.md)
-
 
 ## 小贴士
 
@@ -84,7 +86,6 @@
 
 ![compress-right-click-folder](./screenshots/compress-cn-2.png)
 
-
 ### 浏览区域
 
 - `cmd/ctrl + 鼠标滚轮` 可以缩放图片大小
@@ -100,6 +101,7 @@
 
 如果您是在中国大陆，且网络环境不佳（懂的都懂）
 有两种解决方案：
+
 1. 切换镜像源
 2. 手动安装依赖
 
@@ -133,12 +135,14 @@
 - 可以使用右键文件夹的方式打开指定的目录，从而减少渲染的图片数量
 
 ## 赞赏
+
 > 如果这个插件能帮助到您，请作者喝杯咖啡吧:) ☕️
+>
+> 或者动动小手指[点个star](https://github.com/hemengke1997/vscode-image-manager)⭐️
 
 | 微信                                                   | 支付宝                                              |
 | ------------------------------------------------------ | --------------------------------------------------- |
 | <img src="./screenshots/wechatpay.jpeg" width="200" /> | <img src="./screenshots/alipay.jpeg" width="200" /> |
-
 
 ## 感谢
 

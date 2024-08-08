@@ -1,4 +1,4 @@
-import { type Event, EventEmitter, type ExtensionContext, ExtensionMode, commands, window, workspace } from 'vscode'
+import { commands, type Event, EventEmitter, type ExtensionContext, ExtensionMode, window, workspace } from 'vscode'
 import { Commands } from '~/commands'
 import { Installer } from '~/core/sharp'
 import { i18n } from '~/i18n'

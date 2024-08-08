@@ -1,4 +1,4 @@
-import { ConfigurationTarget, type QuickPickItem, commands, window } from 'vscode'
+import { commands, ConfigurationTarget, type QuickPickItem, window } from 'vscode'
 import { Config } from '~/core'
 import { ConfigKey } from '~/core/config/common'
 import { i18n } from '~/i18n'

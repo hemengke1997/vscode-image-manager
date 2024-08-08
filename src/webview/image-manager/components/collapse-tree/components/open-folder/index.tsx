@@ -1,5 +1,5 @@
 import { Button } from 'antd'
-import { type PropsWithChildren, memo } from 'react'
+import { memo, type PropsWithChildren } from 'react'
 import { useTranslation } from 'react-i18next'
 import { os } from 'un-detector'
 import useImageOperation from '~/webview/image-manager/hooks/use-image-operation'

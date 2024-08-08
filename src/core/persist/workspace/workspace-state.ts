@@ -3,7 +3,7 @@ import { type Webview } from 'vscode'
 import { Global } from '~/core'
 import { EXT_NAMESPACE } from '~/meta'
 import { ImageManagerPanel } from '~/webview/panel'
-import { type WorkspaceStateKey, type WorkspaceStateType, defaultState } from './common'
+import { defaultState, type WorkspaceStateKey, type WorkspaceStateType } from './common'
 
 export class WorkspaceState {
   static readonly defaultState = defaultState

@@ -1,6 +1,6 @@
 import { Card } from 'antd'
 import { AnimatePresence, motion } from 'framer-motion'
-import { type ForwardedRef, type ReactNode, forwardRef, memo, useImperativeHandle } from 'react'
+import { type ForwardedRef, forwardRef, memo, type ReactNode, useImperativeHandle } from 'react'
 import { useTranslation } from 'react-i18next'
 import { RiSettingsLine } from 'react-icons/ri'
 import { WorkspaceStateKey, type WorkspaceStateType } from '~/core/persist/workspace/common'

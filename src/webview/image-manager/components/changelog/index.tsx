@@ -1,4 +1,4 @@
-import { Suspense, lazy, memo } from 'react'
+import { lazy, memo, Suspense } from 'react'
 import { type ChangelogProps } from './renderer'
 
 const Renderer = lazy(() => import('./renderer'))

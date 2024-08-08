@@ -7,7 +7,7 @@ import { useTranslation } from 'react-i18next'
 import { TbFilter } from 'react-icons/tb'
 import GlobalContext, { type RestrictImageFilterType } from '~/webview/image-manager/contexts/global-context'
 
-function deepTruly(v: Object | number | undefined): boolean {
+function deepTruly(v: object | number | undefined): boolean {
   if (isObject(v)) {
     return Object.values(v).some((v) => deepTruly(v))
   }

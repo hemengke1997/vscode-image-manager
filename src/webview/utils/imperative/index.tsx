@@ -101,7 +101,7 @@ function imperative<T>(config: Config<T>): ImperativeReturnType<T> {
       [openKey]: false,
       [afterCloseKey]: () => {
         if (typeof props[afterCloseKey] === 'function') {
-          ;(props[afterCloseKey] as Function)()
+          props[afterCloseKey]()
         }
         // @ts-expect-error
         destroy.apply(this, args)

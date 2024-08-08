@@ -1,6 +1,6 @@
 import { TinyColor } from '@ctrl/tinycolor'
-import { App, ConfigProvider, theme as antdTheme } from 'antd'
-import { type PropsWithChildren, memo, useEffect } from 'react'
+import { theme as antdTheme, App, ConfigProvider } from 'antd'
+import { memo, type PropsWithChildren, useEffect } from 'react'
 import FrameworkContext from '../../contexts/framework-context'
 import { getCssVar } from '../../utils/theme'
 

@@ -3,7 +3,7 @@ import fs from 'fs-extra'
 import { createHash } from 'node:crypto'
 import path from 'node:path'
 import { fileURLToPath } from 'node:url'
-import { type Options, defineConfig } from 'tsup'
+import { defineConfig, type Options } from 'tsup'
 import { loadEnv } from 'vite'
 import logger from '~/utils/logger'
 

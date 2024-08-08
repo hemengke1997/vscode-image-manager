@@ -1,5 +1,5 @@
 import fs from 'fs-extra'
-import { Uri, env, window } from 'vscode'
+import { env, Uri, window } from 'vscode'
 import { type SharpNS } from '~/@types/global'
 import { i18n } from '~/i18n'
 import { Channel } from '~/utils/channel'

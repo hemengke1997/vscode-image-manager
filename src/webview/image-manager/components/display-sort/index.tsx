@@ -1,6 +1,6 @@
 import { useControlledState, useMemoizedFn } from '@minko-fe/react-hook'
 import { Cascader, ConfigProvider, theme } from 'antd'
-import { type PropsWithChildren, type ReactNode, memo, startTransition } from 'react'
+import { memo, type PropsWithChildren, type ReactNode, startTransition } from 'react'
 import { useTranslation } from 'react-i18next'
 import { BsSortDown, BsSortUpAlt } from 'react-icons/bs'
 import { MdOutlineKeyboardDoubleArrowRight } from 'react-icons/md'

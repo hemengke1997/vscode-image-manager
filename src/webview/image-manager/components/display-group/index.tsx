@@ -1,6 +1,6 @@
 import { useControlledState } from '@minko-fe/react-hook'
 import { Checkbox, type CheckboxOptionType } from 'antd'
-import { type ReactNode, memo, startTransition, useMemo } from 'react'
+import { memo, type ReactNode, startTransition, useMemo } from 'react'
 import { useTranslation } from 'react-i18next'
 import { type WorkspaceStateType } from '~/core/persist/workspace/common'
 

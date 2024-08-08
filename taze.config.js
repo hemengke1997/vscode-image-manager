@@ -12,6 +12,8 @@ export default defineConfig({
     '@types/pump',
     // execa@9 requires Node ^18.19.0 || >=20.5.0
     'execa',
+    // optional dependencies
+    '@swc/core',
   ],
   force: true,
   write: true,

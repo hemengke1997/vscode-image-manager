@@ -8,7 +8,7 @@ import mime from 'mime/lite'
 import path from 'node:path'
 import pMap from 'p-map'
 import git from 'simple-git'
-import { type ConfigurationTarget, Uri, ViewColumn, type Webview, commands, window, workspace } from 'vscode'
+import { commands, type ConfigurationTarget, Uri, ViewColumn, type Webview, window, workspace } from 'vscode'
 import { type SharpNS } from '~/@types/global'
 import { Commands } from '~/commands'
 import {

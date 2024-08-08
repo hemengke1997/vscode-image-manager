@@ -17,24 +17,28 @@
 ![overview](./screenshots/overview.png)
 
 ### Preview
+
 ![preview](./screenshots/preview.png)
 
 ### Compression
+
 ![compression](./screenshots/compression.png)
 
 ### Crop
+
 ![crop](./screenshots/crop.png)
 
 ### Finding Similarities
+
 ![find-similirity](./screenshots/find-similarity.png)
 
 ### Search
-![search](./screenshots/search.png)
 
+![search](./screenshots/search.png)
 
 ## Features
 
-- **Batch image compression** (magic happens on right-click 🤩)
+- **Batch image compression** (magic happens on right-click)
 - **Images Cropper**
 - **Image Viewer**
 - **Finding similar images**
@@ -45,24 +49,22 @@
 - Dark/light theme
 - I18n. Currently support `english`, `简体中文`, `繁體中文`, `日本語`
 
-
 ## Usage
 
 **Several ways open extension**
 
-### Shortcut
+### 1.Shortcut
 
 - windows: `shift+alt+j`
 - macos: `cmd+option+j`
 
-### Command
-
-`ctrl+shift+p` (macos `cmd+shift+p`), input `Image Manager` to open. (Open workspace root folder)
-
-### Context Menu
+### 2.Context Menu
 
 Right click in Explorer, select `Image Manager` to open extension. (Open current folder)
 
+### 3.Command
+
+`ctrl+shift+p` (macos `cmd+shift+p`), input `Image Manager` to open. (Open workspace root folder)
 
 ## [Extension Configurations](./docs/vscode-configuration.en.md)
 
@@ -78,7 +80,6 @@ Right click in Explorer, select `Image Manager` to open extension. (Open current
 
 ![compress-right-click-folder](./screenshots/compress-2.png)
 
-
 ### Viewer
 
 - `cmd/ctrl + Mouse Wheel` to scale image size
@@ -90,6 +91,9 @@ Right click in Explorer, select `Image Manager` to open extension. (Open current
 
 The first time you open the extension, it will need to download the necessary dependencies. Depending on your network environment, this process may be slow. Please be patient!
 
+#### Why does the file get bigger after compression?
+
+- The meta information of Whether the image is compressed is added during compression. As a result, a small image may become larger after compression.
 
 ## Thanks
 

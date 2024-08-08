@@ -1,5 +1,5 @@
 import { isFunction, toLower } from '@minko-fe/lodash-pro'
-import { ColorThemeKind, type ExtensionContext, env, window, workspace } from 'vscode'
+import { ColorThemeKind, env, type ExtensionContext, window, workspace } from 'vscode'
 import { Language, Theme } from '~/enums'
 import { FALLBACK_LANGUAGE } from '~/meta'
 import { type VscodeConfigType } from '../config/common'
