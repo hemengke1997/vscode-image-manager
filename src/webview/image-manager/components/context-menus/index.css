@@ -1,8 +1,8 @@
 [data-theme='dark'] {
-  --custom-contexify-menu-bgColor: rgba(55, 55, 55, 0.4);
+  --custom-contexify-menu-bgColor: rgba(55, 55, 55, 0.7);
 }
 [data-theme='light'] {
-  --custom-contexify-menu-bgColor: rgba(200, 200, 200, 0.4);
+  --custom-contexify-menu-bgColor: rgba(200, 200, 200, 0.7);
 }
 
 .contexify {
@@ -20,7 +20,7 @@
 
   &::before {
     content: '';
-    @apply absolute bottom-0 left-0 right-0 top-0 rounded-[var(--contexify-menu-radius)] bg-[var(--contexify-menu-bgColor)] backdrop-blur-[50px];
+    @apply absolute bottom-0 left-0 right-0 top-0 rounded-[var(--contexify-menu-radius)] bg-[var(--contexify-menu-bgColor)] backdrop-blur-[15px];
   }
 
   @apply border-ant-color-border border border-solid text-sm;

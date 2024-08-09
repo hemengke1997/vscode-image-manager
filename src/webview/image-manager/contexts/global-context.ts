@@ -91,7 +91,7 @@ function useGlobalContext() {
   /* ---------- image placeholder size ---------- */
   const [imagePlaceholderSize, setImagePlaceholderSize] = useState<{ width: number; height: number }>()
 
-  /* ---------- target image path ---------- */
+  /* ---------- reveal image path ---------- */
   /**
    * @note imageReveal 是带t query参数的，用于处理同一张图片的情况
    */
@@ -102,6 +102,9 @@ function useGlobalContext() {
     if (index !== -1) return imageReveal.slice(0, index)
     return imageReveal
   }, [imageReveal])
+
+  /* ----------------- dir reveal ----------------- */
+  const [dirReveal, setDirReveal] = useState<string>('')
 
   /* ------------- tree context 中的数据 ------------ */
   const [treeData, setTreeData] = useState<{ workspaceFolder: string; visibleList: ImageType[] }[]>([])
@@ -134,6 +137,8 @@ function useGlobalContext() {
     setTreeData,
     viewerHeaderStickyHeight,
     setViewerHeaderStickyHeight,
+    dirReveal,
+    setDirReveal,
   }
 }
 

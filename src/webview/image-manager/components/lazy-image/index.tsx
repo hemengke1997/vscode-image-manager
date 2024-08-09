@@ -258,7 +258,7 @@ function LazyImage(props: LazyImageProps) {
         cancelIdleCallback(idleTimer)
       }
     }
-  }, [imageReveal])
+  }, [imageReveal, image.path])
 
   /**
    * @param depth 父元素查找深度，默认向上查找3层，如果查不到 [data-disable_dbclick] 元素，则可以双击

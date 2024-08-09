@@ -6,7 +6,6 @@ import { Config, Global } from '~/core'
 import { CmdToWebview } from '~/message/cmd'
 import { Channel } from '~/utils/channel'
 import { imageGlob } from '~/utils/glob'
-import logger from '~/utils/logger'
 import { ImageManagerPanel } from '~/webview/panel'
 
 export class Watcher {
@@ -53,7 +52,7 @@ export class Watcher {
     if (this._isIgnored(e, isDirectory)) {
       return
     }
-    logger.debug(`文件 ${type}: ${e.fsPath || e.path}, 是否为目录: ${isDirectory}, 触发刷新`)
+    Channel.debug(`文件 ${type}: ${e.fsPath || e.path}, 是否为目录: ${isDirectory}, 触发刷新`)
     this.webview?.postMessage({
       cmd: CmdToWebview.refresh_images,
     })

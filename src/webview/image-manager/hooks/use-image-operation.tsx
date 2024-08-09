@@ -1,8 +1,8 @@
 import { isObject, isString, toString } from '@minko-fe/lodash-pro'
 import { useLockFn, useMemoizedFn } from '@minko-fe/react-hook'
-import { App, Button, Checkbox, Form, Input, type InputProps, type InputRef, Typography } from 'antd'
+import { App, Button, Checkbox, Form, type InputProps, Typography } from 'antd'
 import escapeStringRegexp from 'escape-string-regexp'
-import { useRef, useState } from 'react'
+import { useState } from 'react'
 import { Trans, useTranslation } from 'react-i18next'
 import { os } from 'un-detector'
 import { ConfigKey } from '~/core/config/common'
@@ -11,12 +11,13 @@ import { CmdToVscode } from '~/message/cmd'
 import { useExtConfigState } from '~/webview/hooks/use-ext-config-state'
 import { useWorkspaceState } from '~/webview/hooks/use-workspace-state'
 import { vscodeApi } from '~/webview/vscode-api'
-import useImageContextMenuEvent from '../components/context-menus/components/image-context-menu/hooks/use-image-context-menu-event'
+import AutoFocusInput from '../components/auto-focus-input'
 import CroppoerContext from '../contexts/cropper-context'
 import GlobalContext from '../contexts/global-context'
 import OperatorContext, { type CompressorModalStateType } from '../contexts/operator-context'
 import { getDirFromPath, getDirnameFromPath, getFilebasename } from '../utils'
 import { LOADING_DURATION } from '../utils/duration'
+import useImageManagerEvent from './use-image-manager-event'
 
 const { Text } = Typography
 
@@ -295,12 +296,12 @@ function useImageOperation() {
     },
   )
 
-  const { imageContextMenuEvent } = useImageContextMenuEvent()
+  const { imageManagerEvent } = useImageManagerEvent()
   // 删除图片
   const beginDeleteImageProcess = useMemoizedFn(async (images: ImageType[]) => {
     const success = await beginDeleteProcess(images.map((t) => ({ name: t.name, path: t.path })))
     if (success) {
-      imageContextMenuEvent.emit('delete', images)
+      imageManagerEvent.emit('delete', images)
     }
   })
 
@@ -311,7 +312,6 @@ function useImageOperation() {
 
   // 重命名
   const [renameForm] = Form.useForm()
-  const renameInputRef = useRef<InputRef>(null)
 
   const renameFn = useLockFn(async (source: string, target: string) => {
     return new Promise<boolean>((resolve) => {
@@ -410,7 +410,7 @@ function useImageOperation() {
               ]}
               name='rename'
             >
-              <Input ref={renameInputRef} placeholder={currentName} {...inputProps}></Input>
+              <AutoFocusInput placeholder={currentName} {...inputProps} />
             </Form.Item>
           </Form>
         ),
@@ -425,13 +425,10 @@ function useImageOperation() {
         afterClose() {
           renameForm.resetFields()
         },
+        autoFocusButton: null, // For auto focus input
       })
 
       renameForm.setFieldsValue({ rename: currentName })
-
-      requestIdleCallback(() => {
-        renameInputRef.current?.focus({ cursor: 'end' })
-      })
     },
   )
 
@@ -454,8 +451,10 @@ function useImageOperation() {
                   cmd: CmdToVscode.get_one_image,
                   data: { filePath: newPath, cwd: image.absWorkspaceFolder },
                 },
-                (res) => {
-                  imageContextMenuEvent.emit('rename', image, res)
+                (newImage) => {
+                  beginRevealInViewer(newImage)
+
+                  imageManagerEvent.emit('rename', image, newImage)
                 },
               )
             }
@@ -470,6 +469,10 @@ function useImageOperation() {
     })
   })
 
+  /**
+   * 重命名目录
+   * @param dirPath 目录路径
+   */
   const beginRenameDirProcess = useMemoizedFn((dirPath: string) => {
     beginRenameProcess({
       currentName: getDirnameFromPath(dirPath),
@@ -477,6 +480,10 @@ function useImageOperation() {
       onFinish: (newName) => {
         return new Promise<boolean>((resolve) => {
           renameFn(dirPath, `${getDirFromPath(dirPath)}/${newName}`).then((res) => {
+            if (res) {
+              const newDirPath = `${getDirFromPath(dirPath)}/${newName}`
+              imageManagerEvent.emit('rename_directory', dirPath, newDirPath)
+            }
             resolve(res!)
           })
         })
@@ -486,8 +493,8 @@ function useImageOperation() {
   })
 
   const beginRevealInViewer = useMemoizedFn((image: ImageType) => {
-    imageContextMenuEvent.emit('reveal_in_viewer', image)
-    requestIdleCallback(() => {
+    imageManagerEvent.emit('reveal_in_viewer', image)
+    setTimeout(() => {
       new Promise<boolean>((resolve) => {
         vscodeApi.postMessage(
           {

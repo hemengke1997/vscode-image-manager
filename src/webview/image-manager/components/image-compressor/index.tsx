@@ -13,10 +13,10 @@ import { abortPromise } from '~/utils/abort-promise'
 import { vscodeApi } from '~/webview/vscode-api'
 import GlobalContext from '../../contexts/global-context'
 import useAbortController from '../../hooks/use-abort-controller'
+import useImageManagerEvent from '../../hooks/use-image-manager-event'
 import useImageOperation from '../../hooks/use-image-operation'
 import useOperatorModalLogic, { type FormComponent } from '../../hooks/use-operator-modal-logic'
 import { ANIMATION_DURATION } from '../../utils/duration'
-import useImageContextMenuEvent from '../context-menus/components/image-context-menu/hooks/use-image-context-menu-event'
 import ImageOperator, { type ImageOperatorProps } from '../image-operator'
 import Format from '../image-operator/components/format'
 import KeepOriginal from '../image-operator/components/keep-original'
@@ -110,7 +110,7 @@ function ImageCompressor(props: ImageCompressorProps) {
     )
   })
 
-  useImageContextMenuEvent({
+  useImageManagerEvent({
     on: {
       reveal_in_viewer: () => {
         onOpenChange(false)

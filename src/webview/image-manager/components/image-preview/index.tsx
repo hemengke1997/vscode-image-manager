@@ -7,9 +7,9 @@ import { produce } from 'immer'
 import { type ForwardedRef, forwardRef, memo, useCallback, useEffect, useId, useRef, useState } from 'react'
 import GlobalContext from '../../contexts/global-context'
 import SettingsContext from '../../contexts/settings-context'
+import useImageManagerEvent from '../../hooks/use-image-manager-event'
 import useImageOperation from '../../hooks/use-image-operation'
 import useImageContextMenu from '../context-menus/components/image-context-menu/hooks/use-image-context-menu'
-import useImageContextMenuEvent from '../context-menus/components/image-context-menu/hooks/use-image-context-menu-event'
 import LazyImage, { type LazyImageProps } from '../lazy-image'
 import Toast from '../toast'
 
@@ -143,7 +143,7 @@ function ImagePreview(props: ImagePreviewProps, ref: ForwardedRef<HTMLDivElement
 
   const id = useId()
 
-  const { imageContextMenuEvent } = useImageContextMenuEvent({
+  const { imageManagerEvent } = useImageManagerEvent({
     on: {
       context_menu(_, _id) {
         // 清除非当前层级的选中
@@ -155,7 +155,7 @@ function ImagePreview(props: ImagePreviewProps, ref: ForwardedRef<HTMLDivElement
   })
 
   const onContextMenu = useMemoizedFn((e: React.MouseEvent<HTMLDivElement>, image: ImageType) => {
-    imageContextMenuEvent.emit('context_menu', image, id)
+    imageManagerEvent.emit('context_menu', image, id)
     let selected = selectedImages
     if (selectedImages.length <= 1 || !selectedImages.includes(image.path)) {
       selected = [image.path]

@@ -5,7 +5,7 @@ import { produce } from 'immer'
 import { memo, useMemo } from 'react'
 import { useTranslation } from 'react-i18next'
 import { useScrollRef } from '~/webview/image-manager/hooks/use-scroll-ref'
-import useImageContextMenuEvent from '../context-menus/components/image-context-menu/hooks/use-image-context-menu-event'
+import useImageManagerEvent from '../../hooks/use-image-manager-event'
 import { type ImageOperatorProps } from '../image-operator'
 import ImagePreview from '../image-preview'
 
@@ -34,7 +34,7 @@ function ImageSimilarity(props: ImageSimilarityProps) {
     onChange: onOpenChange,
   })
 
-  useImageContextMenuEvent({
+  useImageManagerEvent({
     on: {
       reveal_in_viewer: () => {
         setOpen(false)

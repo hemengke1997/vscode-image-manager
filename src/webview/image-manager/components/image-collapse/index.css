@@ -1,0 +1,6 @@
+[data-theme='dark'] {
+  --sticky-collapse-header-bgColor: rgba(55, 55, 55, 0.9);
+}
+[data-theme='light'] {
+  --sticky-collapse-header-bgColor: rgba(200, 200, 200, 0.9);
+}
