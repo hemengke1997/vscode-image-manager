@@ -210,7 +210,12 @@ function LazyImage(props: LazyImageProps) {
       }
     },
     {
-      enabled: elInView,
+      enabled(e) {
+        if (!elInView) {
+          return false
+        }
+        return !!(e.target as HTMLDivElement).dataset.image_context_menu
+      },
     },
   )
 
@@ -292,6 +297,7 @@ function LazyImage(props: LazyImageProps) {
       {elInView || !lazy ? (
         <motion.div
           ref={keybindRef}
+          data-image_context_menu={true}
           tabIndex={-1}
           className={classNames(
             'group relative flex flex-none flex-col items-center space-y-1 p-1.5 transition-colors',

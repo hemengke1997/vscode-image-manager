@@ -1,10 +1,11 @@
 import { useMemoizedFn } from '@minko-fe/react-hook'
 import { App } from 'antd'
 import { memo } from 'react'
-import { Item, type ItemParams, type PredicateParams, Separator, Submenu } from 'react-contexify'
+import { Item, type ItemParams, type PredicateParams, RightSlot, Separator, Submenu } from 'react-contexify'
 import { useTranslation } from 'react-i18next'
 import { os } from 'un-detector'
 import useImageOperation from '~/webview/image-manager/hooks/use-image-operation'
+import { Keybinding } from '~/webview/image-manager/keybinding'
 import MaskMenu from '../../../mask-menu'
 import Arrow from '../arrow'
 import { type CollapseContextMenuType } from './hooks/use-collapse-context-menu'
@@ -199,10 +200,10 @@ function CollapseContextMenu() {
           data={[COLLAPSE_CONTEXT_MENU.rename_directory, COLLAPSE_CONTEXT_MENU.delete_directory]}
         />
         <Item hidden={isItemHidden} data={COLLAPSE_CONTEXT_MENU.rename_directory} onClick={handleRenameDir}>
-          {t('im.rename')}
+          {t('im.rename')} <RightSlot>{Keybinding.Enter()}</RightSlot>
         </Item>
         <Item hidden={isItemHidden} data={COLLAPSE_CONTEXT_MENU.delete_directory} onClick={handleDeleteDir}>
-          {t('im.delete')}
+          {t('im.delete')} <RightSlot>{Keybinding.Delete()}</RightSlot>
         </Item>
       </MaskMenu>
     </>

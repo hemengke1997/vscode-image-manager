@@ -4,8 +4,7 @@ import { Card, type CollapseProps, ConfigProvider, Empty } from 'antd'
 import { motion } from 'framer-motion'
 import { memo, type ReactNode, useMemo, useRef } from 'react'
 import { useTranslation } from 'react-i18next'
-import { FaRegImages } from 'react-icons/fa'
-import { IoMdFolderOpen } from 'react-icons/io'
+import { FaRegImages } from 'react-icons/fa6'
 import { VscFileMedia } from 'react-icons/vsc'
 import { classNames } from 'tw-clsx'
 import { type WorkspaceStateType } from '~/core/persist/workspace/common'
@@ -15,7 +14,8 @@ import { DirTree, type DisplayMapType, type FileNode } from '../../utils/dir-tre
 import { ANIMATION_DURATION } from '../../utils/duration'
 import { type EnableCollapseContextMenuType } from '../context-menus/components/collapse-context-menu'
 import ImageCollapse from '../image-collapse'
-import OpenFolder from './components/open-folder'
+// import RevealInExplorer from './components/reveal-in-explorer'
+import RevealInFolder from './components/reveal-in-folder'
 import styles from './index.module.css'
 
 type CollapseTreeProps = {
@@ -74,6 +74,15 @@ function injectUnderfolderImagesToNode(
   }
 }
 
+function RevealGroup(props: { path: string; folderChildren?: ReactNode }) {
+  return (
+    <div className={'flex items-center gap-x-1'}>
+      <RevealInFolder {...props} children={props.folderChildren} />
+      {/* <RevealInExplorer {...props} /> */}
+    </div>
+  )
+}
+
 function CollapseTree(props: CollapseTreeProps) {
   const { displayGroup, displayStyle } = props
   const { t } = useTranslation()
@@ -99,11 +108,7 @@ function CollapseTree(props: CollapseTreeProps) {
           id: 'absWorkspaceFolder',
         },
         list: [workspaceFolder].filter(Boolean),
-        icon: (props: { path: string }) => (
-          <OpenFolder {...props}>
-            <IoMdFolderOpen />
-          </OpenFolder>
-        ),
+        icon: (props: { path: string }) => <RevealGroup {...props} />,
         contextMenu: true,
         priority: 1,
       },
@@ -112,11 +117,7 @@ function CollapseTree(props: CollapseTreeProps) {
           id: 'absDirPath',
         },
         list: dirs,
-        icon: (props: { path: string }) => (
-          <OpenFolder {...props}>
-            <IoMdFolderOpen />
-          </OpenFolder>
-        ),
+        icon: (props: { path: string }) => <RevealGroup {...props} />,
         contextMenu: true,
         priority: 2,
       },
@@ -138,11 +139,7 @@ function CollapseTree(props: CollapseTreeProps) {
       },
       // Special case, when no group checked, show all images
       all: {
-        icon: (props: { path: string }) => (
-          <OpenFolder {...props}>
-            <FaRegImages />
-          </OpenFolder>
-        ),
+        icon: (props: { path: string }) => <RevealGroup {...props} folderChildren={<FaRegImages />} />,
         contextMenu: true,
         priority: null,
       },

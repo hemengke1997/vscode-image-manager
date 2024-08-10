@@ -12,6 +12,7 @@ import { useSticky } from '../../hooks/use-sticky'
 import { type EnableCollapseContextMenuType } from '../context-menus/components/collapse-context-menu'
 import useCollapseContextMenu from '../context-menus/components/collapse-context-menu/hooks/use-collapse-context-menu'
 import ImagePreview, { type ImagePreviewProps } from '../image-preview'
+import SingleLabel from './components/single-label'
 import './index.css'
 
 type ImageCollapseProps = {
@@ -93,9 +94,18 @@ function ImageCollapse(props: ImageCollapseProps) {
   const stickyRef = useRef<HTMLDivElement>(null)
   const holderRef = useRef<HTMLDivElement>(null)
 
-  const target = stickyRef.current?.querySelector('.ant-collapse-header') as HTMLElement
+  const getCollpaseHeader = () => stickyRef.current?.querySelector('.ant-collapse-header') as HTMLElement
   const isSticky = useRef(false)
-  const elRef = useRef<HTMLDivElement>(null)
+
+  useEffect(() => {
+    if (stickyRef.current) {
+      const target = getCollpaseHeader()
+
+      if (target) {
+        target.tabIndex = -1
+      }
+    }
+  }, [stickyRef])
 
   const onCollapseChange = useMemoizedFn((keys: string[]) => {
     setActiveKeys(keys)
@@ -187,27 +197,12 @@ function ImageCollapse(props: ImageCollapseProps) {
     })
   })
 
-  const singleLabelNode = useMemoizedFn((label: string, index: number) => {
-    return (
-      <div className={'w-full flex-1'}>
-        <div
-          onContextMenu={(e) => onContextMenu(e, index)}
-          tabIndex={-1}
-          className={classNames(
-            'relative w-full cursor-pointer transition-all after:absolute after:-inset-x-0 after:-inset-y-[8px] after:content-[""] hover:underline focus:underline',
-          )}
-          onClick={() => {
-            if (activeKeys?.length) {
-              setActiveKeys([])
-            } else {
-              setActiveKeys([id])
-            }
-          }}
-        >
-          {label}
-        </div>
-      </div>
-    )
+  const onLabelClick = useMemoizedFn(() => {
+    if (activeKeys?.length) {
+      setActiveKeys([])
+    } else {
+      setActiveKeys([id])
+    }
   })
 
   const generateLabel = useMemoizedFn((labels: string[]) => {
@@ -216,19 +211,37 @@ function ImageCollapse(props: ImageCollapseProps) {
         <div className={'flex w-full items-center'}>
           {labels.map((l, i) => (
             <div key={i} className={classNames('flex items-center', i === labels.length - 1 && 'flex-1')}>
-              {singleLabelNode(l, i)}
+              <SingleLabel
+                index={i}
+                contextMenu={!!contextMenu}
+                onContextMenu={(e) => onContextMenu(e, i)}
+                onClick={onLabelClick}
+                dirPath={getCurrentPath(i)}
+              >
+                {l}
+              </SingleLabel>
               <div className={classNames('px-0.5', i !== labels.length - 1 ? 'block' : 'hidden')}>/</div>
             </div>
           ))}
         </div>
       )
     } else {
-      return singleLabelNode(labels[0], 0)
+      return (
+        <SingleLabel
+          onClick={onLabelClick}
+          index={0}
+          contextMenu={!!contextMenu}
+          onContextMenu={(e) => onContextMenu(e, 0)}
+          dirPath={id}
+        >
+          {labels[0]}
+        </SingleLabel>
+      )
     }
   })
 
   useSticky({
-    target,
+    target: getCollpaseHeader(),
     holder: holderRef.current,
     onStickyToogle(sticky, { rawStyle }) {
       isSticky.current = sticky
@@ -246,7 +259,7 @@ function ImageCollapse(props: ImageCollapseProps) {
       }
 
       requestAnimationFrame(() => {
-        target.setAttribute('style', rawStyle)
+        getCollpaseHeader().setAttribute('style', rawStyle)
       })
     },
     topOffset: viewerHeaderStickyHeight,
@@ -267,36 +280,34 @@ function ImageCollapse(props: ImageCollapseProps) {
   if (!images?.length && !nestedChildren) return null
 
   return (
-    <div ref={elRef}>
-      <Element name={id}>
-        <Collapse
-          /**
-           * 由于图片数量可能很多，如果打开了collapse之后，即使关闭了也会一直渲染
-           * 所以需要在关闭的时候销毁inactive的panel
-           */
-          destroyInactivePanel
-          {...collapseProps}
-          ref={stickyRef}
-          activeKey={activeKeys}
-          onChange={(keys) => onCollapseChange(keys as string[])}
-          items={[
-            {
-              forceRender: !!activeKeys.length,
-              key: id,
-              label: labelRender(generateLabel(labels)),
-              children: images?.length ? (
-                <div className={'space-y-2'}>
-                  <ImagePreview ref={holderRef} {...imagePreviewProps} images={images} />
-                  {nestedChildren}
-                </div>
-              ) : (
-                nestedChildren
-              ),
-            },
-          ]}
-        ></Collapse>
-      </Element>
-    </div>
+    <Element name={id}>
+      <Collapse
+        /**
+         * 由于图片数量可能很多，如果打开了collapse之后，即使关闭了也会一直渲染
+         * 所以需要在关闭的时候销毁inactive的panel
+         */
+        destroyInactivePanel
+        {...collapseProps}
+        ref={stickyRef}
+        activeKey={activeKeys}
+        onChange={(keys) => onCollapseChange(keys as string[])}
+        items={[
+          {
+            forceRender: !!activeKeys.length,
+            key: id,
+            label: labelRender(generateLabel(labels)),
+            children: images?.length ? (
+              <div className={'space-y-2'}>
+                <ImagePreview ref={holderRef} {...imagePreviewProps} images={images} />
+                {nestedChildren}
+              </div>
+            ) : (
+              nestedChildren
+            ),
+          },
+        ]}
+      ></Collapse>
+    </Element>
   )
 }
 

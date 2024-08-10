@@ -1,0 +1,13 @@
+diff --git a/node_modules/rc-collapse/es/Panel.js b/node_modules/rc-collapse/es/Panel.js
+index 267bd65..efd6a04 100644
+--- a/node_modules/rc-collapse/es/Panel.js
++++ b/node_modules/rc-collapse/es/Panel.js
+@@ -57,7 +57,7 @@ var CollapsePanel = /*#__PURE__*/React.forwardRef(function (props, ref) {
+     className: headerClassName,
+     'aria-expanded': isActive,
+     'aria-disabled': disabled,
+-    onKeyDown: handleKeyDown
++    // onKeyDown: handleKeyDown
+   };
+   if (!collapsibleHeader && !collapsibleIcon) {
+     headerProps.onClick = handleItemClick;
