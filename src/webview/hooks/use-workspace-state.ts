@@ -1,5 +1,5 @@
 import { set } from '@minko-fe/lodash-pro'
-import { useMemoizedFn } from '@minko-fe/react-hook'
+import { useDebounceFn, useMemoizedFn } from '@minko-fe/react-hook'
 import { produce } from 'immer'
 import { type DependencyList } from 'react'
 import { type WorkspaceStateKey } from '~/core/persist/workspace/common'
@@ -10,10 +10,33 @@ import { useTrackState } from './use-track-state'
 
 /**
  *
+ * 追踪 workspaceState 中的某个值
+ * workspaceState 中的值始终与 vscode 中的 workspaceState 保持一致
+ * 使用 setState 修改值时，会自动更新 vscode 中的 workspaceState
+ *
+ * 此hook与 use-ext-config-state 异曲同工
+ *
  * @param key workspaceState 的 key
+ * @param trackState 追踪的 workspaceState
+ * @param deps 依赖项，当依赖项变化时，会重新获取 workspaceState
  */
 export function useWorkspaceState<T extends WorkspaceStateKey, U>(key: T, trackState: U, deps?: DependencyList) {
   const { setWorkspaceState } = VscodeContext.usePicker(['setWorkspaceState'])
+
+  const { run: debounceUpdate } = useDebounceFn(
+    (state: U) => {
+      vscodeApi.postMessage({
+        cmd: CmdToVscode.update_workspace_state,
+        data: {
+          key,
+          value: state,
+        },
+      })
+    },
+    {
+      wait: 500,
+    },
+  )
 
   const onChangeBySet = useMemoizedFn(() => {
     setWorkspaceState(
@@ -21,13 +44,8 @@ export function useWorkspaceState<T extends WorkspaceStateKey, U>(key: T, trackS
         set(draft, key, state)
       }),
     )
-    vscodeApi.postMessage({
-      cmd: CmdToVscode.update_workspace_state,
-      data: {
-        key,
-        value: state,
-      },
-    })
+
+    debounceUpdate(state)
   })
 
   const [state, setState] = useTrackState(trackState, {

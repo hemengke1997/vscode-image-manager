@@ -138,8 +138,9 @@ function ImageManager() {
     },
     [refreshTimes],
     {
+      // 用户主动刷新时需要leading
+      leading: refreshType === 'refresh',
       wait: 500,
-      leading: true,
     },
   )
 

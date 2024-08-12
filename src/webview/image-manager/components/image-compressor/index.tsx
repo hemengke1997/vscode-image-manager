@@ -243,11 +243,7 @@ function ImageCompressor(props: ImageCompressorProps) {
                   ></Trans>
                   <Tooltip
                     mouseEnterDelay={0}
-                    title={
-                      <Trans i18nKey='im.refer_to_svgo'>
-                        <a href='https://svgo.dev/'></a>
-                      </Trans>
-                    }
+                    title={<Trans i18nKey='im.refer_to_svgo' components={[<a href='https://svgo.dev/'></a>]}></Trans>}
                   >
                     <BsQuestionCircleFill className={'cursor-pointer'} />
                   </Tooltip>

@@ -190,9 +190,8 @@ function useImageOperation() {
               values={{
                 option: 'image-manager.similarity.precision',
               }}
-            >
-              <Text code></Text>
-            </Trans>
+              components={[<Text code></Text>]}
+            ></Trans>
           </div>
         ) : null,
         duration: LOADING_DURATION.fast,

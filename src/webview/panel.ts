@@ -49,6 +49,8 @@ export class ImageManagerPanel {
     // This happens when the user closes the panel or when the panel is closed programatically
     this._panel.onDidDispose(() => this.dispose(), null, this._disposables)
     this._panel.webview.onDidReceiveMessage((msg: MessageType) => this._handleMessage(msg), null, this._disposables)
+
+    // 监听vscode配置变化
     workspace.onDidChangeConfiguration(this.update, null, this._disposables)
 
     this.init()
@@ -86,8 +88,10 @@ export class ImageManagerPanel {
         return
       }
       if (affected) {
+        // 如果是编程式修改配置，不需要更新webview
+        // 比如 用户缩放图片时，会修改插件配置，这时不需要更新webview，因为webview中有图片缩放的state了
         if (Global.isProgrammaticChangeConfig) {
-          Channel.info(`Programmatic change config, skip update webview`)
+          Channel.debug(`Programmatic change config, skip update webview`)
           return
         }
         WebviewMessageCenter.postMessage({ cmd: CmdToWebview.update_config, data: {} })

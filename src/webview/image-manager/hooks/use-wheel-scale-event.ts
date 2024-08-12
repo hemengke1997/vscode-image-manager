@@ -1,7 +1,11 @@
 import { round } from '@minko-fe/lodash-pro'
+import { useThrottleFn } from '@minko-fe/react-hook'
 import { useLayoutEffect, useRef } from 'react'
 import GlobalContext from '../contexts/global-context'
 
+/**
+ * 监听鼠标滚轮事件，缩放 viewer 中的图片大小
+ */
 function useWheelScaleEvent() {
   const { setImageWidth } = GlobalContext.usePicker(['setImageWidth'])
 
@@ -14,6 +18,12 @@ function useWheelScaleEvent() {
     }
   }
 
+  const { run: throttleSetImageWidth } = useThrottleFn(setImageWidth, {
+    wait: 100,
+    leading: true,
+    trailing: true,
+  })
+
   const handleWheel = (event: WheelEvent) => {
     if (event.ctrlKey || event.metaKey) {
       closeDefault(event)
@@ -24,10 +34,10 @@ function useWheelScaleEvent() {
 
       if (delta > 0) {
         // 缩小
-        setImageWidth((prevWidth) => Math.max(30, round(prevWidth! - maxDelta, 0)))
+        throttleSetImageWidth((prevWidth) => Math.max(30, round(prevWidth! - maxDelta, 0)))
       } else if (delta < 0) {
         // 放大
-        setImageWidth((prevWidth) => Math.min(600, round(prevWidth! + maxDelta, 0)))
+        throttleSetImageWidth((prevWidth) => Math.min(600, round(prevWidth! + maxDelta, 0)))
       }
       return false
     }

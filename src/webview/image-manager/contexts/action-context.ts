@@ -9,8 +9,8 @@ function useActionContext() {
       state: { refreshTimes: number },
       action: {
         type:
-          | 'refresh' // 带通知刷新
-          | 'slient-refresh' // 无通知刷新
+          | 'refresh' // 带通知刷新，用户主动刷新
+          | 'slient-refresh' // 无通知刷新，被动刷新（可能来自于vscode等操作）
           | undefined
       },
     ) => {

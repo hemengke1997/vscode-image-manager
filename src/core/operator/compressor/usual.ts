@@ -46,6 +46,7 @@ export class UsualCompressor extends Compressor {
             },
             'before:run': async ({ sharp, runtime }) => {
               const {
+                ext,
                 option: {
                   gif: { colors },
                   quality,
@@ -53,7 +54,6 @@ export class UsualCompressor extends Compressor {
                   size,
                   skipCompressed,
                 },
-                ext,
                 filePath,
               } = runtime
 
