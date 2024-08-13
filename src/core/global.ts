@@ -3,6 +3,7 @@ import { Commands } from '~/commands'
 import { Installer } from '~/core/sharp'
 import { i18n } from '~/i18n'
 import { EXT_NAMESPACE } from '~/meta'
+import { normalizePath } from '~/utils'
 import { AbortError, TimeoutError } from '~/utils/abort-promise'
 import { Channel } from '~/utils/channel'
 import { Config, Watcher, WorkspaceState } from '.'
@@ -87,7 +88,7 @@ export class Global {
 
     if (rootpaths?.length) {
       Channel.info(i18n.t('core.workspace_changed', rootpaths.join(',')))
-      this.rootpaths = rootpaths
+      this.rootpaths = rootpaths.map(normalizePath)
       this._onDidChangeRootPath.fire(this.rootpaths)
     }
   }

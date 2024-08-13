@@ -17,7 +17,7 @@ export default <ExtensionModule>function (ctx) {
       let rootPath = ''
       // Open via context menu
       // Higher priority than "userConfig'root"
-      const fsPath = uri.fsPath
+      const fsPath = normalizePath(uri.fsPath)
       const stat = await workspace.fs.stat(uri)
       if (stat.type !== FileType.Directory) {
         rootPath = path.dirname(fsPath)

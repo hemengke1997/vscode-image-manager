@@ -227,6 +227,8 @@ function LazyImage(props: LazyImageProps) {
     return !contextMenu?.enable?.reveal_in_viewer && trim(image.path).length && image.path === imageRevealWithoutQuery
   })
 
+  // 如果当前图片是用户右键打开的图片
+  // 则滚动到图片位置
   useEffect(() => {
     let idleTimer: number
 
@@ -236,8 +238,10 @@ function LazyImage(props: LazyImageProps) {
       // 清空 imageReveal，避免下次进入时直接定位
       vscodeApi.postMessage({ cmd: CmdToVscode.reveal_image_in_viewer, data: { filePath: '' } })
 
+      // 刚打开时，图片可能还未加载，所以需要等待图片加载完成后再滚动
       idleTimer = requestIdleCallback(() => {
         const y = elRef.current?.getBoundingClientRect().top
+        console.log('y', y)
 
         const clientHeight = document.documentElement.clientHeight
 
@@ -264,6 +268,17 @@ function LazyImage(props: LazyImageProps) {
       }
     }
   }, [imageReveal, image.path])
+
+  // 用户通过右键图片打开时，需要在图片进入视图后（即图片加载成功后）聚焦
+  // 只需聚焦一次
+  const focusOnce = useRef(false)
+  useUpdateEffect(() => {
+    if (focusOnce.current) return
+    if (elInView && isTargetImage()) {
+      keybindRef.current?.focus()
+      focusOnce.current = true
+    }
+  }, [elInView])
 
   /**
    * @param depth 父元素查找深度，默认向上查找3层，如果查不到 [data-disable_dbclick] 元素，则可以双击
