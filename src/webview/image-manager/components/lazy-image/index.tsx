@@ -241,7 +241,6 @@ function LazyImage(props: LazyImageProps) {
       // 刚打开时，图片可能还未加载，所以需要等待图片加载完成后再滚动
       idleTimer = requestIdleCallback(() => {
         const y = elRef.current?.getBoundingClientRect().top
-        console.log('y', y)
 
         const clientHeight = document.documentElement.clientHeight
 

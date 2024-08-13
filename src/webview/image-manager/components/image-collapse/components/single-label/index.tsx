@@ -68,7 +68,7 @@ function SingleLabel(props: SingleLabelProps) {
           data-dir_path={dirPath}
           tabIndex={-1}
           className={
-            'hover:text-ant-color-info focus:text-ant-color-primary-text-hover inline-flex transition-all focus:underline'
+            'hover:text-ant-color-primary-text-hover focus:text-ant-color-primary-text-hover inline-flex transition-all focus:underline'
           }
           onClick={(e) => {
             // 防止触发父元素的打开collapse事件
