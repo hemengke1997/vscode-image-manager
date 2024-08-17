@@ -2,7 +2,7 @@ import { trim } from '@minko-fe/lodash-pro'
 import { useControlledState, useInViewport, useMemoizedFn, useUpdateEffect } from '@minko-fe/react-hook'
 import { Badge, Image, type ImageProps } from 'antd'
 import { motion } from 'framer-motion'
-import { memo, type ReactNode, useEffect, useMemo, useRef, useState } from 'react'
+import { memo, type ReactNode, useEffect, useMemo, useRef } from 'react'
 import { useHotkeys } from 'react-hotkeys-hook'
 import { useTranslation } from 'react-i18next'
 import { FaRegGrinStars } from 'react-icons/fa'
@@ -13,12 +13,10 @@ import { TbResize } from 'react-icons/tb'
 import { animateScroll } from 'react-scroll'
 import { Key } from 'ts-key-enum'
 import { classNames } from 'tw-clsx'
-import { type SharpNS } from '~/@types/global'
 import { DEFAULT_CONFIG } from '~/core/config/common'
 import { CmdToVscode } from '~/message/cmd'
 import { getAppRoot } from '~/webview/utils'
 import { vscodeApi } from '~/webview/vscode-api'
-import ActionContext from '../../contexts/action-context'
 import GlobalContext from '../../contexts/global-context'
 import useImageDetail from '../../hooks/use-image-detail/use-image-detail'
 import useImageOperation from '../../hooks/use-image-operation'
@@ -96,6 +94,10 @@ export type LazyImageProps = {
    * 多选状态
    */
   multipleSelect?: (e: React.MouseEvent<HTMLDivElement, MouseEvent>) => boolean
+  /**
+   * 是否可交互
+   */
+  interactive?: boolean
 }
 
 function LazyImage(props: LazyImageProps) {
@@ -115,6 +117,7 @@ function LazyImage(props: LazyImageProps) {
     onActiveChange,
     onContextMenu,
     multipleSelect = () => false,
+    interactive = true,
   } = props
 
   const root = lazy ? lazy.root : null
@@ -123,7 +126,7 @@ function LazyImage(props: LazyImageProps) {
   const { t } = useTranslation()
   const { showImageDetailModal } = useImageDetail()
 
-  const [interactive, setInteractive] = useControlledState<boolean>({
+  const [selected, setSelected] = useControlledState<boolean>({
     defaultValue: active,
     value: active,
     onChange(value) {
@@ -138,7 +141,6 @@ function LazyImage(props: LazyImageProps) {
   ])
   const warningSize = GlobalContext.useSelector((ctx) => ctx.extConfig.viewer.warningSize)
   const imageRendering = GlobalContext.useSelector((ctx) => ctx.extConfig.viewer.imageRendering)
-  const refreshTimes = ActionContext.useSelector((ctx) => ctx.imageRefreshedState.refreshTimes)
 
   const rootMargin = useMemo(
     () => `${(imagePlaceholderSize?.height || DEFAULT_CONFIG.viewer.imageWidth) * 2.5}px 0px`,
@@ -147,23 +149,12 @@ function LazyImage(props: LazyImageProps) {
 
   const elRef = useRef<HTMLDivElement>(null)
 
-  const [imageMetadata, setImageMeatadata] = useState<{ metadata: SharpNS.Metadata; compressed: boolean }>()
-
-  const handleMaskMouseOver = () => {
-    if (!imageMetadata) {
-      vscodeApi.postMessage({ cmd: CmdToVscode.get_image_metadata, data: { filePath: image.path } }, (data) => {
-        if (data) {
-          const { metadata, compressed } = data
-          setImageMeatadata({ metadata, compressed })
-        }
-      })
+  const imageMetadata = useMemo(() => {
+    return {
+      compressed: image.info.compressed,
+      metadata: image.info.metadata,
     }
-  }
-
-  useUpdateEffect(() => {
-    // clear cache
-    setImageMeatadata(undefined)
-  }, [refreshTimes])
+  }, [image.info.compressed, image.info.metadata])
 
   const [elInView] = useInViewport(elRef, {
     root,
@@ -233,7 +224,7 @@ function LazyImage(props: LazyImageProps) {
     let idleTimer: number
 
     if (isTargetImage()) {
-      setInteractive(true)
+      setSelected(true)
 
       // 清空 imageReveal，避免下次进入时直接定位
       vscodeApi.postMessage({ cmd: CmdToVscode.reveal_image_in_viewer, data: { filePath: '' } })
@@ -257,12 +248,12 @@ function LazyImage(props: LazyImageProps) {
         }
       })
     } else if (imageReveal) {
-      setInteractive(false)
+      setSelected(false)
     }
 
     return () => {
       if (isTargetImage()) {
-        setInteractive(false)
+        setSelected(false)
         cancelIdleCallback(idleTimer)
       }
     }
@@ -315,8 +306,9 @@ function LazyImage(props: LazyImageProps) {
           tabIndex={-1}
           className={classNames(
             'group relative flex flex-none flex-col items-center space-y-1 p-1.5 transition-colors',
-            'hover:border-ant-color-primary overflow-hidden rounded-md border-[2px] border-solid border-transparent',
-            interactive && 'border-ant-color-primary-hover hover:border-ant-color-primary-hover',
+            'overflow-hidden rounded-md border-[2px] border-solid border-transparent',
+            interactive && 'hover:border-ant-color-primary',
+            interactive && selected && 'border-ant-color-primary-hover hover:border-ant-color-primary-hover',
           )}
           initial={{ opacity: 0 }}
           viewport={{
@@ -328,7 +320,7 @@ function LazyImage(props: LazyImageProps) {
           transition={{ duration: ANIMATION_DURATION.middle }}
           whileInView={{ opacity: 1 }}
           onContextMenu={onContextMenu}
-          onMouseOver={handleMaskMouseOver}
+          // onMouseOver={handleMaskMouseOver}
           onDoubleClick={(e) => {
             if (multipleSelect(e)) return
             const el = e.target as HTMLElement
@@ -402,6 +394,7 @@ function LazyImage(props: LazyImageProps) {
                       ),
                       maskClassName: 'rounded-md !cursor-default',
                       className: 'min-w-24',
+                      src: antdImageProps.src,
                     }
                   : false
               }

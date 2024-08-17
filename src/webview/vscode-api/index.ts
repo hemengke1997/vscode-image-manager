@@ -1,4 +1,5 @@
-import { destrUtil, isFunction, random } from '@minko-fe/lodash-pro'
+import { destrUtil, isFunction } from '@minko-fe/lodash-pro'
+import { nanoid } from 'nanoid'
 import { type WebviewApi } from 'vscode-webview'
 import { CmdToWebview } from '~/message/cmd'
 import {
@@ -53,7 +54,7 @@ class VscodeApi {
     })
   }
 
-  private _getRandomId = () => `${Date.now()}_${random(1, 10000)}`
+  private _getRandomId = () => `${Date.now()}_${nanoid()}`
 
   /**
    * Post a message (i.e. send arbitrary data) to the owner of the webview (i.e. vscode extension).

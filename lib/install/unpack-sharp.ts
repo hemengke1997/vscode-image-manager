@@ -1,5 +1,5 @@
 // 手动安装 sharp binary
-// Token from prebuild-install (MIT)
+// Adopt from prebuild-install (MIT)
 
 import minimist from 'minimist'
 import fs from 'node:fs'

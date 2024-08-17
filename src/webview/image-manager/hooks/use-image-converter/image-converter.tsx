@@ -8,21 +8,22 @@ import { CmdToVscode } from '~/message/cmd'
 import { abortPromise } from '~/utils/abort-promise'
 import { useTrackState } from '~/webview/hooks/use-track-state'
 import { vscodeApi } from '~/webview/vscode-api'
+import ImageOperator, { type ImageOperatorProps } from '../../components/image-operator'
+import Format from '../../components/image-operator/components/format'
+import KeepOriginal from '../../components/image-operator/components/keep-original'
 import GlobalContext from '../../contexts/global-context'
-import useAbortController from '../../hooks/use-abort-controller'
-import useImageManagerEvent from '../../hooks/use-image-manager-event'
-import useImageOperation from '../../hooks/use-image-operation'
-import useOperatorModalLogic, { type FormComponent } from '../../hooks/use-operator-modal-logic'
-import ImageOperator, { type ImageOperatorProps } from '../image-operator'
-import Format from '../image-operator/components/format'
-import KeepOriginal from '../image-operator/components/keep-original'
+import useAbortController from '../use-abort-controller'
+import useImageManagerEvent from '../use-image-manager-event'
+import useImageOperation from '../use-image-operation'
+import { type ImperativeModalProps } from '../use-imperative-modal'
+import { type FormComponent, useOperatorModalLogic } from '../use-operator-modal-logic/use-operator-modal-logic'
 
-type ImageConverterProps = {} & ImageOperatorProps
+export type ImageConverterProps = {} & ImageOperatorProps
 
 type FormValue = FormatConverterOptions
 
-function ImageConverter(props: ImageConverterProps) {
-  const { images: imagesProp, open, onOpenChange, ...rest } = props
+function ImageConverter(props: ImageConverterProps & ImperativeModalProps) {
+  const { images: imagesProp, id, onClose } = props
   const { t } = useTranslation()
   const { formatConverter } = GlobalContext.usePicker(['formatConverter'])
   const [form] = Form.useForm()
@@ -38,18 +39,18 @@ function ImageConverter(props: ImageConverterProps) {
   // })
 
   const { beginFormatConversionProcess, beginUndoProcess } = useImageOperation()
-  const { handleOperateImage } = useOperatorModalLogic({ images })
+  const { handleOperateImage } = useOperatorModalLogic()
 
-  const convertImages = useMemoizedFn((filePaths: string[], option: FormValue, abortController: AbortController) => {
+  const convertImages = useMemoizedFn((images: ImageType[], option: FormValue, abortController: AbortController) => {
     const fn = () =>
       new Promise<OperatorResult[] | undefined>((resolve) => {
-        vscodeApi.postMessage({ cmd: CmdToVscode.convert_image_format, data: { filePaths, option } }, (data) => {
+        vscodeApi.postMessage({ cmd: CmdToVscode.convert_image_format, data: { images, option } }, (data) => {
           resolve(data)
         })
       })
     return abortPromise(fn, {
       abortController,
-      timeout: (15 + filePaths.length) * 1000,
+      timeout: (15 + images.length) * 1000,
     })
   })
 
@@ -58,15 +59,13 @@ function ImageConverter(props: ImageConverterProps) {
       if (isArray(srcValue)) return srcValue
     })
 
-    const imagesToConvertFormat = images?.map((item) => item.path) || []
-
     handleOperateImage(
-      (filePath?: string) => {
-        return convertImages(filePath ? [filePath] : imagesToConvertFormat, value, abortController)
+      () => {
+        return convertImages(images, value, abortController)
       },
       {
         onSuccess() {
-          onOpenChange(false)
+          onClose(id)
         },
         onCancel() {
           abortController.abort()
@@ -74,11 +73,11 @@ function ImageConverter(props: ImageConverterProps) {
         onFinal() {
           setSubmitting(false)
         },
-        onRetryClick() {
+        onRedoClick() {
           beginFormatConversionProcess(images)
         },
-        onUndoClick(...args) {
-          beginUndoProcess(...args)
+        onUndoClick(results) {
+          beginUndoProcess(results)
         },
       },
     )
@@ -87,7 +86,7 @@ function ImageConverter(props: ImageConverterProps) {
   useImageManagerEvent({
     on: {
       reveal_in_viewer: () => {
-        onOpenChange(false)
+        onClose(id)
       },
     },
   })
@@ -164,15 +163,11 @@ function ImageConverter(props: ImageConverterProps) {
 
   return (
     <ImageOperator
-      title={t('im.convert_format')}
       images={images}
       onImagesChange={setImages}
-      open={open}
-      onOpenChange={onOpenChange}
       form={form}
       submitting={submitting}
       onSubmittingChange={setSubmitting}
-      {...rest}
     >
       <Form
         layout='horizontal'

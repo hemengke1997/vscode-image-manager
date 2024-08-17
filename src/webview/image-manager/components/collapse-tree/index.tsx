@@ -160,7 +160,7 @@ function CollapseTree(props: CollapseTreeProps) {
       const { defaultOpen } = options || {}
 
       return (
-        <div className={'space-y-2'}>
+        <div className={'select-none space-y-2'}>
           {tree.map((node) => {
             const { groupType, value, label, children, renderList, underFolderList, underFolderDeeplyList } = node
             if (!groupType) return null

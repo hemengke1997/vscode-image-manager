@@ -1,10 +1,11 @@
 import { isObject, isString, toString } from '@minko-fe/lodash-pro'
 import { useLockFn, useMemoizedFn } from '@minko-fe/react-hook'
-import { App, Button, Checkbox, Form, type InputProps, Typography } from 'antd'
+import { App, Button, Checkbox, Divider, Form, type InputProps, Typography } from 'antd'
 import escapeStringRegexp from 'escape-string-regexp'
-import { useState } from 'react'
+import { type ReactNode, useState } from 'react'
 import { Trans, useTranslation } from 'react-i18next'
 import { os } from 'un-detector'
+import { type OperatorResult } from '~/core'
 import { ConfigKey } from '~/core/config/common'
 import { WorkspaceStateKey } from '~/core/persist/workspace/common'
 import { CmdToVscode } from '~/message/cmd'
@@ -12,14 +13,31 @@ import { useExtConfigState } from '~/webview/hooks/use-ext-config-state'
 import { useWorkspaceState } from '~/webview/hooks/use-workspace-state'
 import { vscodeApi } from '~/webview/vscode-api'
 import AutoFocusInput from '../components/auto-focus-input'
-import CroppoerContext from '../contexts/cropper-context'
 import GlobalContext from '../contexts/global-context'
-import OperatorContext, { type CompressorModalStateType } from '../contexts/operator-context'
 import { getDirFromPath, getDirnameFromPath, getFilebasename } from '../utils'
 import { LOADING_DURATION } from '../utils/duration'
+import { useImageCompressor } from './use-image-compressor/use-image-compressor'
+import { useImageConverter } from './use-image-converter/use-image-converter'
+import { useImageCropper } from './use-image-cropper/use-image-cropper'
 import useImageManagerEvent from './use-image-manager-event'
+import { useImageSimilarity } from './use-image-similarity/use-image-similarity'
 
 const { Text } = Typography
+
+const UndoMessageContent = (props: { list: string[]; title: ReactNode }) => {
+  const { title, list } = props
+  return (
+    <div className={'flex items-center'}>
+      <div>{title}</div>
+      <Divider type='vertical' />
+      <div className={'flex flex-col items-start gap-0.5'}>
+        {list.map((t, index) => (
+          <div key={index}>{t}</div>
+        ))}
+      </div>
+    </div>
+  )
+}
 
 function useImageOperation() {
   const { compressor, formatConverter, extConfig } = GlobalContext.usePicker([
@@ -29,12 +47,6 @@ function useImageOperation() {
   ])
   const { notification, message, modal } = App.useApp()
   const { t } = useTranslation()
-
-  const { setCompressorModal, setFormatConverterModal, setSimilarityModal } = OperatorContext.usePicker([
-    'setCompressorModal',
-    'setFormatConverterModal',
-    'setSimilarityModal',
-  ])
 
   const openInVscodeExplorer = useMemoizedFn((filePath: string) => {
     vscodeApi.postMessage({ cmd: CmdToVscode.open_image_in_vscode_explorer, data: { filePath } })
@@ -97,34 +109,28 @@ function useImageOperation() {
     }
   })
 
-  const beginCompressProcess = useMemoizedFn(
-    (images: ImageType[], compressorModalProps?: Pick<CompressorModalStateType, 'fields'>) => {
-      const no = noOperatorTip()
-      if (no) return
-      // open compress modal
-      setCompressorModal({
-        open: true,
-        closed: false,
-        images,
-        ...compressorModalProps,
-      })
-    },
-  )
+  const [showImageCompressor] = useImageCompressor()
 
+  const beginCompressProcess = useMemoizedFn((images: ImageType[]) => {
+    const no = noOperatorTip()
+    if (no) return
+    // open compress modal
+    showImageCompressor({ images })
+  })
+
+  const [showImageConveter] = useImageConverter()
   const beginFormatConversionProcess = useMemoizedFn((images: ImageType[]) => {
     const no = noOperatorTip()
     if (no) return
     // open format conversion modal
-    setFormatConverterModal({
-      open: true,
-      closed: false,
+    showImageConveter({
       images,
     })
   })
 
-  const { setCropperProps } = CroppoerContext.usePicker(['setCropperProps'])
+  const [showCropperModal] = useImageCropper()
   const cropImage = useMemoizedFn((image: ImageType) => {
-    setCropperProps({ open: true, image })
+    showCropperModal({ image })
   })
 
   const findSimilarImages = useMemoizedFn((image: ImageType, scope: ImageType[]) => {
@@ -156,6 +162,8 @@ function useImageOperation() {
     WorkspaceStateKey.show_precision_tip,
     show_precision_tip,
   )
+
+  const [showImageSimilarity] = useImageSimilarity()
   const beginFindSimilarProcess = useLockFn(async (image: ImageType, images: ImageType[]) => {
     const loadingKey = 'similarity-loading'
     const timer = setTimeout(() => {
@@ -174,9 +182,7 @@ function useImageOperation() {
     } else if (res instanceof Error) {
       message.error(res.message)
     } else if (res.length) {
-      setSimilarityModal({
-        open: true,
-        closed: false,
+      showImageSimilarity({
         image,
         similarImages: res,
       })
@@ -281,6 +287,7 @@ function useImageOperation() {
           okText: t('im.confirm'),
           cancelText: t('im.cancel'),
           centered: true,
+          autoFocusButton: 'ok',
           onOk: async () => {
             if (askDelete) {
               setConfirmDelete(false)
@@ -528,33 +535,27 @@ function useImageOperation() {
     })
   })
 
-  const beginUndoProcess = useMemoizedFn(async (id: string, image: ImageType) => {
-    const getUndoMessageKey = (id: string) => `undo-${id}`
-    let errorMsg = ''
-    try {
-      await undo(id)
-    } catch (e: any) {
-      errorMsg = toString(e)
-    } finally {
-      message[errorMsg ? 'error' : 'success']({
-        key: getUndoMessageKey(id),
-        content: (
-          <div className={'flex items-center space-x-2'}>
-            <div>{errorMsg ? `${t('im.undo_fail')}: ${errorMsg}` : `${t('im.undo_success')}: ${image.name}`}</div>
-            {errorMsg ? null : (
-              <Button
-                onClick={() => {
-                  message.destroy(getUndoMessageKey(id))
-                  beginRevealInViewer(image)
-                }}
-              >
-                {t('im.reveal_in_viewer')}
-              </Button>
-            )}
-          </div>
-        ),
-      })
-    }
+  const beginUndoProcess = useMemoizedFn(async (result: OperatorResult[]) => {
+    const errors: string[] = []
+    const success: string[] = []
+    return Promise.all(
+      result.map(async (item) => {
+        const { id, image } = item
+        try {
+          await undo(id)
+          success.push(image.name)
+        } catch (e: any) {
+          errors.push(toString(e))
+        }
+      }),
+    ).finally(() => {
+      if (success.length) {
+        message.success(<UndoMessageContent title={t('im.undo_success')} list={success}></UndoMessageContent>, 5)
+      }
+      if (errors.length) {
+        message.error(<UndoMessageContent title={t('im.undo_fail')} list={errors}></UndoMessageContent>, 5)
+      }
+    })
   })
 
   return {

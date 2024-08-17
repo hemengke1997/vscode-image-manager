@@ -39,7 +39,9 @@ export type ConfigType = {
     enabled: boolean
     url: string
   }
-  compression: CompressionOptions & {}
+  compression: CompressionOptions & {
+    errorRange: number
+  }
   conversion: FormatConverterOptions
   similarity: {
     precision: number
@@ -71,6 +73,7 @@ export enum ConfigKey {
   mirror_url = 'mirror.url',
 
   compression = 'compression',
+  compression_errorRange = 'compression.errorRange',
   compression_keepOriginal = 'compression.keepOriginal',
   compression_skipCompressed = 'compression.skipCompressed',
   compression_fileSuffix = 'compression.fileSuffix',
@@ -120,6 +123,7 @@ export const DEFAULT_CONFIG: ConfigType = {
     url: '',
   },
   compression: {
+    errorRange: 2,
     keepOriginal: false,
     skipCompressed: true,
     fileSuffix: '.min',

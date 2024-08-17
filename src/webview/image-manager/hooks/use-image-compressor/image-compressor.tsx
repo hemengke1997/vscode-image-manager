@@ -1,4 +1,4 @@
-import { intersection, isEmpty, mapValues, merge, omit } from '@minko-fe/lodash-pro'
+import { intersection, mapValues, merge, omit } from '@minko-fe/lodash-pro'
 import { useMemoizedFn } from '@minko-fe/react-hook'
 import { Alert, Button, Divider, Form, Input, InputNumber, Segmented, Tooltip } from 'antd'
 import { flatten as flattenObject, unflatten } from 'flat'
@@ -11,16 +11,17 @@ import { type CompressionOptions } from '~/core/operator/compressor/type'
 import { CmdToVscode } from '~/message/cmd'
 import { abortPromise } from '~/utils/abort-promise'
 import { vscodeApi } from '~/webview/vscode-api'
+import ImageOperator from '../../components/image-operator'
+import Format from '../../components/image-operator/components/format'
+import KeepOriginal from '../../components/image-operator/components/keep-original'
+import SkipCompressed from '../../components/image-operator/components/skip-compressed'
 import GlobalContext from '../../contexts/global-context'
-import useAbortController from '../../hooks/use-abort-controller'
-import useImageManagerEvent from '../../hooks/use-image-manager-event'
-import useImageOperation from '../../hooks/use-image-operation'
-import useOperatorModalLogic, { type FormComponent } from '../../hooks/use-operator-modal-logic'
 import { ANIMATION_DURATION } from '../../utils/duration'
-import ImageOperator, { type ImageOperatorProps } from '../image-operator'
-import Format from '../image-operator/components/format'
-import KeepOriginal from '../image-operator/components/keep-original'
-import SkipCompressed from '../image-operator/components/skip-compressed'
+import useAbortController from '../use-abort-controller'
+import useImageManagerEvent from '../use-image-manager-event'
+import useImageOperation from '../use-image-operation'
+import { type ImperativeModalProps } from '../use-imperative-modal'
+import { type FormComponent, useOperatorModalLogic } from '../use-operator-modal-logic/use-operator-modal-logic'
 import styles from './index.module.css'
 
 type FormValue = CompressionOptions & {
@@ -28,49 +29,41 @@ type FormValue = CompressionOptions & {
 }
 
 export type ImageCompressorProps = {
+  images: ImageType[]
   /**
    * 上层控制渲染表单字段
    */
   fields?: FormComponent<CompressionOptions>
-} & ImageOperatorProps
+}
 
-function ImageCompressor(props: ImageCompressorProps) {
-  const { images: imagesProp, open, onOpenChange, fields, ...rest } = props
-
-  const { t } = useTranslation()
-
-  const { compressor } = GlobalContext.usePicker(['compressor'])
-
-  const abortController = useAbortController()
-
-  const [form] = Form.useForm()
+function ImageCompressor(props: ImageCompressorProps & ImperativeModalProps) {
+  const { images: imagesProp, fields, id, onClose } = props
 
   const [images, setImages] = useState(imagesProp)
 
+  const { t } = useTranslation()
+
+  const [form] = Form.useForm()
+
+  const { compressor } = GlobalContext.usePicker(['compressor'])
   const [submitting, setSubmitting] = useState(false)
 
-  const hasSomeImageType = useMemoizedFn((type: string) => {
-    return images?.some((img) => img.fileType === type)
-  })
-
-  const hasAllImageType = useMemoizedFn((type: string) => {
-    return images?.every((img) => img.fileType === type)
-  })
+  const abortController = useAbortController()
 
   const { beginCompressProcess, beginUndoProcess } = useImageOperation()
-  const { handleOperateImage } = useOperatorModalLogic({ images })
+  const { handleOperateImage } = useOperatorModalLogic()
 
-  const compressImage = useMemoizedFn((filePaths: string[], option: FormValue, abortController: AbortController) => {
+  const compressImage = useMemoizedFn((images: ImageType[], option: FormValue, abortController: AbortController) => {
     const fn = () =>
       new Promise<OperatorResult[] | undefined>((resolve) => {
-        vscodeApi.postMessage({ cmd: CmdToVscode.compress_image, data: { filePaths, option } }, (data) => {
+        vscodeApi.postMessage({ cmd: CmdToVscode.compress_image, data: { images, option } }, (data) => {
           resolve(data)
         })
       })
 
     return abortPromise(fn, {
       abortController,
-      timeout: (15 + filePaths.length) * 1000,
+      timeout: (15 + images.length) * 1000,
     })
   })
 
@@ -84,15 +77,13 @@ function ImageCompressor(props: ImageCompressorProps) {
       value.size = Number(value.size)
     }
 
-    const imagesToCompress = images?.map((item) => item.path) || []
-
     handleOperateImage(
       () => {
-        return compressImage(imagesToCompress, unflatten(value), abortController)
+        return compressImage(images, unflatten(value), abortController)
       },
       {
         onSuccess() {
-          onOpenChange(false)
+          onClose(id)
         },
         onCancel() {
           abortController.abort()
@@ -100,11 +91,11 @@ function ImageCompressor(props: ImageCompressorProps) {
         onFinal() {
           setSubmitting(false)
         },
-        onRetryClick(images) {
+        onRedoClick(images) {
           beginCompressProcess(images)
         },
-        onUndoClick(...args) {
-          beginUndoProcess(...args)
+        onUndoClick(results) {
+          beginUndoProcess(results)
         },
       },
     )
@@ -113,7 +104,7 @@ function ImageCompressor(props: ImageCompressorProps) {
   useImageManagerEvent({
     on: {
       reveal_in_viewer: () => {
-        onOpenChange(false)
+        onClose(id)
       },
     },
   })
@@ -122,6 +113,14 @@ function ImageCompressor(props: ImageCompressorProps) {
 
   const [activeTab, setActiveTab] = useState<'not-svg' | 'svg'>('not-svg')
   const SVG_FIELDS = ['svg']
+
+  const hasSomeImageType = useMemoizedFn((type: string) => {
+    return images?.some((img) => img.fileType === type)
+  })
+
+  const hasAllImageType = useMemoizedFn((type: string) => {
+    return images?.every((img) => img.fileType === type)
+  })
 
   const [svgoOpenLoading, setSvgoOpenLoading] = useState(false)
 
@@ -269,14 +268,6 @@ function ImageCompressor(props: ImageCompressorProps) {
     }
   }, [images])
 
-  const displayComponents = useMemo(() => {
-    const active = tabList.find((item) => item.value === activeTab)!
-    return {
-      keys: intersection(Object.keys(active.componentMap), Object.keys(active.compressorOption)),
-      componentMap: active.componentMap,
-    }
-  }, [tabList, activeTab])
-
   const allCompressorOption = useMemo(
     () => merge(flattenObject(compressor?.option || {}), mapValues(fields, 'value')) as AnyObject,
     [compressor?.option, fields],
@@ -291,21 +282,23 @@ function ImageCompressor(props: ImageCompressorProps) {
     }, {} as FormComponent<CompressionOptions>)
   }, [tabList])
 
-  const displayTabs = useMemo(() => tabList.filter((item) => !item.hidden), [tabList])
+  const displayComponents = useMemo(() => {
+    const active = tabList.find((item) => item.value === activeTab)!
+    return {
+      keys: intersection(Object.keys(active.componentMap), Object.keys(active.compressorOption)),
+      componentMap: active.componentMap,
+    }
+  }, [tabList, activeTab])
 
-  if (isEmpty(allCompressorOption)) return null
+  const displayTabs = useMemo(() => tabList.filter((item) => !item.hidden), [tabList])
 
   return (
     <ImageOperator
-      title={t('im.image_compression')}
       images={images}
       onImagesChange={setImages}
-      open={open}
-      onOpenChange={onOpenChange}
       form={form}
       submitting={submitting}
       onSubmittingChange={setSubmitting}
-      {...rest}
     >
       <div className={'flex flex-col'}>
         {displayTabs.length > 1 ? (

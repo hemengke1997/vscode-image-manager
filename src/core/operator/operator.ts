@@ -1,12 +1,14 @@
 import { isArray, isString, mergeWith, toString } from '@minko-fe/lodash-pro'
 import fs from 'fs-extra'
+import { nanoid } from 'nanoid'
 import path from 'node:path'
+import { type SetOptional } from 'type-fest'
 import { i18n } from '~/i18n'
-import { VscodeMessageCenter } from '~/message'
+import { VscodeMessageCenter, WebviewMessageCenter } from '~/message'
 import { CmdToVscode } from '~/message/cmd'
 import { generateOutputPath } from '~/utils'
 import { Channel } from '~/utils/channel'
-import { type Commander } from '../commander'
+import { Commander } from '../commander'
 import { Config } from '../config'
 
 export type OperatorOptions = {
@@ -57,9 +59,18 @@ export type OperatorResult = NativeOperatorResult & {
    * 图片类型是否被限制支持
    */
   isLimited?: boolean
+  /**
+   * 图片信息
+   */
+  image: ImageType
 }
 
 export abstract class Operator {
+  /**
+   * 图片信息
+   */
+  public image: ImageType = {} as ImageType
+
   /**
    * 原文件路径 (同时作为操作id)
    */
@@ -75,7 +86,7 @@ export abstract class Operator {
   /**
    * 操作命令
    */
-  public abstract commander: Commander | null
+  public commander: Commander | null = null
 
   /**
    * 支持的文件扩展类型
@@ -111,7 +122,7 @@ export abstract class Operator {
   /**
    * 执行操作
    */
-  abstract run<T extends OperatorOptions>(filePath: string, option: T | undefined): Promise<OperatorResult>
+  abstract run<T extends OperatorOptions>(image: ImageType, option: T | undefined): Promise<OperatorResult>
 
   /**
    * 撤销操作
@@ -146,7 +157,10 @@ export abstract class Operator {
   /**
    * 处理操作结果
    */
-  resolveResult(res: NativeOperatorResult): OperatorResult {
+  async resolveResult(res: SetOptional<OperatorResult, 'id' | 'image'>): Promise<OperatorResult> {
+    const id = `${res.filePath}~${nanoid()}`
+    this.commander = new Commander(id, this.undo.bind(this))
+
     const isSkiped = res.error instanceof SkipError
     const isLimited = res.error instanceof LimitError
 
@@ -159,11 +173,20 @@ export abstract class Operator {
       this.addCommandCache()
     }
 
+    let image: ImageType
+    try {
+      image = res.outputPath ? await this.getImageInfo(res.outputPath) : this.image
+    } catch {
+      image = this.image
+    }
+
     return {
       ...res,
+      id,
       error: res.error?.message ? res.error.message : toString(res.error),
       isSkiped,
       isLimited,
+      image,
       inputBuffer: null, // 减少非必要的传输数据量
     }
   }
@@ -172,7 +195,7 @@ export abstract class Operator {
    * 把撤销命令添加到缓存中
    */
   addCommandCache() {
-    this.commander?.addToCache()
+    this.commander?.addToCache.call(this.commander)
   }
 
   /**
@@ -290,6 +313,17 @@ export abstract class Operator {
    */
   public async getFileSize(filePath: string) {
     return (await fs.stat(filePath)).size
+  }
+
+  /**
+   * 获取图片信息
+   * @param filePath 图片路径
+   */
+  async getImageInfo(filePath: string): Promise<ImageType> {
+    return VscodeMessageCenter[CmdToVscode.get_one_image](
+      { filePath, cwd: this.image.absWorkspaceFolder },
+      WebviewMessageCenter.webview,
+    )
   }
 }
 

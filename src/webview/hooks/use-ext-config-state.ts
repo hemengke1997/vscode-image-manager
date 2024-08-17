@@ -1,7 +1,8 @@
 import { set } from '@minko-fe/lodash-pro'
 import { useDebounceFn, useMemoizedFn } from '@minko-fe/react-hook'
+import { type DebounceOptions } from 'ahooks/es/useDebounce/debounceOptions'
 import { produce } from 'immer'
-import { type DependencyList } from 'react'
+import { type DependencyList, useMemo } from 'react'
 import { type ConfigType } from '~/core/config/common'
 import { CmdToVscode } from '~/message/cmd'
 import VscodeContext from '../ui-framework/src/contexts/vscode-context'
@@ -17,23 +18,31 @@ import { useTrackState } from './use-track-state'
  * @param trackState 追踪的插件配置
  * @param deps 依赖项，当依赖项变化时，会重新获取插件配置
  */
-export function useExtConfigState<T extends Flatten<ConfigType>, U>(key: T, trackState: U, deps?: DependencyList) {
+export function useExtConfigState<T extends Flatten<ConfigType>, U>(
+  key: T,
+  trackState: U,
+  deps?: DependencyList,
+  _debounceOptions?: DebounceOptions,
+) {
   const { setExtConfig } = VscodeContext.usePicker(['setExtConfig'])
 
-  const { run: debounceUpdate } = useDebounceFn(
-    (state: U) => {
-      vscodeApi.postMessage({
-        cmd: CmdToVscode.update_user_configuration,
-        data: {
-          key,
-          value: state,
-        },
-      })
-    },
-    {
+  const debounceOptions: DebounceOptions = useMemo(
+    () => ({
       wait: 500,
-    },
+      ..._debounceOptions,
+    }),
+    [_debounceOptions],
   )
+
+  const { run: debounceUpdate } = useDebounceFn((state: U) => {
+    vscodeApi.postMessage({
+      cmd: CmdToVscode.update_user_configuration,
+      data: {
+        key,
+        value: state,
+      },
+    })
+  }, debounceOptions)
 
   const onChangeBySet = useMemoizedFn(() => {
     setExtConfig(

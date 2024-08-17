@@ -1,5 +1,5 @@
 // 手动安装 libvips
-// Token from sharp/install/libvips.js (Apache-2.0)
+// Adopt from sharp/install/libvips.js (Apache-2.0)
 
 import libvips from '@minko-fe/sharp/lib/libvips'
 import fs from 'node:fs'

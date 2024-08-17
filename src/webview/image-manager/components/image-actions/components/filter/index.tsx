@@ -1,6 +1,6 @@
 import { isNil, isObject, upperFirst } from '@minko-fe/lodash-pro'
 import { useMemoizedFn } from '@minko-fe/react-hook'
-import { Button, ConfigProvider, Divider, Form, InputNumber, Popover, Segmented, Space } from 'antd'
+import { Button, ConfigProvider, Divider, Form, InputNumber, Popover, Segmented } from 'antd'
 import { produce } from 'immer'
 import { memo, useMemo, useRef, useState } from 'react'
 import { useTranslation } from 'react-i18next'
@@ -108,45 +108,53 @@ function Filter() {
             >
               {/* size */}
               <Form.Item label={t('im.size')}>
-                <div className={'flex items-center space-x-2'}>
-                  <Space.Compact>
-                    <Form.Item
-                      noStyle
-                      rules={[
-                        ({ getFieldValue }) => ({
-                          validator(_, value) {
-                            const max = getFieldValue(['size', 'max'])
-                            if (!isNil(max) && !isNil(value) && value > max) {
-                              return Promise.reject(new Error(t('im.size_filter_tip')))
-                            }
-                            return Promise.resolve()
-                          },
-                        }),
-                      ]}
-                      name={['size', 'min']}
-                      dependencies={[['size', 'max']]}
-                    >
-                      <InputNumber placeholder={`${t('im.min')}(kb)`} min={0} onPressEnter={filterForm.submit} />
-                    </Form.Item>
-                    <Form.Item
-                      noStyle
-                      name={['size', 'max']}
-                      rules={[
-                        ({ getFieldValue }) => ({
-                          validator(_, value) {
-                            const min = getFieldValue(['size', 'min'])
-                            if (!isNil(min) && !isNil(value) && value < min) {
-                              return Promise.reject()
-                            }
-                            return Promise.resolve()
-                          },
-                        }),
-                      ]}
-                      dependencies={[['size', 'min']]}
-                    >
-                      <InputNumber placeholder={`${t('im.max')}(kb)`} min={0} onPressEnter={filterForm.submit} />
-                    </Form.Item>
-                  </Space.Compact>
+                <div className={'flex flex-col items-center gap-2'}>
+                  <Form.Item
+                    noStyle
+                    rules={[
+                      ({ getFieldValue }) => ({
+                        validator(_, value) {
+                          const max = getFieldValue(['size', 'max'])
+                          if (!isNil(max) && !isNil(value) && value > max) {
+                            return Promise.reject(new Error(t('im.size_filter_tip')))
+                          }
+                          return Promise.resolve()
+                        },
+                      }),
+                    ]}
+                    name={['size', 'min']}
+                    dependencies={[['size', 'max']]}
+                  >
+                    <InputNumber
+                      placeholder={`${t('im.min')}`}
+                      min={0}
+                      onPressEnter={filterForm.submit}
+                      addonAfter={'KB'}
+                    />
+                  </Form.Item>
+                  <Form.Item
+                    noStyle
+                    name={['size', 'max']}
+                    rules={[
+                      ({ getFieldValue }) => ({
+                        validator(_, value) {
+                          const min = getFieldValue(['size', 'min'])
+                          if (!isNil(min) && !isNil(value) && value < min) {
+                            return Promise.reject()
+                          }
+                          return Promise.resolve()
+                        },
+                      }),
+                    ]}
+                    dependencies={[['size', 'min']]}
+                  >
+                    <InputNumber
+                      placeholder={`${t('im.max')}`}
+                      min={0}
+                      onPressEnter={filterForm.submit}
+                      addonAfter={'KB'}
+                    />
+                  </Form.Item>
                 </div>
               </Form.Item>
               {/* git staged */}

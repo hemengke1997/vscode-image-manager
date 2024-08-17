@@ -4,7 +4,6 @@ import pMap from 'p-map'
 import { type SharpNS } from '~/@types/global'
 import { i18n } from '~/i18n'
 import { SharpOperator } from '..'
-import { Commander } from '../commander'
 import { DEFAULT_CONFIG } from '../config/common'
 import { Operator, type OperatorOptions, type OperatorResult, SkipError } from './operator'
 
@@ -34,7 +33,6 @@ type ConvertorRuntime = {
 
 export class FormatConverter extends Operator {
   public inputPath: string = ''
-  public commander: Commander | null = null
   public outputPath: string = ''
   public inputBuffer: Buffer = Buffer.from('')
 
@@ -50,22 +48,21 @@ export class FormatConverter extends Operator {
   }
 
   async run<FormatConverterOptions>(
-    filePath: string,
+    image: ImageType,
     option: FormatConverterOptions | undefined,
   ): Promise<OperatorResult> {
+    this.image = image
     this.option = this.mergeOption(option)
 
-    this.inputPath = filePath
-    this.commander = new Commander(this.inputPath, this.undo.bind(this))
+    this.inputPath = image.path
 
-    const r = await this.convertImage(filePath)
+    const r = await this.convertImage(this.inputPath)
 
     return this.resolveResult(r)
   }
 
   async convertImage(filePath: string) {
     const result = {
-      id: this.inputPath,
       filePath,
     }
     try {

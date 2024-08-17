@@ -9,11 +9,9 @@ import {
 } from '@minko-fe/react-hook'
 import { createContainer } from 'context-state'
 import { diff } from 'deep-object-diff'
-import { useEffect, useMemo, useRef } from 'react'
+import { useEffect, useMemo } from 'react'
 import { type SortByType, type SortType, type WorkspaceStateType } from '~/core/persist/workspace/common'
 import { ImageVisibleFilter } from '~/enums'
-import { CmdToVscode } from '~/message/cmd'
-import { vscodeApi } from '~/webview/vscode-api'
 import { FilterRadioValue } from '../components/image-actions/components/filter'
 import { bytesToKb, uniqSortByThenMap } from '../utils'
 import { type ImageFilterType } from './global-context'
@@ -49,22 +47,25 @@ type Condition = {
 
 // 根据条件改变图片的visible
 async function changeImageVisible(imageList: ImageType[], conditions: Condition[]) {
-  const promises = imageList.map((image, index) => async () => {
-    for (const { key, condition } of conditions) {
-      if (!image.visible) {
-        image.visible = {}
-      }
-      image.visible[key] = isFunction(condition) ? await condition(image, index) : condition
+  const visibilityPromises = imageList.map(async (image, index) => {
+    if (!image.visible) {
+      image.visible = {}
     }
+
+    const conditionPromises = conditions.map(async ({ key, condition }) => {
+      image.visible![key] = isFunction(condition) ? await condition(image, index) : condition
+    })
+
+    await Promise.all(conditionPromises)
     return image
   })
 
-  if (promises.length) {
-    const first = await promises[0]()
-    const rest = await Promise.all(promises.slice(1).map((p) => p()))
-    return [first, ...rest]
+  try {
+    const result = await Promise.all(visibilityPromises)
+    return result
+  } catch {
+    return []
   }
-  return []
 }
 
 // 图片排序
@@ -109,7 +110,7 @@ type TreeContextProp = {
    */
   imageList: ImageType[]
   /**
-   * 当前树工作区
+   * 当前树工作区名称
    */
   workspaceFolder: string
   /**
@@ -127,7 +128,7 @@ type TreeContextProp = {
   /**
    * 父组件收集树数据
    */
-  onCollectTreeData: (data: { visibleList: ImageType[]; workspaceFolder: string }) => void
+  onCollectTreeData?: (data: { visibleList: ImageType[]; workspaceFolder: string }) => void
 }
 
 function useTreeContext(props: TreeContextProp) {
@@ -149,7 +150,7 @@ function useTreeContext(props: TreeContextProp) {
   const latestImageList = useLatest(imageSingleTree.list)
 
   useEffect(() => {
-    onCollectTreeData({ visibleList: imageSingleTree.visibleList, workspaceFolder: originalWorkspaceFolder })
+    onCollectTreeData?.({ visibleList: imageSingleTree.visibleList, workspaceFolder: originalWorkspaceFolder })
   }, [imageSingleTree.visibleList])
 
   // 筛选出当前树显示的工作区
@@ -248,8 +249,6 @@ function useTreeContext(props: TreeContextProp) {
     }))
   }, [sort])
 
-  const git_staged_cache = useRef<string[] | null>(null)
-
   const changeImageVisibleByFilterKeys = useMemoizedFn(
     (imageList: ImageType[], key: ImageVisibleFilter[], imageFilter: ImageFilterType): Promise<ImageType[]> => {
       const builtInConditions: Condition[] = [
@@ -266,26 +265,13 @@ function useTreeContext(props: TreeContextProp) {
         },
         {
           key: ImageVisibleFilter.git_staged,
-          condition: async (image, index) => {
+          condition: async (image) => {
             if (imageFilter.git_staged) {
-              // Get staged images when needed to improve performance
-              if (index === 0 || !git_staged_cache.current) {
-                try {
-                  git_staged_cache.current = await new Promise<string[]>((resolve) => {
-                    vscodeApi.postMessage({ cmd: CmdToVscode.get_git_staged_images }, (res) => {
-                      resolve(res || [])
-                    })
-                  })
-                } catch {
-                  git_staged_cache.current = null
-                }
-              }
-
               switch (imageFilter.git_staged) {
                 case FilterRadioValue.yes:
-                  return git_staged_cache.current?.includes(image.path)
+                  return image.info.gitStaged
                 case FilterRadioValue.no:
-                  return !git_staged_cache.current?.includes(image.path)
+                  return !image.info.gitStaged
                 default:
                   return true
               }
@@ -297,19 +283,7 @@ function useTreeContext(props: TreeContextProp) {
           key: ImageVisibleFilter.compressed,
           condition: async (image) => {
             if (imageFilter.compressed) {
-              let compressed = false
-              try {
-                compressed = await new Promise<boolean>((resolve) => {
-                  vscodeApi.postMessage(
-                    { cmd: CmdToVscode.get_image_metadata, data: { filePath: image.path } },
-                    (res) => {
-                      if (res) {
-                        resolve(res.compressed)
-                      }
-                    },
-                  )
-                })
-              } catch {}
+              const compressed = image.info.compressed
               switch (imageFilter.compressed) {
                 case FilterRadioValue.yes:
                   return compressed

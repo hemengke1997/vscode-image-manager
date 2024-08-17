@@ -1,0 +1,15 @@
+.card {
+  :global {
+    .ant-card-body {
+      @apply border-ant-color-border border-0 border-t border-solid px-1.5 py-1;
+    }
+    .ant-card-actions {
+      & > li {
+        @apply my-1 flex items-center justify-center;
+        & > span {
+          @apply w-fit;
+        }
+      }
+    }
+  }
+}

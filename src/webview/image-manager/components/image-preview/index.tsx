@@ -74,8 +74,6 @@ function ImagePreview(props: ImagePreviewProps, ref: ForwardedRef<HTMLDivElement
       })
     },
     {
-      leading: true,
-      trailing: true,
       wait: 60,
     },
   )

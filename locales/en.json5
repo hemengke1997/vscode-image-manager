@@ -40,6 +40,7 @@
       url: 'Mirror url',
     },
     compression: {
+      errorRange: 'Error range (KB), exceeding this range is considered an increase in image size after compression',
       keepOriginal: 'Keep original image',
       skipCompressed: 'Skip compressed image',
       quality: 'Image quality',

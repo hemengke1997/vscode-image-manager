@@ -1,13 +1,14 @@
 import { remove } from '@minko-fe/lodash-pro'
 import { useControlledState } from '@minko-fe/react-hook'
-import { Card, Divider, Empty, Modal } from 'antd'
+import { Card, Divider, Empty } from 'antd'
 import { produce } from 'immer'
 import { memo, useMemo } from 'react'
 import { useTranslation } from 'react-i18next'
 import { useScrollRef } from '~/webview/image-manager/hooks/use-scroll-ref'
-import useImageManagerEvent from '../../hooks/use-image-manager-event'
-import { type ImageOperatorProps } from '../image-operator'
-import ImagePreview from '../image-preview'
+import { type ImageOperatorProps } from '../../components/image-operator'
+import ImagePreview from '../../components/image-preview'
+import useImageManagerEvent from '../use-image-manager-event'
+import { type ImperativeModalProps } from '../use-imperative-modal'
 
 export type ImageSimilarityProps = Omit<ImageOperatorProps, 'images'> & {
   /**
@@ -20,24 +21,18 @@ export type ImageSimilarityProps = Omit<ImageOperatorProps, 'images'> & {
   similarImages: { image: ImageType; distance: number }[]
 }
 
-function ImageSimilarity(props: ImageSimilarityProps) {
-  const { open: openProp, onOpenChange, image, similarImages: similarImagesProp, ...rest } = props
+function ImageSimilarity(props: ImageSimilarityProps & ImperativeModalProps) {
+  const { image, similarImages: similarImagesProp, id, onClose } = props
   const { t } = useTranslation()
 
   const [similarImages, setSimilarImages] = useControlledState({
     defaultValue: similarImagesProp,
   })
 
-  const [open, setOpen] = useControlledState({
-    defaultValue: openProp,
-    value: openProp,
-    onChange: onOpenChange,
-  })
-
   useImageManagerEvent({
     on: {
       reveal_in_viewer: () => {
-        setOpen(false)
+        onClose(id)
       },
       rename: (previosImage, newImage) => {
         setSimilarImages(
@@ -81,16 +76,7 @@ function ImageSimilarity(props: ImageSimilarityProps) {
   const { scrollRef } = useScrollRef()
 
   return (
-    <Modal
-      title={t('im.find_similar_images')}
-      width={'80%'}
-      open={open}
-      footer={null}
-      onCancel={() => setOpen(false)}
-      maskClosable={false}
-      destroyOnClose
-      {...rest}
-    >
+    <>
       <Card>
         <div className={'flex justify-center'}>
           <ImagePreview
@@ -135,7 +121,7 @@ function ImageSimilarity(props: ImageSimilarityProps) {
           <Empty image={Empty.PRESENTED_IMAGE_SIMPLE} description={t('im.no_image')} />
         )}
       </Card>
-    </Modal>
+    </>
   )
 }
 

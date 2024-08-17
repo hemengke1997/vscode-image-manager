@@ -1,5 +1,5 @@
 import { difference, isEqual } from '@minko-fe/lodash-pro'
-import { useDebounceEffect, useMemoizedFn, useUpdateEffect } from '@minko-fe/react-hook'
+import { useMemoizedFn, useUpdateEffect } from '@minko-fe/react-hook'
 import { App, FloatButton } from 'antd'
 import { setAutoFreeze } from 'immer'
 import { memo, useEffect, useMemo, useRef } from 'react'
@@ -14,19 +14,13 @@ import useUpdateWebview from '../hooks/use-update-webview'
 import { getAppRoot } from '../utils'
 import { vscodeApi } from '../vscode-api'
 import ContextMenus from './components/context-menus'
-import ImageCompressor from './components/image-compressor'
-import ImageConverter from './components/image-converter'
-import ImageCropper from './components/image-cropper'
 import ImageForSize from './components/image-for-size'
-import ImageSearch from './components/image-search'
-import ImageSimilarity from './components/image-similarity'
 import Viewer from './components/viewer'
 import ViewerSettings, { type ViewerSettingsRef } from './components/viewer-settings'
 import ActionContext from './contexts/action-context'
-import CroppoerContext from './contexts/cropper-context'
 import GlobalContext, { type WebviewCompressorType, type WebviewFormatConverterType } from './contexts/global-context'
-import OperatorContext from './contexts/operator-context'
 import SettingsContext from './contexts/settings-context'
+import useRefreshImages from './hooks/use-refresh-images'
 
 vscodeApi.registerEventListener()
 
@@ -36,40 +30,16 @@ function ImageManager() {
   const { message } = App.useApp()
   const { t } = useTranslation()
 
-  const { setImageState, setCompressor, imageState, setFormatConverter, setImageReveal } = GlobalContext.usePicker([
-    'setImageState',
+  const { setCompressor, imageState, setFormatConverter, setImageReveal } = GlobalContext.usePicker([
     'setCompressor',
     'imageState',
     'setFormatConverter',
     'setImageReveal',
   ])
 
-  const { imageRefreshedState, refreshImages, imageSearchOpen, setImageSearchOpen } = ActionContext.usePicker([
-    'imageRefreshedState',
-    'refreshImages',
-    'imageSearchOpen',
-    'setImageSearchOpen',
-  ])
-
-  const {
-    compressorModal,
-    setCompressorModal,
-    formatConverterModal,
-    setFormatConverterModal,
-    similarityModal,
-    setSimilarityModal,
-  } = OperatorContext.usePicker([
-    'compressorModal',
-    'setCompressorModal',
-    'formatConverterModal',
-    'setFormatConverterModal',
-    'similarityModal',
-    'setSimilarityModal',
-  ])
+  const { refreshImages } = ActionContext.usePicker(['refreshImages'])
 
   const { displayImageTypes } = SettingsContext.usePicker(['displayImageTypes'])
-
-  const { refreshTimes, refreshType } = imageRefreshedState
 
   /**
    * setup image display types
@@ -104,45 +74,7 @@ function ImageManager() {
     setupImageDisplayTypes()
   }, [allImageTypes])
 
-  useDebounceEffect(
-    () => {
-      const isRefresh = refreshTimes && refreshType === 'refresh'
-      const messageKey = 'refresh_images'
-      let timer: number
-      if (isRefresh) {
-        timer = window.setTimeout(() => {
-          message.loading({
-            content: t('im.img_refreshing'),
-            key: messageKey,
-            duration: 0,
-          })
-          clearTimeout(timer)
-        }, 250)
-      }
-
-      vscodeApi.postMessage({ cmd: CmdToVscode.get_all_images }, ({ data, workspaceFolders }) => {
-        logger.debug('get_all_images', data, workspaceFolders)
-
-        setImageState({
-          data,
-          workspaceFolders,
-          loading: false,
-        })
-
-        if (isRefresh) {
-          clearTimeout(timer)
-          message.destroy(messageKey)
-          message.success(t('im.img_refreshed'))
-        }
-      })
-    },
-    [refreshTimes],
-    {
-      // 用户主动刷新时需要leading
-      leading: refreshType === 'refresh',
-      wait: 500,
-    },
-  )
+  useRefreshImages()
 
   const getCompressor = useMemoizedFn(() => {
     return new Promise<WebviewCompressorType>((resolve, reject) => {
@@ -247,9 +179,6 @@ function ImageManager() {
   /* -------------- viewer settings ------------- */
   const viewerSettingsRef = useRef<ViewerSettingsRef>(null)
 
-  /* --------------- image cropper -------------- */
-  const { cropperProps, setCropperProps } = CroppoerContext.usePicker(['cropperProps', 'setCropperProps'])
-
   return (
     <>
       <ContextMenus />
@@ -258,36 +187,7 @@ function ImageManager() {
       <Viewer />
 
       <ImageForSize />
-      <ImageSearch open={imageSearchOpen} onOpenChange={setImageSearchOpen} />
-      <ImageCropper {...cropperProps} onOpenChange={(open) => setCropperProps({ open })} />
 
-      {compressorModal.closed ? null : (
-        <ImageCompressor
-          {...compressorModal}
-          onOpenChange={(open) => setCompressorModal({ open })}
-          afterClose={() => {
-            setCompressorModal({ closed: true, fields: {} })
-          }}
-        />
-      )}
-      {formatConverterModal.closed ? null : (
-        <ImageConverter
-          {...formatConverterModal}
-          onOpenChange={(open) => setFormatConverterModal({ open })}
-          afterClose={() => {
-            setFormatConverterModal({ closed: true })
-          }}
-        />
-      )}
-      {similarityModal.closed ? null : (
-        <ImageSimilarity
-          {...similarityModal}
-          onOpenChange={(open) => setSimilarityModal({ open })}
-          afterClose={() => {
-            setSimilarityModal({ closed: true })
-          }}
-        />
-      )}
       <FloatButton.BackTop
         target={() => getAppRoot()}
         duration={0}

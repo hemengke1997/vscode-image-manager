@@ -1,11 +1,10 @@
 import type Cropperjs from 'cropperjs'
 import { isNil, round } from '@minko-fe/lodash-pro'
 import { useControlledState, useMemoizedFn, useSetState, useThrottleFn, useUpdateEffect } from '@minko-fe/react-hook'
-import { isDev } from '@minko-fe/vite-config/client'
 import { App, Button, Card, Checkbox, Divider, InputNumber, Modal, Popover, Segmented, Skeleton, Tooltip } from 'antd'
 import { produce } from 'immer'
 import mime from 'mime/lite'
-import { memo, startTransition, useEffect, useReducer, useRef, useState } from 'react'
+import { memo, startTransition, useReducer, useRef, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { IoIosArrowDropup } from 'react-icons/io'
 import { LuArrowRightLeft, LuArrowUpDown } from 'react-icons/lu'
@@ -13,7 +12,8 @@ import { RxReset } from 'react-icons/rx'
 import { classNames } from 'tw-clsx'
 import { CmdToVscode } from '~/message/cmd'
 import { vscodeApi } from '~/webview/vscode-api'
-import { LOADING_DURATION } from '../../utils/duration'
+import { LOADING_DURATION } from '../../../utils/duration'
+import { type ImperativeModalProps } from '../../use-imperative-modal'
 import ReactCropper, { type ReactCropperElement } from './components/cropper'
 import { DETAIL_MAP, getAspectRatios, getViewmodes } from './utils'
 import 'cropperjs/dist/cropper.css'
@@ -21,18 +21,10 @@ import styles from './index.module.css'
 
 export type ImageCropperProps = {
   image: ImageType | undefined
-  open: boolean
-  onOpenChange: (open: boolean) => void
-}
+} & ImperativeModalProps
 
-function ImageCropper(props?: ImageCropperProps) {
-  const { image, open: openProp, onOpenChange } = props || {}
-
-  const [open, setOpen] = useControlledState({
-    defaultValue: openProp,
-    value: openProp,
-    onChange: onOpenChange,
-  })
+function ImageCropper(props: ImageCropperProps) {
+  const { image, id, onClose } = props || {}
 
   const { t, i18n } = useTranslation()
   const { message, notification } = App.useApp()
@@ -84,12 +76,12 @@ function ImageCropper(props?: ImageCropperProps) {
   })
 
   const [forceRenderCropper, updateCropper] = useReducer((s: number) => s + 1, 0)
-  useEffect(() => {
-    // for hmr
-    if (isDev()) {
+  useUpdateEffect(() => {
+    if (cropperRef.current) {
       updateCropper()
+      cropperRef.current?.cropper.reset()
     }
-  }, [])
+  }, [cropperRef.current])
 
   const previewRef = useRef<HTMLDivElement>(null)
   const [saveModalOpen, setSaveModalOpen] = useState(false)
@@ -98,45 +90,51 @@ function ImageCropper(props?: ImageCropperProps) {
     setSaveModalOpen(true)
   })
 
+  const [saveLoading, setSaveLoading] = useState(false)
   const handleSave = useMemoizedFn(async () => {
-    if (cropperRef.current?.cropper && image) {
-      const canvas = cropperRef.current?.cropper.getCroppedCanvas()
-      const imageType = mime.getType(image.fileType)
+    setSaveLoading(true)
+    try {
+      if (cropperRef.current?.cropper && image) {
+        const canvas = cropperRef.current?.cropper.getCroppedCanvas()
+        const imageType = mime.getType(image.fileType)
 
-      const MESSAGE_KEY = 'save-cropper-image'
-      message.loading({
-        content: t('im.saving'),
-        duration: 0,
-        key: MESSAGE_KEY,
-      })
+        const MESSAGE_KEY = 'save-cropper-image'
+        message.loading({
+          content: t('im.saving'),
+          duration: 0,
+          key: MESSAGE_KEY,
+        })
 
-      vscodeApi.postMessage(
-        {
-          cmd: CmdToVscode.save_cropper_image,
-          data: {
-            dataUrl: canvas.toDataURL(imageType || undefined),
-            image,
+        vscodeApi.postMessage(
+          {
+            cmd: CmdToVscode.save_cropper_image,
+            data: {
+              dataUrl: canvas.toDataURL(imageType || undefined),
+              image,
+            },
           },
-        },
-        (data) => {
-          if (data) {
-            message.destroy(MESSAGE_KEY)
+          (data) => {
+            if (data) {
+              message.destroy(MESSAGE_KEY)
 
-            notification.success({
-              duration: LOADING_DURATION.slow,
-              message: data.filename,
-              description: <div className={'flex flex-col space-y-1'}>{t('im.save_success')}</div>,
-            })
-          } else {
-            message.error({
-              key: MESSAGE_KEY,
-              content: t('im.save_fail'),
-            })
-          }
-        },
-      )
-      setSaveModalOpen(false)
-      setOpen(false)
+              notification.success({
+                duration: LOADING_DURATION.slow,
+                message: data.filename,
+                description: <div className={'flex flex-col space-y-1'}>{t('im.save_success')}</div>,
+              })
+            } else {
+              message.error({
+                key: MESSAGE_KEY,
+                content: t('im.save_fail'),
+              })
+            }
+          },
+        )
+        setSaveModalOpen(false)
+        onClose(id)
+      }
+    } finally {
+      setSaveLoading(false)
     }
   })
 
@@ -174,18 +172,7 @@ function ImageCropper(props?: ImageCropperProps) {
   })
 
   return (
-    <Modal
-      maskClosable={false}
-      keyboard={false}
-      mask
-      open={open}
-      title={t('im.crop')}
-      footer={null}
-      width={'80%'}
-      onCancel={() => setOpen(false)}
-      // resolve z-index bug
-      destroyOnClose
-    >
+    <>
       <div className={'flex items-stretch space-x-2 overflow-auto'}>
         <div className={'h-full w-[70%] flex-none'}>
           <Card>
@@ -399,7 +386,7 @@ function ImageCropper(props?: ImageCropperProps) {
         open={saveModalOpen}
         footer={
           <div>
-            <Button type='primary' onClick={handleSave}>
+            <Button type='primary' onClick={handleSave} loading={saveLoading}>
               {t('im.save')}
             </Button>
           </div>
@@ -418,7 +405,7 @@ function ImageCropper(props?: ImageCropperProps) {
           <div ref={previewRef} className={classNames('flex justify-center', styles.canvas_box)}></div>
         </Card>
       </Modal>
-    </Modal>
+    </>
   )
 }
 

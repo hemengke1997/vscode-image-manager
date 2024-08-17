@@ -73,3 +73,14 @@ export function isFsWritable(path: string) {
     return false
   }
 }
+
+/**
+ * 解析图片相对于当前工作目录的路径
+ * @param imagePath 图片路径
+ * @param cwd 当前工作目录
+ * @returns
+ */
+export function resolveDirPath(imagePath: string, cwd: string) {
+  if (cwd === path.dirname(imagePath)) return ''
+  return normalizePath(path.relative(cwd, path.dirname(imagePath)))
+}

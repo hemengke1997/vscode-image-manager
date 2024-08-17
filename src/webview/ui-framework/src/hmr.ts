@@ -29,4 +29,7 @@ if (import.meta.hot) {
   import.meta.hot.on('vite:ws:disconnect', () => {
     avoidEmptyWebview()
   })
+  import.meta.hot.on('vite:error', () => {
+    avoidEmptyWebview()
+  })
 }

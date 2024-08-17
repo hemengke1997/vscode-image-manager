@@ -15,6 +15,9 @@ export default defineConfig({
     // optional dependencies
     '@swc/core',
   ],
+  packageMode: {
+    'ts-key-enum': 'patch',
+  },
   force: true,
   write: true,
   install: true,

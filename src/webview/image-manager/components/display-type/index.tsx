@@ -1,6 +1,6 @@
 import { difference, uniq } from '@minko-fe/lodash-pro'
 import { useControlledState, useUpdateEffect } from '@minko-fe/react-hook'
-import { Badge, Checkbox, ConfigProvider, theme } from 'antd'
+import { Badge, Checkbox, theme } from 'antd'
 import { produce } from 'immer'
 import { memo, useMemo } from 'react'
 import { RxViewNone } from 'react-icons/rx'
@@ -30,22 +30,16 @@ function DisplayType(props: DisplayTypeProps) {
         label: (
           <div className={'flex items-center gap-x-2'}>
             <span>{item}</span>
-            <ConfigProvider
-              theme={{
-                components: {
-                  Badge: {
-                    colorBgContainer: token.colorWhite,
-                  },
-                },
+
+            <Badge
+              overflowCount={Number.POSITIVE_INFINITY}
+              color={token.colorPrimary}
+              count={allImageFiles.filter((t) => t.fileType === item).length}
+              showZero
+              style={{
+                color: token.colorWhite,
               }}
-            >
-              <Badge
-                overflowCount={Number.POSITIVE_INFINITY}
-                color={token.colorPrimary}
-                count={allImageFiles.filter((t) => t.fileType === item).length}
-                showZero
-              />
-            </ConfigProvider>
+            />
           </div>
         ),
         value: item,

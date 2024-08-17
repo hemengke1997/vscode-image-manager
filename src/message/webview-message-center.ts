@@ -5,12 +5,12 @@ import { CmdToWebview } from './cmd'
 import { type MessageType, VscodeMessageCenter } from './message-center'
 
 export class WebviewMessageCenter {
-  static _webview: Webview | undefined
+  static webview: Webview
 
   static slientMessages: string[] = [CmdToWebview.webview_callback]
 
   static init(webview: Webview) {
-    this._webview = webview
+    this.webview = webview
   }
 
   static postMessage<T extends keyof typeof CmdToWebview>(message: MessageType<any, T>) {
@@ -18,8 +18,8 @@ export class WebviewMessageCenter {
     if (!this.slientMessages.includes(message.cmd)) {
       Channel.debug(`${i18n.t('core.post_message_to_webview')}: ${message.cmd}`)
     }
-    if (this._webview) {
-      this._webview.postMessage(message)
+    if (this.webview) {
+      this.webview.postMessage(message)
     }
   }
 
@@ -27,7 +27,7 @@ export class WebviewMessageCenter {
     const handler: (data: Record<string, any>, webview: Webview) => Thenable<any> = VscodeMessageCenter[message.cmd]
 
     if (handler) {
-      const data = await handler(message.data, this._webview as Webview)
+      const data = await handler(message.data, this.webview)
       this.postMessage({ cmd: CmdToWebview.webview_callback, callbackId: message.callbackId, data })
     } else {
       Channel.error(i18n.t('core.handler_fn_not_exist', message.cmd))

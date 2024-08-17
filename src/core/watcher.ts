@@ -1,4 +1,4 @@
-import debounce from 'debounce'
+import { debounce } from '@minko-fe/lodash-pro'
 import micromatch from 'micromatch'
 import path from 'node:path'
 import { type FileSystemWatcher, RelativePattern, type Uri, type Webview, workspace } from 'vscode'
@@ -42,9 +42,7 @@ export class Watcher {
     return !micromatch.all(e.fsPath || e.path, ignores)
   }
 
-  private static debouncedHandleEvent = debounce(this._handleEvent, 500, {
-    immediate: true,
-  })
+  private static debouncedHandleEvent = debounce(this._handleEvent, 500)
 
   private static _handleEvent(e: Uri, type: 'change' | 'create' | 'delete') {
     if (e.scheme !== 'file') return

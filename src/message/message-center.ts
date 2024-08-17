@@ -1,4 +1,4 @@
-import { flatten, toString } from '@minko-fe/lodash-pro'
+import { flatten, isArray, toString } from '@minko-fe/lodash-pro'
 import exif from 'exif-reader'
 import fg from 'fast-glob'
 import fs from 'fs-extra'
@@ -30,7 +30,7 @@ import { COMPRESSED_META } from '~/core/operator/meta'
 import { WorkspaceState } from '~/core/persist'
 import { type WorkspaceStateKey } from '~/core/persist/workspace/common'
 import { i18n } from '~/i18n'
-import { generateOutputPath, normalizePath } from '~/utils'
+import { generateOutputPath, normalizePath, resolveDirPath } from '~/utils'
 import { controlledAbortPromise } from '~/utils/abort-promise'
 import { Channel } from '~/utils/channel'
 import { imageGlob } from '~/utils/glob'
@@ -96,26 +96,37 @@ export const VscodeMessageCenter = {
   ) => {
     const { glob, cwd, onResolve } = options
 
-    function _resolveDirPath(imagePath: string) {
-      if (cwd === path.dirname(imagePath)) return ''
-      return normalizePath(path.relative(cwd, path.dirname(imagePath)))
-    }
-
-    const images = fg.sync(glob, {
+    const images = fg.sync(isArray(glob) ? glob : fg.escapePath(glob), {
       cwd,
       objectMode: true,
       dot: false,
       absolute: true,
-      markDirectories: true,
+      onlyFiles: true,
       stats: true,
     })
 
     if (!images.length) {
-      console.error(cwd, glob)
+      logger.debug(`No images found in ${glob} ${cwd}`)
+      return []
     }
 
+    const gitStaged = await VscodeMessageCenter[CmdToVscode.get_git_staged_images]()
+
+    // 项目绝对路径
+    const basePath = normalizePath(path.dirname(cwd))
+    // 工作区绝对路径
+    const absWorkspaceFolder = normalizePath(cwd)
+    // 工作区名称
+    const workspaceFolder = normalizePath(path.basename(cwd))
+
+    const metadataPromises = images.map((image) =>
+      VscodeMessageCenter[CmdToVscode.get_image_metadata]({ filePath: image.path }),
+    )
+
+    const metadataResults = await Promise.all(metadataPromises)
+
     return Promise.all<ImageType>(
-      images.map(async (image) => {
+      images.map(async (image, index) => {
         image.path = normalizePath(image.path)
         let vscodePath = webview.asWebviewUri(Uri.file(image.path)).toString()
 
@@ -127,29 +138,35 @@ export const VscodeMessageCenter = {
         }
 
         const fileType = path.extname(image.path).replace('.', '')
-        const dirPath = _resolveDirPath(image.path)
+        const dirPath = resolveDirPath(image.path, cwd)
+        const absDirPath = normalizePath(path.dirname(image.path))
+        const relativePath =
+          Global.rootpaths.length > 1
+            ? normalizePath(path.relative(basePath, image.path)) // 多工作区，相对于项目
+            : normalizePath(path.relative(absWorkspaceFolder, image.path)) // 单工作区，相对于工作区
 
-        // 项目绝对路径
-        const basePath = normalizePath(path.dirname(cwd))
-        // 工作区绝对路径
-        const absWorkspaceFolder = normalizePath(cwd)
+        const metadata = metadataResults[index]
+
+        // 如果非base64添加时间戳，避免webview缓存问题
+        const vscodePathWithQuery = isBase64(vscodePath) ? vscodePath : `${vscodePath}?t=${image.stats?.mtimeMs}`
 
         const imageInfo: ImageType = {
-          name: image.name,
+          name: path.basename(image.path),
           path: image.path,
           stats: image.stats!,
           basePath,
           dirPath,
-          absDirPath: normalizePath(path.dirname(image.path)),
+          absDirPath,
+          workspaceFolder,
           fileType,
-          vscodePath: isBase64(vscodePath) ? vscodePath : `${vscodePath}?t=${image.stats?.mtimeMs}`,
-          workspaceFolder: normalizePath(path.basename(cwd)),
+          vscodePath: vscodePathWithQuery,
           absWorkspaceFolder,
-          relativePath:
-            Global.rootpaths.length > 1
-              ? normalizePath(path.relative(basePath, image.path)) // 多工作区，相对于项目
-              : normalizePath(path.relative(absWorkspaceFolder, image.path)), // 单工作区，相对于工作区
+          relativePath,
           extraPathInfo: path.parse(image.path),
+          info: {
+            ...metadata,
+            gitStaged: gitStaged.includes(image.path),
+          },
         }
 
         onResolve?.(imageInfo)
@@ -247,6 +264,7 @@ export const VscodeMessageCenter = {
       },
       webview,
     )
+
     return images[0]
   },
 
@@ -325,39 +343,40 @@ export const VscodeMessageCenter = {
 
   /* -------------- compress image -------------- */
   [CmdToVscode.compress_image]: async (data: {
-    filePaths: string[]
+    images: ImageType[]
     option: CompressionOptions
   }): Promise<OperatorResult[] | undefined> => {
     try {
-      const { filePaths, option } = data
+      const { images, option } = data
       Channel.debug(`Compress params: ${JSON.stringify(data)}`)
 
-      const svgs: string[] = []
-      const usuals: string[] = []
+      const svgs: ImageType[] = []
+      const usuals: ImageType[] = []
 
-      filePaths.forEach((filePath) => {
+      images.forEach((item) => {
+        const filePath = item.path
         if (path.extname(filePath) === '.svg') {
-          svgs.push(filePath)
+          svgs.push(item)
         } else {
-          usuals.push(filePath)
+          usuals.push(item)
         }
       })
 
       const res = await pMap(
         [
-          ...usuals.map((filePath) => () => {
+          ...usuals.map((image) => () => {
             let compressor = new UsualCompressor(option)
             try {
-              return compressor.run(filePath, option)
+              return compressor.run(image, option)
             } finally {
               // @ts-expect-error
               compressor = null
             }
           }),
-          ...svgs.map((filePath) => () => {
+          ...svgs.map((image) => () => {
             let compressor = new SvgCompressor(option)
             try {
-              return compressor.run(filePath, option)
+              return compressor.run(image, option)
             } finally {
               // @ts-expect-error
               compressor = null
@@ -376,17 +395,17 @@ export const VscodeMessageCenter = {
 
   /* ----------- convert image format ----------- */
   [CmdToVscode.convert_image_format]: async (data: {
-    filePaths: string[]
+    images: ImageType[]
     option: FormatConverterOptions
   }): Promise<OperatorResult[] | undefined> => {
     try {
-      const { filePaths, option } = data
+      const { images, option } = data
       Channel.debug(`Convert params: ${JSON.stringify(data)}`)
       const res = await pMap(
-        filePaths.map((filePath) => () => {
+        images.map((image) => () => {
           let converter = new FormatConverter(Config.conversion)
           try {
-            return converter.run(filePath, option)
+            return converter.run(image, option)
           } finally {
             // @ts-expect-error
             converter = null
@@ -421,8 +440,10 @@ export const VscodeMessageCenter = {
   },
 
   /* ------ delete operation command cache ------ */
-  [CmdToVscode.remove_operation_cmd_cache]: async (data: { id: string }) => {
-    commandCache.remove(data.id)
+  [CmdToVscode.remove_operation_cmd_cache]: async (data: { ids: string[] }) => {
+    for (const id of data.ids) {
+      commandCache.remove(id)
+    }
   },
 
   /* ------- clear operation command cache ------ */
@@ -516,7 +537,6 @@ export const VscodeMessageCenter = {
     try {
       fileExists = await fs.exists(filePath)
     } catch {
-      logger.debug('testestetes')
       return {
         metadata,
         compressed,
@@ -543,7 +563,10 @@ export const VscodeMessageCenter = {
       if (metadata.exif) {
         compressed = !!exif(metadata.exif).Image?.ImageDescription?.includes(COMPRESSED_META)
       } else if (path.extname(filePath) === '.svg') {
-        compressed = Svgo.isCompressed(await fs.readFile(filePath, 'utf-8'), Config.compression.svg)
+        try {
+          const svgString = await fs.readFile(filePath, 'utf-8')
+          compressed = Svgo.isCompressed(svgString, Config.compression.svg)
+        } catch {}
       }
     }
 

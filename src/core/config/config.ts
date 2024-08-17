@@ -17,7 +17,16 @@ export class Config {
     ConfigKey.debug_enabled,
     ConfigKey.debug_forceInstall,
 
-    ConfigKey.compression,
+    ConfigKey.compression_fileSuffix,
+    ConfigKey.compression_format,
+    ConfigKey.compression_gif_colors,
+    ConfigKey.compression_keepOriginal,
+    ConfigKey.compression_png_compressionLevel,
+    ConfigKey.compression_quality,
+    ConfigKey.compression_size,
+    ConfigKey.compression_skipCompressed,
+    ConfigKey.compression_svg,
+
     ConfigKey.conversion,
     ConfigKey.similarity_precision,
   ]
@@ -29,6 +38,8 @@ export class Config {
     ConfigKey.appearance_theme,
     ConfigKey.appearance_primaryColor,
     ConfigKey.appearance_reduceMotion,
+
+    ConfigKey.compression_errorRange,
 
     ConfigKey.viewer_warningSize,
     ConfigKey.viewer_imageWidth,

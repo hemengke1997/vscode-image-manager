@@ -60,12 +60,6 @@ function AntdConfigProvider({ children }: PropsWithChildren) {
         hashed: false,
         cssVar: true,
         algorithm: [getThemeAlgorithm()],
-        components: {
-          Message: {
-            // higher than notification
-            zIndexPopupBase: 1100,
-          },
-        },
         token: {
           fontFamily: getCssVar('var(--vscode-font-family)'),
           motion: reduceMotionWithoutAuto === 'on' ? false : true,
@@ -87,7 +81,8 @@ function AntdConfigProvider({ children }: PropsWithChildren) {
         className={'bg-ant-color-bg-container'}
         message={{
           top: 70,
-          maxCount: 3,
+          maxCount: 5,
+          duration: 3,
         }}
         notification={{
           showProgress: true,

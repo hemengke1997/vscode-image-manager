@@ -1,8 +1,8 @@
-import { useControlledState, useDebounceEffect, useMemoizedFn } from '@minko-fe/react-hook'
-import { Input, Modal, Tooltip } from 'antd'
+import { useDebounceEffect, useMemoizedFn } from '@minko-fe/react-hook'
+import { Input, Tooltip } from 'antd'
 import { type InputRef } from 'antd/es/input'
 import Fuse, { type FuseResult } from 'fuse.js'
-import { type HTMLAttributes, memo, useMemo, useRef, useState } from 'react'
+import { type HTMLAttributes, memo, useEffect, useMemo, useRef, useState } from 'react'
 import Highlighter from 'react-highlight-words'
 import { useTranslation } from 'react-i18next'
 import { RiFilterOffLine } from 'react-icons/ri'
@@ -11,29 +11,19 @@ import { classNames } from 'tw-clsx'
 import { CmdToVscode } from '~/message/cmd'
 import { useScrollRef } from '~/webview/image-manager/hooks/use-scroll-ref'
 import { vscodeApi } from '~/webview/vscode-api'
+import ImagePreview from '../../components/image-preview'
 import GlobalContext from '../../contexts/global-context'
-import useImageManagerEvent from '../../hooks/use-image-manager-event'
-import ImagePreview from '../image-preview'
+import useImageManagerEvent from '../use-image-manager-event'
+import { type ImperativeModalProps } from '../use-imperative-modal'
 
-type ImageSearchProps = {
-  open: boolean
-  onOpenChange: (open: boolean) => void
-}
-
-function ImageSearch(props: ImageSearchProps) {
-  const { open: openProp, onOpenChange } = props
+function ImageSearch(props: ImperativeModalProps) {
+  const { id, onClose } = props
   const { t } = useTranslation()
-
-  const [open, setOpen] = useControlledState({
-    defaultValue: openProp,
-    value: openProp,
-    onChange: onOpenChange,
-  })
 
   useImageManagerEvent({
     on: {
       reveal_in_viewer: () => {
-        setOpen(false)
+        onClose(id)
       },
     },
   })
@@ -134,23 +124,14 @@ function ImageSearch(props: ImageSearchProps) {
     },
   )
 
+  useEffect(() => {
+    searchInputRef.current?.focus({ cursor: 'all', preventScroll: true })
+  }, [])
+
   const { scrollRef } = useScrollRef()
 
   return (
-    <Modal
-      width={'80%'}
-      onCancel={() => setOpen(false)}
-      open={open}
-      footer={null}
-      title={t('im.search_image')}
-      maskClosable={false}
-      afterOpenChange={(open) => {
-        if (open) {
-          searchInputRef.current?.focus({ cursor: 'all', preventScroll: true })
-        }
-      }}
-      keyboard={false}
-    >
+    <>
       <div className={'my-4 flex justify-between space-x-4'}>
         <Input.Search
           ref={searchInputRef}
@@ -244,7 +225,7 @@ function ImageSearch(props: ImageSearchProps) {
           }}
         />
       </div>
-    </Modal>
+    </>
   )
 }
 

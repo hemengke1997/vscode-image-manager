@@ -41,6 +41,7 @@
       url: 'ミラーURL',
     },
     compression: {
+      errorRange: '誤差範囲（KB）、この範囲を超えると圧縮後の画像が大きくなります',
       keepOriginal: 'オリジナルを保持',
       skipCompressed: '圧縮済みの画像をスキップ',
       quality: '画像品質',

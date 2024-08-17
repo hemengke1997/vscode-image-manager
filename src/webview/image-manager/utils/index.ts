@@ -1,4 +1,5 @@
 import { round, sortBy, uniqBy } from '@minko-fe/lodash-pro'
+import debounce from 'debounce'
 
 export function formatBytes(bytes: number, decimals: number = 2): string {
   if (bytes === 0) {
@@ -71,4 +72,11 @@ export function uniqSortByThenMap<T>(images: ImageType[], key: keyof ImageType, 
  */
 export function findSameWorkspaceImages(image: ImageType, imageList: ImageType[]) {
   return imageList.filter((item) => image.workspaceFolder === item.workspaceFolder)
+}
+
+/**
+ * 事件只执行一次
+ */
+export function triggerOnce<T extends (...args: any[]) => any>(fn: T) {
+  return debounce(fn, Number.MAX_SAFE_INTEGER, { immediate: true })
 }

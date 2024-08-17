@@ -1,6 +1,6 @@
 import { useControlledState, useMemoizedFn } from '@minko-fe/react-hook'
 import { createContainer } from 'context-state'
-import { useReducer, useState } from 'react'
+import { useReducer } from 'react'
 
 function useActionContext() {
   /* --------------- refresh image -------------- */
@@ -42,16 +42,11 @@ function useActionContext() {
     },
   })
 
-  /* ------------- search modal open ------------ */
-  const [imageSearchOpen, setImageSearchOpen] = useState(false)
-
   return {
     imageRefreshedState,
     refreshImages,
     collapseOpen,
     setCollapseOpen,
-    imageSearchOpen,
-    setImageSearchOpen,
   }
 }
 

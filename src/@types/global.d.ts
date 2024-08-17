@@ -89,6 +89,23 @@ declare global {
      * path.parse(image.path) 的返回
      */
     extraPathInfo: ParsedPath
+    /**
+     * 图片信息
+     */
+    info: {
+      /**
+       * 图片是否已压缩
+       */
+      compressed: boolean
+      /**
+       * 图片metadata
+       */
+      metadata: SharpNS.Metadata
+      /**
+       * 图片是否已git add
+       */
+      gitStaged: boolean
+    }
   } & {
     /**
      * 应用在webview的额外属性

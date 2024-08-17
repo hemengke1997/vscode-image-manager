@@ -41,6 +41,7 @@
       url: '鏡像地址',
     },
     compression: {
+      errorRange: '誤差範圍（KB），超出此誤差視為圖片壓縮後增大',
       keepOriginal: '保留原圖',
       skipCompressed: '跳過已壓縮的圖片',
       quality: '圖片質量',
