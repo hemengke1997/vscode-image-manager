@@ -1,4 +1,5 @@
 import i18next from 'i18next'
+import { startTransition } from 'react'
 import ReactDOM from 'react-dom/client'
 import { initReactI18next } from 'react-i18next'
 import { i18nAlly } from 'vite-plugin-i18n-ally/client'
@@ -68,15 +69,17 @@ export function registerApp(webviewComponents: WebviewComponents, reload = false
           } finally {
             key = reload ? ~key : key
 
-            window.__react_root__.render(
-              <App
-                extConfig={ext}
-                vscodeConfig={vscode}
-                workspaceState={workspaceState}
-                key={key}
-                components={webviewComponents}
-              />,
-            )
+            startTransition(() => {
+              window.__react_root__.render(
+                <App
+                  extConfig={ext}
+                  vscodeConfig={vscode}
+                  workspaceState={workspaceState}
+                  key={key}
+                  components={webviewComponents}
+                />,
+              )
+            })
           }
         },
         onResourceLoaded: (resource, currentLang) => {

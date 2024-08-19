@@ -1,4 +1,4 @@
-import { type ReactElement } from 'react'
+import { type ReactElement, startTransition } from 'react'
 import { createRoot, type Root } from 'react-dom/client'
 
 // 移植自rc-util: https://github.com/react-component/util/blob/master/src/React/render.ts
@@ -12,7 +12,9 @@ type ContainerType = (Element | DocumentFragment) & {
 
 function concurrentRender(node: ReactElement, container: ContainerType) {
   const root = container[MARK] || createRoot(container)
-  root.render(node)
+  startTransition(() => {
+    root.render(node)
+  })
   container[MARK] = root
 }
 

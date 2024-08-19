@@ -14,33 +14,51 @@
 
 ## 插件截图
 
-### 概览
+<details>
+  <summary>概览</summary>
 
 ![overview](./screenshots/overview.png)
 
-### 大图预览
+</details>
+
+<details>
+  <summary>大图预览</summary>
 
 ![preview](./screenshots/preview.png)
 
-### 压缩
+</details>
+
+<details>
+  <summary>压缩</summary>
 
 ![compression](./screenshots/compression.png)
 
-### 裁剪
+</details>
+
+<details>
+  <summary>裁剪</summary>
 
 ![crop](./screenshots/crop.png)
 
-### 查找相似图片
+</details>
+
+<details>
+  <summary>查找相似图片</summary>
 
 ![find-similirity](./screenshots/find-similarity.png)
 
-### 搜索图片
+</details>
+
+<details>
+  <summary>搜索图片</summary>
 
 ![search](./screenshots/search.png)
 
+</details>
+
 ## 核心功能
 
-- **图片批量压缩** (右键总会发生魔法)
+- **图片批量压缩**
 - **图片裁剪**
 - **图片大图浏览**
 - **相似图片查找**
@@ -128,6 +146,7 @@
 #### 为什么压缩后文件反而变大了？
 
 - 由于压缩时添加了「是否已压缩」的元信息，所以可能导致小体积图片压缩后变大
+- 您可以设置 `image-manager.compression.errorRange` 来调整压缩误差范围
 
 #### 图片太多，感觉卡顿怎么办？
 

@@ -1,6 +1,6 @@
 import { isNil, isObject, upperFirst } from '@minko-fe/lodash-pro'
 import { useMemoizedFn } from '@minko-fe/react-hook'
-import { Button, ConfigProvider, Divider, Form, InputNumber, Popover, Segmented } from 'antd'
+import { App, Button, ConfigProvider, Divider, Form, InputNumber, Popover, Segmented } from 'antd'
 import { produce } from 'immer'
 import { memo, useMemo, useRef, useState } from 'react'
 import { useTranslation } from 'react-i18next'
@@ -40,6 +40,7 @@ export type ImageFilterAction = RestrictImageFilterType<{
 
 function Filter() {
   const { t } = useTranslation()
+  const { message } = App.useApp()
   const { imageFilter, setImageFilter } = GlobalContext.usePicker(['imageFilter', 'setImageFilter'])
 
   const initialFilter = useRef(imageFilter)
@@ -102,6 +103,7 @@ function Filter() {
               onFinish={(value) => {
                 filterImagesByFormResult(value)
                 setOpen(false)
+                message.success(t('im.operation_success'))
               }}
               className={'space-y-4'}
               initialValues={initialFilter.current}

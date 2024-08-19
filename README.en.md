@@ -12,33 +12,51 @@
 
 ## Screenshot
 
-### Overview
+<details>
+  <summary>Overview</summary>
 
 ![overview](./screenshots/overview.png)
 
-### Preview
+</details>
+
+<details>
+  <summary>Preview</summary>
 
 ![preview](./screenshots/preview.png)
 
-### Compression
+</details>
+
+<details>
+  <summary>Compression</summary>
 
 ![compression](./screenshots/compression.png)
 
-### Crop
+</details>
+
+<details>
+  <summary>Crop</summary>
 
 ![crop](./screenshots/crop.png)
 
-### Finding Similarities
+</details>
+
+<details>
+  <summary>Finding Similarities</summary>
 
 ![find-similirity](./screenshots/find-similarity.png)
 
-### Search
+</details>
+
+<details>
+  <summary>Search</summary>
 
 ![search](./screenshots/search.png)
 
+</details>
+
 ## Features
 
-- **Batch image compression** (magic happens on right-click)
+- **Batch image compression**
 - **Images Cropper**
 - **Image Viewer**
 - **Finding similar images**
@@ -94,6 +112,22 @@ The first time you open the extension, it will need to download the necessary de
 #### Why does the file get bigger after compression?
 
 - The meta information of Whether the image is compressed is added during compression. As a result, a small image may become larger after compression.
+- You can set `image-manager.compression.errorRange` to adjust the compression error range.
+
+#### What to do if there are too many images and it feels sluggish?
+
+- You can configure `image-manager.appearance.reduceMotion: 'on'` to reduce animation effects.
+- You can open a specific directory by right-clicking on the folder, which will reduce the number of images rendered.
+
+## Support
+
+> If this plugin has been helpful to you, please consider buying the author a cup of coffee :) ☕️
+>
+> Or give it a star by [clicking here](https://github.com/hemengke1997/vscode-image-manager) ⭐️
+
+| Wechat Pay                                             | Alipay                                              |
+| ------------------------------------------------------ | --------------------------------------------------- |
+| <img src="./screenshots/wechatpay.jpeg" width="200" /> | <img src="./screenshots/alipay.jpeg" width="200" /> |
 
 ## Thanks
 

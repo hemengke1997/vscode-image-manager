@@ -72,9 +72,9 @@ function OperatorResultTsx(
   const getPercent = useMemoizedFn((result: OperatorResult) => {
     const percent = ceil(((result.inputSize! - result.outputSize!) / result.inputSize!) * 100, 2)
     if (percent >= 0) {
-      return `-${percent}%`
+      return `-${Math.abs(percent)}%`
     }
-    return `+${percent}%`
+    return `+${Math.abs(percent)}%`
   })
 
   useUpdateEffect(() => {

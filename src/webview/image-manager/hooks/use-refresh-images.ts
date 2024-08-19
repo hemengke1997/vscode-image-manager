@@ -1,5 +1,6 @@
 import { useDebounceEffect, useMemoizedFn } from '@minko-fe/react-hook'
 import { App } from 'antd'
+import { useEffect, useRef } from 'react'
 import { useTranslation } from 'react-i18next'
 import { CmdToVscode } from '~/message/cmd'
 import logger from '~/utils/logger'
@@ -19,10 +20,15 @@ function useRefreshImages() {
 
   const { refreshTimes, refreshType } = imageRefreshedState
 
+  const getAllImagesCounter = useRef(0)
+
   const onRefresh = useMemoizedFn(() => {
     const isRefresh = refreshTimes && refreshType === 'refresh'
     const messageKey = 'refresh_images'
     let timer: number
+
+    const currentCounter = ++getAllImagesCounter.current
+
     if (isRefresh) {
       timer = window.setTimeout(() => {
         message.loading({
@@ -35,6 +41,9 @@ function useRefreshImages() {
     }
 
     vscodeApi.postMessage({ cmd: CmdToVscode.get_all_images }, ({ data, workspaceFolders }) => {
+      if (currentCounter !== getAllImagesCounter.current) {
+        return
+      }
       logger.debug('get_all_images', data, workspaceFolders)
 
       setImageState({
@@ -69,20 +78,12 @@ function useRefreshImages() {
     },
   )
 
-  // 如果是自动刷新，立即刷新且结束后也刷新
-  useDebounceEffect(
-    () => {
-      if (refreshType !== 'refresh') {
-        onRefresh()
-      }
-    },
-    [refreshTimes],
-    {
-      leading: true,
-      trailing: true,
-      wait: 250,
-    },
-  )
+  // 如果是自动刷新，立即刷新
+  useEffect(() => {
+    if (refreshType !== 'refresh') {
+      onRefresh()
+    }
+  }, [refreshTimes])
 }
 
 export default useRefreshImages

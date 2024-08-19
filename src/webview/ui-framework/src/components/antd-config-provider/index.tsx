@@ -1,5 +1,6 @@
 import { TinyColor } from '@ctrl/tinycolor'
 import { theme as antdTheme, App, ConfigProvider } from 'antd'
+import { MotionConfig } from 'framer-motion'
 import { memo, type PropsWithChildren, useEffect } from 'react'
 import FrameworkContext from '../../contexts/framework-context'
 import { getCssVar } from '../../utils/theme'
@@ -51,47 +52,49 @@ function AntdConfigProvider({ children }: PropsWithChildren) {
   }, [docFontSize])
 
   return (
-    <ConfigProvider
-      input={{ autoComplete: 'off' }}
-      button={{
-        autoInsertSpace: false,
-      }}
-      theme={{
-        hashed: false,
-        cssVar: true,
-        algorithm: [getThemeAlgorithm()],
-        token: {
-          fontFamily: getCssVar('var(--vscode-font-family)'),
-          motion: reduceMotionWithoutAuto === 'on' ? false : true,
-          fontSize: docFontSize,
-          colorPrimary: primaryColor,
-          motionDurationSlow: `${DURATION_BASE * 2}s`,
-          motionDurationMid: `${DURATION_BASE}s`,
-          motionDurationFast: `${DURATION_BASE / 2}s`,
-          ...(isSameTheme(vscodeEditorBackground, themeWithoutAuto) && {
-            colorBgContainer: vscodeEditorBackground,
-            colorBgBase: ligherOrDarker(vscodeEditorBackground, themeWithoutAuto),
-          }),
-        },
-      }}
-      componentSize='small'
-      warning={{ strict: false }}
-    >
-      <App
-        className={'bg-ant-color-bg-container'}
-        message={{
-          top: 70,
-          maxCount: 5,
-          duration: 3,
+    <MotionConfig reducedMotion={reduceMotionWithoutAuto === 'on' ? 'always' : 'never'}>
+      <ConfigProvider
+        input={{ autoComplete: 'off' }}
+        button={{
+          autoInsertSpace: false,
         }}
-        notification={{
-          showProgress: true,
-          pauseOnHover: true,
+        theme={{
+          hashed: false,
+          cssVar: true,
+          algorithm: [getThemeAlgorithm()],
+          token: {
+            fontFamily: getCssVar('var(--vscode-font-family)'),
+            motion: reduceMotionWithoutAuto === 'on' ? false : true,
+            fontSize: docFontSize,
+            colorPrimary: primaryColor,
+            motionDurationSlow: `${DURATION_BASE * 2}s`,
+            motionDurationMid: `${DURATION_BASE}s`,
+            motionDurationFast: `${DURATION_BASE / 2}s`,
+            ...(isSameTheme(vscodeEditorBackground, themeWithoutAuto) && {
+              colorBgContainer: vscodeEditorBackground,
+              colorBgBase: ligherOrDarker(vscodeEditorBackground, themeWithoutAuto),
+            }),
+          },
         }}
+        componentSize='small'
+        warning={{ strict: false }}
       >
-        {children}
-      </App>
-    </ConfigProvider>
+        <App
+          className={'bg-ant-color-bg-container'}
+          message={{
+            top: 70,
+            maxCount: 5,
+            duration: 3,
+          }}
+          notification={{
+            showProgress: true,
+            pauseOnHover: true,
+          }}
+        >
+          {children}
+        </App>
+      </ConfigProvider>
+    </MotionConfig>
   )
 }
 

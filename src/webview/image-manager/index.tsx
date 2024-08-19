@@ -6,7 +6,7 @@ import { memo, useEffect, useMemo, useRef } from 'react'
 import { flushSync } from 'react-dom'
 import { useTranslation } from 'react-i18next'
 import { GoMoveToTop } from 'react-icons/go'
-import { isTooManyTries, retry } from 'ts-retry'
+import { isTooManyTries, retryAsync } from 'ts-retry'
 import { type MessageType } from '~/message'
 import { CmdToVscode, CmdToWebview } from '~/message/cmd'
 import logger from '~/utils/logger'
@@ -102,11 +102,14 @@ function ImageManager() {
 
   const getOperator = useMemoizedFn(async () => {
     try {
-      const [compressor, formatConverter] = await retry(() => Promise.all([getCompressor(), getFormatConverter()]), {
-        delay: 1000,
-        maxTry: 10,
-        until: (data) => !!data,
-      })
+      const [compressor, formatConverter] = await retryAsync(
+        () => Promise.all([getCompressor(), getFormatConverter()]),
+        {
+          delay: 1000,
+          maxTry: 10,
+          until: (data) => !!data.length,
+        },
+      )
 
       setCompressor(compressor)
       setFormatConverter(formatConverter)
