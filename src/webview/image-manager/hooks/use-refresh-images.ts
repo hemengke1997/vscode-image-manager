@@ -11,7 +11,7 @@ import GlobalContext from '../contexts/global-context'
 /**
  * refreshTimes改变后，重新获取图片
  */
-function useRefreshImages() {
+export default function useRefreshImages() {
   const { message } = App.useApp()
   const { t } = useTranslation()
 
@@ -85,5 +85,3 @@ function useRefreshImages() {
     }
   }, [refreshTimes])
 }
-
-export default useRefreshImages

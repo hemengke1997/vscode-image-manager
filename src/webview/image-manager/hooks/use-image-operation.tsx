@@ -16,11 +16,11 @@ import AutoFocusInput from '../components/auto-focus-input'
 import GlobalContext from '../contexts/global-context'
 import { getDirFromPath, getDirnameFromPath, getFilebasename } from '../utils'
 import { LOADING_DURATION } from '../utils/duration'
-import { useImageCompressor } from './use-image-compressor/use-image-compressor'
-import { useImageConverter } from './use-image-converter/use-image-converter'
-import { useImageCropper } from './use-image-cropper/use-image-cropper'
+import useImageCompressor from './use-image-compressor/use-image-compressor'
+import useImageConverter from './use-image-converter/use-image-converter'
+import useImageCropper from './use-image-cropper/use-image-cropper'
 import useImageManagerEvent from './use-image-manager-event'
-import { useImageSimilarity } from './use-image-similarity/use-image-similarity'
+import useImageSimilarity from './use-image-similarity/use-image-similarity'
 
 const { Text } = Typography
 

@@ -35,7 +35,7 @@ type Props = {
   enable?: boolean
 }
 
-export function useSticky(props: Props, deps?: DependencyList) {
+export default function useSticky(props: Props, deps?: DependencyList) {
   const { target, topOffset = 0, root = getAppRoot(), holder, onStickyToogle, enable = true } = props
 
   const previousSticky = useRef<boolean>()

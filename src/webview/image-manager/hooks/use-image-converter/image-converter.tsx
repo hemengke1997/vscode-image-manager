@@ -16,7 +16,7 @@ import useAbortController from '../use-abort-controller'
 import useImageManagerEvent from '../use-image-manager-event'
 import useImageOperation from '../use-image-operation'
 import { type ImperativeModalProps } from '../use-imperative-modal'
-import { type FormComponent, useOperatorModalLogic } from '../use-operator-modal-logic/use-operator-modal-logic'
+import useOperatorModalLogic, { type FormComponent } from '../use-operator-modal-logic/use-operator-modal-logic'
 
 export type ImageConverterProps = {} & ImageOperatorProps
 

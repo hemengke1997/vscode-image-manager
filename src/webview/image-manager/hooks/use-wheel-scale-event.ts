@@ -6,7 +6,7 @@ import GlobalContext from '../contexts/global-context'
 /**
  * 监听鼠标滚轮事件，缩放 viewer 中的图片大小
  */
-function useWheelScaleEvent() {
+export default function useWheelScaleEvent() {
   const { setImageWidth } = GlobalContext.usePicker(['setImageWidth'])
 
   const ref = useRef<HTMLDivElement>(null)
@@ -48,5 +48,3 @@ function useWheelScaleEvent() {
 
   return [ref] as const
 }
-
-export default useWheelScaleEvent

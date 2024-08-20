@@ -9,7 +9,7 @@ export type ImperativeModalProps = {
   onClose: (id: string) => void
 }
 
-export function useImperativeModal<T extends ImperativeModalProps>(props: {
+export default function useImperativeModal<T extends ImperativeModalProps>(props: {
   FC: React.ComponentType<T>
   modalProps: ModalFuncProps
 }) {

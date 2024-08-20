@@ -16,7 +16,7 @@ import { vscodeApi } from '~/webview/vscode-api'
 import GlobalContext from '../../contexts/global-context'
 import { formatBytes, triggerOnce } from '../../utils'
 import { type Group, type Groups } from '../use-operator-result/operator-result'
-import { useImageOperatorResult } from '../use-operator-result/use-operator-result'
+import useImageOperatorResult from '../use-operator-result/use-operator-result'
 import ErrorRange from './components/error-range'
 
 export type FormComponent<T extends Record<string, any>> = {
@@ -33,7 +33,7 @@ export type OnEndOptionsType = {
   onUndoClick: (results: OperatorResult[]) => void
 }
 
-export function useOperatorModalLogic() {
+export default function useOperatorModalLogic() {
   const { t } = useTranslation()
   const { message, notification } = App.useApp()
   const { token } = theme.useToken()

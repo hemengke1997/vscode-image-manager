@@ -5,7 +5,7 @@ type Props = {
   onChanage?: () => void
 }
 
-export function useScrollRef(props?: Props) {
+export default function useScrollRef(props?: Props) {
   const { onChanage } = props || {}
 
   const scrollRef = useRef<HTMLDivElement>(null)
