@@ -1,6 +1,7 @@
-import { useControlledState, useMemoizedFn } from '@minko-fe/react-hook'
+import { useMemoizedFn } from 'ahooks'
 import { createContainer } from 'context-state'
 import { useReducer } from 'react'
+import { useControlledState } from 'x-ahooks'
 
 function useActionContext() {
   /* --------------- refresh image -------------- */

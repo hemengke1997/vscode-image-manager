@@ -1,4 +1,4 @@
-import { useMemoizedFn } from '@minko-fe/react-hook'
+import { useMemoizedFn } from 'ahooks'
 import { App, Descriptions, type DescriptionsProps, Divider } from 'antd'
 import { useTranslation } from 'react-i18next'
 import { CmdToVscode } from '~/message/cmd'

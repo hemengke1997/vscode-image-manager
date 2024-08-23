@@ -1,4 +1,4 @@
-import { useDebounceEffect, useMemoizedFn } from '@minko-fe/react-hook'
+import { useDebounceEffect, useMemoizedFn } from 'ahooks'
 import { Input, Tooltip } from 'antd'
 import { type InputRef } from 'antd/es/input'
 import Fuse, { type FuseResult } from 'fuse.js'

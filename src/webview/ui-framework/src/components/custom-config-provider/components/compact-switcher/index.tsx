@@ -1,6 +1,6 @@
-import { useControlledState } from '@minko-fe/react-hook'
 import { Switch } from 'antd'
 import { memo } from 'react'
+import { useControlledState } from 'x-ahooks'
 
 type CompactSwitcherProps = {
   value: boolean

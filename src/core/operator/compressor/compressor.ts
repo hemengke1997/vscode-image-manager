@@ -1,4 +1,4 @@
-import { toString } from '@minko-fe/lodash-pro'
+import { toString } from 'lodash-es'
 import { type Commander } from '~/core/commander'
 import { i18n } from '~/i18n'
 import { Channel } from '~/utils/channel'

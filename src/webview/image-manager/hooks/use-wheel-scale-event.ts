@@ -1,5 +1,5 @@
-import { round } from '@minko-fe/lodash-pro'
-import { useThrottleFn } from '@minko-fe/react-hook'
+import { useThrottleFn } from 'ahooks'
+import { round } from 'lodash-es'
 import { useLayoutEffect, useRef } from 'react'
 import GlobalContext from '../contexts/global-context'
 

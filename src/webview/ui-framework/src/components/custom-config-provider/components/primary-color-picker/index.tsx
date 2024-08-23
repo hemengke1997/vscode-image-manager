@@ -1,10 +1,11 @@
 import { TinyColor } from '@ctrl/tinycolor'
-import { uniq } from '@minko-fe/lodash-pro'
-import { useControlledState, useMemoizedFn } from '@minko-fe/react-hook'
+import { useMemoizedFn } from 'ahooks'
 import { Button, ColorPicker, type ColorPickerProps } from 'antd'
+import { uniq } from 'lodash-es'
 import { memo, type ReactNode, useMemo } from 'react'
 import { useTranslation } from 'react-i18next'
 import { MdOutlineColorLens } from 'react-icons/md'
+import { useControlledState } from 'x-ahooks'
 import { builtInColors, vscodeColors } from '~/webview/ui-framework/src/utils/theme'
 
 type PrimaryColorPickerProps = {

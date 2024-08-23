@@ -1,9 +1,10 @@
-import { useControlledState, useMemoizedFn } from '@minko-fe/react-hook'
+import { useMemoizedFn } from 'ahooks'
 import { Cascader, ConfigProvider, theme } from 'antd'
 import { memo, type PropsWithChildren, type ReactNode, startTransition } from 'react'
 import { useTranslation } from 'react-i18next'
 import { BsSortDown, BsSortUpAlt } from 'react-icons/bs'
 import { MdOutlineKeyboardDoubleArrowRight } from 'react-icons/md'
+import { useControlledState } from 'x-ahooks'
 import { type SortType } from '~/core/persist/workspace/common'
 
 type DisplaySortProps = {

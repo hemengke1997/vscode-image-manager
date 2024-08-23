@@ -1,8 +1,9 @@
-import { destrUtil, isString, toLower } from '@minko-fe/lodash-pro'
 import { devDependencies, version } from '~root/package.json'
+import destr from 'destr'
 import EventEmitter from 'eventemitter3'
 import { execaNode } from 'execa'
 import fs from 'fs-extra'
+import { isString, toLower } from 'lodash-es'
 import path from 'node:path'
 import { commands, StatusBarAlignment, type StatusBarItem, window } from 'vscode'
 import { mirrors } from '~/commands/mirror'
@@ -211,7 +212,7 @@ export class Installer {
     let pkg: { version?: string; libvips?: string; sharp?: string } = {}
     if (isString(pkgStr)) {
       try {
-        pkg = destrUtil.destr<AnyObject>(pkgStr)
+        pkg = destr<AnyObject>(pkgStr)
       } catch {}
     }
     return pkg

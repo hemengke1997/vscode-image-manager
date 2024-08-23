@@ -1,4 +1,4 @@
-import { get } from '@minko-fe/lodash-pro'
+import { get } from 'lodash-es'
 import { type ConfigurationScope, ConfigurationTarget, workspace, type WorkspaceConfiguration } from 'vscode'
 import { EXT_NAMESPACE } from '~/meta'
 import { normalizePath } from '~/utils'

@@ -1,4 +1,4 @@
-import { useMemoizedFn } from '@minko-fe/react-hook'
+import { useMemoizedFn } from 'ahooks'
 import { App, type ModalFuncProps } from 'antd'
 import { nanoid } from 'nanoid'
 import { createElement, useRef } from 'react'

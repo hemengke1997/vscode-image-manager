@@ -1,4 +1,4 @@
-import { useMemoizedFn } from '@minko-fe/react-hook'
+import { useMemoizedFn } from 'ahooks'
 import { type ShowContextMenuParams, useContextMenu } from 'react-contexify'
 import { COLLAPSE_CONTEXT_MENU_ID, type EnableCollapseContextMenuType } from '..'
 

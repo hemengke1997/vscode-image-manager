@@ -1,4 +1,4 @@
-import { useUpdate } from '@minko-fe/react-hook'
+import { useUpdate } from 'ahooks'
 import { useEffect, useRef } from 'react'
 
 type Props = {

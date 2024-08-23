@@ -1,4 +1,4 @@
-import { isEqual } from '@minko-fe/lodash-pro'
+import { isEqual } from 'lodash-es'
 import path from 'node:path'
 import { commands, FileType, type Uri, workspace } from 'vscode'
 import { Global } from '~/core/global'

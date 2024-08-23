@@ -1,4 +1,4 @@
-import { useMemoizedFn } from '@minko-fe/react-hook'
+import { useMemoizedFn } from 'ahooks'
 import { CmdToVscode } from '~/message/cmd'
 import VscodeContext from '../ui-framework/src/contexts/vscode-context'
 import { vscodeApi } from '../vscode-api'

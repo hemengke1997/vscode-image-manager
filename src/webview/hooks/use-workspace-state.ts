@@ -1,6 +1,6 @@
-import { set } from '@minko-fe/lodash-pro'
-import { useDebounceFn, useMemoizedFn } from '@minko-fe/react-hook'
+import { useDebounceFn, useMemoizedFn } from 'ahooks'
 import { produce } from 'immer'
+import { set } from 'lodash-es'
 import { type DependencyList } from 'react'
 import { type WorkspaceStateKey } from '~/core/persist/workspace/common'
 import { CmdToVscode } from '~/message/cmd'

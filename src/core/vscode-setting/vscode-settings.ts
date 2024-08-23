@@ -1,4 +1,4 @@
-import { isFunction, toLower } from '@minko-fe/lodash-pro'
+import { isFunction, toLower } from 'lodash-es'
 import { ColorThemeKind, env, type ExtensionContext, window, workspace } from 'vscode'
 import { Language, Theme } from '~/enums'
 import { FALLBACK_LANGUAGE } from '~/meta'

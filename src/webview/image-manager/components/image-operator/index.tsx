@@ -1,9 +1,10 @@
-import { useControlledState, useHistoryTravel, useUpdateEffect } from '@minko-fe/react-hook'
+import { useHistoryTravel, useUpdateEffect } from 'ahooks'
 import { Alert, App, Button, Card, ConfigProvider, type FormInstance, theme, Tooltip } from 'antd'
 import { memo, type ReactNode, useEffect, useState } from 'react'
 import { useHotkeys } from 'react-hotkeys-hook'
 import { useTranslation } from 'react-i18next'
 import { VscChromeClose } from 'react-icons/vsc'
+import { useControlledState } from 'x-ahooks'
 import { WorkspaceStateKey } from '~/core/persist/workspace/common'
 import { useWorkspaceState } from '~/webview/hooks/use-workspace-state'
 import useScrollRef from '~/webview/image-manager/hooks/use-scroll-ref'
@@ -113,6 +114,7 @@ function ImageOperator(props: ImageOperatorProps & ImageOperatorStaticProps) {
                 undo: Keybinding.Undo(),
                 redo: Keybinding.Redo(),
               })}
+              onClick={(e) => e.stopPropagation()}
               closable={{
                 closeIcon: (
                   <Tooltip title={t('im.no_tip')}>
@@ -120,7 +122,7 @@ function ImageOperator(props: ImageOperatorProps & ImageOperatorStaticProps) {
                   </Tooltip>
                 ),
               }}
-              onClose={() => {
+              afterClose={() => {
                 setShowUndoRedoTip(false)
               }}
             />

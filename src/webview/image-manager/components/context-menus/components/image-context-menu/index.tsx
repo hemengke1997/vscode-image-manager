@@ -1,4 +1,4 @@
-import { useLockFn, useMemoizedFn } from '@minko-fe/react-hook'
+import { useLockFn, useMemoizedFn } from 'ahooks'
 import { App } from 'antd'
 import { memo } from 'react'
 import {

@@ -1,4 +1,4 @@
-import { isEmpty, isNumber, mergeWith, uniq } from '@minko-fe/lodash-pro'
+import { isEmpty, isNumber, mergeWith, uniq } from 'lodash-es'
 import { type GroupType } from '../components/display-group'
 
 export type DisplayGroupType = GroupType[]

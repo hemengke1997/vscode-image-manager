@@ -5,7 +5,8 @@
     "paths": {
       "~/*": ["./src/*"],
       "~root/*": ["./*"]
-    }
+    },
+    "types": ["vite-config-preset/plugin"]
   },
   "exclude": ["temp", "dist", "dist-webview"]
 }

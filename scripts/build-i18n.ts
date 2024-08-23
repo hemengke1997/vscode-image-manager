@@ -1,4 +1,4 @@
-import { destrUtil } from '@minko-fe/lodash-pro'
+import destr from 'destr'
 import fg from 'fast-glob'
 import { flatten } from 'flat'
 import fs from 'fs-extra'
@@ -10,7 +10,7 @@ import { FALLBACK_LANGUAGE } from '~/meta'
 const __dirname = path.dirname(fileURLToPath(import.meta.url))
 
 ;(async () => {
-  const fallbackMessages = destrUtil.destr<AnyObject>(
+  const fallbackMessages = destr<AnyObject>(
     JSON5.parse(await fs.readFile(path.resolve(__dirname, `../locales/${FALLBACK_LANGUAGE}.json5`), 'utf-8')),
   )
 
@@ -21,7 +21,7 @@ const __dirname = path.dirname(fileURLToPath(import.meta.url))
 
   for (const file of files) {
     const { name: locale } = path.parse(file)
-    let messages = destrUtil.destr<AnyObject>(JSON5.parse(await fs.readFile(file, 'utf-8')))
+    let messages = destr<AnyObject>(JSON5.parse(await fs.readFile(file, 'utf-8')))
 
     Object.keys(fallbackMessages).forEach((key) => {
       messages[key] = messages[key] || fallbackMessages[key]

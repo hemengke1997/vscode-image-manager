@@ -1,8 +1,9 @@
-import { useAsyncEffect, useControlledState } from '@minko-fe/react-hook'
 import { markdown } from '~root/CHANGELOG.md'
+import { useAsyncEffect } from 'ahooks'
 import { Modal, Skeleton } from 'antd'
 import MarkdownIt from 'markdown-it'
 import { memo, useRef, useState } from 'react'
+import { useControlledState } from 'x-ahooks'
 
 export type ChangelogProps = {
   open: boolean

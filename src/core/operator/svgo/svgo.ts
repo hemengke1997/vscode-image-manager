@@ -1,5 +1,6 @@
-import { deepMerge, trim } from '@minko-fe/lodash-pro'
+import deepMerge from 'deepmerge'
 import fs from 'fs-extra'
+import { trim } from 'lodash-es'
 import path from 'node:path'
 import { type Config, loadConfig, optimize } from 'svgo'
 import { FileCache } from '~/core'

@@ -1,5 +1,5 @@
-import { isFunction } from '@minko-fe/lodash-pro'
-import { useMemoizedFn, useUpdateEffect } from '@minko-fe/react-hook'
+import { useMemoizedFn, useUpdateEffect } from 'ahooks'
+import { isFunction } from 'lodash-es'
 import { type DependencyList, type Dispatch, type SetStateAction, useState } from 'react'
 
 export const enum Trigger {

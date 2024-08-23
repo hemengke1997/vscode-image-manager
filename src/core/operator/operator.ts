@@ -1,5 +1,5 @@
-import { isArray, isString, mergeWith, toString } from '@minko-fe/lodash-pro'
 import fs from 'fs-extra'
+import { isArray, isString, mergeWith, toString } from 'lodash-es'
 import { nanoid } from 'nanoid'
 import path from 'node:path'
 import { type SetOptional } from 'type-fest'

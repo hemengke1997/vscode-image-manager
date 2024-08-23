@@ -1,6 +1,6 @@
-import { upperFirst } from '@minko-fe/lodash-pro'
-import { useMemoizedFn } from '@minko-fe/react-hook'
+import { useMemoizedFn } from 'ahooks'
 import { Button, Popover } from 'antd'
+import { upperFirst } from 'lodash-es'
 import { memo, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { IoIosMore } from 'react-icons/io'

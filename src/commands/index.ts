@@ -1,4 +1,4 @@
-import { flatten } from '@minko-fe/lodash-pro'
+import { flatten } from 'lodash-es'
 import { type ExtensionModule } from '~/module'
 import clearCache from './clear-cache'
 import mirror from './mirror'

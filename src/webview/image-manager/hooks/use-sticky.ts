@@ -1,5 +1,5 @@
-import { isUndefined } from '@minko-fe/lodash-pro'
-import { useInViewport, useMemoizedFn } from '@minko-fe/react-hook'
+import { useInViewport, useMemoizedFn } from 'ahooks'
+import { isUndefined } from 'lodash-es'
 import { type DependencyList, useEffect, useLayoutEffect, useRef } from 'react'
 import { getAppRoot } from '~/webview/utils'
 

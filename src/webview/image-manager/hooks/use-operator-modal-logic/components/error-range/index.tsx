@@ -1,4 +1,4 @@
-import { useMemoizedFn } from '@minko-fe/react-hook'
+import { useMemoizedFn } from 'ahooks'
 import { App, Button, InputNumber, Popconfirm } from 'antd'
 import { memo, useMemo, useState } from 'react'
 import { useTranslation } from 'react-i18next'

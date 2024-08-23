@@ -1,10 +1,10 @@
-import { isString, range, round } from '@minko-fe/lodash-pro'
-import { useClickAway, useMemoizedFn, useThrottleFn } from '@minko-fe/react-hook'
-import { isDev } from '@minko-fe/vite-config/client'
+import { useClickAway, useMemoizedFn, useThrottleFn } from 'ahooks'
 import { ConfigProvider, Image, theme } from 'antd'
 import { type AliasToken, type ComponentTokenMap } from 'antd/es/theme/interface'
 import { produce } from 'immer'
+import { isString, range, round } from 'lodash-es'
 import { type ForwardedRef, forwardRef, memo, useCallback, useEffect, useId, useRef, useState } from 'react'
+import { isDev } from 'vite-config-preset/client'
 import GlobalContext from '../../contexts/global-context'
 import SettingsContext from '../../contexts/settings-context'
 import useImageManagerEvent from '../../hooks/use-image-manager-event'
@@ -119,10 +119,12 @@ function ImagePreview(props: ImagePreviewProps, ref: ForwardedRef<HTMLDivElement
           'ant-tooltip',
           'ant-popover',
           'ant-notification',
-          enableMultipleSelect ? 'ant-modal' : '',
+          'ant-modal',
         ])
-      )
+      ) {
         return
+      }
+
       if (targetEl.id === 'context-menu-mask') {
         if (triggeredByContextMenu) {
           setTriggeredByContextMenu(false)

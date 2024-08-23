@@ -1,6 +1,6 @@
-import { gt } from '@minko-fe/lodash-pro'
-import { useLockFn, useMemoizedFn } from '@minko-fe/react-hook'
+import { useLockFn, useMemoizedFn } from 'ahooks'
 import { App, Badge, type BadgeProps, Button, Popconfirm, Tag, theme } from 'antd'
+import { gt } from 'lodash-es'
 import { nanoid } from 'nanoid'
 import { type ReactNode, useRef } from 'react'
 import { useTranslation } from 'react-i18next'

@@ -1,4 +1,4 @@
-import { useDebounceEffect, useMemoizedFn } from '@minko-fe/react-hook'
+import { useDebounceEffect, useMemoizedFn } from 'ahooks'
 import { App } from 'antd'
 import { useEffect, useRef } from 'react'
 import { useTranslation } from 'react-i18next'

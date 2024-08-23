@@ -1,4 +1,4 @@
-import { remove } from '@minko-fe/lodash-pro'
+import { remove } from 'lodash-es'
 import micromatch from 'micromatch'
 import path from 'node:path'
 import { normalizePath } from '.'

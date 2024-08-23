@@ -1,7 +1,7 @@
-import { applyHtmlTransforms } from '@minko-fe/html-transform'
-import { trim } from '@minko-fe/lodash-pro'
 import fs from 'fs-extra'
+import { trim } from 'lodash-es'
 import path from 'node:path'
+import { inject } from 'tag-inject'
 import {
   type ConfigurationChangeEvent,
   Disposable,
@@ -206,7 +206,7 @@ export class ImageManagerPanel {
       const reactRefreshUri = joinLocalServerUrl('@react-refresh')
       const viteClientUri = joinLocalServerUrl('@vite/client')
 
-      html = applyHtmlTransforms(html, [
+      html = inject(html, [
         {
           injectTo: 'head-prepend',
           tag: 'script',
@@ -244,7 +244,7 @@ export class ImageManagerPanel {
       script_src = `${localServerUrl} http://0.0.0.0:${DEV_PORT}`
     }
 
-    html = applyHtmlTransforms(html, [
+    html = inject(html, [
       {
         injectTo: 'head-prepend',
         tag: 'meta',

@@ -1,5 +1,5 @@
-import { round, sortBy, uniqBy } from '@minko-fe/lodash-pro'
 import debounce from 'debounce'
+import { round, sortBy, uniqBy } from 'lodash-es'
 
 export function formatBytes(bytes: number, decimals: number = 2): string {
   if (bytes === 0) {

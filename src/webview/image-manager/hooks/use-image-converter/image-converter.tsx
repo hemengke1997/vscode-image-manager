@@ -1,6 +1,6 @@
-import { isArray, isEmpty, mergeWith, toLower } from '@minko-fe/lodash-pro'
-import { useMemoizedFn } from '@minko-fe/react-hook'
+import { useMemoizedFn } from 'ahooks'
 import { Checkbox, Form, Tag } from 'antd'
+import { isArray, isEmpty, mergeWith, toLower } from 'lodash-es'
 import { memo, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { type FormatConverterOptions, type OperatorResult } from '~/core'

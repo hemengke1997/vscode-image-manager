@@ -1,4 +1,5 @@
-import { destrUtil, isUndefined, toLower } from '@minko-fe/lodash-pro'
+import destr from 'destr'
+import { isUndefined, toLower } from 'lodash-es'
 import fs from 'node:fs'
 import path from 'node:path'
 import { type ExtensionContext } from 'vscode'
@@ -23,7 +24,7 @@ export class i18n {
       name = 'package.nls.json' // locale not exist, fallback to English
     }
 
-    this.messages = destrUtil.destr<AnyObject>(fs.readFileSync(path.join(extensionPath, name), 'utf-8'))
+    this.messages = destr<AnyObject>(fs.readFileSync(path.join(extensionPath, name), 'utf-8'))
   }
 
   static format(str: string, args: any[]) {

@@ -1,5 +1,5 @@
-import { toNumber } from '@minko-fe/lodash-pro'
 import fs from 'fs-extra'
+import { toNumber } from 'lodash-es'
 import pMap from 'p-map'
 import { type SharpNS } from '~/@types/global'
 import { i18n } from '~/i18n'

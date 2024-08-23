@@ -1,4 +1,5 @@
-import { destrUtil, isFunction } from '@minko-fe/lodash-pro'
+import destr from 'destr'
+import { isFunction } from 'lodash-es'
 import { nanoid } from 'nanoid'
 import { type WebviewApi } from 'vscode-webview'
 import { CmdToWebview } from '~/message/cmd'
@@ -100,7 +101,7 @@ class VscodeApi {
       return this.vsCodeApi.getState()
     } else {
       const state = localStorage.getItem('vscodeState')
-      return state ? destrUtil.destr<AnyObject>(state) : undefined
+      return state ? destr<AnyObject>(state) : undefined
     }
   }
 

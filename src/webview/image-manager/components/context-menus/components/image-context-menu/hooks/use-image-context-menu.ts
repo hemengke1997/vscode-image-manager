@@ -1,5 +1,5 @@
-import { merge } from '@minko-fe/lodash-pro'
-import { useMemoizedFn } from '@minko-fe/react-hook'
+import { useMemoizedFn } from 'ahooks'
+import { merge } from 'lodash-es'
 import { type ShowContextMenuParams, useContextMenu } from 'react-contexify'
 import { type EnableImageContextMenuType, IMAGE_CONTEXT_MENU_ID } from '..'
 

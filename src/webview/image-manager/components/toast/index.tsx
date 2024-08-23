@@ -1,7 +1,8 @@
-import { useControlledState, useMemoizedFn } from '@minko-fe/react-hook'
+import { useMemoizedFn } from 'ahooks'
 import EventEmitter from 'eventemitter3'
 import { AnimatePresence, motion } from 'framer-motion'
 import { type ReactNode, useEffect, useLayoutEffect, useRef, useState } from 'react'
+import { useControlledState } from 'x-ahooks'
 import { render, unmount } from '~/webview/utils/imperative/render'
 import { ANIMATION_DURATION } from '../../utils/duration'
 import Queue, { type ToastMessageType } from './queue'
@@ -82,7 +83,7 @@ function ToastHolder(props: ToastProps) {
       {open && (
         <motion.div
           className={
-            'fixed left-1/2 top-1/2 z-[9999] flex items-center justify-center rounded-md bg-[rgba(0,0,0,0.6)] px-2 py-1 text-sm shadow-sm'
+            'pointer-events-none fixed left-1/2 top-1/2 z-[9999] flex items-center justify-center rounded-md bg-[rgba(0,0,0,0.6)] px-2 py-1 text-sm shadow-sm'
           }
           initial={{
             opacity: 0,

@@ -1,5 +1,5 @@
-import { upperCase } from '@minko-fe/lodash-pro'
 import { Form, Segmented } from 'antd'
+import { upperCase } from 'lodash-es'
 import { memo } from 'react'
 import { useTranslation } from 'react-i18next'
 

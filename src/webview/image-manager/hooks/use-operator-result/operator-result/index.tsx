@@ -1,6 +1,6 @@
-import { ceil } from '@minko-fe/lodash-pro'
-import { useMemoizedFn, useUpdateEffect } from '@minko-fe/react-hook'
+import { useMemoizedFn, useUpdateEffect } from 'ahooks'
 import { Collapse, Tooltip } from 'antd'
+import { ceil } from 'lodash-es'
 import { type Key, memo, type ReactNode, useMemo, useState } from 'react'
 import { GiJumpingDog } from 'react-icons/gi'
 import { MdErrorOutline } from 'react-icons/md'

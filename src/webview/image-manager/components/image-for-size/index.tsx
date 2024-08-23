@@ -1,4 +1,4 @@
-import { useSize } from '@minko-fe/react-hook'
+import { useSize } from 'ahooks'
 import { memo, useEffect, useMemo, useRef } from 'react'
 import GlobalContext from '../../contexts/global-context'
 import LazyImage from '../lazy-image'

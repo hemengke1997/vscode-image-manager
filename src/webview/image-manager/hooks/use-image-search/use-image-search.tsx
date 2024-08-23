@@ -1,4 +1,4 @@
-import { useMemoizedFn } from '@minko-fe/react-hook'
+import { useMemoizedFn } from 'ahooks'
 import { useTranslation } from 'react-i18next'
 import useImperativeModal from '../use-imperative-modal'
 import ImageSearch from './image-search'

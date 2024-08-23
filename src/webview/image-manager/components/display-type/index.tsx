@@ -1,9 +1,10 @@
-import { difference, uniq } from '@minko-fe/lodash-pro'
-import { useControlledState, useUpdateEffect } from '@minko-fe/react-hook'
+import { useUpdateEffect } from 'ahooks'
 import { Badge, Checkbox, theme } from 'antd'
 import { produce } from 'immer'
+import { difference, uniq } from 'lodash-es'
 import { memo, useMemo } from 'react'
 import { RxViewNone } from 'react-icons/rx'
+import { useControlledState } from 'x-ahooks'
 import GlobalContext, { type RestrictImageFilterType } from '../../contexts/global-context'
 
 export type DisplayTypeFilter = RestrictImageFilterType<{

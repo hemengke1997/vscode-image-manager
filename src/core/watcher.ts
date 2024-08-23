@@ -1,4 +1,4 @@
-import { debounce } from '@minko-fe/lodash-pro'
+import { debounce } from 'lodash-es'
 import micromatch from 'micromatch'
 import path from 'node:path'
 import { type FileSystemWatcher, RelativePattern, type Uri, type Webview, workspace } from 'vscode'

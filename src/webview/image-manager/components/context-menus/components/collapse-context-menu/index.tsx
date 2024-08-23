@@ -1,4 +1,4 @@
-import { useMemoizedFn } from '@minko-fe/react-hook'
+import { useMemoizedFn } from 'ahooks'
 import { App } from 'antd'
 import { memo } from 'react'
 import { Item, type ItemParams, type PredicateParams, RightSlot, Separator, Submenu } from 'react-contexify'

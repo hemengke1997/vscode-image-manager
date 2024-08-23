@@ -1,4 +1,4 @@
-import { get } from '@minko-fe/lodash-pro'
+import { get } from 'lodash-es'
 import { type Webview } from 'vscode'
 import { Global } from '~/core'
 import { EXT_NAMESPACE } from '~/meta'
