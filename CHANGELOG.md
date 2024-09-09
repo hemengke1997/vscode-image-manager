@@ -5,7 +5,6 @@
 ### Feat
 
 - 添加 `image-manager.viewer.showCompressedIcon` 配置，控制图片右下角是否显示已压缩图标。默认为 `true`
-- 
 
 ### Break Change
 
