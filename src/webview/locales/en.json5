@@ -179,6 +179,7 @@
     modify_error_range: 'Modify Error Range',
     modify_success: 'Modification Successful',
     outof_error_range: 'Out of error range',
+    size_over_warning: 'Image size exceeds {{size}} KB',
   },
   fallback: {
     internal_error: 'Internal Error',

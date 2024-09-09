@@ -9,6 +9,7 @@ import GlobalContext from '../../contexts/global-context'
 import SettingsContext from '../../contexts/settings-context'
 import useImageManagerEvent from '../../hooks/use-image-manager-event'
 import useImageOperation from '../../hooks/use-image-operation'
+// import useSingleToast from '../../hooks/use-single-toast'
 import useImageContextMenu from '../context-menus/components/image-context-menu/hooks/use-image-context-menu'
 import LazyImage, { type LazyImageProps } from '../lazy-image'
 import Toast from '../toast'
@@ -57,21 +58,25 @@ function ImagePreview(props: ImagePreviewProps, ref: ForwardedRef<HTMLDivElement
 
   useEffect(() => {
     if (!preview.open) {
+      // clearToast()
       Toast.hide()
       hideAll()
     }
   }, [preview.open])
 
+  // const { toast, clearToast } = useSingleToast()
+
   const throttleOpenToast = useThrottleFn(
     (sclalePercent: number) => {
       if (!sclalePercent || !preview.open) return
-      Toast.open({
-        content: (
-          <div className={'flex items-center'}>
-            <span>{sclalePercent}%</span>
-          </div>
-        ),
-      })
+
+      const message = (
+        <div className={'flex items-center'}>
+          <span>{sclalePercent}%</span>
+        </div>
+      )
+      // toast({ message })
+      Toast.open({ content: message })
     },
     {
       wait: 60,
@@ -234,7 +239,7 @@ function ImagePreview(props: ImagePreviewProps, ref: ForwardedRef<HTMLDivElement
 
   return (
     <>
-      <div className={'flex flex-wrap gap-2'} ref={ref}>
+      <div className={'flex flex-wrap gap-1.5'} ref={ref}>
         <ConfigProvider
           theme={{
             components: {
@@ -257,6 +262,7 @@ function ImagePreview(props: ImagePreviewProps, ref: ForwardedRef<HTMLDivElement
               keyboard: true,
               onChange(current) {
                 setPreview({ current, open: true })
+                // clearToast()
                 Toast.hide()
               },
               onVisibleChange: (v, _, current) => {

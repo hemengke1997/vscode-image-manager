@@ -1,8 +1,8 @@
+import { useControlledState } from 'ahooks-x'
 import { Button, Dropdown } from 'antd'
 import { memo } from 'react'
 import { useTranslation } from 'react-i18next'
 import { PiTranslateFill } from 'react-icons/pi'
-import { useControlledState } from 'x-ahooks'
 import { locales } from '~/meta'
 
 type LocaleSelectorProps = {

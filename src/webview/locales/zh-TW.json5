@@ -179,6 +179,7 @@
     modify_error_range: '修改誤差範圍',
     modify_success: '修改成功',
     outof_error_range: '超出誤差範圍',
+    size_over_warning: '圖片體積超過 {{size}} KB',
   },
   fallback: {
     internal_error: '內部錯誤',

@@ -1,10 +1,10 @@
 import { useMemoizedFn } from 'ahooks'
+import { useControlledState } from 'ahooks-x'
 import { Cascader, ConfigProvider, theme } from 'antd'
 import { memo, type PropsWithChildren, type ReactNode, startTransition } from 'react'
 import { useTranslation } from 'react-i18next'
 import { BsSortDown, BsSortUpAlt } from 'react-icons/bs'
 import { MdOutlineKeyboardDoubleArrowRight } from 'react-icons/md'
-import { useControlledState } from 'x-ahooks'
 import { type SortType } from '~/core/persist/workspace/common'
 
 type DisplaySortProps = {

@@ -1,5 +1,29 @@
 # CHANGELOG
 
+## 1.14.0 (2024-09-09)
+
+### Feat
+
+- 添加 `image-manager.viewer.showCompressedIcon` 配置，控制图片右下角是否显示已压缩图标。默认为 `true`
+- 
+
+### Break Change
+
+- `image-manager.viewer.warningSize` 默认为0。之前默认为1024。
+- `image-manager.file.exclude` 默认为 
+```json
+[
+  "**/node_modules/**",
+  "**/.git/**",
+  "**/dist/**",
+  "**/coverage/**",
+  "**/.next/**",
+  "**/.nuxt/**",
+  "**/.vercel/**",
+  "**/.idea/**"
+]
+```
+
 ## 1.13.1 (2024-08-19)
 
 ### Fix

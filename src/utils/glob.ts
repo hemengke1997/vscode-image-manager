@@ -25,16 +25,6 @@ function convertToNegativePattern(pattern: Pattern): Pattern {
   return `!${pattern}`
 }
 
-const BUILT_IN_EXCLUDE = [
-  '**/node_modules/**',
-  '**/.git/**',
-  '**/dist/**',
-  '**/coverage/**',
-  '**/.next/**',
-  '**/.nuxt/**',
-  '**/.vercel/**',
-]
-
 function convertToIgnore(patterns: string[]) {
   return patterns.map((pattern) => {
     if (isPositivePattern(pattern)) {
@@ -67,18 +57,7 @@ export function imageGlob(options: { scan: string[]; exclude: string[]; root: st
 
   const absDirPatterns = create(dirPattern)
 
-  const built_in_exclude = convertToIgnore(BUILT_IN_EXCLUDE)
-  const user_exclude = convertToIgnore(exclude)
-
-  const ignore = [...built_in_exclude]
-  user_exclude.forEach((p) => {
-    if (isPositivePattern(p)) {
-      // 如果用户配置了与内置相反的规则，那么删除内置的排除规则
-      remove(ignore, (b) => convertToPositivePattern(b) === p)
-    } else {
-      ignore.push(p)
-    }
-  })
+  const ignore = convertToIgnore(exclude)
 
   dirs.forEach((dir) => {
     // 如果目录是被忽略的，则把ignore中的排除规则删除

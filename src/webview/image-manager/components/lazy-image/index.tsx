@@ -1,19 +1,20 @@
 import { useInViewport, useMemoizedFn, useUpdateEffect } from 'ahooks'
-import { Badge, Image, type ImageProps } from 'antd'
+import { useControlledState } from 'ahooks-x'
+import { Image, type ImageProps } from 'antd'
 import { motion } from 'framer-motion'
 import { trim } from 'lodash-es'
 import { memo, type ReactNode, useEffect, useMemo, useRef } from 'react'
 import { useHotkeys } from 'react-hotkeys-hook'
 import { useTranslation } from 'react-i18next'
-import { FaRegGrinStars } from 'react-icons/fa'
+import { FiCheckCircle } from 'react-icons/fi'
 import { HiOutlineViewfinderCircle } from 'react-icons/hi2'
 import { MdOutlineRemoveCircle } from 'react-icons/md'
+import { RiErrorWarningLine } from 'react-icons/ri'
 import { RxDimensions } from 'react-icons/rx'
 import { TbResize } from 'react-icons/tb'
 import { animateScroll } from 'react-scroll'
 import { Key } from 'ts-key-enum'
 import { classNames } from 'tw-clsx'
-import { useControlledState } from 'x-ahooks'
 import { DEFAULT_CONFIG } from '~/core/config/common'
 import { CmdToVscode } from '~/message/cmd'
 import { getAppRoot } from '~/webview/utils'
@@ -27,6 +28,7 @@ import useImageContextMenu, {
   type ImageContextMenuType,
 } from '../context-menus/components/image-context-menu/hooks/use-image-context-menu'
 import ImageName, { type ImageNameProps } from '../image-name'
+import Corner from './components/corner'
 
 export type LazyImageProps = {
   /**
@@ -171,7 +173,7 @@ function LazyImage(props: LazyImageProps) {
     beginDeleteImageProcess([image])
   })
 
-  const keybindRef = useHotkeys<HTMLDivElement>(
+  const setKeybindRef = useHotkeys<HTMLDivElement>(
     [Key.Enter, `mod+${Key.Backspace}`, Key.Delete, `mod+c`],
     (e) => {
       if (contextMenu?.enable?.fs) {
@@ -211,7 +213,17 @@ function LazyImage(props: LazyImageProps) {
     },
   )
 
-  const ifWarning = !!warningSize && bytesToKb(image.stats.size) > warningSize
+  const keybindRef = useRef<HTMLDivElement>(null)
+  useEffect(() => {
+    setKeybindRef(keybindRef.current)
+  }, [keybindRef.current])
+
+  const sizeWarning = useMemo((): boolean => {
+    if (!!warningSize && bytesToKb(image.stats.size) > warningSize) {
+      return true
+    }
+    return false
+  }, [image.stats.size, warningSize])
 
   const { hideAll } = useImageContextMenu()
 
@@ -306,7 +318,7 @@ function LazyImage(props: LazyImageProps) {
           data-image_context_menu={true}
           tabIndex={-1}
           className={classNames(
-            'group relative flex flex-none flex-col items-center space-y-1 p-1.5 transition-colors',
+            'group relative flex flex-none flex-col items-center space-y-1 p-2 transition-colors',
             'overflow-hidden rounded-md border-[2px] border-solid border-transparent',
             interactive && 'hover:border-ant-color-primary',
             interactive && selected && 'border-ant-color-primary-hover hover:border-ant-color-primary-hover',
@@ -321,7 +333,6 @@ function LazyImage(props: LazyImageProps) {
           transition={{ duration: ANIMATION_DURATION.middle }}
           whileInView={{ opacity: 1 }}
           onContextMenu={onContextMenu}
-          // onMouseOver={handleMaskMouseOver}
           onDoubleClick={(e) => {
             if (multipleSelect(e)) return
             const el = e.target as HTMLElement
@@ -329,22 +340,29 @@ function LazyImage(props: LazyImageProps) {
             showImageDetailModal(image)
           }}
         >
-          {onRemoveClick && (
-            <div
-              className={
-                'text-ant-color-error absolute left-0 top-0 z-[99] cursor-pointer opacity-0 transition-opacity group-hover:opacity-100'
-              }
-              onClick={(e) => {
-                // prevent click away
-                e.stopPropagation()
-                onRemoveClick(image)
-              }}
-              title={t('im.remove')}
-            >
-              {removeRender(<MdOutlineRemoveCircle />, image)}
-            </div>
-          )}
-          <Badge status='warning' dot={ifWarning}>
+          <Corner
+            leftTop={
+              onRemoveClick && (
+                <div
+                  className={'text-ant-color-error cursor-pointer opacity-0 transition-opacity group-hover:opacity-100'}
+                  onClick={(e) => {
+                    // prevent click away
+                    e.stopPropagation()
+                    onRemoveClick(image)
+                  }}
+                  title={t('im.remove')}
+                >
+                  {removeRender(<MdOutlineRemoveCircle />, image)}
+                </div>
+              )
+            }
+            rightTop={
+              sizeWarning && (
+                <RiErrorWarningLine className={'text-base'} title={t('im.size_over_warning', { size: warningSize })} />
+              )
+            }
+            rightBottom={imageMetadata.compressed && <FiCheckCircle className={'text-sm'} title={t('im.compressed')} />}
+          >
             <Image
               {...antdImageProps}
               className={classNames('rounded-md object-contain p-1 will-change-auto', antdImageProps.className)}
@@ -373,7 +391,7 @@ function LazyImage(props: LazyImageProps) {
                           )}
                           <div className={'flex items-center space-x-1 truncate'}>
                             <TbResize />
-                            <span className={classNames(ifWarning && 'text-ant-color-warning-text')}>
+                            <span className={classNames(sizeWarning && 'text-ant-color-warning-text')}>
                               {formatBytes(image.stats.size)}
                             </span>
                           </div>
@@ -387,7 +405,7 @@ function LazyImage(props: LazyImageProps) {
                           ) : null}
                           {imageMetadata?.compressed ? (
                             <div className={'flex items-center space-x-1 truncate'}>
-                              <FaRegGrinStars />
+                              <FiCheckCircle />
                               <span>{t('im.compressed')}</span>
                             </div>
                           ) : null}
@@ -405,7 +423,8 @@ function LazyImage(props: LazyImageProps) {
                 ...antdImageProps.style,
               }}
             ></Image>
-          </Badge>
+          </Corner>
+
           <div className='max-w-full truncate' style={{ maxWidth: antdImageProps.width }}>
             {image.nameElement || (
               <ImageName image={image} {...imageNameProps}>

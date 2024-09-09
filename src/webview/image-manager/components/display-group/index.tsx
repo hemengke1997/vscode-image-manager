@@ -1,7 +1,7 @@
+import { useControlledState } from 'ahooks-x'
 import { Checkbox, type CheckboxOptionType } from 'antd'
 import { memo, type ReactNode, startTransition, useMemo } from 'react'
 import { useTranslation } from 'react-i18next'
-import { useControlledState } from 'x-ahooks'
 import { type WorkspaceStateType } from '~/core/persist/workspace/common'
 
 export type GroupType = WorkspaceStateType['display_group'][number]

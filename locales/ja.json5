@@ -25,7 +25,8 @@
       trashAfterProcessing: '処理後に画像をゴミ箱に移動する',
     },
     viewer: {
-      warningSize: 'この値 (KB) より大きい画像の場合、警告を表示。0の場合は表示しない',
+      warningSize: '画像のサイズがこの値 (KB) を超える場合、画像の右上隅に警告アイコンが表示されます。値が0の場合は表示されません。',
+      showCompressedIcon: '画像の右下隅に圧縮済みアイコンを表示',
       imageWidth: '画像の幅 (px)',
       imageBackgroundColor: '画像の背景色',
       imageRendering: '画像レンダリング',

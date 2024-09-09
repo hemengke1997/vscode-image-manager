@@ -1,7 +1,7 @@
+import { useControlledState } from 'ahooks-x'
 import { Segmented } from 'antd'
 import { memo } from 'react'
 import { useTranslation } from 'react-i18next'
-import { useControlledState } from 'x-ahooks'
 
 export type DisplayStyleType = 'compact' | 'nested'
 

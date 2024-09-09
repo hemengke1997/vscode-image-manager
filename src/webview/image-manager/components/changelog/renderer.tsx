@@ -1,9 +1,9 @@
 import { markdown } from '~root/CHANGELOG.md'
 import { useAsyncEffect } from 'ahooks'
+import { useControlledState } from 'ahooks-x'
 import { Modal, Skeleton } from 'antd'
 import MarkdownIt from 'markdown-it'
 import { memo, useRef, useState } from 'react'
-import { useControlledState } from 'x-ahooks'
 
 export type ChangelogProps = {
   open: boolean

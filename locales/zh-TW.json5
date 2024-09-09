@@ -25,7 +25,8 @@
       trashAfterProcessing: '圖片處理之後是否放入回收站中',
     },
     viewer: {
-      warningSize: '如果圖片大小大於此值 (KB)，則顯示警告點。值為0時不顯示',
+      warningSize: '如果圖片大小大於此值 (KB)，則圖片右上角顯示警告圖標。值為0時不顯示',
+      showCompressedIcon: '圖片右下角顯示已壓縮圖標',
       imageWidth: '圖片寬度 (px)',
       imageBackgroundColor: '圖片背景色',
       imageRendering: 'image rendering',

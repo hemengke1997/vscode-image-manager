@@ -24,7 +24,8 @@
       trashAfterProcessing: 'Move image to trash after processing',
     },
     viewer: {
-      warningSize: 'Show warning dot if image size is larger than this value (KB). Hidden if 0',
+      warningSize: 'If the image size exceeds this value (KB), a warning icon will be displayed in the upper right corner of the image. If the value is 0, no warning will be displayed.',
+      showCompressedIcon: 'Show compressed icon in the bottom right corner of the image',
       imageWidth: 'Width of image (px)',
       imageBackgroundColor: 'Image background color',
       imageRendering: 'Image rendering',
