@@ -4,6 +4,7 @@ import { useLockFn, useMemoizedFn } from 'ahooks'
 import { App, Button, Checkbox, Divider, Form, type InputProps, Typography } from 'antd'
 import escapeStringRegexp from 'escape-string-regexp'
 import { isObject, isString, toString } from 'lodash-es'
+import { Key } from 'ts-key-enum'
 import { os } from 'un-detector'
 import { type OperatorResult } from '~/core'
 import { ConfigKey } from '~/core/config/common'
@@ -288,6 +289,13 @@ function useImageOperation() {
           cancelText: t('im.cancel'),
           centered: true,
           autoFocusButton: 'ok',
+          okButtonProps: {
+            onKeyDown: (e) => {
+              if (e.key === Key.Enter) {
+                ;(e.target as HTMLButtonElement).click()
+              }
+            },
+          },
           onOk: async () => {
             if (askDelete) {
               setConfirmDelete(false)
