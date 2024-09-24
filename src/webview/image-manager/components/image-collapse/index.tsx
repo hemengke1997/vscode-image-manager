@@ -4,6 +4,7 @@ import { styleObjectToString } from '@minko-fe/style-object-to-string'
 import { useMemoizedFn } from 'ahooks'
 import { useControlledState } from 'ahooks-x'
 import { Collapse, type CollapseProps } from 'antd'
+import { produce } from 'immer'
 import { isUndefined } from 'lodash-es'
 import { classNames } from 'tw-clsx'
 import ActionContext from '../../contexts/action-context'
@@ -85,12 +86,6 @@ function ImageCollapse(props: ImageCollapseProps) {
     'dirReveal',
     'setDirReveal',
   ])
-  const { collapseOpen } = ActionContext.usePicker(['collapseOpen'])
-
-  const [activeKeys, setActiveKeys] = useControlledState<string[]>({
-    defaultValue: (collapseProps.defaultActiveKey as string[]) || [],
-    onChange: collapseProps.onChange,
-  })
 
   const stickyRef = useRef<HTMLDivElement>(null)
   const holderRef = useRef<HTMLDivElement>(null)
@@ -130,13 +125,34 @@ function ImageCollapse(props: ImageCollapseProps) {
   const basePath = useMemo(() => (joinLabel ? id.slice(0, id.lastIndexOf(label)) : id), [id, label, joinLabel])
   const labels = useMemo(() => label.split('/').filter(Boolean), [label])
 
+  const { activeCollapseIdSet, setActiveCollapseIdSet } = ActionContext.usePicker([
+    'activeCollapseIdSet',
+    'setActiveCollapseIdSet',
+  ])
+
+  const [activeKeys, setActiveKeys] = useControlledState<string[]>({
+    defaultValue: (collapseProps.defaultActiveKey as string[]) || [],
+    // 当 activeKeys 变化时，更新 activeCollapseIdSet
+    onChange: (keys) => {
+      setActiveCollapseIdSet(
+        produce((draft) => {
+          if (keys.length > 0) {
+            draft.add(id)
+          } else {
+            draft.delete(id)
+          }
+        }),
+      )
+    },
+  })
+
   useEffect(() => {
-    if (collapseOpen > 0) {
+    if (activeCollapseIdSet.has(id) && !activeKeys.includes(id)) {
       setActiveKeys([id])
-    } else if (collapseOpen < 0) {
+    } else if (!activeCollapseIdSet.has(id) && activeKeys.includes(id)) {
       setActiveKeys([])
     }
-  }, [collapseOpen])
+  }, [activeCollapseIdSet])
 
   const isActive = useMemoizedFn((imagePath: string) => {
     return imagePath && underFolderDeeplyImages?.find((image) => image.path === imagePath)

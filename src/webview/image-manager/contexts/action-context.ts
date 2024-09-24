@@ -1,6 +1,5 @@
-import { useReducer } from 'react'
+import { useReducer, useRef, useState } from 'react'
 import { useMemoizedFn } from 'ahooks'
-import { useControlledState } from 'ahooks-x'
 import { createContainer } from 'context-state'
 
 function useActionContext() {
@@ -28,26 +27,25 @@ function useActionContext() {
   })
 
   /* -------------- image collapse -------------- */
+  const collapseIdSet = useRef<Set<string>>(new Set())
+  const [activeCollapseIdSet, setActiveCollapseIdSet] = useState<Set<string>>(new Set())
 
-  // Negative number means close collapse
-  // otherwise, open collapse
-  // Zero means no change
-  const [collapseOpen, setCollapseOpen] = useControlledState<number>({
-    defaultValue: 0,
-    beforeValue(value, prevValue) {
-      if (value > prevValue) {
-        return Math.abs(value) || 1
-      } else {
-        return -Math.abs(value) || -1
-      }
-    },
+  const openAllCollapse = useMemoizedFn(() => {
+    setActiveCollapseIdSet(new Set(collapseIdSet.current))
+  })
+
+  const closeAllCollapse = useMemoizedFn(() => {
+    setActiveCollapseIdSet(new Set())
   })
 
   return {
     imageRefreshedState,
     refreshImages,
-    collapseOpen,
-    setCollapseOpen,
+    openAllCollapse,
+    closeAllCollapse,
+    collapseIdSet,
+    activeCollapseIdSet,
+    setActiveCollapseIdSet,
   }
 }
 

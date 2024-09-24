@@ -1,2 +1,3 @@
+@import 'antd/dist/reset.css';
 @import './tailwind.css';
 @import './global.css';

@@ -8,13 +8,14 @@ import ActionContext from '~/webview/image-manager/contexts/action-context'
 
 function More() {
   const { t } = useTranslation()
-  const { setCollapseOpen } = ActionContext.usePicker(['setCollapseOpen'])
+  const { openAllCollapse, closeAllCollapse } = ActionContext.usePicker(['openAllCollapse', 'closeAllCollapse'])
 
   const [open, setOpen] = useState(false)
 
-  const toggleAllCollapse = useMemoizedFn((b: boolean) => {
-    setCollapseOpen((t) => t + (b ? 1 : -1))
+  const toggleAllCollapse = useMemoizedFn((open: boolean) => {
+    open ? openAllCollapse() : closeAllCollapse()
   })
+
   return (
     <Popover
       title={upperFirst(t('im.action'))}

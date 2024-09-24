@@ -9,6 +9,7 @@ import { VscFileMedia } from 'react-icons/vsc'
 import { classNames } from 'tw-clsx'
 import { type WorkspaceStateType } from '~/core/persist/workspace/common'
 import { getAppRoot } from '~/webview/utils'
+import ActionContext from '../../contexts/action-context'
 import TreeContext from '../../contexts/tree-context'
 import { DirTree, type DisplayMapType, type FileNode } from '../../utils/dir-tree'
 import { ANIMATION_DURATION } from '../../utils/duration'
@@ -96,6 +97,8 @@ function CollapseTree(props: CollapseTreeProps) {
 
   const visibleList = TreeContext.useSelector((ctx) => ctx.imageSingleTree.visibleList)
 
+  const { collapseIdSet } = ActionContext.usePicker(['collapseIdSet'])
+
   const dirTree = useRef<DirTree<TreeExtraProps>>()
 
   const displayMap: DisplayMapType<{
@@ -163,6 +166,7 @@ function CollapseTree(props: CollapseTreeProps) {
         <div className={'select-none space-y-2'}>
           {tree.map((node) => {
             const { groupType, value, label, children, renderList, underFolderList, underFolderDeeplyList } = node
+            collapseIdSet.current.add(value)
             if (!groupType) return null
             return (
               <ImageCollapse

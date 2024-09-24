@@ -1,10 +1,16 @@
 # CHANGELOG
 
+## 1.15.1 (2024-09-24)
+
+### Fix
+
+- 修复文件夹全部展开后，关闭不生效的问题
+
 ## 1.15.0 (2024-09-24)
 
 ### Feat
 
-- 添加 `image-manager.file.gitignore` 配置，控制是否忽略 `.gitignore` 文件中的文件。默认为 `true`
+- 添加 `image-manager.file.gitignore` 配置，控制是否忽略 `.gitignore` 中的文件。默认为 `true`
 - 搜索新增按glob排除图片
 - 新增右键复制图片相对路径
 

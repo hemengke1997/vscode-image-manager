@@ -10,7 +10,6 @@ import { vscodeApi } from '~/webview/vscode-api'
 import App from './app'
 import './hmr'
 import './styles/index.css'
-import 'antd/dist/reset.css'
 
 type WebviewComponents = {
   [key: string]: () => JSX.Element
