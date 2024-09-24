@@ -1,4 +1,4 @@
-import { memo, type ReactNode, useEffect, useMemo, useRef, useState } from 'react'
+import { memo, type ReactNode, useEffect, useLayoutEffect, useMemo, useRef, useState } from 'react'
 import { Element, scroller } from 'react-scroll'
 import { styleObjectToString } from '@minko-fe/style-object-to-string'
 import { useMemoizedFn } from 'ahooks'
@@ -132,6 +132,7 @@ function ImageCollapse(props: ImageCollapseProps) {
 
   const [activeKeys, setActiveKeys] = useControlledState<string[]>({
     defaultValue: (collapseProps.defaultActiveKey as string[]) || [],
+    value: collapseProps.activeKey as string[] | undefined,
     // 当 activeKeys 变化时，更新 activeCollapseIdSet
     onChange: (keys) => {
       setActiveCollapseIdSet(
@@ -145,6 +146,16 @@ function ImageCollapse(props: ImageCollapseProps) {
       )
     },
   })
+
+  useLayoutEffect(() => {
+    if (collapseProps.defaultActiveKey) {
+      setActiveCollapseIdSet(
+        produce((draft) => {
+          draft.add(id)
+        }),
+      )
+    }
+  }, [])
 
   useEffect(() => {
     if (activeCollapseIdSet.has(id) && !activeKeys.includes(id)) {

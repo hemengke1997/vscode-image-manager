@@ -32,7 +32,7 @@ function LazyImageMemo(
       ...antdImageProps,
       src: image.vscodePath,
     }),
-    [image.vscodePath],
+    [image.vscodePath, antdImageProps],
   )
 
   return (
