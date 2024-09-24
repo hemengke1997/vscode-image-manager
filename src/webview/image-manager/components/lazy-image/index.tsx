@@ -186,6 +186,7 @@ function LazyImage(props: LazyImageProps) {
   const setKeybindRef = useHotkeys<HTMLDivElement>(
     [Key.Enter, `mod+${Key.Backspace}`, Key.Delete, `mod+c`],
     (e) => {
+      if (e.target !== keybindRef.current) return
       if (contextMenu?.enable?.fs) {
         switch (e.key) {
           case Key.Enter: {
@@ -225,7 +226,9 @@ function LazyImage(props: LazyImageProps) {
 
   const keybindRef = useRef<HTMLDivElement>(null)
   useEffect(() => {
-    setKeybindRef(keybindRef.current)
+    if (keybindRef.current) {
+      setKeybindRef(keybindRef.current)
+    }
   }, [keybindRef.current])
 
   const sizeWarning = useMemo((): boolean => {
