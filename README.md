@@ -133,6 +133,11 @@ The first time you open the extension, it will need to download the necessary de
 | ------------------------------------------------------ | --------------------------------------------------- |
 | <img src="./screenshots/wechatpay.jpeg" width="200" /> | <img src="./screenshots/alipay.jpeg" width="200" /> |
 
+## Feedback
+
+If you have any questions or suggestions, please raise them in [GitHub Issues](https://github.com/hemengke1997/vscode-image-manager/issues).
+If you find this plugin useful, please give it a good rating in the [Marketplace](https://marketplace.visualstudio.com/items?itemName=minko.image-manager). Thank you very much! Your support is my greatest motivation for open source.
+
 ## Thanks
 
 ❤️ [vscode-image-viewer](https://github.com/ZhangJian1713/vscode-image-viewer)
