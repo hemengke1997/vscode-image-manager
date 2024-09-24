@@ -1,8 +1,8 @@
 // Source from react-cropper
 // Support hmr for better DX
 
-import Cropper from 'cropperjs'
 import React, { memo, useEffect, useRef } from 'react'
+import Cropper from 'cropperjs'
 import { cleanImageProps } from './utils'
 
 const REQUIRED_IMAGE_STYLES = { opacity: 0, maxWidth: '100%' }

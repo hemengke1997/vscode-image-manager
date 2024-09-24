@@ -1,6 +1,6 @@
+import { memo } from 'react'
 import { useMemoizedFn } from 'ahooks'
 import { Tooltip, type TooltipProps } from 'antd'
-import { memo } from 'react'
 
 const tooltipProps: TooltipProps = {
   arrow: false,
@@ -23,7 +23,7 @@ function ImageName(props: ImageNameProps) {
   const tooltipTitle = useMemoizedFn(() => {
     let title = ''
     if (tooltipDisplayFullPath && image) {
-      title = image.relativePath
+      title = image.relativePath.slice(2)
     }
     title = children || ''
     return <div data-disable_dbclick>{title}</div>

@@ -1,7 +1,7 @@
-import { Button, Result, Tooltip, Typography } from 'antd'
 import { memo } from 'react'
 import { type FallbackProps } from 'react-error-boundary'
 import { useTranslation } from 'react-i18next'
+import { Button, Result, Tooltip, Typography } from 'antd'
 import { MdOutlineError } from 'react-icons/md'
 import { CmdToVscode } from '~/message/cmd'
 import { vscodeApi } from '~/webview/vscode-api'

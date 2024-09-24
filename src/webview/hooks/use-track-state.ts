@@ -1,6 +1,6 @@
+import { type DependencyList, type Dispatch, type SetStateAction, useState } from 'react'
 import { useMemoizedFn, useUpdateEffect } from 'ahooks'
 import { isFunction } from 'lodash-es'
-import { type DependencyList, type Dispatch, type SetStateAction, useState } from 'react'
 
 export const enum Trigger {
   track = 'track',

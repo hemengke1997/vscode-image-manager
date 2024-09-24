@@ -1,12 +1,14 @@
-import { useDebounceEffect, useMemoizedFn } from 'ahooks'
-import { App } from 'antd'
 import { useEffect, useRef } from 'react'
 import { useTranslation } from 'react-i18next'
+import { useDebounceEffect, useMemoizedFn } from 'ahooks'
+import { App } from 'antd'
 import { CmdToVscode } from '~/message/cmd'
 import logger from '~/utils/logger'
 import { vscodeApi } from '~/webview/vscode-api'
 import ActionContext from '../contexts/action-context'
 import GlobalContext from '../contexts/global-context'
+
+export const RefreshImageDebounceTimeout = 250
 
 /**
  * refreshTimes改变后，重新获取图片
@@ -37,7 +39,7 @@ export default function useRefreshImages() {
           duration: 0,
         })
         clearTimeout(timer)
-      }, 250)
+      }, RefreshImageDebounceTimeout)
     }
 
     vscodeApi.postMessage({ cmd: CmdToVscode.get_all_images }, ({ data, workspaceFolders }) => {
@@ -74,7 +76,7 @@ export default function useRefreshImages() {
     {
       leading: true,
       trailing: false,
-      wait: 250,
+      wait: RefreshImageDebounceTimeout,
     },
   )
 

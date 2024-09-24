@@ -1,6 +1,6 @@
-import { Button, Tooltip } from 'antd'
 import { memo } from 'react'
 import { useTranslation } from 'react-i18next'
+import { Button, Tooltip } from 'antd'
 import { FaUndoAlt } from 'react-icons/fa'
 import { triggerOnce } from '~/webview/image-manager/utils'
 

@@ -1,6 +1,6 @@
-import { Form, Segmented } from 'antd'
 import { memo } from 'react'
 import { useTranslation } from 'react-i18next'
+import { Form, Segmented } from 'antd'
 
 function KeepOriginal() {
   const { t } = useTranslation()

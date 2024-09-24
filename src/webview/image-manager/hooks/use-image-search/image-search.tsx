@@ -1,12 +1,15 @@
-import { useDebounceEffect, useMemoizedFn } from 'ahooks'
-import { Input, Tooltip } from 'antd'
-import { type InputRef } from 'antd/es/input'
-import Fuse, { type FuseResult } from 'fuse.js'
 import { type HTMLAttributes, memo, useEffect, useMemo, useRef, useState } from 'react'
+import { flushSync } from 'react-dom'
 import Highlighter from 'react-highlight-words'
 import { useTranslation } from 'react-i18next'
+import { useDebounceFn, useMemoizedFn, useUpdateEffect } from 'ahooks'
+import { Empty, Input, Tooltip } from 'antd'
+import { type InputRef } from 'antd/es/input'
+import Fuse, { type FuseResult, type FuseResultMatch } from 'fuse.js'
+import { without } from 'lodash-es'
 import { RiFilterOffLine } from 'react-icons/ri'
 import { VscCaseSensitive, VscWholeWord } from 'react-icons/vsc'
+import { Key } from 'ts-key-enum'
 import { classNames } from 'tw-clsx'
 import { CmdToVscode } from '~/message/cmd'
 import useScrollRef from '~/webview/image-manager/hooks/use-scroll-ref'
@@ -30,10 +33,8 @@ function ImageSearch(props: ImperativeModalProps) {
 
   const searchInputRef = useRef<InputRef>(null)
 
-  const imageData = GlobalContext.useSelector((ctx) => ctx.imageState.data)
   const { treeData } = GlobalContext.usePicker(['treeData'])
 
-  const allImagePatterns = useMemo(() => imageData.flatMap((item) => item.images), [imageData])
   const visibleImagePatterns = useMemo(
     () =>
       treeData.reduce((prev, cur) => {
@@ -46,30 +47,82 @@ function ImageSearch(props: ImperativeModalProps) {
   const [caseSensitive, setCaseSensitive] = useState(false)
   // 全字匹配
   const [wholeWord, setWholeWord] = useState(false)
-  // 是否搜索全部
-  const [whetherAll, setWhetherAll] = useState(false)
+  // 是否禁用过滤
+  const [disableInclude, setDisableInclude] = useState(false)
+  const [disableExclude, setDisableExclude] = useState(false)
 
   // includeGlob is a glob pattern to filter the search results
   const [includeGlob, setIncludeGlob] = useState<string>()
+  const [excludeGlobal, setExcludeGlobal] = useState<string>()
 
   // TODO: fuse 搜索并不太精确，配合highlighter使用时，会出现问题
   const fuse = useMemoizedFn(() => {
-    return new Fuse(whetherAll ? allImagePatterns : visibleImagePatterns, {
+    const searchValue = search?.value
+    let minMatchCharLength = 2
+    if (searchValue?.length) {
+      minMatchCharLength = Math.max(minMatchCharLength, searchValue.length - 2)
+    }
+    return new Fuse(visibleImagePatterns, {
       isCaseSensitive: caseSensitive,
-      minMatchCharLength: 2,
+      minMatchCharLength,
       includeMatches: true,
-      threshold: wholeWord ? 0 : 0.3,
       keys: ['name'],
       shouldSort: true,
-      distance: 0,
-      location: 0,
+      threshold: wholeWord ? 0 : 0.1,
+      distance: wholeWord ? 0 : undefined,
     })
   })
 
-  const [searchValue, setSearchValue] = useState('')
+  const [search, setSearch] = useState<{
+    value: string
+    source: 'input' | 'keyboard'
+  }>()
+  const [searchHistory, setSearchHistory] = useState<string[]>([])
+  const [currentIndex, setCurrentIndex] = useState(-1)
+
+  const handleKeyDown = useMemoizedFn((e: React.KeyboardEvent<HTMLInputElement>) => {
+    if (e.key === Key.ArrowUp) {
+      e.preventDefault()
+
+      if (currentIndex > 0) {
+        const newIndex = currentIndex - 1
+        setCurrentIndex(newIndex)
+        setSearch({
+          value: searchHistory[newIndex],
+          source: 'keyboard',
+        })
+      } else if (currentIndex < 0 && searchHistory.length) {
+        e.preventDefault()
+        setCurrentIndex(searchHistory.length - 1)
+        setSearch({
+          value: searchHistory[searchHistory.length - 1],
+          source: 'keyboard',
+        })
+      }
+    } else if (e.key === Key.ArrowDown) {
+      if (currentIndex < 0) return
+      if (currentIndex < searchHistory.length - 1) {
+        e.preventDefault()
+        const newIndex = currentIndex + 1
+        setCurrentIndex(newIndex)
+        setSearch({ value: searchHistory[newIndex], source: 'keyboard' })
+      } else if (currentIndex >= searchHistory.length - 1) {
+        e.preventDefault()
+        setCurrentIndex(-1)
+        setSearch({ value: '', source: 'keyboard' })
+      }
+    }
+  })
+
+  const onSearch = (value: string) => {
+    const newHistory = without(searchHistory, value).concat(value)
+    setSearchHistory(newHistory.filter((t) => t.trim().length))
+    setCurrentIndex(newHistory.length - 1)
+  }
+
   const [searchResults, setSearchResults] = useState<FuseResult<ImageType>[]>([])
 
-  const filterByGlob = useMemoizedFn((filePaths: string[], glob: string): Promise<string[]> => {
+  const filterByGlob = useMemoizedFn((filePaths: string[], glob: string, isExclude: boolean): Promise<string[]> => {
     return new Promise((resolve) => {
       vscodeApi.postMessage(
         {
@@ -77,6 +130,7 @@ function ImageSearch(props: ImperativeModalProps) {
           data: {
             filePaths,
             globs: glob?.split(',').map((g) => g.trim()),
+            not: isExclude,
           },
         },
         (res) => {
@@ -90,39 +144,51 @@ function ImageSearch(props: ImperativeModalProps) {
     return `${image.dirPath}/${image.path}`
   })
 
-  const onSearch = useMemoizedFn(async (value: string) => {
-    setSearchValue(value)
-    let result = fuse().search(value)
+  const applyFilter = useMemoizedFn(
+    async (result: FuseResult<ImageType>[], glob: string | undefined, disable: boolean, isExclude: boolean) => {
+      if (glob?.trim().length && !disable) {
+        const filterResult = await filterByGlob(
+          result.map((t) => generateFullPath(t.item)),
+          glob,
+          isExclude,
+        )
+        return result.filter((t) => filterResult.includes(generateFullPath(t.item)))
+      }
+      return result
+    },
+  )
 
-    let filterResult: string[] = []
-
-    // ignore empty string
-    if (includeGlob?.trim().length) {
-      filterResult = await filterByGlob(
-        result.map((t) => generateFullPath(t.item)),
-        includeGlob,
-      )
-    } else {
-      filterResult = []
+  const handleSearch = useMemoizedFn(async () => {
+    if (search?.source === 'input') {
+      onSearch(search.value)
     }
 
-    if (filterResult.length) {
-      result = result.filter((t) => filterResult.includes(generateFullPath(t.item)))
-    }
+    let result = fuse().search(search?.value ?? '')
+
+    result = await applyFilter(result, includeGlob, disableInclude, false)
+    result = await applyFilter(result, excludeGlobal, disableExclude, true)
     setSearchResults(result)
   })
 
-  // When condition change, we need to re-search
-  useDebounceEffect(
+  const { run, cancel } = useDebounceFn(
     () => {
-      onSearch(searchValue)
+      handleSearch()
     },
-    [caseSensitive, wholeWord, whetherAll, includeGlob],
     {
-      leading: true,
-      wait: 100,
+      leading: false,
+      trailing: true,
+      wait: 500,
     },
   )
+
+  useUpdateEffect(() => {
+    run()
+  }, [search?.value, includeGlob, excludeGlobal])
+
+  useUpdateEffect(() => {
+    cancel()
+    handleSearch()
+  }, [caseSensitive, wholeWord, disableInclude, disableExclude])
 
   useEffect(() => {
     searchInputRef.current?.focus({ cursor: 'all', preventScroll: true })
@@ -138,6 +204,7 @@ function ImageSearch(props: ImperativeModalProps) {
           classNames={{
             input: 'bg-[var(--ant-input-active-bg)]',
           }}
+          className={'flex-1'}
           autoFocus
           size='middle'
           placeholder={t('im.search_placeholder')}
@@ -162,68 +229,110 @@ function ImageSearch(props: ImperativeModalProps) {
               >
                 <VscWholeWord />
               </IconUI>
+            </div>
+          }
+          enterButton
+          value={search?.value}
+          onChange={(e) => setSearch({ value: e.target.value, source: 'input' })}
+          onKeyDown={handleKeyDown}
+          onSearch={(value) => {
+            cancel()
+            flushSync(() => {
+              setSearch({ value, source: 'input' })
+            })
+            handleSearch()
+          }}
+        />
+        <div className={'flex flex-1 gap-1'}>
+          <Input
+            size='middle'
+            placeholder={t('im.include_glob_placeholder')}
+            value={includeGlob}
+            onChange={(e) => setIncludeGlob(e.target.value)}
+            onPressEnter={() => {
+              cancel()
+              handleSearch()
+            }}
+            suffix={
               <IconUI
-                active={whetherAll}
+                active={disableInclude}
                 onClick={() => {
-                  setWhetherAll((t) => !t)
+                  setDisableInclude((t) => !t)
                 }}
                 title={t('im.disable_filter')}
               >
                 <RiFilterOffLine />
               </IconUI>
-            </div>
-          }
-          enterButton
-          onSearch={onSearch}
-        />
-        <Input
-          size='middle'
-          placeholder={t('im.include_glob_placeholder')}
-          value={includeGlob}
-          onChange={(e) => setIncludeGlob(e.target.value)}
-          onPressEnter={() => {
-            onSearch(searchValue)
-          }}
-        />
+            }
+          />
+          <Input
+            size='middle'
+            placeholder={t('im.include_glob_placeholder')}
+            value={excludeGlobal}
+            onChange={(e) => setExcludeGlobal(e.target.value)}
+            onPressEnter={() => {
+              cancel()
+              handleSearch()
+            }}
+            suffix={
+              <IconUI
+                active={disableExclude}
+                onClick={() => {
+                  setDisableExclude((t) => !t)
+                }}
+                title={t('im.disable_filter')}
+              >
+                <RiFilterOffLine />
+              </IconUI>
+            }
+          />
+        </div>
       </div>
 
       <div className={'flex max-h-[600px] flex-col space-y-1 overflow-y-auto'} ref={scrollRef}>
-        <ImagePreview
-          images={searchResults.map((result) => ({
-            ...result.item,
-            nameElement: (
-              <>
-                <Tooltip title={result.item.relativePath} arrow={false} placement='bottom'>
-                  <Highlighter
-                    key={result.refIndex}
-                    findChunks={() =>
-                      result.matches?.length
-                        ? result.matches?.map((match) => ({
-                            start: match.indices[0][0],
-                            end: match.indices[0][1] + 1,
-                          }))
-                        : []
+        {!searchResults.length ? (
+          <Empty image={Empty.PRESENTED_IMAGE_SIMPLE} description={t('im.no_image')} />
+        ) : (
+          <ImagePreview
+            images={searchResults.map((result) => ({
+              ...result.item,
+              nameElement: (
+                <>
+                  <Tooltip
+                    title={
+                      <Highlight
+                        caseSensitive={caseSensitive}
+                        matches={result.matches}
+                        text={result.item.relativePath.slice(2)}
+                        preLen={result.item.dirPath.length + 1}
+                      ></Highlight>
                     }
-                    highlightClassName='bg-ant-color-primary rounded-sm text-ant-color-text'
-                    textToHighlight={result.item.name}
-                    searchWords={[]}
-                    caseSensitive={caseSensitive}
-                  ></Highlighter>
-                </Tooltip>
-              </>
-            ),
-          }))}
-          lazyImageProps={{
-            contextMenu: {
-              enable: {
-                reveal_in_viewer: true,
+                    arrow={false}
+                    placement='bottom'
+                  >
+                    <div className={'w-full truncate'}>
+                      <Highlight
+                        caseSensitive={caseSensitive}
+                        matches={result.matches}
+                        text={result.item.name}
+                      ></Highlight>
+                    </div>
+                  </Tooltip>
+                </>
+              ),
+            }))}
+            lazyImageProps={{
+              contextMenu: {
+                enable: {
+                  reveal_in_viewer: true,
+                },
               },
-            },
-            lazy: {
-              root: scrollRef.current!,
-            },
-          }}
-        />
+              lazy: {
+                root: scrollRef.current!,
+              },
+            }}
+          />
+        )}
       </div>
     </>
   )
@@ -236,16 +345,42 @@ function IconUI(
     active: boolean
   } & HTMLAttributes<HTMLDivElement>,
 ) {
-  const { active, ...rest } = props
+  const { active, className, ...rest } = props
   return (
     <div
       className={classNames(
-        'hover:bg-ant-color-bg-text-hover flex h-full cursor-pointer items-center rounded-md border-solid border-transparent p-0.5 text-lg transition-all',
+        'hover:bg-ant-color-bg-text-hover flex h-full cursor-pointer select-none items-center rounded-md border-solid border-transparent p-0.5 text-lg transition-all',
         active && '!text-ant-color-primary !border-ant-color-primary hover:bg-transparent',
+        className,
       )}
       {...rest}
     >
       {props.children}
     </div>
+  )
+}
+
+function Highlight(props: {
+  text: string
+  caseSensitive: boolean
+  matches: readonly FuseResultMatch[] | undefined
+  preLen?: number
+}) {
+  const { text, caseSensitive, matches, preLen = 0 } = props
+  return (
+    <Highlighter
+      findChunks={() =>
+        matches?.length
+          ? matches?.map((match) => ({
+              start: match.indices[0][0] + preLen,
+              end: match.indices[0][1] + 1 + preLen,
+            }))
+          : []
+      }
+      highlightClassName='bg-ant-color-primary rounded-sm text-ant-color-text mx-0.5'
+      textToHighlight={text}
+      searchWords={[]}
+      caseSensitive={caseSensitive}
+    ></Highlighter>
   )
 }

@@ -8,7 +8,7 @@
 
 > 压缩、裁剪、转换格式、搜索、查找相似图片的 VS Code 插件
 
-[English README](./README.md)
+[English Docs](./README.md)
 
 ## [更新日志](./CHANGELOG.md)
 
@@ -57,6 +57,8 @@
 </details>
 
 ## 核心功能
+
+> **绝对安全，本地处理**。所有图片处理均在本地完成，确保隐私安全
 
 - **图片批量压缩**
 - **图片裁剪**

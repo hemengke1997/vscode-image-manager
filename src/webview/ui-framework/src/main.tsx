@@ -1,7 +1,7 @@
-import i18next from 'i18next'
 import { startTransition } from 'react'
-import ReactDOM from 'react-dom/client'
 import { initReactI18next } from 'react-i18next'
+import i18next from 'i18next'
+import ReactDOM from 'react-dom/client'
 import { i18nAlly } from 'vite-plugin-i18n-ally/client'
 import { CmdToVscode } from '~/message/cmd'
 import { FALLBACK_LANGUAGE } from '~/meta'
@@ -58,7 +58,7 @@ export function registerApp(webviewComponents: WebviewComponents, reload = false
 
       i18next.changeLanguage(language)
 
-      const { beforeLanguageChange } = i18nAlly({
+      const { asyncLoadResource } = i18nAlly({
         language,
         onInited() {
           try {
@@ -82,17 +82,19 @@ export function registerApp(webviewComponents: WebviewComponents, reload = false
             })
           }
         },
-        onResourceLoaded: (resource, currentLang) => {
-          i18next.addResourceBundle(currentLang, i18next.options.defaultNS?.[0], resource)
+        onResourceLoaded: (resource, { language }) => {
+          i18next.addResourceBundle(language, i18next.options.defaultNS?.[0], resource)
         },
         fallbackLng: FALLBACK_LANGUAGE,
-        cache: {
-          htmlTag: true,
-        },
+        detection: [
+          {
+            detect: 'htmlTag',
+          },
+        ],
       })
 
       i18next.changeLanguage = async (lang: string, ...args) => {
-        await beforeLanguageChange(lang)
+        await asyncLoadResource(lang)
         return i18nChangeLanguage(lang, ...args)
       }
     },

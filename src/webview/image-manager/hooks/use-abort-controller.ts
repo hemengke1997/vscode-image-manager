@@ -1,5 +1,5 @@
-import { useMemoizedFn } from 'ahooks'
 import { useEffect, useRef } from 'react'
+import { useMemoizedFn } from 'ahooks'
 
 export default function useAbortController() {
   const controller = useRef(new AbortController())

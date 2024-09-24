@@ -8,7 +8,9 @@
 
 > Compress, crop, convert formats, search, and find similar images in VS Code
 
-[中文 README](./README.zh.md)
+[中文文档](./README.zh.md)
+
+## [Changelog](./CHANGELOG.md)
 
 ## Screenshot
 
@@ -55,6 +57,8 @@
 </details>
 
 ## Features
+
+> **Absolutely secure, processed locally**. All image processing is done locally, ensuring privacy and security.
 
 - **Batch image compression**
 - **Image cropper**

@@ -1,7 +1,7 @@
+import { useReducer } from 'react'
 import { useMemoizedFn } from 'ahooks'
 import { useControlledState } from 'ahooks-x'
 import { createContainer } from 'context-state'
-import { useReducer } from 'react'
 
 function useActionContext() {
   /* --------------- refresh image -------------- */

@@ -1,7 +1,7 @@
+import { memo, type PropsWithChildren, useEffect } from 'react'
 import { TinyColor } from '@ctrl/tinycolor'
 import { theme as antdTheme, App, ConfigProvider } from 'antd'
 import { MotionConfig } from 'framer-motion'
-import { memo, type PropsWithChildren, useEffect } from 'react'
 import FrameworkContext from '../../contexts/framework-context'
 import { getCssVar } from '../../utils/theme'
 

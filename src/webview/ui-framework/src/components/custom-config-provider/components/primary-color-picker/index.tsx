@@ -1,10 +1,10 @@
+import { memo, type ReactNode, useMemo } from 'react'
+import { useTranslation } from 'react-i18next'
 import { TinyColor } from '@ctrl/tinycolor'
 import { useMemoizedFn } from 'ahooks'
 import { useControlledState } from 'ahooks-x'
 import { Button, ColorPicker, type ColorPickerProps } from 'antd'
 import { uniq } from 'lodash-es'
-import { memo, type ReactNode, useMemo } from 'react'
-import { useTranslation } from 'react-i18next'
 import { MdOutlineColorLens } from 'react-icons/md'
 import { builtInColors, vscodeColors } from '~/webview/ui-framework/src/utils/theme'
 

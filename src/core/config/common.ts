@@ -25,6 +25,7 @@ export type ConfigType = {
     root: string[]
     exclude: string[]
     scan: string[]
+    gitignore: boolean
     confirmDelete: boolean
     revealFileInOsDeeply: boolean
     trashAfterProcessing: boolean
@@ -60,6 +61,7 @@ export enum ConfigKey {
   file_root = 'file.root',
   file_exclude = 'file.exclude',
   file_scan = 'file.scan',
+  file_gitignore = 'file.gitignore',
   file_confirmDelete = 'file.confirmDelete',
   file_revealFileInOsDeeply = 'file.revealFileInOsDeeply',
   file_trashAfterProcessing = 'file.trashAfterProcessing',
@@ -107,6 +109,7 @@ export const DEFAULT_CONFIG: ConfigType = {
   file: {
     root: [],
     scan: ['svg', 'png', 'jpeg', 'jpg', 'ico', 'gif', 'webp', 'bmp', 'tif', 'apng', 'tiff', 'avif'],
+    gitignore: true,
     exclude: [],
     confirmDelete: true,
     revealFileInOsDeeply: false,

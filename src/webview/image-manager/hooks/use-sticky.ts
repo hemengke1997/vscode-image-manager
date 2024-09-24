@@ -1,6 +1,6 @@
+import { type DependencyList, useEffect, useLayoutEffect, useRef } from 'react'
 import { useInViewport, useMemoizedFn } from 'ahooks'
 import { isUndefined } from 'lodash-es'
-import { type DependencyList, useEffect, useLayoutEffect, useRef } from 'react'
 import { getAppRoot } from '~/webview/utils'
 
 type Props = {

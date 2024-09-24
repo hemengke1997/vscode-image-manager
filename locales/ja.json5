@@ -19,6 +19,7 @@
     file: {
       root: 'ルートワークスペース',
       exclude: '除外する画像 (micromatch 一致構文)',
+      gitignore: '.gitignore に含まれる画像を除外する',
       scan: 'スキャンする画像のタイプ',
       confirmDelete: '画像を削除する際に確認する',
       revealFileInOsDeeply: 'OSでファイルを表示する際にフォルダ内に入る',

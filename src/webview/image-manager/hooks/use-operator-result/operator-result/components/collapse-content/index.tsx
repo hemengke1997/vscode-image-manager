@@ -1,5 +1,5 @@
-import { AnimatePresence, motion } from 'framer-motion'
 import { memo, type ReactNode } from 'react'
+import { AnimatePresence, motion } from 'framer-motion'
 import { type OperatorResult } from '~/core'
 import { ANIMATION_DURATION } from '~/webview/image-manager/utils/duration'
 

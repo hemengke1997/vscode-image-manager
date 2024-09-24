@@ -1,9 +1,10 @@
+import { type ForwardedRef, forwardRef, memo, useCallback, useEffect, useId, useMemo, useRef, useState } from 'react'
 import { useClickAway, useMemoizedFn, useThrottleFn } from 'ahooks'
 import { ConfigProvider, Image, theme } from 'antd'
 import { type AliasToken, type ComponentTokenMap } from 'antd/es/theme/interface'
 import { produce } from 'immer'
 import { isString, range, round } from 'lodash-es'
-import { type ForwardedRef, forwardRef, memo, useCallback, useEffect, useId, useRef, useState } from 'react'
+import { type PreviewGroupPreview } from 'rc-image/es/PreviewGroup'
 import { isDev } from 'vite-config-preset/client'
 import GlobalContext from '../../contexts/global-context'
 import SettingsContext from '../../contexts/settings-context'
@@ -11,8 +12,10 @@ import useImageManagerEvent from '../../hooks/use-image-manager-event'
 import useImageOperation from '../../hooks/use-image-operation'
 // import useSingleToast from '../../hooks/use-single-toast'
 import useImageContextMenu from '../context-menus/components/image-context-menu/hooks/use-image-context-menu'
-import LazyImage, { type LazyImageProps } from '../lazy-image'
+import { type LazyImageProps } from '../lazy-image'
 import Toast from '../toast'
+import LazyImageMemo from './components/image-memo'
+import PreviewContext from './components/preview-context'
 
 function imageToken(isDarkBackground: boolean): Partial<ComponentTokenMap['Image'] & AliasToken> {
   return {
@@ -237,6 +240,91 @@ function ImagePreview(props: ImagePreviewProps, ref: ForwardedRef<HTMLDivElement
     beginDeleteImageProcess(selectedImages.map((t) => images.find((i) => i.path === t)!))
   })
 
+  const handlePreviewChange = useMemoizedFn((current: number) => {
+    setPreview({ current, open: true })
+    // clearToast()
+    Toast.hide()
+  })
+
+  const handleVisibleChange = useMemoizedFn((v: boolean, _, current: number) => {
+    if (!v) {
+      setPreview({ open: v, current })
+      return
+    }
+    if (v) return
+  })
+
+  const handleImageRender: PreviewGroupPreview['imageRender'] = useMemoizedFn((originalNode, info) => {
+    return (
+      <div
+        onContextMenu={(e) => {
+          show({
+            event: e,
+            props: {
+              image: images[info.current],
+              sameLevelImages: images,
+              sameWorkspaceImages: getSameWorkspaceImages(images[info.current]),
+              ...lazyImageProps?.contextMenu,
+            },
+          })
+        }}
+        className={'contents'}
+      >
+        {originalNode}
+      </div>
+    )
+  })
+
+  const handleTransform: PreviewGroupPreview['onTransform'] = useMemoizedFn((info) => {
+    if (['wheel', 'zoomIn', 'zoomOut'].includes(info.action)) {
+      const scalePercent = round(info.transform.scale * 100)
+      throttleOpenToast.run(scalePercent)
+    }
+  })
+
+  const previewProps = useMemo(
+    () => ({
+      destroyOnClose: true,
+      visible: preview?.open,
+      current: preview?.current,
+      maskClosable: false,
+      movable: !isDev(),
+      style: {
+        backgroundColor: tinyBackgroundColor.setAlpha(0.9).toRgbString(),
+      },
+      keyboard: true,
+      onChange: handlePreviewChange,
+      onVisibleChange: handleVisibleChange,
+      maxScale: 50,
+      minScale: 0.1,
+      scaleStep: 0.3,
+      imageRender: handleImageRender,
+      onTransform: handleTransform,
+    }),
+    [preview, handlePreviewChange, handleVisibleChange, handleImageRender, handleTransform],
+  )
+
+  const previewItems = useMemo(
+    () =>
+      images.map((t) => ({
+        src: t.vscodePath,
+      })),
+    [images],
+  )
+
+  const antdImageProps = useMemo(
+    () => ({
+      ...(lazyImageProps?.antdImageProps || {}),
+      style: {
+        backgroundColor,
+      },
+      className: 'object-scale-down',
+      width: imageWidth,
+      height: imageWidth,
+    }),
+    [lazyImageProps?.antdImageProps, backgroundColor, imageWidth],
+  )
+
   return (
     <>
       <div className={'flex flex-wrap gap-1.5'} ref={ref}>
@@ -249,63 +337,7 @@ function ImagePreview(props: ImagePreviewProps, ref: ForwardedRef<HTMLDivElement
             },
           }}
         >
-          <Image.PreviewGroup
-            preview={{
-              destroyOnClose: true,
-              visible: preview?.open,
-              current: preview?.current,
-              maskClosable: false,
-              movable: !isDev(),
-              style: {
-                backgroundColor: tinyBackgroundColor.setAlpha(0.9).toRgbString(),
-              },
-              keyboard: true,
-              onChange(current) {
-                setPreview({ current, open: true })
-                // clearToast()
-                Toast.hide()
-              },
-              onVisibleChange: (v, _, current) => {
-                if (!v) {
-                  setPreview({ open: v, current })
-                  return
-                }
-                if (v) return
-              },
-              maxScale: 50,
-              minScale: 0.1,
-              scaleStep: 0.3,
-              imageRender(originalNode, info) {
-                return (
-                  <div
-                    onContextMenu={(e) => {
-                      show({
-                        event: e,
-                        props: {
-                          image: images[info.current],
-                          sameLevelImages: images,
-                          sameWorkspaceImages: getSameWorkspaceImages(images[info.current]),
-                          ...lazyImageProps?.contextMenu,
-                        },
-                      })
-                    }}
-                    className={'contents'}
-                  >
-                    {originalNode}
-                  </div>
-                )
-              },
-              onTransform(info) {
-                if (['wheel', 'zoomIn', 'zoomOut'].includes(info.action)) {
-                  const sclalePercent = round(info.transform.scale * 100)
-                  throttleOpenToast.run(sclalePercent)
-                }
-              },
-            }}
-            items={images.map((t) => ({
-              src: t.vscodePath,
-            }))}
-          >
+          <Image.PreviewGroup preview={previewProps} items={previewItems}>
             <ConfigProvider
               theme={{
                 components: {
@@ -315,40 +347,34 @@ function ImagePreview(props: ImagePreviewProps, ref: ForwardedRef<HTMLDivElement
                 },
               }}
             >
-              {images.map((image, i) => (
-                <div
-                  // vscodePath 是带了时间戳的，可以避免图片文件名未改变但内容改变，导致图片不刷新的问题
-                  key={image.vscodePath}
-                  onClick={(e) => onClick(e, image)}
-                  ref={(ref) => (selectedImageRefs.current[image.path] = ref!)}
-                >
-                  <LazyImage
-                    {...lazyImageProps}
-                    antdImageProps={{
-                      ...(lazyImageProps?.antdImageProps || {}),
-                      style: {
-                        backgroundColor,
-                      },
-                      className: 'object-scale-down',
-                      width: imageWidth,
-                      height: imageWidth,
-                      src: image.vscodePath,
-                    }}
-                    onPreviewClick={() => setPreview({ open: true, current: i })}
-                    contextMenu={lazyImageProps?.contextMenu}
-                    onContextMenu={(e) => onContextMenu(e, image)}
-                    image={image}
-                    active={selectedImages.includes(image.path)}
-                    onActiveChange={(active) =>
-                      setSelectedImages((t) => {
-                        return multipleClick(t, image.path, active)
-                      })
-                    }
-                    multipleSelect={multipleSelect}
-                    onDelete={onDelete}
-                  />
-                </div>
-              ))}
+              <PreviewContext.Provider
+                value={{
+                  multipleClick,
+                  setSelectedImages,
+                  setPreview,
+                  onContextMenu,
+                }}
+              >
+                {images.map((image, i) => (
+                  <div
+                    // vscodePath 是带了时间戳的，可以避免图片文件名未改变但内容改变，导致图片不刷新的问题
+                    key={image.vscodePath}
+                    onClick={(e) => onClick(e, image)}
+                    ref={(ref) => (selectedImageRefs.current[image.path] = ref!)}
+                  >
+                    <LazyImageMemo
+                      {...lazyImageProps}
+                      contextMenu={lazyImageProps?.contextMenu}
+                      image={image}
+                      active={selectedImages.includes(image.path)}
+                      multipleSelect={multipleSelect}
+                      onDelete={onDelete}
+                      index={i}
+                      antdImageProps={antdImageProps}
+                    />
+                  </div>
+                ))}
+              </PreviewContext.Provider>
             </ConfigProvider>
           </Image.PreviewGroup>
         </ConfigProvider>

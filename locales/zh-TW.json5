@@ -19,6 +19,7 @@
     file: {
       root: '根工作區',
       exclude: '排除範圍內的圖片 (micromatch 匹配語法)',
+      gitignore: '排除 .gitignore 中的圖片',
       scan: '掃描圖片的類型',
       confirmDelete: '刪除圖片時是否詢問',
       revealFileInOsDeeply: '在OS中顯示文件夾時進入到文件夾中',

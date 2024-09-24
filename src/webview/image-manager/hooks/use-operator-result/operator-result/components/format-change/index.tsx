@@ -1,5 +1,5 @@
-import { Divider } from 'antd'
 import { memo } from 'react'
+import { Divider } from 'antd'
 import { TbArrowBigDownFilled } from 'react-icons/tb'
 import { type OperatorResult } from '~/core'
 import { getFilenameFromPath } from '~/webview/image-manager/utils'

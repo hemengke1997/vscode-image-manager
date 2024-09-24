@@ -1,9 +1,9 @@
+import { type ReactNode, useState } from 'react'
+import { Trans, useTranslation } from 'react-i18next'
 import { useLockFn, useMemoizedFn } from 'ahooks'
 import { App, Button, Checkbox, Divider, Form, type InputProps, Typography } from 'antd'
 import escapeStringRegexp from 'escape-string-regexp'
 import { isObject, isString, toString } from 'lodash-es'
-import { type ReactNode, useState } from 'react'
-import { Trans, useTranslation } from 'react-i18next'
 import { os } from 'un-detector'
 import { type OperatorResult } from '~/core'
 import { ConfigKey } from '~/core/config/common'
@@ -61,7 +61,7 @@ function useImageOperation() {
     async (
       image: ImageType,
       options: {
-        proto: 'name' | 'path'
+        proto: 'name' | 'path' | 'relativePath'
         silent?: boolean
       },
       callback?: (s: string) => Promise<string | undefined>,

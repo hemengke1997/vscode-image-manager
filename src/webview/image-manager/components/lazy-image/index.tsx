@@ -1,18 +1,18 @@
+import { memo, type ReactNode, useEffect, useMemo, useRef } from 'react'
+import { useHotkeys } from 'react-hotkeys-hook'
+import { useTranslation } from 'react-i18next'
+import { animateScroll } from 'react-scroll'
 import { useInViewport, useMemoizedFn, useUpdateEffect } from 'ahooks'
 import { useControlledState } from 'ahooks-x'
 import { Image, type ImageProps } from 'antd'
 import { motion } from 'framer-motion'
 import { trim } from 'lodash-es'
-import { memo, type ReactNode, useEffect, useMemo, useRef } from 'react'
-import { useHotkeys } from 'react-hotkeys-hook'
-import { useTranslation } from 'react-i18next'
 import { FiCheckCircle } from 'react-icons/fi'
 import { HiOutlineViewfinderCircle } from 'react-icons/hi2'
 import { MdOutlineRemoveCircle } from 'react-icons/md'
 import { RiErrorWarningLine } from 'react-icons/ri'
 import { RxDimensions } from 'react-icons/rx'
 import { TbResize } from 'react-icons/tb'
-import { animateScroll } from 'react-scroll'
 import { Key } from 'ts-key-enum'
 import { classNames } from 'tw-clsx'
 import { DEFAULT_CONFIG } from '~/core/config/common'
@@ -142,11 +142,21 @@ function LazyImage(props: LazyImageProps) {
     'imageReveal',
     'imageRevealWithoutQuery',
   ])
+
+  const imageWidth = GlobalContext.useSelector((ctx) => ctx.extConfig.viewer.imageWidth)
   const warningSize = GlobalContext.useSelector((ctx) => ctx.extConfig.viewer.warningSize)
   const imageRendering = GlobalContext.useSelector((ctx) => ctx.extConfig.viewer.imageRendering)
 
+  const imageStyle = useMemo(
+    () => ({
+      imageRendering,
+      ...antdImageProps.style,
+    }),
+    [imageRendering, antdImageProps.style],
+  )
+
   const rootMargin = useMemo(
-    () => `${(imagePlaceholderSize?.height || DEFAULT_CONFIG.viewer.imageWidth) * 2.5}px 0px`,
+    () => `${(imagePlaceholderSize?.height || DEFAULT_CONFIG.viewer.imageWidth) * 4.5}px 0px`,
     [imagePlaceholderSize?.height],
   ) // expand area of vertical intersection calculation
 
@@ -231,6 +241,17 @@ function LazyImage(props: LazyImageProps) {
     return !contextMenu?.enable?.reveal_in_viewer && trim(image.path).length && image.path === imageRevealWithoutQuery
   })
 
+  /**
+   * 判断元素是否完整在视窗内
+   */
+  const isElInViewport = useMemoizedFn((el) => {
+    const rect = el.getBoundingClientRect()
+    const windowHeight = window.innerHeight || document.documentElement.clientHeight
+    const windowWidth = window.innerWidth || document.documentElement.clientWidth
+    const isInViewport = rect.top >= 0 && rect.left >= 0 && rect.bottom <= windowHeight && rect.right <= windowWidth
+    return isInViewport
+  })
+
   // 如果当前图片是用户右键打开的图片
   // 则滚动到图片位置
   useEffect(() => {
@@ -244,8 +265,10 @@ function LazyImage(props: LazyImageProps) {
 
       // 刚打开时，图片可能还未加载，所以需要等待图片加载完成后再滚动
       idleTimer = requestIdleCallback(() => {
+        if (isElInViewport(elRef.current)) {
+          return
+        }
         const y = elRef.current?.getBoundingClientRect().top
-
         const clientHeight = document.documentElement.clientHeight
 
         if (y) {
@@ -304,6 +327,73 @@ function LazyImage(props: LazyImageProps) {
     return false
   })
 
+  const computedMaskFontSize = useMemo(() => {
+    const base = 0.875 // 基础字体大小 text-sm 0.875rem
+    const factor = 0.001 // 比例因子
+    return base + (imageWidth - DEFAULT_CONFIG.viewer.imageWidth) * factor
+  }, [imageWidth])
+
+  const previewMask = useMemoizedFn(() => {
+    return (
+      <div
+        className={'flex size-full flex-col items-center justify-center'}
+        style={{
+          fontSize: `${computedMaskFontSize}rem`,
+        }}
+      >
+        {onPreviewClick && (
+          <div
+            className={classNames(
+              'hover:text-ant-color-text active:text-ant-color-text-label flex cursor-pointer items-center space-x-1 truncate transition-colors',
+            )}
+            onClick={(e) => {
+              if (multipleSelect(e)) return
+              // prevent click away
+              e.stopPropagation()
+              e.preventDefault()
+              onPreviewClick(image)
+            }}
+            data-disable_dbclick
+          >
+            <HiOutlineViewfinderCircle />
+            <span>{t('im.preview')}</span>
+          </div>
+        )}
+        <div className={'flex items-center space-x-1 truncate'}>
+          <TbResize />
+          <span className={classNames(sizeWarning && 'text-ant-color-warning-text')}>
+            {formatBytes(image.stats.size)}
+          </span>
+        </div>
+        {imageMetadata?.metadata.width && imageMetadata?.metadata.height ? (
+          <div className={'flex items-center space-x-1 truncate'}>
+            <RxDimensions />
+            <span className={'flex items-center'}>
+              {imageMetadata?.metadata.width}x{imageMetadata?.metadata.height}
+            </span>
+          </div>
+        ) : null}
+        {imageMetadata?.compressed ? (
+          <div className={'flex items-center space-x-1 truncate'}>
+            <FiCheckCircle />
+            <span>{t('im.compressed')}</span>
+          </div>
+        ) : null}
+      </div>
+    )
+  })
+
+  const imagePreivew = useMemo(() => {
+    return lazy
+      ? {
+          mask: previewMask(),
+          maskClassName: 'rounded-md !cursor-default',
+          className: 'min-w-24',
+          src: antdImageProps.src,
+        }
+      : false
+  }, [lazy, previewMask, antdImageProps.src])
+
   // 目前 framer-motion viewport root 有bug，在 root 改变后不会重新observe
   // 所以这里需要判断 root 是否存在
   if (lazy && !lazy.root) {
@@ -318,9 +408,9 @@ function LazyImage(props: LazyImageProps) {
           data-image_context_menu={true}
           tabIndex={-1}
           className={classNames(
-            'group relative flex flex-none flex-col items-center space-y-1 p-2 transition-colors',
-            'overflow-hidden rounded-md border-[2px] border-solid border-transparent',
-            interactive && 'hover:border-ant-color-primary',
+            'group relative flex flex-none flex-col items-center space-y-1 p-2',
+            'overflow-hidden rounded-lg border-[2px] border-solid border-transparent',
+            interactive && 'hover:border-ant-color-border',
             interactive && selected && 'border-ant-color-primary-hover hover:border-ant-color-primary-hover',
           )}
           initial={{ opacity: 0 }}
@@ -366,62 +456,9 @@ function LazyImage(props: LazyImageProps) {
             <Image
               {...antdImageProps}
               className={classNames('rounded-md object-contain p-1 will-change-auto', antdImageProps.className)}
-              preview={
-                lazy
-                  ? {
-                      mask: (
-                        <div className={'flex size-full flex-col items-center justify-center space-y-1 text-sm'}>
-                          {onPreviewClick && (
-                            <div
-                              className={classNames(
-                                'hover:text-ant-color-text active:text-ant-color-text-label flex cursor-pointer items-center space-x-1 truncate transition-colors',
-                              )}
-                              onClick={(e) => {
-                                if (multipleSelect(e)) return
-                                // prevent click away
-                                e.stopPropagation()
-                                e.preventDefault()
-                                onPreviewClick(image)
-                              }}
-                              data-disable_dbclick
-                            >
-                              <HiOutlineViewfinderCircle />
-                              <span>{t('im.preview')}</span>
-                            </div>
-                          )}
-                          <div className={'flex items-center space-x-1 truncate'}>
-                            <TbResize />
-                            <span className={classNames(sizeWarning && 'text-ant-color-warning-text')}>
-                              {formatBytes(image.stats.size)}
-                            </span>
-                          </div>
-                          {imageMetadata?.metadata.width && imageMetadata?.metadata.height ? (
-                            <div className={'flex items-center space-x-1 truncate'}>
-                              <RxDimensions />
-                              <span className={'flex items-center'}>
-                                {imageMetadata?.metadata.width}x{imageMetadata?.metadata.height}
-                              </span>
-                            </div>
-                          ) : null}
-                          {imageMetadata?.compressed ? (
-                            <div className={'flex items-center space-x-1 truncate'}>
-                              <FiCheckCircle />
-                              <span>{t('im.compressed')}</span>
-                            </div>
-                          ) : null}
-                        </div>
-                      ),
-                      maskClassName: 'rounded-md !cursor-default',
-                      className: 'min-w-24',
-                      src: antdImageProps.src,
-                    }
-                  : false
-              }
+              preview={imagePreivew}
               rootClassName={classNames('transition-all', antdImageProps.rootClassName)}
-              style={{
-                imageRendering,
-                ...antdImageProps.style,
-              }}
+              style={imageStyle}
             ></Image>
           </Corner>
 

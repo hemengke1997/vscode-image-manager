@@ -2,7 +2,6 @@ import { defineConfig } from 'taze'
 
 export default defineConfig({
   exclude: [
-    '@types/node',
     '@types/vscode',
     // 解压 tar.gz 包，功能稳定，不需要更新
     'tar-fs',

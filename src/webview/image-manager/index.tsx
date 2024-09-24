@@ -1,10 +1,10 @@
-import { useMemoizedFn, useUpdateEffect } from 'ahooks'
-import { App, FloatButton } from 'antd'
-import { setAutoFreeze } from 'immer'
-import { difference, isEqual } from 'lodash-es'
 import { memo, useEffect, useMemo, useRef } from 'react'
 import { flushSync } from 'react-dom'
 import { useTranslation } from 'react-i18next'
+import { useMemoizedFn, useUpdateEffect } from 'ahooks'
+import { App, FloatButton } from 'antd'
+import { enableMapSet, setAutoFreeze } from 'immer'
+import { difference, isEqual } from 'lodash-es'
 import { GoMoveToTop } from 'react-icons/go'
 import { isTooManyTries, retryAsync } from 'ts-retry'
 import { type MessageType } from '~/message'
@@ -25,6 +25,7 @@ import useRefreshImages from './hooks/use-refresh-images'
 vscodeApi.registerEventListener()
 
 setAutoFreeze(false)
+enableMapSet()
 
 function ImageManager() {
   const { message } = App.useApp()

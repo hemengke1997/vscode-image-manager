@@ -1,7 +1,7 @@
+import { type DependencyList } from 'react'
 import { useDebounceFn, useMemoizedFn } from 'ahooks'
 import { produce } from 'immer'
 import { set } from 'lodash-es'
-import { type DependencyList } from 'react'
 import { type WorkspaceStateKey } from '~/core/persist/workspace/common'
 import { CmdToVscode } from '~/message/cmd'
 import VscodeContext from '../ui-framework/src/contexts/vscode-context'

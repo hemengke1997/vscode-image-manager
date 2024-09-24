@@ -1,9 +1,7 @@
-import { useMemoizedFn } from 'ahooks'
-import { type ReactNode, useRef } from 'react'
-import { toast as simpleToast, type Toast, type ToastOptions } from 'react-simple-toasts'
-import { type ToastUpdateOptions } from 'react-simple-toasts/dist/type/common'
+import { useRef } from 'react'
+import { type Toast, type ToastOptions } from 'react-simple-toasts'
 
-const commonToastOptions: ToastOptions = {
+const _commonToastOptions: ToastOptions = {
   duration: 2000,
   maxVisibleToasts: 1,
   position: 'center',
@@ -25,34 +23,12 @@ const commonToastOptions: ToastOptions = {
 export default function useSingleToast() {
   const toastRef = useRef<Toast>()
 
-  const toast = useMemoizedFn((options: { message: ReactNode } & (ToastOptions & ToastUpdateOptions)) => {
-    const { message, onClose, duration, ...rest } = options
-
-    if (toastRef.current) {
-      toastRef.current.update({
-        message,
-        ...commonToastOptions,
-        ...rest,
-      } as ToastUpdateOptions)
-    } else {
-      toastRef.current = simpleToast(message, {
-        ...commonToastOptions,
-        ...rest,
-        onClose() {
-          toastRef.current = undefined
-          onClose?.()
-        },
-      })
-    }
-  })
-
   const clearToast = () => {
     toastRef.current?.close()
     toastRef.current = undefined
   }
 
   return {
-    toast,
     clearToast,
   }
 }

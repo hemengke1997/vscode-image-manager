@@ -1,6 +1,6 @@
+import { useMemo } from 'react'
 import { TinyColor } from '@ctrl/tinycolor'
 import { createContainer } from 'context-state'
-import { useMemo } from 'react'
 import { ConfigKey } from '~/core/config/common'
 import { WorkspaceStateKey, type WorkspaceStateType } from '~/core/persist/workspace/common'
 import { useExtConfigState } from '~/webview/hooks/use-ext-config-state'

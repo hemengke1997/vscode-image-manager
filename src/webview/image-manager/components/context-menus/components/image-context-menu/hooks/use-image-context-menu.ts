@@ -1,6 +1,6 @@
+import { type ShowContextMenuParams, useContextMenu } from 'react-contexify'
 import { useMemoizedFn } from 'ahooks'
 import { merge } from 'lodash-es'
-import { type ShowContextMenuParams, useContextMenu } from 'react-contexify'
 import { type EnableImageContextMenuType, IMAGE_CONTEXT_MENU_ID } from '..'
 
 export type ImageContextMenuType = {

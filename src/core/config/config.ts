@@ -11,6 +11,7 @@ export class Config {
     ConfigKey.file_root,
     ConfigKey.file_exclude,
     ConfigKey.file_scan,
+    ConfigKey.file_gitignore,
     ConfigKey.file_revealFileInOsDeeply,
     ConfigKey.file_trashAfterProcessing,
 
@@ -83,6 +84,10 @@ export class Config {
 
   static get file_scan(): string[] {
     return this.getConfig(ConfigKey.file_scan)
+  }
+
+  static get file_gitignore(): boolean {
+    return this.getConfig(ConfigKey.file_gitignore)
   }
 
   static get file_confirmDelete(): boolean {

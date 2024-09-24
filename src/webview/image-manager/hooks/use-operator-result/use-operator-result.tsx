@@ -1,5 +1,5 @@
-import { type ModalFuncProps } from 'antd'
 import { useTranslation } from 'react-i18next'
+import { type ModalFuncProps } from 'antd'
 import useImperativeModal from '../use-imperative-modal'
 import OperatorResultTsx from './operator-result'
 

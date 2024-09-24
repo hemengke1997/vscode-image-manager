@@ -1,6 +1,6 @@
+import { useTranslation } from 'react-i18next'
 import { useMemoizedFn } from 'ahooks'
 import { App, Descriptions, type DescriptionsProps, Divider } from 'antd'
-import { useTranslation } from 'react-i18next'
 import { CmdToVscode } from '~/message/cmd'
 import { vscodeApi } from '../../../vscode-api'
 import { formatBytes } from '../../utils'

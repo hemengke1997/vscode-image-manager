@@ -18,6 +18,7 @@
     file: {
       root: 'Workspace root',
       exclude: 'Scan images not in exclude (pattern syntax of micromatch)',
+      gitignore: 'Exclude images in .gitignore',
       scan: 'Image type to scan',
       confirmDelete: 'Controls whether ask for confirmation when deleting a image',
       revealFileInOsDeeply: 'Enter folder when it is revealed in OS',

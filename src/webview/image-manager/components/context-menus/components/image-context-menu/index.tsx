@@ -1,5 +1,3 @@
-import { useLockFn, useMemoizedFn } from 'ahooks'
-import { App } from 'antd'
 import { memo } from 'react'
 import {
   type HandlerParams,
@@ -11,6 +9,8 @@ import {
   Submenu,
 } from 'react-contexify'
 import { useTranslation } from 'react-i18next'
+import { useLockFn, useMemoizedFn } from 'ahooks'
+import { App } from 'antd'
 import { os } from 'un-detector'
 import logger from '~/utils/logger'
 import useImageDetail from '~/webview/image-manager/hooks/use-image-detail/use-image-detail'
@@ -171,6 +171,9 @@ function ImageContextMenu() {
           <RightSlot>{Keybinding.Copy()}</RightSlot>
         </Item>
         <Item onClick={(e) => handleCopyString(e.props!.image, { proto: 'path' })}>{t('im.copy_image_path')}</Item>
+        <Item onClick={(e) => handleCopyString(e.props!.image, { proto: 'relativePath' })}>
+          {t('im.copy_image_relative_path')}
+        </Item>
         <Item onClick={(e) => handleCopyString(e.props!.image, { proto: 'path' }, copyImageAsBase64)}>
           {t('im.copy_image_base64')}
         </Item>

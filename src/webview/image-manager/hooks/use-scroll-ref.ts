@@ -1,5 +1,5 @@
-import { useUpdate } from 'ahooks'
 import { useEffect, useRef } from 'react'
+import { useUpdate } from 'ahooks'
 
 type Props = {
   onChanage?: () => void

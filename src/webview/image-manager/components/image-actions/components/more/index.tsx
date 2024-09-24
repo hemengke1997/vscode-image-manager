@@ -1,8 +1,8 @@
+import { memo, useState } from 'react'
+import { useTranslation } from 'react-i18next'
 import { useMemoizedFn } from 'ahooks'
 import { Button, Popover } from 'antd'
 import { upperFirst } from 'lodash-es'
-import { memo, useState } from 'react'
-import { useTranslation } from 'react-i18next'
 import { IoIosMore } from 'react-icons/io'
 import ActionContext from '~/webview/image-manager/contexts/action-context'
 

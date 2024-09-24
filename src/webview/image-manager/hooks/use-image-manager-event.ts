@@ -1,5 +1,5 @@
-import EventEmitter from 'eventemitter3'
 import { useEffect, useRef } from 'react'
+import EventEmitter from 'eventemitter3'
 import { type SetRequired } from 'type-fest'
 
 /**

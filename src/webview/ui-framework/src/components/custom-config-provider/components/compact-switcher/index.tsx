@@ -1,6 +1,6 @@
+import { memo } from 'react'
 import { useControlledState } from 'ahooks-x'
 import { Switch } from 'antd'
-import { memo } from 'react'
 
 type CompactSwitcherProps = {
   value: boolean

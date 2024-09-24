@@ -1,6 +1,7 @@
 import exif from 'exif-reader'
 import fg from 'fast-glob'
 import fs from 'fs-extra'
+import { globby } from 'globby'
 import imageSize from 'image-size'
 import { flatten, isArray, toString } from 'lodash-es'
 import micromatch from 'micromatch'
@@ -96,13 +97,14 @@ export const VscodeMessageCenter = {
   ) => {
     const { glob, cwd, onResolve } = options
 
-    const images = fg.sync(isArray(glob) ? glob : fg.escapePath(glob), {
+    const images = await globby(isArray(glob) ? glob : fg.escapePath(glob), {
       cwd,
       objectMode: true,
       dot: false,
       absolute: true,
       onlyFiles: true,
       stats: true,
+      gitignore: Config.file_gitignore,
     })
 
     if (!images.length) {
@@ -161,7 +163,7 @@ export const VscodeMessageCenter = {
           fileType,
           vscodePath: vscodePathWithQuery,
           absWorkspaceFolder,
-          relativePath,
+          relativePath: normalizePath(`./${relativePath}`),
           extraPathInfo: path.parse(image.path),
           info: {
             ...metadata,
@@ -452,8 +454,11 @@ export const VscodeMessageCenter = {
   },
 
   /* -------- match glob with micromatch -------- */
-  [CmdToVscode.micromatch_ismatch]: (data: { filePaths: string[]; globs: string[] }) => {
-    const { filePaths, globs } = data
+  [CmdToVscode.micromatch_ismatch]: (data: { filePaths: string[]; globs: string[]; not?: boolean }) => {
+    const { filePaths, globs, not } = data
+    if (not) {
+      return micromatch.not(filePaths, globs)
+    }
     return micromatch(filePaths, globs)
   },
 
@@ -502,7 +507,7 @@ export const VscodeMessageCenter = {
     } else {
       // Write image output directly
       try {
-        await fs.promises.writeFile(outputPath, imageBuffer)
+        await fs.writeFile(outputPath, imageBuffer)
       } catch (e) {
         Channel.error(`${i18n.t('core.save_cropper_image_error')} ${e}`)
         return null
