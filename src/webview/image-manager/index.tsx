@@ -192,13 +192,7 @@ function ImageManager() {
 
       <ImageForSize />
 
-      <FloatButton.BackTop
-        target={() => getAppRoot()}
-        duration={0}
-        icon={<GoMoveToTop />}
-        type='primary'
-        shape='square'
-      />
+      <FloatButton.BackTop target={getAppRoot} duration={0} icon={<GoMoveToTop />} type='primary' shape='square' />
     </>
   )
 }

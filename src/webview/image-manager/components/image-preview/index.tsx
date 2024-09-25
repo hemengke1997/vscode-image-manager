@@ -15,7 +15,7 @@ import useImageContextMenu from '../context-menus/components/image-context-menu/
 import { type LazyImageProps } from '../lazy-image'
 import Toast from '../toast'
 import LazyImageMemo from './components/image-memo'
-import PreviewContext from './components/preview-context'
+import PreviewContext from './contexts/preview-context'
 
 function imageToken(isDarkBackground: boolean): Partial<ComponentTokenMap['Image'] & AliasToken> {
   return {

@@ -1,7 +1,7 @@
 import { memo, useMemo } from 'react'
 import { useMemoizedFn } from 'ahooks'
 import LazyImage, { type LazyImageProps } from '../../../lazy-image'
-import PreviewContext from '../preview-context'
+import PreviewContext from '../../contexts/preview-context'
 
 /**
  * 为了更好的性能，把 image-preview 组件中无法在memo的函数和变量等提取出来memo化
