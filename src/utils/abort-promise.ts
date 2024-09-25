@@ -26,7 +26,7 @@ export async function abortPromise<T = any>(
   const { timeout = Infinity, abortController, mock } = options
 
   try {
-    const res = await pTimeout<T>(mock ? delay(timeout * 100) : promise(), {
+    const res = await pTimeout<T>(mock ? delay(timeout) : promise(), {
       milliseconds: timeout,
       signal: abortController.signal,
     })

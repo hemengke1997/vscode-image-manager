@@ -2,6 +2,7 @@ import { toString } from 'lodash-es'
 import { type Commander } from '~/core/commander'
 import { i18n } from '~/i18n'
 import { Channel } from '~/utils/channel'
+import logger from '~/utils/logger'
 import { Operator, type OperatorOptions, type OperatorResult } from '../operator'
 
 export abstract class Compressor extends Operator {
@@ -26,8 +27,10 @@ export abstract class Compressor extends Operator {
         ...result,
         ...res,
       }
-    } catch (e: any) {
-      Channel.debug(`${i18n.t('core.compress_error')}: ${toString(e)}`)
+    } catch (e) {
+      Channel.debug(`core ${i18n.t('core.compress_error')}: ${toString(e)}`)
+
+      logger.error(e)
 
       return {
         error: e,

@@ -2,7 +2,6 @@ import fs from 'fs-extra'
 import { type SharpNS } from '~/@types/global'
 import { SharpOperator } from '~/core/sharp'
 import { i18n } from '~/i18n'
-import { VscodeMessageCenter } from '~/message'
 import { COMPRESSED_META } from '../meta'
 import { SkipError } from '../operator'
 import { Compressor } from './compressor'
@@ -26,6 +25,8 @@ export class UsualCompressor extends Compressor {
 
     const originExt = this.getFileExt(filePath)
     const ext = !format ? originExt : format
+
+    const { info } = this.image
 
     let compressor: SharpOperator<{
       ext: string
@@ -54,24 +55,12 @@ export class UsualCompressor extends Compressor {
                   size,
                   skipCompressed,
                 },
-                filePath,
               } = runtime
-
-              let imageMetadata = await VscodeMessageCenter.get_image_metadata({
-                filePath,
-              })
-
-              if (!imageMetadata) {
-                imageMetadata = {
-                  compressed: false,
-                  metadata: { width: 0, height: 0 } as SharpNS.Metadata,
-                }
-              }
 
               const {
                 compressed,
                 metadata: { width, height },
-              } = imageMetadata!
+              } = info
 
               if (
                 skipCompressed &&

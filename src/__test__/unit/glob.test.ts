@@ -32,23 +32,21 @@ describe('Glob images', () => {
     const config: Config = {
       scan: ['png', 'jpg', 'svg'],
       exclude: ['dist-1', ...defaultExclude],
-      root: [workspaceFolder],
-      cwd: workspaceFolder,
+      cwds: [workspaceFolder],
     }
     const { allImagePatterns } = imageGlob(config)
-    const images = await glob(allImagePatterns, config.cwd)
+    const images = await glob(allImagePatterns, config.cwds[0])
     expect(images.every((t) => !t.includes('dist'))).toBe(true)
   })
 
   it('should not ignore dist-1', async () => {
     const config: Config = {
       scan: ['png', 'jpg', 'svg'],
-      root: [workspaceFolder],
-      cwd: workspaceFolder,
+      cwds: [workspaceFolder],
       exclude: [...defaultExclude],
     }
     const { allImagePatterns } = imageGlob(config)
-    const images = await glob(allImagePatterns, config.cwd)
+    const images = await glob(allImagePatterns, config.cwds[0])
 
     expect(images.some((t) => t.includes('dist-1'))).toBe(true)
   })
@@ -57,11 +55,10 @@ describe('Glob images', () => {
     const config: Config = {
       scan: ['jpg', 'svg'],
       exclude: ['dist-1', ...defaultExclude],
-      root: [workspaceFolder],
-      cwd: workspaceFolder,
+      cwds: [workspaceFolder],
     }
     const { allImagePatterns } = imageGlob(config)
-    const images = await glob(allImagePatterns, config.cwd)
+    const images = await glob(allImagePatterns, config.cwds[0])
 
     expect(images.every((t) => !t.includes('.png'))).toBe(true)
   })
@@ -70,11 +67,10 @@ describe('Glob images', () => {
     const config: Config = {
       scan: ['jpg', 'svg', 'png'],
       exclude: ['**/*.png', ...defaultExclude],
-      root: [workspaceFolder],
-      cwd: workspaceFolder,
+      cwds: [workspaceFolder],
     }
     const { allImagePatterns } = imageGlob(config)
-    const images = await glob(allImagePatterns, config.cwd)
+    const images = await glob(allImagePatterns, config.cwds[0])
 
     expect(images.every((t) => !t.includes('.png'))).toBe(true)
   })

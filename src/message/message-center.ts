@@ -1,14 +1,10 @@
-import exif from 'exif-reader'
-import fg from 'fast-glob'
 import fs from 'fs-extra'
-import { globby } from 'globby'
-import imageSize from 'image-size'
+import { convertPathToPattern, globby, type GlobEntry } from 'globby'
 import { flatten, isArray, toString } from 'lodash-es'
 import micromatch from 'micromatch'
 import mime from 'mime/lite'
 import path from 'node:path'
 import pMap from 'p-map'
-import git from 'simple-git'
 import { commands, type ConfigurationTarget, Uri, ViewColumn, type Webview, window, workspace } from 'vscode'
 import { type SharpNS } from '~/@types/global'
 import { Commands } from '~/commands'
@@ -27,18 +23,17 @@ import { type ConfigType } from '~/core/config/common'
 import { SvgCompressor } from '~/core/operator/compressor/svg'
 import { type CompressionOptions } from '~/core/operator/compressor/type'
 import { UsualCompressor } from '~/core/operator/compressor/usual'
-import { COMPRESSED_META } from '~/core/operator/meta'
 import { WorkspaceState } from '~/core/persist'
 import { type WorkspaceStateKey } from '~/core/persist/workspace/common'
 import { i18n } from '~/i18n'
 import { generateOutputPath, normalizePath, resolveDirPath } from '~/utils'
 import { controlledAbortPromise } from '~/utils/abort-promise'
 import { Channel } from '~/utils/channel'
-import { imageGlob } from '~/utils/glob'
 import { convertImageToBase64, convertToBase64IfBrowserNotSupport, isBase64 } from '~/utils/image-type'
 import logger from '~/utils/logger'
 import { ImageManagerPanel } from '~/webview/panel'
 import { CmdToVscode, CmdToWebview } from './cmd'
+import { getImageExtraInfo, getImageMetadata, getStagedImages, searchImages } from './message-center.fn'
 import { WebviewMessageCenter } from './webview-message-center'
 
 export type VscodeMessageCenterType = typeof VscodeMessageCenter
@@ -97,7 +92,9 @@ export const VscodeMessageCenter = {
   ) => {
     const { glob, cwd, onResolve } = options
 
-    const images = await globby(isArray(glob) ? glob : fg.escapePath(glob), {
+    const start = performance.now()
+
+    const images = await globby(isArray(glob) ? glob : convertPathToPattern(glob), {
       cwd,
       objectMode: true,
       dot: false,
@@ -107,12 +104,14 @@ export const VscodeMessageCenter = {
       gitignore: Config.file_gitignore,
     })
 
+    Channel.debug(`Globby cost: ${performance.now() - start}ms`)
+
     if (!images.length) {
       logger.debug(`No images found in ${glob} ${cwd}`)
       return []
     }
 
-    const gitStaged = await VscodeMessageCenter[CmdToVscode.get_git_staged_images]()
+    const { gitStaged, metadataResults } = await getImageExtraInfo(images)
 
     // 项目绝对路径
     const basePath = normalizePath(path.dirname(cwd))
@@ -120,12 +119,6 @@ export const VscodeMessageCenter = {
     const absWorkspaceFolder = normalizePath(cwd)
     // 工作区名称
     const workspaceFolder = normalizePath(path.basename(cwd))
-
-    const metadataPromises = images.map((image) =>
-      VscodeMessageCenter[CmdToVscode.get_image_metadata]({ filePath: image.path }),
-    )
-
-    const metadataResults = await Promise.all(metadataPromises)
 
     return Promise.all<ImageType>(
       images.map(async (image, index) => {
@@ -149,7 +142,7 @@ export const VscodeMessageCenter = {
 
         const metadata = metadataResults[index]
 
-        // 如果非base64添加时间戳，避免webview缓存问题
+        // 如果非base64添加mtimeMs时间戳，避免webview缓存问题
         const vscodePathWithQuery = isBase64(vscodePath) ? vscodePath : `${vscodePath}?t=${image.stats?.mtimeMs}`
 
         const imageInfo: ImageType = {
@@ -183,44 +176,19 @@ export const VscodeMessageCenter = {
     const absWorkspaceFolders = Global.rootpaths
     const workspaceFolders = absWorkspaceFolders.map((ws) => path.basename(ws))
 
-    async function _searchImages(
-      absWorkspaceFolder: string,
-      webview: Webview,
-      fileTypes: Set<string>,
-      dirs: Set<string>,
-    ) {
-      absWorkspaceFolder = normalizePath(absWorkspaceFolder)
-
-      const { allImagePatterns } = imageGlob({
-        cwd: absWorkspaceFolder,
-        scan: Config.file_scan,
-        exclude: Config.file_exclude,
-        root: Global.rootpaths,
-      })
-
-      return VscodeMessageCenter[CmdToVscode.get_image](
-        {
-          glob: allImagePatterns,
-          cwd: absWorkspaceFolder,
-          onResolve: (image) => {
-            const { fileType, dirPath } = image
-            fileTypes && fileTypes.add(fileType)
-            dirPath && dirs.add(dirPath)
-          },
-        },
-        webview,
-      )
-    }
-
+    const start = performance.now()
     try {
-      return await controlledAbortPromise(
+      const res = await controlledAbortPromise(
         async () => {
           const data = await Promise.all(
             absWorkspaceFolders.map(async (workspaceFolder) => {
               const fileTypes: Set<string> = new Set()
               const dirs: Set<string> = new Set()
 
-              const images = await _searchImages(workspaceFolder, webview, fileTypes, dirs)
+              const images = await searchImages(workspaceFolder, webview, fileTypes, dirs)
+
+              Channel.debug(`Get images cost: ${performance.now() - start}ms in ${workspaceFolder}`)
+
               return {
                 images,
                 workspaceFolder: path.basename(workspaceFolder),
@@ -241,6 +209,8 @@ export const VscodeMessageCenter = {
           key: CmdToVscode.get_all_images,
         },
       )
+      Channel.debug(`Get all images cost: ${performance.now() - start}ms`)
+      return res
     } catch {
       return {
         data: [],
@@ -259,6 +229,7 @@ export const VscodeMessageCenter = {
     webview: Webview,
   ) => {
     const { filePath, cwd } = data
+
     const images = await VscodeMessageCenter[CmdToVscode.get_image](
       {
         glob: filePath,
@@ -350,7 +321,8 @@ export const VscodeMessageCenter = {
   }): Promise<OperatorResult[] | undefined> => {
     try {
       const { images, option } = data
-      Channel.debug(`Compress params: ${JSON.stringify(data)}`)
+
+      logger.debug(`Compress params: `, data)
 
       const svgs: ImageType[] = []
       const usuals: ImageType[] = []
@@ -387,7 +359,7 @@ export const VscodeMessageCenter = {
         ],
         (task) => task(),
       )
-      Channel.debug(`Compress result: ${JSON.stringify(res)}`)
+      logger.debug(`Compress result: `, res)
       return res
     } catch (e: any) {
       Channel.debug(`${i18n.t('core.compress_error')}: ${JSON.stringify(e)}`)
@@ -402,7 +374,7 @@ export const VscodeMessageCenter = {
   }): Promise<OperatorResult[] | undefined> => {
     try {
       const { images, option } = data
-      Channel.debug(`Convert params: ${JSON.stringify(data)}`)
+      logger.debug(`Convert params:`, data)
       const res = await pMap(
         images.map((image) => () => {
           let converter = new FormatConverter(Config.conversion)
@@ -415,10 +387,10 @@ export const VscodeMessageCenter = {
         }),
         (task) => task(),
       )
-      Channel.debug(`Convert result: ${JSON.stringify(res)}`)
+      logger.debug(`Convert result:`, res)
       return res
     } catch (e: any) {
-      Channel.debug(`Convert error: ${JSON.stringify(e)}`)
+      logger.debug(`Convert error:`, e)
       return e
     }
   },
@@ -531,76 +503,29 @@ export const VscodeMessageCenter = {
     }
   },
 
-  /* ------------ get image metadata ------------ */
-  [CmdToVscode.get_image_metadata]: async (data: { filePath: string }) => {
-    const { filePath } = data
+  /* ------------ get images metadata ------------ */
+  [CmdToVscode.get_images_metadata]: async (data: { images: GlobEntry[] }) => {
+    const start = performance.now()
 
-    let compressed = false
-    let metadata: SharpNS.Metadata = {} as SharpNS.Metadata
+    const { images } = data
 
-    let fileExists = false
-    try {
-      fileExists = await fs.exists(filePath)
-    } catch {
-      return {
-        metadata,
-        compressed,
-      }
-    }
+    const metadataPromises = images.map((image) => {
+      return getImageMetadata(image)
+    })
 
-    if (!fileExists) {
-      return {
-        metadata,
-        compressed,
-      }
-    }
+    const results = await Promise.all(metadataPromises)
 
-    try {
-      Global.sharp.cache({ files: 0 })
-      metadata = await Global.sharp(filePath).metadata()
-    } catch {
-      try {
-        metadata = imageSize(filePath) as SharpNS.Metadata
-      } catch (e: any) {
-        Channel.error(e)
-      }
-    } finally {
-      if (metadata.exif) {
-        compressed = !!exif(metadata.exif).Image?.ImageDescription?.includes(COMPRESSED_META)
-      } else if (path.extname(filePath) === '.svg') {
-        try {
-          const svgString = await fs.readFile(filePath, 'utf-8')
-          compressed = Svgo.isCompressed(svgString, Config.compression.svg)
-        } catch {}
-      }
-    }
-
-    return {
-      metadata,
-      compressed,
-    }
+    Channel.debug(`Get images metadata cost: ${performance.now() - start}ms`)
+    return results
   },
 
   /* --------- get git staged images --------- */
   [CmdToVscode.get_git_staged_images]: async () => {
-    async function getStagedImages(root: string) {
-      const simpleGit = git({ baseDir: root, binary: 'git' })
-
-      try {
-        const files = (await simpleGit.diff(['--staged', '--diff-filter=ACMR', '--name-only'])).split('\n')
-        // Filter out non-image files
-        let imageFiles = files.filter((file) => Config.file_scan.includes(path.extname(file).slice(1)))
-        // Add the full path to the file
-        const gitRoot = await simpleGit.revparse(['--show-toplevel'])
-        imageFiles = imageFiles.map((file) => path.join(gitRoot, file))
-        return imageFiles
-      } catch (e) {
-        Channel.debug(`${i18n.t('core.get_git_staged_error')}: ${e}`)
-        return []
-      }
-    }
+    const start = performance.now()
 
     const images = await Promise.all(Global.rootpaths.map((root) => getStagedImages(root)))
+
+    Channel.debug(`Get git staged images cost: ${performance.now() - start}ms`)
 
     return flatten(images)
   },

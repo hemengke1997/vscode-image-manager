@@ -7,6 +7,7 @@ import { Empty, Input, Tooltip } from 'antd'
 import { type InputRef } from 'antd/es/input'
 import Fuse, { type FuseResult, type FuseResultMatch } from 'fuse.js'
 import { without } from 'lodash-es'
+import { PiSpinnerGapLight } from 'react-icons/pi'
 import { RiFilterOffLine } from 'react-icons/ri'
 import { VscCaseSensitive, VscWholeWord } from 'react-icons/vsc'
 import { Key } from 'ts-key-enum'
@@ -120,7 +121,10 @@ function ImageSearch(props: ImperativeModalProps) {
     setCurrentIndex(newHistory.length - 1)
   }
 
-  const [searchResults, setSearchResults] = useState<FuseResult<ImageType>[]>([])
+  const [searchResult, setSearchResult] = useState<{
+    items: FuseResult<ImageType>[]
+    searchValue: string
+  }>({ items: [], searchValue: '' })
 
   const filterByGlob = useMemoizedFn((filePaths: string[], glob: string, isExclude: boolean): Promise<string[]> => {
     return new Promise((resolve) => {
@@ -158,16 +162,24 @@ function ImageSearch(props: ImperativeModalProps) {
     },
   )
 
+  const [loading, setLoading] = useState(false)
+
   const handleSearch = useMemoizedFn(async () => {
-    if (search?.source === 'input') {
-      onSearch(search.value)
+    setLoading(true)
+
+    try {
+      if (search?.source === 'input') {
+        onSearch(search.value)
+      }
+
+      let result = fuse().search(search?.value ?? '')
+
+      result = await applyFilter(result, includeGlob, disableInclude, false)
+      result = await applyFilter(result, excludeGlobal, disableExclude, true)
+      setSearchResult({ items: result, searchValue: search?.value || '' })
+    } finally {
+      setLoading(false)
     }
-
-    let result = fuse().search(search?.value ?? '')
-
-    result = await applyFilter(result, includeGlob, disableInclude, false)
-    result = await applyFilter(result, excludeGlobal, disableExclude, true)
-    setSearchResults(result)
   })
 
   const { run, cancel } = useDebounceFn(
@@ -289,12 +301,29 @@ function ImageSearch(props: ImperativeModalProps) {
         </div>
       </div>
 
-      <div className={'flex max-h-[600px] flex-col space-y-1 overflow-y-auto'} ref={scrollRef}>
-        {!searchResults.length ? (
-          <Empty image={Empty.PRESENTED_IMAGE_SIMPLE} description={t('im.no_image')} />
+      <div className={'relative flex max-h-[600px] flex-col space-y-1 overflow-y-auto'} ref={scrollRef}>
+        <div
+          className={classNames(
+            'pointer-events-none absolute bottom-0 left-0 right-0 top-0 flex items-center justify-center rounded-lg',
+          )}
+        >
+          <PiSpinnerGapLight
+            className={classNames('text-4xl opacity-0 transition-all', loading && 'animate-spin opacity-100')}
+          />
+        </div>
+        {!searchResult.items.length ? (
+          <Empty
+            image={Empty.PRESENTED_IMAGE_SIMPLE}
+            description={
+              <div className={'inline-flex items-center gap-x-1'}>
+                <span>{t('im.no_image')}</span>
+                <>{searchResult.searchValue && !loading ? <span>: {searchResult.searchValue}</span> : null}</>
+              </div>
+            }
+          />
         ) : (
           <ImagePreview
-            images={searchResults.map((result) => ({
+            images={searchResult.items.map((result) => ({
               ...result.item,
               nameElement: (
                 <>

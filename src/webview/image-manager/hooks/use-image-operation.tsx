@@ -292,7 +292,8 @@ function useImageOperation() {
           okButtonProps: {
             onKeyDown: (e) => {
               if (e.key === Key.Enter) {
-                ;(e.target as HTMLButtonElement).click()
+                const targetElement = e.target as HTMLButtonElement
+                targetElement.click()
               }
             },
           },
@@ -467,7 +468,6 @@ function useImageOperation() {
                 },
                 (newImage) => {
                   beginRevealInViewer(newImage)
-
                   imageManagerEvent.emit('rename', image, newImage)
                 },
               )

@@ -34,7 +34,7 @@ export const enum CmdToVscode {
   // 获取单个图片
   get_one_image = 'get_one_image',
   // 获取图片元信息
-  get_image_metadata = 'get_image_metadata',
+  get_images_metadata = 'get_images_metadata',
   // 获取扩展的配置（用户配置和默认的vscode配置）
   get_extension_config = 'get_extension_config',
   // 获取压缩器
