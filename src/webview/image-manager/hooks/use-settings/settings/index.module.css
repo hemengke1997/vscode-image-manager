@@ -1,0 +1,7 @@
+.tabs {
+  :global {
+    .ant-tabs-tab-btn {
+      @apply text-lg font-medium;
+    }
+  }
+}

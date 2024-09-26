@@ -181,6 +181,12 @@
     modify_success: '修正に成功しました',
     outof_error_range: '誤差範囲を超えています',
     size_over_warning: '画像のサイズが {{size}} KB を超えています',
+    show_detail_hover: 'ホバーして詳細を表示',
+    viewer: 'ビューア',
+    general: '一般',
+    light: 'ライト',
+    dark: 'ダーク',
+    auto: '自動',
   },
   fallback: {
     internal_error: '内部エラー',

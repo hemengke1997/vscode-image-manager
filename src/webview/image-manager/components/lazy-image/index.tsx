@@ -20,6 +20,7 @@ import { CmdToVscode } from '~/message/cmd'
 import { getAppRoot } from '~/webview/utils'
 import { vscodeApi } from '~/webview/vscode-api'
 import GlobalContext from '../../contexts/global-context'
+import SettingsContext from '../../contexts/settings-context'
 import useImageDetail from '../../hooks/use-image-detail/use-image-detail'
 import useImageOperation from '../../hooks/use-image-operation'
 import { bytesToKb, formatBytes } from '../../utils'
@@ -68,7 +69,7 @@ export type LazyImageProps = {
   /**
    * 右键上下文回调
    */
-  onContextMenu?: (e: React.MouseEvent<HTMLDivElement>) => void
+  onContextMenu?: (e: React.MouseEvent<HTMLDivElement>, image: ImageType) => void
   /**
    * 删除回调
    */
@@ -92,7 +93,7 @@ export type LazyImageProps = {
   /**
    * 图片状态改变回调
    */
-  onActiveChange?: (active: boolean) => void
+  onActiveChange?: (image: ImageType, active: boolean) => void
   /**
    * 多选状态
    */
@@ -133,10 +134,11 @@ function LazyImage(props: LazyImageProps) {
     defaultValue: active,
     value: active,
     onChange(value) {
-      onActiveChange?.(value)
+      onActiveChange?.(image, value)
     },
   })
 
+  const { hoverShowImageDetail } = SettingsContext.usePicker(['hoverShowImageDetail'])
   const { imagePlaceholderSize, imageReveal, imageRevealWithoutQuery } = GlobalContext.usePicker([
     'imagePlaceholderSize',
     'imageReveal',
@@ -387,15 +389,17 @@ function LazyImage(props: LazyImageProps) {
   })
 
   const imagePreivew = useMemo(() => {
-    return lazy
-      ? {
-          mask: previewMask(),
-          maskClassName: 'rounded-md !cursor-default',
-          className: 'min-w-24',
-          src: antdImageProps.src,
-        }
-      : false
-  }, [lazy, previewMask, antdImageProps.src])
+    if (hoverShowImageDetail && lazy) {
+      return {
+        mask: previewMask(),
+        maskClassName: 'rounded-md !cursor-default !transition-none',
+        className: 'min-w-24',
+        src: antdImageProps.src,
+      }
+    }
+
+    return false
+  }, [lazy, previewMask, antdImageProps.src, hoverShowImageDetail])
 
   // 目前 framer-motion viewport root 有bug，在 root 改变后不会重新observe
   // 所以这里需要判断 root 是否存在
@@ -425,12 +429,12 @@ function LazyImage(props: LazyImageProps) {
           }}
           transition={{ duration: ANIMATION_DURATION.middle }}
           whileInView={{ opacity: 1 }}
-          onContextMenu={onContextMenu}
+          onContextMenu={(e) => onContextMenu?.(e, image)}
           onDoubleClick={(e) => {
             if (multipleSelect(e)) return
             const el = e.target as HTMLElement
             if (preventDbClick(el)) return
-            showImageDetailModal(image)
+            showImageDetailModal(image, { onPreview: onPreviewClick })
           }}
         >
           <Corner
@@ -462,6 +466,7 @@ function LazyImage(props: LazyImageProps) {
               preview={imagePreivew}
               rootClassName={classNames('transition-all', antdImageProps.rootClassName)}
               style={imageStyle}
+              src={image.vscodePath}
             ></Image>
           </Corner>
 

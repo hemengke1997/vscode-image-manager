@@ -429,6 +429,11 @@
           "default": "auto",
           "description": "%pkg.viewer.imageRendering%"
         },
+        "image-manager.viewer.showDetailsOnHover": {
+          "type": "boolean",
+          "default": true,
+          "description": "%pkg.viewer.showDetailsOnHover%"
+        },
         "image-manager.mirror.enabled": {
           "type": "boolean",
           "default": false,

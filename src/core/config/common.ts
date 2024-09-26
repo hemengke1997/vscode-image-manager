@@ -20,6 +20,7 @@ export type ConfigType = {
     imageWidth: number
     imageBackgroundColor: string
     imageRendering: CSSProperties['imageRendering']
+    showDetailsOnHover: boolean
   }
   file: {
     root: string[]
@@ -57,6 +58,7 @@ export enum ConfigKey {
   viewer_imageWidth = 'viewer.imageWidth',
   viewer_imageBackgroundColor = 'viewer.imageBackgroundColor',
   viewer_imageRendering = 'viewer.imageRendering',
+  viewer_showDetailsOnHover = 'viewer.showDetailsOnHover',
 
   file_root = 'file.root',
   file_exclude = 'file.exclude',
@@ -105,6 +107,7 @@ export const DEFAULT_CONFIG: ConfigType = {
     imageWidth: 100,
     imageBackgroundColor: '#1a1a1a',
     imageRendering: 'auto',
+    showDetailsOnHover: true,
   },
   file: {
     root: [],

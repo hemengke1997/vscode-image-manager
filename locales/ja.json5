@@ -31,6 +31,7 @@
       imageWidth: '画像の幅 (px)',
       imageBackgroundColor: '画像の背景色',
       imageRendering: '画像レンダリング',
+      showDetailsOnHover: 'ホバー時に画像の詳細を表示',
     },
     appearance: {
       theme: 'テーマ',

@@ -1,26 +1,24 @@
 import { memo, useMemo } from 'react'
-import { useUpdateEffect } from 'ahooks'
 import { useControlledState } from 'ahooks-x'
 import { Badge, Checkbox, theme } from 'antd'
-import { produce } from 'immer'
 import { difference, uniq } from 'lodash-es'
 import { RxViewNone } from 'react-icons/rx'
-import GlobalContext, { type RestrictImageFilterType } from '../../contexts/global-context'
+import GlobalContext, { type RestrictImageFilterType } from '~/webview/image-manager/contexts/global-context'
 
 export type DisplayTypeFilter = RestrictImageFilterType<{
   file_type: string[]
 }>
 
-type DisplayTypeProps = {
-  value: string[]
-  onChange: (checked: string[], unchecked: string[]) => void
+type Props = {
+  value?: string[]
+  onChange?: (checked: string[], unchecked: string[]) => void
 }
 
-function DisplayType(props: DisplayTypeProps) {
+function DisplayType(props: Props) {
   const { token } = theme.useToken()
   const { value, onChange } = props
 
-  const { imageState, setImageFilter } = GlobalContext.usePicker(['imageState', 'setImageFilter'])
+  const { imageState } = GlobalContext.usePicker(['imageState'])
 
   const allImageTypes = useMemo(() => uniq(imageState.data.flatMap((item) => item.fileTypes)).sort(), [imageState.data])
   const allImageFiles = useMemo(() => imageState.data.flatMap((item) => item.images), [imageState.data])
@@ -30,7 +28,7 @@ function DisplayType(props: DisplayTypeProps) {
       return {
         label: (
           <div className={'flex items-center gap-x-2'}>
-            <span>{item}</span>
+            <span className={'w-16 truncate'}>{item}</span>
 
             <Badge
               overflowCount={Number.POSITIVE_INFINITY}
@@ -52,20 +50,20 @@ function DisplayType(props: DisplayTypeProps) {
     defaultValue: value,
     value,
     onChange: (value) => {
-      onChange(value, difference(allImageTypes, value))
+      onChange?.(value, difference(allImageTypes, value))
     },
   })
 
-  useUpdateEffect(() => {
-    setImageFilter(
-      produce((draft) => {
-        draft.file_type = checked
-      }),
-    )
-  }, [checked])
-
   return options.length ? (
-    <Checkbox.Group value={checked} onChange={setChecked} options={options}></Checkbox.Group>
+    <Checkbox.Group value={checked} onChange={setChecked}>
+      <div className={'flex flex-col gap-1'}>
+        {options.map((item) => (
+          <Checkbox key={item.value} value={item.value}>
+            {item.label}
+          </Checkbox>
+        ))}
+      </div>
+    </Checkbox.Group>
   ) : (
     <RxViewNone className={'text-lg'} />
   )

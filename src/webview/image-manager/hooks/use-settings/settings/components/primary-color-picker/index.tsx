@@ -3,25 +3,24 @@ import { useTranslation } from 'react-i18next'
 import { TinyColor } from '@ctrl/tinycolor'
 import { useMemoizedFn } from 'ahooks'
 import { useControlledState } from 'ahooks-x'
-import { Button, ColorPicker, type ColorPickerProps } from 'antd'
+import { ColorPicker, type ColorPickerProps } from 'antd'
 import { uniq } from 'lodash-es'
-import { MdOutlineColorLens } from 'react-icons/md'
 import { builtInColors, vscodeColors } from '~/webview/ui-framework/src/utils/theme'
 
-type PrimaryColorPickerProps = {
+type Props = {
   value?: string
-  onChange: (color: string) => void
+  onChange?: (color: string) => void
   extraColors?: string[]
   children?: ReactNode
   rencentColors: string[]
   onRencentColorsChange: (colors: string[]) => void
-  title?: string
+  colorPickerProps?: ColorPickerProps
 }
 
-function PrimaryColorPicker(props: PrimaryColorPickerProps) {
+function PrimaryColorPicker(props: Props) {
   const { t } = useTranslation()
 
-  const { value, onChange, extraColors, rencentColors, onRencentColorsChange, title } = props
+  const { value, onChange, extraColors, rencentColors, onRencentColorsChange, colorPickerProps } = props
 
   const color = useMemo(() => new TinyColor(value).toHex8String(), [value])
 
@@ -76,17 +75,9 @@ function PrimaryColorPicker(props: PrimaryColorPickerProps) {
       onChangeComplete={onColorChange}
       onOpenChange={onOpenChange}
       placement='bottom'
-    >
-      <Button
-        title={title}
-        type='text'
-        icon={
-          <div className={'flex items-center text-2xl'}>
-            <MdOutlineColorLens />
-          </div>
-        }
-      ></Button>
-    </ColorPicker>
+      showText={true}
+      {...colorPickerProps}
+    ></ColorPicker>
   )
 }
 

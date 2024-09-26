@@ -46,6 +46,7 @@ export class Config {
     ConfigKey.viewer_imageWidth,
     ConfigKey.viewer_imageBackgroundColor,
     ConfigKey.viewer_imageRendering,
+    ConfigKey.viewer_showDetailsOnHover,
   ]
 
   static get debug_enabled(): boolean {
@@ -76,6 +77,10 @@ export class Config {
 
   static get viewer_imageRendering(): string {
     return this.getConfig(ConfigKey.viewer_imageRendering)
+  }
+
+  static get viewer_showDetailsOnHover(): boolean {
+    return this.getConfig(ConfigKey.viewer_showDetailsOnHover)
   }
 
   static get file_exclude(): string[] {

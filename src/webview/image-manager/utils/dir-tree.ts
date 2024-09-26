@@ -1,5 +1,5 @@
 import { isEmpty, isNumber, mergeWith, uniq } from 'lodash-es'
-import { type GroupType } from '../components/display-group'
+import { type GroupType } from '../hooks/use-settings/settings/components/display-group'
 
 export type DisplayGroupType = GroupType[]
 export type DisplayMapType<T extends Record<string, any> = Record<string, any>> = {

@@ -1,10 +1,10 @@
-import { memo, useEffect, useMemo, useRef } from 'react'
+import { memo, useEffect, useMemo } from 'react'
 import { flushSync } from 'react-dom'
+import { ErrorBoundary } from 'react-error-boundary'
 import { useTranslation } from 'react-i18next'
 import { useMemoizedFn, useUpdateEffect } from 'ahooks'
 import { App, FloatButton } from 'antd'
 import { enableMapSet, setAutoFreeze } from 'immer'
-import { difference, isEqual } from 'lodash-es'
 import { GoMoveToTop } from 'react-icons/go'
 import { isTooManyTries, retryAsync } from 'ts-retry'
 import { type MessageType } from '~/message'
@@ -13,13 +13,14 @@ import logger from '~/utils/logger'
 import useUpdateWebview from '../hooks/use-update-webview'
 import { getAppRoot } from '../utils'
 import { vscodeApi } from '../vscode-api'
+import AntdConfigProvider from './components/antd-config-provider'
 import ContextMenus from './components/context-menus'
+import Fallback from './components/fallback'
 import ImageForSize from './components/image-for-size'
+import Layout from './components/layout'
 import Viewer from './components/viewer'
-import ViewerSettings, { type ViewerSettingsRef } from './components/viewer-settings'
 import ActionContext from './contexts/action-context'
 import GlobalContext, { type WebviewCompressorType, type WebviewFormatConverterType } from './contexts/global-context'
-import SettingsContext from './contexts/settings-context'
 import useRefreshImages from './hooks/use-refresh-images'
 
 vscodeApi.registerEventListener()
@@ -31,48 +32,21 @@ function ImageManager() {
   const { message } = App.useApp()
   const { t } = useTranslation()
 
-  const { setCompressor, imageState, setFormatConverter, setImageReveal } = GlobalContext.usePicker([
+  const { setCompressor, imageState, setFormatConverter, setImageReveal, setAllImageTypes } = GlobalContext.usePicker([
     'setCompressor',
     'imageState',
     'setFormatConverter',
     'setImageReveal',
+    'setAllImageTypes',
   ])
 
   const { refreshImages } = ActionContext.usePicker(['refreshImages'])
-
-  const { displayImageTypes } = SettingsContext.usePicker(['displayImageTypes'])
-
-  /**
-   * setup image display types
-   * @param reset whether reset image display types
-   */
-  const setupImageDisplayTypes = useMemoizedFn((reset = false) => {
-    const _reset = () => {
-      viewerSettingsRef.current?.changeImageType(allImageTypes)
-    }
-    if (reset) {
-      _reset()
-      return
-    }
-    try {
-      const shouldCheckedTypes = displayImageTypes?.unchecked.length
-        ? difference(allImageTypes, displayImageTypes.unchecked)
-        : allImageTypes
-
-      // avoid unnecessary render
-      if (!isEqual(shouldCheckedTypes, displayImageTypes?.checked)) {
-        viewerSettingsRef.current?.changeImageType(shouldCheckedTypes)
-      }
-    } catch {
-      _reset()
-    }
-  })
 
   // all image types
   const allImageTypes = useMemo(() => imageState.data.flatMap((item) => item.fileTypes), [imageState.data])
 
   useUpdateEffect(() => {
-    setupImageDisplayTypes()
+    setAllImageTypes(allImageTypes)
   }, [allImageTypes])
 
   useRefreshImages()
@@ -180,20 +154,20 @@ function ImageManager() {
     }
   }, [onMessage])
 
-  /* -------------- viewer settings ------------- */
-  const viewerSettingsRef = useRef<ViewerSettingsRef>(null)
-
   return (
-    <>
-      <ContextMenus />
+    <AntdConfigProvider>
+      <ErrorBoundary FallbackComponent={Fallback}>
+        <ContextMenus />
 
-      <ViewerSettings ref={viewerSettingsRef} />
-      <Viewer />
+        <Layout>
+          <Viewer />
+        </Layout>
 
-      <ImageForSize />
+        <ImageForSize />
 
-      <FloatButton.BackTop target={getAppRoot} duration={0} icon={<GoMoveToTop />} type='primary' shape='square' />
-    </>
+        <FloatButton.BackTop target={getAppRoot} duration={0} icon={<GoMoveToTop />} type='primary' shape='square' />
+      </ErrorBoundary>
+    </AntdConfigProvider>
   )
 }
 

@@ -7,7 +7,7 @@ export type DisplayStyleType = 'compact' | 'nested'
 
 type DisplayStyleProps = {
   value?: DisplayStyleType
-  onChange: (style: DisplayStyleType) => void
+  onChange?: (style: DisplayStyleType) => void
 }
 
 function DisplayStyle(props: DisplayStyleProps) {

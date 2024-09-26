@@ -4,21 +4,17 @@ import GlobalContext from './image-manager/contexts/global-context'
 import SettingsContext from './image-manager/contexts/settings-context'
 import { registerApp } from './ui-framework/src/main'
 
-const webviewComponents = {
-  // key <===> viewType
-  ImageManagerPanel: () => (
+function mount(reload?: boolean) {
+  registerApp(
     <GlobalContext.Provider>
       <SettingsContext.Provider>
         <ActionContext.Provider>
           <ImageManager />
         </ActionContext.Provider>
       </SettingsContext.Provider>
-    </GlobalContext.Provider>
-  ),
-}
-
-function mount(reload?: boolean) {
-  registerApp(webviewComponents, reload)
+    </GlobalContext.Provider>,
+    reload,
+  )
 }
 
 window.mountApp = mount

@@ -9,8 +9,8 @@ import { type SortType } from '~/core/persist/workspace/common'
 
 type DisplaySortProps = {
   options: { label: ReactNode; value: string }[]
-  value: string[] | undefined
-  onChange: (value: string[]) => void
+  value?: string[] | undefined
+  onChange?: (value: string[]) => void
 }
 
 function DisplaySort(props: DisplaySortProps) {

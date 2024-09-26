@@ -9,7 +9,6 @@ export type WorkspaceStateType = {
   display_sort: [SortByType, SortType]
   display_group: ('workspace' | 'dir' | 'type')[]
   display_style: 'compact' | 'nested'
-  viewer_mode: 'standard' | 'simple'
   rencent_image_backgroundColor: string[]
   rencent_layout_backgroundColor: string[]
 
@@ -27,7 +26,6 @@ export const defaultState: WorkspaceStateType = {
   display_sort: ['name', 'asc'],
   display_group: ['dir'],
   display_style: 'compact',
-  viewer_mode: 'standard',
   rencent_image_backgroundColor: [],
   rencent_layout_backgroundColor: [],
   show_precision_tip: true,
@@ -39,7 +37,6 @@ export const enum WorkspaceStateKey {
   display_sort = 'display_sort',
   display_group = 'display_group',
   display_style = 'display_style',
-  viewer_mode = 'viewer_mode',
   rencent_image_backgroundColor = 'rencent_image_backgroundColor',
   rencent_layout_backgroundColor = 'rencent_layout_backgroundColor',
   // 精度提示

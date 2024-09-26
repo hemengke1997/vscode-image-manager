@@ -1,3 +1,5 @@
+import { remove } from 'lodash-es'
+import micromatch from 'micromatch'
 import { normalizePath } from '.'
 
 function addLastSlash(path: string) {
@@ -39,19 +41,23 @@ export function imageGlob(options: { scan: string[]; exclude: string[]; cwds: st
 
   const imagePattern = `**/*.{${scan.join(',')}}`
 
-  const create = (pattern: string) => {
-    const patterns = cwds.map((cwd) => `${addLastSlash(cwd)}${pattern}`)
-    return patterns.map((t) => normalizePath(t))
+  const create = (pattern: string, exclude: string[]) => {
+    const patterns = cwds.map((cwd) => normalizePath(`${addLastSlash(cwd)}${pattern}`))
+    exclude.forEach((e) => {
+      patterns.forEach((pattern) => {
+        if (micromatch.isMatch(pattern, e)) {
+          remove(exclude, (t) => t === e)
+        }
+      })
+    })
+    return patterns.concat(...convertToIgnore(exclude))
   }
 
-  const absImagePatterns = create(imagePattern)
-  const allImagePatterns = [...absImagePatterns, ...convertToIgnore(exclude)]
-
-  const allCwdPatterns = [...create('**/*'), ...convertToIgnore(exclude)]
+  const allImagePatterns = create(imagePattern, exclude)
+  const allCwdPatterns = create('**/*', exclude)
 
   return {
     imagePattern,
-    absImagePatterns,
     allImagePatterns,
 
     allCwdPatterns,

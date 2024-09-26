@@ -1,12 +1,12 @@
 import { createElement, useRef } from 'react'
-import { useMemoizedFn } from 'ahooks'
+import { useTranslation } from 'react-i18next'
+import { useMemoizedFn, useUpdateEffect } from 'ahooks'
 import { App, type ModalFuncProps } from 'antd'
 import { nanoid } from 'nanoid'
 import { Modal_Instance_Props } from './use-operator-modal-logic'
 
 export type ImperativeModalProps = {
-  id: string
-  onClose: (id: string) => void
+  onClose: () => void
 }
 
 export default function useImperativeModal<T extends ImperativeModalProps>(props: {
@@ -33,8 +33,7 @@ export default function useImperativeModal<T extends ImperativeModalProps>(props
       },
       content: createElement(FC, {
         ...runtimeProps,
-        id,
-        onClose: (id) => {
+        onClose: () => {
           const instance = modalMap.current.get(id)
           instance?.destroy()
           onClose(id)
@@ -44,6 +43,13 @@ export default function useImperativeModal<T extends ImperativeModalProps>(props
 
     modalMap.current.set(id, instance)
   })
+
+  const { i18n } = useTranslation()
+  useUpdateEffect(() => {
+    for (const instance of modalMap.current.values()) {
+      instance.update(modalProps)
+    }
+  }, [i18n.language])
 
   return {
     showModal,

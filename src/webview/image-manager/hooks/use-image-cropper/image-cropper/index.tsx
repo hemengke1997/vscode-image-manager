@@ -25,7 +25,7 @@ export type ImageCropperProps = {
 } & ImperativeModalProps
 
 function ImageCropper(props: ImageCropperProps) {
-  const { image, id, onClose } = props || {}
+  const { image, onClose } = props || {}
 
   const { t, i18n } = useTranslation()
   const { message, notification } = App.useApp()
@@ -132,7 +132,7 @@ function ImageCropper(props: ImageCropperProps) {
           },
         )
         setSaveModalOpen(false)
-        onClose(id)
+        onClose()
       }
     } finally {
       setSaveLoading(false)

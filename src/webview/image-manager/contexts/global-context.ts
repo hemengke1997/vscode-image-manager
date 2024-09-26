@@ -5,9 +5,9 @@ import { type FormatConverterOptions } from '~/core'
 import { ConfigKey } from '~/core/config/common'
 import { type CompressionOptions } from '~/core/operator/compressor/type'
 import { useExtConfigState } from '~/webview/hooks/use-ext-config-state'
-import FrameworkContext from '~/webview/ui-framework/src/contexts/framework-context'
-import { type DisplayTypeFilter } from '../components/display-type'
+import VscodeContext from '~/webview/ui-framework/src/contexts/vscode-context'
 import { type ImageFilterAction } from '../components/image-actions/components/filter'
+import { type DisplayTypeFilter } from '../hooks/use-settings/settings/components/display-type'
 
 type RestrictHelper = {
   [key in ImageVisibleFilterType]?: any
@@ -44,12 +44,10 @@ export type WebviewFormatConverterType = {
 }
 
 function useGlobalContext() {
-  const { extConfig, mode, setMode, theme, workspaceState } = FrameworkContext.usePicker([
+  const { extConfig, workspaceState, vscodeConfig } = VscodeContext.usePicker([
     'extConfig',
-    'mode',
-    'setMode',
-    'theme',
     'workspaceState',
+    'vscodeConfig',
   ])
 
   /* ------------- image compressor ------------ */
@@ -112,10 +110,10 @@ function useGlobalContext() {
   /* ------------ 图片sticky header的高度 ------------ */
   const [viewerHeaderStickyHeight, setViewerHeaderStickyHeight] = useState<number>(0)
 
+  /* ----------------- 项目中所有图片类型 ---------------- */
+  const [allImageTypes, setAllImageTypes] = useState<string[]>([])
   return {
-    mode,
-    setMode,
-    theme,
+    vscodeConfig,
     workspaceState,
     compressor,
     setCompressor,
@@ -139,6 +137,8 @@ function useGlobalContext() {
     setViewerHeaderStickyHeight,
     dirReveal,
     setDirReveal,
+    allImageTypes,
+    setAllImageTypes,
   }
 }
 

@@ -145,8 +145,6 @@ function ImageContextMenu() {
     beginRenameImageProcess(e.props!.image)
   })
 
-  const { showImageDetailModal } = useImageDetail()
-
   const handleRevealInViewer = useLockFn(async (e: ItemParamsContextMenu) => {
     beginRevealInViewer(e.props!.image)
   })
@@ -154,6 +152,8 @@ function ImageContextMenu() {
   const isSvg = useMemoizedFn((e: HandlerParams<Required<ImageContextMenuType>>) => {
     return e.props!.images.every((image) => image.fileType === 'svg') || false
   })
+
+  const { showImageDetailModal } = useImageDetail()
 
   return (
     <>
@@ -223,7 +223,24 @@ function ImageContextMenu() {
         </Item>
 
         <Separator />
-        <Item onClick={(e: ItemParamsContextMenu) => showImageDetailModal(e.props!.image)}>
+        <Item
+          hidden={(e: PredicateParams<ImageContextMenuType>) => {
+            return !e.props?.z_commands?.preview
+          }}
+          onClick={(e: ItemParamsContextMenu) => {
+            e.props?.z_commands.preview?.onClick?.(e.props.image)
+          }}
+        >
+          {t('im.preview')}
+        </Item>
+
+        <Item
+          onClick={(e: ItemParamsContextMenu) =>
+            showImageDetailModal(e.props!.image, {
+              onPreview: (image) => e.props?.z_commands?.preview?.onClick(image),
+            })
+          }
+        >
           {t('im.detail')}
           <RightSlot>{t('im.double_click')}</RightSlot>
         </Item>

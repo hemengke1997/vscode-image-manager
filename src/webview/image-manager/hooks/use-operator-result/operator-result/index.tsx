@@ -12,6 +12,7 @@ import { CmdToVscode } from '~/message/cmd'
 import { useExtConfigState } from '~/webview/hooks/use-ext-config-state'
 import GlobalContext from '~/webview/image-manager/contexts/global-context'
 import { vscodeApi } from '~/webview/vscode-api'
+import { type ImperativeModalProps } from '../../use-imperative-modal'
 import useOperatorModalLogic, { type OnEndOptionsType } from '../../use-operator-modal-logic/use-operator-modal-logic'
 import useScrollRef from '../../use-scroll-ref'
 import CollapseContent from './components/collapse-content'
@@ -30,13 +31,8 @@ export type OperatorResultProps = {
   results: OperatorResult[]
 } & OnEndOptionsType
 
-function OperatorResultTsx(
-  props: OperatorResultProps & {
-    id: string
-    onClose: (id: string) => void
-  },
-) {
-  const { results: resultsProp, onUndoClick, onRedoClick, id, onClose } = props
+function OperatorResultTsx(props: OperatorResultProps & ImperativeModalProps) {
+  const { results: resultsProp, onUndoClick, onRedoClick, onClose } = props
 
   const _errorRange = GlobalContext.useSelector((ctx) => ctx.extConfig.compression.errorRange)
   const [errorRange, setErrorRange] = useExtConfigState(ConfigKey.compression_errorRange, _errorRange, [], {
@@ -79,7 +75,7 @@ function OperatorResultTsx(
 
   useUpdateEffect(() => {
     if (Object.keys(groups).every((key) => groups[key].length === 0)) {
-      onClose(id)
+      onClose()
     }
   }, [groups])
 

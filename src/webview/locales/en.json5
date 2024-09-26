@@ -181,6 +181,12 @@
     modify_success: 'Modification Successful',
     outof_error_range: 'Out of error range',
     size_over_warning: 'Image size exceeds {{size}} KB',
+    show_detail_hover: 'Hover to show details',
+    viewer: 'Viewer',
+    general: 'General',
+    light: 'Light',
+    dark: 'Dark',
+    auto: 'Auto',
   },
   fallback: {
     internal_error: 'Internal Error',

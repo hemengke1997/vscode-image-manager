@@ -19,14 +19,16 @@ function More() {
   return (
     <Popover
       title={upperFirst(t('im.action'))}
-      trigger='click'
+      trigger={['click']}
       placement='left'
       open={open}
       onOpenChange={(open) => {
         setOpen(open)
       }}
+      arrow={false}
+      overlayClassName={'select-none'}
       content={
-        <div>
+        <div className={'flex flex-col gap-2'}>
           <div className={'flex items-center space-x-2'}>
             <div>{t('im.folder')}</div>
             <Button.Group>

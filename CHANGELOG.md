@@ -1,5 +1,12 @@
 # CHANGELOG
 
+## 2.0.0 (2024-09-26)
+
+### Feat
+
+- UI重构。通用设置、查看器设置集成至右上角设置按钮中，更加简洁
+- 新增 `image-manager.viewer.showDetailsOnHover` 配置，控制鼠标悬停时是否显示图片详情。默认为 `true`
+
 ## 1.15.6 (2024-09-25)
 
 ### Fix

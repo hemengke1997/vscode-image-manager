@@ -13,6 +13,5 @@
     "**/__snapshots__/**": true,
     "CHANGELOG-CODE.md": true,
     "patches/**": true
-  },
-  "image-manager.viewer.imageWidth": 99
+  }
 }

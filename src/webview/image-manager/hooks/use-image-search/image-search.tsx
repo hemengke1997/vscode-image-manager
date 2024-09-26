@@ -21,13 +21,13 @@ import useImageManagerEvent from '../use-image-manager-event'
 import { type ImperativeModalProps } from '../use-imperative-modal'
 
 function ImageSearch(props: ImperativeModalProps) {
-  const { id, onClose } = props
+  const { onClose } = props
   const { t } = useTranslation()
 
   useImageManagerEvent({
     on: {
       reveal_in_viewer: () => {
-        onClose(id)
+        onClose()
       },
     },
   })

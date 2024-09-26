@@ -2,8 +2,8 @@ import { memo, type PropsWithChildren, useEffect } from 'react'
 import { TinyColor } from '@ctrl/tinycolor'
 import { theme as antdTheme, App, ConfigProvider } from 'antd'
 import { MotionConfig } from 'framer-motion'
-import FrameworkContext from '../../contexts/framework-context'
-import { getCssVar } from '../../utils/theme'
+import SettingsContext from '~/webview/image-manager/contexts/settings-context'
+import { getCssVar } from '~/webview/ui-framework/src/utils/theme'
 
 const DURATION_BASE = 0.06
 
@@ -25,17 +25,13 @@ function ligherOrDarker(color: string, theme: Theme) {
 }
 
 function AntdConfigProvider({ children }: PropsWithChildren) {
-  const { primaryColor, themeWithoutAuto, reduceMotionWithoutAuto } = FrameworkContext.usePicker([
-    'primaryColor',
-    'themeWithoutAuto',
-    'reduceMotionWithoutAuto',
-  ])
+  const { primaryColor, theme, reduceMotion } = SettingsContext.usePicker(['primaryColor', 'theme', 'reduceMotion'])
 
   const vscodeFontSize = getCssVar('--vscode-font-size').split('px')[0]
   const vscodeEditorBackground = getCssVar('--vscode-editor-background')
 
   const getThemeAlgorithm = () => {
-    switch (themeWithoutAuto) {
+    switch (theme) {
       case 'dark':
         return antdTheme.darkAlgorithm
       case 'light':
@@ -52,7 +48,7 @@ function AntdConfigProvider({ children }: PropsWithChildren) {
   }, [docFontSize])
 
   return (
-    <MotionConfig reducedMotion={reduceMotionWithoutAuto === 'on' ? 'always' : 'never'}>
+    <MotionConfig reducedMotion={reduceMotion === 'on' ? 'always' : 'never'}>
       <ConfigProvider
         input={{ autoComplete: 'off' }}
         button={{
@@ -64,15 +60,15 @@ function AntdConfigProvider({ children }: PropsWithChildren) {
           algorithm: [getThemeAlgorithm()],
           token: {
             fontFamily: getCssVar('var(--vscode-font-family)'),
-            motion: reduceMotionWithoutAuto === 'on' ? false : true,
+            motion: reduceMotion === 'on' ? false : true,
             fontSize: docFontSize,
             colorPrimary: primaryColor,
             motionDurationSlow: `${DURATION_BASE * 2}s`,
             motionDurationMid: `${DURATION_BASE}s`,
             motionDurationFast: `${DURATION_BASE / 2}s`,
-            ...(isSameTheme(vscodeEditorBackground, themeWithoutAuto) && {
+            ...(isSameTheme(vscodeEditorBackground, theme) && {
               colorBgContainer: vscodeEditorBackground,
-              colorBgBase: ligherOrDarker(vscodeEditorBackground, themeWithoutAuto),
+              colorBgBase: ligherOrDarker(vscodeEditorBackground, theme),
             }),
           },
         }}

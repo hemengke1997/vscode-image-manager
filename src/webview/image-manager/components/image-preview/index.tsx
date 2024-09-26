@@ -12,10 +12,8 @@ import useImageManagerEvent from '../../hooks/use-image-manager-event'
 import useImageOperation from '../../hooks/use-image-operation'
 // import useSingleToast from '../../hooks/use-single-toast'
 import useImageContextMenu from '../context-menus/components/image-context-menu/hooks/use-image-context-menu'
-import { type LazyImageProps } from '../lazy-image'
+import LazyImage, { type LazyImageProps } from '../lazy-image'
 import Toast from '../toast'
-import LazyImageMemo from './components/image-memo'
-import PreviewContext from './contexts/preview-context'
 
 function imageToken(isDarkBackground: boolean): Partial<ComponentTokenMap['Image'] & AliasToken> {
   return {
@@ -121,6 +119,9 @@ function ImagePreview(props: ImagePreviewProps, ref: ForwardedRef<HTMLDivElement
     (e) => {
       const targetEl = e.target as HTMLElement
       if (
+        // collapse 中的 image-preview 传了ref，其他的没有传
+        // 所以正好用这个ref来判断是否是在collapse中了
+        ref &&
         preventClickAway(targetEl, [
           'ant-image-preview',
           'ant-message',
@@ -177,6 +178,13 @@ function ImagePreview(props: ImagePreviewProps, ref: ForwardedRef<HTMLDivElement
         images: selected.map((t) => images.find((i) => i.path === t)!),
         sameLevelImages: images,
         sameWorkspaceImages: getSameWorkspaceImages(image),
+        z_commands: {
+          preview: {
+            onClick: (image) => {
+              handlePreviewClick(image)
+            },
+          },
+        },
         ...lazyImageProps?.contextMenu,
       },
     })
@@ -325,6 +333,19 @@ function ImagePreview(props: ImagePreviewProps, ref: ForwardedRef<HTMLDivElement
     [lazyImageProps?.antdImageProps, backgroundColor, imageWidth],
   )
 
+  const handleActiveChange = useMemoizedFn((image: ImageType, active: boolean) => {
+    setSelectedImages((t) => multipleClick(t, image.path, active))
+  })
+
+  const handlePreviewClick = useMemoizedFn((image: ImageType) => {
+    const index = images.findIndex((t) => t.path === image.path)
+    setPreview({ open: true, current: index })
+  })
+
+  const handleContextMenu = useMemoizedFn((e: React.MouseEvent<HTMLDivElement>, image: ImageType) => {
+    onContextMenu(e, image)
+  })
+
   return (
     <>
       <div className={'flex flex-wrap gap-1.5'} ref={ref}>
@@ -347,34 +368,27 @@ function ImagePreview(props: ImagePreviewProps, ref: ForwardedRef<HTMLDivElement
                 },
               }}
             >
-              <PreviewContext.Provider
-                value={{
-                  multipleClick,
-                  setSelectedImages,
-                  setPreview,
-                  onContextMenu,
-                }}
-              >
-                {images.map((image, i) => (
-                  <div
-                    // vscodePath 是带了时间戳的，可以避免图片文件名未改变但内容改变，导致图片不刷新的问题
-                    key={image.vscodePath}
-                    onClick={(e) => onClick(e, image)}
-                    ref={(ref) => (selectedImageRefs.current[image.path] = ref!)}
-                  >
-                    <LazyImageMemo
-                      {...lazyImageProps}
-                      contextMenu={lazyImageProps?.contextMenu}
-                      image={image}
-                      active={selectedImages.includes(image.path)}
-                      multipleSelect={multipleSelect}
-                      onDelete={onDelete}
-                      index={i}
-                      antdImageProps={antdImageProps}
-                    />
-                  </div>
-                ))}
-              </PreviewContext.Provider>
+              {images.map((image) => (
+                <div
+                  // vscodePath 是带了时间戳的，可以避免图片文件名未改变但内容改变，导致图片不刷新的问题
+                  key={image.vscodePath}
+                  onClick={(e) => onClick(e, image)}
+                  ref={(ref) => (selectedImageRefs.current[image.path] = ref!)}
+                >
+                  <LazyImage
+                    {...lazyImageProps}
+                    contextMenu={lazyImageProps?.contextMenu}
+                    image={image}
+                    active={selectedImages.includes(image.path)}
+                    multipleSelect={multipleSelect}
+                    onDelete={onDelete}
+                    antdImageProps={antdImageProps}
+                    onActiveChange={handleActiveChange}
+                    onPreviewClick={handlePreviewClick}
+                    onContextMenu={handleContextMenu}
+                  />
+                </div>
+              ))}
             </ConfigProvider>
           </Image.PreviewGroup>
         </ConfigProvider>

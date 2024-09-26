@@ -30,6 +30,7 @@
       imageWidth: 'Width of image (px)',
       imageBackgroundColor: 'Image background color',
       imageRendering: 'Image rendering',
+      showDetailsOnHover: 'Show image details on hover',
     },
     appearance: {
       theme: 'Theme',

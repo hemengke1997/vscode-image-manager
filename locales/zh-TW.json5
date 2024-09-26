@@ -31,6 +31,7 @@
       imageWidth: '圖片寬度 (px)',
       imageBackgroundColor: '圖片背景色',
       imageRendering: 'image rendering',
+      showDetailsOnHover: '滑鼠懸停時顯示圖片詳情',
     },
     appearance: {
       theme: '主題',

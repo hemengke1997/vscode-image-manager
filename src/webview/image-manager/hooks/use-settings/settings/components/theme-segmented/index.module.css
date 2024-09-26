@@ -1,0 +1,10 @@
+.segmented {
+  :global {
+    .ant-segmented-item-label {
+      @apply flex items-center;
+    }
+    .ant-segmented-item-icon {
+      @apply flex h-auto;
+    }
+  }
+}

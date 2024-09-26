@@ -309,12 +309,13 @@ function useTreeContext(props: TreeContextProp) {
     if (!imageFilter) return
     // 这里需要一个前提：imageFilter 的 key 和 ImageVisibleFilter 一一对应
     const changedKeys = Object.keys(diff(previousImageFilter!, imageFilter)) as ImageVisibleFilter[]
+
     changeImageVisibleByFilterKeys(latestImageList.current, changedKeys, imageFilter).then((res) => {
       setImageSingleTree({
         list: res,
       })
     })
-  }, [imageFilter])
+  }, [imageFilter, displayImageTypes])
 
   return {
     imageSingleTree,

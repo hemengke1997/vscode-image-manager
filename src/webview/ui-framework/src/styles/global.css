@@ -40,3 +40,9 @@ body {
 [role='dialog'] {
   @apply !origin-center;
 }
+
+.ant-tabs-nav {
+  &::before {
+    @apply !border-b-0;
+  }
+}

@@ -33,6 +33,14 @@ export type ImageContextMenuType = {
    * ```
    */
   enable?: EnableImageContextMenuType
+  /**
+   * z_commands (类似vscode的z_commands)
+   */
+  z_commands?: {
+    preview?: {
+      onClick: (image: ImageType) => void
+    }
+  }
 }
 
 export default function useImageContextMenu() {

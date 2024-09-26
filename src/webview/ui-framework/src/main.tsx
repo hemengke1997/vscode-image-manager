@@ -11,10 +11,6 @@ import App from './app'
 import './hmr'
 import './styles/index.css'
 
-type WebviewComponents = {
-  [key: string]: () => JSX.Element
-}
-
 i18next.use(initReactI18next).init({
   returnNull: false,
   react: {
@@ -35,7 +31,7 @@ const i18nChangeLanguage = i18next.changeLanguage
 
 let key = 0
 
-export function registerApp(webviewComponents: WebviewComponents, reload = false) {
+export function registerApp(children: JSX.Element, reload = false) {
   vscodeApi.postMessage(
     {
       cmd: CmdToVscode.on_webview_ready,
@@ -70,13 +66,9 @@ export function registerApp(webviewComponents: WebviewComponents, reload = false
 
             startTransition(() => {
               window.__react_root__.render(
-                <App
-                  extConfig={ext}
-                  vscodeConfig={vscode}
-                  workspaceState={workspaceState}
-                  key={key}
-                  components={webviewComponents}
-                />,
+                <App extConfig={ext} vscodeConfig={vscode} workspaceState={workspaceState} key={key}>
+                  {children}
+                </App>,
               )
             })
           }
