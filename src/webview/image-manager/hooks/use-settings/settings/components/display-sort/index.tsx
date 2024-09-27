@@ -84,6 +84,7 @@ function DisplaySort(props: DisplaySortProps) {
             )
           }}
           allowClear={false}
+          size={'middle'}
         ></Cascader>
       </ConfigProvider>
     </>

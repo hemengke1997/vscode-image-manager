@@ -1,6 +1,7 @@
 import { type ShowContextMenuParams, useContextMenu } from 'react-contexify'
 import { useMemoizedFn } from 'ahooks'
 import { merge } from 'lodash-es'
+import CtxMenuContext from '~/webview/image-manager/contexts/ctx-menu-context'
 import { type EnableImageContextMenuType, IMAGE_CONTEXT_MENU_ID } from '..'
 
 export type ImageContextMenuType = {
@@ -45,31 +46,45 @@ export type ImageContextMenuType = {
 
 export default function useImageContextMenu() {
   const contextMenu = useContextMenu<ImageContextMenuType>()
+  const { setShortCutsVisible } = CtxMenuContext.usePicker(['setShortCutsVisible'])
 
-  const show = useMemoizedFn((params: Omit<ShowContextMenuParams<ImageContextMenuType>, 'id'>) => {
-    const defaultEnabledContextMenuValue: EnableImageContextMenuType = {
-      sharp: false,
-      reveal_in_viewer: false,
-      fs: false,
-      svg: false,
-    }
-
-    params.props = merge(
-      {
-        enable: defaultEnabledContextMenuValue,
+  const show = useMemoizedFn(
+    (
+      params: Omit<ShowContextMenuParams<ImageContextMenuType>, 'id'>,
+      options: {
+        shortcutsVisible?: boolean
       },
-      params.props,
-    )
+    ) => {
+      const { shortcutsVisible } = options
 
-    return contextMenu.show({
-      ...params,
-      props: {
-        ...params.props,
-        images: params.props.images?.length ? params.props.images : [params.props.image],
-      },
-      id: IMAGE_CONTEXT_MENU_ID,
-    })
-  })
+      setShortCutsVisible(!shortcutsVisible === false)
 
-  return { show, hideAll: contextMenu.hideAll }
+      const defaultEnabledContextMenuValue: EnableImageContextMenuType = {
+        sharp: false,
+        reveal_in_viewer: false,
+        fs: false,
+        svg: false,
+      }
+
+      params.props = merge(
+        {
+          enable: defaultEnabledContextMenuValue,
+        },
+        params.props,
+      )
+
+      return contextMenu.show({
+        ...params,
+        props: {
+          ...params.props,
+          images: params.props.images?.length ? params.props.images : [params.props.image],
+        },
+        id: IMAGE_CONTEXT_MENU_ID,
+      })
+    },
+  )
+
+  const hideAll = useMemoizedFn(() => contextMenu.hideAll())
+
+  return { show, hideAll }
 }

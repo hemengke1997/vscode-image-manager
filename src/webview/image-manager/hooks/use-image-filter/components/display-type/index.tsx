@@ -1,16 +1,16 @@
 import { memo, useMemo } from 'react'
 import { useControlledState } from 'ahooks-x'
 import { Badge, Checkbox, theme } from 'antd'
+import { difference } from 'lodash-es'
 import { RxViewNone } from 'react-icons/rx'
-import GlobalContext, { type RestrictImageFilterType } from '~/webview/image-manager/contexts/global-context'
-
-export type DisplayTypeFilter = RestrictImageFilterType<{
-  file_type: string[]
-}>
+import GlobalContext from '~/webview/image-manager/contexts/global-context'
 
 type Props = {
+  /**
+   * 接收的参数是未选中的值
+   */
   value?: string[]
-  onChange?: (checked: string[]) => void
+  onChange?: (exclude: string[]) => void
 }
 
 function DisplayType(props: Props) {
@@ -53,16 +53,18 @@ function DisplayType(props: Props) {
     })
   }, [allImageTypes, token, allImageFiles])
 
-  const [checked, setChecked] = useControlledState({
+  const [exclude, setExclude] = useControlledState({
     defaultValue: value,
     value,
-    onChange: (value) => {
-      onChange?.(value)
+    onChange: (checked) => {
+      onChange?.(difference(allImageTypes, checked))
     },
   })
 
+  const checked = useMemo(() => difference(allImageTypes, exclude), [allImageTypes, exclude])
+
   return options.length ? (
-    <Checkbox.Group value={checked} onChange={setChecked}>
+    <Checkbox.Group value={checked} onChange={setExclude}>
       <div className={'flex flex-col gap-1'}>
         {options.map((item) => (
           <Checkbox key={item.value} value={item.value}>

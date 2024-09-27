@@ -4,14 +4,14 @@ import { produce } from 'immer'
 import { max } from 'lodash-es'
 import { classNames } from 'tw-clsx'
 
-export function useLabelWidth() {
-  const [labels, setLabels] = useState<Record<string, number>>({})
+export function useColumnWidth() {
+  const [cols, setCols] = useState<Record<string, number>>({})
 
   const onResize = useMemoizedFn((labelKey: string, width: number | undefined) => {
     if (!width) {
       return
     } else {
-      setLabels(
+      setCols(
         produce((draft) => {
           draft[labelKey] = width
         }),
@@ -19,31 +19,31 @@ export function useLabelWidth() {
     }
   })
 
-  const maxWidth = max(Object.values(labels)) || 0
+  const maxWidth = max(Object.values(cols)) || 0
 
   return [maxWidth, onResize] as const
 }
 
-function Item(props: {
-  label: ReactNode
-  children: ReactNode
+function AlignColumn(props: {
+  left: ReactNode
+  right: ReactNode
   minWidth: number
-  onResize: (labelKey: string, width: number | undefined) => void
-  labelKey: string
+  onResize: (id: string, width: number | undefined) => void
+  id: string
 }) {
-  const { label, children, minWidth, onResize, labelKey } = props
+  const { left, right, minWidth, onResize, id } = props
 
-  const labelRef = useRef<HTMLDivElement>(null)
-  const { width } = useSize(labelRef) || {}
+  const leftRef = useRef<HTMLDivElement>(null)
+  const { width } = useSize(leftRef) || {}
 
   useLayoutEffect(() => {
-    onResize(labelKey, width)
+    onResize(id, width)
   }, [width])
 
   return (
     <>
-      <div className={classNames('fixed left-[-9999px] top-[-9999px] text-lg font-medium')} ref={labelRef}>
-        {label}
+      <div className={classNames('fixed left-[-9999px] top-[-9999px] text-lg font-medium')} ref={leftRef}>
+        {left}
       </div>
       <div className={'flex items-center gap-x-8'}>
         <div
@@ -52,12 +52,12 @@ function Item(props: {
             minWidth,
           }}
         >
-          {label}
+          {left}
         </div>
-        <div>{children}</div>
+        <div>{right}</div>
       </div>
     </>
   )
 }
 
-export default memo(Item)
+export default memo(AlignColumn)

@@ -2,12 +2,8 @@ import type SharpNS from '@minko-fe/sharp'
 import { type ReactElement } from 'react'
 import { type Stats } from 'fs-extra'
 import { type ParsedPath } from 'node:path'
-import {
-  type ImageVisibleFilter as ImageVisibleFilterEnum,
-  type Language as LanguageEnum,
-  type ReduceMotion as ReduceMotionEnum,
-  type Theme as ThemeEnum,
-} from '~/enums'
+import { type Language as LanguageEnum, type ReduceMotion as ReduceMotionEnum, type Theme as ThemeEnum } from '~/enums'
+import { type ImageVisibleFilter } from '~/webview/image-manager/hooks/use-image-filter/image-filter'
 
 declare global {
   type TSharp = typeof SharpNS
@@ -17,8 +13,6 @@ declare global {
   type Language = LanguageEnum
 
   type ReduceMotion = ReduceMotionEnum
-
-  type ImageVisibleFilterType = ImageVisibleFilterEnum
 
   interface Window {
     /**
@@ -114,7 +108,7 @@ declare global {
     /**
      * 图片 visible
      */
-    visible?: Partial<Record<ImageVisibleFilterType | string, boolean>>
+    visible?: Partial<Record<ImageVisibleFilter, boolean>>
     /**
      * 用于展示的图片名称
      */

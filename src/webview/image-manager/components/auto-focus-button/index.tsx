@@ -1,12 +1,13 @@
 import { memo, useLayoutEffect, useRef } from 'react'
-import { type GetProps, Input, type InputRef } from 'antd'
+import { Button, type ButtonProps } from 'antd'
 
-function AutoFocusInput(props: GetProps<typeof Input>) {
-  const ref = useRef<InputRef>(null)
+function AutoFocusButton(props: ButtonProps) {
+  const ref = useRef<HTMLButtonElement>(null)
+
   useLayoutEffect(() => {
     let timeoutId: ReturnType<typeof setTimeout> | null = null
     timeoutId = setTimeout(() => {
-      ref.current?.focus({ cursor: 'all' })
+      ref.current?.focus()
     })
     return () => {
       if (timeoutId) {
@@ -15,7 +16,7 @@ function AutoFocusInput(props: GetProps<typeof Input>) {
     }
   }, [])
 
-  return <Input ref={ref} {...props}></Input>
+  return <Button ref={ref} {...props} />
 }
 
-export default memo(AutoFocusInput)
+export default memo(AutoFocusButton)

@@ -109,7 +109,7 @@
     no: 'いいえ',
     compressed: '圧縮済み',
     whether_compressed: '圧縮されていますか',
-    git_staged: 'Git ステージング済み',
+    git_staged: 'Git ステージング',
     no_image_to_compress: '圧縮する画像がありません',
     no_image_to_convert_format: '形式を変換する画像がありません',
     deps_not_found: '依存関係のインストールに失敗しました',

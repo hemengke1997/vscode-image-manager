@@ -4,10 +4,8 @@ import { createContainer } from 'context-state'
 import { diff } from 'deep-object-diff'
 import { isFunction, isObject } from 'lodash-es'
 import { type SortByType, type SortType, type WorkspaceStateType } from '~/core/persist/workspace/common'
-import { ImageVisibleFilter } from '~/enums'
-import { FilterRadioValue } from '../components/image-actions/components/filter'
+import { FilterRadioValue, type ImageFilterType, ImageVisibleFilter } from '../hooks/use-image-filter/image-filter'
 import { bytesToKb, uniqSortByThenMap } from '../utils'
-import { type ImageFilterType } from './global-context'
 
 export type ImageStateType = {
   /**
@@ -111,13 +109,6 @@ type TreeContextProp = {
    */
   sort?: WorkspaceStateType['display_sort']
   /**
-   * 展示图片类型
-   */
-  displayImageTypes?: {
-    unchecked: string[]
-    checked: string[]
-  }
-  /**
    * 图片过滤条件
    */
   imageFilter?: ImageFilterType
@@ -132,7 +123,6 @@ function useTreeContext(props: TreeContextProp) {
     imageList: imageListProp,
     workspaceFolder: originalWorkspaceFolder,
     sort,
-    displayImageTypes,
     imageFilter,
     onCollectTreeData,
   } = props
@@ -208,7 +198,7 @@ function useTreeContext(props: TreeContextProp) {
       res = await changeImageVisibleByFilterKeys(
         res,
         [
-          ImageVisibleFilter.file_type,
+          ImageVisibleFilter.exclude_types,
           ImageVisibleFilter.size,
           ImageVisibleFilter.git_staged,
           ImageVisibleFilter.compressed,
@@ -249,9 +239,8 @@ function useTreeContext(props: TreeContextProp) {
     (imageList: ImageType[], key: ImageVisibleFilter[], imageFilter: ImageFilterType): Promise<ImageType[]> => {
       const builtInConditions: Condition[] = [
         {
-          key: ImageVisibleFilter.file_type,
-          condition: (image) =>
-            displayImageTypes?.checked ? displayImageTypes.checked.includes(image.fileType) : true,
+          key: ImageVisibleFilter.exclude_types,
+          condition: (image) => (imageFilter.exclude_types.includes(image.fileType) ? false : true),
         },
         {
           key: ImageVisibleFilter.size,
@@ -304,6 +293,7 @@ function useTreeContext(props: TreeContextProp) {
   // 1. size
   // 2. git-staged
   // 3. compressed
+  // 4. exclude types
 
   // 统一处理筛选条件
   // 优化单个副作用导致重复渲染的性能损耗
@@ -318,7 +308,7 @@ function useTreeContext(props: TreeContextProp) {
         list: res,
       })
     })
-  }, [imageFilter, displayImageTypes])
+  }, [imageFilter, changeImageVisibleByFilterKeys])
 
   return {
     imageSingleTree,

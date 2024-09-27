@@ -6,26 +6,6 @@ import { ConfigKey } from '~/core/config/common'
 import { type CompressionOptions } from '~/core/operator/compressor/type'
 import { useExtConfigState } from '~/webview/hooks/use-ext-config-state'
 import VscodeContext from '~/webview/ui-framework/src/contexts/vscode-context'
-import { type ImageFilterAction } from '../components/image-actions/components/filter'
-import { type DisplayTypeFilter } from '../hooks/use-settings/settings/components/display-type'
-
-type RestrictHelper = {
-  [key in ImageVisibleFilterType]?: any
-}
-
-export type RestrictImageFilterType<T extends RestrictHelper> = T
-
-/**
- * 筛选条件
- *
- * @description 对象的key 与 ImageVisibleFilterType 一一对应，方便使用
- *
- * ImageFilterAction: 来源于 imageAction 的 form filter
- *
- * DisplayTypeFilter: 来源于 settings 的 image file type
- */
-
-export type ImageFilterType = ImageFilterAction & DisplayTypeFilter
 
 export type WebviewCompressorType = {
   option: CompressionOptions
@@ -72,20 +52,6 @@ function useGlobalContext() {
     data: [],
   })
 
-  /* ---------------- image filter --------------- */
-  const [imageFilter, setImageFilter] = useState<ImageFilterType>({
-    // action 中的 filter
-    size: {
-      max: undefined,
-      min: undefined,
-    },
-    compressed: 0,
-    git_staged: 0,
-
-    // viewer设置中的 display type
-    file_type: [],
-  })
-
   /* ---------------- image width --------------- */
   const [imageWidth, setImageWidth] = useExtConfigState(ConfigKey.viewer_imageWidth, extConfig.viewer.imageWidth)
 
@@ -130,8 +96,6 @@ function useGlobalContext() {
     setImageWidth,
     imagePlaceholderSize,
     setImagePlaceholderSize,
-    imageFilter,
-    setImageFilter,
     imageReveal,
     setImageReveal,
     imageRevealWithoutQuery,

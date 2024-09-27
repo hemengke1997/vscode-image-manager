@@ -74,6 +74,7 @@ function SingleLabel(props: SingleLabelProps) {
             // 防止触发父元素的打开collapse事件
             e.stopPropagation()
           }}
+          onDoubleClick={onClick}
         >
           {children}
         </div>

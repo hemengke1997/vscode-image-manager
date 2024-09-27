@@ -22,11 +22,12 @@ export default function useImperativeModal<T extends ImperativeModalProps>(props
     modalMap.current.delete(id)
   })
 
-  const showModal = useMemoizedFn((runtimeProps: Omit<T, 'id' | 'onClose'>) => {
+  const showModal = useMemoizedFn((runtimeProps: Omit<T, 'onClose'>, runtimeModalProps?: ModalFuncProps) => {
     const id = nanoid()
     const instance = modal.confirm({
       ...Modal_Instance_Props,
       ...modalProps,
+      ...runtimeModalProps,
       afterClose() {
         onClose(id)
         modalProps.afterClose?.()
@@ -42,6 +43,8 @@ export default function useImperativeModal<T extends ImperativeModalProps>(props
     })
 
     modalMap.current.set(id, instance)
+
+    return instance
   })
 
   const { i18n } = useTranslation()

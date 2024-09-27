@@ -7,6 +7,7 @@ import { AnimatePresence, motion } from 'framer-motion'
 import { produce } from 'immer'
 import { floor } from 'lodash-es'
 import { IoMdImages } from 'react-icons/io'
+import FilterContext from '../../contexts/filter-context'
 import GlobalContext from '../../contexts/global-context'
 import SettingsContext from '../../contexts/settings-context'
 import TreeContext from '../../contexts/tree-context'
@@ -19,19 +20,15 @@ import TitleIconUI from '../title-icon-UI'
 
 function Viewer() {
   const { t } = useTranslation()
-  const { imageState, imageFilter, setTreeData, setViewerHeaderStickyHeight } = GlobalContext.usePicker([
+  const { imageState, setTreeData, setViewerHeaderStickyHeight } = GlobalContext.usePicker([
     'imageState',
-    'imageFilter',
     'setTreeData',
     'setViewerHeaderStickyHeight',
   ])
 
-  const { displayGroup, displayStyle, sort, displayImageTypes } = SettingsContext.usePicker([
-    'displayGroup',
-    'displayStyle',
-    'sort',
-    'displayImageTypes',
-  ])
+  const { imageFilter } = FilterContext.usePicker(['imageFilter'])
+
+  const { displayGroup, displayStyle, sort } = SettingsContext.usePicker(['displayGroup', 'displayStyle', 'sort'])
 
   const onCollectTreeData = useMemoizedFn(
     ({ visibleList, workspaceFolder }: { visibleList: ImageType[]; workspaceFolder: string }) => {
@@ -89,7 +86,7 @@ function Viewer() {
           },
           body: { padding: 0 },
         }}
-        title={<TitleIconUI icon={<IoMdImages />}>{t('im.images')}</TitleIconUI>}
+        title={<TitleIconUI icon={<IoMdImages />}>{t('im.viewer')}</TitleIconUI>}
         extra={<ImageActions />}
         ref={stickyRef}
       >
@@ -118,7 +115,6 @@ function Viewer() {
                         imageList: item.images,
                         workspaceFolder: item.workspaceFolder,
                         sort,
-                        displayImageTypes,
                         imageFilter,
                         onCollectTreeData,
                       }}

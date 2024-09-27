@@ -21,7 +21,7 @@ import { getAppRoot } from '~/webview/utils'
 import { vscodeApi } from '~/webview/vscode-api'
 import GlobalContext from '../../contexts/global-context'
 import SettingsContext from '../../contexts/settings-context'
-import useImageDetail from '../../hooks/use-image-detail/use-image-detail'
+import useImageDetails from '../../hooks/use-image-details/use-image-details'
 import useImageOperation from '../../hooks/use-image-operation'
 import { bytesToKb, formatBytes } from '../../utils'
 import { ANIMATION_DURATION } from '../../utils/duration'
@@ -128,7 +128,7 @@ function LazyImage(props: LazyImageProps) {
 
   const { beginRenameImageProcess, beginDeleteImageProcess, handleCopyString } = useImageOperation()
   const { t } = useTranslation()
-  const { showImageDetailModal } = useImageDetail()
+  const [showImageDetails] = useImageDetails()
 
   const [selected, setSelected] = useControlledState<boolean>({
     defaultValue: active,
@@ -434,7 +434,10 @@ function LazyImage(props: LazyImageProps) {
             if (multipleSelect(e)) return
             const el = e.target as HTMLElement
             if (preventDbClick(el)) return
-            showImageDetailModal(image, { onPreview: onPreviewClick })
+            showImageDetails({
+              image,
+              onPreview: onPreviewClick,
+            })
           }}
         >
           <Corner

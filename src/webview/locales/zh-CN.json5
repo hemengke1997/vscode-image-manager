@@ -108,7 +108,7 @@
     no: '否',
     compressed: '已压缩',
     whether_compressed: '是否已压缩',
-    git_staged: 'Git staged',
+    git_staged: 'Git 已暂存',
     no_image_to_compress: '无可压缩的图片',
     no_image_to_convert_format: '无可转换格式的图片',
     deps_not_found: '依赖安装失败',

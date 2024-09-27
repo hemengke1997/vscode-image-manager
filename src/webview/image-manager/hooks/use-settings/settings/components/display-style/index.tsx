@@ -37,7 +37,6 @@ function DisplayStyle(props: DisplayStyleProps) {
       onChange={(value) => {
         setDisplayStyle(value as DisplayStyleType)
       }}
-      size='small'
     ></Segmented>
   )
 }

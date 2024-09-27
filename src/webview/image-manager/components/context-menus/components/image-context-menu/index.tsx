@@ -13,7 +13,8 @@ import { useLockFn, useMemoizedFn } from 'ahooks'
 import { App } from 'antd'
 import { os } from 'un-detector'
 import logger from '~/utils/logger'
-import useImageDetail from '~/webview/image-manager/hooks/use-image-detail/use-image-detail'
+import CtxMenuContext from '~/webview/image-manager/contexts/ctx-menu-context'
+import useImageDetails from '~/webview/image-manager/hooks/use-image-details/use-image-details'
 import useImageOperation from '~/webview/image-manager/hooks/use-image-operation'
 import { Keybinding } from '~/webview/image-manager/keybinding'
 import MaskMenu from '../../../mask-menu'
@@ -153,7 +154,9 @@ function ImageContextMenu() {
     return e.props!.images.every((image) => image.fileType === 'svg') || false
   })
 
-  const { showImageDetailModal } = useImageDetail()
+  const [showImageDetails] = useImageDetails()
+
+  const { shortcutsVisible } = CtxMenuContext.usePicker(['shortcutsVisible'])
 
   return (
     <>
@@ -168,7 +171,7 @@ function ImageContextMenu() {
         <Separator />
         <Item onClick={(e) => handleCopyString(e.props!.image, { proto: 'name' })}>
           {t('im.copy_image_name')}
-          <RightSlot>{Keybinding.Copy()}</RightSlot>
+          <RightSlot hidden={!shortcutsVisible}>{Keybinding.Copy()}</RightSlot>
         </Item>
         <Item onClick={(e) => handleCopyString(e.props!.image, { proto: 'path' })}>{t('im.copy_image_path')}</Item>
         <Item onClick={(e) => handleCopyString(e.props!.image, { proto: 'relativePath' })}>
@@ -216,10 +219,10 @@ function ImageContextMenu() {
         {/* file operation menu */}
         <Separator hidden={isItemHidden} data={[IMAGE_CONTEXT_MENU.fs]} />
         <Item onClick={handleRename} hidden={isItemHidden} data={IMAGE_CONTEXT_MENU.fs}>
-          {t('im.rename')} <RightSlot>{Keybinding.Enter()}</RightSlot>
+          {t('im.rename')} <RightSlot hidden={!shortcutsVisible}>{Keybinding.Enter()}</RightSlot>
         </Item>
         <Item onClick={handleDelete} hidden={isItemHidden} data={IMAGE_CONTEXT_MENU.fs}>
-          {t('im.delete')} <RightSlot>{Keybinding.Delete()}</RightSlot>
+          {t('im.delete')} <RightSlot hidden={!shortcutsVisible}>{Keybinding.Delete()}</RightSlot>
         </Item>
 
         <Separator />
@@ -235,14 +238,15 @@ function ImageContextMenu() {
         </Item>
 
         <Item
-          onClick={(e: ItemParamsContextMenu) =>
-            showImageDetailModal(e.props!.image, {
-              onPreview: (image) => e.props?.z_commands?.preview?.onClick(image),
+          onClick={(e: ItemParamsContextMenu) => {
+            showImageDetails({
+              image: e.props!.image,
+              onPreview: e.props?.z_commands?.preview?.onClick,
             })
-          }
+          }}
         >
           {t('im.detail')}
-          <RightSlot>{t('im.double_click')}</RightSlot>
+          <RightSlot hidden={!shortcutsVisible}>{t('im.double_click')}</RightSlot>
         </Item>
       </MaskMenu>
     </>

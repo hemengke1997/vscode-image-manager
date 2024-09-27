@@ -171,23 +171,26 @@ function ImagePreview(props: ImagePreviewProps, ref: ForwardedRef<HTMLDivElement
       setTriggeredByContextMenu(true)
     }
     setSelectedImages(selected)
-    show({
-      event: e,
-      props: {
-        image,
-        images: selected.map((t) => images.find((i) => i.path === t)!),
-        sameLevelImages: images,
-        sameWorkspaceImages: getSameWorkspaceImages(image),
-        z_commands: {
-          preview: {
-            onClick: (image) => {
-              handlePreviewClick(image)
+    show(
+      {
+        event: e,
+        props: {
+          image,
+          images: selected.map((t) => images.find((i) => i.path === t)!),
+          sameLevelImages: images,
+          sameWorkspaceImages: getSameWorkspaceImages(image),
+          z_commands: {
+            preview: {
+              onClick: (image) => {
+                handlePreviewClick(image)
+              },
             },
           },
+          ...lazyImageProps?.contextMenu,
         },
-        ...lazyImageProps?.contextMenu,
       },
-    })
+      { shortcutsVisible: true },
+    )
   })
 
   const onClick = useMemoizedFn((e: React.MouseEvent<HTMLDivElement, MouseEvent>, image: ImageType) => {
@@ -266,15 +269,18 @@ function ImagePreview(props: ImagePreviewProps, ref: ForwardedRef<HTMLDivElement
     return (
       <div
         onContextMenu={(e) => {
-          show({
-            event: e,
-            props: {
-              image: images[info.current],
-              sameLevelImages: images,
-              sameWorkspaceImages: getSameWorkspaceImages(images[info.current]),
-              ...lazyImageProps?.contextMenu,
+          show(
+            {
+              event: e,
+              props: {
+                image: images[info.current],
+                sameLevelImages: images,
+                sameWorkspaceImages: getSameWorkspaceImages(images[info.current]),
+                ...lazyImageProps?.contextMenu,
+              },
             },
-          })
+            { shortcutsVisible: false },
+          )
         }}
         className={'contents'}
       >
@@ -342,10 +348,6 @@ function ImagePreview(props: ImagePreviewProps, ref: ForwardedRef<HTMLDivElement
     setPreview({ open: true, current: index })
   })
 
-  const handleContextMenu = useMemoizedFn((e: React.MouseEvent<HTMLDivElement>, image: ImageType) => {
-    onContextMenu(e, image)
-  })
-
   return (
     <>
       <div className={'flex flex-wrap gap-1.5'} ref={ref}>
@@ -370,7 +372,7 @@ function ImagePreview(props: ImagePreviewProps, ref: ForwardedRef<HTMLDivElement
             >
               {images.map((image) => (
                 <div
-                  // vscodePath 是带了时间戳的，可以避免图片文件名未改变但内容改变，导致图片不刷新的问题
+                  // vscodePath 是带了修改时间戳的，可以避免图片文件名未改变但内容改变，导致图片不刷新的问题
                   key={image.vscodePath}
                   onClick={(e) => onClick(e, image)}
                   ref={(ref) => (selectedImageRefs.current[image.path] = ref!)}
@@ -385,7 +387,7 @@ function ImagePreview(props: ImagePreviewProps, ref: ForwardedRef<HTMLDivElement
                     antdImageProps={antdImageProps}
                     onActiveChange={handleActiveChange}
                     onPreviewClick={handlePreviewClick}
-                    onContextMenu={handleContextMenu}
+                    onContextMenu={onContextMenu}
                   />
                 </div>
               ))}

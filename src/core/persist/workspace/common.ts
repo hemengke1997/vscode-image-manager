@@ -1,10 +1,10 @@
+import { type ImageFilterType } from '~/webview/image-manager/hooks/use-image-filter/image-filter'
+
 export type SortByType = 'name' | 'size'
 export type SortType = 'desc' | 'asc'
 
 export type WorkspaceStateType = {
-  display_type: {
-    unchecked: string[]
-  }
+  image_filter: ImageFilterType
   display_sort: [SortByType, SortType]
   display_group: ('workspace' | 'dir' | 'type')[]
   display_style: 'compact' | 'nested'
@@ -18,8 +18,11 @@ export type WorkspaceStateType = {
 }
 
 export const defaultState: WorkspaceStateType = {
-  display_type: {
-    unchecked: [],
+  image_filter: {
+    size: {},
+    compressed: 0,
+    git_staged: 0,
+    exclude_types: [],
   },
   display_sort: ['name', 'asc'],
   display_group: ['dir'],
@@ -31,7 +34,7 @@ export const defaultState: WorkspaceStateType = {
 }
 
 export const enum WorkspaceStateKey {
-  display_type = 'display_type',
+  image_filter = 'image_filter',
   display_sort = 'display_sort',
   display_group = 'display_group',
   display_style = 'display_style',

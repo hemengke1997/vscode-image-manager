@@ -2,9 +2,10 @@ import { memo } from 'react'
 import { useTranslation } from 'react-i18next'
 import { useMemoizedFn, useTrackedEffect } from 'ahooks'
 import { App, Button, Divider, Form, Tabs, type TabsProps } from 'antd'
-import { difference, isNil } from 'lodash-es'
+import { isNil } from 'lodash-es'
 import { WorkspaceStateKey } from '~/core/persist/workspace/common'
 import { useWorkspaceState } from '~/webview/hooks/use-workspace-state'
+import AlignColumn, { useColumnWidth } from '~/webview/image-manager/components/align-column'
 import { Colors } from '~/webview/image-manager/utils/color'
 import GlobalContext from '../../../contexts/global-context'
 import SettingsContext from '../../../contexts/settings-context'
@@ -12,22 +13,19 @@ import { type ImperativeModalProps } from '../../use-imperative-modal'
 import DisplayGroup from './components/display-group'
 import DisplaySort from './components/display-sort'
 import DisplayStyle from './components/display-style'
-import DisplayType from './components/display-type'
 import HoverDetail from './components/hover-detail'
-import Item, { useLabelWidth } from './components/item'
 import LocaleSegmented from './components/locale-segmented'
 import PrimaryColorPicker from './components/primary-color-picker'
 import ThemeSegmented from './components/theme-segmented'
 import styles from './index.module.css'
 
-enum FormItemKey {
+enum SettingsKey {
   // general
   language = 'language',
   theme = 'theme',
   primaryColor = 'primary-color',
 
   // viewer
-  displayType = 'display-type',
   displayGroup = 'display-group',
   displayStyle = 'display-style',
   displaySort = 'display-sort',
@@ -40,7 +38,7 @@ function Settings(props: ImperativeModalProps) {
 
   const { t } = useTranslation()
 
-  const { workspaceState, allImageTypes } = GlobalContext.usePicker(['workspaceState', 'allImageTypes'])
+  const { workspaceState } = GlobalContext.usePicker(['workspaceState'])
 
   const {
     primaryColor,
@@ -49,8 +47,6 @@ function Settings(props: ImperativeModalProps) {
     setTheme,
     setLanguage,
     language,
-    displayImageTypes,
-    setDisplayImageTypes,
     displayGroup,
     setDisplayGroup,
     displayStyle,
@@ -68,8 +64,6 @@ function Settings(props: ImperativeModalProps) {
     'setTheme',
     'setLanguage',
     'language',
-    'displayImageTypes',
-    'setDisplayImageTypes',
     'displayGroup',
     'setDisplayGroup',
     'displayStyle',
@@ -89,28 +83,28 @@ function Settings(props: ImperativeModalProps) {
 
   const generalItems = [
     {
-      labelKey: FormItemKey.language,
+      key: SettingsKey.language,
       label: t('im.language'),
       children: (
-        <Form.Item name='language' noStyle={true}>
+        <Form.Item name={SettingsKey.language} noStyle={true}>
           <LocaleSegmented />
         </Form.Item>
       ),
     },
     {
-      labelKey: FormItemKey.theme,
+      key: SettingsKey.theme,
       label: t('im.theme'),
       children: (
-        <Form.Item name='theme' noStyle={true}>
+        <Form.Item name={SettingsKey.theme} noStyle={true}>
           <ThemeSegmented />
         </Form.Item>
       ),
     },
     {
-      labelKey: FormItemKey.primaryColor,
+      key: SettingsKey.primaryColor,
       label: t('im.primary_color'),
       children: (
-        <Form.Item name='primary-color' noStyle={true}>
+        <Form.Item name={SettingsKey.primaryColor} noStyle={true}>
           <PrimaryColorPicker
             rencentColors={recentBackgroundColors}
             onRencentColorsChange={setRencentBackgroundColors}
@@ -121,39 +115,35 @@ function Settings(props: ImperativeModalProps) {
   ]
 
   const formStrategy = {
-    [FormItemKey.language]: {
+    [SettingsKey.language]: {
       value: language,
       onChange: setLanguage,
     },
-    [FormItemKey.theme]: {
+    [SettingsKey.theme]: {
       value: theme,
       onChange: setTheme,
     },
-    [FormItemKey.primaryColor]: {
+    [SettingsKey.primaryColor]: {
       value: primaryColor,
       onChange: setPrimaryColor,
     },
-    [FormItemKey.displayType]: {
-      value: difference(allImageTypes, displayImageTypes.unchecked),
-      onChange: setDisplayImageTypes,
-    },
-    [FormItemKey.displayGroup]: {
+    [SettingsKey.displayGroup]: {
       value: displayGroup,
       onChange: setDisplayGroup,
     },
-    [FormItemKey.displayStyle]: {
+    [SettingsKey.displayStyle]: {
       value: displayStyle,
       onChange: setDisplayStyle,
     },
-    [FormItemKey.displaySort]: {
+    [SettingsKey.displaySort]: {
       value: sort,
       onChange: setSort,
     },
-    [FormItemKey.backgroundColor]: {
+    [SettingsKey.backgroundColor]: {
       value: backgroundColor,
       onChange: setBackgroundColor,
     },
-    [FormItemKey.hoverShowImageDetail]: {
+    [SettingsKey.hoverShowImageDetail]: {
       value: hoverShowImageDetail,
       onChange: setHoverShowImageDetail,
     },
@@ -193,46 +183,37 @@ function Settings(props: ImperativeModalProps) {
 
   const viewerItems = [
     {
-      labelKey: FormItemKey.displayType,
-      label: t('im.type'),
-      children: (
-        <Form.Item noStyle={true} name={FormItemKey.displayType}>
-          <DisplayType />
-        </Form.Item>
-      ),
-    },
-    {
-      labelKey: FormItemKey.displayGroup,
+      key: SettingsKey.displayGroup,
       label: t('im.group'),
       children: (
-        <Form.Item noStyle={true} name={FormItemKey.displayGroup}>
+        <Form.Item noStyle={true} name={SettingsKey.displayGroup}>
           <DisplayGroup></DisplayGroup>
         </Form.Item>
       ),
     },
     {
-      labelKey: FormItemKey.displayStyle,
+      key: SettingsKey.displayStyle,
       label: t('im.layout'),
       children: (
-        <Form.Item noStyle={true} name={FormItemKey.displayStyle}>
+        <Form.Item noStyle={true} name={SettingsKey.displayStyle}>
           <DisplayStyle />
         </Form.Item>
       ),
     },
     {
-      labelKey: FormItemKey.displaySort,
+      key: SettingsKey.displaySort,
       label: t('im.sort'),
       children: (
-        <Form.Item name={FormItemKey.displaySort} noStyle={true}>
+        <Form.Item name={SettingsKey.displaySort} noStyle={true}>
           <DisplaySort options={sortOptions} />
         </Form.Item>
       ),
     },
     {
-      labelKey: FormItemKey.backgroundColor,
+      key: SettingsKey.backgroundColor,
       label: t('im.image_background_color'),
       children: (
-        <Form.Item name={FormItemKey.backgroundColor} noStyle={true}>
+        <Form.Item name={SettingsKey.backgroundColor} noStyle={true}>
           <PrimaryColorPicker
             value={backgroundColor}
             onChange={setBackgroundColor}
@@ -244,18 +225,18 @@ function Settings(props: ImperativeModalProps) {
       ),
     },
     {
-      labelKey: FormItemKey.hoverShowImageDetail,
+      key: SettingsKey.hoverShowImageDetail,
       label: t('im.show_detail_hover'),
       children: (
-        <Form.Item name={FormItemKey.hoverShowImageDetail} noStyle={true}>
+        <Form.Item name={SettingsKey.hoverShowImageDetail} noStyle={true}>
           <HoverDetail />
         </Form.Item>
       ),
     },
   ]
 
-  const [viewerLabelWidth, onViewerResize] = useLabelWidth()
-  const [generalLabelWidth, onGeneralResize] = useLabelWidth()
+  const [viewerLabelWidth, onViewerResize] = useColumnWidth()
+  const [generalLabelWidth, onGeneralResize] = useColumnWidth()
 
   const tabsItems: TabsProps['items'] = [
     {
@@ -263,8 +244,15 @@ function Settings(props: ImperativeModalProps) {
       label: t('im.viewer'),
       children: (
         <div className={'flex flex-col gap-4'}>
-          {viewerItems.map((item, index) => (
-            <Item {...item} key={index} minWidth={viewerLabelWidth} onResize={onViewerResize} />
+          {viewerItems.map((item) => (
+            <AlignColumn
+              key={item.key}
+              id={item.key}
+              left={item.label}
+              right={item.children}
+              minWidth={viewerLabelWidth}
+              onResize={onViewerResize}
+            />
           ))}
         </div>
       ),
@@ -274,8 +262,15 @@ function Settings(props: ImperativeModalProps) {
       label: t('im.general'),
       children: (
         <div className={'flex flex-col gap-4'}>
-          {generalItems.map((item, index) => (
-            <Item {...item} key={index} minWidth={generalLabelWidth} onResize={onGeneralResize} />
+          {generalItems.map((item) => (
+            <AlignColumn
+              key={item.key}
+              id={item.key}
+              left={item.label}
+              right={item.children}
+              minWidth={generalLabelWidth}
+              onResize={onGeneralResize}
+            />
           ))}
         </div>
       ),
@@ -284,13 +279,12 @@ function Settings(props: ImperativeModalProps) {
 
   const [form] = Form.useForm()
   const { message } = App.useApp()
-  const handleConfirm = useMemoizedFn(() => {
+  const onFinish = useMemoizedFn((values) => {
     onClose()
-    const formValues = form.getFieldsValue()
-    for (const key in formValues) {
-      const value = formValues[key]
+    for (const key in values) {
+      const value = values[key]
       if (!isNil(value)) {
-        formStrategy[key].onChange(formValues[key])
+        formStrategy[key].onChange(values[key])
       }
     }
     message.success(t('im.modify_success'))
@@ -298,12 +292,12 @@ function Settings(props: ImperativeModalProps) {
 
   return (
     <div className={'select-none'}>
-      <Form form={form} initialValues={resolveInitialValues()}>
+      <Form form={form} onFinish={onFinish} initialValues={resolveInitialValues()}>
         <Tabs items={tabsItems} className={styles.tabs}></Tabs>
       </Form>
       <Divider className={'!my-4'} />
       <div className={'flex justify-end'}>
-        <Button type={'primary'} size={'middle'} onClick={handleConfirm}>
+        <Button type={'primary'} onClick={form.submit}>
           {t('im.confirm')}
         </Button>
       </div>

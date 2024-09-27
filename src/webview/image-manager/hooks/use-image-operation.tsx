@@ -1,11 +1,9 @@
-import { type ReactNode, useState } from 'react'
+import { type ReactNode } from 'react'
 import { Trans, useTranslation } from 'react-i18next'
 import { useLockFn, useMemoizedFn } from 'ahooks'
-import { App, Button, Checkbox, Divider, Form, type InputProps, Typography } from 'antd'
+import { App, Button, Divider, type InputProps, Typography } from 'antd'
 import escapeStringRegexp from 'escape-string-regexp'
 import { isObject, isString, toString } from 'lodash-es'
-import { Key } from 'ts-key-enum'
-import { os } from 'un-detector'
 import { type OperatorResult } from '~/core'
 import { ConfigKey } from '~/core/config/common'
 import { WorkspaceStateKey } from '~/core/persist/workspace/common'
@@ -13,15 +11,16 @@ import { CmdToVscode } from '~/message/cmd'
 import { useExtConfigState } from '~/webview/hooks/use-ext-config-state'
 import { useWorkspaceState } from '~/webview/hooks/use-workspace-state'
 import { vscodeApi } from '~/webview/vscode-api'
-import AutoFocusInput from '../components/auto-focus-input'
 import GlobalContext from '../contexts/global-context'
 import { getDirFromPath, getDirnameFromPath, getFilebasename } from '../utils'
 import { LOADING_DURATION } from '../utils/duration'
+import useDeleteImage from './use-delete-image/use-delete-image'
 import useImageCompressor from './use-image-compressor/use-image-compressor'
 import useImageConverter from './use-image-converter/use-image-converter'
 import useImageCropper from './use-image-cropper/use-image-cropper'
 import useImageManagerEvent from './use-image-manager-event'
 import useImageSimilarity from './use-image-similarity/use-image-similarity'
+import useRenameImage from './use-rename-image/use-rename-image'
 
 const { Text } = Typography
 
@@ -46,7 +45,7 @@ function useImageOperation() {
     'formatConverter',
     'extConfig',
   ])
-  const { notification, message, modal } = App.useApp()
+  const { notification, message } = App.useApp()
   const { t } = useTranslation()
 
   const openInVscodeExplorer = useMemoizedFn((filePath: string) => {
@@ -232,11 +231,8 @@ function useImageOperation() {
   )
 
   // 删除文件
-  const [confirmDelete, setConfirmDelete] = useExtConfigState(
-    ConfigKey.file_confirmDelete,
-    extConfig.file.confirmDelete,
-  )
-  const [askDelete, setAskDelete] = useState(false)
+  const [confirmDelete] = useExtConfigState(ConfigKey.file_confirmDelete, extConfig.file.confirmDelete)
+  const [showDeleteImage] = useDeleteImage()
   const beginDeleteProcess = useLockFn(
     async (
       files: {
@@ -272,41 +268,14 @@ function useImageOperation() {
       }
 
       if (confirmDelete) {
-        await modal.confirm({
-          width: 400,
-          title: t('im.delete_title', { filename: `'${filenames}'` }),
-          content: (
-            <div className='space-y-2'>
-              <div className={'text-sm'}>
-                {t('im.delete_tip', { trash: os.isMac() ? t('im.trash_macos') : t('im.trash_windows') })}
-              </div>
-              <Checkbox onChange={(e) => setAskDelete(e.target.checked)} defaultChecked={false}>
-                {t('im.dont_ask_again')}
-              </Checkbox>
-            </div>
-          ),
-          okText: t('im.confirm'),
-          cancelText: t('im.cancel'),
-          centered: true,
-          autoFocusButton: 'ok',
-          okButtonProps: {
-            onKeyDown: (e) => {
-              if (e.key === Key.Enter) {
-                const targetElement = e.target as HTMLButtonElement
-                targetElement.click()
-              }
-            },
-          },
-          onOk: async () => {
-            if (askDelete) {
-              setConfirmDelete(false)
-            }
-            await handleDelete()
-          },
+        showDeleteImage({
+          onConfirm: handleDelete,
+          filenames,
         })
       } else {
         await handleDelete()
       }
+
       return success
     },
   )
@@ -324,9 +293,6 @@ function useImageOperation() {
   const beginDeleteDirProcess = useMemoizedFn(async (dirPath: string) => {
     beginDeleteProcess([{ name: getDirnameFromPath(dirPath), path: dirPath }], { recursive: true })
   })
-
-  // 重命名
-  const [renameForm] = Form.useForm()
 
   const renameFn = useLockFn(async (source: string, target: string) => {
     return new Promise<boolean>((resolve) => {
@@ -354,7 +320,9 @@ function useImageOperation() {
     })
   })
 
-  const beginRenameProcess = useLockFn(
+  const [showRenameImage] = useRenameImage()
+
+  const beginRenameProcess = useMemoizedFn(
     async (options: {
       /**
        * 当前名称
@@ -377,73 +345,7 @@ function useImageOperation() {
        */
       inputProps?: InputProps
     }) => {
-      const { currentName, path, onFinish, inputProps, type } = options
-      const instance = modal.confirm({
-        width: 400,
-        content: (
-          <Form
-            form={renameForm}
-            onFinish={async (value) => {
-              const { rename } = value
-              if (rename === currentName || !rename) {
-                return instance.destroy()
-              }
-              await onFinish(rename)
-              instance.destroy()
-            }}
-          >
-            <Form.Item
-              rules={[
-                () => ({
-                  validateTrigger: ['onSubmit'],
-                  async validator(_, value) {
-                    if (isString(value) && value.match(/[\/]/)) {
-                      return Promise.reject(t('im.file_name_invalid', { type }))
-                    }
-                    if (value === currentName) {
-                      return Promise.resolve()
-                    }
-                    const existNames = await new Promise<string[]>((resolve) => {
-                      vscodeApi.postMessage(
-                        {
-                          cmd: CmdToVscode.get_sibling_resource,
-                          data: {
-                            source: path,
-                          },
-                        },
-                        (res) => {
-                          resolve(res)
-                        },
-                      )
-                    })
-                    if (existNames.some((t) => t === value)) {
-                      return Promise.reject(t('im.file_exsits', { type }))
-                    }
-                    return Promise.resolve()
-                  },
-                }),
-              ]}
-              name='rename'
-            >
-              <AutoFocusInput placeholder={currentName} {...inputProps} />
-            </Form.Item>
-          </Form>
-        ),
-        okText: t('im.confirm'),
-        cancelText: t('im.cancel'),
-        centered: true,
-        icon: null,
-        async onOk() {
-          renameForm.submit()
-          return Promise.reject('Prevent modal from automatically closing')
-        },
-        afterClose() {
-          renameForm.resetFields()
-        },
-        autoFocusButton: null, // For auto focus input
-      })
-
-      renameForm.setFieldsValue({ rename: currentName })
+      showRenameImage(options)
     },
   )
 
