@@ -5,6 +5,7 @@ import { App, Button, ConfigProvider, Divider, Form, InputNumber, Segmented } fr
 import { isNil } from 'lodash-es'
 import { defaultState } from '~/core/persist/workspace/common'
 import AlignColumn, { useColumnWidth } from '../../components/align-column'
+import AppearMotion from '../../components/align-column/components/appear-motion'
 import FilterContext from '../../contexts/filter-context'
 import { type ImperativeModalProps } from '../use-imperative-modal'
 import DisplayType from './components/display-type'
@@ -66,6 +67,7 @@ function ImageFilter(props: ImperativeModalProps) {
     {
       key: ImageVisibleFilter.size,
       label: t('im.size'),
+      // TODO 用户可选择单位
       children: (
         <Form.Item>
           <div className={'flex flex-col items-center gap-2'}>
@@ -177,18 +179,21 @@ function ImageFilter(props: ImperativeModalProps) {
         },
       }}
     >
-      <Form form={form} onFinish={onFinish} className={'flex flex-col gap-4'} initialValues={imageFilter}>
-        {filterItems.map((item) => (
-          <AlignColumn
-            key={item.key}
-            id={item.key}
-            left={item.label}
-            right={item.children}
-            minWidth={filterLabelWidth}
-            onResize={onFilterResize}
-          />
-        ))}
+      <Form form={form} onFinish={onFinish} initialValues={imageFilter}>
+        <AppearMotion>
+          {filterItems.map((item) => (
+            <AlignColumn
+              key={item.key}
+              id={item.key}
+              left={item.label}
+              right={item.children}
+              minWidth={filterLabelWidth}
+              onResize={onFilterResize}
+            />
+          ))}
+        </AppearMotion>
       </Form>
+
       <Divider className={'!my-4'}></Divider>
       <div className={'flex w-full justify-end gap-x-2'}>
         <Button

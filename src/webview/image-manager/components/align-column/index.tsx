@@ -47,7 +47,7 @@ function AlignColumn(props: {
       </div>
       <div className={'flex items-center gap-x-8'}>
         <div
-          className={classNames('flex-none text-lg font-medium transition-all')}
+          className={classNames('flex-none text-lg font-medium')}
           style={{
             minWidth,
           }}

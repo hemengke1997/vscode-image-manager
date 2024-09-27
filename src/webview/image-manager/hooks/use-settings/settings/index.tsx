@@ -6,6 +6,7 @@ import { isNil } from 'lodash-es'
 import { WorkspaceStateKey } from '~/core/persist/workspace/common'
 import { useWorkspaceState } from '~/webview/hooks/use-workspace-state'
 import AlignColumn, { useColumnWidth } from '~/webview/image-manager/components/align-column'
+import AppearMotion from '~/webview/image-manager/components/align-column/components/appear-motion'
 import { Colors } from '~/webview/image-manager/utils/color'
 import GlobalContext from '../../../contexts/global-context'
 import SettingsContext from '../../../contexts/settings-context'
@@ -243,7 +244,7 @@ function Settings(props: ImperativeModalProps) {
       key: 'viewer',
       label: t('im.viewer'),
       children: (
-        <div className={'flex flex-col gap-4'}>
+        <AppearMotion>
           {viewerItems.map((item) => (
             <AlignColumn
               key={item.key}
@@ -254,14 +255,14 @@ function Settings(props: ImperativeModalProps) {
               onResize={onViewerResize}
             />
           ))}
-        </div>
+        </AppearMotion>
       ),
     },
     {
       key: 'general',
       label: t('im.general'),
       children: (
-        <div className={'flex flex-col gap-4'}>
+        <AppearMotion>
           {generalItems.map((item) => (
             <AlignColumn
               key={item.key}
@@ -272,7 +273,7 @@ function Settings(props: ImperativeModalProps) {
               onResize={onGeneralResize}
             />
           ))}
-        </div>
+        </AppearMotion>
       ),
     },
   ]

@@ -4,7 +4,7 @@ export const enum LOADING_DURATION {
 }
 
 export const enum ANIMATION_DURATION {
-  slow = 0.6,
-  middle = 0.3,
-  fast = 0.15,
+  slow = 0.4,
+  middle = 0.2,
+  fast = 0.1,
 }
