@@ -29,7 +29,7 @@
 </details>
 
 <details>
-  <summary>Compression</summary>
+  <summary>Batch Compression</summary>
 
 ![compression](./screenshots/compression.png)
 
@@ -43,18 +43,19 @@
 </details>
 
 <details>
+  <summary>Search</summary>
+
+![search](./screenshots/search.png)
+</details>
+
+
+<details>
   <summary>Finding Similarities</summary>
 
 ![find-similirity](./screenshots/find-similarity.png)
 
 </details>
 
-<details>
-  <summary>Search</summary>
-
-![search](./screenshots/search.png)
-
-</details>
 
 ## Features
 

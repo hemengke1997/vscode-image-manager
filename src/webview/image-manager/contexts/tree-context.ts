@@ -113,7 +113,10 @@ type TreeContextProp = {
   /**
    * 展示图片类型
    */
-  displayImageTypes?: WorkspaceStateType['display_type']
+  displayImageTypes?: {
+    unchecked: string[]
+    checked: string[]
+  }
   /**
    * 图片过滤条件
    */

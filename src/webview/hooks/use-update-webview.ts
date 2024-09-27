@@ -27,20 +27,14 @@ export default function useUpdateWebview() {
     })
   })
 
-  const updateWorkspaceState = useMemoizedFn((allImageTypes: string[]) => {
+  const updateWorkspaceState = useMemoizedFn(() => {
     vscodeApi.postMessage(
       {
         cmd: CmdToVscode.get_workspace_state,
       },
       (data) => {
         if (data) {
-          setWorkspaceState({
-            ...data,
-            display_type: {
-              checked: allImageTypes,
-              unchecked: [],
-            },
-          })
+          setWorkspaceState(data)
         }
       },
     )

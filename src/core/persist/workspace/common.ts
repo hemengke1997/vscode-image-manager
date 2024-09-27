@@ -3,7 +3,6 @@ export type SortType = 'desc' | 'asc'
 
 export type WorkspaceStateType = {
   display_type: {
-    checked: string[]
     unchecked: string[]
   }
   display_sort: [SortByType, SortType]
@@ -20,7 +19,6 @@ export type WorkspaceStateType = {
 
 export const defaultState: WorkspaceStateType = {
   display_type: {
-    checked: [],
     unchecked: [],
   },
   display_sort: ['name', 'asc'],

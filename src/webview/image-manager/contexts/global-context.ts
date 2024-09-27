@@ -74,12 +74,15 @@ function useGlobalContext() {
 
   /* ---------------- image filter --------------- */
   const [imageFilter, setImageFilter] = useState<ImageFilterType>({
+    // action 中的 filter
     size: {
       max: undefined,
       min: undefined,
     },
     compressed: 0,
     git_staged: 0,
+
+    // viewer设置中的 display type
     file_type: [],
   })
 
@@ -111,7 +114,8 @@ function useGlobalContext() {
   const [viewerHeaderStickyHeight, setViewerHeaderStickyHeight] = useState<number>(0)
 
   /* ----------------- 项目中所有图片类型 ---------------- */
-  const [allImageTypes, setAllImageTypes] = useState<string[]>([])
+  const allImageTypes = useMemo(() => imageState.data.flatMap((item) => item.fileTypes), [imageState.data])
+
   return {
     vscodeConfig,
     workspaceState,
@@ -138,7 +142,6 @@ function useGlobalContext() {
     dirReveal,
     setDirReveal,
     allImageTypes,
-    setAllImageTypes,
   }
 }
 

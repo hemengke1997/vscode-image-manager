@@ -1,7 +1,6 @@
 import { memo, useMemo } from 'react'
 import { useControlledState } from 'ahooks-x'
 import { Badge, Checkbox, theme } from 'antd'
-import { difference, uniq } from 'lodash-es'
 import { RxViewNone } from 'react-icons/rx'
 import GlobalContext, { type RestrictImageFilterType } from '~/webview/image-manager/contexts/global-context'
 
@@ -11,29 +10,37 @@ export type DisplayTypeFilter = RestrictImageFilterType<{
 
 type Props = {
   value?: string[]
-  onChange?: (checked: string[], unchecked: string[]) => void
+  onChange?: (checked: string[]) => void
 }
 
 function DisplayType(props: Props) {
   const { token } = theme.useToken()
   const { value, onChange } = props
 
-  const { imageState } = GlobalContext.usePicker(['imageState'])
+  const { imageState, allImageTypes } = GlobalContext.usePicker(['imageState', 'allImageTypes'])
 
-  const allImageTypes = useMemo(() => uniq(imageState.data.flatMap((item) => item.fileTypes)).sort(), [imageState.data])
   const allImageFiles = useMemo(() => imageState.data.flatMap((item) => item.images), [imageState.data])
 
   const options = useMemo(() => {
-    return allImageTypes.map((item) => {
+    const sortedImageTypes = allImageTypes
+      .map((type) => {
+        return {
+          type,
+          length: allImageFiles.filter((t) => t.fileType === type).length,
+        }
+      })
+      .sort((a, b) => b.length - a.length)
+
+    return sortedImageTypes.map((item) => {
       return {
         label: (
           <div className={'flex items-center gap-x-2'}>
-            <span className={'w-16 truncate'}>{item}</span>
+            <span className={'w-16 truncate'}>{item.type}</span>
 
             <Badge
               overflowCount={Number.POSITIVE_INFINITY}
               color={token.colorPrimary}
-              count={allImageFiles.filter((t) => t.fileType === item).length}
+              count={item.length}
               showZero
               style={{
                 color: token.colorWhite,
@@ -41,7 +48,7 @@ function DisplayType(props: Props) {
             />
           </div>
         ),
-        value: item,
+        value: item.type,
       }
     })
   }, [allImageTypes, token, allImageFiles])
@@ -50,7 +57,7 @@ function DisplayType(props: Props) {
     defaultValue: value,
     value,
     onChange: (value) => {
-      onChange?.(value, difference(allImageTypes, value))
+      onChange?.(value)
     },
   })
 

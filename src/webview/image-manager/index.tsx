@@ -1,8 +1,7 @@
-import { memo, useEffect, useMemo } from 'react'
+import { memo, useEffect } from 'react'
 import { flushSync } from 'react-dom'
-import { ErrorBoundary } from 'react-error-boundary'
 import { useTranslation } from 'react-i18next'
-import { useMemoizedFn, useUpdateEffect } from 'ahooks'
+import { useMemoizedFn } from 'ahooks'
 import { App, FloatButton } from 'antd'
 import { enableMapSet, setAutoFreeze } from 'immer'
 import { GoMoveToTop } from 'react-icons/go'
@@ -13,15 +12,14 @@ import logger from '~/utils/logger'
 import useUpdateWebview from '../hooks/use-update-webview'
 import { getAppRoot } from '../utils'
 import { vscodeApi } from '../vscode-api'
-import AntdConfigProvider from './components/antd-config-provider'
 import ContextMenus from './components/context-menus'
-import Fallback from './components/fallback'
 import ImageForSize from './components/image-for-size'
 import Layout from './components/layout'
 import Viewer from './components/viewer'
 import ActionContext from './contexts/action-context'
 import GlobalContext, { type WebviewCompressorType, type WebviewFormatConverterType } from './contexts/global-context'
 import useRefreshImages from './hooks/use-refresh-images'
+import useSyncImageTypes from './hooks/use-sync-image-types'
 
 vscodeApi.registerEventListener()
 
@@ -32,23 +30,15 @@ function ImageManager() {
   const { message } = App.useApp()
   const { t } = useTranslation()
 
-  const { setCompressor, imageState, setFormatConverter, setImageReveal, setAllImageTypes } = GlobalContext.usePicker([
+  const { setCompressor, setFormatConverter, setImageReveal } = GlobalContext.usePicker([
     'setCompressor',
-    'imageState',
     'setFormatConverter',
     'setImageReveal',
-    'setAllImageTypes',
   ])
 
   const { refreshImages } = ActionContext.usePicker(['refreshImages'])
 
-  // all image types
-  const allImageTypes = useMemo(() => imageState.data.flatMap((item) => item.fileTypes), [imageState.data])
-
-  useUpdateEffect(() => {
-    setAllImageTypes(allImageTypes)
-  }, [allImageTypes])
-
+  useSyncImageTypes()
   useRefreshImages()
 
   const getCompressor = useMemoizedFn(() => {
@@ -124,7 +114,7 @@ function ImageManager() {
         break
       }
       case CmdToWebview.update_workspaceState: {
-        updateWorkspaceState(allImageTypes)
+        updateWorkspaceState()
         break
       }
       case CmdToWebview.reveal_image_in_viewer: {
@@ -155,19 +145,17 @@ function ImageManager() {
   }, [onMessage])
 
   return (
-    <AntdConfigProvider>
-      <ErrorBoundary FallbackComponent={Fallback}>
-        <ContextMenus />
+    <>
+      <ContextMenus />
 
-        <Layout>
-          <Viewer />
-        </Layout>
+      <Layout>
+        <Viewer />
+      </Layout>
 
-        <ImageForSize />
+      <ImageForSize />
 
-        <FloatButton.BackTop target={getAppRoot} duration={0} icon={<GoMoveToTop />} type='primary' shape='square' />
-      </ErrorBoundary>
-    </AntdConfigProvider>
+      <FloatButton.BackTop target={getAppRoot} duration={0} icon={<GoMoveToTop />} type='primary' shape='square' />
+    </>
   )
 }
 

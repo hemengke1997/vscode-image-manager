@@ -1,9 +1,8 @@
 import { memo } from 'react'
 import { useTranslation } from 'react-i18next'
-import { useMemoizedFn, useTrackedEffect, useUpdateEffect } from 'ahooks'
+import { useMemoizedFn, useTrackedEffect } from 'ahooks'
 import { App, Button, Divider, Form, Tabs, type TabsProps } from 'antd'
-import { produce } from 'immer'
-import { isNil } from 'lodash-es'
+import { difference, isNil } from 'lodash-es'
 import { WorkspaceStateKey } from '~/core/persist/workspace/common'
 import { useWorkspaceState } from '~/webview/hooks/use-workspace-state'
 import { Colors } from '~/webview/image-manager/utils/color'
@@ -14,7 +13,6 @@ import DisplayGroup from './components/display-group'
 import DisplaySort from './components/display-sort'
 import DisplayStyle from './components/display-style'
 import DisplayType from './components/display-type'
-import useSyncImageTypes from './components/display-type/hooks/use-sync-image-types'
 import HoverDetail from './components/hover-detail'
 import Item, { useLabelWidth } from './components/item'
 import LocaleSegmented from './components/locale-segmented'
@@ -42,7 +40,7 @@ function Settings(props: ImperativeModalProps) {
 
   const { t } = useTranslation()
 
-  const { workspaceState, setImageFilter } = GlobalContext.usePicker(['workspaceState', 'setImageFilter'])
+  const { workspaceState, allImageTypes } = GlobalContext.usePicker(['workspaceState', 'allImageTypes'])
 
   const {
     primaryColor,
@@ -88,23 +86,6 @@ function Settings(props: ImperativeModalProps) {
     WorkspaceStateKey.rencent_layout_backgroundColor,
     workspaceState.rencent_layout_backgroundColor,
   )
-
-  const onImageTypeChange = useMemoizedFn((checked: string[], unchecked?: string[]) => {
-    setDisplayImageTypes((t) => ({
-      checked: checked || t?.checked || [],
-      unchecked: unchecked || t?.unchecked || [],
-    }))
-  })
-
-  useUpdateEffect(() => {
-    setImageFilter(
-      produce((draft) => {
-        draft.file_type = displayImageTypes.checked
-      }),
-    )
-  }, [displayImageTypes.checked])
-
-  useSyncImageTypes(onImageTypeChange)
 
   const generalItems = [
     {
@@ -153,8 +134,8 @@ function Settings(props: ImperativeModalProps) {
       onChange: setPrimaryColor,
     },
     [FormItemKey.displayType]: {
-      value: displayImageTypes.checked,
-      onChange: onImageTypeChange,
+      value: difference(allImageTypes, displayImageTypes.unchecked),
+      onChange: setDisplayImageTypes,
     },
     [FormItemKey.displayGroup]: {
       value: displayGroup,
@@ -287,7 +268,6 @@ function Settings(props: ImperativeModalProps) {
           ))}
         </div>
       ),
-      forceRender: true,
     },
     {
       key: 'general',
@@ -299,7 +279,6 @@ function Settings(props: ImperativeModalProps) {
           ))}
         </div>
       ),
-      forceRender: true,
     },
   ]
 

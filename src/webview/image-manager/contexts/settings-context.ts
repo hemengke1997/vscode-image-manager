@@ -1,6 +1,8 @@
 import { useMemo } from 'react'
 import { TinyColor } from '@ctrl/tinycolor'
+import { useMemoizedFn } from 'ahooks'
 import { createContainer } from 'context-state'
+import { difference } from 'lodash-es'
 import { ConfigKey } from '~/core/config/common'
 import { WorkspaceStateKey, type WorkspaceStateType } from '~/core/persist/workspace/common'
 import { Language, ReduceMotion, Theme } from '~/enums'
@@ -11,10 +13,11 @@ import { vscodeColors } from '~/webview/ui-framework/src/utils/theme'
 import GlobalContext from './global-context'
 
 function useSettingsContext() {
-  const { workspaceState, extConfig, vscodeConfig } = GlobalContext.usePicker([
+  const { workspaceState, extConfig, vscodeConfig, allImageTypes } = GlobalContext.usePicker([
     'workspaceState',
     'extConfig',
     'vscodeConfig',
+    'allImageTypes',
   ])
 
   // 主题色
@@ -54,10 +57,25 @@ function useSettingsContext() {
   )
 
   /* -------------- display type --------------- */
-  const [displayImageTypes, setDisplayImageTypes] = useWorkspaceState(
+  const [_displayImageTypes, _setDisplayImageTypes] = useWorkspaceState(
     WorkspaceStateKey.display_type,
     workspaceState.display_type,
   )
+
+  const displayImageTypes = useMemo(
+    () => ({
+      unchecked: _displayImageTypes?.unchecked,
+      checked: difference(allImageTypes, _displayImageTypes?.unchecked),
+    }),
+    [_displayImageTypes.unchecked, allImageTypes],
+  )
+
+  const setDisplayImageTypes = useMemoizedFn((checked: string[]) => {
+    const unchecked = difference(allImageTypes, checked)
+    _setDisplayImageTypes((t) => ({
+      unchecked: unchecked || t?.unchecked || [],
+    }))
+  })
 
   /* ---------------- display sort ---------------- */
   const [sort, setSort] = useWorkspaceState(WorkspaceStateKey.display_sort, workspaceState.display_sort)

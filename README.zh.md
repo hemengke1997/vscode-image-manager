@@ -29,7 +29,7 @@
 </details>
 
 <details>
-  <summary>压缩</summary>
+  <summary>批量压缩</summary>
 
 ![compression](./screenshots/compression.png)
 
@@ -42,6 +42,15 @@
 
 </details>
 
+
+<details>
+  <summary>图片查找</summary>
+
+![search](./screenshots/search.png)
+
+</details>
+
+
 <details>
   <summary>查找相似图片</summary>
 
@@ -49,12 +58,7 @@
 
 </details>
 
-<details>
-  <summary>搜索图片</summary>
 
-![search](./screenshots/search.png)
-
-</details>
 
 ## 核心功能
 
@@ -167,6 +171,7 @@
 ## 反馈
 
 如果有任何问题或建议，请在 [GitHub Issues](https://github.com/hemengke1997/vscode-image-manager/issues) 中提出。
+
 如果觉得此插件好用，请在 [Marketplace](https://marketplace.visualstudio.com/items?itemName=minko.image-manager&ssr=false#review-details) 中给予好评，非常感谢！你的支持是我开源的最大动力
 
 ## 感谢
