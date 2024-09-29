@@ -1,19 +1,11 @@
 import { useMemo } from 'react'
 import { createContainer } from 'context-state'
-import { isArray, isObject } from 'lodash-es'
-import { WorkspaceStateKey } from '~/core/persist/workspace/common'
+import { diff } from 'deep-object-diff'
+import { flatten } from 'flat'
+import removeUndefinedObjects from 'remove-undefined-objects'
+import { defaultState, WorkspaceStateKey } from '~/core/persist/workspace/common'
 import { useWorkspaceState } from '~/webview/hooks/use-workspace-state'
 import GlobalContext from './global-context'
-
-function deepTruly(v: object | string[] | number | undefined): boolean {
-  if (isArray(v)) {
-    return v.length > 0
-  }
-  if (isObject(v)) {
-    return Object.values(v).some((v) => deepTruly(v))
-  }
-  return !!v
-}
 
 function useFilterContext() {
   const { workspaceState } = GlobalContext.usePicker(['workspaceState'])
@@ -22,7 +14,16 @@ function useFilterContext() {
   const [imageFilter, setImageFilter] = useWorkspaceState(WorkspaceStateKey.image_filter, workspaceState.image_filter)
 
   // 是否启用了筛选条件
-  const isImageFilterActive = useMemo(() => deepTruly(imageFilter), [imageFilter])
+  const isImageFilterActive = useMemo(() => {
+    const diffs = diff(
+      removeUndefinedObjects(defaultState.image_filter) || {},
+      removeUndefinedObjects(imageFilter) || {},
+    )
+    const diffKeys = Object.keys(flatten(diffs))
+    const ignoreKeys = ['size.unit']
+
+    return diffKeys.filter((key) => !ignoreKeys.includes(key)).length
+  }, [imageFilter])
 
   return {
     imageFilter,

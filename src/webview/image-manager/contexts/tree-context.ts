@@ -5,7 +5,7 @@ import { diff } from 'deep-object-diff'
 import { isFunction, isObject } from 'lodash-es'
 import { type SortByType, type SortType, type WorkspaceStateType } from '~/core/persist/workspace/common'
 import { FilterRadioValue, type ImageFilterType, ImageVisibleFilter } from '../hooks/use-image-filter/image-filter'
-import { bytesToKb, uniqSortByThenMap } from '../utils'
+import { bytesToUnit, uniqSortByThenMap } from '../utils'
 
 export type ImageStateType = {
   /**
@@ -244,9 +244,13 @@ function useTreeContext(props: TreeContextProp) {
         },
         {
           key: ImageVisibleFilter.size,
-          condition: (image) =>
-            bytesToKb(image.stats.size) >= (imageFilter.size?.min || 0) &&
-            bytesToKb(image.stats.size) <= (imageFilter.size?.max || Number.POSITIVE_INFINITY),
+          condition: (image) => {
+            return (
+              bytesToUnit(image.stats.size, imageFilter.size.unit) >= (imageFilter.size?.min || 0) &&
+              bytesToUnit(image.stats.size, imageFilter.size.unit) <=
+                (imageFilter.size?.max || Number.POSITIVE_INFINITY)
+            )
+          },
         },
         {
           key: ImageVisibleFilter.git_staged,

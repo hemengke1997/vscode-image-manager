@@ -1,5 +1,5 @@
 import { memo, type PropsWithChildren } from 'react'
-import { Button } from 'antd'
+import { Button, Tooltip } from 'antd'
 
 type RevealButtonProps = {
   title: string
@@ -10,17 +10,18 @@ function RevealButton(props: PropsWithChildren<RevealButtonProps>) {
   const { children, onClick, title } = props
 
   return (
-    <Button
-      className={'hover:text-ant-color-primary flex h-auto cursor-pointer items-center p-1 text-lg transition-colors'}
-      onClick={(e) => {
-        e.stopPropagation()
-        onClick()
-      }}
-      type='text'
-      title={title}
-    >
-      {children}
-    </Button>
+    <Tooltip arrow={false} placement={'bottom'} title={title}>
+      <Button
+        className={'hover:text-ant-color-primary flex h-auto cursor-pointer items-center p-1 text-lg transition-colors'}
+        onClick={(e) => {
+          e.stopPropagation()
+          onClick()
+        }}
+        type='text'
+      >
+        {children}
+      </Button>
+    </Tooltip>
   )
 }
 

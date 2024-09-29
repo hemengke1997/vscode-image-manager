@@ -19,7 +19,11 @@ export type WorkspaceStateType = {
 
 export const defaultState: WorkspaceStateType = {
   image_filter: {
-    size: {},
+    size: {
+      min: null,
+      max: null,
+      unit: 'KB',
+    },
     compressed: 0,
     git_staged: 0,
     exclude_types: [],

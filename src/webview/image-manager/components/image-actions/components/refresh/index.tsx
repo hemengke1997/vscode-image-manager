@@ -1,7 +1,7 @@
 import { memo, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { useMemoizedFn } from 'ahooks'
-import { Button } from 'antd'
+import { Button, Tooltip } from 'antd'
 import delay from 'delay'
 import { TbRefresh } from 'react-icons/tb'
 import { classNames } from 'tw-clsx'
@@ -23,16 +23,17 @@ function Refresh() {
   })
 
   return (
-    <Button
-      type='text'
-      icon={
-        <div className={classNames('flex items-center text-xl', loading && 'animate-spin cursor-default')}>
-          <TbRefresh />
-        </div>
-      }
-      onClick={handleRefresh}
-      title={t('im.refresh')}
-    ></Button>
+    <Tooltip title={t('im.refresh')} arrow={false} placement={'bottom'}>
+      <Button
+        type='text'
+        icon={
+          <div className={classNames('flex items-center text-xl', loading && 'animate-spin cursor-default')}>
+            <TbRefresh />
+          </div>
+        }
+        onClick={handleRefresh}
+      ></Button>
+    </Tooltip>
   )
 }
 

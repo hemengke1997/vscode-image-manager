@@ -1,6 +1,6 @@
 import { memo } from 'react'
 import { useTranslation } from 'react-i18next'
-import { Button } from 'antd'
+import { Button, Tooltip } from 'antd'
 import { TbFilter } from 'react-icons/tb'
 import FilterContext from '~/webview/image-manager/contexts/filter-context'
 import useImageFilter from '~/webview/image-manager/hooks/use-image-filter/use-image-filter'
@@ -12,16 +12,17 @@ function Filter() {
   const [showImageFilter] = useImageFilter()
 
   return (
-    <Button
-      type={isImageFilterActive ? 'primary' : 'text'}
-      icon={
-        <div className={'flex items-center text-xl'}>
-          <TbFilter />
-        </div>
-      }
-      title={t('im.filter')}
-      onClick={showImageFilter}
-    />
+    <Tooltip title={t('im.filter')} arrow={false} placement={'bottom'}>
+      <Button
+        type={isImageFilterActive ? 'primary' : 'text'}
+        icon={
+          <div className={'flex items-center text-xl'}>
+            <TbFilter />
+          </div>
+        }
+        onClick={showImageFilter}
+      />
+    </Tooltip>
   )
 }
 

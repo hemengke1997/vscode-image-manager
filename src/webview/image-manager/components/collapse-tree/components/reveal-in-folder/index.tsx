@@ -16,10 +16,10 @@ function RevealInFolder(props: PropsWithChildren<Props>) {
 
   return (
     <RevealButton
-      title={os.isMac() ? t('im.reveal_in_os_mac') : t('im.reveal_in_os_windows')}
       onClick={() => {
         openInOsExplorer(path)
       }}
+      title={os.isMac() ? t('im.reveal_in_os_mac') : t('im.reveal_in_os_windows')}
     >
       {children || <IoMdFolderOpen />}
     </RevealButton>

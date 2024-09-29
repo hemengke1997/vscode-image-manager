@@ -71,6 +71,11 @@ function AntdConfigProvider({ children }: PropsWithChildren) {
               colorBgBase: ligherOrDarker(vscodeEditorBackground, theme),
             }),
           },
+          components: {
+            Modal: {
+              controlHeight: 24,
+            },
+          },
         }}
         componentSize='small'
         warning={{ strict: false }}

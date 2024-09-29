@@ -12,9 +12,11 @@ export function formatBytes(bytes: number, decimals: number = 2): string {
   return `${round(bytes / k ** i, dm)} ${sizes[i]}`
 }
 
-export function bytesToKb(bytes: number | undefined): number {
+export function bytesToUnit(bytes: number | undefined, unit: 'KB' | 'MB'): number {
   if (!bytes) return 0
-  return round(bytes / 1024, 2)
+  const sizes = ['KB', 'MB']
+  const i = sizes.indexOf(unit)
+  return round(bytes / 1024 ** (i + 1), 2)
 }
 
 /**

@@ -1,7 +1,7 @@
 import { memo } from 'react'
 import { useTranslation } from 'react-i18next'
 import { useMemoizedFn } from 'ahooks'
-import { App, Button, ConfigProvider, Divider, Form, InputNumber, Segmented } from 'antd'
+import { App, Button, ConfigProvider, Divider, Form, InputNumber, Segmented, Select, Space } from 'antd'
 import { isNil } from 'lodash-es'
 import { defaultState } from '~/core/persist/workspace/common'
 import AlignColumn, { useColumnWidth } from '../../components/align-column'
@@ -25,8 +25,9 @@ export type ImageFilterType = {
    * 图片体积
    */
   size: {
-    min?: number
-    max?: number
+    min: number | null
+    max: number | null
+    unit: 'KB' | 'MB'
   }
   /**
    * 0: all, 1: yes, 2: no
@@ -44,6 +45,8 @@ export enum ImageVisibleFilter {
   git_staged = 'git_staged',
   compressed = 'compressed',
 }
+
+const UnitOptions: ImageFilterType['size']['unit'][] = ['KB', 'MB']
 
 function ImageFilter(props: ImperativeModalProps) {
   const { onClose } = props
@@ -66,11 +69,26 @@ function ImageFilter(props: ImperativeModalProps) {
     },
     {
       key: ImageVisibleFilter.size,
-      label: t('im.size'),
-      // TODO 用户可选择单位
+      label: (
+        <div className={'flex items-center gap-2'}>
+          <div>{t('im.size')}</div>
+          <div>
+            <Form.Item name={[ImageVisibleFilter.size, 'unit']} noStyle={true}>
+              <Select
+                className={'w-20'}
+                options={UnitOptions.map((t) => ({
+                  label: t,
+                  value: t,
+                }))}
+                variant='filled'
+              ></Select>
+            </Form.Item>
+          </div>
+        </div>
+      ),
       children: (
         <Form.Item>
-          <div className={'flex flex-col items-center gap-2'}>
+          <Space.Compact>
             <Form.Item
               noStyle
               rules={[
@@ -87,7 +105,7 @@ function ImageFilter(props: ImperativeModalProps) {
               name={[ImageVisibleFilter.size, 'min']}
               dependencies={[[ImageVisibleFilter.size, 'max']]}
             >
-              <InputNumber size={'middle'} placeholder={`${t('im.min')}`} min={0} addonAfter={'KB'} />
+              <InputNumber size={'middle'} placeholder={`${t('im.min')}`} min={0} className={'w-40'} />
             </Form.Item>
             <Form.Item
               noStyle
@@ -105,9 +123,9 @@ function ImageFilter(props: ImperativeModalProps) {
               ]}
               dependencies={[[ImageVisibleFilter.size, 'min']]}
             >
-              <InputNumber size={'middle'} placeholder={`${t('im.max')}`} min={0} addonAfter={'KB'} />
+              <InputNumber size={'middle'} placeholder={`${t('im.max')}`} min={0} className={'w-40'} />
             </Form.Item>
-          </div>
+          </Space.Compact>
         </Form.Item>
       ),
     },
@@ -165,6 +183,7 @@ function ImageFilter(props: ImperativeModalProps) {
 
   const onFinish = useMemoizedFn((value) => {
     onClose()
+    console.log(value, 'value')
     setImageFilter(value)
     message.success(t('im.operation_success'))
   })

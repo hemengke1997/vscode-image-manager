@@ -1,6 +1,6 @@
 import { memo } from 'react'
 import { useTranslation } from 'react-i18next'
-import { Button, Descriptions, type DescriptionsProps } from 'antd'
+import { Button, Descriptions, type DescriptionsProps, Tooltip } from 'antd'
 import { HiOutlineViewfinderCircle } from 'react-icons/hi2'
 import { CmdToVscode } from '~/message/cmd'
 import { vscodeApi } from '~/webview/vscode-api'
@@ -28,15 +28,16 @@ function ImageDetails(props: Props & ImperativeModalProps) {
         <div className={'flex items-center justify-between gap-x-1'}>
           <div className={'w-0 flex-1 truncate'}>{image.name}</div>
           {onPreview && (
-            <Button
-              type={'text'}
-              icon={<HiOutlineViewfinderCircle className={'flex-none text-xl'} />}
-              title={t('im.preview')}
-              onClick={() => {
-                onClose()
-                onPreview && onPreview(image)
-              }}
-            ></Button>
+            <Tooltip title={t('im.preview')} arrow={false} placement={'bottom'}>
+              <Button
+                type={'text'}
+                icon={<HiOutlineViewfinderCircle className={'flex-none text-xl'} />}
+                onClick={() => {
+                  onClose()
+                  onPreview && onPreview(image)
+                }}
+              ></Button>
+            </Tooltip>
           )}
         </div>
       ),
@@ -54,11 +55,11 @@ function ImageDetails(props: Props & ImperativeModalProps) {
           label: `${t('im.dimensions')}(px)`,
           children: (
             <div>
-              {width} x {height}
+              {width} × {height}
             </div>
           ),
         }
-      : (null as any),
+      : undefined,
     {
       label: t('im.size'),
       children: <div>{formatBytes(image.stats.size)}</div>,

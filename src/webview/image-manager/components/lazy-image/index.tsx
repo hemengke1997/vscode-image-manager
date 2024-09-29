@@ -23,7 +23,7 @@ import GlobalContext from '../../contexts/global-context'
 import SettingsContext from '../../contexts/settings-context'
 import useImageDetails from '../../hooks/use-image-details/use-image-details'
 import useImageOperation from '../../hooks/use-image-operation'
-import { bytesToKb, formatBytes } from '../../utils'
+import { bytesToUnit, formatBytes } from '../../utils'
 import { ANIMATION_DURATION } from '../../utils/duration'
 import useImageContextMenu, {
   type ImageContextMenuType,
@@ -234,7 +234,7 @@ function LazyImage(props: LazyImageProps) {
   }, [keybindRef.current])
 
   const sizeWarning = useMemo((): boolean => {
-    if (!!warningSize && bytesToKb(image.stats.size) > warningSize) {
+    if (!!warningSize && bytesToUnit(image.stats.size, 'KB') > warningSize) {
       return true
     }
     return false

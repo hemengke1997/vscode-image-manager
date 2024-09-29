@@ -15,10 +15,10 @@ function Corner(props: Props) {
 
   const positions = useMemo(
     () => [
-      { className: 'left-0 top-0 translate-x-[-30%] translate-y-[-30%]', content: leftTop },
-      { className: 'right-0 top-0 translate-x-[30%] translate-y-[-30%]', content: rightTop },
-      { className: 'bottom-0 left-0 translate-x-[-30%] translate-y-[30%]', content: leftBottom },
-      { className: 'bottom-0 right-0 translate-x-[30%] translate-y-[30%]', content: rightBottom },
+      { className: 'left-0 top-0 translate-x-[-40%] translate-y-[-40%]', content: leftTop },
+      { className: 'right-0 top-0 translate-x-[40%] translate-y-[-40%]', content: rightTop },
+      { className: 'bottom-0 left-0 translate-x-[-40%] translate-y-[40%]', content: leftBottom },
+      { className: 'bottom-0 right-0 translate-x-[40%] translate-y-[40%]', content: rightBottom },
     ],
     [leftTop, rightTop, leftBottom, rightBottom],
   )
