@@ -19,11 +19,6 @@ import ImageCollapse from '../image-collapse'
 import RevealInFolder from './components/reveal-in-folder'
 import styles from './index.module.css'
 
-type CollapseTreeProps = {
-  displayGroup: WorkspaceStateType['display_group']
-  displayStyle: WorkspaceStateType['display_style']
-}
-
 type TreeExtraProps = {
   /**
    * 节点当前目录下的所有图片（不包括子目录）
@@ -84,8 +79,14 @@ function RevealGroup(props: { path: string; folderChildren?: ReactNode }) {
   )
 }
 
-function CollapseTree(props: CollapseTreeProps) {
-  const { displayGroup, displayStyle } = props
+type Props = {
+  displayGroup: WorkspaceStateType['display_group']
+  displayStyle: WorkspaceStateType['display_style']
+  multipleWorkspace: boolean
+}
+
+function CollapseTree(props: Props) {
+  const { displayGroup, displayStyle, multipleWorkspace } = props
   const { t } = useTranslation()
 
   const { dirs, imageTypes, workspaceFolder, originalWorkspaceFolder } = TreeContext.usePicker([
@@ -101,9 +102,22 @@ function CollapseTree(props: CollapseTreeProps) {
 
   const dirTree = useRef<DirTree<TreeExtraProps>>()
 
+  const getContextMenu = useMemoizedFn((root: boolean) => {
+    return {
+      compress_in_current_directory: true,
+      compress_in_recursive_directories: true,
+      format_conversion_in_current_directory: true,
+      format_conversion_in_recursive_directories: true,
+      open_in_os_explorer: true,
+      open_in_vscode_explorer: true,
+      rename_directory: !root,
+      delete_directory: !root,
+    }
+  })
+
   const displayMap: DisplayMapType<{
     icon: (props: { path: string }) => ReactNode
-    contextMenu: EnableCollapseContextMenuType
+    contextMenu: (root: boolean) => EnableCollapseContextMenuType
   }> = useMemo(
     () => ({
       workspace: {
@@ -112,7 +126,7 @@ function CollapseTree(props: CollapseTreeProps) {
         },
         list: [workspaceFolder].filter(Boolean),
         icon: (props: { path: string }) => <RevealGroup {...props} />,
-        contextMenu: true,
+        contextMenu: getContextMenu,
         priority: 1,
       },
       dir: {
@@ -121,7 +135,7 @@ function CollapseTree(props: CollapseTreeProps) {
         },
         list: dirs,
         icon: (props: { path: string }) => <RevealGroup {...props} />,
-        contextMenu: true,
+        contextMenu: getContextMenu,
         priority: 2,
       },
       type: {
@@ -130,24 +144,24 @@ function CollapseTree(props: CollapseTreeProps) {
         },
         list: imageTypes,
         icon: () => <VscFileMedia className={'mr-1'} />,
-        contextMenu: {
+        contextMenu: () => ({
           open_in_os_explorer: false,
           open_in_vscode_explorer: false,
           compress_in_recursive_directories: false,
           format_conversion_in_recursive_directories: false,
           delete_directory: false,
           rename_directory: false,
-        },
+        }),
         priority: 3,
       },
       // Special case, when no group checked, show all images
       all: {
         icon: (props: { path: string }) => <RevealGroup {...props} folderChildren={<FaRegImages />} />,
-        contextMenu: true,
+        contextMenu: getContextMenu,
         priority: null,
       },
     }),
-    [workspaceFolder, dirs, imageTypes],
+    [workspaceFolder, dirs, imageTypes, getContextMenu],
   )
 
   const nestedDisplay = useMemoizedFn(
@@ -155,12 +169,12 @@ function CollapseTree(props: CollapseTreeProps) {
       tree: (FileNode & TreeExtraProps)[],
       collapseProps?: CollapseProps,
       options?: {
-        defaultOpen?: boolean
+        root?: boolean
       },
     ) => {
       if (!tree.length) return null
 
-      const { defaultOpen } = options || {}
+      const { root } = options || {}
 
       return (
         <div className={'select-none space-y-2'}>
@@ -174,17 +188,21 @@ function CollapseTree(props: CollapseTreeProps) {
                 id={value}
                 collapseProps={{
                   bordered: false,
-                  defaultActiveKey: defaultOpen ? [value] : undefined,
                   className: classNames(styles.collapse),
+                  // 多工作区时，顶部目录可以关闭，否则不可关闭
+                  [multipleWorkspace ? 'defaultActiveKey' : 'activeKey']: root ? [value] : undefined,
                   ...collapseProps,
                 }}
+                collapsible={root && multipleWorkspace}
                 labelRender={(label) => (
                   <div className={'flex items-center space-x-1'}>
                     <div className={'flex items-center'}>{displayMap[groupType].icon({ path: value })}</div>
                     {label}
                   </div>
                 )}
-                contextMenu={displayMap[groupType].contextMenu}
+                contextMenu={{
+                  ...displayMap[groupType].contextMenu(!!root),
+                }}
                 label={label}
                 joinLabel={!!displayMap[groupType].priority}
                 nestedChildren={label ? nestedDisplay(children) : null}
@@ -263,7 +281,7 @@ function CollapseTree(props: CollapseTreeProps) {
     }
 
     // render tree
-    return nestedDisplay(tree, { bordered: true }, { defaultOpen: true })
+    return nestedDisplay(tree, { bordered: true }, { root: true })
   })
 
   return (

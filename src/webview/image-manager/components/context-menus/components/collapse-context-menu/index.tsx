@@ -46,11 +46,9 @@ export const COLLAPSE_CONTEXT_MENU = {
   delete_directory: 'delete_directory',
 }
 
-export type EnableCollapseContextMenuType =
-  | {
-      [key in keyof typeof COLLAPSE_CONTEXT_MENU]?: boolean
-    }
-  | boolean
+export type EnableCollapseContextMenuType = {
+  [key in keyof typeof COLLAPSE_CONTEXT_MENU]?: boolean
+}
 
 function CollapseContextMenu() {
   const { t } = useTranslation()

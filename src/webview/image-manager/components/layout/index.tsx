@@ -37,7 +37,9 @@ function Layout(props: PropsWithChildren) {
   return (
     <div className={'min-w-screen min-h-screen space-y-2 p-4'} ref={domRef}>
       <header className={'mb-4 flex items-center justify-between'}>
-        <Logo className='fill-ant-color-primary text-4xl' />
+        <a href='https://github.com/hemengke1997/vscode-image-manager' target={'_blank'}>
+          <Logo className='fill-ant-color-primary text-4xl' />
+        </a>
 
         <Tooltip title={toLower(t('im.settings'))} arrow={false} placement={'bottom'}>
           <Button

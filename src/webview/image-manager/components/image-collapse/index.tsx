@@ -63,6 +63,10 @@ type ImageCollapseProps = {
    * ImagePreview组件的透传prop
    */
   imagePreviewProps?: Partial<ImagePreviewProps>
+  /**
+   * 是否可以展开
+   */
+  collapsible?: boolean
 }
 
 function ImageCollapse(props: ImageCollapseProps) {
@@ -78,6 +82,7 @@ function ImageCollapse(props: ImageCollapseProps) {
     id,
     contextMenu,
     imagePreviewProps,
+    collapsible = true,
   } = props
 
   const { imageRevealWithoutQuery, viewerHeaderStickyHeight, dirReveal, setDirReveal } = GlobalContext.usePicker([
@@ -99,6 +104,10 @@ function ImageCollapse(props: ImageCollapseProps) {
 
       if (target) {
         target.tabIndex = -1
+
+        if (!collapsible) {
+          target.style.cursor = 'auto'
+        }
       }
     }
   }, [stickyRef])
@@ -241,9 +250,9 @@ function ImageCollapse(props: ImageCollapseProps) {
             <div key={i} className={classNames('flex items-center', i === labels.length - 1 && 'flex-1')}>
               <SingleLabel
                 index={i}
-                contextMenu={!!contextMenu}
+                contextMenu={contextMenu}
                 onContextMenu={(e) => onContextMenu(e, i)}
-                onClick={onLabelClick}
+                onClick={collapsible ? onLabelClick : undefined}
                 dirPath={getCurrentPath(i)}
               >
                 {l}
@@ -256,9 +265,9 @@ function ImageCollapse(props: ImageCollapseProps) {
     } else {
       return (
         <SingleLabel
-          onClick={onLabelClick}
+          onClick={collapsible ? onLabelClick : undefined}
           index={0}
-          contextMenu={!!contextMenu}
+          contextMenu={contextMenu}
           onContextMenu={(e) => onContextMenu(e, 0)}
           dirPath={id}
         >
@@ -315,10 +324,11 @@ function ImageCollapse(props: ImageCollapseProps) {
          * 所以需要在关闭的时候销毁inactive的panel
          */
         destroyInactivePanel
-        {...collapseProps}
         ref={stickyRef}
         activeKey={activeKeys}
         onChange={(keys) => onCollapseChange(keys as string[])}
+        {...collapseProps}
+        className={classNames(collapseProps.className)}
         items={[
           {
             forceRender: !!activeKeys.length,

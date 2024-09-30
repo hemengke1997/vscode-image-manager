@@ -9,10 +9,10 @@ export default function useImageConverter() {
   const { t } = useTranslation()
 
   const { showModal } = useImperativeModal({
-    FC: ImageConverter,
     modalProps: {
       title: t('im.convert_format'),
     },
+    FC: ImageConverter,
   })
 
   return [showModal] as const

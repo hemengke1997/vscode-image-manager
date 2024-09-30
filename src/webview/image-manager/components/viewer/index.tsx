@@ -119,7 +119,11 @@ function Viewer() {
                         onCollectTreeData,
                       }}
                     >
-                      <CollapseTree displayGroup={displayGroup} displayStyle={displayStyle} />
+                      <CollapseTree
+                        multipleWorkspace={imageState.data.length > 1}
+                        displayGroup={displayGroup}
+                        displayStyle={displayStyle}
+                      />
                     </TreeContext.Provider>
                   ))
                 ) : (

@@ -11,7 +11,6 @@ export default function useImageFilter() {
     modalProps: {
       width: 'fit-content',
       title: t('im.filter'),
-      centered: true,
       keyboard: true,
     },
     FC: ImageFilter,

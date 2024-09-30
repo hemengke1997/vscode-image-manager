@@ -3,15 +3,16 @@ import { useHotkeys } from 'react-hotkeys-hook'
 import { Key } from 'ts-key-enum'
 import { classNames } from 'tw-clsx'
 import useImageOperation from '~/webview/image-manager/hooks/use-image-operation'
+import { type EnableCollapseContextMenuType } from '../../../context-menus/components/collapse-context-menu'
 import useCollapseContextMenu from '../../../context-menus/components/collapse-context-menu/hooks/use-collapse-context-menu'
 
 type SingleLabelProps = {
   children: ReactNode
-  contextMenu: boolean
+  contextMenu?: EnableCollapseContextMenuType
   dirPath: string
   index: number
   onContextMenu: (e: React.MouseEvent<HTMLDivElement, MouseEvent>, index: number) => void
-  onClick: () => void
+  onClick: (() => void) | undefined
 }
 
 function SingleLabel(props: SingleLabelProps) {
@@ -23,26 +24,30 @@ function SingleLabel(props: SingleLabelProps) {
   const keybindRef = useHotkeys<HTMLDivElement>(
     [Key.Enter, `mod+${Key.Backspace}`, Key.Delete],
     (e) => {
-      if (contextMenu) {
-        switch (e.key) {
-          case Key.Enter: {
-            hideAll()
-            beginRenameDirProcess(dirPath)
-            return
-          }
-          // mac delete key
-          case Key.Backspace: {
-            beginDeleteDirProcess(dirPath)
-            return
-          }
-          // windows delete key
-          case Key.Delete: {
-            beginDeleteDirProcess(dirPath)
-            return
-          }
-          default:
-            break
+      switch (e.key) {
+        case Key.Enter: {
+          if (!contextMenu?.rename_directory) return
+
+          hideAll()
+          beginRenameDirProcess(dirPath)
+          return
         }
+        // mac delete key
+        case Key.Backspace: {
+          if (!contextMenu?.delete_directory) return
+
+          beginDeleteDirProcess(dirPath)
+          return
+        }
+        // windows delete key
+        case Key.Delete: {
+          if (!contextMenu?.delete_directory) return
+
+          beginDeleteDirProcess(dirPath)
+          return
+        }
+        default:
+          break
       }
     },
     {
@@ -60,7 +65,7 @@ function SingleLabel(props: SingleLabelProps) {
     <div className={'w-full flex-1'}>
       <div
         onContextMenu={(e) => onContextMenu(e, index)}
-        className={classNames('relative w-full cursor-pointer transition-all')}
+        className={classNames('relative w-full transition-all', onClick && 'cursor-pointer')}
         onClick={onClick}
       >
         <div
@@ -68,7 +73,7 @@ function SingleLabel(props: SingleLabelProps) {
           data-dir_path={dirPath}
           tabIndex={-1}
           className={
-            'hover:text-ant-color-primary-text-hover focus:text-ant-color-primary-text-hover inline-flex transition-all focus:underline'
+            'hover:text-ant-color-primary-text-hover focus:text-ant-color-primary-text-hover inline-flex cursor-pointer transition-all focus:underline'
           }
           onClick={(e) => {
             // 防止触发父元素的打开collapse事件

@@ -9,10 +9,10 @@ export default function useImageCropper() {
   const { t } = useTranslation()
 
   const { showModal } = useImperativeModal({
-    FC: imageCropper,
     modalProps: {
       title: t('im.crop'),
     },
+    FC: imageCropper,
   })
 
   return [showModal] as const

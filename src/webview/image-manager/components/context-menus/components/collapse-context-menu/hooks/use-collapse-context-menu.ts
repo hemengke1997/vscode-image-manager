@@ -21,7 +21,6 @@ export type CollapseContextMenuType = {
   sameLevelDirs?: string[]
   /**
    * 要显示的菜单项
-   * @default true 全部显示
    */
   enable: EnableCollapseContextMenuType
 }
@@ -36,5 +35,7 @@ export default function useCollapseContextMenu() {
     })
   })
 
-  return { show, hideAll: contextMenu.hideAll }
+  const hideAll = useMemoizedFn(() => contextMenu.hideAll())
+
+  return { show, hideAll }
 }

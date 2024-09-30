@@ -329,7 +329,7 @@ function ImageCompressor(props: ImageCompressorProps & ImperativeModalProps) {
           requiredMark={false}
           onFinish={onFinish}
         >
-          <div className={'max-h-[360px] overflow-auto'}>
+          <div className={'overflow-auto'}>
             {Object.keys(allComponents).map((key, index) => {
               return (
                 <div key={index} hidden={!displayComponents.keys.includes(key)}>
