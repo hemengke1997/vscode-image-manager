@@ -1,4 +1,4 @@
-import { memo, type ReactNode } from 'react'
+import { memo, type ReactNode, useMemo } from 'react'
 import { useHotkeys } from 'react-hotkeys-hook'
 import { Key } from 'ts-key-enum'
 import { classNames } from 'tw-clsx'
@@ -21,28 +21,24 @@ function SingleLabel(props: SingleLabelProps) {
 
   const { hideAll } = useCollapseContextMenu()
 
+  const enableHotkey = useMemo(() => contextMenu?.rename_directory && contextMenu?.delete_directory, [contextMenu])
+
   const keybindRef = useHotkeys<HTMLDivElement>(
     [Key.Enter, `mod+${Key.Backspace}`, Key.Delete],
     (e) => {
       switch (e.key) {
         case Key.Enter: {
-          if (!contextMenu?.rename_directory) return
-
           hideAll()
           beginRenameDirProcess(dirPath)
           return
         }
         // mac delete key
         case Key.Backspace: {
-          if (!contextMenu?.delete_directory) return
-
           beginDeleteDirProcess(dirPath)
           return
         }
         // windows delete key
         case Key.Delete: {
-          if (!contextMenu?.delete_directory) return
-
           beginDeleteDirProcess(dirPath)
           return
         }
@@ -53,6 +49,9 @@ function SingleLabel(props: SingleLabelProps) {
     {
       description: dirPath,
       enabled(e) {
+        if (!enableHotkey) {
+          return false
+        }
         if ((e.target as HTMLDivElement).dataset.dir_path === dirPath) {
           return true
         }
@@ -71,10 +70,13 @@ function SingleLabel(props: SingleLabelProps) {
         <div
           ref={keybindRef}
           data-dir_path={dirPath}
-          tabIndex={-1}
-          className={
-            'hover:text-ant-color-primary-text-hover focus:text-ant-color-primary-text-hover inline-flex cursor-pointer transition-all focus:underline'
-          }
+          {...(enableHotkey
+            ? {
+                tabIndex: -1,
+                className:
+                  'hover:text-ant-color-primary-text-hover focus:text-ant-color-primary-text-hover inline-flex cursor-pointer transition-all focus:underline',
+              }
+            : {})}
           onClick={(e) => {
             // 防止触发父元素的打开collapse事件
             e.stopPropagation()
