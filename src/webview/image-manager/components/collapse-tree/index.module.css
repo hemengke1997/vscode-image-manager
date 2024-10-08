@@ -3,16 +3,14 @@
     .ant-collapse-borderless {
       .ant-collapse-header {
         @apply !rounded-ant-border-radius-lg;
-        &:hover,
-        &:focus-within {
+        &:hover {
           @apply bg-ant-control-item-bg-hover;
         }
       }
     }
     .ant-collapse-header {
       @apply !rounded-t-ant-border-radius-lg relative !rounded-b-none;
-      &:hover,
-      &:focus-within {
+      &:hover {
         @apply bg-ant-control-item-bg-hover;
       }
     }
