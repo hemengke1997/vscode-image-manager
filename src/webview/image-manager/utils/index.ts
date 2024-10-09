@@ -82,3 +82,13 @@ export function findSameWorkspaceImages(image: ImageType, imageList: ImageType[]
 export function triggerOnce<T extends (...args: any[]) => any>(fn: T) {
   return debounce(fn, Number.MAX_SAFE_INTEGER, { immediate: true })
 }
+
+/**
+ * 清除路径中的时间戳
+ */
+export function clearTimestamp(path: string | undefined) {
+  if (!path) return ''
+  const index = path.lastIndexOf('?')
+  if (index !== -1) return path.slice(0, index)
+  return path
+}

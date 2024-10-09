@@ -84,3 +84,7 @@ export function resolveDirPath(imagePath: string, cwd: string) {
   if (cwd === path.dirname(imagePath)) return ''
   return normalizePath(path.relative(cwd, path.dirname(imagePath)))
 }
+
+export function ensureArray<T>(value: T | T[]): T[] {
+  return Array.isArray(value) ? value : [value]
+}

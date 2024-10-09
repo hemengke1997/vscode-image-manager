@@ -2,7 +2,7 @@ import { memo, type ReactNode, useEffect, useMemo, useRef } from 'react'
 import { useHotkeys } from 'react-hotkeys-hook'
 import { useTranslation } from 'react-i18next'
 import { animateScroll } from 'react-scroll'
-import { useInViewport, useMemoizedFn, useUpdateEffect } from 'ahooks'
+import { useInViewport, useMemoizedFn, useSetState } from 'ahooks'
 import { useControlledState } from 'ahooks-x'
 import { Image, type ImageProps } from 'antd'
 import { motion } from 'framer-motion'
@@ -23,7 +23,7 @@ import GlobalContext from '../../contexts/global-context'
 import SettingsContext from '../../contexts/settings-context'
 import useImageDetails from '../../hooks/use-image-details/use-image-details'
 import useImageOperation from '../../hooks/use-image-operation'
-import { bytesToUnit, formatBytes } from '../../utils'
+import { bytesToUnit, clearTimestamp, formatBytes } from '../../utils'
 import { ANIMATION_DURATION } from '../../utils/duration'
 import useImageContextMenu, {
   type ImageContextMenuType,
@@ -131,7 +131,6 @@ function LazyImage(props: LazyImageProps) {
   const [showImageDetails] = useImageDetails()
 
   const [selected, setSelected] = useControlledState<boolean>({
-    defaultValue: active,
     value: active,
     onChange(value) {
       onActiveChange?.(image, value)
@@ -139,11 +138,7 @@ function LazyImage(props: LazyImageProps) {
   })
 
   const { hoverShowImageDetail } = SettingsContext.usePicker(['hoverShowImageDetail'])
-  const { imagePlaceholderSize, imageReveal, imageRevealWithoutQuery } = GlobalContext.usePicker([
-    'imagePlaceholderSize',
-    'imageReveal',
-    'imageRevealWithoutQuery',
-  ])
+  const { imagePlaceholderSize, imageReveal } = GlobalContext.usePicker(['imagePlaceholderSize', 'imageReveal'])
 
   const imageWidth = GlobalContext.useSelector((ctx) => ctx.extConfig.viewer.imageWidth)
   const warningSize = GlobalContext.useSelector((ctx) => ctx.extConfig.viewer.warningSize)
@@ -243,7 +238,9 @@ function LazyImage(props: LazyImageProps) {
   const { hideAll } = useImageContextMenu()
 
   const isTargetImage = useMemoizedFn(() => {
-    return !contextMenu?.enable?.reveal_in_viewer && trim(image.path).length && image.path === imageRevealWithoutQuery
+    return (
+      !contextMenu?.enable?.reveal_in_viewer && trim(image.path).length && image.path === clearTimestamp(imageReveal)
+    )
   })
 
   /**
@@ -260,33 +257,48 @@ function LazyImage(props: LazyImageProps) {
   // 如果当前图片是用户右键打开的图片
   // 则滚动到图片位置
   useEffect(() => {
-    let idleTimer: number
+    let timer: ReturnType<typeof setTimeout>
+    let idleTimer: ReturnType<typeof requestIdleCallback>
+    let scrolled = false
 
     if (isTargetImage()) {
       setSelected(true)
 
-      // 清空 imageReveal，避免下次进入时直接定位
+      // 清空 imageReveal，避免下次打开webview时使用之前的 imageReveal 导致滚动
       vscodeApi.postMessage({ cmd: CmdToVscode.reveal_image_in_viewer, data: { filePath: '' } })
 
       // 刚打开时，图片可能还未加载，所以需要等待图片加载完成后再滚动
-      idleTimer = requestIdleCallback(() => {
-        if (isElInViewport(elRef.current)) {
-          return
-        }
-        const y = elRef.current?.getBoundingClientRect().top
-        const clientHeight = document.documentElement.clientHeight
+      const callback = () => {
+        try {
+          if (scrolled || isElInViewport(elRef.current)) {
+            return
+          }
+          const y = elRef.current?.getBoundingClientRect().top
+          const clientHeight = document.documentElement.clientHeight
 
-        if (y) {
-          animateScroll.scrollTo(
-            y + getAppRoot().scrollTop - clientHeight / 2 + (imagePlaceholderSize?.height || 0) / 2,
-            {
-              duration: 0,
-              smooth: true,
-              delay: 0,
-              containerId: 'root',
-            },
-          )
+          if (y && !scrolled) {
+            animateScroll.scrollTo(
+              y + getAppRoot().scrollTop - clientHeight / 2 + (imagePlaceholderSize?.height || 0) / 2,
+              {
+                duration: 0,
+                smooth: true,
+                delay: 0,
+                containerId: 'root',
+              },
+            )
+            scrolled = true
+          }
+        } finally {
+          setTriggerFocus((t) => ({ current: t.current + 1 }))
         }
+      }
+
+      // 从explorer打开图片时，需要使用 requestIdleCallback
+      idleTimer = requestIdleCallback(() => {
+        callback()
+      })
+      timer = setTimeout(() => {
+        callback()
       })
     } else if (imageReveal) {
       setSelected(false)
@@ -295,21 +307,21 @@ function LazyImage(props: LazyImageProps) {
     return () => {
       if (isTargetImage()) {
         setSelected(false)
+        clearTimeout(timer)
         cancelIdleCallback(idleTimer)
       }
     }
   }, [imageReveal, image.path])
 
-  // 用户通过右键图片打开时，需要在图片进入视图后（即图片加载成功后）聚焦
-  // 只需聚焦一次
-  const focusOnce = useRef(false)
-  useUpdateEffect(() => {
-    if (focusOnce.current) return
-    if (elInView && isTargetImage()) {
-      keybindRef.current?.focus()
-      focusOnce.current = true
+  const [triggerFocus, setTriggerFocus] = useSetState({ prev: 0, current: 0 })
+  useEffect(() => {
+    if (keybindRef.current) {
+      if (triggerFocus.prev !== triggerFocus.current) {
+        keybindRef.current.focus()
+        setTriggerFocus({ prev: triggerFocus.current })
+      }
     }
-  }, [elInView])
+  }, [keybindRef.current, triggerFocus])
 
   /**
    * @param depth 父元素查找深度，默认向上查找3层，如果查不到 [data-disable_dbclick] 元素，则可以双击

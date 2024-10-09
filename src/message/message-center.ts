@@ -1,6 +1,6 @@
 import fs from 'fs-extra'
 import { convertPathToPattern, globby, type GlobEntry } from 'globby'
-import { flatten, isArray, toString } from 'lodash-es'
+import { flatten, toString } from 'lodash-es'
 import micromatch from 'micromatch'
 import mime from 'mime/lite'
 import path from 'node:path'
@@ -94,7 +94,7 @@ export const VscodeMessageCenter = {
 
     const start = performance.now()
 
-    const images = await globby(isArray(glob) ? glob : convertPathToPattern(glob), {
+    const images = await globby(glob, {
       cwd,
       objectMode: true,
       dot: false,
@@ -107,7 +107,7 @@ export const VscodeMessageCenter = {
     Channel.debug(`Globby cost: ${performance.now() - start}ms`)
 
     if (!images.length) {
-      logger.debug(`No images found in ${glob} ${cwd}`)
+      logger.debug(`No images found in ${glob}`)
       return []
     }
 
@@ -232,7 +232,7 @@ export const VscodeMessageCenter = {
 
     const images = await VscodeMessageCenter[CmdToVscode.get_image](
       {
-        glob: filePath,
+        glob: convertPathToPattern(filePath),
         cwd,
       },
       webview,

@@ -1,9 +1,8 @@
 import { isEmpty, isNumber, mergeWith, uniq } from 'lodash-es'
-import { type GroupType } from '../hooks/use-settings/settings/components/display-group'
+import { type DisplayGroupType } from '~/core/persist/workspace/common'
 
-export type DisplayGroupType = GroupType[]
 export type DisplayMapType<T extends Record<string, any> = Record<string, any>> = {
-  [key in GroupType | Flatten]: {
+  [key in DisplayGroupType | Flatten]: {
     imageKey?: {
       id: string
     }
@@ -31,7 +30,7 @@ export type FileNode = {
   /**
    * 节点分组类型（按 workspace | dir | type 分组）
    */
-  groupType?: GroupType | Flatten
+  groupType?: DisplayGroupType | Flatten
   /**
    * 当前节点的子节点
    */
@@ -46,10 +45,10 @@ export type FileNode = {
   renderList?: ImageType[]
 }
 
-export type TreeParams = { displayGroup: DisplayGroupType; displayMap: DisplayMapType; visibleList: VisibleListType }
+export type TreeParams = { displayGroup: DisplayGroupType[]; displayMap: DisplayMapType; visibleList: VisibleListType }
 
 export class DirTree<ExtraProps extends Record<string, any> = Record<string, any>> {
-  displayGroup: DisplayGroupType
+  displayGroup: DisplayGroupType[]
   displayMap: DisplayMapType
   visibleList: VisibleListType
 
@@ -213,11 +212,11 @@ export class DirTree<ExtraProps extends Record<string, any> = Record<string, any
     }
   }
 
-  sortGroup(group: GroupType[] | undefined) {
+  sortGroup(group: DisplayGroupType[] | undefined) {
     const allGroupType = Object.keys(this.displayMap).filter((k) => this.displayMap[k].priority)
     group = uniq(group?.filter((item) => allGroupType.includes(item)))
     if (group.length > 1) {
-      const findPriority = (v: GroupType) => {
+      const findPriority = (v: DisplayGroupType) => {
         return this.displayMap[allGroupType.find((item) => item === v) || ''].priority || 0
       }
       group = group.sort((a, b) => {
@@ -309,7 +308,7 @@ export class DirTree<ExtraProps extends Record<string, any> = Record<string, any
     })
   }
 
-  private _isBelongsToHigherPriority(image: ImageType, currentGroup: GroupType) {
+  private _isBelongsToHigherPriority(image: ImageType, currentGroup: DisplayGroupType) {
     const imageSomePath = this._findImageIdByGroup(image, currentGroup)
 
     // only path like fileSystemPath has parent relationship
@@ -343,11 +342,11 @@ export class DirTree<ExtraProps extends Record<string, any> = Record<string, any
    * }
    * ```
    */
-  private _findMapByGroup(group: GroupType) {
+  private _findMapByGroup(group: DisplayGroupType) {
     return this.displayMap[group]
   }
 
-  private _findImageIdByGroup = (image: ImageType, g: GroupType): string => {
+  private _findImageIdByGroup = (image: ImageType, g: DisplayGroupType): string => {
     const t = this._findMapByGroup(g)
     if (t.imageKey) {
       return image[t.imageKey.id]

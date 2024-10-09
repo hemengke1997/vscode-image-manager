@@ -2,21 +2,19 @@ import { memo, type ReactNode, useMemo } from 'react'
 import { useTranslation } from 'react-i18next'
 import { useControlledState } from 'ahooks-x'
 import { Checkbox, type CheckboxOptionType } from 'antd'
-import { type WorkspaceStateType } from '~/core/persist/workspace/common'
-
-export type GroupType = WorkspaceStateType['display_group'][number]
+import { type DisplayGroupType } from '~/core/persist/workspace/common'
 
 type DisplayGroupProps<T> = {
   value?: T[]
   onChange?: (checked: T[]) => void
 }
 
-function DisplayGroup<T extends string = GroupType>(props: DisplayGroupProps<T>) {
+function DisplayGroup<T extends string = DisplayGroupType>(props: DisplayGroupProps<T>) {
   const { value, onChange } = props
   const { t } = useTranslation()
 
   /* ---------------- image group --------------- */
-  const groupType: { label: ReactNode; value: GroupType; hidden?: boolean }[] = useMemo(
+  const groupType: { label: ReactNode; value: DisplayGroupType; hidden?: boolean }[] = useMemo(
     () => [
       {
         label: 'TODO: workspace',

@@ -312,15 +312,17 @@ function ImageSearch(props: ImperativeModalProps) {
           />
         </div>
         {!searchResult.items.length ? (
-          <Empty
-            image={Empty.PRESENTED_IMAGE_SIMPLE}
-            description={
-              <div className={'inline-flex items-center gap-x-1'}>
-                <span>{t('im.no_image')}</span>
-                <>{searchResult.searchValue && !loading ? <span>: {searchResult.searchValue}</span> : null}</>
-              </div>
-            }
-          />
+          <div className={'my-6'}>
+            <Empty
+              image={Empty.PRESENTED_IMAGE_SIMPLE}
+              description={
+                <div className={'inline-flex items-center gap-x-1'}>
+                  <span>{t('im.no_image')}</span>
+                  <>{searchResult.searchValue && !loading ? <span>: {searchResult.searchValue}</span> : null}</>
+                </div>
+              }
+            />
+          </div>
         ) : (
           <ImagePreview
             images={searchResult.items.map((result) => ({

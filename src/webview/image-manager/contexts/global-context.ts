@@ -65,12 +65,6 @@ function useGlobalContext() {
    * @note imageReveal 是带t query参数的，用于处理同一张图片的情况
    */
   const [imageReveal, setImageReveal] = useState<string | undefined>(window.__reveal_image_path__)
-  const imageRevealWithoutQuery = useMemo(() => {
-    if (!imageReveal) return ''
-    const index = imageReveal.lastIndexOf('?')
-    if (index !== -1) return imageReveal.slice(0, index)
-    return imageReveal
-  }, [imageReveal])
 
   /* ----------------- dir reveal ----------------- */
   const [dirReveal, setDirReveal] = useState<string>('')
@@ -100,7 +94,6 @@ function useGlobalContext() {
     setImagePlaceholderSize,
     imageReveal,
     setImageReveal,
-    imageRevealWithoutQuery,
     treeData,
     setTreeData,
     viewerHeaderStickyHeight,

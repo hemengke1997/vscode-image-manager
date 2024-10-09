@@ -1,6 +1,6 @@
+import { convertPathToPattern } from 'globby'
 import { remove } from 'lodash-es'
 import micromatch from 'micromatch'
-import { normalizePath } from '.'
 
 function addLastSlash(path: string) {
   return path.replace(/\/?$/g, '/')
@@ -42,7 +42,7 @@ export function imageGlob(options: { scan: string[]; exclude: string[]; cwds: st
   const imagePattern = `**/*.{${scan.join(',')}}`
 
   const create = (pattern: string, exclude: string[]) => {
-    const patterns = cwds.map((cwd) => normalizePath(`${addLastSlash(cwd)}${pattern}`))
+    const patterns = cwds.map((cwd) => `${addLastSlash(convertPathToPattern(cwd))}${pattern}`)
     exclude.forEach((e) => {
       patterns.forEach((pattern) => {
         if (micromatch.isMatch(pattern, e)) {

@@ -11,6 +11,7 @@ import ActionContext from '../../contexts/action-context'
 import GlobalContext from '../../contexts/global-context'
 import useImageManagerEvent from '../../hooks/use-image-manager-event'
 import useSticky from '../../hooks/use-sticky'
+import { clearTimestamp } from '../../utils'
 import { type EnableCollapseContextMenuType } from '../context-menus/components/collapse-context-menu'
 import useCollapseContextMenu from '../context-menus/components/collapse-context-menu/hooks/use-collapse-context-menu'
 import ImagePreview, { type ImagePreviewProps } from '../image-preview'
@@ -85,8 +86,8 @@ function ImageCollapse(props: ImageCollapseProps) {
     collapsible = true,
   } = props
 
-  const { imageRevealWithoutQuery, viewerHeaderStickyHeight, dirReveal, setDirReveal } = GlobalContext.usePicker([
-    'imageRevealWithoutQuery',
+  const { imageReveal, viewerHeaderStickyHeight, dirReveal, setDirReveal } = GlobalContext.usePicker([
+    'imageReveal',
     'viewerHeaderStickyHeight',
     'dirReveal',
     'setDirReveal',
@@ -188,9 +189,9 @@ function ImageCollapse(props: ImageCollapseProps) {
   // 所以需要在 `reveal_in_viewer` 的时候，主动触发collapse渲染
   useEffect(() => {
     if (!activeKeys.length) {
-      onActive(imageRevealWithoutQuery)
+      onActive(clearTimestamp(imageReveal))
     }
-  }, [imageRevealWithoutQuery])
+  }, [imageReveal])
 
   useEffect(() => {
     if (id === dirReveal) {
