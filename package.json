@@ -1,7 +1,7 @@
 {
   "publisher": "Minko",
   "name": "image-manager",
-  "version": "2.2.3",
+  "version": "2.2.4",
   "private": true,
   "description": "View, compress, crop, convert format, search and find similary images in VS Code | 浏览、压缩、裁剪、转换格式、搜索、查找相似图片的 VS Code 插件",
   "type": "commonjs",
