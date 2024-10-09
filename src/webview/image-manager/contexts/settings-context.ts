@@ -1,8 +1,9 @@
 import { useMemo } from 'react'
 import { TinyColor } from '@ctrl/tinycolor'
 import { createContainer } from 'context-state'
+import { uniq } from 'lodash-es'
 import { ConfigKey } from '~/core/config/common'
-import { WorkspaceStateKey, type WorkspaceStateType } from '~/core/persist/workspace/common'
+import { type DisplayGroupType, WorkspaceStateKey } from '~/core/persist/workspace/common'
 import { Language, ReduceMotion, Theme } from '~/enums'
 import { intelligentPick } from '~/utils/intelligent-pick'
 import { useExtConfigState } from '~/webview/hooks/use-ext-config-state'
@@ -68,10 +69,7 @@ function useSettingsContext() {
     workspaceState.display_group,
   )
 
-  const displayGroup: WorkspaceStateType['display_group'] = useMemo(
-    () => ['workspace', ...(_displayGroup || [])],
-    [_displayGroup],
-  )
+  const displayGroup: DisplayGroupType[] = useMemo(() => uniq(['workspace', ...(_displayGroup || [])]), [_displayGroup])
 
   /* ----------- image backgroundColor ---------- */
   const [backgroundColor, setBackgroundColor] = useExtConfigState(

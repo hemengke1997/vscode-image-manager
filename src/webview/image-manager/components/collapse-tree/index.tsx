@@ -182,6 +182,7 @@ function CollapseTree(props: Props) {
             const { groupType, value, label, children, renderList, underFolderList, underFolderDeeplyList } = node
             collapseIdSet.current.add(value)
             if (!groupType) return null
+
             return (
               <ImageCollapse
                 key={value}
@@ -248,9 +249,10 @@ function CollapseTree(props: Props) {
             dir: image.absDirPath === node.value,
           })
 
+          const split = image.absDirPath.split(node.value)
           injectUnderfolderImagesToNode(node, image, 'underFolderDeeplyList', {
             type: shouldRender,
-            dir: image.absDirPath.startsWith(node.value),
+            dir: split.length === 2 && (split[1].startsWith('/') || split[1] === ''),
           })
         },
       },

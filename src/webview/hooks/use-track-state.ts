@@ -21,20 +21,24 @@ export function useTrackState<S>(
   _trackState: S | (() => S),
   options?: {
     deps?: DependencyList
+    defaultValue?: S | (() => S)
     onChangeBySet?: (state: S) => void
     onChangeByTrack?: (state: S) => void
   },
 ) {
-  const { deps, onChangeBySet, onChangeByTrack } = options || {}
+  const { deps, defaultValue, onChangeBySet, onChangeByTrack } = options || {}
+
   const [trackState, setTrackState] = useState<{
     state: S
     trigger: 'track' | 'set'
   }>(() => {
+    const value = defaultValue || _trackState
     return {
-      state: isFunction(_trackState) ? _trackState() : _trackState,
+      state: isFunction(value) ? value() : value,
       trigger: 'track',
     }
   })
+
   const { state, trigger } = trackState
 
   useUpdateEffect(() => {
@@ -49,7 +53,7 @@ export function useTrackState<S>(
             trigger: Trigger.track,
           },
     )
-  }, [...(deps || []), _trackState])
+  }, [...(deps || []), ...(isFunction(_trackState) ? [] : [_trackState])])
 
   const setState: Dispatch<SetStateAction<S>> = useMemoizedFn((newState) => {
     if (isFunction(newState)) {
@@ -67,12 +71,14 @@ export function useTrackState<S>(
 
   useUpdateEffect(() => {
     switch (trigger) {
-      case Trigger.track:
+      case Trigger.track: {
         onChangeByTrack?.(state)
-        break
-      case Trigger.set:
+        return
+      }
+      case Trigger.set: {
         onChangeBySet?.(state)
-        break
+        return
+      }
       default:
         break
     }

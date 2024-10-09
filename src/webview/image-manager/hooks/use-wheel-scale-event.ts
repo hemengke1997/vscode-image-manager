@@ -19,7 +19,7 @@ export default function useWheelScaleEvent() {
   }
 
   const { run: throttleSetImageWidth } = useThrottleFn(setImageWidth, {
-    wait: 100,
+    wait: 60,
   })
 
   const handleWheel = (event: WheelEvent) => {

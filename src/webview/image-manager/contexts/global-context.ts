@@ -53,7 +53,9 @@ function useGlobalContext() {
   })
 
   /* ---------------- image width --------------- */
-  const [imageWidth, setImageWidth] = useExtConfigState(ConfigKey.viewer_imageWidth, extConfig.viewer.imageWidth)
+  const [imageWidth, setImageWidth] = useExtConfigState(ConfigKey.viewer_imageWidth, extConfig.viewer.imageWidth, [], {
+    wait: 500,
+  })
 
   /* ---------- image placeholder size ---------- */
   const [imagePlaceholderSize, setImagePlaceholderSize] = useState<{ width: number; height: number }>()

@@ -141,7 +141,7 @@ function ImageCollapse(props: ImageCollapseProps) {
 
   const [activeKeys, setActiveKeys] = useControlledState<string[]>({
     defaultValue: (collapseProps.defaultActiveKey as string[]) || [],
-    value: collapseProps.activeKey as string[] | undefined,
+    value: collapseProps.activeKey as string[],
     // 当 activeKeys 变化时，更新 activeCollapseIdSet
     onChange: (keys) => {
       setActiveCollapseIdSet(
@@ -319,6 +319,7 @@ function ImageCollapse(props: ImageCollapseProps) {
   return (
     <Element name={id}>
       <Collapse
+        {...collapseProps}
         /**
          * 由于图片数量可能很多，如果打开了collapse之后，即使关闭了也会一直渲染
          * 所以需要在关闭的时候销毁inactive的panel
@@ -327,7 +328,6 @@ function ImageCollapse(props: ImageCollapseProps) {
         ref={stickyRef}
         activeKey={activeKeys}
         onChange={(keys) => onCollapseChange(keys as string[])}
-        {...collapseProps}
         className={classNames(collapseProps.className)}
         items={[
           {

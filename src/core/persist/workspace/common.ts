@@ -2,14 +2,15 @@ import { type ImageFilterType } from '~/webview/image-manager/hooks/use-image-fi
 
 export type SortByType = 'name' | 'size'
 export type SortType = 'desc' | 'asc'
+export type DisplayGroupType = 'workspace' | 'dir' | 'type'
 
 export type WorkspaceStateType = {
   image_filter: ImageFilterType
   display_sort: [SortByType, SortType]
-  display_group: ('workspace' | 'dir' | 'type')[]
+  display_group: DisplayGroupType[]
   display_style: 'compact' | 'nested'
-  rencent_image_backgroundColor: string[]
-  rencent_layout_backgroundColor: string[]
+  recent_image_backgroundColors: string[]
+  recent_primary_colors: string[]
 
   // 调整精确度的提示
   show_precision_tip: boolean
@@ -31,8 +32,8 @@ export const defaultState: WorkspaceStateType = {
   display_sort: ['name', 'asc'],
   display_group: ['dir'],
   display_style: 'compact',
-  rencent_image_backgroundColor: [],
-  rencent_layout_backgroundColor: [],
+  recent_image_backgroundColors: [],
+  recent_primary_colors: [],
   show_precision_tip: true,
   show_undo_redo_tip: true,
 }
@@ -42,8 +43,8 @@ export const enum WorkspaceStateKey {
   display_sort = 'display_sort',
   display_group = 'display_group',
   display_style = 'display_style',
-  rencent_image_backgroundColor = 'rencent_image_backgroundColor',
-  rencent_layout_backgroundColor = 'rencent_layout_backgroundColor',
+  recent_image_backgroundColors = 'recent_image_backgroundColors',
+  recent_primary_colors = 'recent_primary_colors',
   // 精度提示
   show_precision_tip = 'show_precision_tip',
   // 撤销/恢复提示

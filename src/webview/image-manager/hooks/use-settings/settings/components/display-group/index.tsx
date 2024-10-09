@@ -1,4 +1,4 @@
-import { memo, type ReactNode, startTransition, useMemo } from 'react'
+import { memo, type ReactNode, useMemo } from 'react'
 import { useTranslation } from 'react-i18next'
 import { useControlledState } from 'ahooks-x'
 import { Checkbox, type CheckboxOptionType } from 'antd'
@@ -36,7 +36,6 @@ function DisplayGroup<T extends string = GroupType>(props: DisplayGroupProps<T>)
   )
 
   const [groups, setGroups] = useControlledState<T[]>({
-    defaultValue: value,
     value,
     onChange,
   })
@@ -49,9 +48,7 @@ function DisplayGroup<T extends string = GroupType>(props: DisplayGroupProps<T>)
             .filter((t) => !t.hidden)
             .map((item) => ({ label: item.label, value: item.value })) as CheckboxOptionType[]
         }
-        onChange={(checked) => {
-          startTransition(() => setGroups(checked as T[]))
-        }}
+        onChange={setGroups}
         value={groups}
       ></Checkbox.Group>
     </>

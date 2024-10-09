@@ -28,7 +28,7 @@ export function useExtConfigState<T extends Flatten<ConfigType>, U>(
 
   const debounceOptions: DebounceOptions = useMemo(
     () => ({
-      wait: 500,
+      wait: 0,
       ..._debounceOptions,
     }),
     [_debounceOptions],

@@ -35,9 +35,7 @@ function OperatorResultTsx(props: OperatorResultProps & ImperativeModalProps) {
   const { results: resultsProp, onUndoClick, onRedoClick, onClose } = props
 
   const _errorRange = GlobalContext.useSelector((ctx) => ctx.extConfig.compression.errorRange)
-  const [errorRange, setErrorRange] = useExtConfigState(ConfigKey.compression_errorRange, _errorRange, [], {
-    wait: 0,
-  })
+  const [errorRange, setErrorRange] = useExtConfigState(ConfigKey.compression_errorRange, _errorRange, [])
 
   const { scrollRef } = useScrollRef()
 

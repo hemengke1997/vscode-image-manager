@@ -1,4 +1,4 @@
-import { memo } from 'react'
+import { memo, useRef } from 'react'
 import { useTranslation } from 'react-i18next'
 import { useMemoizedFn, useTrackedEffect } from 'ahooks'
 import { App, Button, Divider, Form, Tabs, type TabsProps } from 'antd'
@@ -16,7 +16,7 @@ import DisplaySort from './components/display-sort'
 import DisplayStyle from './components/display-style'
 import HoverDetail from './components/hover-detail'
 import LocaleSegmented from './components/locale-segmented'
-import PrimaryColorPicker from './components/primary-color-picker'
+import PrimaryColorPicker, { type PrimaryColorPickerRef } from './components/primary-color-picker'
 import ThemeSegmented from './components/theme-segmented'
 import styles from './index.module.css'
 
@@ -77,98 +77,21 @@ function Settings(props: ImperativeModalProps) {
     'setHoverShowImageDetail',
   ])
 
-  const [recentBackgroundColors, setRencentBackgroundColors] = useWorkspaceState(
-    WorkspaceStateKey.rencent_layout_backgroundColor,
-    workspaceState.rencent_layout_backgroundColor,
+  // 最近使用的主色
+  const [recentPrimaryColors, setRecentPrimaryColors] = useWorkspaceState(
+    WorkspaceStateKey.recent_primary_colors,
+    workspaceState.recent_primary_colors,
   )
 
-  const generalItems = [
-    {
-      key: SettingsKey.language,
-      label: t('im.language'),
-      children: (
-        <Form.Item name={SettingsKey.language} noStyle={true}>
-          <LocaleSegmented />
-        </Form.Item>
-      ),
-    },
-    {
-      key: SettingsKey.theme,
-      label: t('im.theme'),
-      children: (
-        <Form.Item name={SettingsKey.theme} noStyle={true}>
-          <ThemeSegmented />
-        </Form.Item>
-      ),
-    },
-    {
-      key: SettingsKey.primaryColor,
-      label: t('im.primary_color'),
-      children: (
-        <Form.Item name={SettingsKey.primaryColor} noStyle={true}>
-          <PrimaryColorPicker
-            rencentColors={recentBackgroundColors}
-            onRencentColorsChange={setRencentBackgroundColors}
-          ></PrimaryColorPicker>
-        </Form.Item>
-      ),
-    },
-  ]
+  const primaryColorRef = useRef<PrimaryColorPickerRef>(null)
 
-  const formStrategy = {
-    [SettingsKey.language]: {
-      value: language,
-      onChange: setLanguage,
-    },
-    [SettingsKey.theme]: {
-      value: theme,
-      onChange: setTheme,
-    },
-    [SettingsKey.primaryColor]: {
-      value: primaryColor,
-      onChange: setPrimaryColor,
-    },
-    [SettingsKey.displayGroup]: {
-      value: displayGroup,
-      onChange: setDisplayGroup,
-    },
-    [SettingsKey.displayStyle]: {
-      value: displayStyle,
-      onChange: setDisplayStyle,
-    },
-    [SettingsKey.displaySort]: {
-      value: sort,
-      onChange: setSort,
-    },
-    [SettingsKey.backgroundColor]: {
-      value: backgroundColor,
-      onChange: setBackgroundColor,
-    },
-    [SettingsKey.hoverShowImageDetail]: {
-      value: hoverShowImageDetail,
-      onChange: setHoverShowImageDetail,
-    },
-  }
-
-  useTrackedEffect(
-    (changes) => {
-      changes?.forEach((index) => {
-        const key = Object.keys(formStrategy)[index]
-        form.setFieldsValue({
-          [key]: formStrategy[key].value,
-        })
-      })
-    },
-    [...Object.values(formStrategy).map((t) => t.value)],
+  // 最近使用的图片背景色
+  const [recentImageBackgroundColors, setRecentImageBackgroundColors] = useWorkspaceState(
+    WorkspaceStateKey.recent_image_backgroundColors,
+    workspaceState.recent_image_backgroundColors,
   )
 
-  const resolveInitialValues = useMemoizedFn(() => {
-    const initialValues = {}
-    for (const key in formStrategy) {
-      initialValues[key] = formStrategy[key].value
-    }
-    return initialValues
-  })
+  const imageBackgroundColorRef = useRef<PrimaryColorPickerRef>(null)
 
   /* ---------------- image sort ---------------- */
   const sortOptions = [
@@ -216,11 +139,10 @@ function Settings(props: ImperativeModalProps) {
       children: (
         <Form.Item name={SettingsKey.backgroundColor} noStyle={true}>
           <PrimaryColorPicker
-            value={backgroundColor}
-            onChange={setBackgroundColor}
-            rencentColors={recentBackgroundColors}
-            onRencentColorsChange={setRencentBackgroundColors}
+            recentColors={recentImageBackgroundColors}
+            onRecentColorsChange={setRecentImageBackgroundColors}
             extraColors={[Colors.warmBlack]}
+            ref={imageBackgroundColorRef}
           />
         </Form.Item>
       ),
@@ -235,6 +157,101 @@ function Settings(props: ImperativeModalProps) {
       ),
     },
   ]
+
+  const generalItems = [
+    {
+      key: SettingsKey.language,
+      label: t('im.language'),
+      children: (
+        <Form.Item name={SettingsKey.language} noStyle={true}>
+          <LocaleSegmented />
+        </Form.Item>
+      ),
+    },
+    {
+      key: SettingsKey.theme,
+      label: t('im.theme'),
+      children: (
+        <Form.Item name={SettingsKey.theme} noStyle={true}>
+          <ThemeSegmented />
+        </Form.Item>
+      ),
+    },
+    {
+      key: SettingsKey.primaryColor,
+      label: t('im.primary_color'),
+      children: (
+        <Form.Item name={SettingsKey.primaryColor} noStyle={true}>
+          <PrimaryColorPicker
+            ref={primaryColorRef}
+            recentColors={recentPrimaryColors}
+            onRecentColorsChange={setRecentPrimaryColors}
+          ></PrimaryColorPicker>
+        </Form.Item>
+      ),
+    },
+  ]
+
+  const formStrategy = {
+    [SettingsKey.language]: {
+      value: language,
+      onChange: setLanguage,
+    },
+    [SettingsKey.theme]: {
+      value: theme,
+      onChange: setTheme,
+    },
+    [SettingsKey.primaryColor]: {
+      value: primaryColor,
+      onChange: (value: string) => {
+        setPrimaryColor(value)
+        primaryColorRef.current?.updateRecentColors(value)
+      },
+    },
+    [SettingsKey.displayGroup]: {
+      value: displayGroup,
+      onChange: setDisplayGroup,
+    },
+    [SettingsKey.displayStyle]: {
+      value: displayStyle,
+      onChange: setDisplayStyle,
+    },
+    [SettingsKey.displaySort]: {
+      value: sort,
+      onChange: setSort,
+    },
+    [SettingsKey.backgroundColor]: {
+      value: backgroundColor,
+      onChange: (value: string) => {
+        setBackgroundColor(value)
+        imageBackgroundColorRef.current?.updateRecentColors(value)
+      },
+    },
+    [SettingsKey.hoverShowImageDetail]: {
+      value: hoverShowImageDetail,
+      onChange: setHoverShowImageDetail,
+    },
+  }
+
+  useTrackedEffect(
+    (changes) => {
+      changes?.forEach((index) => {
+        const key = Object.keys(formStrategy)[index]
+        form.setFieldsValue({
+          [key]: formStrategy[key].value,
+        })
+      })
+    },
+    [...Object.values(formStrategy).map((t) => t.value)],
+  )
+
+  const resolveInitialValues = useMemoizedFn(() => {
+    const initialValues = {}
+    for (const key in formStrategy) {
+      initialValues[key] = formStrategy[key].value
+    }
+    return initialValues
+  })
 
   const [viewerLabelWidth, onViewerResize] = useColumnWidth()
   const [generalLabelWidth, onGeneralResize] = useColumnWidth()
