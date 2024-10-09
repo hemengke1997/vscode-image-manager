@@ -6,7 +6,7 @@
 
 <h1 align='center'>Image Manager</h1>
 
-> Compress, crop, convert formats, search, and find similar images in VS Code
+> View, compress, crop, convert formats, search, and find similar images in VS Code
 
 [中文文档](./README.zh.md)
 
@@ -89,19 +89,25 @@ Right-click in Explorer, select `Image Manager` to open the extension (opens the
 
 Press `Ctrl+Shift+P` (macOS: `Cmd+Shift+P`), type `Image Manager` to open (opens the workspace root folder).
 
-## [Extension Configurations](./docs/vscode-configuration.en.md)
+## [Extension Configurations](./docs//vscode-configuration.md)
 
 ## Tips
 
 ### Compression
 
-- Right-click on the image
+<details>
+  <summary>Right-click on the image</summary>
 
 ![compress-right-click-image](./screenshots/compress-1.png)
+</details>
 
-- Right-click on the folder
+<details>
+  <summary>Right-click on the folder</summary>
 
 ![compress-right-click-folder](./screenshots/compress-2.png)
+</details>
+
+
 
 ### Viewer
 

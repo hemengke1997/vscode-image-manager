@@ -6,7 +6,7 @@
 
 <h1 align='center'>Image Manager</h1>
 
-> 压缩、裁剪、转换格式、搜索、查找相似图片的 VS Code 插件
+> 浏览、压缩、裁剪、转换格式、搜索、查找相似图片的 VS Code 插件
 
 [English Docs](./README.md)
 
@@ -92,7 +92,7 @@
 
 按 `Ctrl+Shift+P`（macOS: `Cmd+Shift+P`）打开命令面板，输入 `Image Manager` 并选择打开。
 
-## [插件配置项](./docs/vscode-configuration.md)
+## [插件配置项](./docs/vscode-configuration.zh.md)
 
 ## 小贴士
 
@@ -102,13 +102,20 @@
 
 ### 压缩
 
-- 在图片上右键，可以单独压缩一张图片。
+<details>
+  <summary>在图片上右键，可以压缩单张图片</summary>
 
 ![compress-right-click-image](./screenshots/compress-cn-1.png)
 
-- 在文件夹上右键，可以批量压缩文件夹下的图片。
+</details>
+
+
+<details>
+  <summary>在文件夹上右键，可以批量压缩文件夹下的所有图片</summary>
 
 ![compress-right-click-folder](./screenshots/compress-cn-2.png)
+
+</details>
 
 ### 浏览区域
 
