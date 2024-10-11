@@ -36,7 +36,7 @@ export class FormatConverter extends Operator {
   public outputPath: string = ''
   public inputBuffer: Buffer = Buffer.from('')
 
-  public extensions = ['png', 'jpg', 'jpeg', 'webp', 'gif', 'tiff', 'avif', 'heif', 'svg']
+  public extensions = ['png', 'jpg', 'jpeg', 'webp', 'gif', 'tiff', 'tif', 'avif', 'heif', 'svg']
 
   public limit = {
     from: [...this.extensions],

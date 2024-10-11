@@ -25,7 +25,7 @@ function isVersionDiff() {
 
   isDiff = lastVersion !== currentVersion
   if (isDiff) {
-    fs.writeJSONSync(versionJsonFile, { version: currentVersion })
+    fs.writeJSONSync(versionJsonFile, { version: currentVersion }, { spaces: 2 })
   }
   return isDiff
 }
@@ -53,7 +53,7 @@ function isVersionDiff() {
       const downloadResponse = await fetch(downloadUrl)
       if (!downloadResponse.ok) throw new Error(`Failed to download ${fileName}`)
 
-      await pipeline(downloadResponse.body!, fs.createWriteStream(path.resolve(ReleaseDir, fileName)))
+      await pipeline(downloadResponse.body!, fs.createWriteStream(path.join(ReleaseDir, fileName)))
 
       logger.success(`${fileName} downloaded successfully.`)
     }
@@ -68,7 +68,7 @@ function isVersionDiff() {
       await Promise.all(data.assets.map(downloadFile))
 
       // clean up old releases
-      await Promise.all(oldReleases.map((file) => fs.unlink(file)))
+      await Promise.all(oldReleases.map((file) => fs.unlink(path.join(ReleaseDir, file))))
     } else {
       logger.error('No releases found.')
     }

@@ -88,3 +88,19 @@ export function resolveDirPath(imagePath: string, cwd: string) {
 export function ensureArray<T>(value: T | T[]): T[] {
   return Array.isArray(value) ? value : [value]
 }
+
+/**
+ * 先执行第一个promise，再并发执行剩余的promise
+ */
+export async function promiseAllWithFirst<T>(promises: (() => Promise<T>)[]): Promise<T[]> {
+  if (promises.length === 0) {
+    return []
+  }
+
+  const firstResult = await promises[0]()
+
+  const remainingPromises = promises.slice(1).map((p) => p())
+  const remainingResults = await Promise.all(remainingPromises)
+
+  return [firstResult, ...remainingResults]
+}

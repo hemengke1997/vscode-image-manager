@@ -1,7 +1,8 @@
-import { memo } from 'react'
+import { memo, useMemo } from 'react'
 import { useTranslation } from 'react-i18next'
 import { Button, Descriptions, type DescriptionsProps, Tooltip } from 'antd'
 import { HiOutlineViewfinderCircle } from 'react-icons/hi2'
+import { Compressed } from '~/enums'
 import { CmdToVscode } from '~/message/cmd'
 import { vscodeApi } from '~/webview/vscode-api'
 import { formatBytes } from '../../utils'
@@ -20,6 +21,16 @@ function ImageDetails(props: Props & ImperativeModalProps) {
     metadata: { width, height },
     compressed,
   } = image.info
+
+  const compressedMap = useMemo(
+    () => ({
+      [Compressed.yes]: `✅ ${t('im.yes')}`,
+      [Compressed.no]: `❎ ${t('im.no')}`,
+      [Compressed.unknown]: `❔ ${t('im.unknown')}`,
+      [Compressed.not_supported]: `❕ ${t('im.format_not_supported', { fileType: image.fileType })}`,
+    }),
+    [t, image.fileType],
+  )
 
   const descItems: DescriptionsProps['items'] = [
     {
@@ -68,7 +79,7 @@ function ImageDetails(props: Props & ImperativeModalProps) {
       label: t('im.whether_compressed'),
       children: (
         <div className={'flex items-center justify-between'}>
-          <div>{compressed ? `✅ ${t('im.yes')}` : `❎ ${t('im.no')}`}</div>
+          <div>{compressedMap[compressed]}</div>
           {image.fileType === 'svg' ? (
             <>
               <Button

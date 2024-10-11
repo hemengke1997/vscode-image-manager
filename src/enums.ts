@@ -17,3 +17,10 @@ export enum ReduceMotion {
   on = 'on',
   off = 'off',
 }
+
+export enum Compressed {
+  yes = 1,
+  no = 2,
+  unknown = 3,
+  not_supported = 4,
+}

@@ -102,9 +102,7 @@ export class Watcher {
       cwds: rootpaths,
     })
 
-    rootpaths.forEach((r) => {
-      this.gitignores.push(isGitIgnoredSync({ cwd: r }))
-    })
+    this.gitignores = rootpaths.map((r) => isGitIgnoredSync({ cwd: r })).filter((t) => !!t)
 
     Channel.debug(`Watch Root: ${rootpaths.join(',')}`)
 

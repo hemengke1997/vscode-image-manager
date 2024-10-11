@@ -8,7 +8,7 @@ export class Similarity {
   public static limit: {
     from: string[]
   } = {
-    from: ['png', 'jpg', 'jpeg', 'webp', 'gif', 'tiff', 'avif', 'heif'],
+    from: ['png', 'jpg', 'jpeg', 'webp', 'gif', 'tiff', 'tif', 'avif', 'heif'],
   }
 
   static async findSimilar(image: ImageType, scope: ImageType[]) {

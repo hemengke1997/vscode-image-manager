@@ -107,6 +107,7 @@
     keep: 'オリジナルファイルを保持',
     yes: 'はい',
     no: 'いいえ',
+    unknown: '不明',
     compressed: '圧縮済み',
     whether_compressed: '圧縮されていますか',
     git_staged: 'Git ステージング',

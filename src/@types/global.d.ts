@@ -2,7 +2,12 @@ import type SharpNS from '@minko-fe/sharp'
 import { type ReactElement } from 'react'
 import { type Stats } from 'fs-extra'
 import { type ParsedPath } from 'node:path'
-import { type Language as LanguageEnum, type ReduceMotion as ReduceMotionEnum, type Theme as ThemeEnum } from '~/enums'
+import {
+  type Compressed as CompressedEnum,
+  type Language as LanguageEnum,
+  type ReduceMotion as ReduceMotionEnum,
+  type Theme as ThemeEnum,
+} from '~/enums'
 import { type ImageVisibleFilter } from '~/webview/image-manager/hooks/use-image-filter/image-filter'
 
 declare global {
@@ -90,7 +95,7 @@ declare global {
       /**
        * 图片是否已压缩
        */
-      compressed: boolean
+      compressed: CompressedEnum
       /**
        * 图片metadata
        */

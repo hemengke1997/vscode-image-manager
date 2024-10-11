@@ -16,6 +16,7 @@ import { TbResize } from 'react-icons/tb'
 import { Key } from 'ts-key-enum'
 import { classNames } from 'tw-clsx'
 import { DEFAULT_CONFIG } from '~/core/config/common'
+import { Compressed } from '~/enums'
 import { CmdToVscode } from '~/message/cmd'
 import { getAppRoot } from '~/webview/utils'
 import { vscodeApi } from '~/webview/vscode-api'
@@ -390,7 +391,7 @@ function LazyImage(props: LazyImageProps) {
             </span>
           </div>
         ) : null}
-        {imageMetadata?.compressed ? (
+        {imageMetadata?.compressed === Compressed.yes ? (
           <div className={'flex items-center space-x-1 truncate'}>
             <FiCheckCircle />
             <span>{t('im.compressed')}</span>
@@ -412,6 +413,13 @@ function LazyImage(props: LazyImageProps) {
 
     return false
   }, [lazy, previewMask, antdImageProps.src, hoverShowImageDetail])
+
+  const compressedMap = useMemo(
+    () => ({
+      [Compressed.yes]: <FiCheckCircle className={'text-ant-color-text text-sm'} title={t('im.compressed')} />,
+    }),
+    [t],
+  )
 
   // 目前 framer-motion viewport root 有bug，在 root 改变后不会重新observe
   // 所以这里需要判断 root 是否存在
@@ -473,7 +481,7 @@ function LazyImage(props: LazyImageProps) {
                 <RiErrorWarningLine className={'text-base'} title={t('im.size_over_warning', { size: warningSize })} />
               )
             }
-            rightBottom={imageMetadata.compressed && <FiCheckCircle className={'text-sm'} title={t('im.compressed')} />}
+            rightBottom={compressedMap[imageMetadata.compressed]}
           >
             <Image
               {...antdImageProps}

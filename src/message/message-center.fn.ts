@@ -1,4 +1,4 @@
-import exif from 'exif-reader'
+import readExif from 'exif-reader'
 import fs from 'fs-extra'
 import { type GlobEntry } from 'globby'
 import imageSize from 'image-size'
@@ -8,6 +8,7 @@ import { type Webview } from 'vscode'
 import { type SharpNS } from '~/@types/global'
 import { COMPRESSED_META, Global, Svgo } from '~/core'
 import { Config } from '~/core/config'
+import { Compressed } from '~/enums'
 import { i18n } from '~/i18n'
 import { normalizePath } from '~/utils'
 import { Channel } from '~/utils/channel'
@@ -50,13 +51,12 @@ export async function searchImages(
  * 获取图片相关信息
  */
 export async function getImageExtraInfo(images: GlobEntry[]) {
-  const gitStagedPromise = VscodeMessageCenter[CmdToVscode.get_git_staged_images]()
-
-  const metadataPromise = VscodeMessageCenter[CmdToVscode.get_images_metadata]({
-    images,
-  })
-
-  const [gitStaged, metadataResults] = await Promise.all([gitStagedPromise, metadataPromise])
+  const [gitStaged, metadataResults] = await Promise.all([
+    VscodeMessageCenter[CmdToVscode.get_git_staged_images](),
+    VscodeMessageCenter[CmdToVscode.get_images_metadata]({
+      images,
+    }),
+  ])
 
   return {
     gitStaged,
@@ -76,6 +76,7 @@ export async function getStagedImages(root: string) {
   if (currentCache && Date.now() - currentCache.timestamp < GIT_CACHE_DURATION) {
     const cachedData = currentCache.data
     if (cachedData.length) {
+      Channel.debug('Get git staged images from cache')
       return cachedData
     }
   }
@@ -116,10 +117,11 @@ const metadataCache = new Map<
     data: {
       filePath: string
       metadata: SharpNS.Metadata
-      compressed: boolean
+      compressed: Compressed
     }
   }
 >()
+
 /**
  * 检查元数据缓存是否有效
  */
@@ -140,7 +142,7 @@ function isMetadataCacheValid(filePath: string, mtimeMs: number | undefined) {
 export async function getImageMetadata(image: GlobEntry): Promise<{
   filePath: string
   metadata: SharpNS.Metadata
-  compressed: boolean
+  compressed: Compressed
 }> {
   const { path: filePath, stats } = image
 
@@ -151,8 +153,9 @@ export async function getImageMetadata(image: GlobEntry): Promise<{
     }
   }
 
-  let compressed = false
+  let compressed = Compressed.no
   let metadata: SharpNS.Metadata = {} as SharpNS.Metadata
+  let sharpFormatSupported = true
 
   const initialRes = {
     filePath,
@@ -170,6 +173,9 @@ export async function getImageMetadata(image: GlobEntry): Promise<{
     Global.sharp.cache({ files: 0 })
     metadata = await Global.sharp(filePath).metadata()
   } catch {
+    // sharp 不支持该类型
+    sharpFormatSupported = false
+
     try {
       metadata = imageSize(filePath) as SharpNS.Metadata
     } catch (e) {
@@ -177,11 +183,65 @@ export async function getImageMetadata(image: GlobEntry): Promise<{
     }
   } finally {
     if (metadata.exif) {
-      compressed = !!exif(metadata.exif).Image?.ImageDescription?.includes(COMPRESSED_META)
-    } else if (path.extname(filePath) === '.svg') {
+      if (readExif(metadata.exif).Image?.ImageDescription?.includes(COMPRESSED_META)) {
+        compressed = Compressed.yes
+      }
+    } else {
+      if (sharpFormatSupported) {
+        // 已知支持 exif 的格式
+        const exifSupported = ['png', 'webp', 'jpg', 'jpeg', 'avif']
+
+        // 已知不支持 exif 的格式
+
+        // https://github.com/lovell/sharp/issues/3074#issuecomment-1030257856
+        // EXIF metadata is unsupported for TIFF output.
+        const exifNotSupported = ['svg', 'gif', 'tif', 'tiff']
+
+        if (exifSupported.includes(metadata.format!)) {
+          compressed = Compressed.no
+        } else {
+          if (exifNotSupported.includes(metadata.format!)) {
+            // 不支持 exif
+            // 无法判断是否压缩
+            compressed = Compressed.unknown
+          } else {
+            // 不知道是否支持 exif 的格式
+            // 用sharp推断
+            // 可能会影响性能
+            console.log('影响性能', metadata.format)
+            try {
+              const buffer = await Global.sharp(filePath)
+                .withExifMerge({
+                  IFD0: {
+                    ImageDescription: ' ',
+                  },
+                })
+                .toBuffer()
+              const m = await Global.sharp(buffer).metadata()
+              if (m.exif && readExif(m.exif).Image?.ImageDescription) {
+                // 此类型支持 exif
+                // 但是没有压缩标记
+                compressed = Compressed.no
+              } else {
+                // 此类型不支持 exif
+                // 无法判断是否压缩
+                compressed = Compressed.unknown
+              }
+            } catch {
+              compressed = Compressed.not_supported
+            }
+          }
+        }
+      } else {
+        // sharp 不支持的格式
+        compressed = Compressed.not_supported
+      }
+    }
+
+    if (metadata.format === 'svg') {
       try {
         const svgString = await fs.readFile(filePath, 'utf-8')
-        compressed = Svgo.isCompressed(svgString, Config.compression.svg)
+        compressed = Svgo.isCompressed(svgString, Config.compression.svg) ? Compressed.yes : Compressed.no
       } catch (e) {
         Channel.error(e)
       }

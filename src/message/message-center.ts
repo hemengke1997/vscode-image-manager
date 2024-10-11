@@ -125,7 +125,7 @@ export const VscodeMessageCenter = {
         image.path = normalizePath(image.path)
         let vscodePath = webview.asWebviewUri(Uri.file(image.path)).toString()
 
-        // Browser doesn't support [tiff, tif], convert to png base64
+        // Browser doesn't support some exts, convert to png base64
         try {
           vscodePath = (await convertToBase64IfBrowserNotSupport(image.path)) || vscodePath
         } catch (e) {
@@ -509,11 +509,7 @@ export const VscodeMessageCenter = {
 
     const { images } = data
 
-    const metadataPromises = images.map((image) => {
-      return getImageMetadata(image)
-    })
-
-    const results = await Promise.all(metadataPromises)
+    const results = await Promise.all(images.map((image) => getImageMetadata(image)))
 
     Channel.debug(`Get images metadata cost: ${performance.now() - start}ms`)
     return results

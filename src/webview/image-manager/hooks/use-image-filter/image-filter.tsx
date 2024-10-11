@@ -14,6 +14,7 @@ export const enum FilterRadioValue {
   all = 0,
   yes = 1,
   no = 2,
+  unknown = 3,
 }
 
 export type ImageFilterType = {
@@ -172,6 +173,10 @@ function ImageFilter(props: ImperativeModalProps) {
                 value: FilterRadioValue.no,
                 label: t('im.no'),
               },
+              {
+                value: FilterRadioValue.unknown,
+                label: t('im.unknown'),
+              },
             ]}
           ></Segmented>
         </Form.Item>
@@ -183,7 +188,6 @@ function ImageFilter(props: ImperativeModalProps) {
 
   const onFinish = useMemoizedFn((value) => {
     onClose()
-    console.log(value, 'value')
     setImageFilter(value)
     message.success(t('im.operation_success'))
   })

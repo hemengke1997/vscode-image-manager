@@ -106,6 +106,7 @@
     keep: '保留原文件',
     yes: '是',
     no: '否',
+    unknown: '未知',
     compressed: '已壓縮',
     whether_compressed: '是否已壓縮',
     git_staged: 'Git 已暫存',

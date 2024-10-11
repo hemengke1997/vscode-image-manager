@@ -110,6 +110,7 @@ function OperatorResultTsx(props: OperatorResultProps & ImperativeModalProps) {
                 root={scrollRef.current!}
                 actions={[
                   <UndoAction
+                    key='undo'
                     onClick={() => {
                       onUndoAction([item])
                     }}
@@ -140,6 +141,7 @@ function OperatorResultTsx(props: OperatorResultProps & ImperativeModalProps) {
                 root={scrollRef.current!}
                 actions={[
                   <UndoAction
+                    key={'undo'}
                     onClick={() => {
                       onUndoAction([item])
                     }}
@@ -176,6 +178,7 @@ function OperatorResultTsx(props: OperatorResultProps & ImperativeModalProps) {
                 root={scrollRef.current!}
                 actions={[
                   <RedoAction
+                    key='redo'
                     onClick={() => {
                       onRedoAction([item])
                     }}

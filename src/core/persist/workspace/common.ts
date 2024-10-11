@@ -3,12 +3,13 @@ import { type ImageFilterType } from '~/webview/image-manager/hooks/use-image-fi
 export type SortByType = 'name' | 'size'
 export type SortType = 'desc' | 'asc'
 export type DisplayGroupType = 'workspace' | 'dir' | 'type'
+export type DisplayStyleType = 'compact' | 'nested'
 
 export type WorkspaceStateType = {
   image_filter: ImageFilterType
   display_sort: [SortByType, SortType]
   display_group: DisplayGroupType[]
-  display_style: 'compact' | 'nested'
+  display_style: DisplayStyleType
   recent_image_backgroundColors: string[]
   recent_primary_colors: string[]
 

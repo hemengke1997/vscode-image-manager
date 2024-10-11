@@ -168,7 +168,7 @@ export class Installer {
         if (await this._tryCopyCacheToOs([BUILD], { force: true })) {
           Channel.info(i18n.t('core.sharp_diff'))
         }
-        this._writeCacheJson({ sharp: SHARP_VERSION })
+        this._writeCacheJson({ '@minko-fe/sharp': SHARP_VERSION })
       }
 
       if (pkg.version !== version) {

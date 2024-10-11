@@ -1,6 +1,7 @@
 import fs from 'fs-extra'
 import { type SharpNS } from '~/@types/global'
 import { SharpOperator } from '~/core/sharp'
+import { Compressed } from '~/enums'
 import { i18n } from '~/i18n'
 import { COMPRESSED_META } from '../meta'
 import { SkipError } from '../operator'
@@ -8,7 +9,7 @@ import { Compressor } from './compressor'
 import { type CompressionOptions } from './type'
 
 export class UsualCompressor extends Compressor {
-  public extensions = ['png', 'jpg', 'jpeg', 'webp', 'gif', 'tiff', 'avif', 'heif']
+  public extensions = ['png', 'jpg', 'jpeg', 'webp', 'gif', 'tiff', 'tif', 'avif', 'heif']
   public limit = {
     from: [...this.extensions],
     to: [...this.extensions],
@@ -64,7 +65,7 @@ export class UsualCompressor extends Compressor {
 
               if (
                 skipCompressed &&
-                compressed &&
+                compressed === Compressed.yes &&
                 // 格式没变的话跳过压缩
                 originExt === ext
               ) {
@@ -90,7 +91,7 @@ export class UsualCompressor extends Compressor {
                 })
                 .timeout({ seconds: 10 })
 
-              sharp.withExif({
+              sharp.withExifMerge({
                 IFD0: {
                   ImageDescription: COMPRESSED_META,
                 },

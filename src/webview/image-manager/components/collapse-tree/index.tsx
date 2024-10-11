@@ -7,7 +7,7 @@ import { isNil } from 'lodash-es'
 import { FaRegImages } from 'react-icons/fa6'
 import { VscFileMedia } from 'react-icons/vsc'
 import { classNames } from 'tw-clsx'
-import { type WorkspaceStateType } from '~/core/persist/workspace/common'
+import { type DisplayGroupType, type DisplayStyleType } from '~/core/persist/workspace/common'
 import { getAppRoot } from '~/webview/utils'
 import ActionContext from '../../contexts/action-context'
 import TreeContext from '../../contexts/tree-context'
@@ -73,15 +73,15 @@ function injectUnderfolderImagesToNode(
 function RevealGroup(props: { path: string; folderChildren?: ReactNode }) {
   return (
     <div className={'flex items-center gap-x-1'}>
-      <RevealInFolder {...props} children={props.folderChildren} />
+      <RevealInFolder {...props}>{props.folderChildren}</RevealInFolder>
       {/* <RevealInExplorer {...props} /> */}
     </div>
   )
 }
 
 type Props = {
-  displayGroup: WorkspaceStateType['display_group']
-  displayStyle: WorkspaceStateType['display_style']
+  displayGroup: DisplayGroupType[]
+  displayStyle: DisplayStyleType
   multipleWorkspace: boolean
 }
 

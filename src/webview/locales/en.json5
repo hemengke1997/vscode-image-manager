@@ -107,6 +107,7 @@
     keep: 'Keep original file',
     yes: 'Yes',
     no: 'No',
+    unknown: 'Unknown',
     compressed: 'Compressed',
     whether_compressed: 'Is Compressed',
     git_staged: 'Git staged',

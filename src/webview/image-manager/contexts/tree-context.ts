@@ -4,6 +4,7 @@ import { createContainer } from 'context-state'
 import { diff } from 'deep-object-diff'
 import { isFunction, isObject } from 'lodash-es'
 import { type SortByType, type SortType, type WorkspaceStateType } from '~/core/persist/workspace/common'
+import { Compressed } from '~/enums'
 import { FilterRadioValue, type ImageFilterType, ImageVisibleFilter } from '../hooks/use-image-filter/image-filter'
 import { bytesToUnit, uniqSortByThenMap } from '../utils'
 
@@ -275,9 +276,11 @@ function useTreeContext(props: TreeContextProp) {
               const compressed = image.info.compressed
               switch (imageFilter.compressed) {
                 case FilterRadioValue.yes:
-                  return compressed
+                  return compressed === Compressed.yes
                 case FilterRadioValue.no:
-                  return !compressed
+                  return compressed === Compressed.no
+                case FilterRadioValue.unknown:
+                  return compressed === Compressed.unknown
                 default:
                   return true
               }

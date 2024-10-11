@@ -40,12 +40,16 @@ export function toBase64(mimetype: string, buffer: Buffer) {
  */
 export async function convertToBase64IfBrowserNotSupport(input: string) {
   let mimetype = mime.getType(input)
-  if (mimetype && ['image/tiff'].includes(mimetype)) {
-    mimetype = 'image/png'
-    const sharp = Global.sharp(input)
-    sharp.png()
-    const buffer = await sharp.toBuffer()
-    return toBase64(mimetype, buffer)
+
+  const notSupported = ['tiff'].map((t) => mime.getType(t))
+  if (mimetype && notSupported.includes(mimetype)) {
+    mimetype = mime.getType('png')!
+    try {
+      const buffer = await Global.sharp(input).png().toBuffer()
+      return toBase64(mimetype, buffer)
+    } catch {
+      return input
+    }
   }
 }
 
