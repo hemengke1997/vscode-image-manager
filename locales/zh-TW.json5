@@ -3,7 +3,7 @@
   pkg: {
     title: 'Image Manager 🏞️',
     cmd: {
-      open: '打開Image Manager',
+      open: '打開擴展',
       reset_settings: '重置設置',
       show_channel: '顯示輸出',
       enable_mirror: '啟用鏡像',
@@ -91,6 +91,12 @@
     clear_cache_success: '清除緩存成功，請重啟vscode生效',
     cache_not_found: '未找到緩存文件',
     retry: '重試',
+    yes: '是',
+    no: '否',
+    reset_settings_tip: '您確定要重置設置嗎？',
+    reset_settings_success: '重置成功',
+    reset_settings_fail: '重置失敗',
+    cancel_operation_tip: '取消操作',
   },
   // 核心代碼
   core: {

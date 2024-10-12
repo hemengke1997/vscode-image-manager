@@ -91,11 +91,6 @@ function ImageManager() {
 
   const { updateConfig, updateWorkspaceState } = useUpdateWebview()
 
-  const clearLocalStorages = useMemoizedFn(() => {
-    // For old extension version.
-    window.localStorage.clear()
-  })
-
   const onMessage = useMemoizedFn((e: MessageEvent) => {
     const { cmd, data } = e.data as MessageType<Record<string, any>, keyof typeof CmdToWebview>
 
@@ -136,8 +131,6 @@ function ImageManager() {
   })
 
   useEffect(() => {
-    clearLocalStorages()
-
     window.addEventListener('message', onMessage)
     return () => {
       window.removeEventListener('message', onMessage)

@@ -2,7 +2,7 @@
   pkg: {
     title: 'Image Manager 🏞️',
     cmd: {
-      open: 'Open Image Manager',
+      open: 'Open Extension',
       reset_settings: 'Reset Settings',
       show_channel: 'Show Output Channel',
       enable_mirror: 'Enable Mirror',
@@ -89,6 +89,12 @@
     clear_cache_success: 'Clear cache success, please reload vscode to take effect',
     cache_not_found: 'Cache not found',
     retry: 'Retry',
+    yes: 'Yes',
+    no: 'No',
+    reset_settings_tip: 'Are you sure you want to reset settings?',
+    reset_settings_success: 'Reset successful',
+    reset_settings_fail: 'Reset failed',
+    cancel_operation_tip: 'Operation canceled',
   },
   core: {
     compress_fail: 'Compress Fail',

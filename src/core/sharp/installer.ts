@@ -163,7 +163,7 @@ export class Installer {
       }
 
       const SHARP_VERSION = cleanVersion(devDependencies['@minko-fe/sharp'])
-      if (pkg.sharp !== SHARP_VERSION) {
+      if (pkg['@minko-fe/sharp'] !== SHARP_VERSION) {
         fs.emptyDirSync(path.resolve(this.getDepCacheDir(), BUILD))
         if (await this._tryCopyCacheToOs([BUILD], { force: true })) {
           Channel.info(i18n.t('core.sharp_diff'))
@@ -201,15 +201,15 @@ export class Installer {
     if (shouldInit) {
       this._writeCacheJson({
         version,
-        libvips: SHARP_LIBVIPS_VERSION,
-        sharp: cleanVersion(devDependencies['@minko-fe/sharp']),
+        'libvips': SHARP_LIBVIPS_VERSION,
+        '@minko-fe/sharp': cleanVersion(devDependencies['@minko-fe/sharp']),
       })
     }
   }
 
   private _readCacheJson() {
     const pkgStr = fs.readFileSync(this._cacheFilePath, 'utf-8')
-    let pkg: { version?: string; libvips?: string; sharp?: string } = {}
+    let pkg: { 'version'?: string; 'libvips'?: string; '@minko-fe/sharp'?: string } = {}
     if (isString(pkgStr)) {
       try {
         pkg = destr<AnyObject>(pkgStr)
@@ -218,7 +218,7 @@ export class Installer {
     return pkg
   }
 
-  private _writeCacheJson(value: Record<string, string>) {
+  private _writeCacheJson(value: ReturnType<typeof this._readCacheJson>) {
     fs.writeJSONSync(this._cacheFilePath, {
       ...this._readCacheJson(),
       ...value,
@@ -353,13 +353,11 @@ export class Installer {
         }
         time++
         Channel.debug(`Try polling load sharp: ${time} time, cacheType: ${cacheType}`)
-        try {
-          const res = await this._loadSharp(cacheType)
-          if (res) {
-            resolve(res)
-            clearInterval(interval)
-          }
-        } catch {}
+        const res = await this._loadSharp(cacheType)
+        if (res) {
+          resolve(res)
+          clearInterval(interval)
+        }
       }, 250)
     })
   }

@@ -1,8 +1,7 @@
-import { memo, useMemo, useState } from 'react'
+import { memo, useRef, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { useMemoizedFn } from 'ahooks'
 import { App, Button, InputNumber, Popconfirm } from 'antd'
-import { formatBytes } from '~/webview/image-manager/utils'
 
 type Props = {
   errorRange: number
@@ -14,6 +13,7 @@ function ErrorRange(props: Props) {
   const { t } = useTranslation()
   const { message } = App.useApp()
 
+  const ref = useRef<HTMLInputElement>(null)
   const [internalErrorRange, setInternalErrorRange] = useState<number | null>(errorRange)
 
   const onConfirmUpdateErrorRange = useMemoizedFn(() => {
@@ -23,8 +23,6 @@ function ErrorRange(props: Props) {
     }
   })
 
-  const errorRangeByte = useMemo(() => errorRange * 1024, [errorRange])
-
   return (
     <Popconfirm
       title={t('im.modify_error_range')}
@@ -32,6 +30,9 @@ function ErrorRange(props: Props) {
       cancelText={t('im.cancel')}
       onConfirm={onConfirmUpdateErrorRange}
       afterOpenChange={(open) => {
+        if (open) {
+          ref.current?.focus()
+        }
         if (!open) {
           setInternalErrorRange(errorRange)
         }
@@ -41,15 +42,16 @@ function ErrorRange(props: Props) {
           placeholder={`${t('im.error_range')}`}
           min={0}
           onPressEnter={onConfirmUpdateErrorRange}
-          className={'my-2'}
+          className={'my-1'}
           value={internalErrorRange}
           onChange={(value) => setInternalErrorRange(value)}
           addonAfter='KB'
+          ref={ref}
         />
       }
     >
       <Button className={'text-ant-color-warning-text ml-1'}>
-        ({t('im.error_range')}: {formatBytes(errorRangeByte)})
+        ({t('im.error_range')}: {errorRange}KB)
       </Button>
     </Popconfirm>
   )

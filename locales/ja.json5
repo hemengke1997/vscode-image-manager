@@ -3,7 +3,7 @@
   pkg: {
     title: 'Image Manager 🏞️',
     cmd: {
-      open: 'Image Manager を開く',
+      open: '拡張機能を開く',
       reset_settings: '設定をリセット',
       show_channel: '出力を表示',
       enable_mirror: 'ミラーを有効にする',
@@ -90,6 +90,12 @@
     clear_cache_success: 'キャッシュのクリアが成功しました。vscodeを再起動してください',
     cache_not_found: 'キャッシュファイルが見つかりません',
     retry: '再試行',
+    yes: 'はい',
+    no: 'いいえ',
+    reset_settings_tip: '設定をリセットしてもよろしいですか？',
+    reset_settings_success: 'リセット成功',
+    reset_settings_fail: 'リセット失敗',
+    cancel_operation_tip: '操作がキャンセルされました',
   },
   core: {
     compress_fail: '圧縮に失敗しました',

@@ -16,7 +16,6 @@ export class Config {
     ConfigKey.file_trashAfterProcessing,
 
     ConfigKey.debug_enabled,
-    ConfigKey.debug_forceInstall,
 
     ConfigKey.compression_fileSuffix,
     ConfigKey.compression_format,
