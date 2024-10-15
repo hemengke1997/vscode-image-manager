@@ -1,4 +1,5 @@
 import { type ForwardedRef, forwardRef, memo, useCallback, useEffect, useId, useMemo, useRef, useState } from 'react'
+import { toast } from 'react-atom-toast'
 import { useClickAway, useMemoizedFn, useThrottleFn } from 'ahooks'
 import { ConfigProvider, Image, theme } from 'antd'
 import { type AliasToken, type ComponentTokenMap } from 'antd/es/theme/interface'
@@ -10,10 +11,8 @@ import GlobalContext from '../../contexts/global-context'
 import SettingsContext from '../../contexts/settings-context'
 import useImageManagerEvent from '../../hooks/use-image-manager-event'
 import useImageOperation from '../../hooks/use-image-operation'
-// import useSingleToast from '../../hooks/use-single-toast'
 import useImageContextMenu from '../context-menus/components/image-context-menu/hooks/use-image-context-menu'
 import LazyImage, { type LazyImageProps } from '../lazy-image'
-import Toast from '../toast'
 
 function imageToken(isDarkBackground: boolean): Partial<ComponentTokenMap['Image'] & AliasToken> {
   return {
@@ -39,6 +38,14 @@ export type ImagePreviewProps = {
   enableMultipleSelect?: boolean
 }
 
+const ToastKey = 'image-preview-scale'
+
+toast.setDefaultOptions({
+  className:
+    'flex items-center justify-center rounded-md bg-black bg-opacity-60 px-2 py-1 text-sm shadow-sm pointer-events-none',
+  pauseOnHover: false,
+})
+
 function ImagePreview(props: ImagePreviewProps, ref: ForwardedRef<HTMLDivElement>) {
   const { images, lazyImageProps, enableMultipleSelect = false } = props
 
@@ -59,8 +66,7 @@ function ImagePreview(props: ImagePreviewProps, ref: ForwardedRef<HTMLDivElement
 
   useEffect(() => {
     if (!preview.open) {
-      // clearToast()
-      Toast.hide()
+      toast.close(ToastKey)
       hideAll()
     }
   }, [preview.open])
@@ -76,8 +82,7 @@ function ImagePreview(props: ImagePreviewProps, ref: ForwardedRef<HTMLDivElement
           <span>{sclalePercent}%</span>
         </div>
       )
-      // toast({ message })
-      Toast.open({ content: message })
+      toast.open({ content: message, key: ToastKey })
     },
     {
       wait: 60,
@@ -253,8 +258,7 @@ function ImagePreview(props: ImagePreviewProps, ref: ForwardedRef<HTMLDivElement
 
   const handlePreviewChange = useMemoizedFn((current: number) => {
     setPreview({ current, open: true })
-    // clearToast()
-    Toast.hide()
+    toast.close(ToastKey)
   })
 
   const handleVisibleChange = useMemoizedFn((v: boolean, _, current: number) => {

@@ -1,12 +1,12 @@
 import { type DependencyList } from 'react'
 import { useMemoizedFn } from 'ahooks'
+import { useTrackState } from 'ahooks-x'
 import { produce } from 'immer'
 import { set } from 'lodash-es'
 import { type WorkspaceStateKey } from '~/core/persist/workspace/common'
 import { CmdToVscode } from '~/message/cmd'
 import VscodeContext from '../ui-framework/src/contexts/vscode-context'
 import { vscodeApi } from '../vscode-api'
-import { useTrackState } from './use-track-state'
 
 /**
  *
@@ -17,12 +17,12 @@ import { useTrackState } from './use-track-state'
  * 此hook与 use-ext-config-state 逻辑类似
  *
  * @param key workspaceState 的 key
- * @param trackState 追踪的 workspaceState
+ * @param trackedState 追踪的 workspaceState
  * @param deps 依赖项，当依赖项变化时，会重新获取 workspaceState
  */
 export function useWorkspaceState<T extends WorkspaceStateKey, U>(
   key: T,
-  trackState: U | (() => U),
+  trackedState: U | (() => U),
   options?: {
     deps?: DependencyList
     defaultValue?: U | (() => U)
@@ -51,7 +51,7 @@ export function useWorkspaceState<T extends WorkspaceStateKey, U>(
     updateWorkspaceState(state)
   })
 
-  const [state, setState] = useTrackState(trackState, {
+  const [state, setState] = useTrackState(trackedState, {
     deps,
     defaultValue,
     onChangeBySet,

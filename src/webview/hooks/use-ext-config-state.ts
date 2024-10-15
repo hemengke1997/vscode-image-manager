@@ -1,13 +1,13 @@
 import { type DependencyList, useMemo } from 'react'
 import { useDebounceFn, useMemoizedFn } from 'ahooks'
 import { type DebounceOptions } from 'ahooks/es/useDebounce/debounceOptions'
+import { useTrackState } from 'ahooks-x'
 import { produce } from 'immer'
 import { set } from 'lodash-es'
 import { type ConfigType } from '~/core/config/common'
 import { CmdToVscode } from '~/message/cmd'
 import VscodeContext from '../ui-framework/src/contexts/vscode-context'
 import { vscodeApi } from '../vscode-api'
-import { useTrackState } from './use-track-state'
 
 /**
  * 追踪插件配置中的某个配置
@@ -15,12 +15,12 @@ import { useTrackState } from './use-track-state'
  * 使用 setState 修改配置时，会自动debounce更新插件配置
  *
  * @param key extension configuration 的 key
- * @param trackState 追踪的插件配置
+ * @param trackedState 追踪的插件配置
  * @param deps 依赖项，当依赖项变化时，会重新获取插件配置
  */
 export function useExtConfigState<T extends Flatten<ConfigType>, U>(
   key: T,
-  trackState: U,
+  trackedState: U,
   deps?: DependencyList,
   _debounceOptions?: DebounceOptions,
 ) {
@@ -54,7 +54,7 @@ export function useExtConfigState<T extends Flatten<ConfigType>, U>(
     debounceUpdate(state)
   })
 
-  const [state, setState] = useTrackState(trackState, {
+  const [state, setState] = useTrackState(trackedState, {
     deps,
     onChangeBySet,
   })
