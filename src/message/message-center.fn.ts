@@ -84,7 +84,7 @@ export async function getStagedImages(root: string) {
   const simpleGit = git({ baseDir: root, binary: 'git' })
 
   try {
-    const files = (await simpleGit.diff(['--staged', '--diff-filter=ACMR', '--name-only'])).split('\n')
+    const files = (await simpleGit.diff(['--cached', '--diff-filter=ACMR', '--name-only'])).split('\n')
     // Filter out non-image files
     let imageFiles = files.filter((file) => Config.file_scan.includes(path.extname(file).slice(1)))
     // Add the full path to the file
