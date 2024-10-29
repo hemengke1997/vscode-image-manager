@@ -1,6 +1,6 @@
 import { type ForwardedRef, forwardRef, memo, useCallback, useEffect, useId, useMemo, useRef, useState } from 'react'
 import { toast } from 'react-atom-toast'
-import { useClickAway, useMemoizedFn, useThrottleFn } from 'ahooks'
+import { useClickAway, useMemoizedFn } from 'ahooks'
 import { ConfigProvider, Image, theme } from 'antd'
 import { type AliasToken, type ComponentTokenMap } from 'antd/es/theme/interface'
 import { produce } from 'immer'
@@ -44,6 +44,7 @@ toast.setDefaultOptions({
   className:
     'flex items-center justify-center rounded-md bg-black bg-opacity-60 px-2 py-1 text-sm shadow-sm pointer-events-none',
   pauseOnHover: false,
+  duration: 1500,
 })
 
 function ImagePreview(props: ImagePreviewProps, ref: ForwardedRef<HTMLDivElement>) {
@@ -71,23 +72,18 @@ function ImagePreview(props: ImagePreviewProps, ref: ForwardedRef<HTMLDivElement
     }
   }, [preview.open])
 
-  // const { toast, clearToast } = useSingleToast()
+  const openToast = useMemoizedFn((sclalePercent: number) => {
+    if (!sclalePercent || !preview.open) return
 
-  const throttleOpenToast = useThrottleFn(
-    (sclalePercent: number) => {
-      if (!sclalePercent || !preview.open) return
-
-      const message = (
+    toast.open({
+      content: (
         <div className={'flex items-center'}>
           <span>{sclalePercent}%</span>
         </div>
-      )
-      toast.open({ content: message, key: ToastKey })
-    },
-    {
-      wait: 60,
-    },
-  )
+      ),
+      key: ToastKey,
+    })
+  })
 
   const getSameWorkspaceImages = useCallback(
     (image: ImageType) => {
@@ -296,7 +292,7 @@ function ImagePreview(props: ImagePreviewProps, ref: ForwardedRef<HTMLDivElement
   const handleTransform: PreviewGroupPreview['onTransform'] = useMemoizedFn((info) => {
     if (['wheel', 'zoomIn', 'zoomOut'].includes(info.action)) {
       const scalePercent = round(info.transform.scale * 100)
-      throttleOpenToast.run(scalePercent)
+      openToast(scalePercent)
     }
   })
 

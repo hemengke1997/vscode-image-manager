@@ -2,12 +2,12 @@
 // Adopt from sharp/install/libvips.js (Apache-2.0)
 
 import libvips from '@minko-fe/sharp/lib/libvips'
+import sharpPkg from '@minko-fe/sharp/package.json' assert { type: 'json' }
 import fs from 'node:fs'
 import path from 'node:path'
 import stream from 'node:stream'
 import zlib from 'node:zlib'
 import tarFs from 'tar-fs'
-import { SHARP_LIBVIPS_VERSION } from '~/meta'
 import { platform } from './platform'
 
 const hasSharpPrebuild = [
@@ -35,7 +35,7 @@ const fail = function (err) {
 }
 
 const unpackLibvips = function (tarPath: string) {
-  const versionedVendorPath = path.join(__dirname, '..', 'vendor', SHARP_LIBVIPS_VERSION, platformAndArch)
+  const versionedVendorPath = path.join(__dirname, '..', 'vendor', sharpPkg.config.libvips, platformAndArch)
   libvips.mkdirSync(versionedVendorPath)
 
   const ignoreVendorInclude = hasSharpPrebuild.includes(platformAndArch)

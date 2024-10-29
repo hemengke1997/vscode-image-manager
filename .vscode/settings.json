@@ -11,7 +11,7 @@
   "image-manager.appearance.primaryColor": "#4d78cc",
   "image-manager.appearance.theme": "dark",
   "image-manager.viewer.imageBackgroundColor": "#404754",
-  "image-manager.viewer.imageWidth": 161,
+  "image-manager.viewer.imageWidth": 160,
   "search.exclude": {
     "**/__snapshots__/**": true,
     "CHANGELOG-CODE.md": true,

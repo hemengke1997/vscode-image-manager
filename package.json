@@ -75,7 +75,7 @@
     "@commitlint/cli": "^19.5.0",
     "@ctrl/tinycolor": "^4.1.0",
     "@minko-fe/commitlint-config": "^2.1.2",
-    "@minko-fe/eslint-config": "^4.1.0",
+    "@minko-fe/eslint-config": "^4.1.1",
     "@minko-fe/hookable": "^6.0.0",
     "@minko-fe/prettier-config": "^2.2.3",
     "@minko-fe/sharp": "1.1.4",
@@ -86,21 +86,21 @@
     "@types/markdown-it": "^14.1.2",
     "@types/micromatch": "^4.0.9",
     "@types/minimist": "^1.2.5",
-    "@types/node": "^22.7.6",
+    "@types/node": "^22.8.2",
     "@types/pump": "1.1.3",
-    "@types/react": "^18.3.11",
+    "@types/react": "^18.3.12",
     "@types/react-dom": "^18.3.1",
     "@types/react-highlight-words": "^0.20.0",
     "@types/react-scroll": "^1.8.10",
     "@types/tar-fs": "2.0.4",
     "@types/vscode": "^1.70.0",
     "@types/vscode-webview": "^1.57.5",
-    "@vitejs/plugin-react": "^4.3.2",
-    "@vscode/vsce": "^3.1.1",
+    "@vitejs/plugin-react": "^4.3.3",
+    "@vscode/vsce": "^3.2.1",
     "ahooks": "^3.8.1",
-    "ahooks-x": "^1.3.1",
-    "antd": "^5.21.4",
-    "bumpp": "^9.7.1",
+    "ahooks-x": "^1.3.4",
+    "antd": "^5.21.6",
+    "bumpp": "^9.8.0",
     "consola": "^3.2.3",
     "context-state": "^3.1.2",
     "conventional-changelog-cli": "^5.0.0",
@@ -111,16 +111,16 @@
     "delay": "^6.0.0",
     "destr": "^2.0.3",
     "escape-string-regexp": "^5.0.0",
-    "eslint": "^9.12.0",
+    "eslint": "^9.13.0",
     "eventemitter3": "^5.0.1",
     "execa": "8.0.1",
     "exif-reader": "^2.0.1",
     "flat": "^6.0.1",
-    "framer-motion": "^11.11.9",
+    "framer-motion": "^11.11.10",
     "fs-extra": "^11.2.0",
     "fuse.js": "^7.0.0",
     "globby": "^14.0.2",
-    "i18next": "^23.16.0",
+    "i18next": "^23.16.4",
     "ico-endec": "^0.1.6",
     "image-size": "^1.1.1",
     "immer": "^10.1.1",
@@ -132,13 +132,13 @@
     "micromatch": "^4.0.8",
     "mime": "^4.0.4",
     "minimist": "^1.2.8",
-    "nanoid": "^5.0.7",
+    "nanoid": "^5.0.8",
     "node-fetch": "^3.3.2",
-    "npm-run-all2": "^6.2.3",
+    "npm-run-all2": "^7.0.1",
     "on-change": "^5.0.1",
     "p-debounce": "^4.0.0",
     "p-map": "^7.0.2",
-    "p-timeout": "^6.1.2",
+    "p-timeout": "^6.1.3",
     "patch-package": "^8.0.0",
     "postcss": "^8.4.47",
     "prettier-plugin-tailwindcss": "^0.6.8",
@@ -147,10 +147,10 @@
     "react-atom-toast": "^1.2.1",
     "react-contexify": "^6.0.0",
     "react-dom": "^18.3.1",
-    "react-error-boundary": "^4.1.1",
+    "react-error-boundary": "^4.1.2",
     "react-highlight-words": "^0.20.0",
     "react-hotkeys-hook": "^4.5.1",
-    "react-i18next": "^15.0.3",
+    "react-i18next": "^15.1.0",
     "react-icons": "^5.3.0",
     "react-scroll": "^1.9.0",
     "react-transition-preset": "^1.2.2",
@@ -168,39 +168,26 @@
     "taze": "^0.17.2",
     "ts-key-enum": "2.0.13",
     "ts-retry": "^5.0.1",
-    "tsup": "^8.3.0",
-    "tsx": "^4.19.1",
+    "tsup": "8.3.0",
+    "tsx": "^4.19.2",
     "tw-clsx": "^0.1.0",
     "type-fest": "^4.26.1",
     "typescript": "^5.6.3",
     "un-detector": "^1.1.2",
-    "vite": "^5.4.9",
+    "vite": "^5.4.10",
     "vite-config-preset": "^1.2.0",
     "vite-plugin-html": "^3.2.2",
-    "vite-plugin-i18n-ally": "^5.1.0",
+    "vite-plugin-i18n-ally": "^5.2.1",
     "vite-plugin-markdown": "^2.2.0",
-    "vitest": "^2.1.3"
+    "vitest": "^2.1.4"
   },
   "engines": {
-    "vscode": "^1.75.0"
-  },
-  "simple-git-hooks": {
-    "commit-msg": "npm run commitlint",
-    "pre-commit": "npm run lint-staged"
+    "vscode": "^1.70.0"
   },
   "overrides": {
     "vite": {
       "rollup": "npm:@rollup/wasm-node"
     }
-  },
-  "lint-staged": {
-    "*": "eslint --fix"
-  },
-  "prettier": "@minko-fe/prettier-config",
-  "commitlint": {
-    "extends": [
-      "@minko-fe"
-    ]
   },
   "contributes": {
     "commands": [
@@ -467,7 +454,7 @@
             "null",
             "number"
           ],
-          "default": null,
+          "default": 75,
           "description": "%pkg.compression.quality%"
         },
         "image-manager.compression.size": {
@@ -489,6 +476,19 @@
           "type": "number",
           "default": 256,
           "description": "%pkg.compression.gif.colors%"
+        },
+        "image-manager.compression.svg.compressedAttribute": {
+          "type": [
+            "string",
+            "null"
+          ],
+          "default": "c",
+          "description": "%pkg.compression.svg.compressedAttribute%"
+        },
+        "image-manager.compression.svg.removeDataAttributes": {
+          "type": "boolean",
+          "default": true,
+          "description": "%pkg.compression.svg.removeDataAttributes%"
         },
         "image-manager.conversion.format": {
           "type": "string",
@@ -515,21 +515,21 @@
           "type": "number",
           "default": 10,
           "description": "%pkg.similarity.precision%"
-        },
-        "image-manager.compression.svg.compressedAttribute": {
-          "type": [
-            "string",
-            "null"
-          ],
-          "default": "c",
-          "description": "%pkg.compression.svg.compressedAttribute%"
-        },
-        "image-manager.compression.svg.removeDataAttributes": {
-          "type": "boolean",
-          "default": true,
-          "description": "%pkg.compression.svg.removeDataAttributes%"
         }
       }
     }
+  },
+  "simple-git-hooks": {
+    "commit-msg": "npm run commitlint",
+    "pre-commit": "npm run lint-staged"
+  },
+  "lint-staged": {
+    "*": "eslint --fix"
+  },
+  "prettier": "@minko-fe/prettier-config",
+  "commitlint": {
+    "extends": [
+      "@minko-fe"
+    ]
   }
 }

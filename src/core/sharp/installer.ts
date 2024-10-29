@@ -1,3 +1,4 @@
+import sharpPkg from '@minko-fe/sharp/package.json' assert { type: 'json' }
 import { devDependencies, version } from '~root/package.json'
 import destr from 'destr'
 import EventEmitter from 'eventemitter3'
@@ -8,7 +9,6 @@ import path from 'node:path'
 import { commands, StatusBarAlignment, type StatusBarItem, window } from 'vscode'
 import { mirrors } from '~/commands/mirror'
 import { i18n } from '~/i18n'
-import { SHARP_LIBVIPS_VERSION } from '~/meta'
 import { cleanVersion, isValidHttpsUrl, normalizePath, setImmdiateInterval } from '~/utils'
 import { type AbortError, abortPromise, type TimeoutError } from '~/utils/abort-promise'
 import { Channel } from '~/utils/channel'
@@ -38,6 +38,8 @@ const BUILD = 'build'
 const CACHE_JSON = 'cache.json'
 
 const INITIALIZING_TEXT = () => `🔄 ${i18n.t('prompt.initializing')}`
+
+const SHARP_LIBVIPS_VERSION = sharpPkg.config.libvips
 
 export class Installer {
   /**

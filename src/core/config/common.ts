@@ -111,7 +111,7 @@ export const DEFAULT_CONFIG: ConfigType = {
   },
   file: {
     root: [],
-    scan: ['svg', 'png', 'jpeg', 'jpg', 'ico', 'gif', 'webp', 'bmp', 'tif', 'apng', 'tiff', 'avif'],
+    scan: ['png', 'jpg', 'jpeg', 'webp', 'gif', 'tiff', 'tif', 'avif', 'heif', 'heic', 'apng', 'svg', 'bmp', 'ico'],
     gitignore: true,
     exclude: [],
     confirmDelete: true,
@@ -129,11 +129,11 @@ export const DEFAULT_CONFIG: ConfigType = {
     url: '',
   },
   compression: {
-    errorRange: 2,
+    errorRange: 0,
     keepOriginal: false,
     skipCompressed: true,
     fileSuffix: '.min',
-    quality: undefined,
+    quality: 75,
     size: 1,
     format: '',
     png: {

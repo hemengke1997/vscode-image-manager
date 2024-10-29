@@ -7,9 +7,6 @@ export const EXT_NAME = 'Image Manager'
 export const FALLBACK_LANGUAGE = Language.en
 export const DEV_PORT = 4433
 
-// @minko-fe/sharp/package.json > config > libvips
-export const SHARP_LIBVIPS_VERSION = '8.15.3'
-
 // webview/locales/*.json
 export const locales = [
   {

@@ -18,7 +18,7 @@ export type CompressionOptions = OperatorOptions & {
    * @description 压缩后的图片质量
    * @description
    * use the lowest number of colours needed to achieve given quality, sets palette to true
-   * @default undefined
+   * @default 75
    */
   quality?: number
   /**
