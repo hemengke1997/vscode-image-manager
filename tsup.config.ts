@@ -74,6 +74,7 @@ export default defineConfig((option) => [
     entry: ['src/extension.ts'],
     format: 'cjs',
     external: ['vscode', '@minko-fe/sharp'],
+    noExternal: ['@minko-fe/sharp/package.json'],
     clean: !option.watch,
     dts: false,
     target: 'node16',

@@ -40,7 +40,7 @@ export default defineConfig(async (env) => {
       markdown({ mode: [Mode.MARKDOWN] }),
     ],
     optimizeDeps: {
-      force: false,
+      force: true,
     },
     build: {
       outDir: path.resolve(__dirname, './dist-webview/'),

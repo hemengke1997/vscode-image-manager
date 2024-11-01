@@ -1,4 +1,4 @@
-import sharpPkg from '@minko-fe/sharp/package.json' assert { type: 'json' }
+import { config } from '@minko-fe/sharp/package.json'
 import { devDependencies, version } from '~root/package.json'
 import destr from 'destr'
 import EventEmitter from 'eventemitter3'
@@ -39,7 +39,7 @@ const CACHE_JSON = 'cache.json'
 
 const INITIALIZING_TEXT = () => `🔄 ${i18n.t('prompt.initializing')}`
 
-const SHARP_LIBVIPS_VERSION = sharpPkg.config.libvips
+const SHARP_LIBVIPS_VERSION = config.libvips
 
 export class Installer {
   /**
