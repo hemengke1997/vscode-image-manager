@@ -59,7 +59,7 @@
       },
       svg: {
         compressedAttribute: '圧縮後のsvgに「圧縮済み」属性を追加します。無効にするにはnullを設定します',
-        removeDataAttributes: 'svgからdata-*属性を削除します。data-[compressedAttribute]を除きます',
+        removeDataAttributes: 'svgからdata-*属性を削除します。data-[{compressedAttribute}]を除きます',
       },
     },
     conversion: {

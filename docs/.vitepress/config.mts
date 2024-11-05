@@ -10,12 +10,6 @@ export default defineConfig({
       lang: 'en',
       description: 'View, compress, crop, convert format, search and find similary images in VSCode',
       themeConfig: {
-        nav: [
-          {
-            text: 'Changelog',
-            link: 'https://github.com/hemengke1997/vscode-image-manager/blob/master/CHANGELOG.md',
-          },
-        ],
         sidebar: [
           {
             text: 'Guides',
@@ -159,6 +153,10 @@ export default defineConfig({
     },
   },
   themeConfig: {
+    logo: '/images/logo.svg',
     socialLinks: [{ icon: 'github', link: 'https://github.com/hemengke1997/vscode-image-manager' }],
+    search: {
+      provider: 'local',
+    },
   },
 })

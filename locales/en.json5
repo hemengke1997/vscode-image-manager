@@ -58,7 +58,7 @@
       },
       svg: {
         compressedAttribute: 'Add "compressed" attribute to svg after compression. Set to null to disable',
-        removeDataAttributes: 'Remove data-* attributes from svg. Except data-[compressedAttribute]',
+        removeDataAttributes: 'Remove data-* attributes from svg. Except data-[{compressedAttribute}]',
       },
     },
     conversion: {
