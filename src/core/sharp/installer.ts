@@ -31,7 +31,7 @@ enum CacheType {
   extension = 'extension',
 }
 
-const CNPM_BINARY_REGISTRY = mirrors[0].description
+const CNPM_BINARY_REGISTRY = () => mirrors()[0].description
 const SHARP_LIBVIPS = 'sharp-libvips'
 const VENDOR = 'vendor'
 const BUILD = 'build'
@@ -112,7 +112,7 @@ export class Installer {
     Channel.info(`${i18n.t('core.extension_root')}: ${this.cwd}`)
     Channel.info(`${i18n.t('core.tip')}: ${i18n.t('core.dep_url_tip')} ⬇️`)
     Channel.info(
-      `${i18n.t('core.dep_url')}: ${CNPM_BINARY_REGISTRY}/${SHARP_LIBVIPS}/v${SHARP_LIBVIPS_VERSION}/${this._libvips_bin}`,
+      `${i18n.t('core.dep_url')}: ${CNPM_BINARY_REGISTRY()}/${SHARP_LIBVIPS}/v${SHARP_LIBVIPS_VERSION}/${this._libvips_bin}`,
     )
     Channel.divider()
   }
@@ -493,7 +493,7 @@ export class Installer {
       try {
         const npm_config_sharp_libvips_binary_host = resolveMirrorUrl({
           name: SHARP_LIBVIPS,
-          fallbackUrl: `${CNPM_BINARY_REGISTRY}/${SHARP_LIBVIPS}`,
+          fallbackUrl: `${CNPM_BINARY_REGISTRY()}/${SHARP_LIBVIPS}`,
         })
 
         Channel.debug(`libvips binary host: ${npm_config_sharp_libvips_binary_host}`)

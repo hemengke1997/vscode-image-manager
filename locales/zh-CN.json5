@@ -97,6 +97,9 @@
     reset_settings_success: '重置成功',
     reset_settings_fail: '重置失败',
     cancel_operation_tip: '取消操作',
+    registry_mirror: 'Registry 站点镜像',
+    binary_mirror: '二进制文件镜像',
+    cdn_mirror: 'CDN 二进制文件镜像',
   },
   // 核心代码
   core: {

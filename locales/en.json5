@@ -95,6 +95,9 @@
     reset_settings_success: 'Reset successful',
     reset_settings_fail: 'Reset failed',
     cancel_operation_tip: 'Operation canceled',
+    registry_mirror: 'Registry Mirror',
+    binary_mirror: 'Binary File Mirror',
+    cdn_mirror: 'CDN Binary File Mirror',
   },
   core: {
     compress_fail: 'Compress Fail',

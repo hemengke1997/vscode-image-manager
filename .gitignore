@@ -19,3 +19,6 @@ package.nls.*
 
 TODO.md
 CHANGELOG-CODE.md
+
+docs/.vitepress/dist
+docs/.vitepress/cache

@@ -18,6 +18,7 @@ import { classNames } from 'tw-clsx'
 import { DEFAULT_CONFIG } from '~/core/config/common'
 import { Compressed } from '~/enums'
 import { CmdToVscode } from '~/message/cmd'
+import { OS } from '~/webview/ui-framework/src/utils/device'
 import { getAppRoot } from '~/webview/utils'
 import { vscodeApi } from '~/webview/vscode-api'
 import GlobalContext from '../../contexts/global-context'
@@ -188,18 +189,31 @@ function LazyImage(props: LazyImageProps) {
       if (contextMenu?.enable?.fs) {
         switch (e.key) {
           case Key.Enter: {
-            hideAll()
-            beginRenameImageProcess(image)
+            if (!OS.isWindows) {
+              hideAll()
+              beginRenameImageProcess(image)
+            }
             return
           }
-          // mac delete key
+          // windows rename key
+          case Key.F2: {
+            if (OS.isWindows) {
+              hideAll()
+              beginRenameImageProcess(image)
+            }
+            return
+          }
           case Key.Backspace: {
-            handleDelete()
+            if (!OS.isWindows) {
+              handleDelete()
+            }
             return
           }
           // windows delete key
           case Key.Delete: {
-            handleDelete()
+            if (OS.isWindows) {
+              handleDelete()
+            }
             return
           }
           case 'c': {

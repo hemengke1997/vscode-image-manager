@@ -3,7 +3,8 @@
   "name": "image-manager",
   "version": "2.3.4",
   "private": true,
-  "description": "View, compress, crop, convert format, search and find similary images in VS Code | 浏览、压缩、裁剪、转换格式、搜索、查找相似图片的 VS Code 插件",
+  "packageManager": "npm@10.5.2",
+  "description": "View, compress, crop, convert format, search, filter and find similary images in VS Code",
   "type": "commonjs",
   "keywords": [
     "image",
@@ -63,7 +64,10 @@
     "bump": "bumpp package.json --no-commit --tag --no-push --all -x \"npm run changelog\"",
     "vscode:prepublish": "run-p build download-sharp-releases",
     "pack": "vsce package",
-    "publish": "vsce publish"
+    "publish": "vsce publish",
+    "docs:dev": "vitepress dev docs",
+    "docs:build": "vitepress build docs",
+    "docs:preview": "vitepress preview docs"
   },
   "optionalDependencies": {
     "@rollup/rollup-linux-x64-gnu": "4.18.0",
@@ -86,7 +90,7 @@
     "@types/markdown-it": "^14.1.2",
     "@types/micromatch": "^4.0.9",
     "@types/minimist": "^1.2.5",
-    "@types/node": "^22.8.5",
+    "@types/node": "^22.9.0",
     "@types/pump": "1.1.3",
     "@types/react": "^18.3.12",
     "@types/react-dom": "^18.3.1",
@@ -100,7 +104,7 @@
     "ahooks": "^3.8.1",
     "ahooks-x": "^1.3.4",
     "antd": "^5.21.6",
-    "bumpp": "^9.8.0",
+    "bumpp": "^9.8.1",
     "consola": "^3.2.3",
     "context-state": "^3.1.2",
     "conventional-changelog-cli": "^5.0.0",
@@ -111,7 +115,7 @@
     "delay": "^6.0.0",
     "destr": "^2.0.3",
     "escape-string-regexp": "^5.0.0",
-    "eslint": "^9.13.0",
+    "eslint": "^9.14.0",
     "eventemitter3": "^5.0.1",
     "execa": "8.0.1",
     "exif-reader": "^2.0.1",
@@ -179,6 +183,7 @@
     "vite-plugin-html": "^3.2.2",
     "vite-plugin-i18n-ally": "^5.2.2",
     "vite-plugin-markdown": "^2.2.0",
+    "vitepress": "^1.5.0",
     "vitest": "^2.1.4"
   },
   "engines": {

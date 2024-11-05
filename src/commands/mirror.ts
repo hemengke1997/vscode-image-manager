@@ -5,20 +5,22 @@ import { i18n } from '~/i18n'
 import { type ExtensionModule } from '~/module'
 import { Commands } from '.'
 
-export const mirrors = [
-  {
-    label: 'registry站点镜像',
-    description: 'https://registry.npmmirror.com/-/binary',
-  },
-  {
-    label: '二进制文件镜像',
-    description: 'https://npmmirror.com/mirrors',
-  },
-  {
-    label: 'cdn二进制文件镜像',
-    description: 'https://cdn.npmmirror.com/binaries',
-  },
-]
+export const mirrors = () => {
+  return [
+    {
+      label: i18n.t('prompt.registry_mirror'),
+      description: 'https://registry.npmmirror.com/-/binary',
+    },
+    {
+      label: i18n.t('prompt.binary_mirror'),
+      description: 'https://npmmirror.com/mirrors',
+    },
+    {
+      label: i18n.t('prompt.cdn_mirror'),
+      description: 'https://cdn.npmmirror.com/binaries',
+    },
+  ]
+}
 
 export default <ExtensionModule>function () {
   async function enableMirror() {
@@ -40,7 +42,7 @@ export default <ExtensionModule>function () {
     const previousMirrorUrl = Config.mirror_url
 
     const mirror = await window.showQuickPick(
-      mirrors.map(
+      mirrors().map(
         (t) =>
           ({
             label: t.label,
@@ -53,7 +55,7 @@ export default <ExtensionModule>function () {
     )
 
     if (mirror) {
-      const selected = mirrors.find((t) => t.label === mirror.label)?.description
+      const selected = mirrors().find((t) => t.label === mirror.label)?.description
       await Promise.all([
         Config.updateConfig(ConfigKey.mirror_url, selected, ConfigurationTarget.Global),
         Config.updateConfig(ConfigKey.mirror_enabled, true, ConfigurationTarget.Global),

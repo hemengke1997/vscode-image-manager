@@ -5,6 +5,6 @@ function getUA() {
 }
 
 export const OS = {
-  isMac: () => os.isMac(getUA()),
-  isWindows: () => os.isWindows(getUA()),
+  isMac: os.isMac(getUA()),
+  isWindows: os.isWindows(getUA()),
 }

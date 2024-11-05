@@ -3,6 +3,7 @@ import { useHotkeys } from 'react-hotkeys-hook'
 import { Key } from 'ts-key-enum'
 import { classNames } from 'tw-clsx'
 import useImageOperation from '~/webview/image-manager/hooks/use-image-operation'
+import { OS } from '~/webview/ui-framework/src/utils/device'
 import { type EnableCollapseContextMenuType } from '../../../context-menus/components/collapse-context-menu'
 import useCollapseContextMenu from '../../../context-menus/components/collapse-context-menu/hooks/use-collapse-context-menu'
 
@@ -27,19 +28,30 @@ function SingleLabel(props: SingleLabelProps) {
     [Key.Enter, `mod+${Key.Backspace}`, Key.Delete],
     (e) => {
       switch (e.key) {
+        case Key.F2: {
+          if (OS.isWindows) {
+            hideAll()
+            beginRenameDirProcess(dirPath)
+          }
+          return
+        }
         case Key.Enter: {
-          hideAll()
-          beginRenameDirProcess(dirPath)
+          if (!OS.isWindows) {
+            hideAll()
+            beginRenameDirProcess(dirPath)
+          }
           return
         }
-        // mac delete key
         case Key.Backspace: {
-          beginDeleteDirProcess(dirPath)
+          if (!OS.isWindows) {
+            beginDeleteDirProcess(dirPath)
+          }
           return
         }
-        // windows delete key
         case Key.Delete: {
-          beginDeleteDirProcess(dirPath)
+          if (OS.isWindows) {
+            beginDeleteDirProcess(dirPath)
+          }
           return
         }
         default:

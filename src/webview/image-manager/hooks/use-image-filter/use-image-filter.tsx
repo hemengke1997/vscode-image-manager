@@ -1,4 +1,5 @@
 import { useTranslation } from 'react-i18next'
+import { upperFirst } from 'lodash-es'
 import useImperativeModal from '../use-imperative-modal'
 import ImageFilter from './image-filter'
 
@@ -10,7 +11,7 @@ export default function useImageFilter() {
   const { showModal } = useImperativeModal({
     modalProps: {
       width: 'fit-content',
-      title: t('im.filter'),
+      title: upperFirst(t('im.filter')),
       keyboard: true,
     },
     FC: ImageFilter,

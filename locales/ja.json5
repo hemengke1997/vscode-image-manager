@@ -96,6 +96,9 @@
     reset_settings_success: 'リセット成功',
     reset_settings_fail: 'リセット失敗',
     cancel_operation_tip: '操作がキャンセルされました',
+    registry_mirror: 'レジストリサイトミラー',
+    binary_mirror: 'バイナリファイルミラー',
+    cdn_mirror: 'CDNバイナリファイルミラー',
   },
   core: {
     compress_fail: '圧縮に失敗しました',
