@@ -1,7 +1,7 @@
 {
   "publisher": "Minko",
   "name": "image-manager",
-  "version": "2.3.4",
+  "version": "2.3.5",
   "private": true,
   "packageManager": "npm@10.5.2",
   "description": "View, compress, crop, convert format, search, filter and find similary images in VS Code",
