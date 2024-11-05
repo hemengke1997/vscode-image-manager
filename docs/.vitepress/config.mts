@@ -153,7 +153,7 @@ export default defineConfig({
     },
   },
   themeConfig: {
-    logo: '/images/logo.svg',
+    logo: '/logo.svg',
     socialLinks: [{ icon: 'github', link: 'https://github.com/hemengke1997/vscode-image-manager' }],
     search: {
       provider: 'local',

@@ -6,7 +6,7 @@ hero:
   name: "VSCode Image Manager"
   text: "强大易用的VSCode图片管理插件"
   image:
-    src: /images/logo.svg
+    src: /logo.svg
     alt: VSCode Image Manager
   actions:
     - theme: brand
