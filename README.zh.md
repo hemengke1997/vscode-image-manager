@@ -10,7 +10,9 @@
 
 [English](./README.md)
 
-## [文档](https://hemengke1997.github.io/vscode-image-manager/zh/)
+## 文档
+
+请阅读 [文档](https://hemengke1997.github.io/vscode-image-manager/) 了解更多信息。
 
 ## 插件截图
 

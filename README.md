@@ -11,7 +11,9 @@
 
 [中文](./README.zh.md)
 
-## [Document](https://hemengke1997.github.io/vscode-image-manager/)
+## Document
+
+Please read the [documentation](https://hemengke1997.github.io/vscode-image-manager/) for more information.
 
 ## Screenshot
 
