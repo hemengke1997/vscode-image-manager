@@ -14,51 +14,31 @@
 
 请阅读 [文档](https://hemengke1997.github.io/vscode-image-manager/zh/) 了解更多信息。
 
-## 插件截图
+## 截图
 
-<details open>
-  <summary>概览</summary>
+### 概览
 
 ![overview](./screenshots/overview.png)
 
-</details>
-
-<details>
-  <summary>大图预览</summary>
+### 大图预览
 
 ![preview](./screenshots/preview.png)
 
-</details>
-
-<details>
-  <summary>批量压缩</summary>
+### 批量压缩
 
 ![compression](./screenshots/compression.png)
 
-</details>
-
-<details>
-  <summary>裁剪</summary>
+### 裁剪
 
 ![crop](./screenshots/crop.png)
 
-</details>
-
-
-<details>
-  <summary>图片查找</summary>
+### 图片查找
 
 ![search](./screenshots/search.png)
 
-</details>
-
-
-<details>
-  <summary>查找相似图片</summary>
+### 查找相似图片
 
 ![find-similarity](./screenshots/find-similarity.png)
-
-</details>
 
 ## 感谢
 

@@ -17,47 +17,32 @@ Please read the [documentation](https://hemengke1997.github.io/vscode-image-mana
 
 ## Screenshot
 
-<details open>
-  <summary>Overview</summary>
+### Overview
 
 ![overview](./screenshots/overview.png)
 
-</details>
 
-<details>
-  <summary>Preview</summary>
+### Preview
 
 ![preview](./screenshots/preview.png)
 
-</details>
 
-<details>
-  <summary>Batch Compression</summary>
+### Batch Compression
 
 ![compression](./screenshots/compression.png)
 
-</details>
-
-<details>
-  <summary>Crop</summary>
+### Crop
 
 ![crop](./screenshots/crop.png)
 
-</details>
-
-<details>
-  <summary>Search</summary>
+### Search
 
 ![search](./screenshots/search.png)
-</details>
 
-
-<details>
-  <summary>Finding Similarities</summary>
+### Finding Similarities
 
 ![find-similirity](./screenshots/find-similarity.png)
 
-</details>
 
 ## Thanks
 
