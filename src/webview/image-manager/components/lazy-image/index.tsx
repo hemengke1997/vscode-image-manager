@@ -5,8 +5,8 @@ import { animateScroll } from 'react-scroll'
 import { useInViewport, useMemoizedFn, useSetState } from 'ahooks'
 import { useControlledState } from 'ahooks-x'
 import { Image, type ImageProps } from 'antd'
-import { motion } from 'framer-motion'
 import { trim } from 'lodash-es'
+import { motion } from 'motion/react'
 import { FiCheckCircle } from 'react-icons/fi'
 import { HiOutlineViewfinderCircle } from 'react-icons/hi2'
 import { MdOutlineRemoveCircle } from 'react-icons/md'
@@ -435,7 +435,7 @@ function LazyImage(props: LazyImageProps) {
     [t],
   )
 
-  // 目前 framer-motion viewport root 有bug，在 root 改变后不会重新observe
+  // 目前 motion/react viewport root 有bug，在 root 改变后不会重新observe
   // 所以这里需要判断 root 是否存在
   if (lazy && !lazy.root) {
     return null

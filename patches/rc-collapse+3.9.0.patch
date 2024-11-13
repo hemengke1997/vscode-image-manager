@@ -1,0 +1,30 @@
+diff --git a/node_modules/rc-collapse/es/Collapse.js b/node_modules/rc-collapse/es/Collapse.js
+index 7877573..14c331c 100644
+--- a/node_modules/rc-collapse/es/Collapse.js
++++ b/node_modules/rc-collapse/es/Collapse.js
+@@ -29,7 +29,7 @@ var Collapse = /*#__PURE__*/React.forwardRef(function (props, ref) {
+     className = props.className,
+     children = props.children,
+     collapsible = props.collapsible,
+-    openMotion = props.openMotion,
++    openMotion = {},
+     expandIcon = props.expandIcon,
+     rawActiveKey = props.activeKey,
+     defaultActiveKey = props.defaultActiveKey,
+diff --git a/node_modules/rc-collapse/es/Panel.js b/node_modules/rc-collapse/es/Panel.js
+index 52e72dd..2bb65e2 100644
+--- a/node_modules/rc-collapse/es/Panel.js
++++ b/node_modules/rc-collapse/es/Panel.js
+@@ -38,9 +38,9 @@ var CollapsePanel = /*#__PURE__*/React.forwardRef(function (props, ref) {
+       onItemClick === null || onItemClick === void 0 || onItemClick(panelKey);
+     },
+     onKeyDown: function onKeyDown(e) {
+-      if (e.key === 'Enter' || e.keyCode === KeyCode.ENTER || e.which === KeyCode.ENTER) {
+-        onItemClick === null || onItemClick === void 0 || onItemClick(panelKey);
+-      }
++      // if (e.key === 'Enter' || e.keyCode === KeyCode.ENTER || e.which === KeyCode.ENTER) {
++      //   onItemClick === null || onItemClick === void 0 || onItemClick(panelKey);
++      // }
+     },
+     role: accordion ? 'tab' : 'button'
+   }, 'aria-expanded', isActive), 'aria-disabled', disabled), "tabIndex", disabled ? -1 : 0);
