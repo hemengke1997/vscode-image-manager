@@ -1,6 +1,6 @@
 import { memo, useEffect, useMemo, useRef } from 'react'
 import { useTranslation } from 'react-i18next'
-import styleObjectToString from '@minko-fe/style-object-to-string'
+import { styleObjectToString } from '@minko-fe/style-object-to-string'
 import { useMemoizedFn } from 'ahooks'
 import { Card, Empty, Skeleton } from 'antd'
 import { produce } from 'immer'

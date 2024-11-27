@@ -159,4 +159,5 @@ export default defineConfig({
       provider: 'local',
     },
   },
+  head: [['link', { rel: 'icon', type: 'image/svg+xml', href: '/vscode-image-manager/logo.svg' }]],
 })
