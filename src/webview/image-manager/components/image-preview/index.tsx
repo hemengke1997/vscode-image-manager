@@ -40,13 +40,6 @@ export type ImagePreviewProps = {
 
 const ToastKey = 'image-preview-scale'
 
-toast.setDefaultOptions({
-  className:
-    'flex items-center justify-center rounded-md bg-black bg-opacity-60 px-2 py-1 text-sm shadow-sm pointer-events-none',
-  pauseOnHover: false,
-  duration: 1500,
-})
-
 function ImagePreview(props: ImagePreviewProps, ref: ForwardedRef<HTMLDivElement>) {
   const { images, lazyImageProps, enableMultipleSelect = false } = props
 

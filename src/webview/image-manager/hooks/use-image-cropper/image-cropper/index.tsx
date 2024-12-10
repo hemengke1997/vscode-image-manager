@@ -401,6 +401,9 @@ function ImageCropper(props: ImageCropperProps) {
           }
         }}
         title={t('im.preview')}
+        style={{
+          top: 300,
+        }}
       >
         <Card>
           <div ref={previewRef} className={classNames('flex justify-center', styles.canvas_box)}></div>

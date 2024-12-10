@@ -1,4 +1,5 @@
 import { memo, useEffect } from 'react'
+import { toast } from 'react-atom-toast'
 import { flushSync } from 'react-dom'
 import { useTranslation } from 'react-i18next'
 import { useMemoizedFn } from 'ahooks'
@@ -19,12 +20,18 @@ import Viewer from './components/viewer'
 import ActionContext from './contexts/action-context'
 import GlobalContext, { type WebviewCompressorType, type WebviewFormatConverterType } from './contexts/global-context'
 import useRefreshImages from './hooks/use-refresh-images'
-import useSyncImageTypes from './hooks/use-sync-image-types'
 
 vscodeApi.registerEventListener()
 
 setAutoFreeze(false)
 enableMapSet()
+
+toast.setDefaultOptions({
+  className:
+    'flex items-center justify-center rounded-md bg-black bg-opacity-60 px-2 py-1 text-sm shadow-sm pointer-events-none',
+  pauseOnHover: false,
+  duration: 1500,
+})
 
 function ImageManager() {
   const { message } = App.useApp()
@@ -38,7 +45,6 @@ function ImageManager() {
 
   const { refreshImages } = ActionContext.usePicker(['refreshImages'])
 
-  useSyncImageTypes()
   useRefreshImages()
 
   const getCompressor = useMemoizedFn(() => {

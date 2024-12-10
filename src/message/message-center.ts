@@ -447,7 +447,9 @@ export const VscodeMessageCenter = {
 
     const outputFileType = mime.getExtension(mimeType.match(/data:(.*);/)?.[1] || '')
 
-    const outputPath = generateOutputPath(image.path, '.crop')
+    let outputPath = image.path.replace(new RegExp(`\\.${image.fileType}$`), `.${outputFileType}`)
+
+    outputPath = generateOutputPath(outputPath, '.crop')
 
     if (outputFileType !== image.fileType) {
       // Convert to the same format as the original image
@@ -471,7 +473,10 @@ export const VscodeMessageCenter = {
         ],
       })
       try {
-        await formatter.run({ filePath: image.path, ext: image.fileType, input: imageBuffer })
+        await formatter.run({ filePath: image.path, ext: outputFileType || image.fileType, input: imageBuffer })
+      } catch (e) {
+        Channel.error(`${i18n.t('core.save_cropper_image_error')} ${e}`)
+        return null
       } finally {
         // @ts-expect-error
         formatter = null
