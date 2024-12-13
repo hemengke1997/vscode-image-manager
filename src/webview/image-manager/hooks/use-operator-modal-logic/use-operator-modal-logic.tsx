@@ -33,7 +33,7 @@ export type OnEndOptionsType = {
   onUndoClick: (results: OperatorResult[]) => void
 }
 
-export default function useOperatorModalLogic() {
+export function useOperatorModalLogic() {
   const { t } = useTranslation()
   const { message, notification } = App.useApp()
   const { token } = theme.useToken()
@@ -55,6 +55,7 @@ export default function useOperatorModalLogic() {
     },
   })
   const onCompressEnd = useMemoizedFn((results: OperatorResult[], options: OnEndOptionsType) => {
+    console.log('showImageOpeatorResult')
     showImageOpeatorResult({
       results,
       ...options,
@@ -242,8 +243,8 @@ export default function useOperatorModalLogic() {
         <Button
           onClick={triggerOnce(() => {
             viewed = true
-            onView()
             notification.destroy(id)
+            onView()
           })}
         >
           {t('im.click_to_view')}

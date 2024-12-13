@@ -10,12 +10,12 @@ import { type OperatorResult } from '~/core'
 import { ConfigKey } from '~/core/config/common'
 import { CmdToVscode } from '~/message/cmd'
 import { useExtConfigState } from '~/webview/hooks/use-ext-config-state'
+import ImagePreview, { type ImagePreviewProps } from '~/webview/image-manager/components/image-preview'
 import GlobalContext from '~/webview/image-manager/contexts/global-context'
 import { vscodeApi } from '~/webview/vscode-api'
 import { type ImperativeModalProps } from '../../use-imperative-modal'
-import useOperatorModalLogic, { type OnEndOptionsType } from '../../use-operator-modal-logic/use-operator-modal-logic'
+import { type OnEndOptionsType, useOperatorModalLogic } from '../../use-operator-modal-logic/use-operator-modal-logic'
 import useScrollRef from '../../use-scroll-ref'
-import CollapseContent from './components/collapse-content'
 import ImageCard from './components/image-card'
 import RedoAction from './components/redo-action'
 import SizeChange from './components/size-change'
@@ -91,6 +91,26 @@ function OperatorResultTsx(props: OperatorResultProps & ImperativeModalProps) {
     setResults((prev) => prev.filter((t) => !items.some((item) => item.id === t.id)))
   })
 
+  const imagePreviewProps: Omit<ImagePreviewProps, 'images'> = useMemo(
+    () => ({
+      lazyImageProps: {
+        contextMenu: {},
+        imageNameProps: {
+          tooltipDisplayFullPath: true,
+        },
+        lazy: {
+          root: scrollRef.current!,
+        },
+      },
+      interactive: false,
+    }),
+    [scrollRef.current],
+  )
+
+  const findCorrespondingResult = useMemoizedFn((results: OperatorResult[], image: ImageType) => {
+    return results.find((item) => item.image.path === image.path)!
+  })
+
   const items = useMemoizedFn(
     (): {
       key: Group
@@ -103,30 +123,36 @@ function OperatorResultTsx(props: OperatorResultProps & ImperativeModalProps) {
         label: titles.decrease.content,
         extra: <UndoAction onClick={() => onUndoAction(groups.decrease)}></UndoAction>,
         children: (
-          <CollapseContent results={groups.decrease}>
-            {(item) => (
+          <ImagePreview
+            {...imagePreviewProps}
+            images={groups.decrease.map((t) => t.image)}
+            renderer={(lazyImage, image) => (
               <ImageCard
-                item={item}
-                root={scrollRef.current!}
                 actions={[
                   <UndoAction
                     key='undo'
                     onClick={() => {
-                      onUndoAction([item])
+                      onUndoAction([findCorrespondingResult(groups.decrease, image)])
                     }}
                   />,
                 ]}
+                cover={lazyImage}
               >
                 <div className={'flex flex-col items-center'}>
-                  <SizeChange inputSize={item.inputSize} outputSize={item.outputSize} />
+                  <SizeChange
+                    inputSize={findCorrespondingResult(groups.decrease, image).inputSize}
+                    outputSize={findCorrespondingResult(groups.decrease, image).outputSize}
+                  />
                   <div className={'flex items-center gap-x-2'}>
                     <VscSmiley className='text-ant-color-success flex items-center' />
-                    <div className={'text-ant-color-error flex-none font-bold'}>{getPercent(item)}</div>
+                    <div className={'text-ant-color-error flex-none font-bold'}>
+                      {getPercent(findCorrespondingResult(groups.decrease, image))}
+                    </div>
                   </div>
                 </div>
               </ImageCard>
             )}
-          </CollapseContent>
+          ></ImagePreview>
         ),
       },
       {
@@ -134,30 +160,36 @@ function OperatorResultTsx(props: OperatorResultProps & ImperativeModalProps) {
         label: titles.increase.content,
         extra: <UndoAction onClick={() => onUndoAction(groups.increase)}></UndoAction>,
         children: (
-          <CollapseContent results={groups.increase}>
-            {(item) => (
+          <ImagePreview
+            {...imagePreviewProps}
+            images={groups.increase.map((t) => t.image)}
+            renderer={(lazyImage, image) => (
               <ImageCard
-                item={item}
-                root={scrollRef.current!}
                 actions={[
                   <UndoAction
                     key={'undo'}
                     onClick={() => {
-                      onUndoAction([item])
+                      onUndoAction([findCorrespondingResult(groups.increase, image)])
                     }}
                   />,
                 ]}
+                cover={lazyImage}
               >
                 <div className={'flex flex-col items-center'}>
-                  <SizeChange inputSize={item.inputSize} outputSize={item.outputSize} />
+                  <SizeChange
+                    inputSize={findCorrespondingResult(groups.increase, image).inputSize}
+                    outputSize={findCorrespondingResult(groups.increase, image).outputSize}
+                  />
                   <div className={'flex items-center gap-x-2'}>
                     <VscWarning className='text-ant-color-warning flex items-center' />
-                    <div className={'text-ant-color-error flex-none font-bold'}>{getPercent(item)}</div>
+                    <div className={'text-ant-color-error flex-none font-bold'}>
+                      {getPercent(findCorrespondingResult(groups.increase, image))}
+                    </div>
                   </div>
                 </div>
               </ImageCard>
             )}
-          </CollapseContent>
+          ></ImagePreview>
         ),
       },
       {
@@ -171,62 +203,79 @@ function OperatorResultTsx(props: OperatorResultProps & ImperativeModalProps) {
           ></RedoAction>
         ),
         children: (
-          <CollapseContent results={groups.error}>
-            {(item) => (
+          <ImagePreview
+            {...imagePreviewProps}
+            images={groups.error.map((t) => t.image)}
+            renderer={(lazyImage, image) => (
               <ImageCard
-                item={item}
-                root={scrollRef.current!}
                 actions={[
                   <RedoAction
                     key='redo'
                     onClick={() => {
-                      onRedoAction([item])
+                      onRedoAction([findCorrespondingResult(groups.error, image)])
                     }}
                   ></RedoAction>,
                 ]}
+                cover={lazyImage}
               >
                 <div className={'flex flex-wrap items-center justify-center gap-1'}>
                   <MdErrorOutline className={'text-ant-color-error'} />
-                  <Tooltip title={item.error} placement={'bottom'} arrow={false}>
-                    <div className={'text-ant-color-text max-w-full truncate text-center'}>{item.error}</div>
+                  <Tooltip
+                    title={findCorrespondingResult(groups.error, image).error}
+                    placement={'bottom'}
+                    arrow={false}
+                  >
+                    <div className={'text-ant-color-text max-w-full truncate text-center'}>
+                      {findCorrespondingResult(groups.error, image).error}
+                    </div>
                   </Tooltip>
                 </div>
               </ImageCard>
             )}
-          </CollapseContent>
+          ></ImagePreview>
         ),
       },
       {
         key: 'skiped',
         label: titles.skiped.content,
         children: (
-          <CollapseContent results={groups.skiped}>
-            {(item) => (
-              <ImageCard item={item} root={scrollRef.current!}>
+          <ImagePreview
+            {...imagePreviewProps}
+            images={groups.skiped.map((t) => t.image)}
+            renderer={(lazyImage) => (
+              <ImageCard cover={lazyImage}>
                 <div className={'flex items-center justify-center gap-1'}>
                   <GiJumpingDog className={'text-ant-color-text'} />
                 </div>
               </ImageCard>
             )}
-          </CollapseContent>
+          ></ImagePreview>
         ),
       },
       {
         key: 'limited',
         label: titles.limited.content,
         children: (
-          <CollapseContent results={groups.limited}>
-            {(item) => (
-              <ImageCard item={item} root={scrollRef.current!}>
+          <ImagePreview
+            {...imagePreviewProps}
+            images={groups.limited.map((t) => t.image)}
+            renderer={(lazyImage, image) => (
+              <ImageCard cover={lazyImage}>
                 <div className={'flex items-center justify-center gap-x-1'}>
                   <TbFileUnknown className={'text-ant-color-warning flex-none'} />
-                  <Tooltip title={item.error} placement={'bottom'} arrow={false}>
-                    <div className={'text-ant-color-text max-w-full truncate text-center'}>{item.error}</div>
+                  <Tooltip
+                    title={findCorrespondingResult(groups.limited, image).error}
+                    placement={'bottom'}
+                    arrow={false}
+                  >
+                    <div className={'text-ant-color-text max-w-full truncate text-center'}>
+                      {findCorrespondingResult(groups.limited, image).error}
+                    </div>
                   </Tooltip>
                 </div>
               </ImageCard>
             )}
-          </CollapseContent>
+          ></ImagePreview>
         ),
       },
     ],

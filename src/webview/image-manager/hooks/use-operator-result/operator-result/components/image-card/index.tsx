@@ -1,36 +1,26 @@
 import { memo, type PropsWithChildren } from 'react'
 import { Card, type GetProps } from 'antd'
+import { AnimatePresence, motion } from 'motion/react'
 import { classNames } from 'tw-clsx'
-import { type OperatorResult } from '~/core'
-import ImagePreview from '~/webview/image-manager/components/image-preview'
 import GlobalContext from '~/webview/image-manager/contexts/global-context'
+import { ANIMATION_DURATION } from '~/webview/image-manager/utils/duration'
 import styles from './index.module.css'
 
-function ImageCard(props: PropsWithChildren<{ item: OperatorResult; root: HTMLElement } & GetProps<typeof Card>>) {
+function ImageCard(props: PropsWithChildren<GetProps<typeof Card>>) {
   const { imageWidth } = GlobalContext.usePicker(['imageWidth'])
-  const { item, root, children, ...rest } = props
+  const { children, ...rest } = props
   return (
-    <Card
-      {...rest}
-      className={classNames('w-fit', styles.card)}
-      style={{ width: imageWidth + 16 }}
-      cover={
-        <ImagePreview
-          images={[item.image]}
-          lazyImageProps={{
-            contextMenu: {},
-            imageNameProps: {
-              tooltipDisplayFullPath: true,
-            },
-            lazy: {
-              root,
-            },
-            interactive: false,
-          }}
-        ></ImagePreview>
-      }
-    >
-      {children}
+    <Card {...rest} className={classNames('w-fit', styles.card)} style={{ width: imageWidth + 16 }}>
+      <AnimatePresence>
+        <motion.div
+          initial={{ opacity: 1, y: 0 }}
+          animate={{ opacity: 1, y: 0 }}
+          exit={{ opacity: 0, y: -16 }}
+          transition={{ duration: ANIMATION_DURATION.fast }}
+        >
+          {children}
+        </motion.div>
+      </AnimatePresence>
     </Card>
   )
 }

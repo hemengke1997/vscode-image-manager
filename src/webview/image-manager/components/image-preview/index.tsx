@@ -1,16 +1,29 @@
-import { type ForwardedRef, forwardRef, memo, useCallback, useEffect, useId, useMemo, useRef, useState } from 'react'
+import {
+  type ForwardedRef,
+  forwardRef,
+  memo,
+  type ReactNode,
+  useCallback,
+  useEffect,
+  useId,
+  useMemo,
+  useRef,
+  useState,
+} from 'react'
 import { toast } from 'react-atom-toast'
 import { useClickAway, useMemoizedFn } from 'ahooks'
 import { ConfigProvider, Image, theme } from 'antd'
 import { type AliasToken, type ComponentTokenMap } from 'antd/es/theme/interface'
 import { produce } from 'immer'
 import { isString, range, round } from 'lodash-es'
+import { AnimatePresence, type AnimationProps, motion } from 'motion/react'
 import { type PreviewGroupPreview } from 'rc-image/es/PreviewGroup'
 import { isDev } from 'vite-config-preset/client'
 import GlobalContext from '../../contexts/global-context'
 import SettingsContext from '../../contexts/settings-context'
 import useImageManagerEvent from '../../hooks/use-image-manager-event'
 import useImageOperation from '../../hooks/use-image-operation'
+import { ANIMATION_DURATION } from '../../utils/duration'
 import useImageContextMenu from '../context-menus/components/image-context-menu/hooks/use-image-context-menu'
 import LazyImage, { type LazyImageProps } from '../lazy-image'
 
@@ -36,12 +49,31 @@ export type ImagePreviewProps = {
    * 是否开启多选功能
    */
   enableMultipleSelect?: boolean
+  /**
+   * 是否可交互
+   */
+  interactive?: boolean
+  /**
+   * LazyImage renderer
+   */
+  renderer?: (lazyImage: ReactNode, image: ImageType) => ReactNode
+  /**
+   * motion props
+   */
+  motionProps?: AnimationProps
 }
 
 const ToastKey = 'image-preview-scale'
 
 function ImagePreview(props: ImagePreviewProps, ref: ForwardedRef<HTMLDivElement>) {
-  const { images, lazyImageProps, enableMultipleSelect = false } = props
+  const {
+    images,
+    lazyImageProps,
+    enableMultipleSelect = false,
+    interactive = true,
+    renderer = (c) => c,
+    motionProps,
+  } = props
 
   const { token } = theme.useToken()
 
@@ -89,8 +121,13 @@ function ImagePreview(props: ImagePreviewProps, ref: ForwardedRef<HTMLDivElement
   /* ------------------- 选择的图片 ------------------ */
   // 使用图片的绝对路径path作为唯一标识
   // index并不能保证选择的图片是正确的
-  const [selectedImages, setSelectedImages] = useState<ImageType['path'][]>([])
+  const [selectedImages, _setSelectedImages] = useState<ImageType['path'][]>([])
   const [triggeredByContextMenu, setTriggeredByContextMenu] = useState(false)
+
+  const setSelectedImages: typeof _setSelectedImages = useMemoizedFn((...args) => {
+    if (!interactive) return
+    _setSelectedImages(...args)
+  })
 
   const preventClickAway = useMemoizedFn((el: HTMLElement, classNames: string[]) => {
     let parent = el.parentElement
@@ -363,27 +400,43 @@ function ImagePreview(props: ImagePreviewProps, ref: ForwardedRef<HTMLDivElement
                 },
               }}
             >
-              {images.map((image) => (
-                <div
-                  // vscodePath 是带了修改时间戳的，可以避免图片文件名未改变但内容改变，导致图片不刷新的问题
-                  key={image.vscodePath}
-                  onClick={(e) => onClick(e, image)}
-                  ref={(ref) => (selectedImageRefs.current[image.path] = ref!)}
-                >
-                  <LazyImage
-                    {...lazyImageProps}
-                    contextMenu={lazyImageProps?.contextMenu}
-                    image={image}
-                    active={selectedImages.includes(image.path)}
-                    multipleSelect={multipleSelect}
-                    onDelete={onDelete}
-                    antdImageProps={antdImageProps}
-                    onActiveChange={handleActiveChange}
-                    onPreviewClick={handlePreviewClick}
-                    onContextMenu={onContextMenu}
-                  />
-                </div>
-              ))}
+              <AnimatePresence>
+                {images.map((image) => (
+                  <motion.div
+                    // vscodePath 是带了修改时间戳的，可以避免图片文件名未改变但内容改变，导致图片不刷新的问题
+                    key={image.vscodePath}
+                    onClick={(e) => onClick(e, image)}
+                    ref={(ref) => (selectedImageRefs.current[image.path] = ref!)}
+                    initial={{
+                      opacity: 1,
+                    }}
+                    exit={{
+                      opacity: 0,
+                    }}
+                    transition={{
+                      duration: ANIMATION_DURATION.fast,
+                    }}
+                    {...motionProps}
+                  >
+                    {renderer(
+                      <LazyImage
+                        {...lazyImageProps}
+                        contextMenu={lazyImageProps?.contextMenu}
+                        image={image}
+                        active={selectedImages.includes(image.path)}
+                        multipleSelect={multipleSelect}
+                        onDelete={onDelete}
+                        antdImageProps={antdImageProps}
+                        onActiveChange={handleActiveChange}
+                        onPreviewClick={handlePreviewClick}
+                        onContextMenu={onContextMenu}
+                        interactive={interactive}
+                      />,
+                      image,
+                    )}
+                  </motion.div>
+                ))}
+              </AnimatePresence>
             </ConfigProvider>
           </Image.PreviewGroup>
         </ConfigProvider>

@@ -23,21 +23,23 @@ export default function useWheelScaleEvent() {
   })
 
   const handleWheel = (event: WheelEvent) => {
-    if (event.ctrlKey || event.metaKey) {
-      closeDefault(event)
+    if (ref.current?.contains(document.activeElement)) {
+      if (event.ctrlKey || event.metaKey) {
+        closeDefault(event)
 
-      const delta = event.deltaY
+        const delta = event.deltaY
 
-      const maxDelta = Math.abs(delta)
+        const maxDelta = Math.abs(delta)
 
-      if (delta > 0) {
-        // 缩小
-        throttleSetImageWidth((prevWidth) => Math.max(30, round(prevWidth! - maxDelta, 0)))
-      } else if (delta < 0) {
-        // 放大
-        throttleSetImageWidth((prevWidth) => Math.min(600, round(prevWidth! + maxDelta, 0)))
+        if (delta > 0) {
+          // 缩小
+          throttleSetImageWidth((prevWidth) => Math.max(30, round(prevWidth! - maxDelta, 0)))
+        } else if (delta < 0) {
+          // 放大
+          throttleSetImageWidth((prevWidth) => Math.min(600, round(prevWidth! + maxDelta, 0)))
+        }
+        return false
       }
-      return false
     }
   }
 
