@@ -76,6 +76,8 @@
     initializing: 'Image Manager Initializing, please wait...',
     initializing_tooltip: 'Downloading necessary dependencies',
     initialized: 'Image Manager Initialized',
+    updating: 'Image Manager is updating, please wait...',
+    updated: 'Image Manager update completed',
     show_logs: 'Show logs',
     mirror_enabled: 'Mirror enabled. Please reload vscode to take effect',
     reload_now: 'Reload Now',

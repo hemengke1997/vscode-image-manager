@@ -12,6 +12,7 @@ import { CmdToVscode } from '~/message/cmd'
 import { useExtConfigState } from '~/webview/hooks/use-ext-config-state'
 import ImagePreview, { type ImagePreviewProps } from '~/webview/image-manager/components/image-preview'
 import GlobalContext from '~/webview/image-manager/contexts/global-context'
+import { ANIMATION_DURATION } from '~/webview/image-manager/utils/duration'
 import { vscodeApi } from '~/webview/vscode-api'
 import { type ImperativeModalProps } from '../../use-imperative-modal'
 import { type OnEndOptionsType, useOperatorModalLogic } from '../../use-operator-modal-logic/use-operator-modal-logic'
@@ -103,6 +104,17 @@ function OperatorResultTsx(props: OperatorResultProps & ImperativeModalProps) {
         },
       },
       interactive: false,
+      motionProps: {
+        initial: {
+          opacity: 1,
+        },
+        exit: {
+          opacity: 0,
+        },
+        transition: {
+          duration: ANIMATION_DURATION.fast,
+        },
+      },
     }),
     [scrollRef.current],
   )

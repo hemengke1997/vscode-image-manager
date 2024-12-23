@@ -78,6 +78,8 @@
     initializing: 'Image Manager 初始化中，请稍等...',
     initializing_tooltip: '正在下载必要依赖',
     initialized: 'Image Manager 初始化完成',
+    updating: 'Image Manager 更新中，请稍等...',
+    updated: 'Image Manager 更新完成',
     show_logs: '显示日志',
     mirror_enabled: '镜像下载依赖已启用, 请重启vscode生效',
     reload_now: '立即重启',

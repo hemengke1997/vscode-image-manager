@@ -407,15 +407,19 @@ function ImagePreview(props: ImagePreviewProps, ref: ForwardedRef<HTMLDivElement
                     key={image.vscodePath}
                     onClick={(e) => onClick(e, image)}
                     ref={(ref) => (selectedImageRefs.current[image.path] = ref!)}
-                    initial={{
-                      opacity: 1,
-                    }}
-                    exit={{
-                      opacity: 0,
-                    }}
-                    transition={{
-                      duration: ANIMATION_DURATION.fast,
-                    }}
+                    {...(lazyImageProps?.onRemoveClick
+                      ? {
+                          initial: {
+                            opacity: 1,
+                          },
+                          exit: {
+                            opacity: 0,
+                          },
+                          transition: {
+                            duration: ANIMATION_DURATION.fast,
+                          },
+                        }
+                      : {})}
                     {...motionProps}
                   >
                     {renderer(

@@ -77,6 +77,8 @@
     initializing: 'Image Manager を初期化しています。しばらくお待ちください...',
     initializing_tooltip: '必要な依存関係をダウンロードしています',
     initialized: 'Image Manager の初期化が完了しました',
+    updating: 'イメージマネージャーを更新しています。お待ちください...',
+    updated: 'イメージマネージャーの更新が完了しました',
     show_logs: 'ログを表示',
     mirror_enabled: 'ミラーを使用した依存関係のダウンロードが有効になりました。vscodeを再起動してください',
     reload_now: '今すぐ再起動',
