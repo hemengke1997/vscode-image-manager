@@ -34,7 +34,7 @@ renovate.json
 
 TODO.md
 CHANGELOG-CODE.md
-README.en.md
+README.*.md
 
 *.yaml
 **/*.ts

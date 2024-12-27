@@ -1,7 +1,7 @@
 import { memo, type ReactNode, useEffect, useLayoutEffect, useMemo, useRef, useState } from 'react'
 import { Element, scroller } from 'react-scroll'
 import { styleObjectToString } from '@minko-fe/style-object-to-string'
-import { useMemoizedFn } from 'ahooks'
+import { useMemoizedFn, useUpdateEffect } from 'ahooks'
 import { useControlledState } from 'ahooks-x'
 import { Collapse, type CollapseProps } from 'antd'
 import { produce } from 'immer'
@@ -148,9 +148,9 @@ function ImageCollapse(props: ImageCollapseProps) {
       setActiveCollapseIdSet(
         produce((draft) => {
           if (keys.length > 0) {
-            draft.add(id)
+            draft.value.add(id)
           } else {
-            draft.delete(id)
+            draft.value.delete(id)
           }
         }),
       )
@@ -161,19 +161,19 @@ function ImageCollapse(props: ImageCollapseProps) {
     if (collapseProps.defaultActiveKey) {
       setActiveCollapseIdSet(
         produce((draft) => {
-          draft.add(id)
+          draft.value.add(id)
         }),
       )
     }
   }, [])
 
-  useEffect(() => {
-    if (activeCollapseIdSet.has(id) && !activeKeys.includes(id)) {
+  useUpdateEffect(() => {
+    if (activeCollapseIdSet.value.has(id) && !activeKeys.includes(id)) {
       setActiveKeys([id])
-    } else if (!activeCollapseIdSet.has(id) && activeKeys.includes(id)) {
+    } else if (!activeCollapseIdSet.value.has(id) && activeKeys.includes(id)) {
       setActiveKeys([])
     }
-  }, [activeCollapseIdSet])
+  }, [activeCollapseIdSet.updateFlag])
 
   const isActive = useMemoizedFn((imagePath: string) => {
     return imagePath && underFolderDeeplyImages?.find((image) => image.path === imagePath)

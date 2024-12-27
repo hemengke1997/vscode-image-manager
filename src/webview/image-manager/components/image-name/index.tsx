@@ -24,8 +24,9 @@ function ImageName(props: ImageNameProps) {
     let title = ''
     if (tooltipDisplayFullPath && image) {
       title = image.relativePath.slice(2)
+    } else {
+      title = children || ''
     }
-    title = children || ''
     return <div data-disable_dbclick>{title}</div>
   })
 

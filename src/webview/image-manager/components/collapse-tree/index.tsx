@@ -115,6 +115,8 @@ function CollapseTree(props: Props) {
     }
   })
 
+  const firstNodeWithImages = useRef<FileNode>()
+
   const displayMap: DisplayMapType<{
     icon: (props: { path: string }) => ReactNode
     contextMenu: (root: boolean) => EnableCollapseContextMenuType
@@ -192,6 +194,8 @@ function CollapseTree(props: Props) {
                   className: classNames(styles.collapse),
                   // 多工作区时，顶部目录可以关闭，否则不可关闭
                   [multipleWorkspace ? 'defaultActiveKey' : 'activeKey']: root ? [value] : undefined,
+                  // 展开第一个有 images 的节点
+                  defaultActiveKey: firstNodeWithImages.current?.value === value ? [value] : undefined,
                   ...collapseProps,
                 }}
                 collapsible={root && multipleWorkspace}
@@ -234,6 +238,21 @@ function CollapseTree(props: Props) {
       )
     },
   )
+
+  const findFirstNodeWithImages = useMemoizedFn((tree: FileNode[]): FileNode | undefined => {
+    for (const node of tree) {
+      if (node.renderList?.length) {
+        return node
+      }
+
+      if (node.children.length) {
+        const find = findFirstNodeWithImages(node.children)
+        if (find) {
+          return find
+        }
+      }
+    }
+  })
 
   const displayByPriority = useMemoizedFn(() => {
     dirTree.current = new DirTree(
@@ -281,6 +300,8 @@ function CollapseTree(props: Props) {
         </motion.div>
       )
     }
+
+    firstNodeWithImages.current = findFirstNodeWithImages(tree)
 
     // render tree
     return nestedDisplay(tree, { bordered: true }, { root: true })
