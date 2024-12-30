@@ -1,5 +1,5 @@
 import { type DependencyList, useEffect, useLayoutEffect, useRef } from 'react'
-import { useInViewport, useMemoizedFn } from 'ahooks'
+import { useInViewport, useMemoizedFn, useUpdateEffect } from 'ahooks'
 import { isUndefined } from 'lodash-es'
 import { getAppRoot } from '~/webview/utils'
 
@@ -33,8 +33,15 @@ type Props = {
    * 是否启用sticky
    */
   enable?: boolean
+  /**
+   * debug
+   */
+  debug?: boolean
 }
 
+/**
+ * js实现sticky效果
+ */
 export default function useSticky(props: Props, deps?: DependencyList) {
   const { target, topOffset = 0, root = getAppRoot(), holder, onStickyToogle, enable = true } = props
 
@@ -52,15 +59,25 @@ export default function useSticky(props: Props, deps?: DependencyList) {
     rootMargin: `-${topOffset * 2}px 0px`,
   })
 
+  const toogleSticky = useMemoizedFn((sticky: boolean) => {
+    const args = {
+      rawStyle: targetStyle.current || '',
+    }
+    previousSticky.current = sticky
+    onStickyToogle(sticky, args)
+  })
+
+  useUpdateEffect(() => {
+    if (!enable) {
+      toogleSticky(false)
+    }
+  }, [enable])
+
   const handleScroll = useMemoizedFn(() => {
     if (target && enable) {
       const inView = isUndefined(_inView) ? true : !!_inView
 
       const { top } = target.getBoundingClientRect()
-
-      const args = {
-        rawStyle: targetStyle.current || '',
-      }
 
       let isSticky: boolean
 
@@ -69,9 +86,9 @@ export default function useSticky(props: Props, deps?: DependencyList) {
       } else {
         isSticky = false
       }
+
       if (previousSticky.current !== isSticky) {
-        onStickyToogle(isSticky, args)
-        previousSticky.current = isSticky
+        toogleSticky(isSticky)
       }
     }
   })

@@ -1,7 +1,0 @@
-.detail_modal {
-  :global {
-    .ant-modal-confirm-paragraph {
-      @apply max-w-none;
-    }
-  }
-}

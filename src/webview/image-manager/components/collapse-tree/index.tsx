@@ -194,7 +194,7 @@ function CollapseTree(props: Props) {
                   className: classNames(styles.collapse),
                   // 多工作区时，顶部目录可以关闭，否则不可关闭
                   [multipleWorkspace ? 'defaultActiveKey' : 'activeKey']: root ? [value] : undefined,
-                  // 展开第一个有 images 的节点
+                  // 展开第一个有图片的节点
                   defaultActiveKey: firstNodeWithImages.current?.value === value ? [value] : undefined,
                   ...collapseProps,
                 }}

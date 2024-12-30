@@ -54,7 +54,7 @@ export type ImagePreviewProps = {
    */
   interactive?: boolean
   /**
-   * LazyImage renderer
+   * LazyImage renderer，用于自定义渲染
    */
   renderer?: (lazyImage: ReactNode, image: ImageType) => ReactNode
   /**
@@ -403,10 +403,10 @@ function ImagePreview(props: ImagePreviewProps, ref: ForwardedRef<HTMLDivElement
               <AnimatePresence>
                 {images.map((image) => (
                   <motion.div
-                    // vscodePath 是带了修改时间戳的，可以避免图片文件名未改变但内容改变，导致图片不刷新的问题
-                    key={image.vscodePath}
+                    key={image.key}
                     onClick={(e) => onClick(e, image)}
                     ref={(ref) => (selectedImageRefs.current[image.path] = ref!)}
+                    // 如果有删除按钮，则添加组件移除动画
                     {...(lazyImageProps?.onRemoveClick
                       ? {
                           initial: {

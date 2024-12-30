@@ -142,8 +142,8 @@ export const VscodeMessageCenter = {
 
         const metadata = metadataResults[index]
 
-        // 如果非base64添加mtimeMs时间戳，避免webview缓存问题
-        const vscodePathWithQuery = isBase64(vscodePath) ? vscodePath : `${vscodePath}?t=${image.stats?.mtimeMs}`
+        // 非base64 添加mtimeMs时间戳，避免webview缓存问题
+        const vscodePathWithQuery = `${vscodePath}?t=${image.stats?.mtimeMs}`
 
         const imageInfo: ImageType = {
           name: path.basename(image.path),
@@ -154,7 +154,10 @@ export const VscodeMessageCenter = {
           absDirPath,
           workspaceFolder,
           fileType,
-          vscodePath: vscodePathWithQuery,
+          // base64 不能添加时间戳，会导致图片无法显示
+          vscodePath: isBase64(vscodePath) ? vscodePath : vscodePathWithQuery,
+          // 为避免base64相同的vscodePath在react渲染中作为key重复出现，使用路径作为key
+          key: isBase64(vscodePath) ? image.path : vscodePathWithQuery,
           absWorkspaceFolder,
           relativePath: normalizePath(`./${relativePath}`),
           extraPathInfo: path.parse(image.path),

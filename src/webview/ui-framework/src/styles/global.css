@@ -25,24 +25,31 @@ body {
   @apply h-full w-full select-none overflow-y-scroll;
 }
 
-.ant-btn-icon-only {
-  @apply inline-flex items-center justify-center;
-}
+body {
+  [role='dialog'] {
+    @apply !origin-center;
+  }
 
-.ant-checkbox-wrapper {
-  @apply select-none;
-}
+  .ant-btn-icon-only {
+    @apply inline-flex items-center justify-center;
+  }
 
-.ant-btn {
-  @apply inline-flex items-center justify-center;
-}
+  .ant-checkbox-wrapper {
+    @apply select-none;
+  }
 
-[role='dialog'] {
-  @apply !origin-center;
-}
+  .ant-btn {
+    @apply inline-flex items-center justify-center;
+  }
 
-.ant-tabs-nav {
-  &::before {
-    @apply !border-b-0;
+  .ant-tabs-nav {
+    &::before {
+      @apply !border-b-0;
+    }
+  }
+
+  /* antd 5.22.5 为了解决 https://github.com/ant-design/ant-design/issues/51912，导致出现了新的bug。此处临时修复 */
+  .ant-modal-confirm .ant-modal-confirm-paragraph {
+    @apply max-w-none;
   }
 }

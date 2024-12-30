@@ -73,6 +73,10 @@ declare global {
      */
     vscodePath: string
     /**
+     * 唯一标识符，用于 react key
+     */
+    key: string
+    /**
      * path.basename(cwd) 工作区名称
      */
     workspaceFolder: string

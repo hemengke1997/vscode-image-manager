@@ -54,7 +54,7 @@ function AlignColumn(props: {
         >
           {left}
         </div>
-        <div>{right}</div>
+        <div className={'flex-1'}>{right}</div>
       </div>
     </>
   )
