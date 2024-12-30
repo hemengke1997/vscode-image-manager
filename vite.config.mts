@@ -1,10 +1,11 @@
-/// <reference types="vitest" />
+/// <reference types="vitest/config" />
 
 import path from 'node:path'
-import { defineConfig, loadConfigFromFile, mergeConfig } from 'vite'
+import { defineConfig, loadConfigFromFile, mergeConfig, type UserConfig } from 'vite'
 import { createHtmlPlugin } from 'vite-plugin-html'
 import { i18nAlly } from 'vite-plugin-i18n-ally'
 import { plugin as markdown, Mode } from 'vite-plugin-markdown'
+import { type InlineConfig } from 'vitest/node'
 import { DEV_PORT } from './src/meta'
 
 export default defineConfig(async (env) => {
@@ -39,9 +40,6 @@ export default defineConfig(async (env) => {
       }),
       markdown({ mode: [Mode.MARKDOWN] }),
     ],
-    optimizeDeps: {
-      force: true,
-    },
     build: {
       outDir: path.resolve(__dirname, './dist-webview/'),
       emptyOutDir: true,
@@ -58,8 +56,8 @@ export default defineConfig(async (env) => {
     },
     test: {
       include: ['**/__test__/**/*.test.ts'],
-    },
-  })
+    } as InlineConfig,
+  } as UserConfig)
 
   return mergeConfig(loadResult!.config, config)
 })
