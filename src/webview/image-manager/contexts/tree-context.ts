@@ -106,6 +106,10 @@ type TreeContextProp = {
    */
   workspaceFolder: string
   /**
+   * 当前树工作区ID
+   */
+  workspaceId: string
+  /**
    * 排序
    */
   sort?: WorkspaceStateType['display_sort']
@@ -123,6 +127,7 @@ function useTreeContext(props: TreeContextProp) {
   const {
     imageList: imageListProp,
     workspaceFolder: originalWorkspaceFolder,
+    workspaceId,
     sort,
     imageFilter,
     onCollectTreeData,
@@ -323,6 +328,7 @@ function useTreeContext(props: TreeContextProp) {
     originalWorkspaceFolder,
     dirs,
     imageTypes,
+    workspaceId,
   }
 }
 

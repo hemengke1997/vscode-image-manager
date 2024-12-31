@@ -44,6 +44,25 @@ Please read the [documentation](https://hemengke1997.github.io/vscode-image-mana
 ![find-similirity](./screenshots/find-similarity.png)
 
 
+## Support Me
+
+If you like my project and want to support me, you can do so in the following ways:
+
+### Appreciation
+
+| WeChat                                     | Alipay                                  |
+| ------------------------------------------ | --------------------------------------- |
+| <img src="./screenshots/wechatpay.jpeg" /> | <img src="./screenshots/alipay.jpeg" /> |
+
+### GitHub
+
+Feel free to [give me a star](https://github.com/hemengke1997/vscode-image-manager) ⭐️
+
+### VSCode Marketplace
+
+Please consider leaving a positive review on [Marketplace](https://marketplace.visualstudio.com/items?itemName=minko.image-manager&ssr=false#review-details). Your support is my greatest motivation for open source development. Thank you!
+
+
 ## Thanks
 
 ❤️ [vscode-image-viewer](https://github.com/ZhangJian1713/vscode-image-viewer)

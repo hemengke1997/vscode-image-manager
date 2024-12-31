@@ -114,6 +114,7 @@ function Viewer() {
                       value={{
                         imageList: item.images,
                         workspaceFolder: item.workspaceFolder,
+                        workspaceId: item.absWorkspaceFolder,
                         sort,
                         imageFilter,
                         onCollectTreeData,

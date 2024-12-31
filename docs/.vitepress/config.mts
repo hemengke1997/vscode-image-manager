@@ -16,18 +16,6 @@ export default defineConfig({
             items: [
               { text: 'Introduction', link: '/guides/introduction' },
               { text: 'Get Started', link: '/guides/get-started' },
-              {
-                text: 'FAQ',
-                link: '/guides/faq',
-              },
-              {
-                text: 'Support',
-                link: '/guides/support',
-              },
-              {
-                text: 'Feedback',
-                link: '/guides/feedback',
-              },
             ],
           },
           {
@@ -72,6 +60,23 @@ export default defineConfig({
               },
             ],
           },
+          {
+            text: 'More',
+            items: [
+              {
+                text: 'FAQ',
+                link: '/more/faq',
+              },
+              {
+                text: 'Support',
+                link: '/more/support',
+              },
+              {
+                text: 'Feedback',
+                link: '/more/feedback',
+              },
+            ],
+          },
         ],
       },
     },
@@ -92,18 +97,6 @@ export default defineConfig({
             items: [
               { text: '介绍', link: '/zh/guides/introduction' },
               { text: '开始使用', link: '/zh/guides/get-started' },
-              {
-                text: '常见问题',
-                link: '/zh/guides/faq',
-              },
-              {
-                text: '支持作者',
-                link: '/zh/guides/support',
-              },
-              {
-                text: '反馈',
-                link: '/zh/guides/feedback',
-              },
             ],
           },
           {
@@ -145,6 +138,23 @@ export default defineConfig({
               {
                 text: 'VSCode 设置项',
                 link: '/zh/settings/vscode',
+              },
+            ],
+          },
+          {
+            text: '更多',
+            items: [
+              {
+                text: '常见问题',
+                link: '/zh/more/faq',
+              },
+              {
+                text: '支持作者',
+                link: '/zh/more/support',
+              },
+              {
+                text: '反馈',
+                link: '/zh/more/feedback',
               },
             ],
           },

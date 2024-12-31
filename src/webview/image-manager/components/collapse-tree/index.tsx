@@ -15,7 +15,6 @@ import { DirTree, type DisplayMapType, type FileNode } from '../../utils/dir-tre
 import { ANIMATION_DURATION } from '../../utils/duration'
 import { type EnableCollapseContextMenuType } from '../context-menus/components/collapse-context-menu'
 import ImageCollapse from '../image-collapse'
-// import RevealInExplorer from './components/reveal-in-explorer'
 import RevealInFolder from './components/reveal-in-folder'
 import styles from './index.module.css'
 
@@ -74,7 +73,6 @@ function RevealGroup(props: { path: string; folderChildren?: ReactNode }) {
   return (
     <div className={'flex items-center gap-x-1'}>
       <RevealInFolder {...props}>{props.folderChildren}</RevealInFolder>
-      {/* <RevealInExplorer {...props} /> */}
     </div>
   )
 }
@@ -89,11 +87,12 @@ function CollapseTree(props: Props) {
   const { displayGroup, displayStyle, multipleWorkspace } = props
   const { t } = useTranslation()
 
-  const { dirs, imageTypes, workspaceFolder, originalWorkspaceFolder } = TreeContext.usePicker([
+  const { dirs, imageTypes, workspaceFolder, originalWorkspaceFolder, workspaceId } = TreeContext.usePicker([
     'dirs',
     'imageTypes',
     'workspaceFolder',
     'originalWorkspaceFolder',
+    'workspaceId',
   ])
 
   const visibleList = TreeContext.useSelector((ctx) => ctx.imageSingleTree.visibleList)
@@ -102,7 +101,7 @@ function CollapseTree(props: Props) {
 
   const dirTree = useRef<DirTree<TreeExtraProps>>()
 
-  const getContextMenu = useMemoizedFn((root: boolean) => {
+  const getContextMenu = useMemoizedFn((disableFS: boolean) => {
     return {
       compress_in_current_directory: true,
       compress_in_recursive_directories: true,
@@ -110,8 +109,8 @@ function CollapseTree(props: Props) {
       format_conversion_in_recursive_directories: true,
       open_in_os_explorer: true,
       open_in_vscode_explorer: true,
-      rename_directory: !root,
-      delete_directory: !root,
+      rename_directory: !disableFS,
+      delete_directory: !disableFS,
     }
   })
 
@@ -119,7 +118,7 @@ function CollapseTree(props: Props) {
 
   const displayMap: DisplayMapType<{
     icon: (props: { path: string }) => ReactNode
-    contextMenu: (root: boolean) => EnableCollapseContextMenuType
+    contextMenu: (disableFS: boolean) => EnableCollapseContextMenuType
   }> = useMemo(
     () => ({
       workspace: {
@@ -198,16 +197,18 @@ function CollapseTree(props: Props) {
                   defaultActiveKey: firstNodeWithImages.current?.value === value ? [value] : undefined,
                   ...collapseProps,
                 }}
-                collapsible={root && multipleWorkspace}
+                // 非根节点，或者多工作区时，可以折叠
+                collapsible={!root || multipleWorkspace}
                 labelRender={(label) => (
                   <div className={'flex items-center space-x-1'}>
                     <div className={'flex items-center'}>{displayMap[groupType].icon({ path: value })}</div>
                     {label}
                   </div>
                 )}
-                contextMenu={{
-                  ...displayMap[groupType].contextMenu(!!root),
-                }}
+                contextMenu={(id) => ({
+                  // 工作区节点不显示修改目录名和删除目录
+                  ...displayMap[groupType].contextMenu(id === workspaceId),
+                })}
                 label={label}
                 joinLabel={!!displayMap[groupType].priority}
                 nestedChildren={label ? nestedDisplay(children) : null}

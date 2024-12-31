@@ -11,25 +11,9 @@ import App from './app'
 import './hmr'
 import './styles/index.css'
 
-i18next.use(initReactI18next).init({
-  returnNull: false,
-  react: {
-    useSuspense: true,
-  },
-  debug: false,
-  resources: {},
-  nsSeparator: '.',
-  keySeparator: '.',
-  interpolation: {
-    escapeValue: false,
-  },
-  lowerCaseLng: false,
-  fallbackLng: FALLBACK_LANGUAGE,
-})
+let key = 0
 
 const i18nChangeLanguage = i18next.changeLanguage
-
-let key = 0
 
 export function registerApp(children: JSX.Element, reload = false) {
   vscodeApi.postMessage(
@@ -51,10 +35,27 @@ export function registerApp(children: JSX.Element, reload = false) {
 
       const { language } = config.appearance
 
-      i18next.changeLanguage(language)
-
       const { asyncLoadResource } = i18nAlly({
         language,
+        onInit() {
+          i18next.use(initReactI18next).init({
+            returnNull: false,
+            react: {
+              useSuspense: true,
+            },
+            debug: false,
+            resources: {},
+            nsSeparator: '.',
+            keySeparator: '.',
+            interpolation: {
+              escapeValue: false,
+            },
+            lowerCaseLng: false,
+            fallbackLng: FALLBACK_LANGUAGE,
+          })
+
+          i18next.changeLanguage(language)
+        },
         onInited() {
           try {
             if (!window.__react_root__) {

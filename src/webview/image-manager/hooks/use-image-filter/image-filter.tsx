@@ -218,6 +218,7 @@ function ImageFilter(props: ImperativeModalProps) {
       </Form>
 
       <Divider className={'!my-4'}></Divider>
+
       <div className={'flex w-full justify-end gap-x-2'}>
         <Button
           type='default'

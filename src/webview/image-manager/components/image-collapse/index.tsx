@@ -59,7 +59,7 @@ type ImageCollapseProps = {
   /**
    * collapse头部菜单上下文
    */
-  contextMenu?: EnableCollapseContextMenuType
+  contextMenu: (path: string) => EnableCollapseContextMenuType
   /**
    * ImagePreview组件的透传prop
    */
@@ -222,15 +222,15 @@ function ImageCollapse(props: ImageCollapseProps) {
   })
 
   const onContextMenu = useMemoizedFn((e: React.MouseEvent<HTMLDivElement>, index: number) => {
-    if (!contextMenu) return
+    const path = getCurrentPath(index) || ''
 
     show({
       event: e,
       props: {
-        path: getCurrentPath(index) || '',
+        path,
         images: [images, underFolderImages].find((arr) => arr?.length) || [],
         underFolderDeeplyImages: underFolderDeeplyImages || [],
-        enable: contextMenu,
+        enable: contextMenu(path),
       },
     })
   })
@@ -247,16 +247,16 @@ function ImageCollapse(props: ImageCollapseProps) {
     if (labels.length > 1) {
       return (
         <div className={'flex w-full items-center'}>
-          {labels.map((l, i) => (
+          {labels.map((item, i) => (
             <div key={i} className={classNames('flex items-center', i === labels.length - 1 && 'flex-1')}>
               <SingleLabel
                 index={i}
-                contextMenu={contextMenu}
+                contextMenu={contextMenu(getCurrentPath(i))}
                 onContextMenu={(e) => onContextMenu(e, i)}
                 onClick={collapsible ? onLabelClick : undefined}
                 dirPath={getCurrentPath(i)}
               >
-                {l}
+                {item}
               </SingleLabel>
               <div className={classNames('px-0.5', i !== labels.length - 1 ? 'block' : 'hidden')}>/</div>
             </div>
@@ -268,7 +268,7 @@ function ImageCollapse(props: ImageCollapseProps) {
         <SingleLabel
           onClick={collapsible ? onLabelClick : undefined}
           index={0}
-          contextMenu={contextMenu}
+          contextMenu={contextMenu(id)}
           onContextMenu={(e) => onContextMenu(e, 0)}
           dirPath={id}
         >

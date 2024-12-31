@@ -15,6 +15,9 @@ export default defineConfig(async (env) => {
   )
 
   const config = defineConfig({
+    optimizeDeps: {
+      // force: true,
+    },
     server: {
       host: '0.0.0.0',
       port: DEV_PORT,
