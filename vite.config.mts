@@ -35,6 +35,8 @@ export default defineConfig(async (env) => {
     plugins: [
       createHtmlPlugin({
         entry: path.resolve(__dirname, './src/webview/main.tsx'),
+        // relative path to root
+        template: './src/webview/index.html',
         minify: env.command === 'build',
       }),
       i18nAlly({

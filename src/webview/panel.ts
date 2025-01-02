@@ -176,13 +176,13 @@ export class ImageManagerPanel {
     ImageManagerPanel._onDidChanged.fire(false)
   }
 
-  init() {
+  async init() {
     WebviewMessageCenter.init(this._panel.webview)
 
-    this._panel.webview.html = this._getWebviewHtml()
+    this._panel.webview.html = await this._getWebviewHtml()
   }
 
-  private _getWebviewHtml() {
+  private async _getWebviewHtml() {
     const isProd = Global.isProduction()
     const webview = this._panel.webview
 
@@ -196,50 +196,15 @@ export class ImageManagerPanel {
     } else {
       const localServerUrl = `http://localhost:${DEV_PORT}`
 
-      html = this._getHtml(['index.html']).htmlContent
-      function joinLocalServerUrl(path: string) {
-        return `${localServerUrl}/${path}`
-      }
-
-      // html string
-      const etnryScriptUri = joinLocalServerUrl('src/webview/main.tsx')
-      const reactRefreshUri = joinLocalServerUrl('@react-refresh')
-      const viteClientUri = joinLocalServerUrl('@vite/client')
-
-      html = inject(html, [
-        {
-          injectTo: 'head-prepend',
-          tag: 'script',
-          attrs: {
-            type: 'module',
-          },
-          // Taken from vite-plugin-react for HMR
-          children: /*js*/ `
-            import RefreshRuntime from "${reactRefreshUri}"
-            RefreshRuntime.injectIntoGlobalHook(window)
-            window.$RefreshReg$ = () => { }
-            window.$RefreshSig$ = () => (type) => type
-            window.__vite_plugin_react_preamble_installed__ = true
-          `,
+      const res = await fetch(`${localServerUrl}/src/webview/index.html`, {
+        headers: {
+          'sec-fetch-dest': 'document',
         },
-        {
-          injectTo: 'head-prepend',
-          tag: 'script',
-          attrs: {
-            type: 'module',
-            src: viteClientUri,
-          },
-        },
+      })
 
-        {
-          injectTo: 'body',
-          tag: 'script',
-          attrs: {
-            type: 'module',
-            src: etnryScriptUri,
-          },
-        },
-      ])
+      html = await res.text()
+      html = html.replace(/(?<=")(\/).*"/g, (match) => `${localServerUrl}${match}`)
+
       content_src = `ws://${localServerUrl.replace(/https?:\/\//, '')} ws://0.0.0.0:${DEV_PORT} ${localServerUrl}`
       script_src = `${localServerUrl} http://0.0.0.0:${DEV_PORT}`
     }
