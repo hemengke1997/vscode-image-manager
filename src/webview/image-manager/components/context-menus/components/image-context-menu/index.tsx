@@ -219,7 +219,7 @@ function ImageContextMenu() {
         {/* file operation menu */}
         <Separator hidden={isItemHidden} data={[IMAGE_CONTEXT_MENU.fs]} />
         <Item onClick={handleRename} hidden={isItemHidden} data={IMAGE_CONTEXT_MENU.fs}>
-          {t('im.rename')} <RightSlot hidden={!shortcutsVisible}>{Keybinding.Enter()}</RightSlot>
+          {t('im.rename')} <RightSlot hidden={!shortcutsVisible}>{Keybinding.Rename()}</RightSlot>
         </Item>
         <Item onClick={handleDelete} hidden={isItemHidden} data={IMAGE_CONTEXT_MENU.fs}>
           {t('im.delete')} <RightSlot hidden={!shortcutsVisible}>{Keybinding.Delete()}</RightSlot>

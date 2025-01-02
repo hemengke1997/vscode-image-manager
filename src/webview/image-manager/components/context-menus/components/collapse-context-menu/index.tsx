@@ -198,7 +198,7 @@ function CollapseContextMenu() {
           data={[COLLAPSE_CONTEXT_MENU.rename_directory, COLLAPSE_CONTEXT_MENU.delete_directory]}
         />
         <Item hidden={isItemHidden} data={COLLAPSE_CONTEXT_MENU.rename_directory} onClick={handleRenameDir}>
-          {t('im.rename')} <RightSlot>{Keybinding.Enter()}</RightSlot>
+          {t('im.rename')} <RightSlot>{Keybinding.Rename()}</RightSlot>
         </Item>
         <Item hidden={isItemHidden} data={COLLAPSE_CONTEXT_MENU.delete_directory} onClick={handleDeleteDir}>
           {t('im.delete')} <RightSlot>{Keybinding.Delete()}</RightSlot>

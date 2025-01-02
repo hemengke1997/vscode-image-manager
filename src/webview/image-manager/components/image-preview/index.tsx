@@ -16,14 +16,12 @@ import { ConfigProvider, Image, theme } from 'antd'
 import { type AliasToken, type ComponentTokenMap } from 'antd/es/theme/interface'
 import { produce } from 'immer'
 import { isString, range, round } from 'lodash-es'
-import { AnimatePresence, type AnimationProps, motion } from 'motion/react'
 import { type PreviewGroupPreview } from 'rc-image/es/PreviewGroup'
 import { isDev } from 'vite-config-preset/client'
 import GlobalContext from '../../contexts/global-context'
 import SettingsContext from '../../contexts/settings-context'
 import useImageManagerEvent from '../../hooks/use-image-manager-event'
 import useImageOperation from '../../hooks/use-image-operation'
-import { ANIMATION_DURATION } from '../../utils/duration'
 import useImageContextMenu from '../context-menus/components/image-context-menu/hooks/use-image-context-menu'
 import LazyImage, { type LazyImageProps } from '../lazy-image'
 
@@ -57,23 +55,12 @@ export type ImagePreviewProps = {
    * LazyImage renderer，用于自定义渲染
    */
   renderer?: (lazyImage: ReactNode, image: ImageType) => ReactNode
-  /**
-   * motion props
-   */
-  motionProps?: AnimationProps
 }
 
 const ToastKey = 'image-preview-scale'
 
 function ImagePreview(props: ImagePreviewProps, ref: ForwardedRef<HTMLDivElement>) {
-  const {
-    images,
-    lazyImageProps,
-    enableMultipleSelect = false,
-    interactive = true,
-    renderer = (c) => c,
-    motionProps,
-  } = props
+  const { images, lazyImageProps, enableMultipleSelect = false, interactive = true, renderer = (c) => c } = props
 
   const { token } = theme.useToken()
 
@@ -400,47 +387,30 @@ function ImagePreview(props: ImagePreviewProps, ref: ForwardedRef<HTMLDivElement
                 },
               }}
             >
-              <AnimatePresence>
-                {images.map((image) => (
-                  <motion.div
-                    key={image.key}
-                    onClick={(e) => onClick(e, image)}
-                    ref={(ref) => (selectedImageRefs.current[image.path] = ref!)}
-                    // 如果有删除按钮，则添加组件移除动画
-                    {...(lazyImageProps?.onRemoveClick
-                      ? {
-                          initial: {
-                            opacity: 1,
-                          },
-                          exit: {
-                            opacity: 0,
-                          },
-                          transition: {
-                            duration: ANIMATION_DURATION.fast,
-                          },
-                        }
-                      : {})}
-                    {...motionProps}
-                  >
-                    {renderer(
-                      <LazyImage
-                        {...lazyImageProps}
-                        contextMenu={lazyImageProps?.contextMenu}
-                        image={image}
-                        active={selectedImages.includes(image.path)}
-                        multipleSelect={multipleSelect}
-                        onDelete={onDelete}
-                        antdImageProps={antdImageProps}
-                        onActiveChange={handleActiveChange}
-                        onPreviewClick={handlePreviewClick}
-                        onContextMenu={onContextMenu}
-                        interactive={interactive}
-                      />,
-                      image,
-                    )}
-                  </motion.div>
-                ))}
-              </AnimatePresence>
+              {images.map((image) => (
+                <div
+                  key={image.key}
+                  onClick={(e) => onClick(e, image)}
+                  ref={(ref) => (selectedImageRefs.current[image.path] = ref!)}
+                >
+                  {renderer(
+                    <LazyImage
+                      {...lazyImageProps}
+                      contextMenu={lazyImageProps?.contextMenu}
+                      image={image}
+                      active={selectedImages.includes(image.path)}
+                      multipleSelect={multipleSelect}
+                      onDelete={onDelete}
+                      antdImageProps={antdImageProps}
+                      onActiveChange={handleActiveChange}
+                      onPreviewClick={handlePreviewClick}
+                      onContextMenu={onContextMenu}
+                      interactive={interactive}
+                    />,
+                    image,
+                  )}
+                </div>
+              ))}
             </ConfigProvider>
           </Image.PreviewGroup>
         </ConfigProvider>

@@ -183,7 +183,7 @@ function LazyImage(props: LazyImageProps) {
   })
 
   const setKeybindRef = useHotkeys<HTMLDivElement>(
-    [Key.Enter, `mod+${Key.Backspace}`, Key.Delete, `mod+c`],
+    [Key.F2, Key.Enter, `mod+${Key.Backspace}`, Key.Delete, `mod+c`],
     (e) => {
       if (e.target !== keybindRef.current) return
       if (contextMenu?.enable?.fs) {
@@ -454,7 +454,6 @@ function LazyImage(props: LazyImageProps) {
             interactive && 'hover:border-ant-color-border',
             interactive && selected && 'border-ant-color-primary-hover hover:border-ant-color-primary-hover',
           )}
-          initial={{ opacity: 0 }}
           viewport={{
             once: true,
             amount: 'some',
@@ -462,6 +461,7 @@ function LazyImage(props: LazyImageProps) {
             root: { current: root },
           }}
           transition={{ duration: ANIMATION_DURATION.middle }}
+          initial={{ opacity: 0 }}
           whileInView={{ opacity: 1 }}
           onContextMenu={(e) => onContextMenu?.(e, image)}
           onDoubleClick={(e) => {

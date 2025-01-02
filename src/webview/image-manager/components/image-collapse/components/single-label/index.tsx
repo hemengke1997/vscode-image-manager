@@ -25,7 +25,7 @@ function SingleLabel(props: SingleLabelProps) {
   const enableHotkey = useMemo(() => contextMenu?.rename_directory && contextMenu?.delete_directory, [contextMenu])
 
   const keybindRef = useHotkeys<HTMLDivElement>(
-    [Key.Enter, `mod+${Key.Backspace}`, Key.Delete],
+    [Key.F2, Key.Enter, `mod+${Key.Backspace}`, Key.Delete],
     (e) => {
       switch (e.key) {
         case Key.F2: {

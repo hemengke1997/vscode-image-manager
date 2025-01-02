@@ -4,6 +4,7 @@ import { ANIMATION_DURATION } from '~/webview/image-manager/utils/duration'
 
 function AppearMotion(props: PropsWithChildren) {
   const { children } = props
+
   return (
     <motion.div
       initial={{

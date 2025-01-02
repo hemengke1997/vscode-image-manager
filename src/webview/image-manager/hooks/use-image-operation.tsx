@@ -1,7 +1,7 @@
 import { type ReactNode } from 'react'
 import { Trans, useTranslation } from 'react-i18next'
 import { useLockFn, useMemoizedFn } from 'ahooks'
-import { App, Button, Divider, type InputProps, Typography } from 'antd'
+import { App, Button, Divider, Typography } from 'antd'
 import escapeStringRegexp from 'escape-string-regexp'
 import { isObject, isString, toString } from 'lodash-es'
 import { type OperatorResult } from '~/core'
@@ -320,34 +320,7 @@ function useImageOperation() {
     })
   })
 
-  const [showRenameImage] = useRenameImage()
-
-  const beginRenameProcess = useMemoizedFn(
-    async (options: {
-      /**
-       * 当前名称
-       */
-      currentName: string
-      /**
-       * 完整路径
-       */
-      path: string
-      /**
-       * 表单提交成功回调
-       */
-      onFinish: (newName: string) => Promise<void | boolean>
-      /**
-       * 类型，文件 | 文件夹
-       */
-      type: string
-      /**
-       * 透传给 Input 的 props
-       */
-      inputProps?: InputProps
-    }) => {
-      showRenameImage(options)
-    },
-  )
+  const [beginRenameProcess] = useRenameImage()
 
   const beginRenameImageProcess = useMemoizedFn((image: ImageType) => {
     beginRenameProcess({

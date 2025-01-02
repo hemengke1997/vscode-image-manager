@@ -8,6 +8,7 @@ type SymbolTypes = {
   delete_str: string
   enter: string
   backspace: string
+  f2: string
 }
 
 const symbols: Record<string, SymbolTypes> = {
@@ -17,6 +18,7 @@ const symbols: Record<string, SymbolTypes> = {
     delete_str: '⌫',
     enter: '⏎',
     backspace: '⌫',
+    f2: 'F2',
   },
   other: {
     mod: 'Ctrl+',
@@ -24,6 +26,7 @@ const symbols: Record<string, SymbolTypes> = {
     delete_str: 'Delete',
     enter: 'Enter',
     backspace: 'Backspace',
+    f2: 'F2',
   },
 }
 
@@ -47,6 +50,9 @@ class Symbol {
   static get backspace() {
     return this.getSymbol('backspace')
   }
+  static get f2() {
+    return this.getSymbol('f2')
+  }
 }
 
 export const Keybinding = {
@@ -57,4 +63,5 @@ export const Keybinding = {
   Redo: () => `${Symbol.mod}${Symbol.shift}Z`,
   Delete: () => (os.isMac() ? `${Symbol.mod}${Symbol.delete_str}` : Symbol.delete_str),
   Enter: () => Symbol.enter,
+  Rename: () => (os.isWindows() ? Symbol.f2 : Symbol.enter),
 }
