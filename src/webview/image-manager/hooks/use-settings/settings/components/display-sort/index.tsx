@@ -59,9 +59,9 @@ function DisplaySort(props: DisplaySortProps) {
             Cascader: {
               optionSelectedBg: token.colorPrimaryActive,
               optionPadding: '2px 12px',
-              dropdownHeight: 'auto' as any,
-              controlWidth: 'auto' as any,
-              controlItemWidth: 'auto' as any,
+              dropdownHeight: 'auto',
+              controlWidth: 'auto',
+              controlItemWidth: 'auto',
             },
           },
         }}

@@ -3,7 +3,16 @@ import { useTranslation } from 'react-i18next'
 import { useMemoizedFn, useUpdateEffect } from 'ahooks'
 import { App, type ModalFuncProps } from 'antd'
 import { nanoid } from 'nanoid'
-import { Modal_Instance_Props } from './use-operator-modal-logic'
+
+const Modal_Instance_Props: ModalFuncProps = {
+  icon: null,
+  maskClosable: false,
+  keyboard: false,
+  footer: null,
+  width: '80%',
+  destroyOnClose: true,
+  closable: true,
+}
 
 export type ImperativeModalProps = {
   onClose: () => void

@@ -314,7 +314,7 @@ function ImageCompressor(props: ImageCompressorProps & ImperativeModalProps) {
                   value: t.value,
                 }))}
                 value={activeTab}
-                onChange={(value) => setActiveTab(value as any)}
+                onChange={(value) => setActiveTab(value as typeof activeTab)}
               ></Segmented>
             </div>
             <Divider />
