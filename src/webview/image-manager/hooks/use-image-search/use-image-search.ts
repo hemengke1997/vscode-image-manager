@@ -1,6 +1,6 @@
 import { useTranslation } from 'react-i18next'
 import { useMemoizedFn } from 'ahooks'
-import useImperativeModal from '../use-imperative-modal'
+import useImperativeModal, { imperativeModalMap } from '../use-imperative-modal'
 import ImageSearch from './image-search'
 
 /**
@@ -9,7 +9,7 @@ import ImageSearch from './image-search'
 export default function useImageSearch() {
   const { t } = useTranslation()
 
-  const { showModal, modalMap } = useImperativeModal({
+  const { showModal, id } = useImperativeModal({
     modalProps: {
       title: t('im.search_image'),
       keyboard: true,
@@ -18,7 +18,7 @@ export default function useImageSearch() {
   })
 
   const showImageSearch = useMemoizedFn(() => {
-    if (modalMap.current.size) return
+    if (imperativeModalMap.get(id)) return
     showModal({})
   })
 

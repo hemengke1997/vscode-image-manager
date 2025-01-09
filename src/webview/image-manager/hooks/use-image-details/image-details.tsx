@@ -102,15 +102,17 @@ function ImageDetails(props: Props & ImperativeModalProps) {
   ].filter((t) => !!t)
 
   return (
-    <Descriptions
-      className={'mt-2'}
-      layout='horizontal'
-      column={1}
-      size='small'
-      title={null}
-      bordered
-      items={descItems.map((item, index) => ({ key: index, ...item }))}
-    />
+    <>
+      <Descriptions
+        className={'mt-2'}
+        layout='horizontal'
+        column={1}
+        size='small'
+        title={null}
+        bordered
+        items={descItems.map((item, index) => ({ key: index, ...item }))}
+      />
+    </>
   )
 }
 

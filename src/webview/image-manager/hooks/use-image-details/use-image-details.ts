@@ -9,6 +9,7 @@ export default function useImageDetails() {
   const { t } = useTranslation()
 
   const { showModal } = useImperativeModal({
+    id: 'image-details',
     modalProps: {
       title: t('im.image_detail'),
       width: 500,
