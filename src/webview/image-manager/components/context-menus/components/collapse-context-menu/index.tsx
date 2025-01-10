@@ -11,7 +11,7 @@ import Arrow from '../arrow'
 import { type CollapseContextMenuType } from './hooks/use-collapse-context-menu'
 
 export const COLLAPSE_CONTEXT_MENU_ID = 'COLLAPSE_CONTEXT_MENU_ID'
-export const COLLAPSE_CONTEXT_MENU = {
+const COLLAPSE_CONTEXT_MENU = {
   /**
    * 在系统资源管理器中打开
    */

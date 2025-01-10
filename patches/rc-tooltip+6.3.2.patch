@@ -1,13 +1,13 @@
 diff --git a/node_modules/rc-tooltip/es/Tooltip.js b/node_modules/rc-tooltip/es/Tooltip.js
-index daf1250..58bafc1 100644
+index 7fe2c86..453b010 100644
 --- a/node_modules/rc-tooltip/es/Tooltip.js
 +++ b/node_modules/rc-tooltip/es/Tooltip.js
-@@ -71,7 +71,7 @@ var Tooltip = function Tooltip(props, ref) {
+@@ -75,7 +75,7 @@ var Tooltip = function Tooltip(props, ref) {
      popupAnimation: animation,
      popupMotion: motion,
      defaultPopupVisible: defaultVisible,
 -    autoDestroy: destroyTooltipOnHide,
 +    autoDestroy: true,
      mouseLeaveDelay: mouseLeaveDelay,
-     popupStyle: overlayStyle,
+     popupStyle: _objectSpread(_objectSpread({}, overlayStyle), tooltipStyles === null || tooltipStyles === void 0 ? void 0 : tooltipStyles.root),
      mouseEnterDelay: mouseEnterDelay,
