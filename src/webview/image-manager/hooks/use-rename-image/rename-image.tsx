@@ -32,7 +32,7 @@ type Props = {
 
 function RenameImage(props: Props & ImperativeModalProps) {
   const { t } = useTranslation()
-  const { currentName, onClose, onFinish, path, type, inputProps } = props
+  const { currentName, closeModal, onFinish, path, type, inputProps } = props
 
   return (
     <Form
@@ -42,10 +42,10 @@ function RenameImage(props: Props & ImperativeModalProps) {
       onFinish={async (value) => {
         const { rename } = value
         if (rename === currentName || !rename) {
-          return onClose()
+          return closeModal()
         }
         await onFinish(rename)
-        onClose()
+        closeModal()
       }}
       className={'mt-6'}
     >

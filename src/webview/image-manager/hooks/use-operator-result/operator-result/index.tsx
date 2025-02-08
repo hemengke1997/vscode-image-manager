@@ -32,7 +32,7 @@ export type OperatorResultProps = {
 } & OnEndOptionsType
 
 function OperatorResultTsx(props: OperatorResultProps & ImperativeModalProps) {
-  const { results: resultsProp, onUndoClick, onRedoClick, onClose } = props
+  const { results: resultsProp, onUndoClick, onRedoClick, closeModal } = props
 
   const _errorRange = GlobalContext.useSelector((ctx) => ctx.extConfig.compression.errorRange)
   const [errorRange, setErrorRange] = useExtConfigState(ConfigKey.compression_errorRange, _errorRange, [])
@@ -73,7 +73,7 @@ function OperatorResultTsx(props: OperatorResultProps & ImperativeModalProps) {
 
   useUpdateEffect(() => {
     if (Object.keys(groups).every((key) => groups[key].length === 0)) {
-      onClose()
+      closeModal()
     }
   }, [groups])
 

@@ -23,7 +23,7 @@ export type ImageConverterProps = {} & ImageOperatorProps
 type FormValue = FormatConverterOptions
 
 function ImageConverter(props: ImageConverterProps & ImperativeModalProps) {
-  const { images: imagesProp, onClose } = props
+  const { images: imagesProp, closeModal } = props
   const { t } = useTranslation()
   const { formatConverter } = GlobalContext.usePicker(['formatConverter'])
   const [form] = Form.useForm()
@@ -65,7 +65,7 @@ function ImageConverter(props: ImageConverterProps & ImperativeModalProps) {
       },
       {
         onSuccess() {
-          onClose()
+          closeModal()
         },
         onCancel() {
           abortController.abort()
@@ -86,7 +86,7 @@ function ImageConverter(props: ImageConverterProps & ImperativeModalProps) {
   useImageManagerEvent({
     on: {
       reveal_in_viewer: () => {
-        onClose()
+        closeModal()
       },
     },
   })

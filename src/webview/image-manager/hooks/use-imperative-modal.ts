@@ -1,4 +1,8 @@
-import { imperativeModalMap, type ImperativeModalProps, useImperativeAntdModal } from 'ahooks-x'
+import {
+  imperativeModalMap,
+  type ImperativeModalProps,
+  useImperativeAntdModal,
+} from 'ahooks-x/use-imperative-antd-modal'
 import { type ModalFuncProps } from 'antd'
 
 const Modal_Instance_Props: ModalFuncProps = {

@@ -16,7 +16,7 @@ type Props = {
 }
 
 function DeleteImage(props: Props & ImperativeModalProps) {
-  const { onClose, onConfirm, filenames } = props
+  const { closeModal, onConfirm, filenames } = props
   const { t } = useTranslation()
   const confirmDelete = GlobalContext.useSelector((ctx) => ctx.extConfig.file.confirmDelete)
   // 删除文件
@@ -28,7 +28,7 @@ function DeleteImage(props: Props & ImperativeModalProps) {
       setConfirmDelete(true)
     }
     await onConfirm()
-    onClose()
+    closeModal()
   })
 
   const [form] = Form.useForm()

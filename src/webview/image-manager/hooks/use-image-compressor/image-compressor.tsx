@@ -37,7 +37,7 @@ export type ImageCompressorProps = {
 }
 
 function ImageCompressor(props: ImageCompressorProps & ImperativeModalProps) {
-  const { images: imagesProp, fields, onClose } = props
+  const { images: imagesProp, fields, closeModal } = props
 
   const [images, setImages] = useState(imagesProp)
 
@@ -83,7 +83,7 @@ function ImageCompressor(props: ImageCompressorProps & ImperativeModalProps) {
       },
       {
         onSuccess() {
-          onClose()
+          closeModal()
         },
         onCancel() {
           abortController.abort()
@@ -104,7 +104,7 @@ function ImageCompressor(props: ImageCompressorProps & ImperativeModalProps) {
   useImageManagerEvent({
     on: {
       reveal_in_viewer: () => {
-        onClose()
+        closeModal()
       },
     },
   })

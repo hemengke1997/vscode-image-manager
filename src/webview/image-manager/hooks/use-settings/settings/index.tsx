@@ -35,7 +35,7 @@ enum SettingsKey {
 }
 
 function Settings(props: ImperativeModalProps) {
-  const { onClose } = props
+  const { closeModal } = props
 
   const { t } = useTranslation()
 
@@ -298,7 +298,7 @@ function Settings(props: ImperativeModalProps) {
   const [form] = Form.useForm()
   const { message } = App.useApp()
   const onFinish = useMemoizedFn((values) => {
-    onClose()
+    closeModal()
     for (const key in values) {
       const value = values[key]
       if (!isNil(value)) {

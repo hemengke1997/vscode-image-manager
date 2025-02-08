@@ -14,7 +14,7 @@ type Props = {
 }
 
 function ImageDetails(props: Props & ImperativeModalProps) {
-  const { image, onPreview, onClose } = props
+  const { image, onPreview, closeModal } = props
   const { t } = useTranslation()
 
   const {
@@ -44,7 +44,7 @@ function ImageDetails(props: Props & ImperativeModalProps) {
                 type={'text'}
                 icon={<HiOutlineViewfinderCircle className={'flex-none text-xl'} />}
                 onClick={() => {
-                  onClose()
+                  closeModal()
                   onPreview && onPreview(image)
                 }}
               ></Button>

@@ -50,7 +50,7 @@ export enum ImageVisibleFilter {
 const UnitOptions: ImageFilterType['size']['unit'][] = ['KB', 'MB']
 
 function ImageFilter(props: ImperativeModalProps) {
-  const { onClose } = props
+  const { closeModal } = props
   const { t } = useTranslation()
   const { message } = App.useApp()
 
@@ -187,7 +187,7 @@ function ImageFilter(props: ImperativeModalProps) {
   const [filterLabelWidth, onFilterResize] = useColumnWidth()
 
   const onFinish = useMemoizedFn((value) => {
-    onClose()
+    closeModal()
     setImageFilter(value)
     message.success(t('im.operation_success'))
   })
