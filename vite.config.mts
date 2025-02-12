@@ -16,7 +16,7 @@ export default defineConfig(async (env) => {
 
   const config = defineConfig({
     optimizeDeps: {
-      // force: true,
+      force: true,
     },
     server: {
       host: '0.0.0.0',
@@ -25,6 +25,9 @@ export default defineConfig(async (env) => {
       hmr: {
         host: 'localhost',
         protocol: 'ws',
+      },
+      cors: {
+        origin: '*',
       },
     },
     envPrefix: 'IM_',

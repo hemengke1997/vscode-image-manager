@@ -200,6 +200,7 @@ export class ImageManagerPanel {
         headers: {
           'sec-fetch-dest': 'document',
         },
+        mode: 'no-cors',
       })
 
       html = await res.text()

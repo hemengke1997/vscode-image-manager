@@ -109,7 +109,6 @@ function ImagePreview(props: ImagePreviewProps, ref: ForwardedRef<HTMLDivElement
   // 使用图片的绝对路径path作为唯一标识
   // index并不能保证选择的图片是正确的
   const [selectedImages, _setSelectedImages] = useState<ImageType['path'][]>([])
-  const [triggeredByContextMenu, setTriggeredByContextMenu] = useState(false)
 
   const setSelectedImages: typeof _setSelectedImages = useMemoizedFn((...args) => {
     if (!interactive) return
@@ -152,12 +151,7 @@ function ImagePreview(props: ImagePreviewProps, ref: ForwardedRef<HTMLDivElement
         return
       }
 
-      if (targetEl.id === 'context-menu-mask') {
-        if (triggeredByContextMenu) {
-          setTriggeredByContextMenu(false)
-          setSelectedImages([])
-          return
-        }
+      if (targetEl.getAttribute('data-id') === 'context-menu-mask') {
         return
       }
       setSelectedImages([])
@@ -186,7 +180,6 @@ function ImagePreview(props: ImagePreviewProps, ref: ForwardedRef<HTMLDivElement
     let selected = selectedImages
     if (selectedImages.length <= 1 || !selectedImages.includes(image.path)) {
       selected = [image.path]
-      setTriggeredByContextMenu(true)
     }
     setSelectedImages(selected)
     show(

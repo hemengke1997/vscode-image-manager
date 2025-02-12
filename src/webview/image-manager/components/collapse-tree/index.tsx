@@ -293,7 +293,7 @@ function CollapseTree(props: Props) {
         >
           <Card
             title={<div className={'text-ant-color-warning'}>{originalWorkspaceFolder}</div>}
-            bordered={false}
+            variant={'borderless'}
             type='inner'
           >
             <Empty image={Empty.PRESENTED_IMAGE_SIMPLE} description={t('im.no_image')} />

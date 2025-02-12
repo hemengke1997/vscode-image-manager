@@ -12,14 +12,21 @@ function MaskMenu(props: MenuProps) {
     <>
       <div
         className={classNames('fixed inset-0 z-[999]', contextMenuMask ? 'block' : 'hidden')}
-        id='context-menu-mask'
+        data-id='context-menu-mask'
       ></div>
       <Menu
         {...props}
         theme={theme}
         onVisibilityChange={(v) => {
+          if (v) {
+            // menu先展示，再展示mask，避免menu消失
+            setTimeout(() => {
+              setContextMenuMask(v)
+            })
+          } else {
+            setContextMenuMask(v)
+          }
           props.onVisibilityChange?.(v)
-          setContextMenuMask(v)
         }}
       ></Menu>
     </>
