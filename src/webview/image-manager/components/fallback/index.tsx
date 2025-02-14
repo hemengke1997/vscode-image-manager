@@ -21,7 +21,7 @@ function Fallback(props: FallbackProps) {
           </Text>
         </Paragraph>
         <div className={'flex space-x-2'}>
-          <MdOutlineError className='text-ant-color-error mt-0.5 text-lg' />
+          <MdOutlineError className='mt-0.5 text-lg text-ant-color-error' />
           <Paragraph
             ellipsis={{
               rows: 5,

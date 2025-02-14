@@ -10,7 +10,6 @@ import { isTooManyTries, retryAsync } from 'ts-retry'
 import { type MessageType } from '~/message'
 import { CmdToVscode, CmdToWebview } from '~/message/cmd'
 import logger from '~/utils/logger'
-import useUpdateWebview from '../hooks/use-update-webview'
 import { getAppRoot } from '../utils'
 import { vscodeApi } from '../vscode-api'
 import ContextMenus from './components/context-menus'
@@ -20,6 +19,7 @@ import Viewer from './components/viewer'
 import ActionContext from './contexts/action-context'
 import GlobalContext, { type WebviewCompressorType, type WebviewFormatConverterType } from './contexts/global-context'
 import useRefreshImages from './hooks/use-refresh-images'
+import useUpdateWebview from './hooks/use-update-webview'
 
 vscodeApi.registerEventListener()
 

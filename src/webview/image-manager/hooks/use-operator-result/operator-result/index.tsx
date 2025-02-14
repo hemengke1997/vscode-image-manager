@@ -9,9 +9,9 @@ import { VscSmiley, VscWarning } from 'react-icons/vsc'
 import { type OperatorResult } from '~/core'
 import { ConfigKey } from '~/core/config/common'
 import { CmdToVscode } from '~/message/cmd'
-import { useExtConfigState } from '~/webview/hooks/use-ext-config-state'
 import ImagePreview, { type ImagePreviewProps } from '~/webview/image-manager/components/image-preview'
 import GlobalContext from '~/webview/image-manager/contexts/global-context'
+import { useExtConfigState } from '~/webview/image-manager/hooks/use-ext-config-state'
 import { vscodeApi } from '~/webview/vscode-api'
 import { type ImperativeModalProps } from '../../use-imperative-modal'
 import { type OnEndOptionsType, useOperatorModalLogic } from '../../use-operator-modal-logic/use-operator-modal-logic'
@@ -144,8 +144,8 @@ function OperatorResultTsx(props: OperatorResultProps & ImperativeModalProps) {
                     outputSize={findCorrespondingResult(groups.decrease, image).outputSize}
                   />
                   <div className={'flex items-center gap-x-2'}>
-                    <VscSmiley className='text-ant-color-success flex items-center' />
-                    <div className={'text-ant-color-error flex-none font-bold'}>
+                    <VscSmiley className='flex items-center text-ant-color-success' />
+                    <div className={'flex-none font-bold text-ant-color-error'}>
                       {getPercent(findCorrespondingResult(groups.decrease, image))}
                     </div>
                   </div>
@@ -181,8 +181,8 @@ function OperatorResultTsx(props: OperatorResultProps & ImperativeModalProps) {
                     outputSize={findCorrespondingResult(groups.increase, image).outputSize}
                   />
                   <div className={'flex items-center gap-x-2'}>
-                    <VscWarning className='text-ant-color-warning flex items-center' />
-                    <div className={'text-ant-color-error flex-none font-bold'}>
+                    <VscWarning className='flex items-center text-ant-color-warning' />
+                    <div className={'flex-none font-bold text-ant-color-error'}>
                       {getPercent(findCorrespondingResult(groups.increase, image))}
                     </div>
                   </div>
@@ -225,7 +225,7 @@ function OperatorResultTsx(props: OperatorResultProps & ImperativeModalProps) {
                     placement={'bottom'}
                     arrow={false}
                   >
-                    <div className={'text-ant-color-text max-w-full truncate text-center'}>
+                    <div className={'max-w-full truncate text-center text-ant-color-text'}>
                       {findCorrespondingResult(groups.error, image).error}
                     </div>
                   </Tooltip>
@@ -262,13 +262,13 @@ function OperatorResultTsx(props: OperatorResultProps & ImperativeModalProps) {
             renderer={(lazyImage, image) => (
               <ImageCard cover={lazyImage}>
                 <div className={'flex items-center justify-center gap-x-1'}>
-                  <TbFileUnknown className={'text-ant-color-warning flex-none'} />
+                  <TbFileUnknown className={'flex-none text-ant-color-warning'} />
                   <Tooltip
                     title={findCorrespondingResult(groups.limited, image).error}
                     placement={'bottom'}
                     arrow={false}
                   >
-                    <div className={'text-ant-color-text max-w-full truncate text-center'}>
+                    <div className={'max-w-full truncate text-center text-ant-color-text'}>
                       {findCorrespondingResult(groups.limited, image).error}
                     </div>
                   </Tooltip>

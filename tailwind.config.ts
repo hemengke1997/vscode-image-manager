@@ -12,7 +12,7 @@ export default {
   },
   presets: [require('tailwind-antd-preset')],
   plugins: [
-    require('./tailwind-vscode.js'),
+    require('./tailwind.config.vscode.js'),
     plugin(({ addUtilities }) => {
       addUtilities({
         '.text-xxs': {

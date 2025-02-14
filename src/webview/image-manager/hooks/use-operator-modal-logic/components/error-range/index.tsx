@@ -50,7 +50,7 @@ function ErrorRange(props: Props) {
         />
       }
     >
-      <Button className={'text-ant-color-warning-text ml-1'}>
+      <Button className={'ml-1 text-ant-color-warning-text'}>
         ({t('im.error_range')}: {errorRange}KB)
       </Button>
     </Popconfirm>

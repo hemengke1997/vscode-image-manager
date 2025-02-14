@@ -1,6 +1,7 @@
 import fs from 'fs-extra'
 import path from 'node:path'
 import stream from 'node:stream'
+import { fileURLToPath } from 'node:url'
 import { promisify } from 'node:util'
 import fetch from 'node-fetch'
 import { cleanVersion } from '~/utils'
@@ -8,6 +9,8 @@ import logger from '~/utils/logger'
 import { devDependencies } from '../package.json'
 
 const pipeline = promisify(stream.pipeline)
+
+const __dirname = path.dirname(fileURLToPath(import.meta.url))
 
 const ReleaseDir = path.resolve(__dirname, '../releases')
 const currentVersion = cleanVersion(devDependencies['@minko-fe/sharp'])

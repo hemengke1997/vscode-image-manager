@@ -1,7 +1,7 @@
 import { useMemoizedFn } from 'ahooks'
 import { CmdToVscode } from '~/message/cmd'
-import VscodeContext from '../ui-framework/src/contexts/vscode-context'
-import { vscodeApi } from '../vscode-api'
+import { vscodeApi } from '../../vscode-api'
+import VscodeContext from '../contexts/vscode-context'
 
 /**
  * 手动更新webview从vscode中获取的配置

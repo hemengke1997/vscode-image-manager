@@ -18,7 +18,7 @@ import { classNames } from 'tw-clsx'
 import { DEFAULT_CONFIG } from '~/core/config/common'
 import { Compressed } from '~/enums'
 import { CmdToVscode } from '~/message/cmd'
-import { OS } from '~/webview/ui-framework/src/utils/device'
+import { OS } from '~/webview/image-manager/utils/device'
 import { getAppRoot } from '~/webview/utils'
 import { vscodeApi } from '~/webview/vscode-api'
 import GlobalContext from '../../contexts/global-context'
@@ -376,7 +376,7 @@ function LazyImage(props: LazyImageProps) {
         {onPreviewClick && (
           <div
             className={classNames(
-              'hover:text-ant-color-text active:text-ant-color-text-label flex cursor-pointer items-center space-x-1 truncate transition-colors',
+              'flex cursor-pointer items-center space-x-1 truncate transition-colors hover:text-ant-color-text active:text-ant-color-text-label',
             )}
             onClick={(e) => {
               if (multipleSelect(e)) return
@@ -430,7 +430,7 @@ function LazyImage(props: LazyImageProps) {
 
   const compressedMap = useMemo(
     () => ({
-      [Compressed.yes]: <FiCheckCircle className={'text-ant-color-text text-sm'} title={t('im.compressed')} />,
+      [Compressed.yes]: <FiCheckCircle className={'text-sm text-ant-color-text'} title={t('im.compressed')} />,
     }),
     [t],
   )
@@ -478,7 +478,7 @@ function LazyImage(props: LazyImageProps) {
             leftTop={
               onRemoveClick && (
                 <div
-                  className={'text-ant-color-error cursor-pointer opacity-0 transition-opacity group-hover:opacity-100'}
+                  className={'cursor-pointer text-ant-color-error opacity-0 transition-opacity group-hover:opacity-100'}
                   onClick={(e) => {
                     // prevent click away
                     e.stopPropagation()

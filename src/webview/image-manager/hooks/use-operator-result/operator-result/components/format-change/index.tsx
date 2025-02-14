@@ -8,7 +8,7 @@ function FormatChange(props: Pick<OperatorResult, 'filePath' | 'outputPath'>) {
   const { filePath, outputPath } = props
   if (outputPath && outputPath !== filePath) {
     return (
-      <div className={'text-ant-color-text flex flex-col items-center gap-1'}>
+      <div className={'flex flex-col items-center gap-1 text-ant-color-text'}>
         <span>{getFilenameFromPath(filePath)}</span>
         <TbArrowBigDownFilled />
         <span>{getFilenameFromPath(outputPath)}</span>

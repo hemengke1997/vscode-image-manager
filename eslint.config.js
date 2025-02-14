@@ -1,12 +1,7 @@
 const { defineConfig } = require('@minko-fe/eslint-config')
 
-module.exports = defineConfig(
-  [
-    {
-      ignores: ['dist-webview'],
-    },
-  ],
+module.exports = defineConfig([
   {
-    gitignore: false,
+    ignores: ['dist-webview'],
   },
-)
+])

@@ -13,6 +13,14 @@ export default defineConfig({
     'execa',
     // optional dependencies
     '@swc/core',
+
+    'tailwindcss',
+    'react',
+    'react-dom',
+    '@types/react',
+    '@types/react-dom',
+    'types/node',
+    'vite',
   ],
   packageMode: {
     'ts-key-enum': 'patch',

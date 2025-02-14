@@ -5,7 +5,7 @@ import { Checkbox, Form } from 'antd'
 import { Key } from 'ts-key-enum'
 import { os } from 'un-detector'
 import { ConfigKey } from '~/core/config/common'
-import { useExtConfigState } from '~/webview/hooks/use-ext-config-state'
+import { useExtConfigState } from '~/webview/image-manager/hooks/use-ext-config-state'
 import AutoFocusButton from '../../components/auto-focus-button'
 import GlobalContext from '../../contexts/global-context'
 import { type ImperativeModalProps } from '../use-imperative-modal'
@@ -46,7 +46,7 @@ function DeleteImage(props: Props & ImperativeModalProps) {
     >
       <div className='space-y-2'>
         <div className={'text-base'}>{t('im.delete_title', { filename: `'${filenames}'` })}</div>
-        <div className={'text-ant-color-text-secondary text-sm'}>
+        <div className={'text-sm text-ant-color-text-secondary'}>
           {t('im.delete_tip', { trash: os.isMac() ? t('im.trash_macos') : t('im.trash_windows') })}
         </div>
         <Form.Item name='askDelete' initialValue={false} valuePropName={'checked'}>

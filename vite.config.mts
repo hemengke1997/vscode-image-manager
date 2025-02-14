@@ -1,7 +1,8 @@
 /// <reference types="vitest/config" />
 
 import path from 'node:path'
-import { defineConfig, loadConfigFromFile, mergeConfig, type UserConfig } from 'vite'
+import { defineConfig } from 'vite'
+import { preset } from 'vite-config-preset'
 import { createHtmlPlugin } from 'vite-plugin-html'
 import { i18nAlly } from 'vite-plugin-i18n-ally'
 import { plugin as markdown, Mode } from 'vite-plugin-markdown'
@@ -9,12 +10,8 @@ import { type InlineConfig } from 'vitest/node'
 import { DEV_PORT } from './src/meta'
 
 export default defineConfig(async (env) => {
-  const loadResult = await loadConfigFromFile(
+  return preset({
     env,
-    path.resolve(__dirname, './src/webview/ui-framework/vite.config.mts'),
-  )
-
-  const config = defineConfig({
     optimizeDeps: {
       force: true,
     },
@@ -37,14 +34,14 @@ export default defineConfig(async (env) => {
     },
     plugins: [
       createHtmlPlugin({
-        entry: path.resolve(__dirname, './src/webview/main.tsx'),
+        entry: path.resolve(__dirname, './src/webview/image-manager/main.tsx'),
         // relative path to root
-        template: './src/webview/index.html',
+        template: './src/webview/image-manager/index.html',
         minify: env.command === 'build',
       }),
       i18nAlly({
         root: __dirname,
-        localesPaths: [path.resolve(__dirname, './src/webview/locales')],
+        localesPaths: [path.resolve(__dirname, './src/webview/image-manager/locales')],
       }),
       markdown({ mode: [Mode.MARKDOWN] }),
     ],
@@ -65,7 +62,5 @@ export default defineConfig(async (env) => {
     test: {
       include: ['**/__test__/**/*.test.ts'],
     } as InlineConfig,
-  } as UserConfig)
-
-  return mergeConfig(loadResult!.config, config)
+  })
 })

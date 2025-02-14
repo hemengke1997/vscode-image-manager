@@ -144,6 +144,7 @@
     "p-timeout": "^6.1.4",
     "patch-package": "^8.0.0",
     "postcss": "^8.5.2",
+    "postcss-config-preset": "^1.0.0",
     "prettier-plugin-tailwindcss": "^0.6.11",
     "pump": "3.0.0",
     "react": "^18.3.1",

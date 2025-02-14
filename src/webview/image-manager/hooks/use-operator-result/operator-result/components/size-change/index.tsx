@@ -7,7 +7,7 @@ function SizeChange(props: Pick<OperatorResult, 'inputSize' | 'outputSize'>) {
   const { inputSize, outputSize } = props
   if (inputSize && outputSize) {
     return (
-      <div className={'text-ant-color-text flex flex-col items-center gap-1'}>
+      <div className={'flex flex-col items-center gap-1 text-ant-color-text'}>
         <span>{formatBytes(inputSize)}</span>
         <TbArrowBigDownFilled />
         <span>{formatBytes(outputSize)}</span>

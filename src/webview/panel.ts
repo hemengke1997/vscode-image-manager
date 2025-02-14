@@ -196,7 +196,7 @@ export class ImageManagerPanel {
     } else {
       const localServerUrl = `http://localhost:${DEV_PORT}`
 
-      const res = await fetch(`${localServerUrl}/src/webview/index.html`, {
+      const res = await fetch(`${localServerUrl}/src/webview/image-manager/index.html`, {
         headers: {
           'sec-fetch-dest': 'document',
         },

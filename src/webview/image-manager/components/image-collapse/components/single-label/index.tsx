@@ -3,7 +3,7 @@ import { useHotkeys } from 'react-hotkeys-hook'
 import { Key } from 'ts-key-enum'
 import { classNames } from 'tw-clsx'
 import useImageOperation from '~/webview/image-manager/hooks/use-image-operation'
-import { OS } from '~/webview/ui-framework/src/utils/device'
+import { OS } from '~/webview/image-manager/utils/device'
 import { type EnableCollapseContextMenuType } from '../../../context-menus/components/collapse-context-menu'
 import useCollapseContextMenu from '../../../context-menus/components/collapse-context-menu/hooks/use-collapse-context-menu'
 

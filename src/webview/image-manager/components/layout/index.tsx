@@ -5,7 +5,7 @@ import { useUpdateEffect } from 'ahooks'
 import { Button, Tooltip } from 'antd'
 import { toLower } from 'lodash-es'
 import { IoSettingsOutline } from 'react-icons/io5'
-import { getCssVar, setHtmlTheme } from '~/webview/ui-framework/src/utils/theme'
+import { getCssVar, setHtmlTheme } from '~/webview/image-manager/utils/theme'
 import SettingsContext from '../../contexts/settings-context'
 import useSettings from '../../hooks/use-settings/use-settings'
 

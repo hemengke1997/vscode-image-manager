@@ -4,8 +4,8 @@ import { createContainer } from 'context-state'
 import { type FormatConverterOptions } from '~/core'
 import { ConfigKey } from '~/core/config/common'
 import { type CompressionOptions } from '~/core/operator/compressor/type'
-import { useExtConfigState } from '~/webview/hooks/use-ext-config-state'
-import VscodeContext from '~/webview/ui-framework/src/contexts/vscode-context'
+import VscodeContext from '~/webview/image-manager/contexts/vscode-context'
+import { useExtConfigState } from '~/webview/image-manager/hooks/use-ext-config-state'
 
 export type WebviewCompressorType = {
   option: CompressionOptions

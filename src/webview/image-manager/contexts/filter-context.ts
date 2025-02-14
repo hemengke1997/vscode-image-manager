@@ -4,7 +4,7 @@ import { diff } from 'deep-object-diff'
 import { flatten } from 'flat'
 import removeUndefinedObjects from 'remove-undefined-objects'
 import { defaultState, WorkspaceStateKey } from '~/core/persist/workspace/common'
-import { useWorkspaceState } from '~/webview/hooks/use-workspace-state'
+import { useWorkspaceState } from '~/webview/image-manager/hooks/use-workspace-state'
 import GlobalContext from './global-context'
 
 function useFilterContext() {

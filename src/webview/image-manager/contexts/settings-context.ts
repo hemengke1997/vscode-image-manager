@@ -6,9 +6,9 @@ import { ConfigKey } from '~/core/config/common'
 import { type DisplayGroupType, WorkspaceStateKey } from '~/core/persist/workspace/common'
 import { Language, ReduceMotion, Theme } from '~/enums'
 import { intelligentPick } from '~/utils/intelligent-pick'
-import { useExtConfigState } from '~/webview/hooks/use-ext-config-state'
-import { useWorkspaceState } from '~/webview/hooks/use-workspace-state'
-import { vscodeColors } from '~/webview/ui-framework/src/utils/theme'
+import { useExtConfigState } from '~/webview/image-manager/hooks/use-ext-config-state'
+import { useWorkspaceState } from '~/webview/image-manager/hooks/use-workspace-state'
+import { vscodeColors } from '~/webview/image-manager/utils/theme'
 import GlobalContext from './global-context'
 
 function useSettingsContext() {

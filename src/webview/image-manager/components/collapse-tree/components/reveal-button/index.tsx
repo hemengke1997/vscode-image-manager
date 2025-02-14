@@ -12,7 +12,7 @@ function RevealButton(props: PropsWithChildren<RevealButtonProps>) {
   return (
     <Tooltip arrow={false} placement={'bottom'} title={title}>
       <Button
-        className={'hover:text-ant-color-primary flex h-auto cursor-pointer items-center p-1 text-lg transition-colors'}
+        className={'flex h-auto cursor-pointer items-center p-1 text-lg transition-colors hover:text-ant-color-primary'}
         onClick={(e) => {
           e.stopPropagation()
           onClick()

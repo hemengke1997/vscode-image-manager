@@ -5,8 +5,8 @@ import { produce } from 'immer'
 import { set } from 'lodash-es'
 import { type WorkspaceStateKey } from '~/core/persist/workspace/common'
 import { CmdToVscode } from '~/message/cmd'
-import VscodeContext from '../ui-framework/src/contexts/vscode-context'
-import { vscodeApi } from '../vscode-api'
+import { vscodeApi } from '../../vscode-api'
+import VscodeContext from '../contexts/vscode-context'
 
 /**
  *

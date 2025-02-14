@@ -24,7 +24,7 @@ function Corner(props: Props) {
   )
 
   return (
-    <div className={classNames('text-ant-color-text relative', className)}>
+    <div className={classNames('relative text-ant-color-text', className)}>
       {positions.map(({ className, content }, index) => (
         <div key={index} className={classNames('absolute z-[1]', className)}>
           {content}

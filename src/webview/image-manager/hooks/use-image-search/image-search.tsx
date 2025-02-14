@@ -380,8 +380,8 @@ function IconUI(
   return (
     <div
       className={classNames(
-        'hover:bg-ant-color-bg-text-hover flex h-full cursor-pointer select-none items-center rounded-md border-solid border-transparent p-0.5 text-lg transition-all',
-        active && '!text-ant-color-primary !border-ant-color-primary hover:bg-transparent',
+        'flex h-full cursor-pointer select-none items-center rounded-md border-solid border-transparent p-0.5 text-lg transition-all hover:bg-ant-color-bg-text-hover',
+        active && '!border-ant-color-primary !text-ant-color-primary hover:bg-transparent',
         className,
       )}
       {...rest}

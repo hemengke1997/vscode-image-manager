@@ -6,8 +6,8 @@ import { produce } from 'immer'
 import { set } from 'lodash-es'
 import { type ConfigType } from '~/core/config/common'
 import { CmdToVscode } from '~/message/cmd'
-import VscodeContext from '../ui-framework/src/contexts/vscode-context'
-import { vscodeApi } from '../vscode-api'
+import { vscodeApi } from '../../vscode-api'
+import VscodeContext from '../contexts/vscode-context'
 
 /**
  * 追踪插件配置中的某个配置

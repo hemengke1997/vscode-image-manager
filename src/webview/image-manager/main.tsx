@@ -1,4 +1,5 @@
 import { startTransition } from 'react'
+import { ErrorBoundary } from 'react-error-boundary'
 import { initReactI18next } from 'react-i18next'
 import i18next from 'i18next'
 import ReactDOM from 'react-dom/client'
@@ -7,7 +8,15 @@ import { CmdToVscode } from '~/message/cmd'
 import { FALLBACK_LANGUAGE } from '~/meta'
 import { getAppRoot, intelligentPickConfig } from '~/webview/utils'
 import { vscodeApi } from '~/webview/vscode-api'
-import App from './app'
+import ImageManager from '.'
+import AntdConfigProvider from './components/antd-config-provider'
+import Fallback from './components/fallback'
+import ActionContext from './contexts/action-context'
+import CtxMenuContext from './contexts/ctx-menu-context'
+import FilterContext from './contexts/filter-context'
+import GlobalContext from './contexts/global-context'
+import SettingsContext from './contexts/settings-context'
+import VscodeContext from './contexts/vscode-context'
 import './hmr'
 import './styles/index.css'
 
@@ -15,7 +24,7 @@ let key = 0
 
 const i18nChangeLanguage = i18next.changeLanguage
 
-export function registerApp(children: JSX.Element, reload = false) {
+function registerApp(children: JSX.Element, reload = false) {
   vscodeApi.postMessage(
     {
       cmd: CmdToVscode.on_webview_ready,
@@ -67,9 +76,11 @@ export function registerApp(children: JSX.Element, reload = false) {
 
             startTransition(() => {
               window.__react_root__.render(
-                <App extConfig={ext} vscodeConfig={vscode} workspaceState={workspaceState} key={key}>
-                  {children}
-                </App>,
+                <div onContextMenu={(e) => e.preventDefault()}>
+                  <VscodeContext.Provider value={{ extConfig: ext, vscodeConfig: vscode, workspaceState }}>
+                    {children}
+                  </VscodeContext.Provider>
+                </div>,
               )
             })
           }
@@ -92,3 +103,28 @@ export function registerApp(children: JSX.Element, reload = false) {
     },
   )
 }
+
+function mount(reload?: boolean) {
+  registerApp(
+    <GlobalContext.Provider>
+      <SettingsContext.Provider>
+        <FilterContext.Provider>
+          <ActionContext.Provider>
+            <CtxMenuContext.Provider>
+              <AntdConfigProvider>
+                <ErrorBoundary FallbackComponent={Fallback}>
+                  <ImageManager />
+                </ErrorBoundary>
+              </AntdConfigProvider>
+            </CtxMenuContext.Provider>
+          </ActionContext.Provider>
+        </FilterContext.Provider>
+      </SettingsContext.Provider>
+    </GlobalContext.Provider>,
+    reload,
+  )
+}
+
+window.mountApp = mount
+
+mount()

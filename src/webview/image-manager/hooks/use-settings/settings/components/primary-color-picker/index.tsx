@@ -5,7 +5,7 @@ import { useMemoizedFn } from 'ahooks'
 import { useControlledState } from 'ahooks-x'
 import { ColorPicker, type ColorPickerProps } from 'antd'
 import { uniq } from 'lodash-es'
-import { builtInColors, vscodeColors } from '~/webview/ui-framework/src/utils/theme'
+import { builtInColors, vscodeColors } from '~/webview/image-manager/utils/theme'
 
 type Props = {
   value?: string
