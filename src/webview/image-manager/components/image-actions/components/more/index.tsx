@@ -1,9 +1,9 @@
 import { memo, useState } from 'react'
 import { useTranslation } from 'react-i18next'
-import { useMemoizedFn } from 'ahooks'
-import { Button, Popover, Tooltip } from 'antd'
-import { upperFirst } from 'lodash-es'
 import { IoIosMore } from 'react-icons/io'
+import { useMemoizedFn } from 'ahooks'
+import { Button, Popover, Space, Tooltip } from 'antd'
+import { upperFirst } from 'lodash-es'
 import ActionContext from '~/webview/image-manager/contexts/action-context'
 
 function More() {
@@ -31,7 +31,7 @@ function More() {
         <div className={'flex flex-col gap-2'}>
           <div className={'flex items-center space-x-2'}>
             <div>{t('im.folder')}</div>
-            <Button.Group>
+            <Space.Compact>
               <Button
                 onClick={() => {
                   toggleAllCollapse(true)
@@ -48,7 +48,7 @@ function More() {
               >
                 {t('im.collapse')}
               </Button>
-            </Button.Group>
+            </Space.Compact>
           </div>
         </div>
       }

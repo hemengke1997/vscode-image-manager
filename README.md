@@ -9,7 +9,7 @@
 <p align='center'>Powerful yet easy-to-use VSCode image management extension<p>
 
 
-[中文](./README.zh.md)
+[中文文档](./README.zh.md)
 
 ## Document
 

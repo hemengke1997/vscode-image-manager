@@ -82,18 +82,16 @@ function SingleLabel(props: SingleLabelProps) {
         <div
           ref={keybindRef}
           data-dir_path={dirPath}
-          {...(enableHotkey
-            ? {
-                tabIndex: -1,
-                className:
-                  'hover:text-ant-color-primary-text-hover focus:text-ant-color-primary-text-hover inline-flex cursor-pointer transition-all focus:underline',
-              }
-            : {})}
+          className={classNames(
+            'inline-flex',
+            enableHotkey &&
+              'cursor-pointer transition-all hover:text-ant-color-primary-text-hover focus:text-ant-color-primary-text-hover focus:underline',
+          )}
+          tabIndex={-1}
           onClick={(e) => {
             // 防止触发父元素的打开collapse事件
-            e.stopPropagation()
+            enableHotkey && e.stopPropagation()
           }}
-          onDoubleClick={onClick}
         >
           {children}
         </div>

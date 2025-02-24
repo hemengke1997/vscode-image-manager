@@ -8,7 +8,7 @@
 
 <p align='center'>强大易用的VSCode图片管理插件<p>
 
-[English](./README.md)
+[English Document](./README.md)
 
 ## 文档
 

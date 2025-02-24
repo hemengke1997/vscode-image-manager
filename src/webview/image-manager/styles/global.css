@@ -52,4 +52,9 @@ body {
   .ant-modal-confirm .ant-modal-confirm-paragraph {
     @apply max-w-none;
   }
+
+  .ant-modal-root .ant-modal-centered .ant-modal {
+    /* 让center看起来更舒适 */
+    @apply top-[-12%];
+  }
 }
