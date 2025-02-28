@@ -1,35 +1,27 @@
-import { memo, type ReactNode, useEffect, useMemo, useRef } from 'react'
-import { useHotkeys } from 'react-hotkeys-hook'
-import { useTranslation } from 'react-i18next'
-import { animateScroll } from 'react-scroll'
-import { useInViewport, useMemoizedFn, useSetState } from 'ahooks'
-import { useControlledState } from 'ahooks-x'
-import { Image, type ImageProps } from 'antd'
-import { trim } from 'lodash-es'
 import { motion } from 'motion/react'
+import { memo, type ReactNode, useEffect, useMemo, useRef } from 'react'
+import { useTranslation } from 'react-i18next'
 import { FiCheckCircle } from 'react-icons/fi'
 import { HiOutlineViewfinderCircle } from 'react-icons/hi2'
 import { MdOutlineRemoveCircle } from 'react-icons/md'
 import { RiErrorWarningLine } from 'react-icons/ri'
 import { RxDimensions } from 'react-icons/rx'
 import { TbResize } from 'react-icons/tb'
-import { Key } from 'ts-key-enum'
+import { animateScroll } from 'react-scroll'
+import { useInViewport, useMemoizedFn } from 'ahooks'
+import { useControlledState } from 'ahooks-x'
+import { Image, type ImageProps } from 'antd'
+import { trim } from 'lodash-es'
 import { classNames } from 'tw-clsx'
 import { DEFAULT_CONFIG } from '~/core/config/common'
 import { Compressed } from '~/enums'
-import { CmdToVscode } from '~/message/cmd'
-import { OS } from '~/webview/image-manager/utils/device'
 import { getAppRoot } from '~/webview/utils'
-import { vscodeApi } from '~/webview/vscode-api'
 import GlobalContext from '../../contexts/global-context'
 import SettingsContext from '../../contexts/settings-context'
 import useImageDetails from '../../hooks/use-image-details/use-image-details'
-import useImageOperation from '../../hooks/use-image-operation'
 import { bytesToUnit, clearTimestamp, formatBytes } from '../../utils'
 import { ANIMATION_DURATION } from '../../utils/duration'
-import useImageContextMenu, {
-  type ImageContextMenuType,
-} from '../context-menus/components/image-context-menu/hooks/use-image-context-menu'
+import { type ImageContextMenuType } from '../context-menus/components/image-context-menu/hooks/use-image-context-menu'
 import ImageName, { type ImageNameProps } from '../image-name'
 import Corner from './components/corner'
 
@@ -73,10 +65,6 @@ export type LazyImageProps = {
    */
   onContextMenu?: (e: React.MouseEvent<HTMLDivElement>, image: ImageType) => void
   /**
-   * 删除回调
-   */
-  onDelete?: (image: ImageType) => void
-  /**
    * 图片右键上下文
    */
   contextMenu: Omit<ImageContextMenuType, 'image' | 'images'> | undefined
@@ -89,21 +77,25 @@ export type LazyImageProps = {
    */
   imageNameProps?: ImageNameProps
   /**
-   * 图片状态
+   * 图片选中
    */
-  active?: boolean
+  selected?: boolean
   /**
    * 图片状态改变回调
    */
-  onActiveChange?: (image: ImageType, active: boolean) => void
+  onSelectedChange?: (image: ImageType, active: boolean) => void
   /**
-   * 多选状态
+   * 处于多选状态
    */
-  multipleSelect?: (e: React.MouseEvent<HTMLDivElement, MouseEvent>) => boolean
+  isMultipleSelecting?: (e: React.MouseEvent<HTMLDivElement, MouseEvent>) => boolean
   /**
    * 是否可交互
    */
   interactive?: boolean
+  /**
+   * className
+   */
+  className?: (image: ImageType) => string
 }
 
 function LazyImage(props: LazyImageProps) {
@@ -114,28 +106,25 @@ function LazyImage(props: LazyImageProps) {
       root: getAppRoot(),
     },
     onRemoveClick,
-    onDelete,
     removeRender = (n) => n,
     contextMenu,
     antdImageProps,
     imageNameProps,
-    active,
-    onActiveChange,
     onContextMenu,
-    multipleSelect = () => false,
+    isMultipleSelecting = () => false,
     interactive = true,
+    className,
   } = props
 
   const root = lazy ? lazy.root : null
 
-  const { beginRenameImageProcess, beginDeleteImageProcess, handleCopyString } = useImageOperation()
   const { t } = useTranslation()
   const [showImageDetails] = useImageDetails()
 
   const [selected, setSelected] = useControlledState<boolean>({
-    value: active,
+    value: props.selected,
     onChange(value) {
-      onActiveChange?.(image, value)
+      props.onSelectedChange?.(image, value)
     },
   })
 
@@ -173,76 +162,6 @@ function LazyImage(props: LazyImageProps) {
     rootMargin,
   })
 
-  const handleDelete = useMemoizedFn(() => {
-    if (onDelete) {
-      onDelete(image)
-      return
-    }
-    hideAll()
-    beginDeleteImageProcess([image])
-  })
-
-  const setKeybindRef = useHotkeys<HTMLDivElement>(
-    [Key.F2, Key.Enter, `mod+${Key.Backspace}`, Key.Delete, `mod+c`],
-    (e) => {
-      if (e.target !== keybindRef.current) return
-      if (contextMenu?.enable?.fs) {
-        switch (e.key) {
-          case Key.Enter: {
-            if (!OS.isWindows) {
-              hideAll()
-              beginRenameImageProcess(image)
-            }
-            return
-          }
-          // windows rename key
-          case Key.F2: {
-            if (OS.isWindows) {
-              hideAll()
-              beginRenameImageProcess(image)
-            }
-            return
-          }
-          case Key.Backspace: {
-            if (!OS.isWindows) {
-              handleDelete()
-            }
-            return
-          }
-          // windows delete key
-          case Key.Delete: {
-            if (OS.isWindows) {
-              handleDelete()
-            }
-            return
-          }
-          case 'c': {
-            hideAll()
-            handleCopyString(image, { proto: 'name' })
-            return
-          }
-          default:
-            break
-        }
-      }
-    },
-    {
-      enabled(e) {
-        if (!elInView) {
-          return false
-        }
-        return !!(e.target as HTMLDivElement).dataset.image_context_menu
-      },
-    },
-  )
-
-  const keybindRef = useRef<HTMLDivElement>(null)
-  useEffect(() => {
-    if (keybindRef.current) {
-      setKeybindRef(keybindRef.current)
-    }
-  }, [keybindRef.current])
-
   const sizeWarning = useMemo((): boolean => {
     if (!!warningSize && bytesToUnit(image.stats.size, 'KB') > warningSize) {
       return true
@@ -250,11 +169,11 @@ function LazyImage(props: LazyImageProps) {
     return false
   }, [image.stats.size, warningSize])
 
-  const { hideAll } = useImageContextMenu()
-
   const isTargetImage = useMemoizedFn(() => {
     return (
-      !contextMenu?.enable?.reveal_in_viewer && trim(image.path).length && image.path === clearTimestamp(imageReveal)
+      !contextMenu?.enableContextMenu?.reveal_in_viewer &&
+      trim(image.path).length &&
+      image.path === clearTimestamp(imageReveal)
     )
   })
 
@@ -272,16 +191,10 @@ function LazyImage(props: LazyImageProps) {
   // 如果当前图片是用户右键打开的图片
   // 则滚动到图片位置
   useEffect(() => {
-    let timer: ReturnType<typeof setTimeout>
     let idleTimer: ReturnType<typeof requestIdleCallback>
     let scrolled = false
 
     if (isTargetImage()) {
-      setSelected(true)
-
-      // 清空 imageReveal，避免下次打开webview时使用之前的 imageReveal 导致滚动
-      vscodeApi.postMessage({ cmd: CmdToVscode.reveal_image_in_viewer, data: { filePath: '' } })
-
       // 刚打开时，图片可能还未加载，所以需要等待图片加载完成后再滚动
       const callback = () => {
         try {
@@ -304,7 +217,7 @@ function LazyImage(props: LazyImageProps) {
             scrolled = true
           }
         } finally {
-          setTriggerFocus((t) => ({ current: t.current + 1 }))
+          setSelected(true)
         }
       }
 
@@ -312,34 +225,18 @@ function LazyImage(props: LazyImageProps) {
       idleTimer = requestIdleCallback(() => {
         callback()
       })
-      timer = setTimeout(() => {
-        callback()
-      })
-    } else if (imageReveal) {
-      setSelected(false)
     }
 
     return () => {
       if (isTargetImage()) {
         setSelected(false)
-        clearTimeout(timer)
         cancelIdleCallback(idleTimer)
       }
     }
   }, [imageReveal, image.path])
 
-  const [triggerFocus, setTriggerFocus] = useSetState({ prev: 0, current: 0 })
-  useEffect(() => {
-    if (keybindRef.current) {
-      if (triggerFocus.prev !== triggerFocus.current) {
-        keybindRef.current.focus()
-        setTriggerFocus({ prev: triggerFocus.current })
-      }
-    }
-  }, [keybindRef.current, triggerFocus])
-
   /**
-   * @param depth 父元素查找深度，默认向上查找3层，如果查不到 [data-disable_dbclick] 元素，则可以双击
+   * @param depth 父元素查找深度，默认向上查找3层，如果查不到 [data-disable-dbclick] 元素，则可以双击
    */
   const preventDbClick = useMemoizedFn((el: HTMLElement, depth: number = 3) => {
     let parent = el
@@ -348,7 +245,7 @@ function LazyImage(props: LazyImageProps) {
       if (count > depth) {
         return false
       }
-      if (parent.dataset.disable_dbclick) {
+      if (parent.getAttribute('data-disable-dbclick')) {
         // prevent double-click
         return true
       }
@@ -379,13 +276,13 @@ function LazyImage(props: LazyImageProps) {
               'flex cursor-pointer items-center space-x-1 truncate transition-colors hover:text-ant-color-text active:text-ant-color-text-label',
             )}
             onClick={(e) => {
-              if (multipleSelect(e)) return
+              if (isMultipleSelecting(e)) return
               // prevent click away
               e.stopPropagation()
               e.preventDefault()
               onPreviewClick(image)
             }}
-            data-disable_dbclick
+            data-disable-dbclick
           >
             <HiOutlineViewfinderCircle />
             <span>{t('im.preview')}</span>
@@ -442,11 +339,10 @@ function LazyImage(props: LazyImageProps) {
   }
 
   return (
-    <div ref={elRef} className={'select-none'}>
+    <div ref={elRef} className={classNames('select-none transition-opacity', className?.(image))}>
       {elInView || !lazy ? (
         <motion.div
-          ref={keybindRef}
-          data-image_context_menu={true}
+          data-image-context-menu={true}
           tabIndex={-1}
           className={classNames(
             'group relative flex flex-none flex-col items-center space-y-1 p-2',
@@ -465,7 +361,7 @@ function LazyImage(props: LazyImageProps) {
           whileInView={{ opacity: 1 }}
           onContextMenu={(e) => onContextMenu?.(e, image)}
           onDoubleClick={(e) => {
-            if (multipleSelect(e)) return
+            if (isMultipleSelecting(e)) return
             const el = e.target as HTMLElement
             if (preventDbClick(el)) return
             showImageDetails({
@@ -510,7 +406,7 @@ function LazyImage(props: LazyImageProps) {
           <div className='max-w-full truncate' style={{ maxWidth: antdImageProps.width }}>
             {image.nameElement || (
               <ImageName image={image} {...imageNameProps}>
-                {image.name}
+                {image.basename}
               </ImageName>
             )}
           </div>

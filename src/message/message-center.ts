@@ -1,6 +1,6 @@
 import fs from 'fs-extra'
 import { convertPathToPattern, globby, type GlobEntry } from 'globby'
-import { flatten, toString } from 'lodash-es'
+import { flatten, pick, toString } from 'lodash-es'
 import micromatch from 'micromatch'
 import mime from 'mime/lite'
 import path from 'node:path'
@@ -32,9 +32,8 @@ import { Channel } from '~/utils/channel'
 import { convertImageToBase64, convertToBase64IfBrowserNotSupport, isBase64 } from '~/utils/image-type'
 import logger from '~/utils/logger'
 import { ImageManagerPanel } from '~/webview/panel'
-import { CmdToVscode, CmdToWebview } from './cmd'
+import { CmdToVscode } from './cmd'
 import { getImageExtraInfo, getImageMetadata, getStagedImages, searchImages } from './message-center.fn'
-import { WebviewMessageCenter } from './webview-message-center'
 
 export type VscodeMessageCenterType = typeof VscodeMessageCenter
 
@@ -81,8 +80,8 @@ export const VscodeMessageCenter = {
     const data = await commands.executeCommand('workbench.action.webview.reloadWebviewAction')
     return data
   },
-  /* -------------- get image info -------------- */
-  [CmdToVscode.get_image]: async (
+  /* -------------- 获取图片信息 -------------- */
+  [CmdToVscode.get_image_info]: async (
     options: {
       glob: string | string[]
       cwd: string
@@ -114,7 +113,7 @@ export const VscodeMessageCenter = {
     const { gitStaged, metadataResults } = await getImageExtraInfo(images)
 
     // 项目绝对路径
-    const basePath = normalizePath(path.dirname(cwd))
+    const projectPath = normalizePath(path.dirname(cwd))
     // 工作区绝对路径
     const absWorkspaceFolder = normalizePath(cwd)
     // 工作区名称
@@ -132,12 +131,11 @@ export const VscodeMessageCenter = {
           Channel.error(`${i18n.t('core.covert_base64_error')}: ${e}`)
         }
 
-        const fileType = path.extname(image.path).replace('.', '')
         const dirPath = resolveDirPath(image.path, cwd)
         const absDirPath = normalizePath(path.dirname(image.path))
         const relativePath =
           Global.rootpaths.length > 1
-            ? normalizePath(path.relative(basePath, image.path)) // 多工作区，相对于项目
+            ? normalizePath(path.relative(projectPath, image.path)) // 多工作区，相对于项目
             : normalizePath(path.relative(absWorkspaceFolder, image.path)) // 单工作区，相对于工作区
 
         const metadata = metadataResults[index]
@@ -145,22 +143,24 @@ export const VscodeMessageCenter = {
         // 非base64 添加mtimeMs时间戳，避免webview缓存问题
         const vscodePathWithQuery = `${vscodePath}?t=${image.stats?.mtimeMs}`
 
+        const parsedPath = path.parse(image.path)
+
+        // 为了减少内存占用，尽量存储少量数据
         const imageInfo: ImageType = {
-          name: path.basename(image.path),
+          basename: path.basename(image.path),
+          name: parsedPath.name,
           path: image.path,
-          stats: image.stats!,
-          basePath,
+          extname: parsedPath.ext.replace('.', ''),
+          stats: pick(image.stats!, ['mtimeMs', 'size']),
           dirPath,
           absDirPath,
           workspaceFolder,
-          fileType,
           // base64 不能添加时间戳，会导致图片无法显示
           vscodePath: isBase64(vscodePath) ? vscodePath : vscodePathWithQuery,
           // 为避免base64相同的vscodePath在react渲染中作为key重复出现，使用路径作为key
           key: isBase64(vscodePath) ? image.path : vscodePathWithQuery,
           absWorkspaceFolder,
           relativePath: normalizePath(`./${relativePath}`),
-          extraPathInfo: path.parse(image.path),
           info: {
             ...metadata,
             gitStaged: gitStaged.includes(image.path),
@@ -185,10 +185,10 @@ export const VscodeMessageCenter = {
         async () => {
           const data = await Promise.all(
             absWorkspaceFolders.map(async (workspaceFolder) => {
-              const fileTypes: Set<string> = new Set()
+              const exts: Set<string> = new Set()
               const dirs: Set<string> = new Set()
 
-              const images = await searchImages(workspaceFolder, webview, fileTypes, dirs)
+              const images = await searchImages(workspaceFolder, webview, exts, dirs)
 
               Channel.debug(`Get images cost: ${performance.now() - start}ms in ${workspaceFolder}`)
 
@@ -196,7 +196,7 @@ export const VscodeMessageCenter = {
                 images,
                 workspaceFolder: path.basename(workspaceFolder),
                 absWorkspaceFolder: workspaceFolder,
-                fileTypes: [...fileTypes].filter(Boolean),
+                exts: [...exts].filter(Boolean),
                 dirs: [...dirs].filter(Boolean),
               }
             }),
@@ -223,25 +223,25 @@ export const VscodeMessageCenter = {
     }
   },
 
-  /* --------------- get one image -------------- */
-  [CmdToVscode.get_one_image]: async (
+  /* --------------- 获取指定图片 -------------- */
+  [CmdToVscode.get_images]: async (
     data: {
-      filePath: string
+      filePaths: string[]
       cwd: string
     },
     webview: Webview,
   ) => {
-    const { filePath, cwd } = data
+    const { filePaths, cwd } = data
 
-    const images = await VscodeMessageCenter[CmdToVscode.get_image](
+    const images = await VscodeMessageCenter[CmdToVscode.get_image_info](
       {
-        glob: convertPathToPattern(filePath),
+        glob: filePaths.map((t) => convertPathToPattern(t)),
         cwd,
       },
       webview,
     )
 
-    return images[0]
+    return images
   },
 
   /* ------- get extension & vscode config ------ */
@@ -450,11 +450,11 @@ export const VscodeMessageCenter = {
 
     const outputFileType = mime.getExtension(mimeType.match(/data:(.*);/)?.[1] || '')
 
-    let outputPath = image.path.replace(new RegExp(`\\.${image.fileType}$`), `.${outputFileType}`)
+    let outputPath = image.path.replace(new RegExp(`\\.${image.extname}$`), `.${outputFileType}`)
 
     outputPath = generateOutputPath(outputPath, '.crop')
 
-    if (outputFileType !== image.fileType) {
+    if (outputFileType !== image.extname) {
       // Convert to the same format as the original image
       let formatter: SharpOperator<{
         filePath: string
@@ -476,7 +476,7 @@ export const VscodeMessageCenter = {
         ],
       })
       try {
-        await formatter.run({ filePath: image.path, ext: outputFileType || image.fileType, input: imageBuffer })
+        await formatter.run({ filePath: image.path, ext: outputFileType || image.extname, input: imageBuffer })
       } catch (e) {
         Channel.error(`${i18n.t('core.save_cropper_image_error')} ${e}`)
         return null
@@ -612,42 +612,58 @@ export const VscodeMessageCenter = {
       return false
     }
   },
-  /* ---------------- rename file/dir --------------- */
-  [CmdToVscode.rename_file]: async (data: { source: string; target: string }) => {
-    try {
-      const { source, target } = data
-      await workspace.fs.rename(Uri.file(source), Uri.file(target), {
-        overwrite: false,
-      })
-
-      return true
-    } catch (e) {
-      if (e instanceof Error && e.message.includes('already exists')) {
-        return {
-          error_msg: e.message,
-        }
-      }
-      return false
-    }
-  },
-  /* ----------- copy file to clipbard ---------- */
-  [CmdToVscode.copy_file_to_clipboard]: async () => {
-    // TODO: implement copy file to clipboard
-  },
-  /* ---------- reveal image in viewer ---------- */
-  [CmdToVscode.reveal_image_in_viewer]: (data: { filePath: string }) => {
-    WebviewMessageCenter[CmdToWebview.reveal_image_in_viewer](data.filePath)
-    return true
-  },
   /* --------------- 获取路径下的同级文件(夹)列表 --------------- */
-  [CmdToVscode.get_sibling_resource]: async (data: { source: string }) => {
+  [CmdToVscode.get_sibling_resource]: async (data: { source: string[] }) => {
     const { source } = data
-    const siblings = await fs.readdir(path.dirname(source))
-    return siblings
+    const res = await Promise.all(source.map((p) => fs.readdir(path.dirname(p))))
+    return res.flat()
   },
   /* ---------------- 打开svgo配置文件 ---------------- */
   [CmdToVscode.open_svgo_config]: async () => {
     await commands.executeCommand(Commands.configure_svgo)
     return true
+  },
+  /* ---------------- 重命名文件/目录 --------------- */
+  [CmdToVscode.rename_file]: async (data: { files: { source: string; target: string }[]; overwrite?: boolean }) => {
+    const { files, overwrite = false } = data
+    const res = await Promise.allSettled(
+      files.map(({ source, target }) =>
+        workspace.fs.rename(Uri.file(source), Uri.file(target), {
+          overwrite,
+        }),
+      ),
+    )
+    return res.map((item, i) => ({
+      ...item,
+      ...files[i],
+    }))
+  },
+  /* ---------------- 复制/移动图片文件到指定目录 --------------- */
+  [CmdToVscode.copy_or_move_file_to]: async (data: {
+    source: string[]
+    target: string
+    type: 'copy' | 'move'
+    overwrite?: boolean
+  }) => {
+    const { source, target, type, overwrite = false } = data
+
+    const fnMap = {
+      copy: workspace.fs.copy,
+      move: workspace.fs.rename,
+    }
+
+    const res = await Promise.allSettled(
+      source.map((filePath) => {
+        const targetPath = path.join(target, path.basename(filePath))
+        return fnMap[type](Uri.file(filePath), Uri.file(targetPath), {
+          overwrite,
+        })
+      }),
+    )
+    return res.map((item, i) => ({
+      ...item,
+      source: source[i],
+      target: path.join(target, path.basename(source[i])),
+    }))
   },
 }

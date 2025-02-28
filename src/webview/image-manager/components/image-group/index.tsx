@@ -5,23 +5,22 @@ import {
   type ReactNode,
   useCallback,
   useEffect,
-  useId,
   useMemo,
   useRef,
   useState,
 } from 'react'
 import { toast } from 'react-atom-toast'
 import { useClickAway, useMemoizedFn } from 'ahooks'
+import { useControlledState } from 'ahooks-x'
 import { ConfigProvider, Image, theme } from 'antd'
 import { type AliasToken, type ComponentTokenMap } from 'antd/es/theme/interface'
-import { produce } from 'immer'
 import { isString, range, round } from 'lodash-es'
 import { type PreviewGroupPreview } from 'rc-image/es/PreviewGroup'
+import { classNames } from 'tw-clsx'
 import { isDev } from 'vite-config-preset/client'
 import GlobalContext from '../../contexts/global-context'
 import SettingsContext from '../../contexts/settings-context'
-import useImageManagerEvent from '../../hooks/use-image-manager-event'
-import useImageOperation from '../../hooks/use-image-operation'
+import useImageManagerEvent, { IMEvent } from '../../hooks/use-image-manager-event'
 import useImageContextMenu from '../context-menus/components/image-context-menu/hooks/use-image-context-menu'
 import LazyImage, { type LazyImageProps } from '../lazy-image'
 
@@ -34,9 +33,13 @@ function imageToken(isDarkBackground: boolean): Partial<ComponentTokenMap['Image
   }
 }
 
-export type ImagePreviewProps = {
+export type imageGroupProps = {
   /**
-   * 预览图片列表
+   * 图片组标识(目录绝对路径)
+   */
+  id?: string
+  /**
+   * 图片列表
    */
   images: ImageType[]
   /**
@@ -55,12 +58,36 @@ export type ImagePreviewProps = {
    * LazyImage renderer，用于自定义渲染
    */
   renderer?: (lazyImage: ReactNode, image: ImageType) => ReactNode
+  /**
+   * 受控的 seletedImages
+   */
+  selectedImages?: ImageType[]
+  /**
+   * 受控 selectedImages 改变时的回调
+   */
+  onSelectedImagesChange?: (selectedImages: ImageType[]) => void
+  /**
+   * 所有选中的图片（包括但不限于当前图片组选中的图片）
+   */
+  allSelectedImages?: ImageType[]
 }
 
 const ToastKey = 'image-preview-scale'
 
-function ImagePreview(props: ImagePreviewProps, ref: ForwardedRef<HTMLDivElement>) {
-  const { images, lazyImageProps, enableMultipleSelect = false, interactive = true, renderer = (c) => c } = props
+/**
+ * 图片组
+ * 展示一组图片列表，并支持预览、多选等功能
+ */
+function ImageGroup(props: imageGroupProps, ref: ForwardedRef<HTMLDivElement>) {
+  const {
+    id,
+    images,
+    lazyImageProps,
+    enableMultipleSelect = false,
+    interactive = true,
+    renderer = (c) => c,
+    allSelectedImages,
+  } = props
 
   const { token } = theme.useToken()
 
@@ -71,7 +98,17 @@ function ImagePreview(props: ImagePreviewProps, ref: ForwardedRef<HTMLDivElement
     'tinyBackgroundColor',
   ])
 
-  const { beginDeleteImageProcess } = useImageOperation()
+  /* ------------------- 选择的图片 ------------------ */
+  const [selectedImages, _setSelectedImages] = useControlledState({
+    defaultValue: [],
+    value: props.selectedImages,
+    onChange: props.onSelectedImagesChange,
+  })
+
+  const setSelectedImages: typeof _setSelectedImages = useMemoizedFn((...args) => {
+    if (!interactive) return
+    _setSelectedImages(...args)
+  })
 
   const [preview, setPreview] = useState<{ open?: boolean; current?: number }>({ open: false, current: -1 })
 
@@ -105,15 +142,6 @@ function ImagePreview(props: ImagePreviewProps, ref: ForwardedRef<HTMLDivElement
   )
 
   const selectedImageRefs = useRef<Record<string, HTMLDivElement>>({})
-  /* ------------------- 选择的图片 ------------------ */
-  // 使用图片的绝对路径path作为唯一标识
-  // index并不能保证选择的图片是正确的
-  const [selectedImages, _setSelectedImages] = useState<ImageType['path'][]>([])
-
-  const setSelectedImages: typeof _setSelectedImages = useMemoizedFn((...args) => {
-    if (!interactive) return
-    _setSelectedImages(...args)
-  })
 
   const preventClickAway = useMemoizedFn((el: HTMLElement, classNames: string[]) => {
     let parent = el.parentElement
@@ -135,8 +163,22 @@ function ImagePreview(props: ImagePreviewProps, ref: ForwardedRef<HTMLDivElement
   useClickAway(
     (e) => {
       const targetEl = e.target as HTMLElement
+
+      // 一些优先级比较高的清空
+      // 点击的时候清空选中的图片
       if (
-        // collapse 中的 image-preview 传了ref，其他的没有传
+        // data-clear-selected 是我希望点击就清空的元素属性
+        targetEl.getAttribute('data-clear-selected') ||
+        // ant-collapse-content-box 是因为有padding，如果点到了padding部分也需要清空选中图片
+        targetEl.classList.contains('ant-collapse-content-box')
+      ) {
+        return setSelectedImages([])
+      }
+
+      // 如果不希望在点击的时候清空选中的图片，直接return即可
+
+      if (
+        // collapse 中的 image-group 传了ref，其他的没有传
         // 所以正好用这个ref来判断是否是在collapse中了
         ref &&
         preventClickAway(targetEl, [
@@ -146,6 +188,7 @@ function ImagePreview(props: ImagePreviewProps, ref: ForwardedRef<HTMLDivElement
           'ant-popover',
           'ant-notification',
           'ant-modal',
+          'ant-collapse-item',
         ])
       ) {
         return
@@ -154,6 +197,8 @@ function ImagePreview(props: ImagePreviewProps, ref: ForwardedRef<HTMLDivElement
       if (targetEl.getAttribute('data-id') === 'context-menu-mask') {
         return
       }
+
+      // 如果没有击中阻止，则清空选中的图片
       setSelectedImages([])
     },
     Object.keys(selectedImageRefs.current)
@@ -162,12 +207,9 @@ function ImagePreview(props: ImagePreviewProps, ref: ForwardedRef<HTMLDivElement
     ['click', 'contextmenu'],
   )
 
-  const id = useId()
-
   const { imageManagerEvent } = useImageManagerEvent({
     on: {
-      context_menu(_, _id) {
-        // 清除非当前层级的选中
+      [IMEvent.clear_selected_images]: (_id) => {
         if (id !== _id) {
           setSelectedImages([])
         }
@@ -176,10 +218,9 @@ function ImagePreview(props: ImagePreviewProps, ref: ForwardedRef<HTMLDivElement
   })
 
   const onContextMenu = useMemoizedFn((e: React.MouseEvent<HTMLDivElement>, image: ImageType) => {
-    imageManagerEvent.emit('context_menu', image, id)
     let selected = selectedImages
-    if (selectedImages.length <= 1 || !selectedImages.includes(image.path)) {
-      selected = [image.path]
+    if (selectedImages.length <= 1) {
+      selected = [image]
     }
     setSelectedImages(selected)
     show(
@@ -187,7 +228,7 @@ function ImagePreview(props: ImagePreviewProps, ref: ForwardedRef<HTMLDivElement
         event: e,
         props: {
           image,
-          images: selected.map((t) => images.find((i) => i.path === t)!),
+          images: allSelectedImages || selected,
           sameLevelImages: images,
           sameWorkspaceImages: getSameWorkspaceImages(image),
           z_commands: {
@@ -209,57 +250,59 @@ function ImagePreview(props: ImagePreviewProps, ref: ForwardedRef<HTMLDivElement
       if (e.metaKey || e.ctrlKey) {
         // 点击多选
         setSelectedImages((t) => {
-          const index = t.indexOf(image.path)
-          return multipleClick(t, image.path, index === -1)
+          const index = t.findIndex((i) => i.path === image.path)
+          return toggleImageSelection(t, image, index === -1)
         })
         return
       }
 
       if (e.shiftKey) {
         if (!selectedImages.length) {
-          setSelectedImages([image.path])
+          setSelectedImages([image])
           return
         }
         // start-end 多选
         const start = selectedImages[0]
-        const end = image.path
-        const indexOfStart = images.findIndex((t) => t.path === start)
-        const indexOfEnd = images.findIndex((t) => t.path === end)
-        setSelectedImages([...range(indexOfStart, indexOfEnd), indexOfEnd].map((i) => images[i].path))
+        const end = image
+        const indexOfStart = images.findIndex((t) => t.path === start.path)
+        const indexOfEnd = images.findIndex((t) => t.path === end.path)
+        setSelectedImages([...range(indexOfStart, indexOfEnd), indexOfEnd].map((i) => images[i]))
         return
       }
     }
 
-    if (selectedImages.length === 1 && selectedImages[0] === image.path) {
-      return
+    // 清空非当前组的图片选中
+    if (id) {
+      imageManagerEvent.emit(IMEvent.clear_selected_images, id)
     }
-    setSelectedImages([image.path])
+    setSelectedImages([image])
   })
 
-  const multipleClick = useMemoizedFn((previous: string[], path: string, shouldAdd: boolean) => {
-    if (shouldAdd) {
-      return [...previous, path]
+  /**
+   * 如果已选中，则取消选中，如果未选中，则选中
+   */
+  const toggleImageSelection = useMemoizedFn((previous: ImageType[], image: ImageType, selected: boolean) => {
+    previous = previous.filter((t) => t.path !== image.path)
+
+    if (selected) {
+      return [...previous, image]
     } else {
-      return previous.filter((t) => t !== path)
+      return [...previous]
     }
   })
 
   useEffect(() => {
-    if (selectedImages.length && selectedImages.some((t) => !images.find((i) => i.path === t))) {
-      setSelectedImages(
-        produce((draft) => {
-          return draft.filter((t) => images.find((i) => i.path === t))
-        }),
-      )
+    if (selectedImages.length) {
+      // 筛选images中存在的selectedImage
+      setSelectedImages((t) => t.filter((t) => images.some((i) => i.path === t.path)))
     }
   }, [images])
 
-  const multipleSelect = useMemoizedFn((e: React.MouseEvent<HTMLDivElement, MouseEvent>) => {
+  /**
+   * 是否正在多选
+   */
+  const isMultipleSelecting = useMemoizedFn((e: React.MouseEvent<HTMLDivElement, MouseEvent>) => {
     return enableMultipleSelect ? e.metaKey || e.ctrlKey || e.shiftKey : false
-  })
-
-  const onDelete = useMemoizedFn(() => {
-    beginDeleteImageProcess(selectedImages.map((t) => images.find((i) => i.path === t)!))
   })
 
   const handlePreviewChange = useMemoizedFn((current: number) => {
@@ -287,6 +330,12 @@ function ImagePreview(props: ImagePreviewProps, ref: ForwardedRef<HTMLDivElement
                 sameLevelImages: images,
                 sameWorkspaceImages: getSameWorkspaceImages(images[info.current]),
                 ...lazyImageProps?.contextMenu,
+                enableContextMenu: {
+                  ...lazyImageProps?.contextMenu?.enableContextMenu,
+                  // 预览时不显示 fs_mv, fs
+                  fs_mv: false,
+                  fs: false,
+                },
               },
             },
             { shortcutsVisible: false },
@@ -349,8 +398,10 @@ function ImagePreview(props: ImagePreviewProps, ref: ForwardedRef<HTMLDivElement
     [lazyImageProps?.antdImageProps, backgroundColor, imageWidth],
   )
 
-  const handleActiveChange = useMemoizedFn((image: ImageType, active: boolean) => {
-    setSelectedImages((t) => multipleClick(t, image.path, active))
+  const handleSelectedChange = useMemoizedFn((image: ImageType, selected: boolean) => {
+    setSelectedImages((t) => {
+      return toggleImageSelection(t, image, selected)
+    })
   })
 
   const handlePreviewClick = useMemoizedFn((image: ImageType) => {
@@ -360,7 +411,7 @@ function ImagePreview(props: ImagePreviewProps, ref: ForwardedRef<HTMLDivElement
 
   return (
     <>
-      <div className={'flex flex-wrap gap-1.5'} ref={ref}>
+      <div className={classNames('flex flex-wrap gap-1.5')} ref={ref} data-clear-selected={true}>
         <ConfigProvider
           theme={{
             components: {
@@ -391,11 +442,10 @@ function ImagePreview(props: ImagePreviewProps, ref: ForwardedRef<HTMLDivElement
                       {...lazyImageProps}
                       contextMenu={lazyImageProps?.contextMenu}
                       image={image}
-                      active={selectedImages.includes(image.path)}
-                      multipleSelect={multipleSelect}
-                      onDelete={onDelete}
+                      selected={selectedImages.some((t) => t.path === image.path)}
+                      isMultipleSelecting={isMultipleSelecting}
                       antdImageProps={antdImageProps}
-                      onActiveChange={handleActiveChange}
+                      onSelectedChange={handleSelectedChange}
                       onPreviewClick={handlePreviewClick}
                       onContextMenu={onContextMenu}
                       interactive={interactive}
@@ -412,4 +462,4 @@ function ImagePreview(props: ImagePreviewProps, ref: ForwardedRef<HTMLDivElement
   )
 }
 
-export default memo(forwardRef(ImagePreview))
+export default memo(forwardRef(ImageGroup))

@@ -1,11 +1,11 @@
+import { motion } from 'motion/react'
 import { memo, useEffect, useMemo, useState } from 'react'
 import { Trans, useTranslation } from 'react-i18next'
+import { BsQuestionCircleFill } from 'react-icons/bs'
 import { useMemoizedFn } from 'ahooks'
 import { Alert, Button, Divider, Form, Input, InputNumber, Segmented, Tooltip } from 'antd'
 import { flatten as flattenObject, unflatten } from 'flat'
 import { intersection, mapValues, merge, omit } from 'lodash-es'
-import { motion } from 'motion/react'
-import { BsQuestionCircleFill } from 'react-icons/bs'
 import { type OperatorResult } from '~/core'
 import { type CompressionOptions } from '~/core/operator/compressor/type'
 import { CmdToVscode } from '~/message/cmd'
@@ -18,7 +18,7 @@ import SkipCompressed from '../../components/image-operator/components/skip-comp
 import GlobalContext from '../../contexts/global-context'
 import { ANIMATION_DURATION } from '../../utils/duration'
 import useAbortController from '../use-abort-controller'
-import useImageManagerEvent from '../use-image-manager-event'
+import useImageManagerEvent, { IMEvent } from '../use-image-manager-event'
 import useImageOperation from '../use-image-operation'
 import { type ImperativeModalProps } from '../use-imperative-modal'
 import { type FormComponent, useOperatorModalLogic } from '../use-operator-modal-logic/use-operator-modal-logic'
@@ -103,7 +103,7 @@ function ImageCompressor(props: ImageCompressorProps & ImperativeModalProps) {
 
   useImageManagerEvent({
     on: {
-      reveal_in_viewer: () => {
+      [IMEvent.reveal_in_viewer]: () => {
         closeModal()
       },
     },
@@ -115,11 +115,11 @@ function ImageCompressor(props: ImageCompressorProps & ImperativeModalProps) {
   const SVG_FIELDS = ['svg']
 
   const hasSomeImageType = useMemoizedFn((type: string) => {
-    return images?.some((img) => img.fileType === type)
+    return images?.some((img) => img.extname === type)
   })
 
   const hasAllImageType = useMemoizedFn((type: string) => {
-    return images?.every((img) => img.fileType === type)
+    return images?.every((img) => img.extname === type)
   })
 
   const [svgoOpenLoading, setSvgoOpenLoading] = useState(false)

@@ -5,9 +5,9 @@ import { Card, Divider, Empty } from 'antd'
 import { produce } from 'immer'
 import { remove } from 'lodash-es'
 import useScrollRef from '~/webview/image-manager/hooks/use-scroll-ref'
+import ImageGroup from '../../components/image-group'
 import { type ImageOperatorProps } from '../../components/image-operator'
-import ImagePreview from '../../components/image-preview'
-import useImageManagerEvent from '../use-image-manager-event'
+import useImageManagerEvent, { IMEvent } from '../use-image-manager-event'
 import { type ImperativeModalProps } from '../use-imperative-modal'
 
 export type ImageSimilarityProps = Omit<ImageOperatorProps, 'images'> & {
@@ -31,10 +31,11 @@ function ImageSimilarity(props: ImageSimilarityProps & ImperativeModalProps) {
 
   useImageManagerEvent({
     on: {
-      reveal_in_viewer: () => {
+      [IMEvent.reveal_in_viewer]: () => {
         closeModal()
       },
-      rename: (previosImage, newImage) => {
+      [IMEvent.rename]: (previosImage, newImage) => {
+        // 图片重命名后，更新相似图片中的图片信息
         setSimilarImages(
           produce((draft) => {
             const index = draft.findIndex((t) => t.image.path === previosImage.path)
@@ -44,7 +45,7 @@ function ImageSimilarity(props: ImageSimilarityProps & ImperativeModalProps) {
           }),
         )
       },
-      delete: (images) => {
+      [IMEvent.delete]: (images) => {
         setSimilarImages(
           produce((draft) => {
             const removedIndex: number[] = []
@@ -79,11 +80,11 @@ function ImageSimilarity(props: ImageSimilarityProps & ImperativeModalProps) {
     <>
       <Card>
         <div className={'flex justify-center'}>
-          <ImagePreview
+          <ImageGroup
             images={[image]}
             lazyImageProps={{
               contextMenu: {
-                enable: {
+                enableContextMenu: {
                   reveal_in_viewer: true,
                 },
               },
@@ -92,18 +93,18 @@ function ImageSimilarity(props: ImageSimilarityProps & ImperativeModalProps) {
               },
               lazy: false,
             }}
-          ></ImagePreview>
+          ></ImageGroup>
         </div>
       </Card>
       <Divider plain dashed className={'!my-4'} />
       <Card title={t('im.similar_images')}>
         {images.length ? (
           <div className={'max-h-[500px] overflow-auto'} ref={scrollRef}>
-            <ImagePreview
+            <ImageGroup
               images={images}
               lazyImageProps={{
                 contextMenu: {
-                  enable: {
+                  enableContextMenu: {
                     reveal_in_viewer: true,
                     fs: true,
                   },
@@ -115,7 +116,7 @@ function ImageSimilarity(props: ImageSimilarityProps & ImperativeModalProps) {
                   root: scrollRef.current!,
                 },
               }}
-            ></ImagePreview>
+            ></ImageGroup>
           </div>
         ) : (
           <Empty image={Empty.PRESENTED_IMAGE_SIMPLE} description={t('im.no_image')} />

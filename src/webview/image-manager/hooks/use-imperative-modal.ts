@@ -18,13 +18,27 @@ const Modal_Instance_Props: ModalFuncProps = {
 export { imperativeModalMap, type ImperativeModalProps }
 
 const useImperativeModal: typeof useImperativeAntdModal = (args) => {
-  return useImperativeAntdModal({
+  const { id, imperativeModalMap, showModal } = useImperativeAntdModal({
     ...args,
     modalProps: {
       ...Modal_Instance_Props,
       ...args.modalProps,
     },
   })
+
+  const _showModal: typeof showModal = (...args) => {
+    if (imperativeModalMap.get(id)) {
+      // 避免重复打开弹窗
+      return {} as ReturnType<typeof showModal>
+    }
+    return showModal(...args)
+  }
+
+  return {
+    showModal: _showModal,
+    id,
+    imperativeModalMap,
+  }
 }
 
 export default useImperativeModal

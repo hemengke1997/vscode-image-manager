@@ -320,10 +320,10 @@ export abstract class Operator {
    * @param filePath 图片路径
    */
   async getImageInfo(filePath: string): Promise<ImageType> {
-    return VscodeMessageCenter[CmdToVscode.get_one_image](
-      { filePath, cwd: this.image.absWorkspaceFolder },
+    return VscodeMessageCenter[CmdToVscode.get_images](
+      { filePaths: [filePath], cwd: this.image.absWorkspaceFolder },
       WebviewMessageCenter.webview,
-    )
+    )[0]
   }
 }
 

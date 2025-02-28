@@ -3,21 +3,7 @@ import { vscodeApi } from '~/webview/vscode-api'
 
 if (import.meta.hot) {
   function avoidEmptyWebview() {
-    if (window.__reveal_image_path__) {
-      vscodeApi.postMessage(
-        {
-          cmd: CmdToVscode.reveal_image_in_viewer,
-          data: {
-            filePath: '',
-          },
-        },
-        () => {
-          vscodeApi.postMessage({ cmd: CmdToVscode.reload_webview })
-        },
-      )
-    } else {
-      vscodeApi.postMessage({ cmd: CmdToVscode.reload_webview })
-    }
+    vscodeApi.postMessage({ cmd: CmdToVscode.reload_webview })
 
     throw new Error('prevent vite invoke `window.location.reload`')
   }

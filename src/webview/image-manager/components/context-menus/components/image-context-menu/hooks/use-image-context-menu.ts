@@ -33,7 +33,7 @@ export type ImageContextMenuType = {
    * }
    * ```
    */
-  enable?: EnableImageContextMenuType
+  enableContextMenu?: EnableImageContextMenuType
   /**
    * z_commands (类似vscode的z_commands)
    */
@@ -63,6 +63,7 @@ export default function useImageContextMenu() {
         sharp: false,
         reveal_in_viewer: false,
         fs: false,
+        fs_mv: false,
         svg: false,
       }
 

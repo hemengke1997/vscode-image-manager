@@ -1,26 +1,29 @@
 import { type ReactNode } from 'react'
 import { Trans, useTranslation } from 'react-i18next'
+import { VscArrowRight } from 'react-icons/vsc'
 import { useLockFn, useMemoizedFn } from 'ahooks'
 import { App, Button, Divider, Typography } from 'antd'
-import escapeStringRegexp from 'escape-string-regexp'
-import { isObject, isString, toString } from 'lodash-es'
+import { isObject, isString, lowerCase, toString } from 'lodash-es'
 import { type OperatorResult } from '~/core'
 import { ConfigKey } from '~/core/config/common'
 import { WorkspaceStateKey } from '~/core/persist/workspace/common'
 import { CmdToVscode } from '~/message/cmd'
+import logger from '~/utils/logger'
 import { useExtConfigState } from '~/webview/image-manager/hooks/use-ext-config-state'
 import { useWorkspaceState } from '~/webview/image-manager/hooks/use-workspace-state'
 import { vscodeApi } from '~/webview/vscode-api'
+import FileContext, { type FileChangedResType } from '../contexts/file-context'
 import GlobalContext from '../contexts/global-context'
-import { getDirFromPath, getDirnameFromPath, getFilebasename } from '../utils'
+import { pathUtil } from '../utils'
 import { LOADING_DURATION } from '../utils/duration'
 import useDeleteImage from './use-delete-image/use-delete-image'
 import useImageCompressor from './use-image-compressor/use-image-compressor'
 import useImageConverter from './use-image-converter/use-image-converter'
 import useImageCropper from './use-image-cropper/use-image-cropper'
-import useImageManagerEvent from './use-image-manager-event'
+import useImageManagerEvent, { IMEvent } from './use-image-manager-event'
 import useImageSimilarity from './use-image-similarity/use-image-similarity'
-import useRenameImage from './use-rename-image/use-rename-image'
+import useRenameImages from './use-rename-images/use-rename-images'
+import useRename from './use-rename/use-rename'
 
 const { Text } = Typography
 
@@ -39,11 +42,17 @@ const UndoMessageContent = (props: { list: string[]; title: ReactNode }) => {
   )
 }
 
+/**
+ * 图片操作相关的指令集合
+ * 包括但不限于：
+ * 压缩、格式转换、裁剪、查找相似图片、删除、重命名、撤销、拷贝、剪切、粘贴等
+ */
 function useImageOperation() {
-  const { compressor, formatConverter, extConfig } = GlobalContext.usePicker([
+  const { compressor, formatConverter, extConfig, setImageReveal } = GlobalContext.usePicker([
     'compressor',
     'formatConverter',
     'extConfig',
+    'setImageReveal',
   ])
   const { notification, message } = App.useApp()
   const { t } = useTranslation()
@@ -61,12 +70,13 @@ function useImageOperation() {
     async (
       image: ImageType,
       options: {
+        // 取图片的属性
         proto: 'name' | 'path' | 'relativePath'
         silent?: boolean
+        callback?: (s: string) => Promise<string | undefined>
       },
-      callback?: (s: string) => Promise<string | undefined>,
     ) => {
-      const { proto, silent = false } = options
+      const { proto, silent = false, callback } = options
       const s = image[proto] || ''
       if (!s) {
         message.error(t('im.copy_fail'))
@@ -163,7 +173,7 @@ function useImageOperation() {
     show_precision_tip,
   )
 
-  const [showImageSimilarity] = useImageSimilarity()
+  const [showImageSimilarity, isSimilarityOpened] = useImageSimilarity()
   const beginFindSimilarProcess = useLockFn(async (image: ImageType, images: ImageType[]) => {
     const loadingKey = 'similarity-loading'
     const timer = setTimeout(() => {
@@ -178,7 +188,7 @@ function useImageOperation() {
     message.destroy(loadingKey)
     if (isString(res)) {
       // error
-      message.error(t('im.format_not_supported', { fileType: image.fileType }))
+      message.error(t('im.format_not_supported', { extname: image.extname }))
     } else if (res instanceof Error) {
       message.error(res.message)
     } else if (res.length) {
@@ -239,7 +249,7 @@ function useImageOperation() {
         /**
          * 要删除的文件名
          */
-        name: string
+        basename: string
         /**
          * 完整路径
          */
@@ -252,7 +262,7 @@ function useImageOperation() {
         recursive?: boolean
       },
     ) => {
-      const filenames = files.map((t) => t.name).join(', ')
+      const filenames = files.map((t) => t.basename).join(', ')
       let success = false
 
       async function handleDelete() {
@@ -283,79 +293,167 @@ function useImageOperation() {
   const { imageManagerEvent } = useImageManagerEvent()
   // 删除图片
   const beginDeleteImageProcess = useMemoizedFn(async (images: ImageType[]) => {
-    const success = await beginDeleteProcess(images.map((t) => ({ name: t.name, path: t.path })))
+    const success = await beginDeleteProcess(images.map((t) => ({ basename: t.basename, path: t.path })))
     if (success) {
-      imageManagerEvent.emit('delete', images)
+      imageManagerEvent.emit(IMEvent.delete, images)
     }
   })
 
   // 删除目录
   const beginDeleteDirProcess = useMemoizedFn(async (dirPath: string) => {
-    beginDeleteProcess([{ name: getDirnameFromPath(dirPath), path: dirPath }], { recursive: true })
+    beginDeleteProcess([{ basename: pathUtil.getDirname(dirPath), path: dirPath }], { recursive: true })
   })
 
-  const renameFn = useLockFn(async (source: string, target: string) => {
-    return new Promise<boolean>((resolve) => {
-      vscodeApi.postMessage(
-        {
-          cmd: CmdToVscode.rename_file,
-          data: {
-            source,
-            target,
+  const handleRename = useLockFn(
+    async (
+      files: {
+        // 原路径
+        source: string
+        // 目标路径
+        target: string
+      }[],
+      options: {
+        // 类型：文件/目录
+        type: string
+        // 是否覆盖已存在的文件
+        overwrite?: boolean
+      },
+    ) => {
+      const { type, overwrite = false } = options
+      return new Promise<FileChangedResType>((resolve) => {
+        vscodeApi.postMessage(
+          {
+            cmd: CmdToVscode.rename_file,
+            data: {
+              files,
+              overwrite,
+            },
           },
-        },
-        (res) => {
-          let success = false
-          if (isObject(res) && res.error_msg) {
-            message.error(res.error_msg)
-          } else if (res) {
-            message.success(t('im.rename_success'))
-            success = true
-          } else {
-            message.error(t('im.rename_failed'))
-          }
-          resolve(success)
-        },
-      )
-    })
-  })
+          (res) => {
+            const formattedRes = res.map((item) => {
+              let result = {
+                success: true,
+                message: '',
+                target: item.target,
+                source: item.source,
+              }
+              if (item.status === 'rejected') {
+                if (lowerCase(item.reason['code']).includes('exists')) {
+                  // 文件已存在
+                  result = {
+                    ...result,
+                    success: false,
+                    message: t('im.file_exsits', { type }),
+                  }
+                } else {
+                  result = {
+                    ...result,
+                    success: false,
+                    message: t('im.rename_failed'),
+                  }
+                }
+              } else {
+                result = {
+                  ...result,
+                  success: true,
+                  message: t('im.rename_success'),
+                }
+              }
 
-  const [beginRenameProcess] = useRenameImage()
+              return result
+            })
+            resolve(formattedRes)
+          },
+        )
+      })
+    },
+  )
 
-  const beginRenameImageProcess = useMemoizedFn((image: ImageType) => {
-    beginRenameProcess({
-      currentName: getFilebasename(image.name),
-      path: image.path,
-      onFinish: (newName) => {
-        return new Promise<void>((resolve) => {
-          renameFn(image.path, `${getDirFromPath(image.path)}/${newName}.${image.fileType}`).then((res) => {
-            if (res) {
-              const currentNameEscaped = escapeStringRegexp(getFilebasename(image.name))
-              const fileTypeEscaped = escapeStringRegexp(image.fileType)
-              const newPath = image.path.replace(
-                new RegExp(`(${currentNameEscaped})\\.${fileTypeEscaped}$`),
-                `${newName}.${image.fileType}`,
-              )
-              vscodeApi.postMessage(
+  const [beginRenameProcess] = useRename()
+  const [beginRenameImagesProcess] = useRenameImages()
+
+  /**
+   * 重命名图片
+   * @param selectedImage 当前选中的图片
+   * @param images 选中的图片列表
+   */
+  const beginRenameImageProcess = useMemoizedFn((selectedImage: ImageType, images: ImageType[]) => {
+    if (!images.length) return
+    if (images.length === 1) {
+      const image = images[0]
+      beginRenameProcess({
+        currentName: image.name,
+        onSubmit: async (newName, type) => {
+          return new Promise<void>((resolve, reject) => {
+            const target = `${image.absDirPath}/${newName}.${image.extname}`
+            handleRename(
+              [
                 {
-                  cmd: CmdToVscode.get_one_image,
-                  data: { filePath: newPath, cwd: image.absWorkspaceFolder },
+                  source: image.path,
+                  target,
                 },
-                (newImage) => {
-                  beginRevealInViewer(newImage)
-                  imageManagerEvent.emit('rename', image, newImage)
-                },
-              )
-            }
-            resolve()
+              ],
+              {
+                type,
+              },
+            ).then((res) => {
+              if (res?.every((t) => t.success)) {
+                vscodeApi.postMessage(
+                  {
+                    cmd: CmdToVscode.get_images,
+                    data: { filePaths: [target], cwd: image.absWorkspaceFolder },
+                  },
+                  (newImage) => {
+                    // 如果相似弹窗打开，则通知 rename 事件
+                    if (isSimilarityOpened) {
+                      imageManagerEvent.emit(IMEvent.rename, image, newImage[0])
+                    } else {
+                      // 否则，聚焦到新图片
+                      beginRevealInViewer(newImage[0].path)
+                    }
+                  },
+                )
+                resolve()
+              } else {
+                reject(res?.[0].message)
+              }
+            })
           })
-        })
-      },
-      type: t('im.file'),
-      inputProps: {
-        addonAfter: `.${image.fileType}`,
-      },
-    })
+        },
+        type: t('im.file'),
+        inputProps: {
+          addonAfter: `.${image.extname}`,
+        },
+      })
+    } else {
+      // 批量重命名
+      beginRenameImagesProcess({
+        images,
+        selectedImage,
+        onSubmit: async (files) => {
+          return new Promise<void>((resolve) => {
+            handleRename(files, {
+              type: t('im.file'),
+            }).then((res) => {
+              const failed = res?.filter((t) => !t.success)
+
+              if (failed?.length) {
+                notification.error({
+                  message: t('im.rename_failed'),
+                  description: notificationForRenameOrPaste(
+                    failed,
+                    (imagePath) => images.find((t) => t.path === imagePath)!.path,
+                  ),
+                  duration: 0,
+                })
+              }
+
+              resolve()
+            })
+          })
+        },
+      })
+    }
   })
 
   /**
@@ -364,16 +462,25 @@ function useImageOperation() {
    */
   const beginRenameDirProcess = useMemoizedFn((dirPath: string) => {
     beginRenameProcess({
-      currentName: getDirnameFromPath(dirPath),
-      path: dirPath,
-      onFinish: (newName) => {
-        return new Promise<boolean>((resolve) => {
-          renameFn(dirPath, `${getDirFromPath(dirPath)}/${newName}`).then((res) => {
-            if (res) {
-              const newDirPath = `${getDirFromPath(dirPath)}/${newName}`
-              imageManagerEvent.emit('rename_directory', dirPath, newDirPath)
+      currentName: pathUtil.getDirname(dirPath),
+      onSubmit: (newName, type) => {
+        return new Promise<void>((resolve, reject) => {
+          const target = `${pathUtil.getAbsDir(dirPath)}/${newName}`
+          handleRename(
+            [
+              {
+                source: dirPath,
+                target,
+              },
+            ],
+            { type },
+          ).then((res) => {
+            if (res?.every((t) => t.success)) {
+              imageManagerEvent.emit(IMEvent.rename_directory, dirPath, target)
+              resolve()
+            } else {
+              reject(res?.[0].message)
             }
-            resolve(res!)
           })
         })
       },
@@ -381,21 +488,13 @@ function useImageOperation() {
     })
   })
 
-  const beginRevealInViewer = useMemoizedFn((image: ImageType) => {
-    imageManagerEvent.emit('reveal_in_viewer', image)
-    setTimeout(() => {
-      new Promise<boolean>((resolve) => {
-        vscodeApi.postMessage(
-          {
-            cmd: CmdToVscode.reveal_image_in_viewer,
-            data: { filePath: image.path },
-          },
-          (res) => {
-            resolve(res)
-          },
-        )
-      })
-    })
+  /**
+   * 在图片查看器中打开图片
+   */
+  const beginRevealInViewer = useMemoizedFn((imagePath: string) => {
+    imageManagerEvent.emit(IMEvent.reveal_in_viewer, imagePath)
+    clearSelectedImages()
+    setImageReveal(imagePath)
   })
 
   // 撤销操作
@@ -426,7 +525,7 @@ function useImageOperation() {
         const { id, image } = item
         try {
           await undo(id)
-          success.push(image.name)
+          success.push(image.basename)
         } catch (e: any) {
           errors.push(toString(e))
         }
@@ -439,6 +538,101 @@ function useImageOperation() {
         message.error(<UndoMessageContent title={t('im.undo_fail')} list={errors}></UndoMessageContent>, 5)
       }
     })
+  })
+
+  const { handleCopy, handlePaste, handleCut, setImageCopied, imageCopied, clearSelectedImages } =
+    FileContext.usePicker([
+      'handleCopy',
+      'handlePaste',
+      'handleCut',
+      'setImageCopied',
+      'imageCopied',
+      'clearSelectedImages',
+    ])
+
+  const beginCopyProcess = useMemoizedFn((images: ImageType[]) => {
+    handleCopy(images)
+    logger.debug(images, '复制')
+    message.success(t('im.copy_success'))
+  })
+
+  // 重命名、粘贴的提示
+  const notificationForRenameOrPaste = useMemoizedFn(
+    (res: FileChangedResType, revealImage: (imagePath: string) => string) => {
+      return (
+        <div className={'flex flex-col gap-y-1'}>
+          {res.map((item, index) => {
+            const source = pathUtil.getFileName(item.source)
+            const target = pathUtil.getFileName(item.target)
+            return (
+              <div key={index} className={'flex items-center'}>
+                {item.message} <Divider type={'vertical'}></Divider>
+                <div className={'flex items-center gap-x-2'}>
+                  {source}
+                  {source === target && (
+                    <>
+                      <VscArrowRight />
+                      {target}
+                    </>
+                  )}
+                </div>
+                <Button
+                  className={'ml-2'}
+                  onClick={() => {
+                    beginRevealInViewer(revealImage(item.source))
+                  }}
+                >
+                  {t('im.view')}
+                </Button>
+              </div>
+            )
+          })}
+        </div>
+      )
+    },
+  )
+
+  const beginPasteProcess = useLockFn(async (targetPath: string) => {
+    const res = await handlePaste(targetPath)
+    if (!res) return
+
+    const failed = res?.filter((t) => !t.success)
+
+    if (failed?.length && imageCopied?.list.length) {
+      // 对失败的进行一波提示
+      notification.error({
+        message: t('im.paste_failed'),
+        description: notificationForRenameOrPaste(
+          failed,
+          (imagePath) => imageCopied.list.find((t) => t.path === imagePath)!.path,
+        ),
+        duration: 0,
+      })
+    } else if (!failed?.length) {
+      // 全部成功
+      message.success(t('im.paste_success'))
+    }
+
+    if (res?.filter((t) => t.success).length) {
+      // 部分粘贴成功后，就清空复制的图片
+      setImageCopied(undefined)
+    }
+  })
+
+  const beginCutProcess = useMemoizedFn((images: ImageType[]) => {
+    handleCut(images)
+  })
+
+  // 取消剪切状态
+  const handleEscapeCutting = useMemoizedFn(() => {
+    // 取消剪切、选中状态
+    setImageCopied((t) => {
+      if (t?.type === 'move' && t.list.length) {
+        return undefined
+      }
+      return t
+    })
+    clearSelectedImages()
   })
 
   return {
@@ -457,6 +651,10 @@ function useImageOperation() {
     beginRevealInViewer,
     beginRenameDirProcess,
     beginUndoProcess,
+    beginCopyProcess,
+    beginPasteProcess,
+    beginCutProcess,
+    handleEscapeCutting,
   }
 }
 

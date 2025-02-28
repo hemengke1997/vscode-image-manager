@@ -1,7 +1,7 @@
+import { MotionConfig } from 'motion/react'
 import { memo, type PropsWithChildren, useEffect } from 'react'
 import { TinyColor } from '@ctrl/tinycolor'
 import { theme as antdTheme, App, ConfigProvider } from 'antd'
-import { MotionConfig } from 'motion/react'
 import SettingsContext from '~/webview/image-manager/contexts/settings-context'
 import { getCssVar } from '~/webview/image-manager/utils/theme'
 

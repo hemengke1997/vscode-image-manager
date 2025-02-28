@@ -1,8 +1,8 @@
 import { startTransition } from 'react'
+import ReactDOM from 'react-dom/client'
 import { ErrorBoundary } from 'react-error-boundary'
 import { initReactI18next } from 'react-i18next'
 import i18next from 'i18next'
-import ReactDOM from 'react-dom/client'
 import { i18nAlly } from 'vite-plugin-i18n-ally/client'
 import { CmdToVscode } from '~/message/cmd'
 import { FALLBACK_LANGUAGE } from '~/meta'
@@ -13,6 +13,7 @@ import AntdConfigProvider from './components/antd-config-provider'
 import Fallback from './components/fallback'
 import ActionContext from './contexts/action-context'
 import CtxMenuContext from './contexts/ctx-menu-context'
+import FileContext from './contexts/file-context'
 import FilterContext from './contexts/filter-context'
 import GlobalContext from './contexts/global-context'
 import SettingsContext from './contexts/settings-context'
@@ -76,7 +77,7 @@ function registerApp(children: JSX.Element, reload = false) {
 
             startTransition(() => {
               window.__react_root__.render(
-                <div onContextMenu={(e) => e.preventDefault()}>
+                <div onContextMenu={(e) => e.preventDefault()} key={key}>
                   <VscodeContext.Provider value={{ extConfig: ext, vscodeConfig: vscode, workspaceState }}>
                     {children}
                   </VscodeContext.Provider>
@@ -110,13 +111,15 @@ function mount(reload?: boolean) {
       <SettingsContext.Provider>
         <FilterContext.Provider>
           <ActionContext.Provider>
-            <CtxMenuContext.Provider>
-              <AntdConfigProvider>
-                <ErrorBoundary FallbackComponent={Fallback}>
-                  <ImageManager />
-                </ErrorBoundary>
-              </AntdConfigProvider>
-            </CtxMenuContext.Provider>
+            <FileContext.Provider>
+              <CtxMenuContext.Provider>
+                <AntdConfigProvider>
+                  <ErrorBoundary FallbackComponent={Fallback}>
+                    <ImageManager />
+                  </ErrorBoundary>
+                </AntdConfigProvider>
+              </CtxMenuContext.Provider>
+            </FileContext.Provider>
           </ActionContext.Provider>
         </FilterContext.Provider>
       </SettingsContext.Provider>

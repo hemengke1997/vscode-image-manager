@@ -13,7 +13,7 @@ import Format from '../../components/image-operator/components/format'
 import KeepOriginal from '../../components/image-operator/components/keep-original'
 import GlobalContext from '../../contexts/global-context'
 import useAbortController from '../use-abort-controller'
-import useImageManagerEvent from '../use-image-manager-event'
+import useImageManagerEvent, { IMEvent } from '../use-image-manager-event'
 import useImageOperation from '../use-image-operation'
 import { type ImperativeModalProps } from '../use-imperative-modal'
 import { type FormComponent, useOperatorModalLogic } from '../use-operator-modal-logic/use-operator-modal-logic'
@@ -35,7 +35,7 @@ function ImageConverter(props: ImageConverterProps & ImperativeModalProps) {
   const [submitting, setSubmitting] = useState(false)
 
   // const hasSomeImageType = useMemoizedFn((type: string) => {
-  //   return images?.some((img) => img.fileType === type)
+  //   return images?.some((img) => img.extname === type)
   // })
 
   const { beginFormatConversionProcess, beginUndoProcess } = useImageOperation()
@@ -85,7 +85,7 @@ function ImageConverter(props: ImageConverterProps & ImperativeModalProps) {
 
   useImageManagerEvent({
     on: {
-      reveal_in_viewer: () => {
+      [IMEvent.reveal_in_viewer]: () => {
         closeModal()
       },
     },

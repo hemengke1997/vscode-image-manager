@@ -1,16 +1,18 @@
+import { AnimatePresence, motion } from 'motion/react'
 import { memo, useEffect, useMemo, useRef } from 'react'
 import { useTranslation } from 'react-i18next'
+import { IoMdImages } from 'react-icons/io'
 import { styleObjectToString } from '@minko-fe/style-object-to-string'
-import { useMemoizedFn } from 'ahooks'
+import { useClickAway, useMemoizedFn } from 'ahooks'
 import { Card, Empty, Skeleton } from 'antd'
 import { produce } from 'immer'
 import { floor } from 'lodash-es'
-import { AnimatePresence, motion } from 'motion/react'
-import { IoMdImages } from 'react-icons/io'
 import FilterContext from '../../contexts/filter-context'
 import GlobalContext from '../../contexts/global-context'
 import SettingsContext from '../../contexts/settings-context'
 import TreeContext from '../../contexts/tree-context'
+import useImageHotKeys from '../../hooks/use-image-hot-keys'
+import useImageOperation from '../../hooks/use-image-operation'
 import useSticky from '../../hooks/use-sticky'
 import useWheelScaleEvent from '../../hooks/use-wheel-scale-event'
 import { ANIMATION_DURATION } from '../../utils/duration'
@@ -77,6 +79,19 @@ function Viewer() {
     }
   }, [target])
 
+  const { ref } = useImageHotKeys()
+
+  const { handleEscapeCutting } = useImageOperation()
+  const contentRef = useRef<HTMLDivElement>(null)
+  useClickAway(
+    () => {
+      // 取消剪切状态
+      handleEscapeCutting()
+    },
+    [contentRef],
+    ['click'],
+  )
+
   return (
     <div ref={containerRef} className={'space-y-4'}>
       <Card
@@ -105,8 +120,9 @@ function Viewer() {
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
               transition={{ duration: ANIMATION_DURATION.middle }}
+              ref={contentRef}
             >
-              <div className={'space-y-4'}>
+              <div className={'space-y-4'} tabIndex={-1} ref={ref}>
                 {imageState.data.length ? (
                   imageState.data.map((item) => (
                     <TreeContext.Provider

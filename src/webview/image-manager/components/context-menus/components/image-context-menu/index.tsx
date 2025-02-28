@@ -40,6 +40,13 @@ const IMAGE_CONTEXT_MENU = {
    */
   fs: 'fs',
   /**
+   * 文件移动，包括：
+   * 1. 复制
+   * 2. 剪切
+   * @default false
+   */
+  fs_mv: 'fs_mv',
+  /**
    * svg相关操作，包括
    * 1. 格式化svg
    * @default false
@@ -75,6 +82,8 @@ function ImageContextMenu() {
     beginDeleteImageProcess,
     beginRenameImageProcess,
     beginRevealInViewer,
+    beginCopyProcess,
+    beginCutProcess,
   } = useImageOperation()
 
   // 在os中打开图片
@@ -90,9 +99,9 @@ function ImageContextMenu() {
   const isItemHidden = useMemoizedFn((e: PredicateParams<ImageContextMenuType>) => {
     const { data, props } = e
     if (Array.isArray(data)) {
-      return data.every((d) => props?.enable?.[d] === false)
+      return data.every((d) => props?.enableContextMenu?.[d] === false)
     }
-    return props?.enable?.[data] === false
+    return props?.enableContextMenu?.[data] === false
   })
 
   // 压缩图片
@@ -143,15 +152,15 @@ function ImageContextMenu() {
   })
 
   const handleRename = useMemoizedFn((e: ItemParamsContextMenu) => {
-    beginRenameImageProcess(e.props!.image)
+    beginRenameImageProcess(e.props!.image, e.props!.images)
   })
 
   const handleRevealInViewer = useLockFn(async (e: ItemParamsContextMenu) => {
-    beginRevealInViewer(e.props!.image)
+    beginRevealInViewer(e.props!.image.path)
   })
 
   const isSvg = useMemoizedFn((e: HandlerParams<Required<ImageContextMenuType>>) => {
-    return e.props!.images.every((image) => image.fileType === 'svg') || false
+    return e.props!.images.every((image) => image.extname === 'svg') || false
   })
 
   const [showImageDetails] = useImageDetails()
@@ -168,16 +177,30 @@ function ImageContextMenu() {
         <Item onClick={handleRevealInViewer} hidden={isItemHidden} data={IMAGE_CONTEXT_MENU.reveal_in_viewer}>
           {t('im.reveal_in_viewer')}
         </Item>
-        <Separator />
-        <Item onClick={(e) => handleCopyString(e.props!.image, { proto: 'name' })}>
-          {t('im.copy_image_name')}
+
+        {/* 按照vscode的交互，复制/剪切是单独分组的 */}
+        <Separator hidden={isItemHidden} data={[IMAGE_CONTEXT_MENU.fs_mv]} />
+        <Item hidden={isItemHidden} data={IMAGE_CONTEXT_MENU.fs_mv} onClick={(e) => beginCopyProcess(e.props!.images)}>
+          {t('im.copy')}
           <RightSlot hidden={!shortcutsVisible}>{Keybinding.Copy()}</RightSlot>
         </Item>
-        <Item onClick={(e) => handleCopyString(e.props!.image, { proto: 'path' })}>{t('im.copy_image_path')}</Item>
-        <Item onClick={(e) => handleCopyString(e.props!.image, { proto: 'relativePath' })}>
-          {t('im.copy_image_relative_path')}
+        <Item hidden={isItemHidden} data={IMAGE_CONTEXT_MENU.fs_mv} onClick={(e) => beginCutProcess(e.props!.images)}>
+          {t('im.cut')}
+          <RightSlot hidden={!shortcutsVisible}>{Keybinding.Cut()}</RightSlot>
         </Item>
-        <Item onClick={(e) => handleCopyString(e.props!.image, { proto: 'path' }, copyImageAsBase64)}>
+
+        <Separator />
+        <Item onClick={(e) => handleCopyString(e.props!.image, { proto: 'name' })}>{t('im.copy_image_name')}</Item>
+        <Submenu label={t('im.copy_image_path')} arrow={<Arrow />}>
+          <Item onClick={(e) => handleCopyString(e.props!.image, { proto: 'path' })}>
+            {t('im.copy_image_absolute_path')}
+          </Item>
+          <Item onClick={(e) => handleCopyString(e.props!.image, { proto: 'relativePath' })}>
+            {t('im.copy_image_relative_path')}
+          </Item>
+        </Submenu>
+
+        <Item onClick={(e) => handleCopyString(e.props!.image, { proto: 'path', callback: copyImageAsBase64 })}>
           {t('im.copy_image_base64')}
         </Item>
 

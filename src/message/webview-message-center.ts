@@ -24,7 +24,9 @@ export class WebviewMessageCenter {
   }
 
   static async handleMessages(message: MessageType) {
-    const handler: (data: Record<string, any>, webview: Webview) => Thenable<any> = VscodeMessageCenter[message.cmd]
+    const handler: (data: Record<string, any>, webview: Webview) => Thenable<any> = VscodeMessageCenter[
+      message.cmd
+    ] as any
 
     if (handler) {
       const data = await handler(message.data, this.webview)

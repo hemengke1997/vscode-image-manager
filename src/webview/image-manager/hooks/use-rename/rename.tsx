@@ -1,9 +1,7 @@
-import { memo } from 'react'
+import { memo, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { Button, Form, type InputProps } from 'antd'
 import { isString } from 'lodash-es'
-import { CmdToVscode } from '~/message/cmd'
-import { vscodeApi } from '~/webview/vscode-api'
 import AutoFocusInput from '../../components/auto-focus-input'
 import { type ImperativeModalProps } from '../use-imperative-modal'
 
@@ -13,13 +11,9 @@ type Props = {
    */
   currentName: string
   /**
-   * 完整路径
+   * 表单提交回调
    */
-  path: string
-  /**
-   * 表单提交成功回调
-   */
-  onFinish: (newName: string) => Promise<void | boolean>
+  onSubmit: (newName: string, type: string) => Promise<void>
   /**
    * 类型，文件 | 文件夹
    */
@@ -30,22 +24,35 @@ type Props = {
   inputProps?: InputProps
 }
 
-function RenameImage(props: Props & ImperativeModalProps) {
+function Rename(props: Props & ImperativeModalProps) {
   const { t } = useTranslation()
-  const { currentName, closeModal, onFinish, path, type, inputProps } = props
+  const { currentName, closeModal, onSubmit, type, inputProps } = props
+
+  const [loading, setLoading] = useState(false)
+  const [form] = Form.useForm()
 
   return (
     <Form
+      form={form}
       initialValues={{
         rename: currentName,
       }}
       onFinish={async (value) => {
+        setLoading(true)
+
         const { rename } = value
         if (rename === currentName || !rename) {
           return closeModal()
         }
-        await onFinish(rename)
-        closeModal()
+
+        try {
+          await onSubmit(rename, type)
+          closeModal()
+        } catch (e) {
+          form.setFields([{ name: 'rename', errors: [(e as string) || t('im.rename_failed')] }])
+        } finally {
+          setLoading(false)
+        }
       }}
       className={'mt-6'}
     >
@@ -60,22 +67,7 @@ function RenameImage(props: Props & ImperativeModalProps) {
               if (value === currentName) {
                 return Promise.resolve()
               }
-              const existNames = await new Promise<string[]>((resolve) => {
-                vscodeApi.postMessage(
-                  {
-                    cmd: CmdToVscode.get_sibling_resource,
-                    data: {
-                      source: path,
-                    },
-                  },
-                  (res) => {
-                    resolve(res)
-                  },
-                )
-              })
-              if (existNames.some((t) => t === value)) {
-                return Promise.reject(t('im.file_exsits', { type }))
-              }
+
               return Promise.resolve()
             },
           }),
@@ -85,7 +77,7 @@ function RenameImage(props: Props & ImperativeModalProps) {
         <AutoFocusInput size={'middle'} placeholder={currentName} {...inputProps} />
       </Form.Item>
       <div className={'flex justify-end'}>
-        <Button htmlType={'submit'} type={'primary'}>
+        <Button htmlType={'submit'} type={'primary'} loading={loading}>
           {t('im.confirm')}
         </Button>
       </div>
@@ -93,4 +85,4 @@ function RenameImage(props: Props & ImperativeModalProps) {
   )
 }
 
-export default memo(RenameImage)
+export default memo(Rename)

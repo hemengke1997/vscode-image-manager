@@ -103,7 +103,7 @@
     "@vscode/vsce": "^3.2.2",
     "ahooks": "^3.8.4",
     "ahooks-x": "^1.5.3",
-    "antd": "^5.24.1",
+    "antd": "^5.24.2",
     "bumpp": "^10.0.3",
     "consola": "^3.4.0",
     "context-state": "^3.2.0",
@@ -125,7 +125,7 @@
     "globby": "^14.1.0",
     "i18next": "^24.2.2",
     "ico-endec": "^0.1.6",
-    "image-size": "^1.2.0",
+    "image-size": "^2.0.0",
     "immer": "^10.1.1",
     "json5": "^2.2.3",
     "lint-staged": "^15.4.3",
@@ -181,10 +181,10 @@
     "vite": "^5.4.14",
     "vite-config-preset": "^1.6.8",
     "vite-plugin-html": "^3.2.2",
-    "vite-plugin-i18n-ally": "^5.2.11",
+    "vite-plugin-i18n-ally": "^5.2.13",
     "vite-plugin-markdown": "^2.2.0",
     "vitepress": "^1.6.3",
-    "vitest": "^3.0.6"
+    "vitest": "^3.0.7"
   },
   "engines": {
     "vscode": "^1.70.0"

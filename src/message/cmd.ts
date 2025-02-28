@@ -28,11 +28,11 @@ export const enum CmdToVscode {
   // 重新加载webview（vscode的webview自身没有重新加载的能力）
   reload_webview = 'reload_webview',
   // 获取图片信息
-  get_image = 'get_image',
+  get_image_info = 'get_image_info',
   // 获取所有图片
   get_all_images = 'get_all_images',
-  // 获取单个图片
-  get_one_image = 'get_one_image',
+  // 获取多张图片
+  get_images = 'get_images',
   // 获取图片元信息
   get_images_metadata = 'get_images_metadata',
   // 获取扩展的配置（用户配置和默认的vscode配置）
@@ -81,12 +81,10 @@ export const enum CmdToVscode {
   open_file_in_text_editor = 'open_file_in_text_editor',
   // 删除指定文件
   delete_file = 'delete_file',
-  // 重命名指定文件
+  // 重命名文件或目录
   rename_file = 'rename_file',
-  // 复制文件到剪贴板中
-  copy_file_to_clipboard = 'copy_file_to_clipboard',
-  // 在viewer中打开指定图片
-  reveal_image_in_viewer = 'reveal_image_in_viewer',
+  // 复制/移动文件到指定目录
+  copy_or_move_file_to = 'copy_or_move_file_to',
   // 获取路径下的同级文件(夹)列表
   get_sibling_resource = 'get_sibling_resource',
   // 打开svgo配置文件

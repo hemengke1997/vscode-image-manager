@@ -51,10 +51,22 @@ Select an image or directory and press the shortcut key to perform the operation
 - Windows: `Delete`
 - macOS: `⌘ + ⌫`
 
-### Copy Image Name
+### Copy Image
 
 - Windows: `Ctrl + C`
 - macOS: `⌘ + C`
+
+### Cut Image
+
+- Windows: `Ctrl + X`
+- macOS: `⌘ + X`
+
+### Paste Image
+
+The shortcut takes effect after the directory is selected
+
+- Windows: `Ctrl + V`
+- macOS: `⌘ + V`
 
 ### View Image Details
 

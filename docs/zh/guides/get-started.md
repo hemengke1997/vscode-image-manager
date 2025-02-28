@@ -52,10 +52,22 @@ Image Manager中，大部分操作都是通过右键图片或目录完成，非�
 - Windows: `Delete`
 - macOS: `⌘ + ⌫`
 
-### 复制图片名
+### 复制图片
 
 - Windows: `Ctrl + C`
 - macOS: `⌘ + C`
+
+### 剪切图片
+
+- Windows: `Ctrl + X`
+- macOS: `⌘ + X`
+
+### 粘贴图片
+
+选中目录后快捷键生效
+
+- Windows: `Ctrl + V`
+- macOS: `⌘ + V`
 
 ### 查看图片详情
 

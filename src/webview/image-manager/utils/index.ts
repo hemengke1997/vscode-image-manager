@@ -20,37 +20,35 @@ export function bytesToUnit(bytes: number | undefined, unit: 'KB' | 'MB'): numbe
 }
 
 /**
- * 从路径中获取文件名称
- * @param filePath
- * @returns
+ * 路径相关工具方法
  */
-export function getFilenameFromPath(filePath: string) {
-  return filePath.split('/').pop()
-}
+export const pathUtil = {
+  /**
+   * 从路径中获取文件目录
+   * @param filePath /a/b/c.png
+   * @returns /a/b
+   */
+  getAbsDir: (filePath: string) => {
+    return filePath.substring(0, filePath.lastIndexOf('/'))
+  },
 
-/**
- * 从路径中获取文件目录
- * @param filePath
- * @returns
- */
-export function getDirFromPath(filePath: string) {
-  return filePath.substring(0, filePath.lastIndexOf('/'))
-}
+  /**
+   * 获取路径的目录名
+   * @param dirPath /a/b
+   * @returns b
+   */
+  getDirname: (dirPath: string) => {
+    return dirPath.split('/').pop()!
+  },
 
-/**
- * 获取文件的basename
- * @param filename example.png
- * @returns example
- */
-export function getFilebasename(filename: string) {
-  return filename.split('.').slice(0, -1).join('.')
-}
-
-/**
- * 获取路径的目录名
- */
-export function getDirnameFromPath(dirPath: string) {
-  return dirPath.split('/').pop()!
+  /**
+   * 从路径获取文件名
+   * @param filePath /a/b/c.png
+   * @returns c.png
+   */
+  getFileName(filePath: string) {
+    return filePath.split('/').pop()!
+  },
 }
 
 /**

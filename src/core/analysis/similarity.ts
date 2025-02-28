@@ -29,7 +29,7 @@ export class Similarity {
     const result = await pMap(scope, async (image) => {
       try {
         if (image.path === source) return pMapSkip
-        if (!this.limit.from.includes(image.fileType)) return pMapSkip
+        if (!this.limit.from.includes(image.extname)) return pMapSkip
         const hash = await phash(image.path)
         return { image, hash }
       } catch (e) {

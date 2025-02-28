@@ -9,7 +9,7 @@
       }
     }
     .ant-collapse-header {
-      @apply !rounded-t-ant-border-radius-lg relative !rounded-b-none;
+      @apply relative !rounded-b-none !rounded-t-ant-border-radius-lg;
       &:hover {
         @apply bg-ant-control-item-bg-hover;
       }

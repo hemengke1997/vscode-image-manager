@@ -1,7 +1,7 @@
 import readExif from 'exif-reader'
 import fs from 'fs-extra'
 import { type GlobEntry } from 'globby'
-import imageSize from 'image-size'
+import { imageSizeFromFile } from 'image-size/fromFile'
 import path from 'node:path'
 import git from 'simple-git'
 import { type Webview } from 'vscode'
@@ -19,12 +19,7 @@ import { VscodeMessageCenter } from './message-center'
 /**
  * 查找图片
  */
-export async function searchImages(
-  absWorkspaceFolder: string,
-  webview: Webview,
-  fileTypes: Set<string>,
-  dirs: Set<string>,
-) {
+export async function searchImages(absWorkspaceFolder: string, webview: Webview, exts: Set<string>, dirs: Set<string>) {
   absWorkspaceFolder = normalizePath(absWorkspaceFolder)
 
   const { allImagePatterns } = imageGlob({
@@ -33,13 +28,13 @@ export async function searchImages(
     exclude: Config.file_exclude,
   })
 
-  return VscodeMessageCenter[CmdToVscode.get_image](
+  return VscodeMessageCenter[CmdToVscode.get_image_info](
     {
       glob: allImagePatterns,
       cwd: absWorkspaceFolder,
       onResolve: (image) => {
-        const { fileType, dirPath } = image
-        fileTypes && fileTypes.add(fileType)
+        const { extname, dirPath } = image
+        exts && exts.add(extname)
         dirPath && dirs.add(dirPath)
       },
     },
@@ -116,7 +111,7 @@ const metadataCache = new Map<
     mtimeMs: number
     data: {
       filePath: string
-      metadata: SharpNS.Metadata
+      metadata: Metadata
       compressed: Compressed
     }
   }
@@ -141,7 +136,7 @@ function isMetadataCacheValid(filePath: string, mtimeMs: number | undefined) {
  */
 export async function getImageMetadata(image: GlobEntry): Promise<{
   filePath: string
-  metadata: SharpNS.Metadata
+  metadata: Metadata
   compressed: Compressed
 }> {
   const { path: filePath, stats } = image
@@ -177,7 +172,7 @@ export async function getImageMetadata(image: GlobEntry): Promise<{
     sharpFormatSupported = false
 
     try {
-      metadata = imageSize(filePath) as SharpNS.Metadata
+      metadata = imageSizeFromFile(filePath) as SharpNS.Metadata
     } catch (e) {
       Channel.error(e)
     }
@@ -208,7 +203,6 @@ export async function getImageMetadata(image: GlobEntry): Promise<{
             // 不知道是否支持 exif 的格式
             // 用sharp推断
             // 可能会影响性能
-            console.log('影响性能', metadata.format)
             try {
               const buffer = await Global.sharp(filePath)
                 .withExifMerge({
@@ -252,7 +246,10 @@ export async function getImageMetadata(image: GlobEntry): Promise<{
     mtimeMs: stats?.mtimeMs || 0,
     data: {
       filePath,
-      metadata,
+      metadata: {
+        width: metadata.width,
+        height: metadata.height,
+      },
       compressed,
     },
   })

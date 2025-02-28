@@ -1,6 +1,6 @@
+import { AnimatePresence, motion } from 'motion/react'
 import { memo, type PropsWithChildren } from 'react'
 import { Card, type GetProps } from 'antd'
-import { AnimatePresence, motion } from 'motion/react'
 import { classNames } from 'tw-clsx'
 import GlobalContext from '~/webview/image-manager/contexts/global-context'
 import { ANIMATION_DURATION } from '~/webview/image-manager/utils/duration'

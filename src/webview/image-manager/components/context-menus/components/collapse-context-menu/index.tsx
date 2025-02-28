@@ -4,6 +4,7 @@ import { useTranslation } from 'react-i18next'
 import { useMemoizedFn } from 'ahooks'
 import { App } from 'antd'
 import { os } from 'un-detector'
+import FileContext from '~/webview/image-manager/contexts/file-context'
 import useImageOperation from '~/webview/image-manager/hooks/use-image-operation'
 import { Keybinding } from '~/webview/image-manager/keybinding'
 import MaskMenu from '../../../mask-menu'
@@ -61,6 +62,7 @@ function CollapseContextMenu() {
     beginFormatConversionProcess,
     beginRenameDirProcess,
     beginDeleteDirProcess,
+    beginPasteProcess,
   } = useImageOperation()
 
   const isItemHidden = useMemoizedFn((e: PredicateParams<CollapseContextMenuType>) => {
@@ -118,6 +120,8 @@ function CollapseContextMenu() {
     beginDeleteDirProcess(e.props?.path || '')
   })
 
+  const { imageCopied } = FileContext.usePicker(['imageCopied'])
+
   return (
     <>
       <MaskMenu id={COLLAPSE_CONTEXT_MENU_ID}>
@@ -130,6 +134,12 @@ function CollapseContextMenu() {
           data={COLLAPSE_CONTEXT_MENU.open_in_vscode_explorer}
         >
           {t('im.reveal_in_explorer')}
+        </Item>
+
+        <Separator />
+        <Item disabled={!imageCopied?.list.length} onClick={(e) => beginPasteProcess(e.props!.path)}>
+          {t('im.paste')}
+          <RightSlot>{Keybinding.Paste()}</RightSlot>
         </Item>
 
         <Separator

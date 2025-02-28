@@ -8,13 +8,14 @@ import { produce } from 'immer'
 import { isUndefined } from 'lodash-es'
 import { classNames } from 'tw-clsx'
 import ActionContext from '../../contexts/action-context'
+import FileContext, { CopyType } from '../../contexts/file-context'
 import GlobalContext from '../../contexts/global-context'
-import useImageManagerEvent from '../../hooks/use-image-manager-event'
+import useImageManagerEvent, { IMEvent } from '../../hooks/use-image-manager-event'
 import useSticky from '../../hooks/use-sticky'
 import { clearTimestamp } from '../../utils'
 import { type EnableCollapseContextMenuType } from '../context-menus/components/collapse-context-menu'
 import useCollapseContextMenu from '../context-menus/components/collapse-context-menu/hooks/use-collapse-context-menu'
-import ImagePreview, { type ImagePreviewProps } from '../image-preview'
+import ImageGroup, { type imageGroupProps } from '../image-group'
 import SingleLabel from './components/single-label'
 import './index.css'
 
@@ -39,15 +40,15 @@ type ImageCollapseProps = {
   /**
    * 需要渲染的图片
    */
-  images: ImagePreviewProps['images'] | undefined
+  images: imageGroupProps['images'] | undefined
   /**
    * 当前文件夹下的图片
    */
-  underFolderImages: ImagePreviewProps['images'] | undefined
+  underFolderImages: imageGroupProps['images'] | undefined
   /**
    * 当前文件夹下的所有图片（包括子目录）
    */
-  underFolderDeeplyImages: ImagePreviewProps['images'] | undefined
+  underFolderDeeplyImages: imageGroupProps['images'] | undefined
   /**
    * 嵌套子组件
    */
@@ -63,7 +64,7 @@ type ImageCollapseProps = {
   /**
    * ImagePreview组件的透传prop
    */
-  imagePreviewProps?: Partial<ImagePreviewProps>
+  imageGroupProps?: Partial<imageGroupProps>
   /**
    * 是否可以展开
    */
@@ -82,7 +83,7 @@ function ImageCollapse(props: ImageCollapseProps) {
     underFolderDeeplyImages,
     id,
     contextMenu,
-    imagePreviewProps,
+    imageGroupProps,
     collapsible = true,
   } = props
 
@@ -96,6 +97,7 @@ function ImageCollapse(props: ImageCollapseProps) {
   const stickyRef = useRef<HTMLDivElement>(null)
   const holderRef = useRef<HTMLDivElement>(null)
 
+  // 获取collapse的header dom
   const getCollpaseHeader = () => stickyRef.current?.querySelector('.ant-collapse-header') as HTMLElement
   const isSticky = useRef(false)
 
@@ -104,7 +106,8 @@ function ImageCollapse(props: ImageCollapseProps) {
       const target = getCollpaseHeader()
 
       if (target) {
-        target.tabIndex = -1
+        // 不让header可获取焦点，避免点击header回车后有聚焦效果
+        target.removeAttribute('tabindex')
 
         if (!collapsible) {
           target.style.cursor = 'auto'
@@ -159,6 +162,7 @@ function ImageCollapse(props: ImageCollapseProps) {
 
   useLayoutEffect(() => {
     if (collapseProps.defaultActiveKey) {
+      // 如果默认展开，需要将id加入到activeCollapseIdSet
       setActiveCollapseIdSet(
         produce((draft) => {
           draft.value.add(id)
@@ -167,6 +171,7 @@ function ImageCollapse(props: ImageCollapseProps) {
     }
   }, [])
 
+  // 监听全局的activeCollapseIdSet的变化，更新activeKeys
   useUpdateEffect(() => {
     if (activeCollapseIdSet.value.has(id) && !activeKeys.includes(id)) {
       setActiveKeys([id])
@@ -175,6 +180,7 @@ function ImageCollapse(props: ImageCollapseProps) {
     }
   }, [activeCollapseIdSet.updateFlag])
 
+  // 判断当前collapse是否active
   const isActive = useMemoizedFn((imagePath: string) => {
     return imagePath && underFolderDeeplyImages?.find((image) => image.path === imagePath)
   })
@@ -194,6 +200,8 @@ function ImageCollapse(props: ImageCollapseProps) {
   }, [imageReveal])
 
   useEffect(() => {
+    // 如果此目录是需要打开的目录，需要把目录滚动到可视区域中间
+    // 并且清空全局的dirReveal
     if (id === dirReveal) {
       setDirReveal('')
       stickyRef.current?.scrollIntoView({
@@ -205,10 +213,10 @@ function ImageCollapse(props: ImageCollapseProps) {
 
   useImageManagerEvent({
     on: {
-      reveal_in_viewer: (image) => {
-        onActive(image.path)
+      [IMEvent.reveal_in_viewer]: (imagePath) => {
+        onActive(imagePath)
       },
-      rename_directory: (previosDirPath, newPath) => {
+      [IMEvent.rename_directory]: (previosDirPath, newPath) => {
         if (previosDirPath === id) {
           setDirReveal(newPath)
         }
@@ -315,6 +323,30 @@ function ImageCollapse(props: ImageCollapseProps) {
     }
   }, [activeKeys])
 
+  // 全局的文件选择
+  const { selectedImageMap, setSelectedImageMap, allSelectedImages, imageCopied } = FileContext.usePicker([
+    'selectedImageMap',
+    'setSelectedImageMap',
+    'allSelectedImages',
+    'imageCopied',
+  ])
+
+  const onSelectedImagesChange = useMemoizedFn((images: ImageType[]) => {
+    setSelectedImageMap(
+      produce((draft) => {
+        // 优化渲染
+        if (!images.length && !draft.get(id)?.length) return
+        draft.set(id, images)
+      }),
+    )
+  })
+
+  const isCutImage = useMemoizedFn((image: ImageType) => {
+    if (imageCopied?.type === CopyType.MOVE && imageCopied.list.length) {
+      return imageCopied.list.some((item) => item.path === image.path)
+    }
+  })
+
   if (!images?.length && !nestedChildren) return null
 
   return (
@@ -336,8 +368,21 @@ function ImageCollapse(props: ImageCollapseProps) {
             key: id,
             label: labelRender(generateLabel(labels)),
             children: images?.length ? (
-              <div className={'space-y-2'}>
-                <ImagePreview ref={holderRef} {...imagePreviewProps} images={images} />
+              <div className={classNames('space-y-2')}>
+                <ImageGroup
+                  ref={holderRef}
+                  id={id}
+                  selectedImages={selectedImageMap.get(id) || []}
+                  onSelectedImagesChange={onSelectedImagesChange}
+                  allSelectedImages={allSelectedImages}
+                  {...imageGroupProps}
+                  lazyImageProps={{
+                    ...imageGroupProps?.lazyImageProps,
+                    // 剪切的图片添加透明度
+                    className: (image) => (isCutImage(image) ? classNames('opacity-50') : ''),
+                  }}
+                  images={images}
+                />
                 {nestedChildren}
               </div>
             ) : (

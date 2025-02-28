@@ -23,7 +23,7 @@
     @apply absolute bottom-0 left-0 right-0 top-0 rounded-[var(--contexify-menu-radius)] bg-[var(--contexify-menu-bgColor)] backdrop-blur-[15px];
   }
 
-  @apply border-ant-color-border border border-solid text-sm;
+  @apply border border-solid border-ant-color-border text-sm;
 
   .contexify_separator {
     @apply backdrop-blur-0;
@@ -32,6 +32,12 @@
   &.contexify_submenu {
     --contexify-menu-minWidth: 100px;
     transition: none;
+  }
+
+  .contexify_item-disabled {
+    .contexify_rightSlot {
+      color: var(--contexify-rightSlot-color);
+    }
   }
 
   .contexify_itemContent {

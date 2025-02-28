@@ -58,6 +58,7 @@ class Symbol {
 export const Keybinding = {
   Copy: () => `${Symbol.mod}C`,
   Paste: () => `${Symbol.mod}V`,
+  Cut: () => `${Symbol.mod}X`,
   Search: () => `${Symbol.mod}F`,
   Undo: () => `${Symbol.mod}Z`,
   Redo: () => `${Symbol.mod}${Symbol.shift}Z`,

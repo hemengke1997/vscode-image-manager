@@ -1,7 +1,7 @@
 import { memo, useMemo } from 'react'
 import { useTranslation } from 'react-i18next'
-import { Button, Descriptions, type DescriptionsProps, Tooltip } from 'antd'
 import { HiOutlineViewfinderCircle } from 'react-icons/hi2'
+import { Button, Descriptions, type DescriptionsProps, Tooltip } from 'antd'
 import { Compressed } from '~/enums'
 import { CmdToVscode } from '~/message/cmd'
 import { vscodeApi } from '~/webview/vscode-api'
@@ -27,9 +27,9 @@ function ImageDetails(props: Props & ImperativeModalProps) {
       [Compressed.yes]: `✅ ${t('im.yes')}`,
       [Compressed.no]: `❎ ${t('im.no')}`,
       [Compressed.unknown]: `❔ ${t('im.unknown')}`,
-      [Compressed.not_supported]: `❕ ${t('im.format_not_supported', { fileType: image.fileType })}`,
+      [Compressed.not_supported]: `❕ ${t('im.format_not_supported', { extname: image.extname })}`,
     }),
-    [t, image.fileType],
+    [t, image.extname],
   )
 
   const descItems: DescriptionsProps['items'] = [
@@ -37,7 +37,7 @@ function ImageDetails(props: Props & ImperativeModalProps) {
       label: t('im.name'),
       children: (
         <div className={'flex items-center justify-between gap-x-1'}>
-          <div className={'w-0 flex-1 truncate'}>{image.name}</div>
+          <div className={'w-0 flex-1 truncate'}>{image.basename}</div>
           {onPreview && (
             <Tooltip title={t('im.preview')} arrow={false} placement={'bottom'}>
               <Button
@@ -80,7 +80,7 @@ function ImageDetails(props: Props & ImperativeModalProps) {
       children: (
         <div className={'flex items-center justify-between'}>
           <div>{compressedMap[compressed]}</div>
-          {image.fileType === 'svg' ? (
+          {image.extname === 'svg' ? (
             <>
               <Button
                 onClick={() => {

@@ -1,11 +1,10 @@
 import { memo, useEffect } from 'react'
 import { toast } from 'react-atom-toast'
-import { flushSync } from 'react-dom'
 import { useTranslation } from 'react-i18next'
+import { GoMoveToTop } from 'react-icons/go'
 import { useMemoizedFn } from 'ahooks'
 import { App, FloatButton } from 'antd'
 import { enableMapSet, setAutoFreeze } from 'immer'
-import { GoMoveToTop } from 'react-icons/go'
 import { isTooManyTries, retryAsync } from 'ts-retry'
 import { type MessageType } from '~/message'
 import { CmdToVscode, CmdToWebview } from '~/message/cmd'
@@ -18,6 +17,7 @@ import Layout from './components/layout'
 import Viewer from './components/viewer'
 import ActionContext from './contexts/action-context'
 import GlobalContext, { type WebviewCompressorType, type WebviewFormatConverterType } from './contexts/global-context'
+import useImageOperation from './hooks/use-image-operation'
 import useRefreshImages from './hooks/use-refresh-images'
 import useUpdateWebview from './hooks/use-update-webview'
 
@@ -37,11 +37,7 @@ function ImageManager() {
   const { message } = App.useApp()
   const { t } = useTranslation()
 
-  const { setCompressor, setFormatConverter, setImageReveal } = GlobalContext.usePicker([
-    'setCompressor',
-    'setFormatConverter',
-    'setImageReveal',
-  ])
+  const { setCompressor, setFormatConverter } = GlobalContext.usePicker(['setCompressor', 'setFormatConverter'])
 
   const { refreshImages } = ActionContext.usePicker(['refreshImages'])
 
@@ -97,6 +93,8 @@ function ImageManager() {
 
   const { updateConfig, updateWorkspaceState } = useUpdateWebview()
 
+  const { beginRevealInViewer } = useImageOperation()
+
   const onMessage = useMemoizedFn((e: MessageEvent) => {
     const { cmd, data } = e.data as MessageType<Record<string, any>, keyof typeof CmdToWebview>
 
@@ -119,16 +117,8 @@ function ImageManager() {
         break
       }
       case CmdToWebview.reveal_image_in_viewer: {
-        if (data.imagePath) {
-          logger.debug('reveal_image_in_viewer', data.imagePath)
-        } else {
-          logger.debug('reveal_image_in_viewer', '清除')
-        }
-        const { imagePath } = data
-        window.__reveal_image_path__ = imagePath
-        flushSync(() => {
-          setImageReveal(imagePath)
-        })
+        logger.debug('reveal_image_in_viewer', data.imagePath)
+        beginRevealInViewer(data.imagePath)
         break
       }
       default:

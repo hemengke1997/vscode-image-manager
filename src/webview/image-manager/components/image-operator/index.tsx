@@ -1,16 +1,16 @@
 import { memo, type ReactNode, useEffect, useState } from 'react'
 import { useHotkeys } from 'react-hotkeys-hook'
 import { useTranslation } from 'react-i18next'
+import { VscChromeClose } from 'react-icons/vsc'
 import { useHistoryTravel, useUpdateEffect } from 'ahooks'
 import { useControlledState } from 'ahooks-x'
 import { Alert, App, Button, Card, ConfigProvider, type FormInstance, theme, Tooltip } from 'antd'
-import { VscChromeClose } from 'react-icons/vsc'
 import { WorkspaceStateKey } from '~/core/persist/workspace/common'
 import useScrollRef from '~/webview/image-manager/hooks/use-scroll-ref'
 import { useWorkspaceState } from '~/webview/image-manager/hooks/use-workspace-state'
 import GlobalContext from '../../contexts/global-context'
 import { Keybinding } from '../../keybinding'
-import ImagePreview from '../image-preview'
+import ImageGroup from '../image-group'
 import './index.css'
 
 export type ImageOperatorProps = {
@@ -87,11 +87,11 @@ function ImageOperator(props: ImageOperatorProps & ImageOperatorStaticProps) {
     <div className={'flex w-full flex-col items-center space-y-2 overflow-auto'}>
       <Card className={'max-h-[46vh] w-full overflow-y-auto'} ref={scrollRef}>
         <div className={'flex flex-col gap-y-4'}>
-          <ImagePreview
+          <ImageGroup
             images={images || []}
             lazyImageProps={{
               contextMenu: {
-                enable: {
+                enableContextMenu: {
                   reveal_in_viewer: true,
                 },
               },
@@ -105,8 +105,11 @@ function ImageOperator(props: ImageOperatorProps & ImageOperatorStaticProps) {
               lazy: {
                 root: scrollRef.current!,
               },
+              imageNameProps: {
+                tooltipDisplayFullPath: true,
+              },
             }}
-          ></ImagePreview>
+          ></ImageGroup>
           {removed && showUndoRedoTip && (
             <Alert
               type='info'

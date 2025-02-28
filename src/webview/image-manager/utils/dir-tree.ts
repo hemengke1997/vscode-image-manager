@@ -3,9 +3,7 @@ import { type DisplayGroupType } from '~/core/persist/workspace/common'
 
 export type DisplayMapType<T extends Record<string, any> = Record<string, any>> = {
   [key in DisplayGroupType | Flatten]: {
-    imageKey?: {
-      id: string
-    }
+    imageKey?: keyof ImageType
     list?: Option[]
     priority: number | null
   } & T
@@ -349,7 +347,7 @@ export class DirTree<ExtraProps extends Record<string, any> = Record<string, any
   private _findImageIdByGroup = (image: ImageType, g: DisplayGroupType): string => {
     const t = this._findMapByGroup(g)
     if (t.imageKey) {
-      return image[t.imageKey.id]
+      return image[t.imageKey] as string
     }
     return ''
   }

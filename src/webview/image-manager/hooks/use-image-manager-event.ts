@@ -1,6 +1,5 @@
-import { useEffect, useRef } from 'react'
-import EventEmitter from 'eventemitter3'
-import { type SetRequired } from 'type-fest'
+import { useEffect } from 'react'
+import { EventEmitter } from 'eventemitter3'
 
 /**
  * singleton
@@ -25,46 +24,60 @@ type Ev<T extends Events, EventName extends EventEmitter.EventNames<T> = EventEm
   [key in EventName]?: EventEmitter.EventListener<Events, key>
 }
 
+export enum IMEvent {
+  delete = 'delete',
+  rename = 'rename',
+  reveal_in_viewer = 'reveal_in_viewer',
+  context_menu = 'context_menu',
+  delete_directory = 'delete_directory',
+  rename_directory = 'rename_directory',
+  clear_selected_images = 'clear_selected_images',
+}
+
 type Events = {
   /**
    * 删除图片
    */
-  delete: [images: ImageType[]]
+  [IMEvent.delete]: [images: ImageType[]]
   /**
    * 重命名图片
    */
-  rename: [previosImage: ImageType, newImage: ImageType]
+  [IMEvent.rename]: [previosImage: ImageType, newImage: ImageType]
   /**
    * 在viewer中显示图片
    */
-  reveal_in_viewer: [image: SetRequired<Partial<ImageType>, 'path'>]
+  [IMEvent.reveal_in_viewer]: [imagePath: string]
   /**
    * 右键图片
    */
-  context_menu: [image: ImageType, id: string]
+  [IMEvent.context_menu]: [image: ImageType, id: string]
   /**
    * 删除目录
    */
-  delete_directory: [dirPath: string]
+  [IMEvent.delete_directory]: [dirPath: string]
   /**
    * 重命名目录
    */
-  rename_directory: [previosDirPath: string, newDirPath: string]
+  [IMEvent.rename_directory]: [previosDirPath: string, newDirPath: string]
+  /**
+   * 清空图片选中
+   */
+  [IMEvent.clear_selected_images]: [excludeDir?: string]
 }
+
+const instance = ImageManagerEvent.getInstance()
 
 /**
  * 全局事件管理
  */
-export default function useImageManagerEvent(events?: { on?: Ev<Events>; once?: Ev<Events> }) {
-  const ref = useRef<ImageManagerEvent>(ImageManagerEvent.getInstance())
-
+export default function useImageManagerEvent(events?: { on?: Ev<Events> }) {
   useEffect(() => {
     const hanleEvent = (type: 'on' | 'off') => {
       if (events) {
         Object.keys(events).forEach((key) => {
           if (events[key]) {
             for (const eventName in events[key]) {
-              ref.current[type](eventName as keyof Events, events[key][eventName])
+              instance[type](eventName as keyof Events, events[key][eventName])
             }
           }
         })
@@ -86,6 +99,6 @@ export default function useImageManagerEvent(events?: { on?: Ev<Events>; once?: 
   }, [])
 
   return {
-    imageManagerEvent: ref.current,
+    imageManagerEvent: instance,
   }
 }

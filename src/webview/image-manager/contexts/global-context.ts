@@ -40,11 +40,11 @@ function useGlobalContext() {
     loading: boolean
     workspaceFolders: string[]
     data: {
-      images: ImageType[]
-      workspaceFolder: string
-      absWorkspaceFolder: string
-      fileTypes: string[]
-      dirs: string[]
+      images: ImageType[] // 当前工作区所有图片
+      workspaceFolder: string // 当前工作区
+      absWorkspaceFolder: string // 工作区绝对路径
+      exts: string[] // 当前工作区所有图片类型
+      dirs: string[] // 当前工作区所有目录
     }[]
   }>({
     loading: true,
@@ -76,7 +76,7 @@ function useGlobalContext() {
   const [viewerHeaderStickyHeight, setViewerHeaderStickyHeight] = useState<number>(0)
 
   /* ----------------- 项目中所有图片类型 ---------------- */
-  const allImageTypes = useMemo(() => imageState.data.flatMap((item) => item.fileTypes), [imageState.data])
+  const allImageTypes = useMemo(() => imageState.data.flatMap((item) => item.exts), [imageState.data])
 
   return {
     vscodeConfig,

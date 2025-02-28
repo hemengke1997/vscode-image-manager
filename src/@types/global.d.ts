@@ -1,7 +1,6 @@
 import type SharpNS from '@minko-fe/sharp'
 import { type ReactElement } from 'react'
 import { type Stats } from 'fs-extra'
-import { type ParsedPath } from 'node:path'
 import {
   type Compressed as CompressedEnum,
   type Language as LanguageEnum,
@@ -18,6 +17,8 @@ declare global {
   type Language = LanguageEnum
 
   type ReduceMotion = ReduceMotionEnum
+
+  type Metadata = Pick<SharpNS.Metadata, 'width' | 'height'>
 
   interface Window {
     /**
@@ -41,57 +42,64 @@ declare global {
      */
 
     /**
-     * 图片名称
+     * 图片全称
+     * @example pic.png
+     */
+    basename: string
+    /**
+     * 图片名
+     * @example xxx
      */
     name: string
     /**
+     * 文件类型
+     * @example png
+     */
+    extname: string
+    /**
      * 图片绝对路径
+     * @example /Users/xxx/xxx/xxx.png
      */
     path: string
     /**
-     * fs.stat 的返回
+     * fs.stat 部分返回
      */
-    stats: Stats
+    stats: Pick<Stats, 'mtimeMs' | 'size'>
     /**
-     * path.dirname(cwd) 项目绝对路径
-     */
-    basePath: string
-    /**
-     * 目录相对工作区路径
+     * 目录工作区路径
+     * @example dir/assets
      */
     dirPath: string
     /**
      * path.dirname(image.path) 目录绝对路径
+     * @example /Users/xxx/vscode-project/dir
      */
     absDirPath: string
     /**
-     * 文件类型
+     * 图片相对于工作区或项目的路径（如果有多个工作区，则相对于项目）
+     * @example ./dir/assets/xxx.png
      */
-    fileType: string
+    relativePath: string
     /**
      * webview.asWebviewUri(Uri.file(image.path)).toString()
+     * @example http://file:vscode-resource.vscode-cdn.net/Users/xxx/xxx/xxx.png
      */
     vscodePath: string
     /**
      * 唯一标识符，用于 react key
+     * 图片path或vscodePath
      */
     key: string
     /**
      * path.basename(cwd) 工作区名称
+     * @example app
      */
     workspaceFolder: string
     /**
      * cwd 工作区绝对路径
+     * @example /Users/xxx/app
      */
     absWorkspaceFolder: string
-    /**
-     * 图片相对于工作区或项目的路径（如果有多个工作区，则相对于项目）
-     */
-    relativePath: string
-    /**
-     * path.parse(image.path) 的返回
-     */
-    extraPathInfo: ParsedPath
     /**
      * 图片信息
      */
@@ -103,7 +111,7 @@ declare global {
       /**
        * 图片metadata
        */
-      metadata: SharpNS.Metadata
+      metadata: Metadata
       /**
        * 图片是否已git add
        */
@@ -112,10 +120,19 @@ declare global {
   } & {
     /**
      * 应用在webview的额外属性
+     * 用于展示图片信息
+     * 不会在数据流通中传递，所以对内存消耗不大
      */
 
     /**
      * 图片 visible
+     * @example
+     * {
+     *  git_staged: true,
+     *  compressed: false,
+     *  size: true,
+     *  exclude_types: true,
+     * }
      */
     visible?: Partial<Record<ImageVisibleFilter, boolean>>
     /**

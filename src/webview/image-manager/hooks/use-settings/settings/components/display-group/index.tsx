@@ -2,7 +2,7 @@ import { memo, type ReactNode, useMemo } from 'react'
 import { useTranslation } from 'react-i18next'
 import { useControlledState } from 'ahooks-x'
 import { Checkbox, type CheckboxOptionType } from 'antd'
-import { type DisplayGroupType } from '~/core/persist/workspace/common'
+import { DisplayGroupType } from '~/core/persist/workspace/common'
 
 type DisplayGroupProps<T> = {
   value?: T[]
@@ -18,16 +18,16 @@ function DisplayGroup<T extends string = DisplayGroupType>(props: DisplayGroupPr
     () => [
       {
         label: 'TODO: workspace',
-        value: 'workspace',
+        value: DisplayGroupType.workspace,
         hidden: true,
       },
       {
         label: t('im.group_by_dir'),
-        value: 'dir',
+        value: DisplayGroupType.dir,
       },
       {
         label: t('im.group_by_type'),
-        value: 'type',
+        value: DisplayGroupType.extname,
       },
     ],
     [t],

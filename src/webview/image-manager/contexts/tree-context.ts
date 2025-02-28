@@ -3,7 +3,7 @@ import { useAsyncEffect, useLatest, useMemoizedFn, usePrevious, useSetState, use
 import { createContainer } from 'context-state'
 import { diff } from 'deep-object-diff'
 import { isFunction, isObject } from 'lodash-es'
-import { type SortByType, type SortType, type WorkspaceStateType } from '~/core/persist/workspace/common'
+import { SortByType, type SortType, type WorkspaceStateType } from '~/core/persist/workspace/common'
 import { Compressed } from '~/enums'
 import { FilterRadioValue, type ImageFilterType, ImageVisibleFilter } from '../hooks/use-image-filter/image-filter'
 import { bytesToUnit, uniqSortByThenMap } from '../utils'
@@ -66,18 +66,18 @@ const sortFunctions: {
     [key in SortType]: (a: ImageType, b: ImageType) => number
   }
 } = {
-  size: {
+  [SortByType.size]: {
     asc: (a: ImageType, b: ImageType) => a.stats.size - b.stats.size,
     desc: (a: ImageType, b: ImageType) => b.stats.size - a.stats.size,
   },
-  name: {
-    asc: (a: ImageType, b: ImageType) => a.name.localeCompare(b.name),
-    desc: (a: ImageType, b: ImageType) => b.name.localeCompare(a.name),
+  [SortByType.basename]: {
+    asc: (a: ImageType, b: ImageType) => a.basename.localeCompare(b.basename),
+    desc: (a: ImageType, b: ImageType) => b.basename.localeCompare(a.basename),
   },
 }
 
 // 1. 按照文件大小排序 -- size
-// 2. 按照文件名排序 -- nmae
+// 2. 按照文件名排序 -- basename
 function sortImages(sort: TreeContextProp['sort'], images: ImageType[]) {
   const [sortType, sortOrder] = sort!
   const sortFunction = sortFunctions[sortType][sortOrder]
@@ -168,9 +168,9 @@ function useTreeContext(props: TreeContextProp) {
   // 筛选出当前树显示的图片类型
   const imageTypes = useMemo(
     () =>
-      uniqSortByThenMap(imageSingleTree.visibleList, 'fileType', (image) => ({
-        label: image.fileType,
-        value: image.fileType,
+      uniqSortByThenMap(imageSingleTree.visibleList, 'extname', (image) => ({
+        label: image.extname,
+        value: image.extname,
       })),
     [imageSingleTree.visibleList],
   )
@@ -246,7 +246,7 @@ function useTreeContext(props: TreeContextProp) {
       const builtInConditions: Condition[] = [
         {
           key: ImageVisibleFilter.exclude_types,
-          condition: (image) => (imageFilter.exclude_types.includes(image.fileType) ? false : true),
+          condition: (image) => (imageFilter.exclude_types.includes(image.extname) ? false : true),
         },
         {
           key: ImageVisibleFilter.size,

@@ -1,15 +1,15 @@
 import { type Key, memo, type ReactNode, useMemo, useState } from 'react'
-import { useMemoizedFn, useUpdateEffect } from 'ahooks'
-import { Collapse, Tooltip } from 'antd'
-import { ceil } from 'lodash-es'
 import { GiJumpingDog } from 'react-icons/gi'
 import { MdErrorOutline } from 'react-icons/md'
 import { TbFileUnknown } from 'react-icons/tb'
 import { VscSmiley, VscWarning } from 'react-icons/vsc'
+import { useMemoizedFn, useUpdateEffect } from 'ahooks'
+import { Collapse, Tooltip } from 'antd'
+import { ceil } from 'lodash-es'
 import { type OperatorResult } from '~/core'
 import { ConfigKey } from '~/core/config/common'
 import { CmdToVscode } from '~/message/cmd'
-import ImagePreview, { type ImagePreviewProps } from '~/webview/image-manager/components/image-preview'
+import ImageGroup, { type imageGroupProps } from '~/webview/image-manager/components/image-group'
 import GlobalContext from '~/webview/image-manager/contexts/global-context'
 import { useExtConfigState } from '~/webview/image-manager/hooks/use-ext-config-state'
 import { vscodeApi } from '~/webview/vscode-api'
@@ -91,7 +91,7 @@ function OperatorResultTsx(props: OperatorResultProps & ImperativeModalProps) {
     setResults((prev) => prev.filter((t) => !items.some((item) => item.id === t.id)))
   })
 
-  const imagePreviewProps: Omit<ImagePreviewProps, 'images'> = useMemo(
+  const imageGroupProps: Omit<imageGroupProps, 'images'> = useMemo(
     () => ({
       lazyImageProps: {
         contextMenu: {},
@@ -123,8 +123,8 @@ function OperatorResultTsx(props: OperatorResultProps & ImperativeModalProps) {
         label: titles.decrease.content,
         extra: <UndoAction onClick={() => onUndoAction(groups.decrease)}></UndoAction>,
         children: (
-          <ImagePreview
-            {...imagePreviewProps}
+          <ImageGroup
+            {...imageGroupProps}
             images={groups.decrease.map((t) => t.image)}
             renderer={(lazyImage, image) => (
               <ImageCard
@@ -152,7 +152,7 @@ function OperatorResultTsx(props: OperatorResultProps & ImperativeModalProps) {
                 </div>
               </ImageCard>
             )}
-          ></ImagePreview>
+          ></ImageGroup>
         ),
       },
       {
@@ -160,8 +160,8 @@ function OperatorResultTsx(props: OperatorResultProps & ImperativeModalProps) {
         label: titles.increase.content,
         extra: <UndoAction onClick={() => onUndoAction(groups.increase)}></UndoAction>,
         children: (
-          <ImagePreview
-            {...imagePreviewProps}
+          <ImageGroup
+            {...imageGroupProps}
             images={groups.increase.map((t) => t.image)}
             renderer={(lazyImage, image) => (
               <ImageCard
@@ -189,7 +189,7 @@ function OperatorResultTsx(props: OperatorResultProps & ImperativeModalProps) {
                 </div>
               </ImageCard>
             )}
-          ></ImagePreview>
+          ></ImageGroup>
         ),
       },
       {
@@ -203,8 +203,8 @@ function OperatorResultTsx(props: OperatorResultProps & ImperativeModalProps) {
           ></RedoAction>
         ),
         children: (
-          <ImagePreview
-            {...imagePreviewProps}
+          <ImageGroup
+            {...imageGroupProps}
             images={groups.error.map((t) => t.image)}
             renderer={(lazyImage, image) => (
               <ImageCard
@@ -232,15 +232,15 @@ function OperatorResultTsx(props: OperatorResultProps & ImperativeModalProps) {
                 </div>
               </ImageCard>
             )}
-          ></ImagePreview>
+          ></ImageGroup>
         ),
       },
       {
         key: 'skiped',
         label: titles.skiped.content,
         children: (
-          <ImagePreview
-            {...imagePreviewProps}
+          <ImageGroup
+            {...imageGroupProps}
             images={groups.skiped.map((t) => t.image)}
             renderer={(lazyImage) => (
               <ImageCard cover={lazyImage}>
@@ -249,15 +249,15 @@ function OperatorResultTsx(props: OperatorResultProps & ImperativeModalProps) {
                 </div>
               </ImageCard>
             )}
-          ></ImagePreview>
+          ></ImageGroup>
         ),
       },
       {
         key: 'limited',
         label: titles.limited.content,
         children: (
-          <ImagePreview
-            {...imagePreviewProps}
+          <ImageGroup
+            {...imageGroupProps}
             images={groups.limited.map((t) => t.image)}
             renderer={(lazyImage, image) => (
               <ImageCard cover={lazyImage}>
@@ -275,7 +275,7 @@ function OperatorResultTsx(props: OperatorResultProps & ImperativeModalProps) {
                 </div>
               </ImageCard>
             )}
-          ></ImagePreview>
+          ></ImageGroup>
         ),
       },
     ],

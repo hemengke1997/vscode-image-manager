@@ -1,7 +1,7 @@
 import { memo } from 'react'
 import { useTranslation } from 'react-i18next'
-import { Button, Tooltip } from 'antd'
 import { FaRedoAlt } from 'react-icons/fa'
+import { Button, Tooltip } from 'antd'
 import { triggerOnce } from '~/webview/image-manager/utils'
 
 function RedoAction(props: { onClick: () => void }) {

@@ -97,7 +97,7 @@ function ImageCropper(props: ImageCropperProps) {
     try {
       if (cropperRef.current?.cropper && image) {
         const canvas = cropperRef.current?.cropper.getCroppedCanvas()
-        const imageType = mime.getType(image.fileType)
+        const imageType = mime.getType(image.extname)
 
         const MESSAGE_KEY = 'save-cropper-image'
         message.loading({

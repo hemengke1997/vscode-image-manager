@@ -2,22 +2,22 @@ import { type HTMLAttributes, memo, useEffect, useMemo, useRef, useState } from 
 import { flushSync } from 'react-dom'
 import Highlighter from 'react-highlight-words'
 import { useTranslation } from 'react-i18next'
+import { PiSpinnerGapLight } from 'react-icons/pi'
+import { RiFilterOffLine } from 'react-icons/ri'
+import { VscCaseSensitive, VscWholeWord } from 'react-icons/vsc'
 import { useDebounceFn, useMemoizedFn, useUpdateEffect } from 'ahooks'
 import { Empty, Input, Tooltip } from 'antd'
 import { type InputRef } from 'antd/es/input'
 import Fuse, { type FuseResult, type FuseResultMatch } from 'fuse.js'
 import { without } from 'lodash-es'
-import { PiSpinnerGapLight } from 'react-icons/pi'
-import { RiFilterOffLine } from 'react-icons/ri'
-import { VscCaseSensitive, VscWholeWord } from 'react-icons/vsc'
 import { Key } from 'ts-key-enum'
 import { classNames } from 'tw-clsx'
 import { CmdToVscode } from '~/message/cmd'
 import useScrollRef from '~/webview/image-manager/hooks/use-scroll-ref'
 import { vscodeApi } from '~/webview/vscode-api'
-import ImagePreview from '../../components/image-preview'
+import ImageGroup from '../../components/image-group'
 import GlobalContext from '../../contexts/global-context'
-import useImageManagerEvent from '../use-image-manager-event'
+import useImageManagerEvent, { IMEvent } from '../use-image-manager-event'
 import { type ImperativeModalProps } from '../use-imperative-modal'
 
 function ImageSearch(props: ImperativeModalProps) {
@@ -26,7 +26,7 @@ function ImageSearch(props: ImperativeModalProps) {
 
   useImageManagerEvent({
     on: {
-      reveal_in_viewer: () => {
+      [IMEvent.reveal_in_viewer]: () => {
         closeModal()
       },
     },
@@ -324,7 +324,7 @@ function ImageSearch(props: ImperativeModalProps) {
             />
           </div>
         ) : (
-          <ImagePreview
+          <ImageGroup
             images={searchResult.items.map((result) => ({
               ...result.item,
               nameElement: (
@@ -345,7 +345,7 @@ function ImageSearch(props: ImperativeModalProps) {
                       <Highlight
                         caseSensitive={caseSensitive}
                         matches={result.matches}
-                        text={result.item.name}
+                        text={result.item.basename}
                       ></Highlight>
                     </div>
                   </Tooltip>
@@ -354,7 +354,7 @@ function ImageSearch(props: ImperativeModalProps) {
             }))}
             lazyImageProps={{
               contextMenu: {
-                enable: {
+                enableContextMenu: {
                   reveal_in_viewer: true,
                 },
               },

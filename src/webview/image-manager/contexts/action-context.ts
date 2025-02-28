@@ -1,6 +1,7 @@
 import { useReducer, useRef, useState } from 'react'
 import { useMemoizedFn } from 'ahooks'
 import { createContainer } from 'context-state'
+import { produce } from 'immer'
 
 function useActionContext() {
   /* --------------- refresh image -------------- */
@@ -27,7 +28,10 @@ function useActionContext() {
   })
 
   /* -------------- image collapse -------------- */
+
+  // 所有折叠面板的 id
   const collapseIdSet = useRef<Set<string>>(new Set())
+
   const [activeCollapseIdSet, setActiveCollapseIdSet] = useState<{
     value: Set<string>
     // 简单的发布订阅，由 updateFlag 控制更新来源
@@ -51,6 +55,14 @@ function useActionContext() {
     }))
   })
 
+  const notifyCollapseChange = useMemoizedFn(() => {
+    setActiveCollapseIdSet(
+      produce((t) => {
+        t.updateFlag += 1
+      }),
+    )
+  })
+
   return {
     imageRefreshedState,
     refreshImages,
@@ -59,6 +71,7 @@ function useActionContext() {
     collapseIdSet,
     activeCollapseIdSet,
     setActiveCollapseIdSet,
+    notifyCollapseChange,
   }
 }
 

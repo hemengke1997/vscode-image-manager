@@ -1,36 +1,31 @@
 import { describe, expect, it } from 'vitest'
+import { DisplayGroupType } from '~/core/persist/workspace/common'
 import { uniqSortByThenMap } from '~/webview/image-manager/utils'
 import { DirTree, type TreeParams } from '~/webview/image-manager/utils/dir-tree'
 
 function displayMapFixture(visibleListFixture: ImageType[]) {
   return {
-    workspace: {
-      imageKey: {
-        id: 'absWorkspaceFolder',
-      },
+    [DisplayGroupType.workspace]: {
+      imageKey: 'absWorkspaceFolder',
       list: uniqSortByThenMap(visibleListFixture, 'absWorkspaceFolder', (image) => ({
         label: image.workspaceFolder,
         value: image.absWorkspaceFolder,
       })),
       priority: 1,
     },
-    dir: {
-      imageKey: {
-        id: 'absDirPath',
-      },
+    [DisplayGroupType.dir]: {
+      imageKey: 'absDirPath',
       list: uniqSortByThenMap(visibleListFixture, 'absDirPath', (image) => ({
         label: image.dirPath,
         value: image.absDirPath,
       })),
       priority: 2,
     },
-    type: {
-      imageKey: {
-        id: 'fileType',
-      },
-      list: uniqSortByThenMap(visibleListFixture, 'fileType', (image) => ({
-        label: image.fileType,
-        value: image.fileType,
+    [DisplayGroupType.extname]: {
+      imageKey: 'extname',
+      list: uniqSortByThenMap(visibleListFixture, 'extname', (image) => ({
+        label: image.extname,
+        value: image.extname,
       })),
       priority: 3,
     },
@@ -56,56 +51,56 @@ function generateTree(
     return `${prefix}${p}`
   }
 
-  const visibleListFixture = [
+  const visibleListFixture: ImageType[] = [
     {
-      name: 'root.svg',
+      basename: 'root.svg',
+      name: 'root',
       path: generatePath('/Users/path/to/project/vscode-image-manager-debug/src/root.svg'),
       dirPath: '',
       absDirPath: generatePath('/Users/path/to/project/vscode-image-manager-debug/src'),
-      fileType: 'svg',
+      extname: 'svg',
       workspaceFolder: 'src',
       absWorkspaceFolder: generatePath('/Users/path/to/project/vscode-image-manager-debug/src'),
-      basePath: generatePath('/Users/path/to/project/vscode-image-manager-debug'),
     },
     {
-      name: 'blender.png',
+      basename: 'blender.png',
+      name: 'blender',
       path: generatePath('/Users/path/to/project/vscode-image-manager-debug/src/webview/blender.png'),
       dirPath: 'webview',
       absDirPath: generatePath('/Users/path/to/project/vscode-image-manager-debug/src/webview'),
-      fileType: 'png',
+      extname: 'png',
       workspaceFolder: 'src',
       absWorkspaceFolder: generatePath('/Users/path/to/project/vscode-image-manager-debug/src'),
-      basePath: generatePath('/Users/path/to/project/vscode-image-manager-debug'),
     },
     {
-      name: 'blender.png',
+      basename: 'blender.png',
+      name: 'blender',
       path: generatePath('/Users/path/to/project/vscode-image-manager-debug/src/ui-framework/src/images/blender.png'),
       dirPath: generatePath('ui-framework/src/images'),
       absDirPath: generatePath('/Users/path/to/project/vscode-image-manager-debug/src/ui-framework/src/images'),
-      fileType: 'png',
+      extname: 'png',
       workspaceFolder: 'src',
       absWorkspaceFolder: generatePath('/Users/path/to/project/vscode-image-manager-debug/src'),
-      basePath: generatePath('/Users/path/to/project/vscode-image-manager-debug'),
     },
     {
-      name: 'd3.png',
+      basename: 'd3.png',
+      name: 'd3',
       path: generatePath('/Users/path/to/project/vscode-image-manager-debug/src/d3.png'),
       dirPath: '',
       absDirPath: generatePath('/Users/path/to/project/vscode-image-manager-debug/src'),
-      fileType: 'png',
+      extname: 'png',
       workspaceFolder: 'src',
       absWorkspaceFolder: generatePath('/Users/path/to/project/vscode-image-manager-debug/src'),
-      basePath: generatePath('/Users/path/to/project/vscode-image-manager-debug'),
     },
     {
-      name: 'd3.png',
+      basename: 'd3.png',
+      name: 'd3',
       path: generatePath('/Users/path/to/project/vscode-image-manager-debug/src/ui-framework/webview/d3.png'),
       dirPath: 'ui-framework/webview',
       absDirPath: generatePath('/Users/path/to/project/vscode-image-manager-debug/src/ui-framework/webview'),
-      fileType: 'png',
+      extname: 'png',
       workspaceFolder: 'src',
       absWorkspaceFolder: generatePath('/Users/path/to/project/vscode-image-manager-debug/src'),
-      basePath: generatePath('/Users/path/to/project/vscode-image-manager-debug'),
     },
   ] as ImageType[]
 
@@ -141,7 +136,7 @@ function generateTree(
 describe('Convert direcotry to tree on Unix', () => {
   it('1. should render correctly with Group_by_dir + Nested', () => {
     const fixture = {
-      displayGroup: ['workspace', 'dir'],
+      displayGroup: [DisplayGroupType.workspace, DisplayGroupType.dir],
     }
 
     const renderedTree = generateTree(fixture.displayGroup, {
@@ -165,7 +160,7 @@ describe('Convert direcotry to tree on Unix', () => {
 
   it('3. should render correctly with Group_by_type + Nested', () => {
     const fixture = {
-      displayGroup: ['workspace', 'type'],
+      displayGroup: [DisplayGroupType.workspace, DisplayGroupType.extname],
     }
 
     const renderedTree = generateTree(fixture.displayGroup, {
@@ -177,7 +172,7 @@ describe('Convert direcotry to tree on Unix', () => {
 
   it('4. should render correctly with Group_by_type + Compact', () => {
     const fixture = {
-      displayGroup: ['workspace', 'type'],
+      displayGroup: [DisplayGroupType.workspace, DisplayGroupType.extname],
     }
 
     const renderedTree = generateTree(fixture.displayGroup, {
@@ -189,7 +184,7 @@ describe('Convert direcotry to tree on Unix', () => {
 
   it('5. should render correctly with Group_by_dir_and_type + Nested', () => {
     const fixture = {
-      displayGroup: ['workspace', 'dir', 'type'],
+      displayGroup: [DisplayGroupType.workspace, DisplayGroupType.dir, DisplayGroupType.extname],
     }
 
     const renderedTree = generateTree(fixture.displayGroup, {
@@ -201,7 +196,7 @@ describe('Convert direcotry to tree on Unix', () => {
 
   it('6. should render correctly with Group_by_dir_and_type + Compact', () => {
     const fixture = {
-      displayGroup: ['workspace', 'dir', 'type'],
+      displayGroup: [DisplayGroupType.workspace, DisplayGroupType.dir, DisplayGroupType.extname],
     }
 
     const renderedTree = generateTree(fixture.displayGroup, {
@@ -213,7 +208,7 @@ describe('Convert direcotry to tree on Unix', () => {
 
   it('7. should render correctly with Group_by_none + Nested', () => {
     const fixture = {
-      displayGroup: ['workspace'],
+      displayGroup: [DisplayGroupType.workspace],
     }
 
     const renderedTree = generateTree(fixture.displayGroup, {
@@ -225,7 +220,7 @@ describe('Convert direcotry to tree on Unix', () => {
 
   it('8. should render correctly with Group_by_none + Compact', () => {
     const fixture = {
-      displayGroup: ['workspace'],
+      displayGroup: [DisplayGroupType.workspace],
     }
 
     const renderedTree = generateTree(fixture.displayGroup, {
@@ -239,7 +234,7 @@ describe('Convert direcotry to tree on Unix', () => {
 describe('Convert direcotry to tree on Windows', () => {
   it('1. should render correctly with Group_by_dir + Nested', () => {
     const fixture = {
-      displayGroup: ['workspace', 'dir'],
+      displayGroup: [DisplayGroupType.workspace, DisplayGroupType.dir],
     }
 
     const renderedTree = generateTree(fixture.displayGroup, {
@@ -252,7 +247,7 @@ describe('Convert direcotry to tree on Windows', () => {
 
   it('2. should render correctly with Group_by_dir + Compact', () => {
     const fixture = {
-      displayGroup: ['workspace', 'dir'],
+      displayGroup: [DisplayGroupType.workspace, DisplayGroupType.dir],
     }
 
     const renderedTree = generateTree(fixture.displayGroup, {
@@ -265,7 +260,7 @@ describe('Convert direcotry to tree on Windows', () => {
 
   it('3. should render correctly with Group_by_type + Nested', () => {
     const fixture = {
-      displayGroup: ['workspace', 'type'],
+      displayGroup: [DisplayGroupType.workspace, DisplayGroupType.extname],
     }
 
     const renderedTree = generateTree(fixture.displayGroup, {
@@ -278,7 +273,7 @@ describe('Convert direcotry to tree on Windows', () => {
 
   it('4. should render correctly with Group_by_type + Compact', () => {
     const fixture = {
-      displayGroup: ['workspace', 'type'],
+      displayGroup: [DisplayGroupType.workspace, DisplayGroupType.extname],
     }
     const renderedTree = generateTree(fixture.displayGroup, {
       compact: true,
@@ -290,7 +285,7 @@ describe('Convert direcotry to tree on Windows', () => {
 
   it('5. should render correctly with Group_by_dir_and_type + Nested', () => {
     const fixture = {
-      displayGroup: ['workspace', 'dir', 'type'],
+      displayGroup: [DisplayGroupType.workspace, DisplayGroupType.dir, DisplayGroupType.extname],
     }
     const renderedTree = generateTree(fixture.displayGroup, {
       compact: false,
@@ -302,7 +297,7 @@ describe('Convert direcotry to tree on Windows', () => {
 
   it('6. should render correctly with Group_by_dir_and_type + Compact', () => {
     const fixture = {
-      displayGroup: ['workspace', 'dir', 'type'],
+      displayGroup: [DisplayGroupType.workspace, DisplayGroupType.dir, DisplayGroupType.extname],
     }
     const renderedTree = generateTree(fixture.displayGroup, {
       compact: true,
@@ -314,7 +309,7 @@ describe('Convert direcotry to tree on Windows', () => {
 
   it('7. should render correctly with Group_by_none + Nested', () => {
     const fixture = {
-      displayGroup: ['workspace'],
+      displayGroup: [DisplayGroupType.workspace],
     }
     const renderedTree = generateTree(fixture.displayGroup, {
       compact: false,
@@ -326,7 +321,7 @@ describe('Convert direcotry to tree on Windows', () => {
 
   it('8. should render correctly with Group_by_none + Compact', () => {
     const fixture = {
-      displayGroup: ['workspace'],
+      displayGroup: [DisplayGroupType.workspace],
     }
     const renderedTree = generateTree(fixture.displayGroup, {
       compact: true,

@@ -6,6 +6,7 @@ import { CmdToVscode } from '~/message/cmd'
 import logger from '~/utils/logger'
 import { vscodeApi } from '~/webview/vscode-api'
 import ActionContext from '../contexts/action-context'
+import FileContext from '../contexts/file-context'
 import GlobalContext from '../contexts/global-context'
 
 export const RefreshImageDebounceTimeout = 250
@@ -18,7 +19,12 @@ export default function useRefreshImages() {
   const { t } = useTranslation()
 
   const { setImageState } = GlobalContext.usePicker(['setImageState'])
-  const { imageRefreshedState } = ActionContext.usePicker(['imageRefreshedState'])
+  const { imageRefreshedState, notifyCollapseChange } = ActionContext.usePicker([
+    'imageRefreshedState',
+    'notifyCollapseChange',
+  ])
+
+  const { clearNotExistImages } = FileContext.usePicker(['clearNotExistImages'])
 
   const { refreshTimes, refreshType } = imageRefreshedState
 
@@ -59,6 +65,12 @@ export default function useRefreshImages() {
         message.destroy(messageKey)
         message.success(t('im.img_refreshed'))
       }
+
+      // 通知更新collapse
+      notifyCollapseChange()
+
+      // 把选中图片中不存在的图片去掉
+      clearNotExistImages(data.map((item) => item.images).flat())
     })
   })
 

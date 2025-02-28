@@ -1,7 +1,8 @@
-import { memo, type ReactNode, useMemo } from 'react'
+import { memo, type ReactNode } from 'react'
 import { useHotkeys } from 'react-hotkeys-hook'
 import { Key } from 'ts-key-enum'
 import { classNames } from 'tw-clsx'
+import useImageManagerEvent, { IMEvent } from '~/webview/image-manager/hooks/use-image-manager-event'
 import useImageOperation from '~/webview/image-manager/hooks/use-image-operation'
 import { OS } from '~/webview/image-manager/utils/device'
 import { type EnableCollapseContextMenuType } from '../../../context-menus/components/collapse-context-menu'
@@ -18,14 +19,30 @@ type SingleLabelProps = {
 
 function SingleLabel(props: SingleLabelProps) {
   const { children, contextMenu, dirPath, index, onContextMenu, onClick } = props
-  const { beginRenameDirProcess, beginDeleteDirProcess } = useImageOperation()
+  const { beginRenameDirProcess, beginDeleteDirProcess, beginPasteProcess } = useImageOperation()
 
   const { hideAll } = useCollapseContextMenu()
 
-  const enableHotkey = useMemo(() => contextMenu?.rename_directory && contextMenu?.delete_directory, [contextMenu])
+  const hotkeys = [
+    {
+      enable: contextMenu?.rename_directory,
+      keys: [Key.F2, Key.Enter],
+    },
+    {
+      enable: contextMenu?.delete_directory,
+      keys: [`mod+${Key.Backspace}`, Key.Delete],
+    },
+  ]
 
+  // collapse上label的快捷键
   const keybindRef = useHotkeys<HTMLDivElement>(
-    [Key.F2, Key.Enter, `mod+${Key.Backspace}`, Key.Delete],
+    [
+      ...hotkeys
+        .filter((t) => t.enable)
+        .map((t) => t.keys)
+        .flat(),
+      `mod+v`,
+    ],
     (e) => {
       switch (e.key) {
         case Key.F2: {
@@ -54,6 +71,10 @@ function SingleLabel(props: SingleLabelProps) {
           }
           return
         }
+        case 'v': {
+          beginPasteProcess(dirPath)
+          return
+        }
         default:
           break
       }
@@ -61,16 +82,15 @@ function SingleLabel(props: SingleLabelProps) {
     {
       description: dirPath,
       enabled(e) {
-        if (!enableHotkey) {
-          return false
-        }
-        if ((e.target as HTMLDivElement).dataset.dir_path === dirPath) {
+        if ((e.target as HTMLDivElement).getAttribute('data-dir-path') === dirPath) {
           return true
         }
         return false
       },
     },
   )
+
+  const { imageManagerEvent } = useImageManagerEvent()
 
   return (
     <div className={'w-full flex-1'}>
@@ -81,16 +101,17 @@ function SingleLabel(props: SingleLabelProps) {
       >
         <div
           ref={keybindRef}
-          data-dir_path={dirPath}
+          data-dir-path={dirPath}
           className={classNames(
             'inline-flex',
-            enableHotkey &&
-              'cursor-pointer transition-all hover:text-ant-color-primary-text-hover focus:text-ant-color-primary-text-hover focus:underline',
+            'cursor-pointer transition-all hover:text-ant-color-primary-text-hover focus:text-ant-color-primary-text-hover focus:underline',
           )}
           tabIndex={-1}
           onClick={(e) => {
             // 防止触发父元素的打开collapse事件
-            enableHotkey && e.stopPropagation()
+            e.stopPropagation()
+            // 清除图片选中状态
+            imageManagerEvent.emit(IMEvent.clear_selected_images)
           }}
         >
           {children}

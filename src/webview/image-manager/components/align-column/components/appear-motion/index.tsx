@@ -1,5 +1,5 @@
-import { memo, type PropsWithChildren } from 'react'
 import { motion } from 'motion/react'
+import { memo, type PropsWithChildren } from 'react'
 import { ANIMATION_DURATION } from '~/webview/image-manager/utils/duration'
 
 function AppearMotion(props: PropsWithChildren) {

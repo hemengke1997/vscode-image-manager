@@ -1,8 +1,8 @@
 import { memo, useMemo } from 'react'
+import { RxViewNone } from 'react-icons/rx'
 import { useControlledState } from 'ahooks-x'
 import { Badge, Checkbox, theme } from 'antd'
 import { difference } from 'lodash-es'
-import { RxViewNone } from 'react-icons/rx'
 import GlobalContext from '~/webview/image-manager/contexts/global-context'
 
 type Props = {
@@ -26,7 +26,7 @@ function DisplayType(props: Props) {
       .map((type) => {
         return {
           type,
-          length: allImageFiles.filter((t) => t.fileType === type).length,
+          length: allImageFiles.filter((t) => t.extname === type).length,
         }
       })
       .sort((a, b) => b.length - a.length)

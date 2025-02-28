@@ -1,13 +1,13 @@
+import { motion } from 'motion/react'
 import { memo, type ReactNode, useMemo, useRef } from 'react'
 import { useTranslation } from 'react-i18next'
+import { FaRegImages } from 'react-icons/fa6'
+import { VscFileMedia } from 'react-icons/vsc'
 import { useMemoizedFn } from 'ahooks'
 import { Card, type CollapseProps, ConfigProvider, Empty } from 'antd'
 import { isNil } from 'lodash-es'
-import { motion } from 'motion/react'
-import { FaRegImages } from 'react-icons/fa6'
-import { VscFileMedia } from 'react-icons/vsc'
 import { classNames } from 'tw-clsx'
-import { type DisplayGroupType, type DisplayStyleType } from '~/core/persist/workspace/common'
+import { DisplayGroupType, DisplayStyleType } from '~/core/persist/workspace/common'
 import { getAppRoot } from '~/webview/utils'
 import ActionContext from '../../contexts/action-context'
 import TreeContext from '../../contexts/tree-context'
@@ -121,28 +121,22 @@ function CollapseTree(props: Props) {
     contextMenu: (disableFS: boolean) => EnableCollapseContextMenuType
   }> = useMemo(
     () => ({
-      workspace: {
-        imageKey: {
-          id: 'absWorkspaceFolder',
-        },
+      [DisplayGroupType.workspace]: {
+        imageKey: 'absWorkspaceFolder',
         list: [workspaceFolder].filter(Boolean),
         icon: (props: { path: string }) => <RevealGroup {...props} />,
         contextMenu: getContextMenu,
         priority: 1,
       },
-      dir: {
-        imageKey: {
-          id: 'absDirPath',
-        },
+      [DisplayGroupType.dir]: {
+        imageKey: 'absDirPath',
         list: dirs,
         icon: (props: { path: string }) => <RevealGroup {...props} />,
         contextMenu: getContextMenu,
         priority: 2,
       },
-      type: {
-        imageKey: {
-          id: 'fileType',
-        },
+      [DisplayGroupType.extname]: {
+        imageKey: 'extname',
         list: imageTypes,
         icon: () => <VscFileMedia className={'mr-1'} />,
         contextMenu: () => ({
@@ -215,20 +209,21 @@ function CollapseTree(props: Props) {
                 images={renderList}
                 underFolderImages={underFolderList}
                 underFolderDeeplyImages={underFolderDeeplyList}
-                imagePreviewProps={{
+                imageGroupProps={{
                   enableMultipleSelect: true,
                   lazyImageProps: {
                     lazy: {
                       root: getAppRoot(),
                     },
                     contextMenu: {
-                      enable: {
+                      enableContextMenu: {
                         sharp: true,
                         fs: true,
+                        fs_mv: true,
                       },
                     },
                     imageNameProps: {
-                      tooltipDisplayFullPath: !displayGroup.includes('dir'),
+                      tooltipDisplayFullPath: !displayGroup.includes(DisplayGroupType.dir),
                     },
                   },
                 }}
@@ -280,7 +275,7 @@ function CollapseTree(props: Props) {
 
     const tree = dirTree.current.buildRenderTree()
 
-    if (displayStyle === 'compact') {
+    if (displayStyle === DisplayStyleType.compact) {
       dirTree.current.compactFolders(tree)
     }
 
