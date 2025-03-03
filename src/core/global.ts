@@ -29,9 +29,9 @@ export class Global {
    */
   static vscodeReduceMotion: ReduceMotion
   /**
-   * sharp
+   * 如果安装依赖失败，则为 undefined
    */
-  static sharp: TSharp
+  static sharp: TSharp | undefined
   /**
    * 程序式更改配置
    */
@@ -102,12 +102,11 @@ export class Global {
   static async installSharp() {
     return new Promise<boolean>(async (resolve, reject) => {
       this.installer.event
-        .on('install-success', (e) => {
+        .on('install-success', (sharp) => {
           Channel.info(i18n.t('prompt.deps_init_success'))
-          Global.sharp = e
+          Global.sharp = sharp
         })
         .on('install-fail', async (e) => {
-          reject(e)
           if (e instanceof TimeoutError) {
             const SELECT_MIRROR = i18n.t('pkg.cmd.select_mirror')
             const result = await window.showErrorMessage(i18n.t('prompt.deps_init_timeout'), SELECT_MIRROR)

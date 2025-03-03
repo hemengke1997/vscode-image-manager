@@ -94,12 +94,14 @@ export class FormatConverter extends Operator {
             'before:run': async (ctx) => {
               let { ext } = ctx.runtime
               if (this._isIco(ext)) {
-                // resize
-                ctx.sharp = await this._resizeIco(ctx.sharp, { size: size! })
+                //
+                if (ctx.sharp) {
+                  ctx.sharp = await this._resizeIco(ctx.sharp, { size: size! })
+                }
                 // convert to png first, then encode to ico
                 ext = 'png'
               }
-              ctx.sharp.toFormat(ext as keyof SharpNS.FormatEnum).timeout({ seconds: 20 })
+              ctx.sharp?.toFormat(ext as keyof SharpNS.FormatEnum).timeout({ seconds: 20 })
             },
             'after:run': async ({ runtime: { filePath, isLast } }) => {
               if (!this.option.keepOriginal) {

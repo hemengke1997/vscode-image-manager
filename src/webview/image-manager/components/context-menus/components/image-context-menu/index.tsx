@@ -11,9 +11,11 @@ import {
 import { useTranslation } from 'react-i18next'
 import { useLockFn, useMemoizedFn } from 'ahooks'
 import { App } from 'antd'
+import { merge } from 'lodash-es'
 import { os } from 'un-detector'
 import logger from '~/utils/logger'
 import CtxMenuContext from '~/webview/image-manager/contexts/ctx-menu-context'
+import GlobalContext from '~/webview/image-manager/contexts/global-context'
 import useImageDetails from '~/webview/image-manager/hooks/use-image-details/use-image-details'
 import useImageOperation from '~/webview/image-manager/hooks/use-image-operation'
 import { Keybinding } from '~/webview/image-manager/keybinding'
@@ -22,52 +24,125 @@ import Arrow from '../arrow'
 import { type ImageContextMenuType } from './hooks/use-image-context-menu'
 
 export const IMAGE_CONTEXT_MENU_ID = 'IMAGE_CONTEXT_MENU_ID'
-const IMAGE_CONTEXT_MENU = {
+
+export enum IMAGE_CONTEXT_MENU {
   /**
-   * sharp相关操作，包括：
-   * 1. 压缩
-   * 2. 裁剪
-   * 3. 转化格式
-   * 4. 查找相似图片
-   * @default false
+   * 在系统资源管理器中打开
+   * @default true
    */
-  sharp: 'sharp',
+  open_in_os_explorer = 'open_in_os_explorer',
   /**
-   * 文件操作，包括：
-   * 1. 重命名
-   * 2. 删除
-   * @default false
+   * 在vscode资源管理器中打开
+   * @default true
    */
-  fs: 'fs',
-  /**
-   * 文件移动，包括：
-   * 1. 复制
-   * 2. 剪切
-   * @default false
-   */
-  fs_mv: 'fs_mv',
-  /**
-   * svg相关操作，包括
-   * 1. 格式化svg
-   * @default false
-   */
-  svg: 'svg',
+  open_in_vscode_explorer = 'open_in_vscode_explorer',
   /**
    * 在Viewer中显示
    * @default false
    */
-  reveal_in_viewer: 'reveal_in_viewer',
+  reveal_in_viewer = 'reveal_in_viewer',
+
+  /**
+   * 复制
+   * @default false
+   */
+  copy = 'copy',
+  /**
+   * 剪切
+   * @default false
+   */
+  cut = 'cut',
+
+  /**
+   * 压缩
+   * @default false
+   */
+  compress = 'compress',
+  /**
+   * 转化格式
+   * @default false
+   */
+  format_conversion = 'format_conversion',
+  /**
+   * 裁剪
+   * @default false
+   */
+  crop = 'crop',
+  /**
+   * 查找相似(同目录)
+   * @default false
+   */
+  find_similar_in_same_level = 'find_similar_in_same_level',
+  /**
+   * 查找相似(所有)
+   * @default false
+   */
+  find_similar_in_all = 'find_similar_in_all',
+
+  /**
+   * 格式化svg
+   * @default false
+   */
+  pretty_svg = 'pretty_svg',
+
+  /**
+   * 重命名
+   * @default false
+   */
+  rename = 'rename',
+  /**
+   * 删除
+   * @default false
+   */
+  delete = 'delete',
+
+  /**
+   * 预览
+   * @default true
+   */
+  preview = 'preview',
+
+  /**
+   * 查看详情
+   * @default true
+   */
+  view_detail = 'view_detail',
 }
 
-export type EnableImageContextMenuType = {
-  [key in keyof typeof IMAGE_CONTEXT_MENU]?: boolean
+const defaultImageContextMenu = {
+  [IMAGE_CONTEXT_MENU.open_in_os_explorer]: true,
+  [IMAGE_CONTEXT_MENU.open_in_vscode_explorer]: true,
+  [IMAGE_CONTEXT_MENU.reveal_in_viewer]: false,
+  [IMAGE_CONTEXT_MENU.copy]: false,
+  [IMAGE_CONTEXT_MENU.cut]: false,
+  [IMAGE_CONTEXT_MENU.compress]: false,
+  [IMAGE_CONTEXT_MENU.format_conversion]: false,
+  [IMAGE_CONTEXT_MENU.crop]: false,
+  [IMAGE_CONTEXT_MENU.find_similar_in_same_level]: false,
+  [IMAGE_CONTEXT_MENU.find_similar_in_all]: false,
+  [IMAGE_CONTEXT_MENU.pretty_svg]: false,
+  [IMAGE_CONTEXT_MENU.rename]: false,
+  [IMAGE_CONTEXT_MENU.delete]: false,
+  [IMAGE_CONTEXT_MENU.preview]: false,
+  [IMAGE_CONTEXT_MENU.view_detail]: true,
 }
+
+export type EnableImageContextMenuType = Partial<typeof defaultImageContextMenu>
 
 type ItemParamsContextMenu = ItemParams<Required<ImageContextMenuType>>
+
+const sharpRelated = [
+  IMAGE_CONTEXT_MENU.compress,
+  IMAGE_CONTEXT_MENU.format_conversion,
+  IMAGE_CONTEXT_MENU.crop,
+  IMAGE_CONTEXT_MENU.find_similar_in_same_level,
+  IMAGE_CONTEXT_MENU.find_similar_in_all,
+]
 
 function ImageContextMenu() {
   const { t } = useTranslation()
   const { message } = App.useApp()
+  const { sharpInstalled } = GlobalContext.usePicker(['sharpInstalled'])
 
   const {
     openInOsExplorer,
@@ -98,10 +173,19 @@ function ImageContextMenu() {
 
   const isItemHidden = useMemoizedFn((e: PredicateParams<ImageContextMenuType>) => {
     const { data, props } = e
-    if (Array.isArray(data)) {
-      return data.every((d) => props?.enableContextMenu?.[d] === false)
+
+    const enabled = merge({}, defaultImageContextMenu, props?.enableContextMenu)
+
+    if (!sharpInstalled) {
+      sharpRelated.forEach((item) => {
+        enabled[item] = false
+      })
     }
-    return props?.enableContextMenu?.[data] === false
+
+    if (Array.isArray(data)) {
+      return data.every((d) => enabled?.[d] === false)
+    }
+    return enabled?.[data] === false
   })
 
   // 压缩图片
@@ -179,12 +263,12 @@ function ImageContextMenu() {
         </Item>
 
         {/* 按照vscode的交互，复制/剪切是单独分组的 */}
-        <Separator hidden={isItemHidden} data={[IMAGE_CONTEXT_MENU.fs_mv]} />
-        <Item hidden={isItemHidden} data={IMAGE_CONTEXT_MENU.fs_mv} onClick={(e) => beginCopyProcess(e.props!.images)}>
+        <Separator hidden={isItemHidden} data={[IMAGE_CONTEXT_MENU.copy, IMAGE_CONTEXT_MENU.cut]} />
+        <Item hidden={isItemHidden} data={IMAGE_CONTEXT_MENU.copy} onClick={(e) => beginCopyProcess(e.props!.images)}>
           {t('im.copy')}
           <RightSlot hidden={!shortcutsVisible}>{Keybinding.Copy()}</RightSlot>
         </Item>
-        <Item hidden={isItemHidden} data={IMAGE_CONTEXT_MENU.fs_mv} onClick={(e) => beginCutProcess(e.props!.images)}>
+        <Item hidden={isItemHidden} data={IMAGE_CONTEXT_MENU.cut} onClick={(e) => beginCutProcess(e.props!.images)}>
           {t('im.cut')}
           <RightSlot hidden={!shortcutsVisible}>{Keybinding.Cut()}</RightSlot>
         </Item>
@@ -205,14 +289,14 @@ function ImageContextMenu() {
         </Item>
 
         {/* sharp operation menu */}
-        <Separator hidden={isItemHidden} data={[IMAGE_CONTEXT_MENU.sharp]} />
-        <Item hidden={isItemHidden} onClick={handleCompressImage} data={IMAGE_CONTEXT_MENU.sharp}>
+        <Separator hidden={isItemHidden} data={sharpRelated} />
+        <Item hidden={isItemHidden} onClick={handleCompressImage} data={IMAGE_CONTEXT_MENU.compress}>
           {t('im.compress')}
         </Item>
-        <Item onClick={handleConvertFormat} hidden={isItemHidden} data={IMAGE_CONTEXT_MENU.sharp}>
+        <Item onClick={handleConvertFormat} hidden={isItemHidden} data={IMAGE_CONTEXT_MENU.format_conversion}>
           {t('im.convert_format')}
         </Item>
-        <Item onClick={handleCropImage} hidden={isItemHidden} data={IMAGE_CONTEXT_MENU.sharp}>
+        <Item onClick={handleCropImage} hidden={isItemHidden} data={IMAGE_CONTEXT_MENU.crop}>
           {t('im.crop')}
         </Item>
         <Submenu
@@ -221,38 +305,42 @@ function ImageContextMenu() {
           hidden={(e) =>
             isItemHidden({
               ...e,
-              data: [IMAGE_CONTEXT_MENU.sharp],
+              data: [IMAGE_CONTEXT_MENU.find_similar_in_same_level, IMAGE_CONTEXT_MENU.find_similar_in_all],
             }) || isSvg(e)
           }
         >
-          <Item onClick={handleFindSimilarInSameLevel} hidden={isItemHidden} data={IMAGE_CONTEXT_MENU.sharp}>
+          <Item
+            onClick={handleFindSimilarInSameLevel}
+            hidden={isItemHidden}
+            data={IMAGE_CONTEXT_MENU.find_similar_in_same_level}
+          >
             {t('im.current_directory')}
           </Item>
-          <Item onClick={handleFindSimilarInAll} hidden={isItemHidden} data={IMAGE_CONTEXT_MENU.sharp}>
+          <Item onClick={handleFindSimilarInAll} hidden={isItemHidden} data={IMAGE_CONTEXT_MENU.find_similar_in_all}>
             {t('im.all_directories')}
           </Item>
         </Submenu>
+
         <Item
           onClick={handlePrettySvg}
-          hidden={(e) => isItemHidden({ ...e, data: [IMAGE_CONTEXT_MENU.svg] }) || !isSvg(e)}
+          hidden={(e) => isItemHidden({ ...e, data: [IMAGE_CONTEXT_MENU.pretty_svg] }) || !isSvg(e)}
         >
           {t('im.pretty')} svg
         </Item>
 
         {/* file operation menu */}
-        <Separator hidden={isItemHidden} data={[IMAGE_CONTEXT_MENU.fs]} />
-        <Item onClick={handleRename} hidden={isItemHidden} data={IMAGE_CONTEXT_MENU.fs}>
+        <Separator hidden={isItemHidden} data={[IMAGE_CONTEXT_MENU.rename, IMAGE_CONTEXT_MENU.delete]} />
+        <Item onClick={handleRename} hidden={isItemHidden} data={IMAGE_CONTEXT_MENU.rename}>
           {t('im.rename')} <RightSlot hidden={!shortcutsVisible}>{Keybinding.Rename()}</RightSlot>
         </Item>
-        <Item onClick={handleDelete} hidden={isItemHidden} data={IMAGE_CONTEXT_MENU.fs}>
+        <Item onClick={handleDelete} hidden={isItemHidden} data={IMAGE_CONTEXT_MENU.delete}>
           {t('im.delete')} <RightSlot hidden={!shortcutsVisible}>{Keybinding.Delete()}</RightSlot>
         </Item>
 
         <Separator />
         <Item
-          hidden={(e: PredicateParams<ImageContextMenuType>) => {
-            return !e.props?.z_commands?.preview
-          }}
+          hidden={isItemHidden}
+          data={IMAGE_CONTEXT_MENU.preview}
           onClick={(e: ItemParamsContextMenu) => {
             e.props?.z_commands.preview?.onClick?.(e.props.image)
           }}

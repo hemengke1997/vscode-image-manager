@@ -201,6 +201,7 @@
     paste_success: '貼上成功',
     paste_failed: '貼上失敗',
     cut_tip: '按 ESC 取消剪切',
+    no_sharp: '缺少必要依賴，無法使用壓縮、轉換格式、查找相似圖片等功能',
   },
   fallback: {
     internal_error: '內部錯誤',

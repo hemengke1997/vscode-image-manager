@@ -201,6 +201,7 @@
     paste_success: '貼り付け成功',
     paste_failed: '貼り付け失敗',
     cut_tip: 'ESCを押してカットをキャンセル',
+    no_sharp: '必要な依存関係が不足しているため、圧縮、フォーマット変換、類似画像の検索などが使用できません。',
   },
   fallback: {
     internal_error: '内部エラー',

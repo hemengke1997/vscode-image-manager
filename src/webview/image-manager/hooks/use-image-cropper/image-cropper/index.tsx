@@ -79,7 +79,6 @@ function ImageCropper(props: ImageCropperProps) {
   const [forceRenderCropper, updateCropper] = useReducer((s: number) => s + 1, 0)
   useUpdateEffect(() => {
     if (cropperRef.current) {
-      updateCropper()
       cropperRef.current?.cropper.reset()
     }
   }, [cropperRef.current])

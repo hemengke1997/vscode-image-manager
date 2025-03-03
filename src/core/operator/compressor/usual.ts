@@ -82,7 +82,7 @@ export class UsualCompressor extends Compressor {
               }
 
               sharp
-                .toFormat(ext as keyof SharpNS.FormatEnum, {
+                ?.toFormat(ext as keyof SharpNS.FormatEnum, {
                   ...compressionOption,
                   // 提高png的压缩率
                   palette: true,
@@ -91,14 +91,14 @@ export class UsualCompressor extends Compressor {
                 })
                 .timeout({ seconds: 10 })
 
-              sharp.withExifMerge({
+              sharp?.withExifMerge({
                 IFD0: {
                   ImageDescription: COMPRESSED_META,
                 },
               })
 
               if (size !== 1) {
-                sharp.resize({
+                sharp?.resize({
                   width: width! * size,
                   height: height! * size,
                   fit: 'contain',

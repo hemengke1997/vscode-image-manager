@@ -252,9 +252,15 @@ function CollapseTree(props: Props) {
                     },
                     contextMenu: {
                       enableContextMenu: {
-                        sharp: true,
-                        fs: true,
-                        fs_mv: true,
+                        compress: true,
+                        format_conversion: true,
+                        crop: true,
+                        find_similar_in_all: true,
+                        find_similar_in_same_level: true,
+                        cut: true,
+                        copy: true,
+                        delete: true,
+                        rename: true,
                       },
                     },
                     imageNameProps: {

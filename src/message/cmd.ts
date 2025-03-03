@@ -24,6 +24,7 @@ export const enum CmdToWebview {
  * @description Webview sends these commands
  */
 export const enum CmdToVscode {
+  // 流程：vscode打开webview，webview 调用 on_webview_ready，触发 vscode 发送webview需要的初始化数据
   on_webview_ready = 'on_webview_ready',
   // 重新加载webview（vscode的webview自身没有重新加载的能力）
   reload_webview = 'reload_webview',
@@ -47,9 +48,9 @@ export const enum CmdToVscode {
   open_image_in_os_explorer = 'open_image_in_os_explorer',
   // 复制图片为base64
   copy_image_as_base64 = 'copy_image_as_base64',
-  // 压缩图片
+  // 压缩图片 (sharp)
   compress_image = 'compress_image',
-  // 转化图片格式
+  // 转化图片格式 (sharp)
   convert_image_format = 'convert_image_format',
   // 撤销操作
   undo_operation = 'undo_operation',
@@ -61,7 +62,7 @@ export const enum CmdToVscode {
   micromatch_ismatch = 'micromatch_ismatch',
   // 保存裁剪后的图片
   save_cropper_image = 'save_cropper_image',
-  // 查找相似图片
+  // 查找相似图片 (sharp)
   find_similar_images = 'find_similar_images',
   // 获取 git staged 中的图片
   get_git_staged_images = 'get_git_staged_images',

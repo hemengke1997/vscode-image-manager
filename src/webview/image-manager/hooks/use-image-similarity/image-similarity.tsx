@@ -106,7 +106,6 @@ function ImageSimilarity(props: ImageSimilarityProps & ImperativeModalProps) {
                 contextMenu: {
                   enableContextMenu: {
                     reveal_in_viewer: true,
-                    fs: true,
                   },
                 },
                 imageNameProps: {

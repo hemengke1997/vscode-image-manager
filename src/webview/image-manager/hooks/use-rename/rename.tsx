@@ -1,6 +1,6 @@
 import { memo, useState } from 'react'
 import { useTranslation } from 'react-i18next'
-import { Button, Form, type InputProps } from 'antd'
+import { Button, Form, type InputProps, Space } from 'antd'
 import { isString } from 'lodash-es'
 import AutoFocusInput from '../../components/auto-focus-input'
 import { type ImperativeModalProps } from '../use-imperative-modal'
@@ -77,9 +77,18 @@ function Rename(props: Props & ImperativeModalProps) {
         <AutoFocusInput size={'middle'} placeholder={currentName} {...inputProps} />
       </Form.Item>
       <div className={'flex justify-end'}>
-        <Button htmlType={'submit'} type={'primary'} loading={loading}>
-          {t('im.confirm')}
-        </Button>
+        <Space>
+          <Button
+            onClick={() => {
+              closeModal()
+            }}
+          >
+            {t('im.cancel')}
+          </Button>
+          <Button htmlType={'submit'} type={'primary'} loading={loading}>
+            {t('im.confirm')}
+          </Button>
+        </Space>
       </div>
     </Form>
   )

@@ -201,6 +201,7 @@
     paste_success: 'Paste Success',
     paste_failed: 'Paste Failed',
     cut_tip: 'Press ESC to cancel cut',
+    no_sharp: 'Missing necessary dependencies, unable to use compression, format conversion, find similar images, etc.',
   },
   fallback: {
     internal_error: 'Internal Error',

@@ -201,6 +201,7 @@
     paste_success: '粘贴成功',
     paste_failed: '粘贴失败',
     cut_tip: '按 ESC 取消剪切',
+    no_sharp: '缺少必要依赖，无法使用压缩、转化格式、查找相似图片等功能',
   },
   fallback: {
     internal_error: '内部错误',

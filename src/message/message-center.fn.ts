@@ -165,14 +165,18 @@ export async function getImageMetadata(image: GlobEntry): Promise<{
   }
 
   try {
-    Global.sharp.cache({ files: 0 })
-    metadata = await Global.sharp(filePath).metadata()
+    if (!Global.sharp) {
+      throw new Error('sharp is not installed')
+    }
+
+    Global.sharp?.cache({ files: 0 })
+    metadata = await Global.sharp?.(filePath).metadata()
   } catch {
     // sharp 不支持该类型
     sharpFormatSupported = false
 
     try {
-      metadata = imageSizeFromFile(filePath) as SharpNS.Metadata
+      metadata = (await imageSizeFromFile(filePath)) as SharpNS.Metadata
     } catch (e) {
       Channel.error(e)
     }
@@ -204,15 +208,15 @@ export async function getImageMetadata(image: GlobEntry): Promise<{
             // 用sharp推断
             // 可能会影响性能
             try {
-              const buffer = await Global.sharp(filePath)
+              const buffer = await Global.sharp?.(filePath)
                 .withExifMerge({
                   IFD0: {
                     ImageDescription: ' ',
                   },
                 })
                 .toBuffer()
-              const m = await Global.sharp(buffer).metadata()
-              if (m.exif && readExif(m.exif).Image?.ImageDescription) {
+              const m = await Global.sharp?.(buffer).metadata()
+              if (m && m.exif && readExif(m.exif).Image?.ImageDescription) {
                 // 此类型支持 exif
                 // 但是没有压缩标记
                 compressed = Compressed.no

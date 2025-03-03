@@ -66,6 +66,11 @@ function useGlobalContext() {
    */
   const [imageReveal, setImageReveal] = useState<string | undefined>(window.__reveal_image_path__)
 
+  /**
+   * sharp安装成功
+   */
+  const [sharpInstalled] = useState<boolean>(window.__sharp_installed__)
+
   /* ----------------- dir reveal ----------------- */
   const [dirReveal, setDirReveal] = useState<string>('')
 
@@ -101,6 +106,7 @@ function useGlobalContext() {
     dirReveal,
     setDirReveal,
     allImageTypes,
+    sharpInstalled,
   }
 }
 

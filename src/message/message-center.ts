@@ -65,13 +65,16 @@ export const VscodeMessageCenter = {
     Channel.info(i18n.t('core.webview_ready'))
     const config = await VscodeMessageCenter[CmdToVscode.get_extension_config]()
     const workspaceState = await VscodeMessageCenter[CmdToVscode.get_workspace_state]()
-    const { imageReveal } = ImageManagerPanel
+    const {
+      webviewInitialData: { imageReveal, sharpInstalled },
+    } = ImageManagerPanel
 
     return {
       config,
       workspaceState,
       windowState: {
         __reveal_image_path__: imageReveal,
+        __sharp_installed__: sharpInstalled,
       },
     }
   },
@@ -466,7 +469,7 @@ export const VscodeMessageCenter = {
             hooks: {
               'before:run': async ({ sharp, runtime }) => {
                 const { ext } = runtime
-                sharp.toFormat(ext as keyof SharpNS.FormatEnum)
+                sharp?.toFormat(ext as keyof SharpNS.FormatEnum)
               },
               'on:generate-output-path': () => {
                 return outputPath

@@ -36,7 +36,6 @@ export default function useImageHotKeys() {
       hideAll()
       switch (e.key) {
         case Key.Enter: {
-          console.log('enter')
           if (!OS.isWindows) {
             handleRename()
           }

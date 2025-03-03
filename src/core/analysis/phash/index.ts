@@ -50,7 +50,7 @@ function applyDCT(f: any[], size: number) {
 const LOW_SIZE = 8
 
 export async function phash(image: string, options?: SharpNS.SharpOptions) {
-  const data = await Global.sharp(image, options)
+  const data = await Global.sharp!(image, options)
     .greyscale()
     .resize(SAMPLE_SIZE, SAMPLE_SIZE, { fit: 'fill' })
     .rotate()

@@ -32,19 +32,22 @@ export default <ExtensionModule>function (ctx) {
     }
 
     // init sharp here
-    if (!sharpInstalled) {
-      try {
-        await Global.installSharp()
-        sharpInstalled = true
-      } catch {
-        sharpInstalled = false
-      }
-    }
-
-    if (sharpInstalled) {
+    try {
+      await Global.installSharp()
+      sharpInstalled = true
+    } catch {
+      sharpInstalled = false
+    } finally {
       // Whether to reload the webview panel
       const reload = !isEqual(previousRoot, Global.rootpaths)
-      ImageManagerPanel.createOrShow(ctx, reload, imagePath)
+      ImageManagerPanel.createOrShow({
+        ctx,
+        reload,
+        webviewInitialData: {
+          imageReveal: imagePath,
+          sharpInstalled,
+        },
+      })
 
       previousRoot = Global.rootpaths
     }

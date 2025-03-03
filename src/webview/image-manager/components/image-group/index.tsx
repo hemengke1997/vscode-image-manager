@@ -222,6 +222,12 @@ function ImageGroup(props: imageGroupProps, ref: ForwardedRef<HTMLDivElement>) {
     if (selectedImages.length <= 1) {
       selected = [image]
     }
+
+    // 清空非当前组的图片选中
+    if (id) {
+      imageManagerEvent.emit(IMEvent.clear_selected_images, id)
+    }
+
     setSelectedImages(selected)
     show(
       {
@@ -231,6 +237,12 @@ function ImageGroup(props: imageGroupProps, ref: ForwardedRef<HTMLDivElement>) {
           images: allSelectedImages || selected,
           sameLevelImages: images,
           sameWorkspaceImages: getSameWorkspaceImages(image),
+
+          ...lazyImageProps?.contextMenu,
+          enableContextMenu: {
+            ...lazyImageProps?.contextMenu?.enableContextMenu,
+            preview: true,
+          },
           z_commands: {
             preview: {
               onClick: (image) => {
@@ -238,7 +250,6 @@ function ImageGroup(props: imageGroupProps, ref: ForwardedRef<HTMLDivElement>) {
               },
             },
           },
-          ...lazyImageProps?.contextMenu,
         },
       },
       { shortcutsVisible: true },
@@ -332,9 +343,11 @@ function ImageGroup(props: imageGroupProps, ref: ForwardedRef<HTMLDivElement>) {
                 ...lazyImageProps?.contextMenu,
                 enableContextMenu: {
                   ...lazyImageProps?.contextMenu?.enableContextMenu,
-                  // 预览时不显示 fs_mv, fs
-                  fs_mv: false,
-                  fs: false,
+                  copy: false,
+                  rename: false,
+                  delete: false,
+                  cut: false,
+                  preview: false,
                 },
               },
             },

@@ -215,7 +215,7 @@ function ImageCollapse(props: ImageCollapseProps) {
         path,
         images: [images, underFolderImages].find((arr) => arr?.length) || [],
         underFolderDeeplyImages: underFolderDeeplyImages || [],
-        enable: contextMenu(path),
+        enableContextMenu: contextMenu(path),
       },
     })
   })

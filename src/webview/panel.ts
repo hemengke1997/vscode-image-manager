@@ -31,7 +31,10 @@ export class ImageManagerPanel {
   /**
    * 要在viewer中打开的指定图片
    */
-  public static imageReveal: string = ''
+  public static webviewInitialData: {
+    imageReveal: string
+    sharpInstalled: boolean
+  }
 
   // events
   private static _onDidChanged = new EventEmitter<Webview | false>()
@@ -108,12 +111,30 @@ export class ImageManagerPanel {
    * @param imageReveal 要打开的图片路径
    * @returns
    */
-  public static createOrShow(ctx: ExtensionContext, reload = false, imageReveal: string) {
-    // 加时间戳是为了重复打开同一图片时，能够触发 imageReveal 的 effect
-    this.imageReveal = trim(imageReveal).length ? `${trim(imageReveal)}?t=${Date.now()}` : ''
+  public static createOrShow(options: {
+    ctx: ExtensionContext
+    reload: boolean
+    /**
+     * webview需要的初始化数据
+     */
+    webviewInitialData: {
+      imageReveal: string
+      sharpInstalled: boolean
+    }
+  }) {
+    const {
+      ctx,
+      reload,
+      webviewInitialData: { imageReveal, sharpInstalled },
+    } = options
+    this.webviewInitialData = {
+      // 加时间戳是为了重复打开同一图片时，能够触发 imageReveal 的 effect
+      imageReveal: trim(imageReveal).length ? `${trim(imageReveal)}?t=${Date.now()}` : '',
+      sharpInstalled,
+    }
 
     const panel = this.revive(ctx)
-    panel._reveal(reload, this.imageReveal)
+    panel._reveal(reload, this.webviewInitialData.imageReveal)
     return panel
   }
 

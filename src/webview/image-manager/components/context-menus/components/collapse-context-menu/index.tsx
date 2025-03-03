@@ -3,8 +3,10 @@ import { Item, type ItemParams, type PredicateParams, RightSlot, Separator, Subm
 import { useTranslation } from 'react-i18next'
 import { useMemoizedFn } from 'ahooks'
 import { App } from 'antd'
+import { merge } from 'lodash-es'
 import { os } from 'un-detector'
 import FileContext from '~/webview/image-manager/contexts/file-context'
+import GlobalContext from '~/webview/image-manager/contexts/global-context'
 import useImageOperation from '~/webview/image-manager/hooks/use-image-operation'
 import { Keybinding } from '~/webview/image-manager/keybinding'
 import MaskMenu from '../../../mask-menu'
@@ -12,48 +14,74 @@ import Arrow from '../arrow'
 import { type CollapseContextMenuType } from './hooks/use-collapse-context-menu'
 
 export const COLLAPSE_CONTEXT_MENU_ID = 'COLLAPSE_CONTEXT_MENU_ID'
-const COLLAPSE_CONTEXT_MENU = {
+enum COLLAPSE_CONTEXT_MENU {
   /**
    * 在系统资源管理器中打开
+   * @default true
    */
-  open_in_os_explorer: 'open_in_os_explorer',
+  open_in_os_explorer = 'open_in_os_explorer',
   /**
    * 在vscode资源管理器中打开
+   * @default true
    */
-  open_in_vscode_explorer: 'open_in_vscode_explorer',
+  open_in_vscode_explorer = 'open_in_vscode_explorer',
   /**
    * 压缩当前文件夹下的图片
+   * @default false
    */
-  compress_in_current_directory: 'compress_in_current_directory',
+  compress_in_current_directory = 'compress_in_current_directory',
   /**
    * 压缩当前文件夹下的所有图片（包括子目录）
+   * @default false
    */
-  compress_in_recursive_directories: 'compress_in_recursive_directories',
+  compress_in_recursive_directories = 'compress_in_recursive_directories',
   /**
    * 转换当前文件夹下的图片格式
+   * @default false
    */
-  format_conversion_in_current_directory: 'format_conversion_in_current_directory',
+  format_conversion_in_current_directory = 'format_conversion_in_current_directory',
   /**
    * 转换当前文件夹下的所有图片格式（包括子目录）
+   * @default false
    */
-  format_conversion_in_recursive_directories: 'format_conversion_in_recursive_directories',
+  format_conversion_in_recursive_directories = 'format_conversion_in_recursive_directories',
   /**
    * 重命名目录
+   * @default false
    */
-  rename_directory: 'rename_directory',
+  rename_directory = 'rename_directory',
   /**
    * 删除目录
+   * @default false
    */
-  delete_directory: 'delete_directory',
+  delete_directory = 'delete_directory',
 }
 
-export type EnableCollapseContextMenuType = {
-  [key in keyof typeof COLLAPSE_CONTEXT_MENU]?: boolean
+const defaultCollapseContextMenu = {
+  [COLLAPSE_CONTEXT_MENU.open_in_os_explorer]: true,
+  [COLLAPSE_CONTEXT_MENU.open_in_vscode_explorer]: true,
+  [COLLAPSE_CONTEXT_MENU.compress_in_current_directory]: false,
+  [COLLAPSE_CONTEXT_MENU.compress_in_recursive_directories]: false,
+  [COLLAPSE_CONTEXT_MENU.format_conversion_in_current_directory]: false,
+  [COLLAPSE_CONTEXT_MENU.format_conversion_in_recursive_directories]: false,
+  [COLLAPSE_CONTEXT_MENU.rename_directory]: false,
+  [COLLAPSE_CONTEXT_MENU.delete_directory]: false,
 }
+
+const sharpRelated = [
+  COLLAPSE_CONTEXT_MENU.compress_in_current_directory,
+  COLLAPSE_CONTEXT_MENU.compress_in_recursive_directories,
+  COLLAPSE_CONTEXT_MENU.format_conversion_in_current_directory,
+  COLLAPSE_CONTEXT_MENU.format_conversion_in_recursive_directories,
+]
+
+export type EnableCollapseContextMenuType = Partial<typeof defaultCollapseContextMenu>
 
 function CollapseContextMenu() {
   const { t } = useTranslation()
   const { message } = App.useApp()
+
+  const { sharpInstalled } = GlobalContext.usePicker(['sharpInstalled'])
 
   const {
     openInOsExplorer,
@@ -67,10 +95,18 @@ function CollapseContextMenu() {
 
   const isItemHidden = useMemoizedFn((e: PredicateParams<CollapseContextMenuType>) => {
     const { data, props } = e
-    if (Array.isArray(data)) {
-      return data.every((d) => props?.enable[d] === false)
+    const enabled = merge({}, defaultCollapseContextMenu, props?.enableContextMenu)
+
+    if (!sharpInstalled) {
+      sharpRelated.forEach((item) => {
+        enabled[item] = false
+      })
     }
-    return props?.enable[data] === false
+
+    if (Array.isArray(data)) {
+      return data.every((d) => enabled?.[d] === false)
+    }
+    return enabled?.[data] === false
   })
 
   const handleOpenInOsExplorer = useMemoizedFn((e: ItemParams<CollapseContextMenuType>) => {
@@ -142,10 +178,7 @@ function CollapseContextMenu() {
           <RightSlot>{Keybinding.Paste()}</RightSlot>
         </Item>
 
-        <Separator
-          hidden={isItemHidden}
-          data={[COLLAPSE_CONTEXT_MENU.open_in_os_explorer, COLLAPSE_CONTEXT_MENU.open_in_vscode_explorer]}
-        />
+        <Separator hidden={isItemHidden} data={sharpRelated} />
         <Submenu
           label={t('im.compress')}
           hidden={(e) =>

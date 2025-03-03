@@ -22,7 +22,7 @@ export type CollapseContextMenuType = {
   /**
    * 要显示的菜单项
    */
-  enable: EnableCollapseContextMenuType
+  enableContextMenu: EnableCollapseContextMenuType
 }
 
 export default function useCollapseContextMenu() {

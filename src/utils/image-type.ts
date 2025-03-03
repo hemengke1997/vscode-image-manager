@@ -45,7 +45,7 @@ export async function convertToBase64IfBrowserNotSupport(input: string) {
   if (mimetype && notSupported.includes(mimetype)) {
     mimetype = mime.getType('png')!
     try {
-      const buffer = await Global.sharp(input).png().toBuffer()
+      const buffer = await Global.sharp!(input).png().toBuffer()
       return toBase64(mimetype, buffer)
     } catch {
       return input

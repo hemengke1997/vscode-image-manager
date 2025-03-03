@@ -31,6 +31,7 @@ declare global {
      * vscode 设置到window上的全局变量
      */
     __reveal_image_path__: string
+    __sharp_installed__: boolean
   }
 
   /**

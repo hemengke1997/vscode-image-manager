@@ -17,8 +17,8 @@ interface RuntimeHooks<T extends AnyObject, RuntimeCtx extends AnyObject = T & O
 }
 
 class Context<T extends AnyObject, RuntimeCtx extends AnyObject = T & OperatorInput> {
-  sharp: SharpNS.Sharp
-  sharpFactory: TSharp
+  sharp: SharpNS.Sharp | undefined
+  sharpFactory: TSharp | undefined
   runtime: RuntimeCtx
 
   constructor() {
@@ -74,9 +74,9 @@ export class SharpOperator<T extends AnyObject, RuntimeCtx extends AnyObject = T
 
     const { input } = this.ctx.runtime
 
-    this.ctx.sharpFactory.cache({ memory: 200 })
+    this.ctx.sharpFactory?.cache({ memory: 200 })
 
-    this.ctx.sharp = this.ctx.sharpFactory(input, {
+    this.ctx.sharp = this.ctx.sharpFactory?.(input, {
       ...((await this.hooks.callHook('on:configuration', this.ctx)) || {}),
     })
 
@@ -86,7 +86,7 @@ export class SharpOperator<T extends AnyObject, RuntimeCtx extends AnyObject = T
 
     return new Promise((resolve, reject) => {
       this.ctx.sharp
-        .toBuffer()
+        ?.toBuffer()
         .then(async (buffer) => {
           const result = {
             outputPath,

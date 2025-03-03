@@ -34,14 +34,28 @@ toast.setDefaultOptions({
 })
 
 function ImageManager() {
-  const { message } = App.useApp()
+  const { message, notification } = App.useApp()
   const { t } = useTranslation()
 
-  const { setCompressor, setFormatConverter } = GlobalContext.usePicker(['setCompressor', 'setFormatConverter'])
+  const { setCompressor, setFormatConverter, sharpInstalled } = GlobalContext.usePicker([
+    'setCompressor',
+    'setFormatConverter',
+    'sharpInstalled',
+  ])
 
   const { refreshImages } = ActionContext.usePicker(['refreshImages'])
 
   useRefreshImages()
+
+  useEffect(() => {
+    if (!sharpInstalled) {
+      notification.warning({
+        message: t('im.deps_not_found'),
+        description: t('im.no_sharp'),
+        duration: 0,
+      })
+    }
+  }, [sharpInstalled])
 
   const getCompressor = useMemoizedFn(() => {
     return new Promise<WebviewCompressorType>((resolve, reject) => {

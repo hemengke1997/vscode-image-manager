@@ -1,7 +1,7 @@
 import { memo } from 'react'
 import { useTranslation } from 'react-i18next'
 import { useMemoizedFn } from 'ahooks'
-import { Checkbox, Form } from 'antd'
+import { Button, Checkbox, Form, Space } from 'antd'
 import { Key } from 'ts-key-enum'
 import { os } from 'un-detector'
 import { ConfigKey } from '~/core/config/common'
@@ -54,9 +54,18 @@ function DeleteImage(props: Props & ImperativeModalProps) {
         </Form.Item>
       </div>
       <div className={'flex justify-end'}>
-        <AutoFocusButton type={'primary'} htmlType={'submit'}>
-          {t('im.confirm')}
-        </AutoFocusButton>
+        <Space>
+          <Button
+            onClick={() => {
+              closeModal()
+            }}
+          >
+            {t('im.cancel')}
+          </Button>
+          <AutoFocusButton type={'primary'} htmlType={'submit'}>
+            {t('im.confirm')}
+          </AutoFocusButton>
+        </Space>
       </div>
     </Form>
   )

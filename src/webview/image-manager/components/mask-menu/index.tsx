@@ -22,7 +22,7 @@ function MaskMenu(props: MenuProps) {
             // menu先展示，再展示mask，避免menu消失
             setTimeout(() => {
               setContextMenuMask(v)
-            })
+            }, 60)
           } else {
             setContextMenuMask(v)
           }

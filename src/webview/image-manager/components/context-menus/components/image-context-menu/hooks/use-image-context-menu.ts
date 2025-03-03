@@ -1,6 +1,5 @@
 import { type ShowContextMenuParams, useContextMenu } from 'react-contexify'
 import { useMemoizedFn } from 'ahooks'
-import { merge } from 'lodash-es'
 import CtxMenuContext from '~/webview/image-manager/contexts/ctx-menu-context'
 import { type EnableImageContextMenuType, IMAGE_CONTEXT_MENU_ID } from '..'
 
@@ -23,15 +22,6 @@ export type ImageContextMenuType = {
   sameWorkspaceImages?: ImageType[]
   /**
    * 要显示的菜单项
-   * @default
-   * ```ts
-   * {
-   *    sharp: false,
-   *    reveal_in_viewer: false,
-   *    fs: false,
-   *    svg_pretty: false,
-   * }
-   * ```
    */
   enableContextMenu?: EnableImageContextMenuType
   /**
@@ -59,26 +49,11 @@ export default function useImageContextMenu() {
 
       setShortCutsVisible(!shortcutsVisible === false)
 
-      const defaultEnabledContextMenuValue: EnableImageContextMenuType = {
-        sharp: false,
-        reveal_in_viewer: false,
-        fs: false,
-        fs_mv: false,
-        svg: false,
-      }
-
-      params.props = merge(
-        {
-          enable: defaultEnabledContextMenuValue,
-        },
-        params.props,
-      )
-
       return contextMenu.show({
         ...params,
         props: {
-          ...params.props,
-          images: params.props.images?.length ? params.props.images : [params.props.image],
+          ...params.props!,
+          images: (params.props?.images?.length ? params.props.images : [params.props?.image]) as ImageType[],
         },
         id: IMAGE_CONTEXT_MENU_ID,
       })
