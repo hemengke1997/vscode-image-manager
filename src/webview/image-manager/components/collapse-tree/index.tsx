@@ -5,6 +5,7 @@ import { FaRegImages } from 'react-icons/fa6'
 import { VscFileMedia } from 'react-icons/vsc'
 import { useMemoizedFn } from 'ahooks'
 import { Card, type CollapseProps, ConfigProvider, Empty } from 'antd'
+import { produce } from 'immer'
 import { isNil } from 'lodash-es'
 import { classNames } from 'tw-clsx'
 import { DisplayGroupType, DisplayStyleType } from '~/core/persist/workspace/common'
@@ -97,7 +98,11 @@ function CollapseTree(props: Props) {
 
   const visibleList = TreeContext.useSelector((ctx) => ctx.imageSingleTree.visibleList)
 
-  const { collapseIdSet } = ActionContext.usePicker(['collapseIdSet'])
+  const { collapseIdSet, activeCollapseIdSet, setActiveCollapseIdSet } = ActionContext.usePicker([
+    'collapseIdSet',
+    'activeCollapseIdSet',
+    'setActiveCollapseIdSet',
+  ])
 
   const dirTree = useRef<DirTree<TreeExtraProps>>()
 
@@ -159,6 +164,30 @@ function CollapseTree(props: Props) {
     [workspaceFolder, dirs, imageTypes, getContextMenu],
   )
 
+  const isCollapseOpen = useMemoizedFn(
+    (
+      value: string,
+      options?: {
+        forceOpen?: boolean
+      },
+    ) => {
+      if (options?.forceOpen) return true
+      return activeCollapseIdSet.value.has(value)
+    },
+  )
+
+  const onCollapseOpenChange = useMemoizedFn((open, value) => {
+    setActiveCollapseIdSet(
+      produce((draft) => {
+        if (open) {
+          draft.value.add(value)
+        } else {
+          draft.value.delete(value)
+        }
+      }),
+    )
+  })
+
   const nestedDisplay = useMemoizedFn(
     (
       tree: (FileNode & TreeExtraProps)[],
@@ -185,14 +214,21 @@ function CollapseTree(props: Props) {
                 collapseProps={{
                   bordered: false,
                   className: classNames(styles.collapse),
-                  // 多工作区时，顶部目录可以关闭，否则不可关闭
-                  [multipleWorkspace ? 'defaultActiveKey' : 'activeKey']: root ? [value] : undefined,
                   // 展开第一个有图片的节点
                   defaultActiveKey: firstNodeWithImages.current?.value === value ? [value] : undefined,
                   ...collapseProps,
                 }}
                 // 非根节点，或者多工作区时，可以折叠
                 collapsible={!root || multipleWorkspace}
+                // 多工作区的根节点默认展开
+                defaultOpen={multipleWorkspace && root}
+                open={isCollapseOpen(value, {
+                  // 非多工作区时，根节点强制展开
+                  forceOpen: !multipleWorkspace && root,
+                })}
+                onOpenChange={(open) => {
+                  onCollapseOpenChange(open, value)
+                }}
                 labelRender={(label) => (
                   <div className={'flex items-center space-x-1'}>
                     <div className={'flex items-center'}>{displayMap[groupType].icon({ path: value })}</div>
@@ -205,7 +241,6 @@ function CollapseTree(props: Props) {
                 })}
                 label={label}
                 joinLabel={!!displayMap[groupType].priority}
-                nestedChildren={label ? nestedDisplay(children) : null}
                 images={renderList}
                 underFolderImages={underFolderList}
                 underFolderDeeplyImages={underFolderDeeplyList}
@@ -227,7 +262,9 @@ function CollapseTree(props: Props) {
                     },
                   },
                 }}
-              ></ImageCollapse>
+              >
+                {label ? nestedDisplay(children) : null}
+              </ImageCollapse>
             )
           })}
         </div>

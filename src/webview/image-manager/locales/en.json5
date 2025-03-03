@@ -200,6 +200,7 @@
     paste: 'Paste',
     paste_success: 'Paste Success',
     paste_failed: 'Paste Failed',
+    cut_tip: 'Press ESC to cancel cut',
   },
   fallback: {
     internal_error: 'Internal Error',

@@ -1,4 +1,4 @@
-import { memo, type ReactNode, useEffect, useLayoutEffect, useMemo, useRef, useState } from 'react'
+import { memo, type ReactNode, useEffect, useMemo, useRef, useState } from 'react'
 import { Element, scroller } from 'react-scroll'
 import { styleObjectToString } from '@minko-fe/style-object-to-string'
 import { useMemoizedFn, useUpdateEffect } from 'ahooks'
@@ -7,7 +7,6 @@ import { Collapse, type CollapseProps } from 'antd'
 import { produce } from 'immer'
 import { isUndefined } from 'lodash-es'
 import { classNames } from 'tw-clsx'
-import ActionContext from '../../contexts/action-context'
 import FileContext, { CopyType } from '../../contexts/file-context'
 import GlobalContext from '../../contexts/global-context'
 import useImageManagerEvent, { IMEvent } from '../../hooks/use-image-manager-event'
@@ -52,7 +51,7 @@ type ImageCollapseProps = {
   /**
    * 嵌套子组件
    */
-  nestedChildren: JSX.Element | null
+  children: JSX.Element | null
   /**
    * 目录绝对地址
    */
@@ -69,12 +68,21 @@ type ImageCollapseProps = {
    * 是否可以展开
    */
   collapsible?: boolean
+  /**
+   * 默认展开
+   */
+  defaultOpen?: boolean
+  /**
+   * 展开态
+   */
+  open?: boolean
+  onOpenChange?: (open: boolean) => void
 }
 
 function ImageCollapse(props: ImageCollapseProps) {
   const {
     collapseProps,
-    nestedChildren,
+    children,
     labelRender,
     label,
     joinLabel,
@@ -85,6 +93,9 @@ function ImageCollapse(props: ImageCollapseProps) {
     contextMenu,
     imageGroupProps,
     collapsible = true,
+    defaultOpen,
+    open: openProp,
+    onOpenChange,
   } = props
 
   const { imageReveal, viewerHeaderStickyHeight, dirReveal, setDirReveal } = GlobalContext.usePicker([
@@ -117,8 +128,9 @@ function ImageCollapse(props: ImageCollapseProps) {
   }, [stickyRef])
 
   const onCollapseChange = useMemoizedFn((keys: string[]) => {
-    setActiveKeys(keys)
+    if (!collapsible) return
 
+    setOpen(!!keys.length)
     if (!keys.length) {
       // 关闭collapse
       // 如果sticky状态，需要滚动collapse的header到顶部
@@ -138,47 +150,12 @@ function ImageCollapse(props: ImageCollapseProps) {
   const basePath = useMemo(() => (joinLabel ? id.slice(0, id.lastIndexOf(label)) : id), [id, label, joinLabel])
   const labels = useMemo(() => label.split('/').filter(Boolean), [label])
 
-  const { activeCollapseIdSet, setActiveCollapseIdSet } = ActionContext.usePicker([
-    'activeCollapseIdSet',
-    'setActiveCollapseIdSet',
-  ])
-
-  const [activeKeys, setActiveKeys] = useControlledState<string[]>({
-    defaultValue: (collapseProps.defaultActiveKey as string[]) || [],
-    value: collapseProps.activeKey as string[],
-    // 当 activeKeys 变化时，更新 activeCollapseIdSet
-    onChange: (keys) => {
-      setActiveCollapseIdSet(
-        produce((draft) => {
-          if (keys.length > 0) {
-            draft.value.add(id)
-          } else {
-            draft.value.delete(id)
-          }
-        }),
-      )
-    },
+  const [open, setOpen] = useControlledState<boolean>({
+    defaultValue: defaultOpen,
+    value: openProp,
+    onChange: onOpenChange,
+    onInit: onOpenChange,
   })
-
-  useLayoutEffect(() => {
-    if (collapseProps.defaultActiveKey) {
-      // 如果默认展开，需要将id加入到activeCollapseIdSet
-      setActiveCollapseIdSet(
-        produce((draft) => {
-          draft.value.add(id)
-        }),
-      )
-    }
-  }, [])
-
-  // 监听全局的activeCollapseIdSet的变化，更新activeKeys
-  useUpdateEffect(() => {
-    if (activeCollapseIdSet.value.has(id) && !activeKeys.includes(id)) {
-      setActiveKeys([id])
-    } else if (!activeCollapseIdSet.value.has(id) && activeKeys.includes(id)) {
-      setActiveKeys([])
-    }
-  }, [activeCollapseIdSet.updateFlag])
 
   // 判断当前collapse是否active
   const isActive = useMemoizedFn((imagePath: string) => {
@@ -187,14 +164,14 @@ function ImageCollapse(props: ImageCollapseProps) {
 
   const onActive = useMemoizedFn((imagePath: string) => {
     if (isActive(imagePath)) {
-      setActiveKeys([id])
+      setOpen(true)
     }
   })
 
   // 由于collapse的内容默认是不渲染的，
   // 所以需要在 `reveal_in_viewer` 的时候，主动触发collapse渲染
   useEffect(() => {
-    if (!activeKeys.length) {
+    if (!open) {
       onActive(clearTimestamp(imageReveal))
     }
   }, [imageReveal])
@@ -244,11 +221,8 @@ function ImageCollapse(props: ImageCollapseProps) {
   })
 
   const onLabelClick = useMemoizedFn(() => {
-    if (activeKeys?.length) {
-      setActiveKeys([])
-    } else {
-      setActiveKeys([id])
-    }
+    if (!collapsible) return
+    setOpen((t) => !t)
   })
 
   const generateLabel = useMemoizedFn((labels: string[]) => {
@@ -261,7 +235,7 @@ function ImageCollapse(props: ImageCollapseProps) {
                 index={i}
                 contextMenu={contextMenu(getCurrentPath(i))}
                 onContextMenu={(e) => onContextMenu(e, i)}
-                onClick={collapsible ? onLabelClick : undefined}
+                onClick={onLabelClick}
                 dirPath={getCurrentPath(i)}
               >
                 {item}
@@ -274,7 +248,7 @@ function ImageCollapse(props: ImageCollapseProps) {
     } else {
       return (
         <SingleLabel
-          onClick={collapsible ? onLabelClick : undefined}
+          onClick={onLabelClick}
           index={0}
           contextMenu={contextMenu(id)}
           onContextMenu={(e) => onContextMenu(e, 0)}
@@ -309,7 +283,7 @@ function ImageCollapse(props: ImageCollapseProps) {
       })
     },
     topOffset: viewerHeaderStickyHeight,
-    enable: !!(activeKeys.length && holderRef.current),
+    enable: !!(open && holderRef.current),
   })
 
   /**
@@ -317,11 +291,11 @@ function ImageCollapse(props: ImageCollapseProps) {
    * 解决非手动打开collapse时，sticky失效的问题
    */
   const [, update] = useState(0)
-  useEffect(() => {
-    if (activeKeys.length) {
+  useUpdateEffect(() => {
+    if (open) {
       update((t) => ~t)
     }
-  }, [activeKeys])
+  }, [open])
 
   // 全局的文件选择
   const { selectedImageMap, setSelectedImageMap, allSelectedImages, imageCopied } = FileContext.usePicker([
@@ -347,7 +321,7 @@ function ImageCollapse(props: ImageCollapseProps) {
     }
   })
 
-  if (!images?.length && !nestedChildren) return null
+  if (!images?.length && !children) return null
 
   return (
     <Element name={id}>
@@ -359,12 +333,11 @@ function ImageCollapse(props: ImageCollapseProps) {
          */
         destroyInactivePanel
         ref={stickyRef}
-        activeKey={activeKeys}
+        activeKey={open ? [id] : []}
         onChange={(keys) => onCollapseChange(keys as string[])}
-        className={classNames(collapseProps.className)}
         items={[
           {
-            forceRender: !!activeKeys.length,
+            forceRender: open,
             key: id,
             label: labelRender(generateLabel(labels)),
             children: images?.length ? (
@@ -383,10 +356,10 @@ function ImageCollapse(props: ImageCollapseProps) {
                   }}
                   images={images}
                 />
-                {nestedChildren}
+                {children}
               </div>
             ) : (
-              nestedChildren
+              children
             ),
           },
         ]}

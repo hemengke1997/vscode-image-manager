@@ -2,7 +2,7 @@ import { type ReactNode } from 'react'
 import { Trans, useTranslation } from 'react-i18next'
 import { VscArrowRight } from 'react-icons/vsc'
 import { useLockFn, useMemoizedFn } from 'ahooks'
-import { App, Button, Divider, Typography } from 'antd'
+import { App, Button, Divider, Space, Typography } from 'antd'
 import { isObject, isString, lowerCase, toString } from 'lodash-es'
 import { type OperatorResult } from '~/core'
 import { ConfigKey } from '~/core/config/common'
@@ -540,7 +540,7 @@ function useImageOperation() {
     })
   })
 
-  const { handleCopy, handlePaste, handleCut, setImageCopied, imageCopied, clearSelectedImages } =
+  const { handleCopy, handlePaste, handleCut, setImageCopied, imageCopied, clearSelectedImages, fileTip, setFileTip } =
     FileContext.usePicker([
       'handleCopy',
       'handlePaste',
@@ -548,6 +548,8 @@ function useImageOperation() {
       'setImageCopied',
       'imageCopied',
       'clearSelectedImages',
+      'fileTip',
+      'setFileTip',
     ])
 
   const beginCopyProcess = useMemoizedFn((images: ImageType[]) => {
@@ -569,7 +571,7 @@ function useImageOperation() {
                 {item.message} <Divider type={'vertical'}></Divider>
                 <div className={'flex items-center gap-x-2'}>
                   {source}
-                  {source === target && (
+                  {source !== target && (
                     <>
                       <VscArrowRight />
                       {target}
@@ -619,8 +621,40 @@ function useImageOperation() {
     }
   })
 
+  const { workspaceState } = GlobalContext.usePicker(['workspaceState'])
+  const [showCutTip, setShowCutTip] = useWorkspaceState(WorkspaceStateKey.show_cut_tip, workspaceState.show_cut_tip)
+
+  // 剪切图片
   const beginCutProcess = useMemoizedFn((images: ImageType[]) => {
     handleCut(images)
+    // 根据工作区缓存和运行时缓存来判断是否需要展示剪切提示
+    // 如果工作区允许且运行时允许，则展示
+    if (showCutTip && fileTip.cut) {
+      // 运行时只显示一次提示，多了烦躁
+      setFileTip({
+        cut: false,
+      })
+
+      const key = 'cut-tip'
+      // 提示，可以按 exit 键取消
+      message.info({
+        content: (
+          <Space>
+            {t('im.cut_tip')}
+            <Button
+              onClick={() => {
+                // 关闭提示，再也不显示
+                setShowCutTip(false)
+                message.destroy(key)
+              }}
+            >
+              {t('im.no_tip')}
+            </Button>
+          </Space>
+        ),
+        key,
+      })
+    }
   })
 
   // 取消剪切状态

@@ -1,3 +1,5 @@
+import type ReactDOM from 'react-dom/client'
+
 declare global {
   interface Window {
     /**

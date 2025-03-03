@@ -1,6 +1,6 @@
 import { useMemo, useState } from 'react'
 import { useTranslation } from 'react-i18next'
-import { useMemoizedFn } from 'ahooks'
+import { useMemoizedFn, useSetState } from 'ahooks'
 import { createContainer } from 'context-state'
 import { produce } from 'immer'
 import { lowerCase } from 'lodash-es'
@@ -10,7 +10,9 @@ import { vscodeApi } from '~/webview/vscode-api'
 export type FileChangedResType = { success: boolean; message: string; target: string; source: string }[]
 
 export enum CopyType {
+  // 复制
   COPY = 'copy',
+  // 剪切
   MOVE = 'move',
 }
 
@@ -60,6 +62,12 @@ function useFileContext() {
     )
   })
 
+  // 全局的文件操作相关提示
+  const [fileTip, setFileTip] = useSetState<{
+    // 剪切提示
+    cut: boolean
+  }>({ cut: false })
+
   /* -- handle方法不要直接使用，通过 useImageOperation 使用 -- */
   /* ------ 因为Context中访问不到antd的上下文，不方便做逻辑处理 ----- */
 
@@ -103,7 +111,6 @@ function useFileContext() {
               source: item.source,
             }
             if (item.status === 'rejected') {
-              console.log(item, 'item')
               if (lowerCase(item.reason['code']).includes('exists')) {
                 // 文件已存在
                 result = {
@@ -139,6 +146,8 @@ function useFileContext() {
     handleCopy,
     handleCut,
     handlePaste,
+    fileTip,
+    setFileTip,
   }
 }
 

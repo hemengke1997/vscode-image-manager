@@ -200,6 +200,7 @@
     paste: '貼上',
     paste_success: '貼上成功',
     paste_failed: '貼上失敗',
+    cut_tip: '按 ESC 取消剪切',
   },
   fallback: {
     internal_error: '內部錯誤',

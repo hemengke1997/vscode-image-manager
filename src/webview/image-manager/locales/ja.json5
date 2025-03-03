@@ -200,6 +200,7 @@
     paste: '貼り付け',
     paste_success: '貼り付け成功',
     paste_failed: '貼り付け失敗',
+    cut_tip: 'ESCを押してカットをキャンセル',
   },
   fallback: {
     internal_error: '内部エラー',

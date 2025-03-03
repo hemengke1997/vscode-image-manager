@@ -2,10 +2,13 @@ import { startTransition } from 'react'
 import ReactDOM from 'react-dom/client'
 import { ErrorBoundary } from 'react-error-boundary'
 import { initReactI18next } from 'react-i18next'
+import { Transition } from 'react-transition-preset'
+import Logo from '~root/assets/logo.svg?react'
 import i18next from 'i18next'
 import { i18nAlly } from 'vite-plugin-i18n-ally/client'
 import { CmdToVscode } from '~/message/cmd'
 import { FALLBACK_LANGUAGE } from '~/meta'
+import logger from '~/utils/logger'
 import { getAppRoot, intelligentPickConfig } from '~/webview/utils'
 import { vscodeApi } from '~/webview/vscode-api'
 import ImageManager from '.'
@@ -25,12 +28,28 @@ let key = 0
 
 const i18nChangeLanguage = i18next.changeLanguage
 
+function getReactRoot() {
+  if (!window.__react_root__) {
+    window.__react_root__ = ReactDOM.createRoot(getAppRoot())
+  }
+  return window.__react_root__
+}
+
 function registerApp(children: JSX.Element, reload = false) {
+  getReactRoot().render(
+    <div className={'flex h-screen w-screen items-center justify-center bg-vscode-editor-background'}>
+      <Transition mounted={true} enterDelay={200} initial={true} transition={'fade'}>
+        <Logo className={'animate-bounce text-6xl'} />
+      </Transition>
+    </div>,
+  )
+
   vscodeApi.postMessage(
     {
       cmd: CmdToVscode.on_webview_ready,
     },
     (data) => {
+      logger.debug(CmdToVscode.on_webview_ready, data)
       const {
         config: { ext, vscode },
         workspaceState,
@@ -67,24 +86,17 @@ function registerApp(children: JSX.Element, reload = false) {
           i18next.changeLanguage(language)
         },
         onInited() {
-          try {
-            if (!window.__react_root__) {
-              window.__react_root__ = ReactDOM.createRoot(getAppRoot())
-            }
-          } catch {
-          } finally {
-            key = reload ? ~key : key
+          key = reload ? ~key : key
 
-            startTransition(() => {
-              window.__react_root__.render(
-                <div onContextMenu={(e) => e.preventDefault()} key={key}>
-                  <VscodeContext.Provider value={{ extConfig: ext, vscodeConfig: vscode, workspaceState }}>
-                    {children}
-                  </VscodeContext.Provider>
-                </div>,
-              )
-            })
-          }
+          startTransition(() => {
+            getReactRoot().render(
+              <div onContextMenu={(e) => e.preventDefault()} key={key}>
+                <VscodeContext.Provider value={{ extConfig: ext, vscodeConfig: vscode, workspaceState }}>
+                  {children}
+                </VscodeContext.Provider>
+              </div>,
+            )
+          })
         },
         onResourceLoaded: (resource, { language }) => {
           i18next.addResourceBundle(language, i18next.options.defaultNS?.[0], resource)

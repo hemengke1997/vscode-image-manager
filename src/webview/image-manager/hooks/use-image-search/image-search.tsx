@@ -1,5 +1,4 @@
 import { type HTMLAttributes, memo, useEffect, useMemo, useRef, useState } from 'react'
-import { flushSync } from 'react-dom'
 import Highlighter from 'react-highlight-words'
 import { useTranslation } from 'react-i18next'
 import { PiSpinnerGapLight } from 'react-icons/pi'
@@ -249,9 +248,7 @@ function ImageSearch(props: ImperativeModalProps) {
           onKeyDown={handleKeyDown}
           onSearch={(value) => {
             cancel()
-            flushSync(() => {
-              setSearch({ value, source: 'input' })
-            })
+            setSearch({ value, source: 'input' })
             handleSearch()
           }}
         />

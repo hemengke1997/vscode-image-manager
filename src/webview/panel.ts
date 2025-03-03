@@ -48,6 +48,8 @@ export class ImageManagerPanel {
     // Listen for when the panel is disposed
     // This happens when the user closes the panel or when the panel is closed programatically
     this._panel.onDidDispose(() => this.dispose(), null, this._disposables)
+
+    // 监听webview发送的消息
     this._panel.webview.onDidReceiveMessage((msg: MessageType) => this._handleMessage(msg), null, this._disposables)
 
     // 监听vscode配置变化
@@ -159,6 +161,9 @@ export class ImageManagerPanel {
     })
   }
 
+  /**
+   * 处理webview发送给vscode的消息
+   */
   private async _handleMessage(message: MessageType) {
     Channel.debug(`Receive cmd: ${message.cmd}`)
     WebviewMessageCenter.handleMessages(message)

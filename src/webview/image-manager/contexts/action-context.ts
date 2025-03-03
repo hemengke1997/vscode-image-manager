@@ -34,31 +34,31 @@ function useActionContext() {
 
   const [activeCollapseIdSet, setActiveCollapseIdSet] = useState<{
     value: Set<string>
-    // 简单的发布订阅，由 updateFlag 控制更新来源
-    updateFlag: number
   }>({
     value: new Set(),
-    updateFlag: 0,
   })
 
   const openAllCollapse = useMemoizedFn(() => {
-    setActiveCollapseIdSet((t) => ({
+    setActiveCollapseIdSet(() => ({
       value: new Set(collapseIdSet.current),
-      updateFlag: t.updateFlag + 1,
     }))
   })
 
   const closeAllCollapse = useMemoizedFn(() => {
-    setActiveCollapseIdSet((t) => ({
+    setActiveCollapseIdSet(() => ({
       value: new Set(),
-      updateFlag: t.updateFlag + 1,
     }))
   })
 
   const notifyCollapseChange = useMemoizedFn(() => {
+    // 把 collapseIdSet 中不存在的 activeCollapseIdSet 删除
     setActiveCollapseIdSet(
-      produce((t) => {
-        t.updateFlag += 1
+      produce((draft) => {
+        for (const id of draft.value) {
+          if (!collapseIdSet.current.has(id)) {
+            draft.value.delete(id)
+          }
+        }
       }),
     )
   })

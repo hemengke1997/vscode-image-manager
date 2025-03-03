@@ -39,6 +39,8 @@ export type WorkspaceStateType = {
   show_precision_tip: boolean
   // 撤销/恢复提示
   show_undo_redo_tip: boolean
+  // 剪切提示
+  show_cut_tip: boolean
 }
 
 export const defaultState: WorkspaceStateType = {
@@ -59,6 +61,7 @@ export const defaultState: WorkspaceStateType = {
   recent_primary_colors: [],
   show_precision_tip: true,
   show_undo_redo_tip: true,
+  show_cut_tip: true,
 }
 
 export const enum WorkspaceStateKey {
@@ -72,4 +75,6 @@ export const enum WorkspaceStateKey {
   show_precision_tip = 'show_precision_tip',
   // 撤销/恢复提示
   show_undo_redo_tip = 'show_undo_redo_tip',
+  // 剪切提示
+  show_cut_tip = 'show_cut_tip',
 }

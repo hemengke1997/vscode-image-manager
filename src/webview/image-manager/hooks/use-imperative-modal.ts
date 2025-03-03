@@ -26,16 +26,8 @@ const useImperativeModal: typeof useImperativeAntdModal = (args) => {
     },
   })
 
-  const _showModal: typeof showModal = (...args) => {
-    if (imperativeModalMap.get(id)) {
-      // 避免重复打开弹窗
-      return {} as ReturnType<typeof showModal>
-    }
-    return showModal(...args)
-  }
-
   return {
-    showModal: _showModal,
+    showModal,
     id,
     imperativeModalMap,
   }

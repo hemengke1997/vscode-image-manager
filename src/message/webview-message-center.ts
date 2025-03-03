@@ -13,6 +13,10 @@ export class WebviewMessageCenter {
     this.webview = webview
   }
 
+  /**
+   * 向webview发送消息
+   * @param message
+   */
   static postMessage<T extends keyof typeof CmdToWebview>(message: MessageType<any, T>) {
     // Filter some message
     if (!this.slientMessages.includes(message.cmd)) {
@@ -23,13 +27,20 @@ export class WebviewMessageCenter {
     }
   }
 
+  /**
+   * 处理webview发送给vscode的消息
+   * @param message
+   */
   static async handleMessages(message: MessageType) {
     const handler: (data: Record<string, any>, webview: Webview) => Thenable<any> = VscodeMessageCenter[
       message.cmd
     ] as any
 
     if (handler) {
+      // 执行对应消息的处理函数
       const data = await handler(message.data, this.webview)
+
+      // 如果消息有回调id，则返回数据给webview
       this.postMessage({ cmd: CmdToWebview.webview_callback, callbackId: message.callbackId, data })
     } else {
       Channel.error(i18n.t('core.handler_fn_not_exist', message.cmd))
