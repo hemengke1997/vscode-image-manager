@@ -9,7 +9,7 @@ import { Commands } from './commands'
 
 export default <ExtensionModule>function (ctx) {
   let previousRoot: string[] = []
-  let sharpInstalled = false
+  let sharpInstalled: boolean
 
   async function openWebview(uri: Uri | undefined) {
     let imagePath = ''
@@ -33,8 +33,12 @@ export default <ExtensionModule>function (ctx) {
 
     // init sharp here
     try {
-      await Global.installSharp()
-      sharpInstalled = true
+      // 不必每次打开插件时都安装 sharp
+      // 只要一次失败，就认为不支持 sharp
+      if (sharpInstalled !== false) {
+        await Global.installSharp()
+        sharpInstalled = true
+      }
     } catch {
       sharpInstalled = false
     } finally {

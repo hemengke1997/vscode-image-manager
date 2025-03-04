@@ -29,6 +29,9 @@ declare module 'react-contexify' {
       | React.KeyboardEvent<HTMLElement>
       | KeyboardEvent
   }
+  interface ItemProps {
+    children: ReactNode | ((params: ItemParams) => ReactNode)
+  }
 }
 
 export {}

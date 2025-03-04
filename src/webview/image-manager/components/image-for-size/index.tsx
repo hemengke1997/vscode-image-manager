@@ -29,7 +29,6 @@ function ImageForSize() {
           path: '',
         }}
         lazy={false}
-        contextMenu={undefined}
       />
     </div>
   ) : null

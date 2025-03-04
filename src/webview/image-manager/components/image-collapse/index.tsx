@@ -348,6 +348,7 @@ function ImageCollapse(props: ImageCollapseProps) {
                   selectedImages={selectedImageMap.get(id) || []}
                   onSelectedImagesChange={onSelectedImagesChange}
                   allSelectedImages={allSelectedImages}
+                  clearSelectedOnBlankClick={true}
                   {...imageGroupProps}
                   lazyImageProps={{
                     ...imageGroupProps?.lazyImageProps,

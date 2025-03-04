@@ -1,6 +1,6 @@
 import { commands, type Event, EventEmitter, type ExtensionContext, ExtensionMode, window, workspace } from 'vscode'
 import { Commands } from '~/commands'
-import { Installer } from '~/core/sharp'
+import { Installer, InstallEvent } from '~/core/sharp'
 import { i18n } from '~/i18n'
 import { EXT_NAMESPACE } from '~/meta'
 import { normalizePath } from '~/utils'
@@ -102,11 +102,11 @@ export class Global {
   static async installSharp() {
     return new Promise<boolean>(async (resolve, reject) => {
       this.installer.event
-        .on('install-success', (sharp) => {
+        .on(InstallEvent.success, (sharp) => {
           Channel.info(i18n.t('prompt.deps_init_success'))
           Global.sharp = sharp
         })
-        .on('install-fail', async (e) => {
+        .on(InstallEvent.fail, async (e) => {
           if (e instanceof TimeoutError) {
             const SELECT_MIRROR = i18n.t('pkg.cmd.select_mirror')
             const result = await window.showErrorMessage(i18n.t('prompt.deps_init_timeout'), SELECT_MIRROR)

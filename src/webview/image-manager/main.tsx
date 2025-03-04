@@ -15,7 +15,6 @@ import ImageManager from '.'
 import AntdConfigProvider from './components/antd-config-provider'
 import Fallback from './components/fallback'
 import ActionContext from './contexts/action-context'
-import CtxMenuContext from './contexts/ctx-menu-context'
 import FileContext from './contexts/file-context'
 import FilterContext from './contexts/filter-context'
 import GlobalContext from './contexts/global-context'
@@ -79,7 +78,6 @@ function registerApp(children: JSX.Element, reload = false) {
             interpolation: {
               escapeValue: false,
             },
-            lowerCaseLng: false,
             fallbackLng: FALLBACK_LANGUAGE,
           })
 
@@ -124,13 +122,11 @@ function mount(reload?: boolean) {
         <FilterContext.Provider>
           <ActionContext.Provider>
             <FileContext.Provider>
-              <CtxMenuContext.Provider>
-                <AntdConfigProvider>
-                  <ErrorBoundary FallbackComponent={Fallback}>
-                    <ImageManager />
-                  </ErrorBoundary>
-                </AntdConfigProvider>
-              </CtxMenuContext.Provider>
+              <AntdConfigProvider>
+                <ErrorBoundary FallbackComponent={Fallback}>
+                  <ImageManager />
+                </ErrorBoundary>
+              </AntdConfigProvider>
             </FileContext.Provider>
           </ActionContext.Provider>
         </FilterContext.Provider>

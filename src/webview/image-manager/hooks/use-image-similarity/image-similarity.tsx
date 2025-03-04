@@ -83,11 +83,6 @@ function ImageSimilarity(props: ImageSimilarityProps & ImperativeModalProps) {
           <ImageGroup
             images={[image]}
             lazyImageProps={{
-              contextMenu: {
-                enableContextMenu: {
-                  reveal_in_viewer: true,
-                },
-              },
               imageNameProps: {
                 tooltipDisplayFullPath: true,
               },
@@ -103,11 +98,6 @@ function ImageSimilarity(props: ImageSimilarityProps & ImperativeModalProps) {
             <ImageGroup
               images={images}
               lazyImageProps={{
-                contextMenu: {
-                  enableContextMenu: {
-                    reveal_in_viewer: true,
-                  },
-                },
                 imageNameProps: {
                   tooltipDisplayFullPath: true,
                 },

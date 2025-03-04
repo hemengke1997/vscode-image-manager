@@ -15,56 +15,56 @@ import { type CollapseContextMenuType } from './hooks/use-collapse-context-menu'
 
 export const COLLAPSE_CONTEXT_MENU_ID = 'COLLAPSE_CONTEXT_MENU_ID'
 enum COLLAPSE_CONTEXT_MENU {
-  /**
-   * 在系统资源管理器中打开
-   * @default true
-   */
   open_in_os_explorer = 'open_in_os_explorer',
-  /**
-   * 在vscode资源管理器中打开
-   * @default true
-   */
   open_in_vscode_explorer = 'open_in_vscode_explorer',
-  /**
-   * 压缩当前文件夹下的图片
-   * @default false
-   */
   compress_in_current_directory = 'compress_in_current_directory',
-  /**
-   * 压缩当前文件夹下的所有图片（包括子目录）
-   * @default false
-   */
   compress_in_recursive_directories = 'compress_in_recursive_directories',
-  /**
-   * 转换当前文件夹下的图片格式
-   * @default false
-   */
   format_conversion_in_current_directory = 'format_conversion_in_current_directory',
-  /**
-   * 转换当前文件夹下的所有图片格式（包括子目录）
-   * @default false
-   */
   format_conversion_in_recursive_directories = 'format_conversion_in_recursive_directories',
-  /**
-   * 重命名目录
-   * @default false
-   */
   rename_directory = 'rename_directory',
-  /**
-   * 删除目录
-   * @default false
-   */
   delete_directory = 'delete_directory',
 }
 
 const defaultCollapseContextMenu = {
+  /**
+   * 在系统资源管理器中打开
+   * @default true
+   */
   [COLLAPSE_CONTEXT_MENU.open_in_os_explorer]: true,
+  /**
+   * 在vscode资源管理器中打开
+   * @default true
+   */
   [COLLAPSE_CONTEXT_MENU.open_in_vscode_explorer]: true,
+  /**
+   * 压缩当前文件夹下的图片
+   * @default false
+   */
   [COLLAPSE_CONTEXT_MENU.compress_in_current_directory]: false,
+  /**
+   * 压缩当前文件夹下的所有图片（包括子目录）
+   * @default false
+   */
   [COLLAPSE_CONTEXT_MENU.compress_in_recursive_directories]: false,
+  /**
+   * 转换当前文件夹下的图片格式
+   * @default false
+   */
   [COLLAPSE_CONTEXT_MENU.format_conversion_in_current_directory]: false,
+  /**
+   * 转换当前文件夹下的所有图片格式（包括子目录）
+   * @default false
+   */
   [COLLAPSE_CONTEXT_MENU.format_conversion_in_recursive_directories]: false,
+  /**
+   * 重命名目录
+   * @default false
+   */
   [COLLAPSE_CONTEXT_MENU.rename_directory]: false,
+  /**
+   * 删除目录
+   * @default false
+   */
   [COLLAPSE_CONTEXT_MENU.delete_directory]: false,
 }
 

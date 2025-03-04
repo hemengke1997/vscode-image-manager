@@ -21,7 +21,9 @@ import { isDev } from 'vite-config-preset/client'
 import GlobalContext from '../../contexts/global-context'
 import SettingsContext from '../../contexts/settings-context'
 import useImageManagerEvent, { IMEvent } from '../../hooks/use-image-manager-event'
-import useImageContextMenu from '../context-menus/components/image-context-menu/hooks/use-image-context-menu'
+import useImageContextMenu, {
+  type ImageContextMenuType,
+} from '../context-menus/components/image-context-menu/hooks/use-image-context-menu'
 import LazyImage, { type LazyImageProps } from '../lazy-image'
 
 function imageToken(isDarkBackground: boolean): Partial<ComponentTokenMap['Image'] & AliasToken> {
@@ -70,6 +72,14 @@ export type imageGroupProps = {
    * 所有选中的图片（包括但不限于当前图片组选中的图片）
    */
   allSelectedImages?: ImageType[]
+  /**
+   * 点击空白处时，是否清空选中的图片
+   */
+  clearSelectedOnBlankClick?: boolean
+  /**
+   * 右键菜单启用项
+   */
+  enableContextMenu?: ImageContextMenuType['enableContextMenu']
 }
 
 const ToastKey = 'image-preview-scale'
@@ -83,10 +93,12 @@ function ImageGroup(props: imageGroupProps, ref: ForwardedRef<HTMLDivElement>) {
     id,
     images,
     lazyImageProps,
+    enableContextMenu,
     enableMultipleSelect = false,
     interactive = true,
     renderer = (c) => c,
     allSelectedImages,
+    clearSelectedOnBlankClick,
   } = props
 
   const { token } = theme.useToken()
@@ -168,7 +180,7 @@ function ImageGroup(props: imageGroupProps, ref: ForwardedRef<HTMLDivElement>) {
       // 点击的时候清空选中的图片
       if (
         // data-clear-selected 是我希望点击就清空的元素属性
-        targetEl.getAttribute('data-clear-selected') ||
+        targetEl.getAttribute('data-clear-selected') === 'true' ||
         // ant-collapse-content-box 是因为有padding，如果点到了padding部分也需要清空选中图片
         targetEl.classList.contains('ant-collapse-content-box')
       ) {
@@ -229,31 +241,27 @@ function ImageGroup(props: imageGroupProps, ref: ForwardedRef<HTMLDivElement>) {
     }
 
     setSelectedImages(selected)
-    show(
-      {
-        event: e,
-        props: {
-          image,
-          images: allSelectedImages || selected,
-          sameLevelImages: images,
-          sameWorkspaceImages: getSameWorkspaceImages(image),
-
-          ...lazyImageProps?.contextMenu,
-          enableContextMenu: {
-            ...lazyImageProps?.contextMenu?.enableContextMenu,
-            preview: true,
-          },
-          z_commands: {
-            preview: {
-              onClick: (image) => {
-                handlePreviewClick(image)
-              },
+    show({
+      event: e,
+      props: {
+        image,
+        images: allSelectedImages || selected,
+        sameLevelImages: images,
+        sameWorkspaceImages: getSameWorkspaceImages(image),
+        enableContextMenu: {
+          ...enableContextMenu,
+          preview: true,
+        },
+        z_commands: {
+          preview: {
+            onClick: (image) => {
+              handlePreviewClick(image)
             },
           },
         },
+        shortcutsVisible: true,
       },
-      { shortcutsVisible: true },
-    )
+    })
   })
 
   const onClick = useMemoizedFn((e: React.MouseEvent<HTMLDivElement, MouseEvent>, image: ImageType) => {
@@ -333,26 +341,29 @@ function ImageGroup(props: imageGroupProps, ref: ForwardedRef<HTMLDivElement>) {
     return (
       <div
         onContextMenu={(e) => {
-          show(
-            {
-              event: e,
-              props: {
-                image: images[info.current],
-                sameLevelImages: images,
-                sameWorkspaceImages: getSameWorkspaceImages(images[info.current]),
-                ...lazyImageProps?.contextMenu,
-                enableContextMenu: {
-                  ...lazyImageProps?.contextMenu?.enableContextMenu,
-                  copy: false,
-                  rename: false,
-                  delete: false,
-                  cut: false,
-                  preview: false,
-                },
+          show({
+            event: e,
+            props: {
+              image: images[info.current],
+              sameLevelImages: images,
+              sameWorkspaceImages: getSameWorkspaceImages(images[info.current]),
+              enableContextMenu: {
+                ...enableContextMenu,
+                reveal_in_viewer: false,
+                copy: false,
+                rename: false,
+                delete: false,
+                cut: false,
+                compress: false,
+                crop: false,
+                find_similar_in_all: false,
+                find_similar_in_same_level: false,
+                format_conversion: false,
+                preview: false, // 已经是预览状态了，禁止再次预览
               },
+              shortcutsVisible: false, // 预览状态下，不显示快捷键
             },
-            { shortcutsVisible: false },
-          )
+          })
         }}
         className={'contents'}
       >
@@ -424,7 +435,11 @@ function ImageGroup(props: imageGroupProps, ref: ForwardedRef<HTMLDivElement>) {
 
   return (
     <>
-      <div className={classNames('flex flex-wrap gap-1.5')} ref={ref} data-clear-selected={true}>
+      <div
+        className={classNames('flex flex-wrap gap-1.5')}
+        ref={ref}
+        data-clear-selected={Boolean(clearSelectedOnBlankClick)}
+      >
         <ConfigProvider
           theme={{
             components: {
@@ -453,7 +468,6 @@ function ImageGroup(props: imageGroupProps, ref: ForwardedRef<HTMLDivElement>) {
                   {renderer(
                     <LazyImage
                       {...lazyImageProps}
-                      contextMenu={lazyImageProps?.contextMenu}
                       image={image}
                       selected={selectedImages.some((t) => t.path === image.path)}
                       isMultipleSelecting={isMultipleSelecting}

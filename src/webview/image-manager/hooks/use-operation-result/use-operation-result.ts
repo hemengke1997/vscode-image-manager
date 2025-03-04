@@ -1,12 +1,12 @@
 import { useTranslation } from 'react-i18next'
 import { type ModalFuncProps } from 'antd'
 import useImperativeModal from '../use-imperative-modal'
-import OperatorResult from './operator-result'
+import OperationResult from './operation-result'
 
 /**
  * 查看操作结果的弹窗
  */
-export default function useImageOperatorResult(modalProps: ModalFuncProps) {
+export default function useImageOperationResult(modalProps: ModalFuncProps) {
   const { t } = useTranslation()
 
   const { showModal } = useImperativeModal({
@@ -14,7 +14,7 @@ export default function useImageOperatorResult(modalProps: ModalFuncProps) {
       title: t('im.result_of_handling'),
       ...modalProps,
     },
-    FC: OperatorResult,
+    FC: OperationResult,
   })
 
   return [showModal] as const

@@ -246,23 +246,23 @@ function CollapseTree(props: Props) {
                 underFolderDeeplyImages={underFolderDeeplyList}
                 imageGroupProps={{
                   enableMultipleSelect: true,
+                  enableContextMenu: {
+                    compress: true,
+                    format_conversion: true,
+                    crop: true,
+                    find_similar_in_all: true,
+                    find_similar_in_same_level: true,
+                    cut: true,
+                    copy: true,
+                    delete: true,
+                    rename: true,
+                    reveal_in_viewer: false,
+                  },
                   lazyImageProps: {
                     lazy: {
                       root: getAppRoot(),
                     },
-                    contextMenu: {
-                      enableContextMenu: {
-                        compress: true,
-                        format_conversion: true,
-                        crop: true,
-                        find_similar_in_all: true,
-                        find_similar_in_same_level: true,
-                        cut: true,
-                        copy: true,
-                        delete: true,
-                        rename: true,
-                      },
-                    },
+                    inViewer: true,
                     imageNameProps: {
                       tooltipDisplayFullPath: !displayGroup.includes(DisplayGroupType.dir),
                     },

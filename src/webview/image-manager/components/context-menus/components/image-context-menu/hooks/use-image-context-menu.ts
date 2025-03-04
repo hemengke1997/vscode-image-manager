@@ -1,6 +1,5 @@
 import { type ShowContextMenuParams, useContextMenu } from 'react-contexify'
 import { useMemoizedFn } from 'ahooks'
-import CtxMenuContext from '~/webview/image-manager/contexts/ctx-menu-context'
 import { type EnableImageContextMenuType, IMAGE_CONTEXT_MENU_ID } from '..'
 
 export type ImageContextMenuType = {
@@ -32,33 +31,25 @@ export type ImageContextMenuType = {
       onClick: (image: ImageType) => void
     }
   }
+  /**
+   * 是否显示快捷键
+   */
+  shortcutsVisible?: boolean
 }
 
 export default function useImageContextMenu() {
   const contextMenu = useContextMenu<ImageContextMenuType>()
-  const { setShortCutsVisible } = CtxMenuContext.usePicker(['setShortCutsVisible'])
 
-  const show = useMemoizedFn(
-    (
-      params: Omit<ShowContextMenuParams<ImageContextMenuType>, 'id'>,
-      options: {
-        shortcutsVisible?: boolean
+  const show = useMemoizedFn((params: Omit<ShowContextMenuParams<ImageContextMenuType>, 'id'>) => {
+    return contextMenu.show({
+      ...params,
+      props: {
+        ...params.props!,
+        images: (params.props?.images?.length ? params.props.images : [params.props?.image]) as ImageType[],
       },
-    ) => {
-      const { shortcutsVisible } = options
-
-      setShortCutsVisible(!shortcutsVisible === false)
-
-      return contextMenu.show({
-        ...params,
-        props: {
-          ...params.props!,
-          images: (params.props?.images?.length ? params.props.images : [params.props?.image]) as ImageType[],
-        },
-        id: IMAGE_CONTEXT_MENU_ID,
-      })
-    },
-  )
+      id: IMAGE_CONTEXT_MENU_ID,
+    })
+  })
 
   const hideAll = useMemoizedFn(() => contextMenu.hideAll())
 

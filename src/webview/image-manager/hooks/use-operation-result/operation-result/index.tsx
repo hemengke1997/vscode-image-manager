@@ -27,11 +27,11 @@ export type Groups = {
   [key in Group]: OperatorResult[]
 }
 
-export type OperatorResultProps = {
+export type OperationResultProps = {
   results: OperatorResult[]
 } & OnEndOptionsType
 
-function OperatorResultTsx(props: OperatorResultProps & ImperativeModalProps) {
+function OperationResult(props: OperationResultProps & ImperativeModalProps) {
   const { results: resultsProp, onUndoClick, onRedoClick, closeModal } = props
 
   const _errorRange = GlobalContext.useSelector((ctx) => ctx.extConfig.compression.errorRange)
@@ -94,7 +94,6 @@ function OperatorResultTsx(props: OperatorResultProps & ImperativeModalProps) {
   const imageGroupProps: Omit<imageGroupProps, 'images'> = useMemo(
     () => ({
       lazyImageProps: {
-        contextMenu: {},
         imageNameProps: {
           tooltipDisplayFullPath: true,
         },
@@ -297,4 +296,4 @@ function OperatorResultTsx(props: OperatorResultProps & ImperativeModalProps) {
   )
 }
 
-export default memo(OperatorResultTsx)
+export default memo(OperationResult)

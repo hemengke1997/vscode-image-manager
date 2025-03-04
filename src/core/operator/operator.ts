@@ -8,6 +8,7 @@ import { VscodeMessageCenter, WebviewMessageCenter } from '~/message'
 import { CmdToVscode } from '~/message/cmd'
 import { generateOutputPath } from '~/utils'
 import { Channel } from '~/utils/channel'
+import logger from '~/utils/logger'
 import { Commander } from '../commander'
 import { Config } from '../config'
 
@@ -176,7 +177,8 @@ export abstract class Operator {
     let image: ImageType
     try {
       image = res.outputPath ? await this.getImageInfo(res.outputPath) : this.image
-    } catch {
+    } catch (e) {
+      logger.error(e)
       image = this.image
     }
 
@@ -320,10 +322,12 @@ export abstract class Operator {
    * @param filePath 图片路径
    */
   async getImageInfo(filePath: string): Promise<ImageType> {
-    return VscodeMessageCenter[CmdToVscode.get_images](
+    const res = await VscodeMessageCenter[CmdToVscode.get_images](
       { filePaths: [filePath], cwd: this.image.absWorkspaceFolder },
       WebviewMessageCenter.webview,
-    )[0]
+    )
+
+    return res[0]
   }
 }
 

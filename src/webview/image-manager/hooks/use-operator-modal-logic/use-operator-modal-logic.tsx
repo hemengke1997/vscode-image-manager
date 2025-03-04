@@ -15,8 +15,8 @@ import logger from '~/utils/logger'
 import { vscodeApi } from '~/webview/vscode-api'
 import GlobalContext from '../../contexts/global-context'
 import { formatBytes, triggerOnce } from '../../utils'
-import { type Group, type Groups } from '../use-operator-result/operator-result'
-import useImageOperatorResult from '../use-operator-result/use-operator-result'
+import { type Group, type Groups } from '../use-operation-result/operation-result'
+import useImageOperationResult from '../use-operation-result/use-operation-result'
 import ErrorRange from './components/error-range'
 
 export type FormComponent<T extends Record<string, any>> = {
@@ -48,14 +48,14 @@ export function useOperatorModalLogic() {
   })
 
   const resultsRef = useRef<OperatorResult[]>()
-  const [showImageOpeatorResult] = useImageOperatorResult({
+  const [showImageOperationResult] = useImageOperationResult({
     afterClose() {
       resultsRef.current && clearOperatorCmdCache(resultsRef.current)
       resultsRef.current = undefined
     },
   })
   const onCompressEnd = useMemoizedFn((results: OperatorResult[], options: OnEndOptionsType) => {
-    showImageOpeatorResult({
+    showImageOperationResult({
       results,
       ...options,
     })
@@ -238,7 +238,7 @@ export function useOperatorModalLogic() {
             ))}
         </div>
       ),
-      btn: (
+      actions: (
         <Button
           onClick={triggerOnce(() => {
             viewed = true

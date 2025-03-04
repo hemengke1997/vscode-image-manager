@@ -106,6 +106,8 @@ export const VscodeMessageCenter = {
       gitignore: Config.file_gitignore,
     })
 
+    Channel.debug(`Glob: ${glob}`)
+
     Channel.debug(`Globby cost: ${performance.now() - start}ms`)
 
     if (!images.length) {

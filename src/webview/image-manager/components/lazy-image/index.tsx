@@ -21,7 +21,6 @@ import SettingsContext from '../../contexts/settings-context'
 import useImageDetails from '../../hooks/use-image-details/use-image-details'
 import { bytesToUnit, clearTimestamp, formatBytes } from '../../utils'
 import { ANIMATION_DURATION } from '../../utils/duration'
-import { type ImageContextMenuType } from '../context-menus/components/image-context-menu/hooks/use-image-context-menu'
 import ImageName, { type ImageNameProps } from '../image-name'
 import Corner from './components/corner'
 
@@ -32,7 +31,7 @@ export type LazyImageProps = {
   image: ImageType
   /**
    * 点击预览回调
-   * 如果不传此参数，则不会显示预览功能
+   * NOTE: 需要把右键中的preview功能开启
    */
   onPreviewClick?: (image: ImageType) => void
   /**
@@ -65,10 +64,6 @@ export type LazyImageProps = {
    */
   onContextMenu?: (e: React.MouseEvent<HTMLDivElement>, image: ImageType) => void
   /**
-   * 图片右键上下文
-   */
-  contextMenu: Omit<ImageContextMenuType, 'image' | 'images'> | undefined
-  /**
    * 透传给 antd Image 组件的 props
    */
   antdImageProps: ImageProps
@@ -89,13 +84,17 @@ export type LazyImageProps = {
    */
   isMultipleSelecting?: (e: React.MouseEvent<HTMLDivElement, MouseEvent>) => boolean
   /**
-   * 是否可交互
+   * 交互样式 (hover，selected)
    */
   interactive?: boolean
   /**
    * className
    */
   className?: (image: ImageType) => string
+  /**
+   * 是否是viewer中的图片
+   */
+  inViewer?: boolean
 }
 
 function LazyImage(props: LazyImageProps) {
@@ -107,13 +106,13 @@ function LazyImage(props: LazyImageProps) {
     },
     onRemoveClick,
     removeRender = (n) => n,
-    contextMenu,
     antdImageProps,
     imageNameProps,
     onContextMenu,
     isMultipleSelecting = () => false,
     interactive = true,
     className,
+    inViewer,
   } = props
 
   const root = lazy ? lazy.root : null
@@ -129,7 +128,11 @@ function LazyImage(props: LazyImageProps) {
   })
 
   const { hoverShowImageDetail } = SettingsContext.usePicker(['hoverShowImageDetail'])
-  const { imagePlaceholderSize, imageReveal } = GlobalContext.usePicker(['imagePlaceholderSize', 'imageReveal'])
+  const { imagePlaceholderSize, imageReveal, setImageReveal } = GlobalContext.usePicker([
+    'imagePlaceholderSize',
+    'imageReveal',
+    'setImageReveal',
+  ])
 
   const imageWidth = GlobalContext.useSelector((ctx) => ctx.extConfig.viewer.imageWidth)
   const warningSize = GlobalContext.useSelector((ctx) => ctx.extConfig.viewer.warningSize)
@@ -170,11 +173,8 @@ function LazyImage(props: LazyImageProps) {
   }, [image.stats.size, warningSize])
 
   const isTargetImage = useMemoizedFn(() => {
-    return (
-      !contextMenu?.enableContextMenu?.reveal_in_viewer &&
-      trim(image.path).length &&
-      image.path === clearTimestamp(imageReveal)
-    )
+    // 在 viewer 中的图片才会被reveal
+    return inViewer && trim(image.path).length && image.path === clearTimestamp(imageReveal)
   })
 
   /**
@@ -195,6 +195,9 @@ function LazyImage(props: LazyImageProps) {
     let scrolled = false
 
     if (isTargetImage()) {
+      // 清除 imageReveal，避免重复选中
+      setImageReveal(undefined)
+
       // 刚打开时，图片可能还未加载，所以需要等待图片加载完成后再滚动
       const callback = () => {
         try {
@@ -230,6 +233,7 @@ function LazyImage(props: LazyImageProps) {
     return () => {
       if (isTargetImage()) {
         setSelected(false)
+        setImageReveal(undefined)
         cancelIdleCallback(idleTimer)
       }
     }

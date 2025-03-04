@@ -350,11 +350,6 @@ function ImageSearch(props: ImperativeModalProps) {
               ),
             }))}
             lazyImageProps={{
-              contextMenu: {
-                enableContextMenu: {
-                  reveal_in_viewer: true,
-                },
-              },
               lazy: {
                 root: scrollRef.current!,
               },

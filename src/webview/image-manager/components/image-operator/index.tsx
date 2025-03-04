@@ -90,11 +90,6 @@ function ImageOperator(props: ImageOperatorProps & ImageOperatorStaticProps) {
           <ImageGroup
             images={images || []}
             lazyImageProps={{
-              contextMenu: {
-                enableContextMenu: {
-                  reveal_in_viewer: true,
-                },
-              },
               onRemoveClick:
                 images && images?.length <= 1
                   ? undefined

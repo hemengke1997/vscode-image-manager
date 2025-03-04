@@ -14,7 +14,6 @@ import { App } from 'antd'
 import { merge } from 'lodash-es'
 import { os } from 'un-detector'
 import logger from '~/utils/logger'
-import CtxMenuContext from '~/webview/image-manager/contexts/ctx-menu-context'
 import GlobalContext from '~/webview/image-manager/contexts/global-context'
 import useImageDetails from '~/webview/image-manager/hooks/use-image-details/use-image-details'
 import useImageOperation from '~/webview/image-manager/hooks/use-image-operation'
@@ -26,104 +25,99 @@ import { type ImageContextMenuType } from './hooks/use-image-context-menu'
 export const IMAGE_CONTEXT_MENU_ID = 'IMAGE_CONTEXT_MENU_ID'
 
 export enum IMAGE_CONTEXT_MENU {
+  open_in_os_explorer = 'open_in_os_explorer',
+  open_in_vscode_explorer = 'open_in_vscode_explorer',
+  reveal_in_viewer = 'reveal_in_viewer',
+  copy = 'copy',
+  cut = 'cut',
+  compress = 'compress',
+  format_conversion = 'format_conversion',
+  crop = 'crop',
+  find_similar_in_same_level = 'find_similar_in_same_level',
+  find_similar_in_all = 'find_similar_in_all',
+  pretty_svg = 'pretty_svg',
+  rename = 'rename',
+  delete = 'delete',
+  preview = 'preview',
+  view_detail = 'view_detail',
+}
+
+const defaultImageContextMenu = {
   /**
    * 在系统资源管理器中打开
    * @default true
    */
-  open_in_os_explorer = 'open_in_os_explorer',
+  [IMAGE_CONTEXT_MENU.open_in_os_explorer]: true,
   /**
    * 在vscode资源管理器中打开
    * @default true
    */
-  open_in_vscode_explorer = 'open_in_vscode_explorer',
+  [IMAGE_CONTEXT_MENU.open_in_vscode_explorer]: true,
   /**
    * 在Viewer中显示
-   * @default false
+   * @default true
    */
-  reveal_in_viewer = 'reveal_in_viewer',
-
+  [IMAGE_CONTEXT_MENU.reveal_in_viewer]: true,
   /**
    * 复制
    * @default false
    */
-  copy = 'copy',
+  [IMAGE_CONTEXT_MENU.copy]: false,
   /**
    * 剪切
    * @default false
    */
-  cut = 'cut',
-
+  [IMAGE_CONTEXT_MENU.cut]: false,
   /**
    * 压缩
    * @default false
    */
-  compress = 'compress',
+  [IMAGE_CONTEXT_MENU.compress]: false,
   /**
    * 转化格式
    * @default false
    */
-  format_conversion = 'format_conversion',
+  [IMAGE_CONTEXT_MENU.format_conversion]: false,
   /**
    * 裁剪
    * @default false
    */
-  crop = 'crop',
+  [IMAGE_CONTEXT_MENU.crop]: false,
   /**
    * 查找相似(同目录)
    * @default false
    */
-  find_similar_in_same_level = 'find_similar_in_same_level',
+  [IMAGE_CONTEXT_MENU.find_similar_in_same_level]: false,
   /**
    * 查找相似(所有)
    * @default false
    */
-  find_similar_in_all = 'find_similar_in_all',
-
+  [IMAGE_CONTEXT_MENU.find_similar_in_all]: false,
   /**
    * 格式化svg
    * @default false
    */
-  pretty_svg = 'pretty_svg',
-
+  [IMAGE_CONTEXT_MENU.pretty_svg]: false,
   /**
    * 重命名
    * @default false
    */
-  rename = 'rename',
+  [IMAGE_CONTEXT_MENU.rename]: false,
   /**
    * 删除
    * @default false
    */
-  delete = 'delete',
+  [IMAGE_CONTEXT_MENU.delete]: false,
 
   /**
    * 预览
    * @default true
    */
-  preview = 'preview',
-
+  [IMAGE_CONTEXT_MENU.preview]: false,
   /**
    * 查看详情
    * @default true
    */
-  view_detail = 'view_detail',
-}
-
-const defaultImageContextMenu = {
-  [IMAGE_CONTEXT_MENU.open_in_os_explorer]: true,
-  [IMAGE_CONTEXT_MENU.open_in_vscode_explorer]: true,
-  [IMAGE_CONTEXT_MENU.reveal_in_viewer]: false,
-  [IMAGE_CONTEXT_MENU.copy]: false,
-  [IMAGE_CONTEXT_MENU.cut]: false,
-  [IMAGE_CONTEXT_MENU.compress]: false,
-  [IMAGE_CONTEXT_MENU.format_conversion]: false,
-  [IMAGE_CONTEXT_MENU.crop]: false,
-  [IMAGE_CONTEXT_MENU.find_similar_in_same_level]: false,
-  [IMAGE_CONTEXT_MENU.find_similar_in_all]: false,
-  [IMAGE_CONTEXT_MENU.pretty_svg]: false,
-  [IMAGE_CONTEXT_MENU.rename]: false,
-  [IMAGE_CONTEXT_MENU.delete]: false,
-  [IMAGE_CONTEXT_MENU.preview]: false,
   [IMAGE_CONTEXT_MENU.view_detail]: true,
 }
 
@@ -249,8 +243,6 @@ function ImageContextMenu() {
 
   const [showImageDetails] = useImageDetails()
 
-  const { shortcutsVisible } = CtxMenuContext.usePicker(['shortcutsVisible'])
-
   return (
     <>
       <MaskMenu id={IMAGE_CONTEXT_MENU_ID}>
@@ -265,12 +257,20 @@ function ImageContextMenu() {
         {/* 按照vscode的交互，复制/剪切是单独分组的 */}
         <Separator hidden={isItemHidden} data={[IMAGE_CONTEXT_MENU.copy, IMAGE_CONTEXT_MENU.cut]} />
         <Item hidden={isItemHidden} data={IMAGE_CONTEXT_MENU.copy} onClick={(e) => beginCopyProcess(e.props!.images)}>
-          {t('im.copy')}
-          <RightSlot hidden={!shortcutsVisible}>{Keybinding.Copy()}</RightSlot>
+          {(e: ItemParamsContextMenu) => (
+            <>
+              {t('im.copy')}
+              <RightSlot hidden={!e.props!.shortcutsVisible}>{Keybinding.Copy()}</RightSlot>
+            </>
+          )}
         </Item>
         <Item hidden={isItemHidden} data={IMAGE_CONTEXT_MENU.cut} onClick={(e) => beginCutProcess(e.props!.images)}>
-          {t('im.cut')}
-          <RightSlot hidden={!shortcutsVisible}>{Keybinding.Cut()}</RightSlot>
+          {(e: ItemParamsContextMenu) => (
+            <>
+              {t('im.cut')}
+              <RightSlot hidden={!e.props!.shortcutsVisible}>{Keybinding.Cut()}</RightSlot>
+            </>
+          )}
         </Item>
 
         <Separator />
@@ -331,10 +331,18 @@ function ImageContextMenu() {
         {/* file operation menu */}
         <Separator hidden={isItemHidden} data={[IMAGE_CONTEXT_MENU.rename, IMAGE_CONTEXT_MENU.delete]} />
         <Item onClick={handleRename} hidden={isItemHidden} data={IMAGE_CONTEXT_MENU.rename}>
-          {t('im.rename')} <RightSlot hidden={!shortcutsVisible}>{Keybinding.Rename()}</RightSlot>
+          {(e: ItemParamsContextMenu) => (
+            <>
+              {t('im.rename')} <RightSlot hidden={!e.props!.shortcutsVisible}>{Keybinding.Rename()}</RightSlot>
+            </>
+          )}
         </Item>
         <Item onClick={handleDelete} hidden={isItemHidden} data={IMAGE_CONTEXT_MENU.delete}>
-          {t('im.delete')} <RightSlot hidden={!shortcutsVisible}>{Keybinding.Delete()}</RightSlot>
+          {(e: ItemParamsContextMenu) => (
+            <>
+              {t('im.delete')} <RightSlot hidden={!e.props!.shortcutsVisible}>{Keybinding.Delete()}</RightSlot>
+            </>
+          )}
         </Item>
 
         <Separator />
@@ -356,8 +364,12 @@ function ImageContextMenu() {
             })
           }}
         >
-          {t('im.detail')}
-          <RightSlot hidden={!shortcutsVisible}>{t('im.double_click')}</RightSlot>
+          {(e: ItemParamsContextMenu) => (
+            <>
+              {t('im.detail')}
+              <RightSlot hidden={!e.props!.shortcutsVisible}>{t('im.double_click')}</RightSlot>
+            </>
+          )}
         </Item>
       </MaskMenu>
     </>

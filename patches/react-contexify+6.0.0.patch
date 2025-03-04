@@ -1,13 +1,1210 @@
+diff --git a/node_modules/react-contexify/dist/index.d.ts b/node_modules/react-contexify/dist/index.d.ts
+index ef4aebc..ab1714a 100644
+--- a/node_modules/react-contexify/dist/index.d.ts
++++ b/node_modules/react-contexify/dist/index.d.ts
+@@ -155,11 +155,11 @@ interface MenuProps extends Omit<React$1.HTMLAttributes<HTMLElement>, 'id'> {
+ }
+ declare const Menu: React$1.FC<MenuProps>;
+ 
+-interface ItemProps extends InternalProps, Omit<React$1.HTMLAttributes<HTMLElement>, 'hidden' | 'disabled' | 'onClick'> {
++interface ItemProps extends InternalProps, Omit<React$1.HTMLAttributes<HTMLElement>, 'hidden' | 'disabled' | 'onClick' | 'children'> {
+     /**
+      * Any valid node that can be rendered
+      */
+-    children: ReactNode;
++    children: ReactNode | ((params: ItemParams) => ReactNode);
+     /**
+      * Passed to the `Item` onClick callback. Accessible via `data`
+      */
+diff --git a/node_modules/react-contexify/dist/index.js b/node_modules/react-contexify/dist/index.js
+index 0dd66c3..04517f6 100644
+--- a/node_modules/react-contexify/dist/index.js
++++ b/node_modules/react-contexify/dist/index.js
+@@ -1,17 +1,588 @@
+ 'use strict';
+ 
+-var H = require('react');
+-var X = require('clsx');
++var React7 = require('react');
++var cx = require('clsx');
+ var reactDom = require('react-dom');
+ 
+-var Y=H.createContext({}),F=()=>H.useContext(Y),$=t=>H.createElement(Y.Provider,{...t});function le(){let t=new Map;return {on(e,r){return t.has(e)?t.get(e).add(r):t.set(e,new Set([r])),this},off(e,r){return t.has(e)&&t.get(e).delete(r),this},emit(e,r){return t.has(e)&&t.get(e).forEach(f=>{f(r);}),this}}}var R=le();var B=()=>H.useRef(new Map).current;var z=()=>{},U=["resize","contextmenu","click","scroll","blur"];var A={show({event:t,id:e,props:r,position:f}){t.preventDefault&&t.preventDefault(),R.emit(0).emit(e,{event:t.nativeEvent||t,props:r,position:f});},hideAll(){R.emit(0);}};function Fe(t){return {show(e){A.show({...t,...e});},hideAll(){A.hideAll();}}}function G(){let t=new Map,e,r,f,s,i=!1;function P(n){s=Array.from(n.values()),e=-1,f=!0;}function v(){s[e].node.focus();}let x=()=>e>=0&&s[e].isSubmenu,w=()=>Array.from(s[e].submenuRefTracker.values());function m(){return e===-1?(b(),!1):!0}function b(){e+1<s.length?e++:e+1===s.length&&(e=0),i&&a(),v();}function E(){e===-1||e===0?e=s.length-1:e-1<s.length&&e--,i&&a(),v();}function T(){if(m()&&x()){let n=w(),{node:c,setSubmenuPosition:h}=s[e];return t.set(c,{isRoot:f,focusedIndex:e,parentNode:r||c,items:s}),h(),c.classList.add("contexify_submenu-isOpen"),r=c,n.length>0?(e=0,s=n):i=!0,f=!1,v(),!0}return !1}function a(){if(m()&&!f){let n=t.get(r);r.classList.remove("contexify_submenu-isOpen"),s=n.items,r=n.parentNode,n.isRoot&&(f=!0,t.clear()),i||(e=n.focusedIndex,v());}}function y(n){function c(h){for(let o of h)o.isSubmenu&&o.submenuRefTracker&&c(Array.from(o.submenuRefTracker.values())),o.keyMatcher&&o.keyMatcher(n);}c(s);}return {init:P,moveDown:b,moveUp:E,openSubmenu:T,closeSubmenu:a,matchKeys:y}}function I(t){return typeof t=="function"}function V(t){return typeof t=="string"}function _(t,e){return H.Children.map(H.Children.toArray(t).filter(Boolean),r=>H.cloneElement(r,e))}function J(t){let e={x:t.clientX,y:t.clientY},r=t.changedTouches;return r&&(e.x=r[0].clientX,e.y=r[0].clientY),(!e.x||e.x<0)&&(e.x=0),(!e.y||e.y<0)&&(e.y=0),e}function k(t,e){return I(t)?t(e):t}function be(t,e){return {...t,...I(e)?e(t):e}}var it=({id:t,theme:e,style:r,className:f,children:s,animation:i="fade",preventDefaultOnKeydown:P=!0,disableBoundariesCheck:v=!1,onVisibilityChange:x,...w})=>{let[m,b]=H.useReducer(be,{x:0,y:0,visible:!1,triggerEvent:{},propsFromTrigger:null,willLeave:!1}),E=H.useRef(null),T=B(),[a]=H.useState(()=>G()),y=H.useRef(),n=H.useRef();H.useEffect(()=>(R.on(t,h).on(0,o),()=>{R.off(t,h).off(0,o);}),[t,i,v]),H.useEffect(()=>{m.visible?a.init(T):T.clear();},[m.visible,a,T]);function c(u,p){if(E.current&&!v){let{innerWidth:d,innerHeight:C}=window,{offsetWidth:K,offsetHeight:O}=E.current;u+K>d&&(u-=u+K-d),p+O>C&&(p-=p+O-C);}return {x:u,y:p}}H.useEffect(()=>{m.visible&&b(c(m.x,m.y));},[m.visible]),H.useEffect(()=>{function u(d){P&&d.preventDefault();}function p(d){switch(d.key){case"Enter":case" ":a.openSubmenu()||o();break;case"Escape":o();break;case"ArrowUp":u(d),a.moveUp();break;case"ArrowDown":u(d),a.moveDown();break;case"ArrowRight":u(d),a.openSubmenu();break;case"ArrowLeft":u(d),a.closeSubmenu();break;default:a.matchKeys(d);break}}if(m.visible){window.addEventListener("keydown",p);for(let d of U)window.addEventListener(d,o);}return ()=>{window.removeEventListener("keydown",p);for(let d of U)window.removeEventListener(d,o);}},[m.visible,a,P]);function h({event:u,props:p,position:d}){u.stopPropagation();let C=d||J(u),{x:K,y:O}=c(C.x,C.y);reactDom.flushSync(()=>{b({visible:!0,willLeave:!1,x:K,y:O,triggerEvent:u,propsFromTrigger:p});}),clearTimeout(n.current),!y.current&&I(x)&&(x(!0),y.current=!0);}function o(u){u!=null&&(u.button===2||u.ctrlKey)&&u.type!=="contextmenu"||(i&&(V(i)||"exit"in i&&i.exit)?b(p=>({willLeave:p.visible})):b(p=>({visible:p.visible?!1:p.visible})),n.current=setTimeout(()=>{I(x)&&x(!1),y.current=!1;}));}function M(){m.willLeave&&m.visible&&reactDom.flushSync(()=>b({visible:!1,willLeave:!1}));}function S(){return V(i)?X({[`${"contexify_willEnter-"}${i}`]:g&&!D,[`${"contexify_willLeave-"}${i} ${"contexify_willLeave-"}'disabled'`]:g&&D}):i&&"enter"in i&&"exit"in i?X({[`${"contexify_willEnter-"}${i.enter}`]:i.enter&&g&&!D,[`${"contexify_willLeave-"}${i.exit} ${"contexify_willLeave-"}'disabled'`]:i.exit&&g&&D}):null}let{visible:g,triggerEvent:l,propsFromTrigger:L,x:oe,y:ie,willLeave:D}=m,ae=X("contexify",f,{[`${"contexify_theme-"}${e}`]:e},S());return H.createElement($,{value:T},g&&H.createElement("div",{...w,className:ae,onAnimationEnd:M,style:{...r,left:oe,top:ie,opacity:1},ref:E,role:"menu"},_(s,{propsFromTrigger:L,triggerEvent:l})))};var pt=({id:t,children:e,className:r,style:f,triggerEvent:s,data:i,propsFromTrigger:P,keyMatcher:v,onClick:x=z,disabled:w=!1,hidden:m=!1,closeOnClick:b=!0,handlerEvent:E="onClick",...T})=>{let a=H.useRef(),y=F(),n={id:t,data:i,triggerEvent:s,props:P},c=k(w,n),h=k(m,n);function o(l){n.event=l,l.stopPropagation(),c||(b?M():x(n));}function M(){let l=a.current;l.focus(),l.addEventListener("animationend",()=>setTimeout(A.hideAll),{once:!0}),l.classList.add("contexify_item-feedback"),x(n);}function S(l){l&&!c&&(a.current=l,y.set(l,{node:l,isSubmenu:!1,keyMatcher:!c&&I(v)&&(L=>{v(L)&&(L.stopPropagation(),L.preventDefault(),n.event=L,M());})}));}function g(l){(l.key==="Enter"||l.key===" ")&&(l.stopPropagation(),n.event=l,M());}return h?null:H.createElement("div",{...T,[E]:o,className:X("contexify_item",r,{[`${"contexify_item-disabled"}`]:c}),style:f,onKeyDown:g,ref:S,tabIndex:-1,role:"menuitem","aria-disabled":c},H.createElement("div",{className:"contexify_itemContent"},e))};var Et=({triggerEvent:t,data:e,propsFromTrigger:r,hidden:f=!1})=>k(f,{data:e,triggerEvent:t,props:r})?null:H.createElement("div",{className:"contexify_separator"});var re=()=>H.createElement("svg",{xmlns:"http://www.w3.org/2000/svg",width:"18",height:"18",viewBox:"0 0 24 24",fill:"none",stroke:"currentColor",strokeWidth:"2",strokeLinecap:"round",strokeLinejoin:"round"},H.createElement("polyline",{points:"9 18 15 12 9 6"}));var ne=({className:t,...e})=>H.createElement("div",{className:X("contexify_rightSlot",t),...e});var Kt=({arrow:t,children:e,disabled:r=!1,hidden:f=!1,label:s,className:i,triggerEvent:P,propsFromTrigger:v,style:x,...w})=>{let m=F(),b=B(),E=H.useRef(null),T={triggerEvent:P,props:v},a=k(r,T),y=k(f,T);function n(){let o=E.current;if(o){let M=`${"contexify_submenu"}-bottom`,S=`${"contexify_submenu"}-right`;o.classList.remove(M,S);let g=o.getBoundingClientRect();g.right>window.innerWidth&&o.classList.add(S),g.bottom>window.innerHeight&&o.classList.add(M);}}function c(o){o&&!a&&m.set(o,{node:o,isSubmenu:!0,submenuRefTracker:b,setSubmenuPosition:n});}if(y)return null;let h=X("contexify_item",i,{[`${"contexify_item-disabled"}`]:a});return H.createElement($,{value:b},H.createElement("div",{...w,className:h,ref:c,tabIndex:-1,role:"menuitem","aria-haspopup":!0,"aria-disabled":a,onMouseEnter:n,onTouchStart:n},H.createElement("div",{className:"contexify_itemContent",onClick:o=>o.stopPropagation()},s,H.createElement(ne,null,t||H.createElement(re,null))),H.createElement("div",{className:`${"contexify"} ${"contexify_submenu"}`,ref:E,style:x},_(e,{propsFromTrigger:v,triggerEvent:P}))))};
++// src/components/Menu.tsx
++var Context = React7.createContext({});
++var useItemTrackerContext = () => React7.useContext(Context);
++var ItemTrackerProvider = (props) => /* @__PURE__ */ React7.createElement(Context.Provider, {
++  ...props
++});
+ 
+-exports.Item = pt;
+-exports.Menu = it;
+-exports.RightSlot = ne;
+-exports.Separator = Et;
+-exports.Submenu = Kt;
+-exports.contextMenu = A;
+-exports.useContextMenu = Fe;
++// src/core/eventManager.ts
++function createEventManager() {
++  const eventList = /* @__PURE__ */ new Map();
++  return {
++    on(event, handler) {
++      eventList.has(event) ? eventList.get(event).add(handler) : eventList.set(event, /* @__PURE__ */ new Set([handler]));
++      return this;
++    },
++    off(event, handler) {
++      eventList.has(event) && eventList.get(event).delete(handler);
++      return this;
++    },
++    emit(event, args) {
++      eventList.has(event) && eventList.get(event).forEach((handler) => {
++        handler(args);
++      });
++      return this;
++    }
++  };
++}
++var eventManager = createEventManager();
++var useItemTracker = () => React7.useRef(/* @__PURE__ */ new Map()).current;
++
++// src/constants.ts
++var NOOP = () => {
++};
++var hideOnEvents = [
++  "resize",
++  "contextmenu",
++  "click",
++  "scroll",
++  "blur"
++];
++
++// src/core/contextMenu.ts
++var contextMenu = {
++  show({ event, id, props, position }) {
++    if (event.preventDefault)
++      event.preventDefault();
++    eventManager.emit(0 /* HIDE_ALL */).emit(id, {
++      event: event.nativeEvent || event,
++      props,
++      position
++    });
++  },
++  hideAll() {
++    eventManager.emit(0 /* HIDE_ALL */);
++  }
++};
++
++// src/hooks/useContextMenu.ts
++function useContextMenu(props) {
++  return {
++    show(params) {
++      contextMenu.show({
++        ...props,
++        ...params
++      });
++    },
++    hideAll() {
++      contextMenu.hideAll();
++    }
++  };
++}
++
++// src/components/keyboardController.ts
++function createKeyboardController() {
++  const menuList = /* @__PURE__ */ new Map();
++  let focusedIndex;
++  let parentNode;
++  let isRoot;
++  let currentItems;
++  let forceCloseSubmenu = false;
++  function init(rootMenu) {
++    currentItems = Array.from(rootMenu.values());
++    focusedIndex = -1;
++    isRoot = true;
++  }
++  function focusSelectedItem() {
++    currentItems[focusedIndex].node.focus();
++  }
++  const isSubmenuFocused = () => focusedIndex >= 0 && currentItems[focusedIndex].isSubmenu;
++  const getSubmenuItems = () => Array.from(currentItems[focusedIndex].submenuRefTracker.values());
++  function isFocused() {
++    if (focusedIndex === -1) {
++      moveDown();
++      return false;
++    }
++    return true;
++  }
++  function moveDown() {
++    if (focusedIndex + 1 < currentItems.length) {
++      focusedIndex++;
++    } else if (focusedIndex + 1 === currentItems.length) {
++      focusedIndex = 0;
++    }
++    if (forceCloseSubmenu)
++      closeSubmenu();
++    focusSelectedItem();
++  }
++  function moveUp() {
++    if (focusedIndex === -1 || focusedIndex === 0) {
++      focusedIndex = currentItems.length - 1;
++    } else if (focusedIndex - 1 < currentItems.length) {
++      focusedIndex--;
++    }
++    if (forceCloseSubmenu)
++      closeSubmenu();
++    focusSelectedItem();
++  }
++  function openSubmenu() {
++    if (isFocused() && isSubmenuFocused()) {
++      const submenuItems = getSubmenuItems();
++      const { node, setSubmenuPosition } = currentItems[focusedIndex];
++      menuList.set(node, {
++        isRoot,
++        focusedIndex,
++        parentNode: parentNode || node,
++        items: currentItems
++      });
++      setSubmenuPosition();
++      node.classList.add("contexify_submenu-isOpen" /* submenuOpen */);
++      parentNode = node;
++      if (submenuItems.length > 0) {
++        focusedIndex = 0;
++        currentItems = submenuItems;
++      } else {
++        forceCloseSubmenu = true;
++      }
++      isRoot = false;
++      focusSelectedItem();
++      return true;
++    }
++    return false;
++  }
++  function closeSubmenu() {
++    if (isFocused() && !isRoot) {
++      const parent = menuList.get(parentNode);
++      parentNode.classList.remove("contexify_submenu-isOpen" /* submenuOpen */);
++      currentItems = parent.items;
++      parentNode = parent.parentNode;
++      if (parent.isRoot) {
++        isRoot = true;
++        menuList.clear();
++      }
++      if (!forceCloseSubmenu) {
++        focusedIndex = parent.focusedIndex;
++        focusSelectedItem();
++      }
++    }
++  }
++  function matchKeys(e) {
++    function walkAndMatch(items) {
++      for (const item of items) {
++        if (item.isSubmenu && item.submenuRefTracker)
++          walkAndMatch(Array.from(item.submenuRefTracker.values()));
++        item.keyMatcher && item.keyMatcher(e);
++      }
++    }
++    walkAndMatch(currentItems);
++  }
++  return {
++    init,
++    moveDown,
++    moveUp,
++    openSubmenu,
++    closeSubmenu,
++    matchKeys
++  };
++}
++function isFn(v) {
++  return typeof v === "function";
++}
++function isStr(v) {
++  return typeof v === "string";
++}
++function cloneItems(children, props) {
++  return React7.Children.map(
++    React7.Children.toArray(children).filter(Boolean),
++    (item) => React7.cloneElement(item, props)
++  );
++}
++function getMousePosition(e) {
++  const pos = {
++    x: e.clientX,
++    y: e.clientY
++  };
++  const touch = e.changedTouches;
++  if (touch) {
++    pos.x = touch[0].clientX;
++    pos.y = touch[0].clientY;
++  }
++  if (!pos.x || pos.x < 0)
++    pos.x = 0;
++  if (!pos.y || pos.y < 0)
++    pos.y = 0;
++  return pos;
++}
++function getPredicateValue(predicate, payload) {
++  return isFn(predicate) ? predicate(payload) : predicate;
++}
++function reducer(state, payload) {
++  return { ...state, ...isFn(payload) ? payload(state) : payload };
++}
++var Menu = ({
++  id,
++  theme,
++  style,
++  className,
++  children,
++  animation = "fade",
++  preventDefaultOnKeydown = true,
++  disableBoundariesCheck = false,
++  onVisibilityChange,
++  ...rest
++}) => {
++  const [state, setState] = React7.useReducer(reducer, {
++    x: 0,
++    y: 0,
++    visible: false,
++    triggerEvent: {},
++    propsFromTrigger: null,
++    willLeave: false
++  });
++  const nodeRef = React7.useRef(null);
++  const itemTracker = useItemTracker();
++  const [menuController] = React7.useState(() => createKeyboardController());
++  const wasVisible = React7.useRef();
++  const visibilityId = React7.useRef();
++  React7.useEffect(() => {
++    eventManager.on(id, show).on(0 /* HIDE_ALL */, hide);
++    return () => {
++      eventManager.off(id, show).off(0 /* HIDE_ALL */, hide);
++    };
++  }, [id, animation, disableBoundariesCheck]);
++  React7.useEffect(() => {
++    !state.visible ? itemTracker.clear() : menuController.init(itemTracker);
++  }, [state.visible, menuController, itemTracker]);
++  function checkBoundaries(x2, y2) {
++    if (nodeRef.current && !disableBoundariesCheck) {
++      const { innerWidth, innerHeight } = window;
++      const { offsetWidth, offsetHeight } = nodeRef.current;
++      if (x2 + offsetWidth > innerWidth)
++        x2 -= x2 + offsetWidth - innerWidth;
++      if (y2 + offsetHeight > innerHeight)
++        y2 -= y2 + offsetHeight - innerHeight;
++    }
++    return { x: x2, y: y2 };
++  }
++  React7.useEffect(() => {
++    if (state.visible)
++      setState(checkBoundaries(state.x, state.y));
++  }, [state.visible]);
++  React7.useEffect(() => {
++    function preventDefault(e) {
++      if (preventDefaultOnKeydown)
++        e.preventDefault();
++    }
++    function handleKeyboard(e) {
++      switch (e.key) {
++        case "Enter":
++        case " ":
++          if (!menuController.openSubmenu())
++            hide();
++          break;
++        case "Escape":
++          hide();
++          break;
++        case "ArrowUp":
++          preventDefault(e);
++          menuController.moveUp();
++          break;
++        case "ArrowDown":
++          preventDefault(e);
++          menuController.moveDown();
++          break;
++        case "ArrowRight":
++          preventDefault(e);
++          menuController.openSubmenu();
++          break;
++        case "ArrowLeft":
++          preventDefault(e);
++          menuController.closeSubmenu();
++          break;
++        default:
++          menuController.matchKeys(e);
++          break;
++      }
++    }
++    if (state.visible) {
++      window.addEventListener("keydown", handleKeyboard);
++      for (const ev of hideOnEvents)
++        window.addEventListener(ev, hide);
++    }
++    return () => {
++      window.removeEventListener("keydown", handleKeyboard);
++      for (const ev of hideOnEvents)
++        window.removeEventListener(ev, hide);
++    };
++  }, [state.visible, menuController, preventDefaultOnKeydown]);
++  function show({ event, props, position }) {
++    event.stopPropagation();
++    const p = position || getMousePosition(event);
++    const { x: x2, y: y2 } = checkBoundaries(p.x, p.y);
++    reactDom.flushSync(() => {
++      setState({
++        visible: true,
++        willLeave: false,
++        x: x2,
++        y: y2,
++        triggerEvent: event,
++        propsFromTrigger: props
++      });
++    });
++    clearTimeout(visibilityId.current);
++    if (!wasVisible.current && isFn(onVisibilityChange)) {
++      onVisibilityChange(true);
++      wasVisible.current = true;
++    }
++  }
++  function hide(e) {
++    if (e != null && (e.button === 2 || e.ctrlKey) && e.type !== "contextmenu")
++      return;
++    animation && (isStr(animation) || "exit" in animation && animation.exit) ? setState((state2) => ({ willLeave: state2.visible })) : setState((state2) => ({
++      visible: state2.visible ? false : state2.visible
++    }));
++    visibilityId.current = window.setTimeout(() => {
++      isFn(onVisibilityChange) && onVisibilityChange(false);
++      wasVisible.current = false;
++    });
++  }
++  function handleAnimationEnd() {
++    if (state.willLeave && state.visible) {
++      reactDom.flushSync(() => setState({ visible: false, willLeave: false }));
++    }
++  }
++  function computeAnimationClasses() {
++    if (isStr(animation)) {
++      return cx({
++        [`${"contexify_willEnter-" /* animationWillEnter */}${animation}`]: visible && !willLeave,
++        [`${"contexify_willLeave-" /* animationWillLeave */}${animation} ${"contexify_willLeave-" /* animationWillLeave */}'disabled'`]: visible && willLeave
++      });
++    } else if (animation && "enter" in animation && "exit" in animation) {
++      return cx({
++        [`${"contexify_willEnter-" /* animationWillEnter */}${animation.enter}`]: animation.enter && visible && !willLeave,
++        [`${"contexify_willLeave-" /* animationWillLeave */}${animation.exit} ${"contexify_willLeave-" /* animationWillLeave */}'disabled'`]: animation.exit && visible && willLeave
++      });
++    }
++    return null;
++  }
++  const { visible, triggerEvent, propsFromTrigger, x, y, willLeave } = state;
++  const cssClasses = cx(
++    "contexify" /* menu */,
++    className,
++    { [`${"contexify_theme-" /* theme */}${theme}`]: theme },
++    computeAnimationClasses()
++  );
++  return /* @__PURE__ */ React7.createElement(ItemTrackerProvider, {
++    value: itemTracker
++  }, visible && /* @__PURE__ */ React7.createElement("div", {
++    ...rest,
++    className: cssClasses,
++    onAnimationEnd: handleAnimationEnd,
++    style: {
++      ...style,
++      left: x,
++      top: y,
++      opacity: 1
++    },
++    ref: nodeRef,
++    role: "menu"
++  }, cloneItems(children, {
++    propsFromTrigger,
++    triggerEvent
++  })));
++};
++var isFn2 = (v) => Object.prototype.toString.call(v) === "[object Function]";
++var Item = ({
++  id,
++  children,
++  className,
++  style,
++  triggerEvent,
++  data,
++  propsFromTrigger,
++  keyMatcher,
++  onClick = NOOP,
++  disabled = false,
++  hidden = false,
++  closeOnClick = true,
++  handlerEvent = "onClick",
++  ...rest
++}) => {
++  const itemNode = React7.useRef();
++  const itemTracker = useItemTrackerContext();
++  const handlerParams = {
++    id,
++    data,
++    triggerEvent,
++    props: propsFromTrigger
++  };
++  const isDisabled = getPredicateValue(disabled, handlerParams);
++  const isHidden = getPredicateValue(hidden, handlerParams);
++  function handleClick(e) {
++    handlerParams.event = e;
++    e.stopPropagation();
++    if (!isDisabled) {
++      !closeOnClick ? onClick(handlerParams) : dispatchUserHanlder();
++    }
++  }
++  function dispatchUserHanlder() {
++    const node = itemNode.current;
++    node.focus();
++    node.addEventListener(
++      "animationend",
++      () => setTimeout(contextMenu.hideAll),
++      { once: true }
++    );
++    node.classList.add("contexify_item-feedback" /* itemClickedFeedback */);
++    onClick(handlerParams);
++  }
++  function registerItem(node) {
++    if (node && !isDisabled) {
++      itemNode.current = node;
++      itemTracker.set(node, {
++        node,
++        isSubmenu: false,
++        keyMatcher: !isDisabled && isFn2(keyMatcher) && ((e) => {
++          if (keyMatcher(e)) {
++            e.stopPropagation();
++            e.preventDefault();
++            handlerParams.event = e;
++            dispatchUserHanlder();
++          }
++        })
++      });
++    }
++  }
++  function handleKeyDown(e) {
++    if (e.key === "Enter" || e.key === " ") {
++      e.stopPropagation();
++      handlerParams.event = e;
++      dispatchUserHanlder();
++    }
++  }
++  if (isHidden)
++    return null;
++  return /* @__PURE__ */ React7.createElement("div", {
++    ...{ ...rest, [handlerEvent]: handleClick },
++    className: cx("contexify_item" /* item */, className, {
++      [`${"contexify_item-disabled" /* itemDisabled */}`]: isDisabled
++    }),
++    style,
++    onKeyDown: handleKeyDown,
++    ref: registerItem,
++    tabIndex: -1,
++    role: "menuitem",
++    "aria-disabled": isDisabled
++  }, /* @__PURE__ */ React7.createElement("div", {
++    className: "contexify_itemContent" /* itemContent */
++  }, isFn2(children) ? children(handlerParams) : children));
++};
++var Separator = ({
++  triggerEvent,
++  data,
++  propsFromTrigger,
++  hidden = false
++}) => getPredicateValue(hidden, {
++  data,
++  triggerEvent,
++  props: propsFromTrigger
++}) ? null : /* @__PURE__ */ React7.createElement("div", {
++  className: "contexify_separator" /* separator */
++});
++var Arrow = () => /* @__PURE__ */ React7.createElement("svg", {
++  xmlns: "http://www.w3.org/2000/svg",
++  width: "18",
++  height: "18",
++  viewBox: "0 0 24 24",
++  fill: "none",
++  stroke: "currentColor",
++  strokeWidth: "2",
++  strokeLinecap: "round",
++  strokeLinejoin: "round"
++}, /* @__PURE__ */ React7.createElement("polyline", {
++  points: "9 18 15 12 9 6"
++}));
++var RightSlot = ({ className, ...rest }) => /* @__PURE__ */ React7.createElement("div", {
++  className: cx("contexify_rightSlot" /* rightSlot */, className),
++  ...rest
++});
++
++// src/components/Submenu.tsx
++var Submenu = ({
++  arrow,
++  children,
++  disabled = false,
++  hidden = false,
++  label,
++  className,
++  triggerEvent,
++  propsFromTrigger,
++  style,
++  ...rest
++}) => {
++  const parentItemTracker = useItemTrackerContext();
++  const itemTracker = useItemTracker();
++  const submenuNode = React7.useRef(null);
++  const handlerParams = {
++    triggerEvent,
++    props: propsFromTrigger
++  };
++  const isDisabled = getPredicateValue(disabled, handlerParams);
++  const isHidden = getPredicateValue(hidden, handlerParams);
++  function setPosition() {
++    const node = submenuNode.current;
++    if (node) {
++      const bottom = `${"contexify_submenu" /* submenu */}-bottom`;
++      const right = `${"contexify_submenu" /* submenu */}-right`;
++      node.classList.remove(bottom, right);
++      const rect = node.getBoundingClientRect();
++      if (rect.right > window.innerWidth)
++        node.classList.add(right);
++      if (rect.bottom > window.innerHeight)
++        node.classList.add(bottom);
++    }
++  }
++  function trackRef(node) {
++    if (node && !isDisabled)
++      parentItemTracker.set(node, {
++        node,
++        isSubmenu: true,
++        submenuRefTracker: itemTracker,
++        setSubmenuPosition: setPosition
++      });
++  }
++  if (isHidden)
++    return null;
++  const cssClasses = cx("contexify_item" /* item */, className, {
++    [`${"contexify_item-disabled" /* itemDisabled */}`]: isDisabled
++  });
++  return /* @__PURE__ */ React7.createElement(ItemTrackerProvider, {
++    value: itemTracker
++  }, /* @__PURE__ */ React7.createElement("div", {
++    ...rest,
++    className: cssClasses,
++    ref: trackRef,
++    tabIndex: -1,
++    role: "menuitem",
++    "aria-haspopup": true,
++    "aria-disabled": isDisabled,
++    onMouseEnter: setPosition,
++    onTouchStart: setPosition
++  }, /* @__PURE__ */ React7.createElement("div", {
++    className: "contexify_itemContent" /* itemContent */,
++    onClick: (e) => e.stopPropagation()
++  }, label, /* @__PURE__ */ React7.createElement(RightSlot, null, arrow || /* @__PURE__ */ React7.createElement(Arrow, null))), /* @__PURE__ */ React7.createElement("div", {
++    className: `${"contexify" /* menu */} ${"contexify_submenu" /* submenu */}`,
++    ref: submenuNode,
++    style
++  }, cloneItems(children, {
++    propsFromTrigger,
++    triggerEvent
++  }))));
++};
++
++exports.Item = Item;
++exports.Menu = Menu;
++exports.RightSlot = RightSlot;
++exports.Separator = Separator;
++exports.Submenu = Submenu;
++exports.contextMenu = contextMenu;
++exports.useContextMenu = useContextMenu;
+ //# sourceMappingURL=out.js.map
+ //# sourceMappingURL=index.js.map
 diff --git a/node_modules/react-contexify/dist/index.mjs b/node_modules/react-contexify/dist/index.mjs
-index 7caf414..a77fe76 100644
+index 7caf414..336fa70 100644
 --- a/node_modules/react-contexify/dist/index.mjs
 +++ b/node_modules/react-contexify/dist/index.mjs
-@@ -2,7 +2,7 @@ import H, { createContext, useReducer, useRef, useState, useEffect, useContext,
- import X from 'clsx';
+@@ -1,9 +1,580 @@
+-import H, { createContext, useReducer, useRef, useState, useEffect, useContext, Children, cloneElement } from 'react';
+-import X from 'clsx';
++import React7, { createContext, useReducer, useRef, useState, useEffect, useContext, Children, cloneElement } from 'react';
++import cx from 'clsx';
  import { flushSync } from 'react-dom';
  
 -var Y=createContext({}),F=()=>useContext(Y),$=t=>H.createElement(Y.Provider,{...t});function le(){let t=new Map;return {on(e,r){return t.has(e)?t.get(e).add(r):t.set(e,new Set([r])),this},off(e,r){return t.has(e)&&t.get(e).delete(r),this},emit(e,r){return t.has(e)&&t.get(e).forEach(f=>{f(r);}),this}}}var R=le();var B=()=>useRef(new Map).current;var z=()=>{},U=["resize","contextmenu","click","scroll","blur"];var A={show({event:t,id:e,props:r,position:f}){t.preventDefault&&t.preventDefault(),R.emit(0).emit(e,{event:t.nativeEvent||t,props:r,position:f});},hideAll(){R.emit(0);}};function Fe(t){return {show(e){A.show({...t,...e});},hideAll(){A.hideAll();}}}function G(){let t=new Map,e,r,f,s,i=!1;function P(n){s=Array.from(n.values()),e=-1,f=!0;}function v(){s[e].node.focus();}let x=()=>e>=0&&s[e].isSubmenu,w=()=>Array.from(s[e].submenuRefTracker.values());function m(){return e===-1?(b(),!1):!0}function b(){e+1<s.length?e++:e+1===s.length&&(e=0),i&&a(),v();}function E(){e===-1||e===0?e=s.length-1:e-1<s.length&&e--,i&&a(),v();}function T(){if(m()&&x()){let n=w(),{node:c,setSubmenuPosition:h}=s[e];return t.set(c,{isRoot:f,focusedIndex:e,parentNode:r||c,items:s}),h(),c.classList.add("contexify_submenu-isOpen"),r=c,n.length>0?(e=0,s=n):i=!0,f=!1,v(),!0}return !1}function a(){if(m()&&!f){let n=t.get(r);r.classList.remove("contexify_submenu-isOpen"),s=n.items,r=n.parentNode,n.isRoot&&(f=!0,t.clear()),i||(e=n.focusedIndex,v());}}function y(n){function c(h){for(let o of h)o.isSubmenu&&o.submenuRefTracker&&c(Array.from(o.submenuRefTracker.values())),o.keyMatcher&&o.keyMatcher(n);}c(s);}return {init:P,moveDown:b,moveUp:E,openSubmenu:T,closeSubmenu:a,matchKeys:y}}function I(t){return typeof t=="function"}function V(t){return typeof t=="string"}function _(t,e){return Children.map(Children.toArray(t).filter(Boolean),r=>cloneElement(r,e))}function J(t){let e={x:t.clientX,y:t.clientY},r=t.changedTouches;return r&&(e.x=r[0].clientX,e.y=r[0].clientY),(!e.x||e.x<0)&&(e.x=0),(!e.y||e.y<0)&&(e.y=0),e}function k(t,e){return I(t)?t(e):t}function be(t,e){return {...t,...I(e)?e(t):e}}var it=({id:t,theme:e,style:r,className:f,children:s,animation:i="fade",preventDefaultOnKeydown:P=!0,disableBoundariesCheck:v=!1,onVisibilityChange:x,...w})=>{let[m,b]=useReducer(be,{x:0,y:0,visible:!1,triggerEvent:{},propsFromTrigger:null,willLeave:!1}),E=useRef(null),T=B(),[a]=useState(()=>G()),y=useRef(),n=useRef();useEffect(()=>(R.on(t,h).on(0,o),()=>{R.off(t,h).off(0,o);}),[t,i,v]),useEffect(()=>{m.visible?a.init(T):T.clear();},[m.visible,a,T]);function c(u,p){if(E.current&&!v){let{innerWidth:d,innerHeight:C}=window,{offsetWidth:K,offsetHeight:O}=E.current;u+K>d&&(u-=u+K-d),p+O>C&&(p-=p+O-C);}return {x:u,y:p}}useEffect(()=>{m.visible&&b(c(m.x,m.y));},[m.visible]),useEffect(()=>{function u(d){P&&d.preventDefault();}function p(d){switch(d.key){case"Enter":case" ":a.openSubmenu()||o();break;case"Escape":o();break;case"ArrowUp":u(d),a.moveUp();break;case"ArrowDown":u(d),a.moveDown();break;case"ArrowRight":u(d),a.openSubmenu();break;case"ArrowLeft":u(d),a.closeSubmenu();break;default:a.matchKeys(d);break}}if(m.visible){window.addEventListener("keydown",p);for(let d of U)window.addEventListener(d,o);}return ()=>{window.removeEventListener("keydown",p);for(let d of U)window.removeEventListener(d,o);}},[m.visible,a,P]);function h({event:u,props:p,position:d}){u.stopPropagation();let C=d||J(u),{x:K,y:O}=c(C.x,C.y);flushSync(()=>{b({visible:!0,willLeave:!1,x:K,y:O,triggerEvent:u,propsFromTrigger:p});}),clearTimeout(n.current),!y.current&&I(x)&&(x(!0),y.current=!0);}function o(u){u!=null&&(u.button===2||u.ctrlKey)&&u.type!=="contextmenu"||(i&&(V(i)||"exit"in i&&i.exit)?b(p=>({willLeave:p.visible})):b(p=>({visible:p.visible?!1:p.visible})),n.current=setTimeout(()=>{I(x)&&x(!1),y.current=!1;}));}function M(){m.willLeave&&m.visible&&flushSync(()=>b({visible:!1,willLeave:!1}));}function S(){return V(i)?X({[`${"contexify_willEnter-"}${i}`]:g&&!D,[`${"contexify_willLeave-"}${i} ${"contexify_willLeave-"}'disabled'`]:g&&D}):i&&"enter"in i&&"exit"in i?X({[`${"contexify_willEnter-"}${i.enter}`]:i.enter&&g&&!D,[`${"contexify_willLeave-"}${i.exit} ${"contexify_willLeave-"}'disabled'`]:i.exit&&g&&D}):null}let{visible:g,triggerEvent:l,propsFromTrigger:L,x:oe,y:ie,willLeave:D}=m,ae=X("contexify",f,{[`${"contexify_theme-"}${e}`]:e},S());return H.createElement($,{value:T},g&&H.createElement("div",{...w,className:ae,onAnimationEnd:M,style:{...r,left:oe,top:ie,opacity:1},ref:E,role:"menu"},_(s,{propsFromTrigger:L,triggerEvent:l})))};var pt=({id:t,children:e,className:r,style:f,triggerEvent:s,data:i,propsFromTrigger:P,keyMatcher:v,onClick:x=z,disabled:w=!1,hidden:m=!1,closeOnClick:b=!0,handlerEvent:E="onClick",...T})=>{let a=useRef(),y=F(),n={id:t,data:i,triggerEvent:s,props:P},c=k(w,n),h=k(m,n);function o(l){n.event=l,l.stopPropagation(),c||(b?M():x(n));}function M(){let l=a.current;l.focus(),l.addEventListener("animationend",()=>setTimeout(A.hideAll),{once:!0}),l.classList.add("contexify_item-feedback"),x(n);}function S(l){l&&!c&&(a.current=l,y.set(l,{node:l,isSubmenu:!1,keyMatcher:!c&&I(v)&&(L=>{v(L)&&(L.stopPropagation(),L.preventDefault(),n.event=L,M());})}));}function g(l){(l.key==="Enter"||l.key===" ")&&(l.stopPropagation(),n.event=l,M());}return h?null:H.createElement("div",{...T,[E]:o,className:X("contexify_item",r,{[`${"contexify_item-disabled"}`]:c}),style:f,onKeyDown:g,ref:S,tabIndex:-1,role:"menuitem","aria-disabled":c},H.createElement("div",{className:"contexify_itemContent"},e))};var Et=({triggerEvent:t,data:e,propsFromTrigger:r,hidden:f=!1})=>k(f,{data:e,triggerEvent:t,props:r})?null:H.createElement("div",{className:"contexify_separator"});var re=()=>H.createElement("svg",{xmlns:"http://www.w3.org/2000/svg",width:"18",height:"18",viewBox:"0 0 24 24",fill:"none",stroke:"currentColor",strokeWidth:"2",strokeLinecap:"round",strokeLinejoin:"round"},H.createElement("polyline",{points:"9 18 15 12 9 6"}));var ne=({className:t,...e})=>H.createElement("div",{className:X("contexify_rightSlot",t),...e});var Kt=({arrow:t,children:e,disabled:r=!1,hidden:f=!1,label:s,className:i,triggerEvent:P,propsFromTrigger:v,style:x,...w})=>{let m=F(),b=B(),E=useRef(null),T={triggerEvent:P,props:v},a=k(r,T),y=k(f,T);function n(){let o=E.current;if(o){let M=`${"contexify_submenu"}-bottom`,S=`${"contexify_submenu"}-right`;o.classList.remove(M,S);let g=o.getBoundingClientRect();g.right>window.innerWidth&&o.classList.add(S),g.bottom>window.innerHeight&&o.classList.add(M);}}function c(o){o&&!a&&m.set(o,{node:o,isSubmenu:!0,submenuRefTracker:b,setSubmenuPosition:n});}if(y)return null;let h=X("contexify_item",i,{[`${"contexify_item-disabled"}`]:a});return H.createElement($,{value:b},H.createElement("div",{...w,className:h,ref:c,tabIndex:-1,role:"menuitem","aria-haspopup":!0,"aria-disabled":a,onMouseEnter:n,onTouchStart:n},H.createElement("div",{className:"contexify_itemContent",onClick:o=>o.stopPropagation()},s,H.createElement(ne,null,t||H.createElement(re,null))),H.createElement("div",{className:`${"contexify"} ${"contexify_submenu"}`,ref:E,style:x},_(e,{propsFromTrigger:v,triggerEvent:P}))))};
-+var Y=createContext({}),F=()=>useContext(Y),$=t=>H.createElement(Y.Provider,{...t});function le(){let t=new Map;return {on(e,r){return t.has(e)?t.get(e).add(r):t.set(e,new Set([r])),this},off(e,r){return t.has(e)&&t.get(e).delete(r),this},emit(e,r){return t.has(e)&&t.get(e).forEach(f=>{f(r);}),this}}}var R=le();var B=()=>useRef(new Map).current;var z=()=>{},U=["resize","contextmenu","click","scroll","blur"];var A={show({event:t,id:e,props:r,position:f}){t.preventDefault&&t.preventDefault(),R.emit(0).emit(e,{event:t.nativeEvent||t,props:r,position:f});},hideAll(){R.emit(0);}};function Fe(t){return {show(e){A.show({...t,...e});},hideAll(){A.hideAll();}}}function G(){let t=new Map,e,r,f,s,i=!1;function P(n){s=Array.from(n.values()),e=-1,f=!0;}function v(){s[e].node.focus();}let x=()=>e>=0&&s[e].isSubmenu,w=()=>Array.from(s[e].submenuRefTracker.values());function m(){return e===-1?(b(),!1):!0}function b(){e+1<s.length?e++:e+1===s.length&&(e=0),i&&a(),v();}function E(){e===-1||e===0?e=s.length-1:e-1<s.length&&e--,i&&a(),v();}function T(){if(m()&&x()){let n=w(),{node:c,setSubmenuPosition:h}=s[e];return t.set(c,{isRoot:f,focusedIndex:e,parentNode:r||c,items:s}),h(),c.classList.add("contexify_submenu-isOpen"),r=c,n.length>0?(e=0,s=n):i=!0,f=!1,v(),!0}return !1}function a(){if(m()&&!f){let n=t.get(r);r.classList.remove("contexify_submenu-isOpen"),s=n.items,r=n.parentNode,n.isRoot&&(f=!0,t.clear()),i||(e=n.focusedIndex,v());}}function y(n){function c(h){for(let o of h)o.isSubmenu&&o.submenuRefTracker&&c(Array.from(o.submenuRefTracker.values())),o.keyMatcher&&o.keyMatcher(n);}c(s);}return {init:P,moveDown:b,moveUp:E,openSubmenu:T,closeSubmenu:a,matchKeys:y}}function I(t){return typeof t=="function"}function V(t){return typeof t=="string"}function _(t,e){return Children.map(Children.toArray(t).filter(Boolean),r=>cloneElement(r,e))}function J(t){let e={x:t.clientX,y:t.clientY},r=t.changedTouches;return r&&(e.x=r[0].clientX,e.y=r[0].clientY),(!e.x||e.x<0)&&(e.x=0),(!e.y||e.y<0)&&(e.y=0),e}function k(t,e){return I(t)?t(e):t}function be(t,e){return {...t,...I(e)?e(t):e}}var it=({id:t,theme:e,style:r,className:f,children:s,animation:i="fade",preventDefaultOnKeydown:P=!0,disableBoundariesCheck:v=!1,onVisibilityChange:x,...w})=>{let[m,b]=useReducer(be,{x:0,y:0,visible:!1,triggerEvent:{},propsFromTrigger:null,willLeave:!1}),E=useRef(null),T=B(),[a]=useState(()=>G()),y=useRef(),n=useRef();useEffect(()=>(R.on(t,h).on(0,o),()=>{R.off(t,h).off(0,o);}),[t,i,v]),useEffect(()=>{m.visible?a.init(T):T.clear();},[m.visible,a,T]);function c(u,p){if(E.current&&!v){let{innerWidth:d,innerHeight:C}=window,{offsetWidth:K,offsetHeight:O}=E.current;u+K>d&&(u-=u+K-d),p+O>C&&(p-=p+O-C);}return {x:u,y:p}}useEffect(()=>{m.visible&&b(c(m.x,m.y));},[m.visible]),useEffect(()=>{function u(d){P&&d.preventDefault();}function p(d){switch(d.key){case"Enter":case" ":a.openSubmenu()||o();break;case"Escape":o();break;case"ArrowUp":u(d),a.moveUp();break;case"ArrowDown":u(d),a.moveDown();break;case"ArrowRight":u(d),a.openSubmenu();break;case"ArrowLeft":u(d),a.closeSubmenu();break;default:a.matchKeys(d);break}}if(m.visible){window.addEventListener("keydown",p);for(let d of U)window.addEventListener(d,o);}return ()=>{window.removeEventListener("keydown",p);for(let d of U)window.removeEventListener(d,o);}},[m.visible,a,P]);function h({event:u,props:p,position:d}){u.stopPropagation();let C=d||J(u),{x:K,y:O}=c(C.x,C.y);flushSync(()=>{b({visible:!0,willLeave:!1,x:K,y:O,triggerEvent:u,propsFromTrigger:p});}),clearTimeout(n.current),!y.current&&I(x)&&(x(!0),y.current=!0);}function o(u){u!=null&&(u.button===2||u.ctrlKey)&&u.type!=="contextmenu"||(i&&(V(i)||"exit"in i&&i.exit)?b(p=>({willLeave:p.visible})):b(p=>({visible:p.visible?!1:p.visible})),n.current=setTimeout(()=>{I(x)&&x(!1),y.current=!1;}));}function M(){m.willLeave&&m.visible&&flushSync(()=>b({visible:!1,willLeave:!1}));}function S(){return V(i)?X({[`${"contexify_willEnter-"}${i}`]:g&&!D,[`${"contexify_willLeave-"}${i} ${"contexify_willLeave-"}'disabled'`]:g&&D}):i&&"enter"in i&&"exit"in i?X({[`${"contexify_willEnter-"}${i.enter}`]:i.enter&&g&&!D,[`${"contexify_willLeave-"}${i.exit} ${"contexify_willLeave-"}'disabled'`]:i.exit&&g&&D}):null}let{visible:g,triggerEvent:l,propsFromTrigger:L,x:oe,y:ie,willLeave:D}=m,ae=X("contexify",f,{[`${"contexify_theme-"}${e}`]:e},S());return H.createElement($,{value:T},g&&H.createElement("div",{...w,className:ae,onAnimationEnd:M,style:{...r,left:oe,top:ie,opacity:1},ref:E,role:"menu"},_(s,{propsFromTrigger:L,triggerEvent:l})))};var pt=({id:t,children:e,className:r,style:f,triggerEvent:s,data:i,propsFromTrigger:P,keyMatcher:v,onClick:x=z,disabled:w=!1,hidden:m=!1,closeOnClick:b=!0,handlerEvent:E="onClick",...T})=>{let a=useRef(),y=F(),n={id:t,data:i,triggerEvent:s,props:P},c=k(w,n),h=k(m,n);function o(l){n.event=l,l.stopPropagation(),c||(b?M():x(n));}function M(){let l=a.current;l.focus(),A.hideAll(),l.classList.add("contexify_item-feedback"),x(n);}function S(l){l&&!c&&(a.current=l,y.set(l,{node:l,isSubmenu:!1,keyMatcher:!c&&I(v)&&(L=>{v(L)&&(L.stopPropagation(),L.preventDefault(),n.event=L,M());})}));}function g(l){(l.key==="Enter"||l.key===" ")&&(l.stopPropagation(),n.event=l,M());}return h?null:H.createElement("div",{...T,[E]:o,className:X("contexify_item",r,{[`${"contexify_item-disabled"}`]:c}),style:f,onKeyDown:g,ref:S,tabIndex:-1,role:"menuitem","aria-disabled":c},H.createElement("div",{className:"contexify_itemContent"},e))};var Et=({triggerEvent:t,data:e,propsFromTrigger:r,hidden:f=!1})=>k(f,{data:e,triggerEvent:t,props:r})?null:H.createElement("div",{className:"contexify_separator"});var re=()=>H.createElement("svg",{xmlns:"http://www.w3.org/2000/svg",width:"18",height:"18",viewBox:"0 0 24 24",fill:"none",stroke:"currentColor",strokeWidth:"2",strokeLinecap:"round",strokeLinejoin:"round"},H.createElement("polyline",{points:"9 18 15 12 9 6"}));var ne=({className:t,...e})=>H.createElement("div",{className:X("contexify_rightSlot",t),...e});var Kt=({arrow:t,children:e,disabled:r=!1,hidden:f=!1,label:s,className:i,triggerEvent:P,propsFromTrigger:v,style:x,...w})=>{let m=F(),b=B(),E=useRef(null),T={triggerEvent:P,props:v},a=k(r,T),y=k(f,T);function n(){let o=E.current;if(o){let M=`${"contexify_submenu"}-bottom`,S=`${"contexify_submenu"}-right`;o.classList.remove(M,S);let g=o.getBoundingClientRect();g.right>window.innerWidth&&o.classList.add(S),g.bottom>window.innerHeight&&o.classList.add(M);}}function c(o){o&&!a&&m.set(o,{node:o,isSubmenu:!0,submenuRefTracker:b,setSubmenuPosition:n});}if(y)return null;let h=X("contexify_item",i,{[`${"contexify_item-disabled"}`]:a});return H.createElement($,{value:b},H.createElement("div",{...w,className:h,ref:c,tabIndex:-1,role:"menuitem","aria-haspopup":!0,"aria-disabled":a,onMouseEnter:n,onTouchStart:n},H.createElement("div",{className:"contexify_itemContent",onClick:o=>o.stopPropagation()},s,H.createElement(ne,null,t||H.createElement(re,null))),H.createElement("div",{className:`${"contexify"} ${"contexify_submenu"}`,ref:E,style:x},_(e,{propsFromTrigger:v,triggerEvent:P}))))};
++// src/components/Menu.tsx
++var Context = createContext({});
++var useItemTrackerContext = () => useContext(Context);
++var ItemTrackerProvider = (props) => /* @__PURE__ */ React7.createElement(Context.Provider, {
++  ...props
++});
  
- export { pt as Item, it as Menu, ne as RightSlot, Et as Separator, Kt as Submenu, A as contextMenu, Fe as useContextMenu };
+-export { pt as Item, it as Menu, ne as RightSlot, Et as Separator, Kt as Submenu, A as contextMenu, Fe as useContextMenu };
++// src/core/eventManager.ts
++function createEventManager() {
++  const eventList = /* @__PURE__ */ new Map();
++  return {
++    on(event, handler) {
++      eventList.has(event) ? eventList.get(event).add(handler) : eventList.set(event, /* @__PURE__ */ new Set([handler]));
++      return this;
++    },
++    off(event, handler) {
++      eventList.has(event) && eventList.get(event).delete(handler);
++      return this;
++    },
++    emit(event, args) {
++      eventList.has(event) && eventList.get(event).forEach((handler) => {
++        handler(args);
++      });
++      return this;
++    }
++  };
++}
++var eventManager = createEventManager();
++var useItemTracker = () => useRef(/* @__PURE__ */ new Map()).current;
++
++// src/constants.ts
++var NOOP = () => {
++};
++var hideOnEvents = [
++  "resize",
++  "contextmenu",
++  "click",
++  "scroll",
++  "blur"
++];
++
++// src/core/contextMenu.ts
++var contextMenu = {
++  show({ event, id, props, position }) {
++    if (event.preventDefault)
++      event.preventDefault();
++    eventManager.emit(0 /* HIDE_ALL */).emit(id, {
++      event: event.nativeEvent || event,
++      props,
++      position
++    });
++  },
++  hideAll() {
++    eventManager.emit(0 /* HIDE_ALL */);
++  }
++};
++
++// src/hooks/useContextMenu.ts
++function useContextMenu(props) {
++  return {
++    show(params) {
++      contextMenu.show({
++        ...props,
++        ...params
++      });
++    },
++    hideAll() {
++      contextMenu.hideAll();
++    }
++  };
++}
++
++// src/components/keyboardController.ts
++function createKeyboardController() {
++  const menuList = /* @__PURE__ */ new Map();
++  let focusedIndex;
++  let parentNode;
++  let isRoot;
++  let currentItems;
++  let forceCloseSubmenu = false;
++  function init(rootMenu) {
++    currentItems = Array.from(rootMenu.values());
++    focusedIndex = -1;
++    isRoot = true;
++  }
++  function focusSelectedItem() {
++    currentItems[focusedIndex].node.focus();
++  }
++  const isSubmenuFocused = () => focusedIndex >= 0 && currentItems[focusedIndex].isSubmenu;
++  const getSubmenuItems = () => Array.from(currentItems[focusedIndex].submenuRefTracker.values());
++  function isFocused() {
++    if (focusedIndex === -1) {
++      moveDown();
++      return false;
++    }
++    return true;
++  }
++  function moveDown() {
++    if (focusedIndex + 1 < currentItems.length) {
++      focusedIndex++;
++    } else if (focusedIndex + 1 === currentItems.length) {
++      focusedIndex = 0;
++    }
++    if (forceCloseSubmenu)
++      closeSubmenu();
++    focusSelectedItem();
++  }
++  function moveUp() {
++    if (focusedIndex === -1 || focusedIndex === 0) {
++      focusedIndex = currentItems.length - 1;
++    } else if (focusedIndex - 1 < currentItems.length) {
++      focusedIndex--;
++    }
++    if (forceCloseSubmenu)
++      closeSubmenu();
++    focusSelectedItem();
++  }
++  function openSubmenu() {
++    if (isFocused() && isSubmenuFocused()) {
++      const submenuItems = getSubmenuItems();
++      const { node, setSubmenuPosition } = currentItems[focusedIndex];
++      menuList.set(node, {
++        isRoot,
++        focusedIndex,
++        parentNode: parentNode || node,
++        items: currentItems
++      });
++      setSubmenuPosition();
++      node.classList.add("contexify_submenu-isOpen" /* submenuOpen */);
++      parentNode = node;
++      if (submenuItems.length > 0) {
++        focusedIndex = 0;
++        currentItems = submenuItems;
++      } else {
++        forceCloseSubmenu = true;
++      }
++      isRoot = false;
++      focusSelectedItem();
++      return true;
++    }
++    return false;
++  }
++  function closeSubmenu() {
++    if (isFocused() && !isRoot) {
++      const parent = menuList.get(parentNode);
++      parentNode.classList.remove("contexify_submenu-isOpen" /* submenuOpen */);
++      currentItems = parent.items;
++      parentNode = parent.parentNode;
++      if (parent.isRoot) {
++        isRoot = true;
++        menuList.clear();
++      }
++      if (!forceCloseSubmenu) {
++        focusedIndex = parent.focusedIndex;
++        focusSelectedItem();
++      }
++    }
++  }
++  function matchKeys(e) {
++    function walkAndMatch(items) {
++      for (const item of items) {
++        if (item.isSubmenu && item.submenuRefTracker)
++          walkAndMatch(Array.from(item.submenuRefTracker.values()));
++        item.keyMatcher && item.keyMatcher(e);
++      }
++    }
++    walkAndMatch(currentItems);
++  }
++  return {
++    init,
++    moveDown,
++    moveUp,
++    openSubmenu,
++    closeSubmenu,
++    matchKeys
++  };
++}
++function isFn(v) {
++  return typeof v === "function";
++}
++function isStr(v) {
++  return typeof v === "string";
++}
++function cloneItems(children, props) {
++  return Children.map(
++    Children.toArray(children).filter(Boolean),
++    (item) => cloneElement(item, props)
++  );
++}
++function getMousePosition(e) {
++  const pos = {
++    x: e.clientX,
++    y: e.clientY
++  };
++  const touch = e.changedTouches;
++  if (touch) {
++    pos.x = touch[0].clientX;
++    pos.y = touch[0].clientY;
++  }
++  if (!pos.x || pos.x < 0)
++    pos.x = 0;
++  if (!pos.y || pos.y < 0)
++    pos.y = 0;
++  return pos;
++}
++function getPredicateValue(predicate, payload) {
++  return isFn(predicate) ? predicate(payload) : predicate;
++}
++function reducer(state, payload) {
++  return { ...state, ...isFn(payload) ? payload(state) : payload };
++}
++var Menu = ({
++  id,
++  theme,
++  style,
++  className,
++  children,
++  animation = "fade",
++  preventDefaultOnKeydown = true,
++  disableBoundariesCheck = false,
++  onVisibilityChange,
++  ...rest
++}) => {
++  const [state, setState] = useReducer(reducer, {
++    x: 0,
++    y: 0,
++    visible: false,
++    triggerEvent: {},
++    propsFromTrigger: null,
++    willLeave: false
++  });
++  const nodeRef = useRef(null);
++  const itemTracker = useItemTracker();
++  const [menuController] = useState(() => createKeyboardController());
++  const wasVisible = useRef();
++  const visibilityId = useRef();
++  useEffect(() => {
++    eventManager.on(id, show).on(0 /* HIDE_ALL */, hide);
++    return () => {
++      eventManager.off(id, show).off(0 /* HIDE_ALL */, hide);
++    };
++  }, [id, animation, disableBoundariesCheck]);
++  useEffect(() => {
++    !state.visible ? itemTracker.clear() : menuController.init(itemTracker);
++  }, [state.visible, menuController, itemTracker]);
++  function checkBoundaries(x2, y2) {
++    if (nodeRef.current && !disableBoundariesCheck) {
++      const { innerWidth, innerHeight } = window;
++      const { offsetWidth, offsetHeight } = nodeRef.current;
++      if (x2 + offsetWidth > innerWidth)
++        x2 -= x2 + offsetWidth - innerWidth;
++      if (y2 + offsetHeight > innerHeight)
++        y2 -= y2 + offsetHeight - innerHeight;
++    }
++    return { x: x2, y: y2 };
++  }
++  useEffect(() => {
++    if (state.visible)
++      setState(checkBoundaries(state.x, state.y));
++  }, [state.visible]);
++  useEffect(() => {
++    function preventDefault(e) {
++      if (preventDefaultOnKeydown)
++        e.preventDefault();
++    }
++    function handleKeyboard(e) {
++      switch (e.key) {
++        case "Enter":
++        case " ":
++          if (!menuController.openSubmenu())
++            hide();
++          break;
++        case "Escape":
++          hide();
++          break;
++        case "ArrowUp":
++          preventDefault(e);
++          menuController.moveUp();
++          break;
++        case "ArrowDown":
++          preventDefault(e);
++          menuController.moveDown();
++          break;
++        case "ArrowRight":
++          preventDefault(e);
++          menuController.openSubmenu();
++          break;
++        case "ArrowLeft":
++          preventDefault(e);
++          menuController.closeSubmenu();
++          break;
++        default:
++          menuController.matchKeys(e);
++          break;
++      }
++    }
++    if (state.visible) {
++      window.addEventListener("keydown", handleKeyboard);
++      for (const ev of hideOnEvents)
++        window.addEventListener(ev, hide);
++    }
++    return () => {
++      window.removeEventListener("keydown", handleKeyboard);
++      for (const ev of hideOnEvents)
++        window.removeEventListener(ev, hide);
++    };
++  }, [state.visible, menuController, preventDefaultOnKeydown]);
++  function show({ event, props, position }) {
++    event.stopPropagation();
++    const p = position || getMousePosition(event);
++    const { x: x2, y: y2 } = checkBoundaries(p.x, p.y);
++    flushSync(() => {
++      setState({
++        visible: true,
++        willLeave: false,
++        x: x2,
++        y: y2,
++        triggerEvent: event,
++        propsFromTrigger: props
++      });
++    });
++    clearTimeout(visibilityId.current);
++    if (!wasVisible.current && isFn(onVisibilityChange)) {
++      onVisibilityChange(true);
++      wasVisible.current = true;
++    }
++  }
++  function hide(e) {
++    if (e != null && (e.button === 2 || e.ctrlKey) && e.type !== "contextmenu")
++      return;
++    animation && (isStr(animation) || "exit" in animation && animation.exit) ? setState((state2) => ({ willLeave: state2.visible })) : setState((state2) => ({
++      visible: state2.visible ? false : state2.visible
++    }));
++    visibilityId.current = window.setTimeout(() => {
++      isFn(onVisibilityChange) && onVisibilityChange(false);
++      wasVisible.current = false;
++    });
++  }
++  function handleAnimationEnd() {
++    if (state.willLeave && state.visible) {
++      flushSync(() => setState({ visible: false, willLeave: false }));
++    }
++  }
++  function computeAnimationClasses() {
++    if (isStr(animation)) {
++      return cx({
++        [`${"contexify_willEnter-" /* animationWillEnter */}${animation}`]: visible && !willLeave,
++        [`${"contexify_willLeave-" /* animationWillLeave */}${animation} ${"contexify_willLeave-" /* animationWillLeave */}'disabled'`]: visible && willLeave
++      });
++    } else if (animation && "enter" in animation && "exit" in animation) {
++      return cx({
++        [`${"contexify_willEnter-" /* animationWillEnter */}${animation.enter}`]: animation.enter && visible && !willLeave,
++        [`${"contexify_willLeave-" /* animationWillLeave */}${animation.exit} ${"contexify_willLeave-" /* animationWillLeave */}'disabled'`]: animation.exit && visible && willLeave
++      });
++    }
++    return null;
++  }
++  const { visible, triggerEvent, propsFromTrigger, x, y, willLeave } = state;
++  const cssClasses = cx(
++    "contexify" /* menu */,
++    className,
++    { [`${"contexify_theme-" /* theme */}${theme}`]: theme },
++    computeAnimationClasses()
++  );
++  return /* @__PURE__ */ React7.createElement(ItemTrackerProvider, {
++    value: itemTracker
++  }, visible && /* @__PURE__ */ React7.createElement("div", {
++    ...rest,
++    className: cssClasses,
++    onAnimationEnd: handleAnimationEnd,
++    style: {
++      ...style,
++      left: x,
++      top: y,
++      opacity: 1
++    },
++    ref: nodeRef,
++    role: "menu"
++  }, cloneItems(children, {
++    propsFromTrigger,
++    triggerEvent
++  })));
++};
++var isFn2 = (v) => Object.prototype.toString.call(v) === "[object Function]";
++var Item = ({
++  id,
++  children,
++  className,
++  style,
++  triggerEvent,
++  data,
++  propsFromTrigger,
++  keyMatcher,
++  onClick = NOOP,
++  disabled = false,
++  hidden = false,
++  closeOnClick = true,
++  handlerEvent = "onClick",
++  ...rest
++}) => {
++  const itemNode = useRef();
++  const itemTracker = useItemTrackerContext();
++  const handlerParams = {
++    id,
++    data,
++    triggerEvent,
++    props: propsFromTrigger
++  };
++  const isDisabled = getPredicateValue(disabled, handlerParams);
++  const isHidden = getPredicateValue(hidden, handlerParams);
++  function handleClick(e) {
++    handlerParams.event = e;
++    e.stopPropagation();
++    if (!isDisabled) {
++      !closeOnClick ? onClick(handlerParams) : dispatchUserHanlder();
++    }
++  }
++  function dispatchUserHanlder() {
++    const node = itemNode.current;
++    node.focus();
++    node.addEventListener(
++      "animationend",
++      () => setTimeout(contextMenu.hideAll),
++      { once: true }
++    );
++    node.classList.add("contexify_item-feedback" /* itemClickedFeedback */);
++    onClick(handlerParams);
++  }
++  function registerItem(node) {
++    if (node && !isDisabled) {
++      itemNode.current = node;
++      itemTracker.set(node, {
++        node,
++        isSubmenu: false,
++        keyMatcher: !isDisabled && isFn2(keyMatcher) && ((e) => {
++          if (keyMatcher(e)) {
++            e.stopPropagation();
++            e.preventDefault();
++            handlerParams.event = e;
++            dispatchUserHanlder();
++          }
++        })
++      });
++    }
++  }
++  function handleKeyDown(e) {
++    if (e.key === "Enter" || e.key === " ") {
++      e.stopPropagation();
++      handlerParams.event = e;
++      dispatchUserHanlder();
++    }
++  }
++  if (isHidden)
++    return null;
++  return /* @__PURE__ */ React7.createElement("div", {
++    ...{ ...rest, [handlerEvent]: handleClick },
++    className: cx("contexify_item" /* item */, className, {
++      [`${"contexify_item-disabled" /* itemDisabled */}`]: isDisabled
++    }),
++    style,
++    onKeyDown: handleKeyDown,
++    ref: registerItem,
++    tabIndex: -1,
++    role: "menuitem",
++    "aria-disabled": isDisabled
++  }, /* @__PURE__ */ React7.createElement("div", {
++    className: "contexify_itemContent" /* itemContent */
++  }, isFn2(children) ? children(handlerParams) : children));
++};
++var Separator = ({
++  triggerEvent,
++  data,
++  propsFromTrigger,
++  hidden = false
++}) => getPredicateValue(hidden, {
++  data,
++  triggerEvent,
++  props: propsFromTrigger
++}) ? null : /* @__PURE__ */ React7.createElement("div", {
++  className: "contexify_separator" /* separator */
++});
++var Arrow = () => /* @__PURE__ */ React7.createElement("svg", {
++  xmlns: "http://www.w3.org/2000/svg",
++  width: "18",
++  height: "18",
++  viewBox: "0 0 24 24",
++  fill: "none",
++  stroke: "currentColor",
++  strokeWidth: "2",
++  strokeLinecap: "round",
++  strokeLinejoin: "round"
++}, /* @__PURE__ */ React7.createElement("polyline", {
++  points: "9 18 15 12 9 6"
++}));
++var RightSlot = ({ className, ...rest }) => /* @__PURE__ */ React7.createElement("div", {
++  className: cx("contexify_rightSlot" /* rightSlot */, className),
++  ...rest
++});
++
++// src/components/Submenu.tsx
++var Submenu = ({
++  arrow,
++  children,
++  disabled = false,
++  hidden = false,
++  label,
++  className,
++  triggerEvent,
++  propsFromTrigger,
++  style,
++  ...rest
++}) => {
++  const parentItemTracker = useItemTrackerContext();
++  const itemTracker = useItemTracker();
++  const submenuNode = useRef(null);
++  const handlerParams = {
++    triggerEvent,
++    props: propsFromTrigger
++  };
++  const isDisabled = getPredicateValue(disabled, handlerParams);
++  const isHidden = getPredicateValue(hidden, handlerParams);
++  function setPosition() {
++    const node = submenuNode.current;
++    if (node) {
++      const bottom = `${"contexify_submenu" /* submenu */}-bottom`;
++      const right = `${"contexify_submenu" /* submenu */}-right`;
++      node.classList.remove(bottom, right);
++      const rect = node.getBoundingClientRect();
++      if (rect.right > window.innerWidth)
++        node.classList.add(right);
++      if (rect.bottom > window.innerHeight)
++        node.classList.add(bottom);
++    }
++  }
++  function trackRef(node) {
++    if (node && !isDisabled)
++      parentItemTracker.set(node, {
++        node,
++        isSubmenu: true,
++        submenuRefTracker: itemTracker,
++        setSubmenuPosition: setPosition
++      });
++  }
++  if (isHidden)
++    return null;
++  const cssClasses = cx("contexify_item" /* item */, className, {
++    [`${"contexify_item-disabled" /* itemDisabled */}`]: isDisabled
++  });
++  return /* @__PURE__ */ React7.createElement(ItemTrackerProvider, {
++    value: itemTracker
++  }, /* @__PURE__ */ React7.createElement("div", {
++    ...rest,
++    className: cssClasses,
++    ref: trackRef,
++    tabIndex: -1,
++    role: "menuitem",
++    "aria-haspopup": true,
++    "aria-disabled": isDisabled,
++    onMouseEnter: setPosition,
++    onTouchStart: setPosition
++  }, /* @__PURE__ */ React7.createElement("div", {
++    className: "contexify_itemContent" /* itemContent */,
++    onClick: (e) => e.stopPropagation()
++  }, label, /* @__PURE__ */ React7.createElement(RightSlot, null, arrow || /* @__PURE__ */ React7.createElement(Arrow, null))), /* @__PURE__ */ React7.createElement("div", {
++    className: `${"contexify" /* menu */} ${"contexify_submenu" /* submenu */}`,
++    ref: submenuNode,
++    style
++  }, cloneItems(children, {
++    propsFromTrigger,
++    triggerEvent
++  }))));
++};
++
++export { Item, Menu, RightSlot, Separator, Submenu, contextMenu, useContextMenu };
  //# sourceMappingURL=out.js.map
+ //# sourceMappingURL=index.mjs.map

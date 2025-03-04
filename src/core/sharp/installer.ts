@@ -14,9 +14,14 @@ import { type AbortError, abortPromise, type TimeoutError } from '~/utils/abort-
 import { Channel } from '~/utils/channel'
 import { Config, FileCache, Global } from '..'
 
+export enum InstallEvent {
+  success = 'install-success',
+  fail = 'install-fail',
+}
+
 type Events = {
-  'install-success': [TSharp]
-  'install-fail': [TimeoutError | AbortError | Error]
+  [InstallEvent.success]: [TSharp]
+  [InstallEvent.fail]: [TimeoutError | AbortError | Error]
 }
 
 enum CacheType {
@@ -33,17 +38,30 @@ enum CacheType {
 
 const CNPM_BINARY_REGISTRY = () => mirrors()[0].description
 
-const SharpLibvips = {
+// libvips 配置
+const libvips_config = {
+  /**
+   * 解析名称，用于下载。固定而非自定义
+   */
   name: 'sharp-libvips',
+  /**
+   * 版本
+   */
   version: config.libvips,
 }
 
-const CacheDirs = {
-  vendor: 'vendor',
-  build: 'build',
-  sharp: 'sharp',
-  json: 'json',
-  cache_json: 'cache.json',
+// 缓存目录
+enum CacheDirs {
+  // vendor 里面是 libvips binary
+  vendor = 'vendor',
+  // build 里面是 sharp binary
+  build = 'build',
+  // sharp 里面是 sharp 的 index.js 源码
+  sharp = 'sharp',
+  // json 里面是 sharp 的 package.json
+  json = 'json',
+  // cache.json 里面是 ImageManager 插件版本、libvips 版本、@minko-fe/sharp 版本
+  cache_json = 'cache.json',
 }
 
 export class Installer {
@@ -104,7 +122,7 @@ export class Installer {
 
     this._cacheFilePath = path.join(this.getDepCacheDir(), CacheDirs.cache_json)
 
-    this._libvips_bin = `libvips-${SharpLibvips.version}-${this.platform}.tar.gz`
+    this._libvips_bin = `libvips-${libvips_config.version}-${this.platform}.tar.gz`
 
     Channel.debug(`OS缓存是否可写: ${FileCache.cacheDir}`)
 
@@ -113,7 +131,7 @@ export class Installer {
     Channel.info(`${i18n.t('core.extension_root')}: ${this.cwd}`)
     Channel.info(`${i18n.t('core.tip')}: ${i18n.t('core.dep_url_tip')} ⬇️`)
     Channel.info(
-      `${i18n.t('core.dep_url')}: ${CNPM_BINARY_REGISTRY()}/${SharpLibvips.name}/v${SharpLibvips.version}/${this._libvips_bin}`,
+      `${i18n.t('core.dep_url')}: ${CNPM_BINARY_REGISTRY()}/${libvips_config.name}/v${libvips_config.version}/${this._libvips_bin}`,
     )
     Channel.divider()
   }
@@ -162,12 +180,12 @@ export class Installer {
       const pkg = this._readCacheJson()
       Channel.debug(`Cached package.json: ${JSON.stringify(pkg)}`)
 
-      if (pkg.libvips !== SharpLibvips.version) {
+      if (pkg.libvips !== libvips_config.version) {
         fs.emptyDirSync(path.resolve(this.getDepCacheDir(), CacheDirs.vendor))
         if (await this._tryCopyCacheToOs([CacheDirs.vendor])) {
           Channel.info(i18n.t('core.libvips_diff'))
         }
-        this._writeCacheJson({ libvips: SharpLibvips.version })
+        this._writeCacheJson({ libvips: libvips_config.version })
       }
 
       const SHARP_VERSION = cleanVersion(devDependencies['@minko-fe/sharp'])
@@ -188,9 +206,9 @@ export class Installer {
 
       const currentCacheType = this._getInstalledCacheTypes()![0]
       Channel.debug(`Current cache type: ${currentCacheType}`)
-      this.event.emit('install-success', await this._pollingLoadSharp(currentCacheType))
+      this.event.emit(InstallEvent.success, await this._pollingLoadSharp(currentCacheType))
     } catch (e) {
-      this.event.emit('install-fail', e as Error)
+      this.event.emit(InstallEvent.fail, e as Error)
     }
     return this
   }
@@ -217,7 +235,7 @@ export class Installer {
     if (shouldInit) {
       this._writeCacheJson({
         version,
-        'libvips': SharpLibvips.version,
+        'libvips': libvips_config.version,
         '@minko-fe/sharp': cleanVersion(devDependencies['@minko-fe/sharp']),
       })
     }
@@ -271,7 +289,7 @@ export class Installer {
       },
       {
         key: 'vendorDirPath',
-        value: `${CacheDirs.vendor}/${SharpLibvips.version}`,
+        value: `${CacheDirs.vendor}/${libvips_config.version}`,
       },
       {
         key: 'sharpFsPath',
@@ -509,8 +527,8 @@ export class Installer {
 
       try {
         const npm_config_sharp_libvips_binary_host = resolveMirrorUrl({
-          name: SharpLibvips.name,
-          fallbackUrl: `${CNPM_BINARY_REGISTRY()}/${SharpLibvips.name}`,
+          name: libvips_config.name,
+          fallbackUrl: `${CNPM_BINARY_REGISTRY()}/${libvips_config.name}`,
         })
 
         Channel.debug(`libvips binary host: ${npm_config_sharp_libvips_binary_host}`)
@@ -519,7 +537,7 @@ export class Installer {
           cwd,
           env: {
             ...process.env,
-            npm_package_config_libvips: SharpLibvips.version,
+            npm_package_config_libvips: libvips_config.version,
             npm_config_sharp_libvips_binary_host,
           },
         })
