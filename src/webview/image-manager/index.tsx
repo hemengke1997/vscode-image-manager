@@ -28,7 +28,7 @@ enableMapSet()
 
 toast.setDefaultOptions({
   className:
-    'flex items-center justify-center rounded-md bg-black bg-opacity-60 px-2 py-1 text-sm shadow-sm pointer-events-none',
+    'flex items-center justify-center rounded-md bg-black bg-opacity-60 px-2 py-1 text-sm shadow-sm pointer-events-none text-ant-color-text-light-solid',
   pauseOnHover: false,
   duration: 1500,
 })
@@ -37,10 +37,11 @@ function ImageManager() {
   const { message, notification } = App.useApp()
   const { t } = useTranslation()
 
-  const { setCompressor, setFormatConverter, sharpInstalled } = GlobalContext.usePicker([
+  const { setCompressor, setFormatConverter, sharpInstalled, extConfig } = GlobalContext.usePicker([
     'setCompressor',
     'setFormatConverter',
     'sharpInstalled',
+    'extConfig',
   ])
 
   const { refreshImages } = ActionContext.usePicker(['refreshImages'])
@@ -48,7 +49,7 @@ function ImageManager() {
   useRefreshImages()
 
   useEffect(() => {
-    if (!sharpInstalled) {
+    if (extConfig.core.installDependencies && !sharpInstalled) {
       notification.warning({
         message: t('im.deps_not_found'),
         description: t('im.no_sharp'),

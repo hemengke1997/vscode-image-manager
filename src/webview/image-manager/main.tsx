@@ -35,14 +35,6 @@ function getReactRoot() {
 }
 
 function registerApp(children: JSX.Element, reload = false) {
-  getReactRoot().render(
-    <div className={'flex h-screen w-screen items-center justify-center bg-vscode-editor-background'}>
-      <Transition mounted={true} enterDelay={200} initial={true} transition={'fade'}>
-        <Logo className={'animate-bounce text-6xl'} />
-      </Transition>
-    </div>,
-  )
-
   vscodeApi.postMessage(
     {
       cmd: CmdToVscode.on_webview_ready,
@@ -116,6 +108,14 @@ function registerApp(children: JSX.Element, reload = false) {
 }
 
 function mount(reload?: boolean) {
+  getReactRoot().render(
+    <div className={'flex h-screen w-screen items-center justify-center bg-vscode-editor-background'}>
+      <Transition mounted={true} enterDelay={200} initial={true} transition={'fade'}>
+        <Logo className={'animate-bounce text-6xl'} />
+      </Transition>
+    </div>,
+  )
+
   registerApp(
     <GlobalContext.Provider>
       <SettingsContext.Provider>

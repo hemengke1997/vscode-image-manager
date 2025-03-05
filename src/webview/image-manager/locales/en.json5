@@ -68,7 +68,7 @@
     directory: 'Directory',
     dimensions: 'Dimensions',
     birth_time: 'Birth Time',
-    last_status_changed_time: 'Status Change Time',
+    status_changed_time: 'Status Change Time',
     no_image: 'No image',
     unset: 'Unset',
     highlight: 'Highlight',

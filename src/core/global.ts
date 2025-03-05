@@ -114,7 +114,7 @@ export class Global {
               commands.executeCommand(Commands.select_mirror)
             }
           } else if (e instanceof AbortError) {
-            window.showErrorMessage(i18n.t('prompt.deps_init_aborted'))
+            Channel.warn(i18n.t('prompt.deps_init_aborted'), true)
           } else {
             Channel.error(i18n.t('prompt.compressor_init_fail'), true)
           }

@@ -277,7 +277,7 @@ function LazyImage(props: LazyImageProps) {
         {onPreviewClick && (
           <div
             className={classNames(
-              'flex cursor-pointer items-center space-x-1 truncate transition-colors hover:text-ant-color-text active:text-ant-color-text-label',
+              'flex cursor-pointer items-center space-x-1 truncate transition-colors hover:text-ant-color-primary-text',
             )}
             onClick={(e) => {
               if (isMultipleSelecting(e)) return

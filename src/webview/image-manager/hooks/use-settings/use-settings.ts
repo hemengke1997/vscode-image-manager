@@ -10,6 +10,7 @@ export default function useSettings() {
       title: t('im.settings'),
       keyboard: true,
       width: 'fit-content',
+      centered: true,
     },
     FC: Settings,
   })

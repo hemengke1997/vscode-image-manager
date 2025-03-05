@@ -337,40 +337,49 @@ function ImageGroup(props: imageGroupProps, ref: ForwardedRef<HTMLDivElement>) {
     if (v) return
   })
 
-  const handleImageRender: PreviewGroupPreview['imageRender'] = useMemoizedFn((originalNode, info) => {
-    return (
-      <div
-        onContextMenu={(e) => {
-          show({
-            event: e,
-            props: {
-              image: images[info.current],
-              sameLevelImages: images,
-              sameWorkspaceImages: getSameWorkspaceImages(images[info.current]),
-              enableContextMenu: {
-                ...enableContextMenu,
-                reveal_in_viewer: false,
-                copy: false,
-                rename: false,
-                delete: false,
-                cut: false,
-                compress: false,
-                crop: false,
-                find_similar_in_all: false,
-                find_similar_in_same_level: false,
-                format_conversion: false,
-                preview: false, // 已经是预览状态了，禁止再次预览
+  const handleImageRender = useMemoizedFn<Exclude<PreviewGroupPreview['imageRender'], undefined>>(
+    (originalNode, info) => {
+      return (
+        <div
+          onContextMenu={(e) => {
+            show({
+              event: e,
+              props: {
+                image: images[info.current],
+                sameLevelImages: images,
+                sameWorkspaceImages: getSameWorkspaceImages(images[info.current]),
+                enableContextMenu: {
+                  ...enableContextMenu,
+                  reveal_in_viewer: false,
+                  copy: false,
+                  rename: false,
+                  delete: false,
+                  cut: false,
+                  compress: false,
+                  crop: false,
+                  find_similar_in_all: false,
+                  find_similar_in_same_level: false,
+                  format_conversion: false,
+                  preview: false, // 已经是预览状态了，禁止再次预览
+                },
+                shortcutsVisible: false, // 预览状态下，不显示快捷键
               },
-              shortcutsVisible: false, // 预览状态下，不显示快捷键
-            },
-          })
-        }}
-        className={'contents'}
-      >
-        {originalNode}
-      </div>
-    )
-  })
+            })
+          }}
+          className={'contents'}
+        >
+          <div
+            className={
+              'fixed left-[50%] top-16 z-[1] translate-x-[-50%] rounded bg-[rgba(0,0,0,0.1)] px-3 py-1 text-xl text-ant-color-text-light-solid shadow'
+            }
+          >
+            {images[info.current]?.basename}
+          </div>
+          {originalNode}
+        </div>
+      )
+    },
+  )
 
   const handleTransform: PreviewGroupPreview['onTransform'] = useMemoizedFn((info) => {
     if (['wheel', 'zoomIn', 'zoomOut'].includes(info.action)) {
@@ -379,7 +388,7 @@ function ImageGroup(props: imageGroupProps, ref: ForwardedRef<HTMLDivElement>) {
     }
   })
 
-  const previewProps = useMemo(
+  const previewProps: PreviewGroupPreview = useMemo(
     () => ({
       destroyOnClose: true,
       visible: preview?.open,

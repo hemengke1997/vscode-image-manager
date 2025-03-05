@@ -10,6 +10,9 @@ export type VscodeConfigType = {
 }
 
 export type ConfigType = {
+  core: {
+    installDependencies: boolean
+  }
   debug: {
     enabled: boolean
     forceInstall: boolean
@@ -51,6 +54,8 @@ export type ConfigType = {
 }
 
 export enum ConfigKey {
+  core_installDependencies = 'core.installDependencies',
+
   debug_enabled = 'debug.enabled',
   debug_forceInstall = 'debug.forceInstall',
 
@@ -98,6 +103,9 @@ export enum ConfigKey {
 
 // !! Care: sync with package.json
 export const DEFAULT_CONFIG: ConfigType = {
+  core: {
+    installDependencies: true,
+  },
   debug: {
     enabled: false,
     forceInstall: false,

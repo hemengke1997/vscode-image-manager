@@ -48,6 +48,10 @@ export class Config {
     ConfigKey.viewer_showDetailsOnHover,
   ]
 
+  static get core_installDependencies(): boolean {
+    return this.getConfig(ConfigKey.core_installDependencies)
+  }
+
   static get debug_enabled(): boolean {
     return this.getConfig(ConfigKey.debug_enabled)
   }

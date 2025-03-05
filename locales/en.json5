@@ -11,6 +11,9 @@
       clear_cache: 'Clear Local Cache',
       configure_svgo: 'Configure svgo',
     },
+    core: {
+      installDependencies: 'Install dependencies',
+    },
     debug: {
       enabled: 'Enable debug mode',
       forceInstall: 'Force install dependencies',

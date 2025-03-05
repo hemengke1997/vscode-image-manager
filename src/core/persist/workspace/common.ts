@@ -5,6 +5,8 @@ export enum SortByType {
   basename = 'name',
   // 按文件大小排序
   size = 'size',
+  // 按文件修改时间排序
+  mtime = 'mtime',
 }
 export enum SortType {
   asc = 'asc',
@@ -29,7 +31,7 @@ export enum DisplayStyleType {
 
 export type WorkspaceStateType = {
   image_filter: ImageFilterType
-  display_sort: [SortByType, SortByType]
+  display_sort: [SortByType, SortType]
   display_group: DisplayGroupType[]
   display_style: DisplayStyleType
   recent_image_backgroundColors: string[]
@@ -54,7 +56,7 @@ export const defaultState: WorkspaceStateType = {
     git_staged: 0,
     exclude_types: [],
   },
-  display_sort: [SortByType.basename, SortByType.size],
+  display_sort: [SortByType.basename, SortType.asc],
   display_group: [DisplayGroupType.dir],
   display_style: DisplayStyleType.compact,
   recent_image_backgroundColors: [],

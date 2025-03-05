@@ -28,6 +28,12 @@ Then choose a mirror source, restart VS Code, and try downloading the dependenci
 4. Place the downloaded files in the `Extension Root` from step 2.
 5. Restart VS Code.
 
+## Can I use the extension without installing dependencies?
+
+If you do not need features such as image compression, format conversion, or finding similar images, you can choose not to install dependencies. Set `image-manager.core.installDependencies: false` in `settings.json`.
+
+Fortunately, you can still use most of the extension's features.
+
 ## Why Did the File Size Increase After Compression?
 
 - Adding "compressed" metadata during compression may cause small images to increase in size.

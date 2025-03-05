@@ -109,6 +109,7 @@
     "context-state": "^3.2.0",
     "conventional-changelog-cli": "^5.0.0",
     "cropperjs": "^1.6.2",
+    "dayjs": "^1.11.13",
     "debounce": "^2.2.0",
     "deep-object-diff": "^1.1.9",
     "deepmerge": "^4.3.1",
@@ -261,6 +262,11 @@
     "configuration": {
       "title": "%pkg.title%",
       "properties": {
+        "image-manager.core.installDependencies": {
+          "type": "boolean",
+          "default": true,
+          "description": "%pkg.core.installDependencies%"
+        },
         "image-manager.debug.enabled": {
           "type": "boolean",
           "default": false,

@@ -12,6 +12,9 @@
       clear_cache: 'ローカルキャッシュをクリア',
       configure_svgo: 'svgoを設定',
     },
+    core: {
+      installDependencies: '依存関係をインストール',
+    },
     debug: {
       enabled: 'デバッグモードを有効にする',
       forceInstall: '依存関係を強制的にインストール',

@@ -176,7 +176,7 @@ function CollapseTree(props: Props) {
     },
   )
 
-  const onCollapseOpenChange = useMemoizedFn((open, value) => {
+  const onCollapseOpenChange = useMemoizedFn((open: boolean, value: string) => {
     setActiveCollapseIdSet(
       produce((draft) => {
         if (open) {
@@ -214,18 +214,22 @@ function CollapseTree(props: Props) {
                 collapseProps={{
                   bordered: false,
                   className: classNames(styles.collapse),
-                  // 展开第一个有图片的节点
-                  defaultActiveKey: firstNodeWithImages.current?.value === value ? [value] : undefined,
                   ...collapseProps,
                 }}
                 // 非根节点，或者多工作区时，可以折叠
                 collapsible={!root || multipleWorkspace}
-                // 多工作区的根节点默认展开
-                defaultOpen={multipleWorkspace && root}
                 open={isCollapseOpen(value, {
                   // 非多工作区时，根节点强制展开
                   forceOpen: !multipleWorkspace && root,
                 })}
+                onOpenInit={(open) => {
+                  // 多工作区的根节点默认展开
+                  // 第一个有图片的节点默认展开
+                  if ((multipleWorkspace && root) || firstNodeWithImages.current?.value === value) {
+                    open = true
+                  }
+                  onCollapseOpenChange(open, value)
+                }}
                 onOpenChange={(open) => {
                   onCollapseOpenChange(open, value)
                 }}

@@ -1,6 +1,7 @@
 import { isEqual } from 'lodash-es'
 import path from 'node:path'
 import { commands, FileType, type Uri, workspace } from 'vscode'
+import { Config } from '~/core'
 import { Global } from '~/core/global'
 import { type ExtensionModule } from '~/module'
 import { normalizePath } from '~/utils'
@@ -31,13 +32,14 @@ export default <ExtensionModule>function (ctx) {
       // Open via command palette or shortcut
     }
 
-    // init sharp here
     try {
-      // 不必每次打开插件时都安装 sharp
-      // 只要一次失败，就认为不支持 sharp
-      if (sharpInstalled !== false) {
-        await Global.installSharp()
-        sharpInstalled = true
+      if (Config.core_installDependencies) {
+        // 不必每次打开插件时都安装 sharp
+        // 只要一次失败，就认为不支持 sharp
+        if (sharpInstalled !== false) {
+          await Global.installSharp()
+          sharpInstalled = true
+        }
       }
     } catch {
       sharpInstalled = false

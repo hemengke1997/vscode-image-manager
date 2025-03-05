@@ -2,6 +2,7 @@ import { memo, useMemo } from 'react'
 import { useTranslation } from 'react-i18next'
 import { HiOutlineViewfinderCircle } from 'react-icons/hi2'
 import { Button, Descriptions, type DescriptionsProps, Tooltip } from 'antd'
+import dayjs from 'dayjs'
 import { Compressed } from '~/enums'
 import { CmdToVscode } from '~/message/cmd'
 import { vscodeApi } from '~/webview/vscode-api'
@@ -74,6 +75,10 @@ function ImageDetails(props: Props & ImperativeModalProps) {
     {
       label: t('im.size'),
       children: <div>{formatBytes(image.stats.size)}</div>,
+    },
+    {
+      label: t('im.status_changed_time'),
+      children: <div>{dayjs(image.stats.mtimeMs).format('YYYY-MM-DD HH:mm:ss')}</div>,
     },
     {
       label: t('im.whether_compressed'),

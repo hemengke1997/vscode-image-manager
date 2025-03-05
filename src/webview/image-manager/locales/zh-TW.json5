@@ -68,7 +68,7 @@
     directory: '目錄',
     dimensions: '尺寸',
     birth_time: '創建時間',
-    last_status_changed_time: '最後修改時間',
+    status_changed_time: '修改時間',
     no_image: '無圖片',
     highlight: '高亮',
     guides: '網格',

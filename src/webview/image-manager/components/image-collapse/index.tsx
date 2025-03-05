@@ -69,14 +69,11 @@ type ImageCollapseProps = {
    */
   collapsible?: boolean
   /**
-   * 默认展开
-   */
-  defaultOpen?: boolean
-  /**
    * 展开态
    */
   open?: boolean
   onOpenChange?: (open: boolean) => void
+  onOpenInit?: (open: boolean) => void
 }
 
 function ImageCollapse(props: ImageCollapseProps) {
@@ -93,9 +90,9 @@ function ImageCollapse(props: ImageCollapseProps) {
     contextMenu,
     imageGroupProps,
     collapsible = true,
-    defaultOpen,
     open: openProp,
     onOpenChange,
+    onOpenInit,
   } = props
 
   const { imageReveal, viewerHeaderStickyHeight, dirReveal, setDirReveal } = GlobalContext.usePicker([
@@ -151,10 +148,9 @@ function ImageCollapse(props: ImageCollapseProps) {
   const labels = useMemo(() => label.split('/').filter(Boolean), [label])
 
   const [open, setOpen] = useControlledState<boolean>({
-    defaultValue: defaultOpen,
     value: openProp,
     onChange: onOpenChange,
-    onInit: onOpenChange,
+    onInit: onOpenInit,
   })
 
   // 判断当前collapse是否active

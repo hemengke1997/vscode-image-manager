@@ -68,7 +68,7 @@
     directory: 'ディレクトリ',
     dimensions: '寸法',
     birth_time: '作成時間',
-    last_status_changed_time: '最終ステータス変更時間',
+    status_changed_time: 'ステータス変更時間',
     no_image: '画像なし',
     unset: '未設定',
     highlight: 'ハイライト',

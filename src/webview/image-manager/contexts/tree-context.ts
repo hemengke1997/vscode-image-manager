@@ -74,6 +74,10 @@ const sortFunctions: {
     asc: (a: ImageType, b: ImageType) => a.basename.localeCompare(b.basename),
     desc: (a: ImageType, b: ImageType) => b.basename.localeCompare(a.basename),
   },
+  [SortByType.mtime]: {
+    asc: (a: ImageType, b: ImageType) => a.stats.mtimeMs - b.stats.mtimeMs,
+    desc: (a: ImageType, b: ImageType) => b.stats.mtimeMs - a.stats.mtimeMs,
+  },
 }
 
 // 1. 按照文件大小排序 -- size

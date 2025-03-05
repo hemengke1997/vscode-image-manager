@@ -103,6 +103,10 @@ function Settings(props: ImperativeModalProps) {
       label: t('im.size_sort'),
       value: 'size',
     },
+    {
+      label: t('im.status_changed_time'),
+      value: 'mtime',
+    },
   ]
 
   const viewerItems = [

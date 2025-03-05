@@ -12,6 +12,9 @@
       clear_cache: '清除本地缓存',
       configure_svgo: '配置svgo',
     },
+    core: {
+      installDependencies: '安装依赖',
+    },
     debug: {
       enabled: '开启调试模式',
       forceInstall: '强制安装依赖',
