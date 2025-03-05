@@ -80,7 +80,7 @@ export default defineConfig((option) => [
     target: 'node16',
     minify: !option.watch,
     env: {
-      NODE_ENV: option.watch ? 'development' : 'production',
+      NODE_ENV: option.watch ? 'development' : process.env.NODE_ENV || 'production',
       ...loadEnv('', __dirname, 'IM_'),
     },
     onSuccess() {

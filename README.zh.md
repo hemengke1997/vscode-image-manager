@@ -48,7 +48,7 @@
 
 欢迎[点个 star](https://github.com/hemengke1997/vscode-image-manager) ⭐️
 
-## 分享
+### 分享
 
 如果您喜欢这个插件，也可以分享给您的朋友们，让更多的人知道这个插件！
 

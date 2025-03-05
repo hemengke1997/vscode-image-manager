@@ -52,7 +52,7 @@ If you like my project and want to support me, you can do so in the following wa
 
 Feel free to [give me a star](https://github.com/hemengke1997/vscode-image-manager) ⭐️
 
-## Share
+### Share
 
 If you like this extension, you can also share it with your friends to let more people know about it!
 

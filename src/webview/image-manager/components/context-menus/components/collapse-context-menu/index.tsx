@@ -3,7 +3,7 @@ import { Item, type ItemParams, type PredicateParams, RightSlot, Separator, Subm
 import { useTranslation } from 'react-i18next'
 import { useMemoizedFn } from 'ahooks'
 import { App } from 'antd'
-import { merge } from 'lodash-es'
+import defaults from 'defaults'
 import { os } from 'un-detector'
 import FileContext from '~/webview/image-manager/contexts/file-context'
 import GlobalContext from '~/webview/image-manager/contexts/global-context'
@@ -95,7 +95,7 @@ function CollapseContextMenu() {
 
   const isItemHidden = useMemoizedFn((e: PredicateParams<CollapseContextMenuType>) => {
     const { data, props } = e
-    const enabled = merge({}, defaultCollapseContextMenu, props?.enableContextMenu)
+    const enabled = defaults(props?.enableContextMenu || {}, defaultCollapseContextMenu)
 
     if (!sharpInstalled) {
       sharpRelated.forEach((item) => {

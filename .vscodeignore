@@ -26,6 +26,8 @@ temp/**
 eslint.config.*
 commitlint.config.*
 taze.config.*
+tailwind.config.*
+postcss.config.*
 .tazerc.json
 tsconfig.json
 package-lock.json

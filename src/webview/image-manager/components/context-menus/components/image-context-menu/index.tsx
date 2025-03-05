@@ -11,7 +11,7 @@ import {
 import { useTranslation } from 'react-i18next'
 import { useLockFn, useMemoizedFn } from 'ahooks'
 import { App } from 'antd'
-import { merge } from 'lodash-es'
+import defaults from 'defaults'
 import { os } from 'un-detector'
 import logger from '~/utils/logger'
 import GlobalContext from '~/webview/image-manager/contexts/global-context'
@@ -168,7 +168,7 @@ function ImageContextMenu() {
   const isItemHidden = useMemoizedFn((e: PredicateParams<ImageContextMenuType>) => {
     const { data, props } = e
 
-    const enabled = merge({}, defaultImageContextMenu, props?.enableContextMenu)
+    const enabled = defaults(props?.enableContextMenu || {}, defaultImageContextMenu)
 
     if (!sharpInstalled) {
       sharpRelated.forEach((item) => {

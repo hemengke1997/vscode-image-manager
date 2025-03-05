@@ -1,5 +1,6 @@
-import { get } from 'lodash-es'
-import { type ConfigurationScope, ConfigurationTarget, workspace, type WorkspaceConfiguration } from 'vscode'
+import defaults from 'defaults'
+import { clone, get } from 'lodash-es'
+import { type ConfigurationScope, ConfigurationTarget, workspace } from 'vscode'
 import { EXT_NAMESPACE } from '~/meta'
 import { normalizePath } from '~/utils'
 import { type FormatConverterOptions } from '..'
@@ -147,16 +148,14 @@ export class Config {
   }
 
   static get all() {
-    return workspace.getConfiguration(EXT_NAMESPACE) as WorkspaceConfiguration & ConfigType
+    return defaults(clone(workspace.getConfiguration(EXT_NAMESPACE)), DEFAULT_CONFIG) as ConfigType
   }
 
   static async clearAll() {
     const promises = Object.keys(ConfigKey).map(async (key) => {
-      if (Object.prototype.hasOwnProperty.call(ConfigKey, key)) {
-        const value = ConfigKey[key]
-        await this.updateConfig(value, undefined, ConfigurationTarget.Global)
-        await this.updateConfig(value, undefined, ConfigurationTarget.Workspace)
-      }
+      const value = ConfigKey[key]
+      await this.updateConfig(value, undefined, ConfigurationTarget.Global)
+      await this.updateConfig(value, undefined, ConfigurationTarget.Workspace)
     })
 
     await Promise.all(promises)

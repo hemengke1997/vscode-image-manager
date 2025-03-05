@@ -4,8 +4,9 @@ import { Trans, useTranslation } from 'react-i18next'
 import { BsQuestionCircleFill } from 'react-icons/bs'
 import { useMemoizedFn } from 'ahooks'
 import { Alert, Button, Divider, Form, Input, InputNumber, Segmented, Tooltip } from 'antd'
+import defaults from 'defaults'
 import { flatten as flattenObject, unflatten } from 'flat'
-import { intersection, mapValues, merge, omit } from 'lodash-es'
+import { intersection, mapValues, omit } from 'lodash-es'
 import { type OperatorResult } from '~/core'
 import { type CompressionOptions } from '~/core/operator/compressor/type'
 import { CmdToVscode } from '~/message/cmd'
@@ -68,7 +69,7 @@ function ImageCompressor(props: ImageCompressorProps & ImperativeModalProps) {
   })
 
   const onFinish = useMemoizedFn((value: FormValue) => {
-    value = merge(flattenObject(compressor?.option || {}), value)
+    value = defaults(value, flattenObject(compressor?.option || {}))
 
     if (value) {
       if (Number(value.size) === 0) {
@@ -269,7 +270,7 @@ function ImageCompressor(props: ImageCompressorProps & ImperativeModalProps) {
   }, [images])
 
   const allCompressorOption = useMemo(
-    () => merge(flattenObject(compressor?.option || {}), mapValues(fields, 'value')) as AnyObject,
+    () => defaults(mapValues(fields, 'value'), flattenObject(compressor?.option || {})) as AnyObject,
     [compressor?.option, fields],
   )
 
