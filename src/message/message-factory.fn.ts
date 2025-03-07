@@ -14,7 +14,7 @@ import { normalizePath } from '~/utils'
 import { Channel } from '~/utils/channel'
 import { imageGlob } from '~/utils/glob'
 import { CmdToVscode } from './cmd'
-import { VscodeMessageCenter } from './message-center'
+import { VscodeMessageCenter } from './message-factory'
 
 /**
  * 查找图片

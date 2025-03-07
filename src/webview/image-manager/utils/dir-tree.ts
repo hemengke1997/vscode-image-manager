@@ -155,16 +155,13 @@ export class DirTree<ExtraProps extends Record<string, any> = Record<string, any
   }
 
   traverseTreeToSetRenderConditions(previousTree: FileNode[], renderCondition: FileNode['renderCondition']) {
-    const resultTree: FileNode[] = []
-    previousTree.forEach((node) => {
-      node = { ...node }
-      node.renderCondition = this.mergeRenderCondition(node.renderCondition, renderCondition)
-      if (node.children.length) {
-        node.children = this.traverseTreeToSetRenderConditions(node.children, renderCondition)
+    return previousTree.map((node) => {
+      const newNode = { ...node, renderCondition: this.mergeRenderCondition(node.renderCondition, renderCondition) }
+      if (newNode.children.length) {
+        newNode.children = this.traverseTreeToSetRenderConditions(newNode.children, renderCondition)
       }
-      resultTree.push(node)
+      return newNode
     })
-    return resultTree
   }
 
   arrangeIntoTree(options: { path: string[]; label: string; value: string }[], onGenerate?: (node: FileNode) => void) {

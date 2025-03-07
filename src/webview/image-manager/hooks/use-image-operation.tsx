@@ -293,6 +293,7 @@ function useImageOperation() {
   const { imageManagerEvent } = useImageManagerEvent()
   // 删除图片
   const beginDeleteImageProcess = useMemoizedFn(async (images: ImageType[]) => {
+    if (!images.length) return
     const success = await beginDeleteProcess(images.map((t) => ({ basename: t.basename, path: t.path })))
     if (success) {
       imageManagerEvent.emit(IMEvent.delete, images)
@@ -409,7 +410,7 @@ function useImageOperation() {
                       imageManagerEvent.emit(IMEvent.rename, image, newImage[0])
                     } else {
                       // 否则，聚焦到新图片
-                      beginRevealInViewer(newImage[0].path)
+                      beginRevealInViewer([newImage[0].path])
                     }
                   },
                 )
@@ -440,10 +441,7 @@ function useImageOperation() {
               if (failed?.length) {
                 notification.error({
                   message: t('im.rename_failed'),
-                  description: notificationForRenameOrPaste(
-                    failed,
-                    (imagePath) => images.find((t) => t.path === imagePath)!.path,
-                  ),
+                  description: notificationForRenameOrPaste(failed),
                   duration: 0,
                 })
               }
@@ -491,10 +489,10 @@ function useImageOperation() {
   /**
    * 在图片查看器中打开图片
    */
-  const beginRevealInViewer = useMemoizedFn((imagePath: string) => {
-    imageManagerEvent.emit(IMEvent.reveal_in_viewer, imagePath)
+  const beginRevealInViewer = useMemoizedFn((imagePaths: string[]) => {
+    imageManagerEvent.emit(IMEvent.reveal_in_viewer, imagePaths)
     clearSelectedImages()
-    setImageReveal(imagePath)
+    setImageReveal(imagePaths)
   })
 
   // 撤销操作
@@ -553,46 +551,45 @@ function useImageOperation() {
     ])
 
   const beginCopyProcess = useMemoizedFn((images: ImageType[]) => {
+    if (!images.length) return
     handleCopy(images)
     logger.debug(images, '复制')
     message.success(t('im.copy_success'))
   })
 
   // 重命名、粘贴的提示
-  const notificationForRenameOrPaste = useMemoizedFn(
-    (res: FileChangedResType, revealImage: (imagePath: string) => string) => {
-      return (
-        <div className={'flex flex-col gap-y-1'}>
-          {res.map((item, index) => {
-            const source = pathUtil.getFileName(item.source)
-            const target = pathUtil.getFileName(item.target)
-            return (
-              <div key={index} className={'flex items-center'}>
-                {item.message} <Divider type={'vertical'}></Divider>
-                <div className={'flex items-center gap-x-2'}>
-                  {source}
-                  {source !== target && (
-                    <>
-                      <VscArrowRight />
-                      {target}
-                    </>
-                  )}
-                </div>
-                <Button
-                  className={'ml-2'}
-                  onClick={() => {
-                    beginRevealInViewer(revealImage(item.source))
-                  }}
-                >
-                  {t('im.view')}
-                </Button>
+  const notificationForRenameOrPaste = useMemoizedFn((res: FileChangedResType) => {
+    return (
+      <div className={'flex flex-col gap-y-1'}>
+        {res.map((item, index) => {
+          const source = pathUtil.getFileName(item.source)
+          const target = pathUtil.getFileName(item.target)
+          return (
+            <div key={index} className={'flex items-center'}>
+              {item.message} <Divider type={'vertical'}></Divider>
+              <div className={'flex items-center gap-x-2'}>
+                {source}
+                {source !== target && (
+                  <>
+                    <VscArrowRight />
+                    {target}
+                  </>
+                )}
               </div>
-            )
-          })}
-        </div>
-      )
-    },
-  )
+              <Button
+                className={'ml-2'}
+                onClick={() => {
+                  beginRevealInViewer([item.source, item.target])
+                }}
+              >
+                {t('im.view')}
+              </Button>
+            </div>
+          )
+        })}
+      </div>
+    )
+  })
 
   const beginPasteProcess = useLockFn(async (targetPath: string) => {
     const res = await handlePaste(targetPath)
@@ -604,10 +601,7 @@ function useImageOperation() {
       // 对失败的进行一波提示
       notification.error({
         message: t('im.paste_failed'),
-        description: notificationForRenameOrPaste(
-          failed,
-          (imagePath) => imageCopied.list.find((t) => t.path === imagePath)!.path,
-        ),
+        description: notificationForRenameOrPaste(failed),
         duration: 0,
       })
     } else if (!failed?.length) {
@@ -626,6 +620,7 @@ function useImageOperation() {
 
   // 剪切图片
   const beginCutProcess = useMemoizedFn((images: ImageType[]) => {
+    if (!images.length) return
     handleCut(images)
     // 根据工作区缓存和运行时缓存来判断是否需要展示剪切提示
     // 如果工作区允许且运行时允许，则展示

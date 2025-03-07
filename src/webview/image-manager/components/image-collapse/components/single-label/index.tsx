@@ -15,10 +15,11 @@ type SingleLabelProps = {
   index: number
   onContextMenu: (e: React.MouseEvent<HTMLDivElement, MouseEvent>, index: number) => void
   onClick: (() => void) | undefined
+  className?: string
 }
 
 function SingleLabel(props: SingleLabelProps) {
-  const { children, contextMenu, dirPath, index, onContextMenu, onClick } = props
+  const { children, contextMenu, dirPath, index, onContextMenu, onClick, className } = props
   const { beginRenameDirProcess, beginDeleteDirProcess, beginPasteProcess } = useImageOperation()
 
   const { hideAll } = useCollapseContextMenu()
@@ -93,29 +94,27 @@ function SingleLabel(props: SingleLabelProps) {
   const { imageManagerEvent } = useImageManagerEvent()
 
   return (
-    <div className={'w-full flex-1'}>
+    <div
+      onContextMenu={(e) => onContextMenu(e, index)}
+      className={classNames('relative w-full transition-all', className)}
+      onClick={onClick}
+    >
       <div
-        onContextMenu={(e) => onContextMenu(e, index)}
-        className={classNames('relative w-full transition-all', onClick && 'cursor-pointer')}
-        onClick={onClick}
+        ref={keybindRef}
+        data-dir-path={dirPath}
+        className={classNames(
+          'inline-flex',
+          'cursor-pointer transition-all hover:text-ant-color-primary-text-hover focus:text-ant-color-primary-text-hover focus:underline',
+        )}
+        tabIndex={-1}
+        onClick={(e) => {
+          // 防止触发父元素的打开collapse事件
+          e.stopPropagation()
+          // 清除图片选中状态
+          imageManagerEvent.emit(IMEvent.clear_selected_images)
+        }}
       >
-        <div
-          ref={keybindRef}
-          data-dir-path={dirPath}
-          className={classNames(
-            'inline-flex',
-            'cursor-pointer transition-all hover:text-ant-color-primary-text-hover focus:text-ant-color-primary-text-hover focus:underline',
-          )}
-          tabIndex={-1}
-          onClick={(e) => {
-            // 防止触发父元素的打开collapse事件
-            e.stopPropagation()
-            // 清除图片选中状态
-            imageManagerEvent.emit(IMEvent.clear_selected_images)
-          }}
-        >
-          {children}
-        </div>
+        {children}
       </div>
     </div>
   )

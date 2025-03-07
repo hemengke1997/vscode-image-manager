@@ -64,7 +64,7 @@ function useGlobalContext() {
   /**
    * @note imageReveal 是带t query参数的，用于处理同一张图片的情况
    */
-  const [imageReveal, setImageReveal] = useState<string | undefined>(window.__reveal_image_path__)
+  const [imageReveal, setImageReveal] = useState<string[]>([window.__reveal_image_path__])
 
   /**
    * sharp安装成功

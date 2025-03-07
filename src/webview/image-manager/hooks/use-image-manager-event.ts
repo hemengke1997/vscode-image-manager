@@ -46,7 +46,7 @@ type Events = {
   /**
    * 在viewer中显示图片
    */
-  [IMEvent.reveal_in_viewer]: [imagePath: string]
+  [IMEvent.reveal_in_viewer]: [imagePaths: string[]]
   /**
    * 右键图片
    */

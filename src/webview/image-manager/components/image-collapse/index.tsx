@@ -43,11 +43,11 @@ type ImageCollapseProps = {
   /**
    * 当前文件夹下的图片
    */
-  underFolderImages: imageGroupProps['images'] | undefined
+  subfolderImages: imageGroupProps['images'] | undefined
   /**
    * 当前文件夹下的所有图片（包括子目录）
    */
-  underFolderDeeplyImages: imageGroupProps['images'] | undefined
+  allSubfolderImages: imageGroupProps['images'] | undefined
   /**
    * 嵌套子组件
    */
@@ -84,8 +84,8 @@ function ImageCollapse(props: ImageCollapseProps) {
     label,
     joinLabel,
     images,
-    underFolderImages,
-    underFolderDeeplyImages,
+    subfolderImages,
+    allSubfolderImages,
     id,
     contextMenu,
     imageGroupProps,
@@ -106,7 +106,7 @@ function ImageCollapse(props: ImageCollapseProps) {
   const holderRef = useRef<HTMLDivElement>(null)
 
   // 获取collapse的header dom
-  const getCollpaseHeader = () => stickyRef.current?.querySelector('.ant-collapse-header') as HTMLElement
+  const getCollpaseHeader = () => stickyRef.current?.querySelector('.ant-collapse-header') as HTMLElement | null
   const isSticky = useRef(false)
 
   useEffect(() => {
@@ -153,13 +153,9 @@ function ImageCollapse(props: ImageCollapseProps) {
     onInit: onOpenInit,
   })
 
-  // 判断当前collapse是否active
-  const isActive = useMemoizedFn((imagePath: string) => {
-    return imagePath && underFolderDeeplyImages?.find((image) => image.path === imagePath)
-  })
-
-  const onActive = useMemoizedFn((imagePath: string) => {
-    if (isActive(imagePath)) {
+  const onActive = useMemoizedFn((imagePaths: string[]) => {
+    // 判断当前collapse是否active
+    if (imagePaths.length && allSubfolderImages?.find((image) => imagePaths.includes(image.path))) {
       setOpen(true)
     }
   })
@@ -168,7 +164,7 @@ function ImageCollapse(props: ImageCollapseProps) {
   // 所以需要在 `reveal_in_viewer` 的时候，主动触发collapse渲染
   useEffect(() => {
     if (!open) {
-      onActive(clearTimestamp(imageReveal))
+      onActive(imageReveal.map(clearTimestamp))
     }
   }, [imageReveal])
 
@@ -186,8 +182,8 @@ function ImageCollapse(props: ImageCollapseProps) {
 
   useImageManagerEvent({
     on: {
-      [IMEvent.reveal_in_viewer]: (imagePath) => {
-        onActive(imagePath)
+      [IMEvent.reveal_in_viewer]: (imagePaths) => {
+        onActive(imagePaths)
       },
       [IMEvent.rename_directory]: (previosDirPath, newPath) => {
         if (previosDirPath === id) {
@@ -209,8 +205,8 @@ function ImageCollapse(props: ImageCollapseProps) {
       event: e,
       props: {
         path,
-        images: [images, underFolderImages].find((arr) => arr?.length) || [],
-        underFolderDeeplyImages: underFolderDeeplyImages || [],
+        images: [images, subfolderImages].find((arr) => arr?.length) || [],
+        allSubfolderImages: allSubfolderImages || [],
         enableContextMenu: contextMenu(path),
       },
     })
@@ -233,6 +229,7 @@ function ImageCollapse(props: ImageCollapseProps) {
                 onContextMenu={(e) => onContextMenu(e, i)}
                 onClick={onLabelClick}
                 dirPath={getCurrentPath(i)}
+                className={classNames(collapsible && 'cursor-pointer')}
               >
                 {item}
               </SingleLabel>
@@ -249,6 +246,7 @@ function ImageCollapse(props: ImageCollapseProps) {
           contextMenu={contextMenu(id)}
           onContextMenu={(e) => onContextMenu(e, 0)}
           dirPath={id}
+          className={classNames(collapsible && 'cursor-pointer')}
         >
           {labels[0]}
         </SingleLabel>
@@ -275,7 +273,7 @@ function ImageCollapse(props: ImageCollapseProps) {
       }
 
       requestAnimationFrame(() => {
-        getCollpaseHeader().setAttribute('style', rawStyle)
+        getCollpaseHeader()?.setAttribute('style', rawStyle)
       })
     },
     topOffset: viewerHeaderStickyHeight,

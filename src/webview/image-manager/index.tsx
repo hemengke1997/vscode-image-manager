@@ -2,7 +2,7 @@ import { memo, useEffect } from 'react'
 import { toast } from 'react-atom-toast'
 import { useTranslation } from 'react-i18next'
 import { GoMoveToTop } from 'react-icons/go'
-import { useMemoizedFn } from 'ahooks'
+import { useEventListener, useMemoizedFn } from 'ahooks'
 import { App, FloatButton } from 'antd'
 import { enableMapSet, setAutoFreeze } from 'immer'
 import { isTooManyTries, retryAsync } from 'ts-retry'
@@ -141,12 +141,7 @@ function ImageManager() {
     }
   })
 
-  useEffect(() => {
-    window.addEventListener('message', onMessage)
-    return () => {
-      window.removeEventListener('message', onMessage)
-    }
-  }, [onMessage])
+  useEventListener('message', onMessage)
 
   return (
     <>

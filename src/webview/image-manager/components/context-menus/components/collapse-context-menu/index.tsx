@@ -129,7 +129,7 @@ function CollapseContextMenu() {
   })
 
   const handleCompressImageDeeply = useMemoizedFn((e: ItemParams<CollapseContextMenuType>) => {
-    _compressImage(e.props!.underFolderDeeplyImages)
+    _compressImage(e.props!.allSubfolderImages)
   })
 
   const _formatConversion = useMemoizedFn((images: ImageType[] | undefined) => {
@@ -145,7 +145,7 @@ function CollapseContextMenu() {
   })
 
   const handleFormatConversionDeeply = useMemoizedFn((e: ItemParams<CollapseContextMenuType>) => {
-    _formatConversion(e.props!.underFolderDeeplyImages)
+    _formatConversion(e.props!.allSubfolderImages)
   })
 
   const handleRenameDir = useMemoizedFn((e: ItemParams<CollapseContextMenuType>) => {

@@ -8,7 +8,7 @@ import {
   type KeyofMessage,
   type MessageType,
   type ReturnOfMessageCenter,
-} from '~/message/message-center'
+} from '~/message/message-factory'
 import logger from '~/utils/logger'
 
 export type MessageCallbackFn<T extends KeyofMessage> = (data: ReturnOfMessageCenter<T>) => void

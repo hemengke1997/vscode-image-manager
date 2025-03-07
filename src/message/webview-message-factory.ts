@@ -2,7 +2,7 @@ import { type Webview } from 'vscode'
 import { i18n } from '~/i18n'
 import { Channel } from '~/utils/channel'
 import { CmdToWebview } from './cmd'
-import { type MessageType, VscodeMessageCenter } from './message-center'
+import { type MessageType, VscodeMessageCenter } from './message-factory'
 
 export class WebviewMessageCenter {
   static webview: Webview

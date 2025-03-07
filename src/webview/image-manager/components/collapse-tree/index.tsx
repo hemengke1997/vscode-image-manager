@@ -23,11 +23,11 @@ type TreeExtraProps = {
   /**
    * 节点当前目录下的所有图片（不包括子目录）
    */
-  underFolderList?: ImageType[]
+  subfolderImages?: ImageType[]
   /**
    * 节点当前目录下的所有图片（包括子目录）
    */
-  underFolderDeeplyList?: ImageType[]
+  allSubfolderImages?: ImageType[]
 }
 
 /**
@@ -37,7 +37,7 @@ type TreeExtraProps = {
  * @param key
  * @param conditions
  */
-function injectUnderfolderImagesToNode(
+function injectSubfolderImagesToNode(
   node: FileNode,
   image: ImageType,
   key: keyof TreeExtraProps,
@@ -203,9 +203,12 @@ function CollapseTree(props: Props) {
       return (
         <div className={'select-none space-y-2'}>
           {tree.map((node) => {
-            const { groupType, value, label, children, renderList, underFolderList, underFolderDeeplyList } = node
+            const { groupType, value, label, children, renderList, subfolderImages, allSubfolderImages } = node
             collapseIdSet.current.add(value)
             if (!groupType) return null
+
+            // 非根节点，或者多工作区时，可以折叠
+            const collapsible = !root || multipleWorkspace
 
             return (
               <ImageCollapse
@@ -216,11 +219,10 @@ function CollapseTree(props: Props) {
                   className: classNames(styles.collapse),
                   ...collapseProps,
                 }}
-                // 非根节点，或者多工作区时，可以折叠
-                collapsible={!root || multipleWorkspace}
+                collapsible={collapsible}
                 open={isCollapseOpen(value, {
-                  // 非多工作区时，根节点强制展开
-                  forceOpen: !multipleWorkspace && root,
+                  // 不能折叠时，强制展开
+                  forceOpen: !collapsible,
                 })}
                 onOpenInit={(open) => {
                   // 多工作区的根节点默认展开
@@ -246,8 +248,8 @@ function CollapseTree(props: Props) {
                 label={label}
                 joinLabel={!!displayMap[groupType].priority}
                 images={renderList}
-                underFolderImages={underFolderList}
-                underFolderDeeplyImages={underFolderDeeplyList}
+                subfolderImages={subfolderImages}
+                allSubfolderImages={allSubfolderImages}
                 imageGroupProps={{
                   enableMultipleSelect: true,
                   enableContextMenu: {
@@ -306,13 +308,13 @@ function CollapseTree(props: Props) {
       },
       {
         onFilterImages(node, image, shouldRender) {
-          injectUnderfolderImagesToNode(node, image, 'underFolderList', {
+          injectSubfolderImagesToNode(node, image, 'subfolderImages', {
             type: shouldRender,
             dir: image.absDirPath === node.value,
           })
 
           const split = image.absDirPath.split(node.value)
-          injectUnderfolderImagesToNode(node, image, 'underFolderDeeplyList', {
+          injectSubfolderImagesToNode(node, image, 'allSubfolderImages', {
             type: shouldRender,
             dir: split.length === 2 && (split[1].startsWith('/') || split[1] === ''),
           })

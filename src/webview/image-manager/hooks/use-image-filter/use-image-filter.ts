@@ -13,6 +13,7 @@ export default function useImageFilter() {
       width: 'fit-content',
       title: upperFirst(t('im.filter')),
       keyboard: true,
+      centered: true,
     },
     FC: ImageFilter,
   })

@@ -33,7 +33,7 @@ import { convertImageToBase64, convertToBase64IfBrowserNotSupport, isBase64 } fr
 import logger from '~/utils/logger'
 import { ImageManagerPanel } from '~/webview/panel'
 import { CmdToVscode } from './cmd'
-import { getImageExtraInfo, getImageMetadata, getStagedImages, searchImages } from './message-center.fn'
+import { getImageExtraInfo, getImageMetadata, getStagedImages, searchImages } from './message-factory.fn'
 
 export type VscodeMessageCenterType = typeof VscodeMessageCenter
 

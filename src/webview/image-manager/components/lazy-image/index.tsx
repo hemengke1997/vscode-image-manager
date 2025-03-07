@@ -174,7 +174,7 @@ function LazyImage(props: LazyImageProps) {
 
   const isTargetImage = useMemoizedFn(() => {
     // 在 viewer 中的图片才会被reveal
-    return inViewer && trim(image.path).length && image.path === clearTimestamp(imageReveal)
+    return inViewer && trim(image.path).length && imageReveal.map(clearTimestamp).includes(image.path)
   })
 
   /**
@@ -196,7 +196,7 @@ function LazyImage(props: LazyImageProps) {
 
     if (isTargetImage()) {
       // 清除 imageReveal，避免重复选中
-      setImageReveal(undefined)
+      setImageReveal([])
 
       // 刚打开时，图片可能还未加载，所以需要等待图片加载完成后再滚动
       const callback = () => {
@@ -233,7 +233,7 @@ function LazyImage(props: LazyImageProps) {
     return () => {
       if (isTargetImage()) {
         setSelected(false)
-        setImageReveal(undefined)
+        setImageReveal([])
         cancelIdleCallback(idleTimer)
       }
     }

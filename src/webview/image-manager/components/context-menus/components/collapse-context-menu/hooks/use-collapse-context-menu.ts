@@ -10,7 +10,7 @@ export type CollapseContextMenuType = {
   /**
    * 当前文件夹下的所有图片（包括子目录）
    */
-  underFolderDeeplyImages: ImageType[]
+  allSubfolderImages: ImageType[]
   /**
    * 当前文件夹路径
    */

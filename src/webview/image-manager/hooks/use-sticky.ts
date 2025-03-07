@@ -1,5 +1,5 @@
-import { type DependencyList, useEffect, useLayoutEffect, useRef } from 'react'
-import { useInViewport, useMemoizedFn, useUpdateEffect } from 'ahooks'
+import { useEffect, useRef } from 'react'
+import { useEventListener, useInViewport, useMemoizedFn, useUpdateEffect } from 'ahooks'
 import { isUndefined } from 'lodash-es'
 import { getAppRoot } from '~/webview/utils'
 
@@ -42,7 +42,7 @@ type Props = {
 /**
  * js实现sticky效果
  */
-export default function useSticky(props: Props, deps?: DependencyList) {
+export default function useSticky(props: Props) {
   const { target, topOffset = 0, root = getAppRoot(), holder, onStickyToogle, enable = true } = props
 
   const previousSticky = useRef<boolean>()
@@ -93,10 +93,5 @@ export default function useSticky(props: Props, deps?: DependencyList) {
     }
   })
 
-  useLayoutEffect(() => {
-    root.addEventListener('scroll', handleScroll)
-    return () => {
-      root.removeEventListener('scroll', handleScroll)
-    }
-  }, [...(deps || [])])
+  useEventListener('scroll', handleScroll)
 }

@@ -12,7 +12,7 @@ export default function useImageSearch() {
   const { showModal, id } = useImperativeModal({
     modalProps: {
       title: t('im.search_image'),
-      keyboard: true,
+      keyboard: false,
     },
     FC: ImageSearch,
   })
