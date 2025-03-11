@@ -14,6 +14,12 @@
 
 请阅读 [文档](https://hemengke1997.github.io/vscode-image-manager/zh/) 了解更多信息。
 
+## 视频演示
+
+<video controls>
+  <source src="./screenshots/video.mp4" type="video/mp4">
+</video>
+
 ## 截图
 
 ### 概览

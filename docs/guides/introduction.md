@@ -4,6 +4,12 @@ VSCode Image Manager is a VSCode extension for viewing, compressing, cropping, c
 
 All image processing is done locally, ensuring privacy and security. Feel free to use it!
 
+## Video Demo
+
+<video controls>
+  <source src="./images/video.mp4" type="video/mp4">
+</video>
+
 ## Features
 
 - **View**: Large image viewing with zoom, rotate, and other features

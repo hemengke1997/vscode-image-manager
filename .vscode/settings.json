@@ -7,11 +7,10 @@
   "i18n-ally.namespace": false,
   "i18n-ally.pathMatcher": "{locale}.json5",
   "i18n-ally.sourceLanguage": "zh-CN",
-  "image-manager.appearance.language": "zh-CN",
+  "image-manager.appearance.language": "en",
   "image-manager.appearance.primaryColor": "#4d78cc",
   "image-manager.appearance.theme": "dark",
   "image-manager.viewer.imageBackgroundColor": "#404754",
-  "image-manager.viewer.imageWidth": 160,
   "search.exclude": {
     "**/__snapshots__/**": true,
     "CHANGELOG-CODE.md": true,

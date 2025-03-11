@@ -15,6 +15,12 @@
 
 Please read the [documentation](https://hemengke1997.github.io/vscode-image-manager/) for more information.
 
+## Video Demo
+
+<video controls>
+  <source src="./screenshots/video.mp4" type="video/mp4">
+</video>
+
 ## Screenshot
 
 ### Overview

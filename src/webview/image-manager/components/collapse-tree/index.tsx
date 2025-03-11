@@ -9,7 +9,6 @@ import { produce } from 'immer'
 import { isNil } from 'lodash-es'
 import { classNames } from 'tw-clsx'
 import { DisplayGroupType, DisplayStyleType } from '~/core/persist/workspace/common'
-import { getAppRoot } from '~/webview/utils'
 import ActionContext from '../../contexts/action-context'
 import TreeContext from '../../contexts/tree-context'
 import { DirTree, type DisplayMapType, type FileNode } from '../../utils/dir-tree'
@@ -106,7 +105,7 @@ function CollapseTree(props: Props) {
 
   const dirTree = useRef<DirTree<TreeExtraProps>>()
 
-  const getContextMenu = useMemoizedFn((disableFS: boolean) => {
+  const getContextMenu = useMemoizedFn((contextMenu: EnableCollapseContextMenuType): EnableCollapseContextMenuType => {
     return {
       compress_in_current_directory: true,
       compress_in_recursive_directories: true,
@@ -114,8 +113,7 @@ function CollapseTree(props: Props) {
       format_conversion_in_recursive_directories: true,
       open_in_os_explorer: true,
       open_in_vscode_explorer: true,
-      rename_directory: !disableFS,
-      delete_directory: !disableFS,
+      ...contextMenu,
     }
   })
 
@@ -123,7 +121,7 @@ function CollapseTree(props: Props) {
 
   const displayMap: DisplayMapType<{
     icon: (props: { path: string }) => ReactNode
-    contextMenu: (disableFS: boolean) => EnableCollapseContextMenuType
+    contextMenu: (contextMenu: EnableCollapseContextMenuType) => EnableCollapseContextMenuType
   }> = useMemo(
     () => ({
       [DisplayGroupType.workspace]: {
@@ -243,7 +241,10 @@ function CollapseTree(props: Props) {
                 )}
                 contextMenu={(id) => ({
                   // 工作区节点不显示修改目录名和删除目录
-                  ...displayMap[groupType].contextMenu(id === workspaceId),
+                  ...displayMap[groupType].contextMenu({
+                    rename_directory: id !== workspaceId,
+                    delete_directory: id !== workspaceId,
+                  }),
                 })}
                 label={label}
                 joinLabel={!!displayMap[groupType].priority}
@@ -265,9 +266,6 @@ function CollapseTree(props: Props) {
                     reveal_in_viewer: false,
                   },
                   lazyImageProps: {
-                    lazy: {
-                      root: getAppRoot(),
-                    },
                     inViewer: true,
                     imageNameProps: {
                       tooltipDisplayFullPath: !displayGroup.includes(DisplayGroupType.dir),
