@@ -16,9 +16,7 @@
 
 ## 视频演示
 
-<video controls>
-  <source src="./screenshots/video.mp4" type="video/mp4">
-</video>
+<video src="https://github.com/user-attachments/assets/a75c4c88-25b8-4bb3-bf3b-94bc2c917b66"></video>
 
 ## 截图
 
