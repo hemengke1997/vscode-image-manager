@@ -4,11 +4,11 @@ import { IoIosMore } from 'react-icons/io'
 import { useMemoizedFn } from 'ahooks'
 import { Button, Popover, Space, Tooltip } from 'antd'
 import { upperFirst } from 'lodash-es'
-import ActionContext from '~/webview/image-manager/contexts/action-context'
+import ActionStore from '~/webview/image-manager/stores/action-store'
 
 function More() {
   const { t } = useTranslation()
-  const { openAllCollapse, closeAllCollapse } = ActionContext.usePicker(['openAllCollapse', 'closeAllCollapse'])
+  const { openAllCollapse, closeAllCollapse } = ActionStore.useStore(['openAllCollapse', 'closeAllCollapse'])
 
   const [open, setOpen] = useState(false)
 

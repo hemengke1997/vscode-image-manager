@@ -3,7 +3,7 @@ import { memo, type PropsWithChildren, useEffect } from 'react'
 import { TinyColor } from '@ctrl/tinycolor'
 import { theme as antdTheme, App, ConfigProvider } from 'antd'
 import { Theme } from '~/enums'
-import SettingsContext from '~/webview/image-manager/contexts/settings-context'
+import SettingsStore from '~/webview/image-manager/stores/settings-store'
 import { getCssVar } from '~/webview/image-manager/utils/theme'
 
 const DURATION_BASE = 0.06
@@ -26,7 +26,7 @@ function ligherOrDarker(color: string, theme: Theme) {
 }
 
 function AntdConfigProvider({ children }: PropsWithChildren) {
-  const { primaryColor, theme, reduceMotion } = SettingsContext.usePicker(['primaryColor', 'theme', 'reduceMotion'])
+  const { primaryColor, theme, reduceMotion } = SettingsStore.useStore(['primaryColor', 'theme', 'reduceMotion'])
 
   const vscodeFontSize = getCssVar('--vscode-font-size').split('px')[0]
   const vscodeEditorBackground = getCssVar('--vscode-editor-background')

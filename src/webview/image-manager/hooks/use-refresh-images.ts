@@ -5,9 +5,9 @@ import { App } from 'antd'
 import { CmdToVscode } from '~/message/cmd'
 import logger from '~/utils/logger'
 import { vscodeApi } from '~/webview/vscode-api'
-import ActionContext from '../contexts/action-context'
-import FileContext from '../contexts/file-context'
-import GlobalContext from '../contexts/global-context'
+import ActionStore from '../stores/action-store'
+import FileStore from '../stores/file-store'
+import GlobalStore from '../stores/global-store'
 
 export const RefreshImageDebounceTimeout = 250
 
@@ -18,13 +18,13 @@ export default function useRefreshImages() {
   const { message } = App.useApp()
   const { t } = useTranslation()
 
-  const { setImageState } = GlobalContext.usePicker(['setImageState'])
-  const { imageRefreshedState, notifyCollapseChange } = ActionContext.usePicker([
+  const { setImageState } = GlobalStore.useStore(['setImageState'])
+  const { imageRefreshedState, notifyCollapseChange } = ActionStore.useStore([
     'imageRefreshedState',
     'notifyCollapseChange',
   ])
 
-  const { clearNotExistImages } = FileContext.usePicker(['clearNotExistImages'])
+  const { clearNotExistImages } = FileStore.useStore(['clearNotExistImages'])
 
   const { refreshTimes, refreshType } = imageRefreshedState
 

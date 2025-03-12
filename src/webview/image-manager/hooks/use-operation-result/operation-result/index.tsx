@@ -10,8 +10,8 @@ import { type OperatorResult } from '~/core'
 import { ConfigKey } from '~/core/config/common'
 import { CmdToVscode } from '~/message/cmd'
 import ImageGroup, { type imageGroupProps } from '~/webview/image-manager/components/image-group'
-import GlobalContext from '~/webview/image-manager/contexts/global-context'
 import { useExtConfigState } from '~/webview/image-manager/hooks/use-ext-config-state'
+import GlobalStore from '~/webview/image-manager/stores/global-store'
 import { vscodeApi } from '~/webview/vscode-api'
 import { type ImperativeModalProps } from '../../use-imperative-modal'
 import { type OnEndOptionsType, useOperatorModalLogic } from '../../use-operator-modal-logic/use-operator-modal-logic'
@@ -34,7 +34,7 @@ export type OperationResultProps = {
 function OperationResult(props: OperationResultProps & ImperativeModalProps) {
   const { results: resultsProp, onUndoClick, onRedoClick, closeModal } = props
 
-  const _errorRange = GlobalContext.useSelector((ctx) => ctx.extConfig.compression.errorRange)
+  const _errorRange = GlobalStore.useStore((ctx) => ctx.extConfig.compression.errorRange)
   const [errorRange, setErrorRange] = useExtConfigState(ConfigKey.compression_errorRange, _errorRange, [])
 
   const { scrollRef } = useScrollRef()

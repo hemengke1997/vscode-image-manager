@@ -6,7 +6,7 @@ import { isNil } from 'lodash-es'
 import { defaultState } from '~/core/persist/workspace/common'
 import AlignColumn, { useColumnWidth } from '../../components/align-column'
 import AppearMotion from '../../components/align-column/components/appear-motion'
-import FilterContext from '../../contexts/filter-context'
+import FilterStore from '../../stores/filter-store'
 import { type ImperativeModalProps } from '../use-imperative-modal'
 import DisplayType from './components/display-type'
 
@@ -54,7 +54,7 @@ function ImageFilter(props: ImperativeModalProps) {
   const { t } = useTranslation()
   const { message } = App.useApp()
 
-  const { imageFilter, setImageFilter } = FilterContext.usePicker(['imageFilter', 'setImageFilter'])
+  const { imageFilter, setImageFilter } = FilterStore.useStore(['imageFilter', 'setImageFilter'])
 
   const [form] = Form.useForm<ImageFilterType>()
 

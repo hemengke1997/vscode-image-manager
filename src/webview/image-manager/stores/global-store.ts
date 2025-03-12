@@ -1,11 +1,11 @@
 import { useMemo, useState } from 'react'
 import { useSetState } from 'ahooks'
-import { createContainer } from 'context-state'
+import { createStore } from 'context-state'
 import { type FormatConverterOptions } from '~/core'
 import { ConfigKey } from '~/core/config/common'
 import { type CompressionOptions } from '~/core/operator/compressor/type'
-import VscodeContext from '~/webview/image-manager/contexts/vscode-context'
 import { useExtConfigState } from '~/webview/image-manager/hooks/use-ext-config-state'
+import VscodeStore from '~/webview/image-manager/stores/vscode-store'
 
 export type WebviewCompressorType = {
   option: CompressionOptions
@@ -23,8 +23,8 @@ export type WebviewFormatConverterType = {
   }
 }
 
-function useGlobalContext() {
-  const { extConfig, workspaceState, vscodeConfig } = VscodeContext.usePicker([
+function useGlobalStore() {
+  const { extConfig, workspaceState, vscodeConfig } = VscodeStore.useStore([
     'extConfig',
     'workspaceState',
     'vscodeConfig',
@@ -110,6 +110,6 @@ function useGlobalContext() {
   }
 }
 
-const GlobalContext = createContainer(useGlobalContext)
+const GlobalStore = createStore(useGlobalStore)
 
-export default GlobalContext
+export default GlobalStore

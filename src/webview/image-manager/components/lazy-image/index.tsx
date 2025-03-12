@@ -16,9 +16,9 @@ import { classNames } from 'tw-clsx'
 import { DEFAULT_CONFIG } from '~/core/config/common'
 import { Compressed } from '~/enums'
 import { getAppRoot } from '~/webview/utils'
-import GlobalContext from '../../contexts/global-context'
-import SettingsContext from '../../contexts/settings-context'
 import useImageDetails from '../../hooks/use-image-details/use-image-details'
+import GlobalStore from '../../stores/global-store'
+import SettingsStore from '../../stores/settings-store'
 import { bytesToUnit, clearTimestamp, formatBytes } from '../../utils'
 import { ANIMATION_DURATION } from '../../utils/duration'
 import ImageName, { type ImageNameProps } from '../image-name'
@@ -127,16 +127,16 @@ function LazyImage(props: LazyImageProps) {
     },
   })
 
-  const { hoverShowImageDetail } = SettingsContext.usePicker(['hoverShowImageDetail'])
-  const { imagePlaceholderSize, imageReveal, setImageReveal } = GlobalContext.usePicker([
+  const { hoverShowImageDetail } = SettingsStore.useStore(['hoverShowImageDetail'])
+  const { imagePlaceholderSize, imageReveal, setImageReveal } = GlobalStore.useStore([
     'imagePlaceholderSize',
     'imageReveal',
     'setImageReveal',
   ])
 
-  const imageWidth = GlobalContext.useSelector((ctx) => ctx.extConfig.viewer.imageWidth)
-  const warningSize = GlobalContext.useSelector((ctx) => ctx.extConfig.viewer.warningSize)
-  const imageRendering = GlobalContext.useSelector((ctx) => ctx.extConfig.viewer.imageRendering)
+  const imageWidth = GlobalStore.useStore((ctx) => ctx.extConfig.viewer.imageWidth)
+  const warningSize = GlobalStore.useStore((ctx) => ctx.extConfig.viewer.warningSize)
+  const imageRendering = GlobalStore.useStore((ctx) => ctx.extConfig.viewer.imageRendering)
 
   const imageStyle = useMemo(
     () => ({

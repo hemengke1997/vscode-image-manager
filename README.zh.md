@@ -6,7 +6,7 @@
 
 <h1 align='center'>Image Manager</h1>
 
-<p align='center'>强大易用的VSCode图片管理插件<p>
+<p align='center'>强大易用的图片管理器<p>
 
 [English Document](./README.md)
 

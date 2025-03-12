@@ -6,7 +6,7 @@
 
 <h1 align='center'>Image Manager</h1>
 
-<p align='center'>Powerful yet easy-to-use VSCode image management extension<p>
+<p align='center'>Powerful yet easy-to-use Image Mananger<p>
 
 
 [中文文档](./README.zh.md)

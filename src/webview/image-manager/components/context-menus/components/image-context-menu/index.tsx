@@ -14,10 +14,10 @@ import { App } from 'antd'
 import defaults from 'defaults'
 import { os } from 'un-detector'
 import logger from '~/utils/logger'
-import GlobalContext from '~/webview/image-manager/contexts/global-context'
 import useImageDetails from '~/webview/image-manager/hooks/use-image-details/use-image-details'
 import useImageOperation from '~/webview/image-manager/hooks/use-image-operation'
 import { Keybinding } from '~/webview/image-manager/keybinding'
+import GlobalStore from '~/webview/image-manager/stores/global-store'
 import MaskMenu from '../../../mask-menu'
 import Arrow from '../arrow'
 import { type ImageContextMenuType } from './hooks/use-image-context-menu'
@@ -136,7 +136,7 @@ const sharpRelated = [
 function ImageContextMenu() {
   const { t } = useTranslation()
   const { message } = App.useApp()
-  const { sharpInstalled } = GlobalContext.usePicker(['sharpInstalled'])
+  const { sharpInstalled } = GlobalStore.useStore(['sharpInstalled'])
 
   const {
     openInOsExplorer,

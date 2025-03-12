@@ -12,8 +12,8 @@ import logger from '~/utils/logger'
 import { useExtConfigState } from '~/webview/image-manager/hooks/use-ext-config-state'
 import { useWorkspaceState } from '~/webview/image-manager/hooks/use-workspace-state'
 import { vscodeApi } from '~/webview/vscode-api'
-import FileContext, { type FileChangedResType } from '../contexts/file-context'
-import GlobalContext from '../contexts/global-context'
+import FileStore, { type FileChangedResType } from '../stores/file-store'
+import GlobalStore from '../stores/global-store'
 import { pathUtil } from '../utils'
 import { LOADING_DURATION } from '../utils/duration'
 import useDeleteImage from './use-delete-image/use-delete-image'
@@ -48,7 +48,7 @@ const UndoMessageContent = (props: { list: string[]; title: ReactNode }) => {
  * 压缩、格式转换、裁剪、查找相似图片、删除、重命名、撤销、拷贝、剪切、粘贴等
  */
 function useImageOperation() {
-  const { compressor, formatConverter, extConfig, setImageReveal } = GlobalContext.usePicker([
+  const { compressor, formatConverter, extConfig, setImageReveal } = GlobalStore.useStore([
     'compressor',
     'formatConverter',
     'extConfig',
@@ -167,7 +167,7 @@ function useImageOperation() {
     })
   })
 
-  const show_precision_tip = GlobalContext.useSelector((ctx) => ctx.workspaceState.show_precision_tip)
+  const show_precision_tip = GlobalStore.useStore((ctx) => ctx.workspaceState.show_precision_tip)
   const [showPrecisionTip, setShowPrecisionTip] = useWorkspaceState(
     WorkspaceStateKey.show_precision_tip,
     show_precision_tip,
@@ -539,7 +539,7 @@ function useImageOperation() {
   })
 
   const { handleCopy, handlePaste, handleCut, setImageCopied, imageCopied, clearSelectedImages, fileTip, setFileTip } =
-    FileContext.usePicker([
+    FileStore.useStore([
       'handleCopy',
       'handlePaste',
       'handleCut',
@@ -615,7 +615,7 @@ function useImageOperation() {
     }
   })
 
-  const { workspaceState } = GlobalContext.usePicker(['workspaceState'])
+  const { workspaceState } = GlobalStore.useStore(['workspaceState'])
   const [showCutTip, setShowCutTip] = useWorkspaceState(WorkspaceStateKey.show_cut_tip, workspaceState.show_cut_tip)
 
   // 剪切图片

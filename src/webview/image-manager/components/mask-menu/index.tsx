@@ -1,10 +1,10 @@
 import { memo, useState } from 'react'
 import { Menu, type MenuProps } from 'react-contexify'
 import { classNames } from 'tw-clsx'
-import SettingsContext from '../../contexts/settings-context'
+import SettingsStore from '../../stores/settings-store'
 
 function MaskMenu(props: MenuProps) {
-  const { theme } = SettingsContext.usePicker(['theme'])
+  const { theme } = SettingsStore.useStore(['theme'])
 
   const [contextMenuMask, setContextMenuMask] = useState(false)
 

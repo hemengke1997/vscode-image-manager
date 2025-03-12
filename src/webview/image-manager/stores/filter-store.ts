@@ -1,14 +1,14 @@
 import { useMemo } from 'react'
-import { createContainer } from 'context-state'
+import { createStore } from 'context-state'
 import { diff } from 'deep-object-diff'
 import { flatten } from 'flat'
 import removeUndefinedObjects from 'remove-undefined-objects'
 import { defaultState, WorkspaceStateKey } from '~/core/persist/workspace/common'
 import { useWorkspaceState } from '~/webview/image-manager/hooks/use-workspace-state'
-import GlobalContext from './global-context'
+import GlobalStore from './global-store'
 
-function useFilterContext() {
-  const { workspaceState } = GlobalContext.usePicker(['workspaceState'])
+function useFilterStore() {
+  const { workspaceState } = GlobalStore.useStore(['workspaceState'])
 
   /* ---------------- image filter --------------- */
   const [imageFilter, setImageFilter] = useWorkspaceState(WorkspaceStateKey.image_filter, workspaceState.image_filter)
@@ -32,6 +32,6 @@ function useFilterContext() {
   }
 }
 
-const FilterContext = createContainer(useFilterContext)
+const FilterStore = createStore(useFilterStore)
 
-export default FilterContext
+export default FilterStore

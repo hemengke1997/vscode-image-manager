@@ -1,13 +1,13 @@
 import { useLayoutEffect, useRef } from 'react'
 import { useThrottleFn } from 'ahooks'
 import { round } from 'lodash-es'
-import GlobalContext from '../contexts/global-context'
+import GlobalStore from '../stores/global-store'
 
 /**
  * 监听鼠标滚轮事件，缩放 viewer 中的图片大小
  */
 export default function useWheelScaleEvent() {
-  const { setImageWidth } = GlobalContext.usePicker(['setImageWidth'])
+  const { setImageWidth } = GlobalStore.useStore(['setImageWidth'])
 
   const ref = useRef<HTMLDivElement>(null)
 

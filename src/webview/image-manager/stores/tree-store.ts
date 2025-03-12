@@ -1,6 +1,6 @@
 import { useEffect, useMemo } from 'react'
 import { useAsyncEffect, useLatest, useMemoizedFn, usePrevious, useSetState, useUpdateEffect } from 'ahooks'
-import { createContainer } from 'context-state'
+import { createStore } from 'context-state'
 import { diff } from 'deep-object-diff'
 import { isFunction, isObject } from 'lodash-es'
 import { SortByType, type SortType, type WorkspaceStateType } from '~/core/persist/workspace/common'
@@ -82,7 +82,7 @@ const sortFunctions: {
 
 // 1. 按照文件大小排序 -- size
 // 2. 按照文件名排序 -- basename
-function sortImages(sort: TreeContextProp['sort'], images: ImageType[]) {
+function sortImages(sort: TreeStoreProp['sort'], images: ImageType[]) {
   const [sortType, sortOrder] = sort!
   const sortFunction = sortFunctions[sortType][sortOrder]
   return [...images.sort(sortFunction)]
@@ -100,7 +100,7 @@ function shouldShowImage(image: ImageType) {
   return true
 }
 
-type TreeContextProp = {
+type TreeStoreProp = {
   /**
    * 当前树的图片列表
    */
@@ -127,7 +127,7 @@ type TreeContextProp = {
   onCollectTreeData?: (data: { visibleList: ImageType[]; workspaceFolder: string }) => void
 }
 
-function useTreeContext(props: TreeContextProp) {
+function useTreeStore(props: TreeStoreProp) {
   const {
     imageList: imageListProp,
     workspaceFolder: originalWorkspaceFolder,
@@ -229,7 +229,7 @@ function useTreeContext(props: TreeContextProp) {
     })
   }, [imageListProp])
 
-  const onSortChange = useMemoizedFn((imageList: ImageType[], sort: TreeContextProp['sort']) => {
+  const onSortChange = useMemoizedFn((imageList: ImageType[], sort: TreeStoreProp['sort']) => {
     if (sort) {
       return sortImages(sort, imageList)
     }
@@ -336,6 +336,6 @@ function useTreeContext(props: TreeContextProp) {
   }
 }
 
-const TreeContext = createContainer(useTreeContext)
+const TreeStore = createStore(useTreeStore)
 
-export default TreeContext
+export default TreeStore

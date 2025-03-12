@@ -11,7 +11,7 @@ import { vscodeApi } from '~/webview/vscode-api'
 import ImageOperator, { type ImageOperatorProps } from '../../components/image-operator'
 import Format from '../../components/image-operator/components/format'
 import KeepOriginal from '../../components/image-operator/components/keep-original'
-import GlobalContext from '../../contexts/global-context'
+import GlobalStore from '../../stores/global-store'
 import useAbortController from '../use-abort-controller'
 import useImageManagerEvent, { IMEvent } from '../use-image-manager-event'
 import useImageOperation from '../use-image-operation'
@@ -25,7 +25,7 @@ type FormValue = FormatConverterOptions
 function ImageConverter(props: ImageConverterProps & ImperativeModalProps) {
   const { images: imagesProp, closeModal } = props
   const { t } = useTranslation()
-  const { formatConverter } = GlobalContext.usePicker(['formatConverter'])
+  const { formatConverter } = GlobalStore.useStore(['formatConverter'])
   const [form] = Form.useForm()
 
   const [images, setImages] = useTrackState(imagesProp)

@@ -3,13 +3,13 @@ import { useMemoizedFn } from 'ahooks'
 import { last } from 'lodash-es'
 import { Key } from 'ts-key-enum'
 import useImageContextMenu from '../components/context-menus/components/image-context-menu/hooks/use-image-context-menu'
-import FileContext from '../contexts/file-context'
+import FileStore from '../stores/file-store'
 import { OS } from '../utils/device'
 import useImageOperation from './use-image-operation'
 
 export default function useImageHotKeys() {
   const { hideAll } = useImageContextMenu()
-  const { allSelectedImages } = FileContext.usePicker(['allSelectedImages'])
+  const { allSelectedImages } = FileStore.useStore(['allSelectedImages'])
 
   const { beginRenameImageProcess, beginDeleteImageProcess, beginCopyProcess, beginCutProcess, handleEscapeCutting } =
     useImageOperation()

@@ -2,12 +2,12 @@ import { memo } from 'react'
 import { useTranslation } from 'react-i18next'
 import { TbFilter } from 'react-icons/tb'
 import { Button, Tooltip } from 'antd'
-import FilterContext from '~/webview/image-manager/contexts/filter-context'
 import useImageFilter from '~/webview/image-manager/hooks/use-image-filter/use-image-filter'
+import FilterStore from '~/webview/image-manager/stores/filter-store'
 
 function Filter() {
   const { t } = useTranslation()
-  const { isImageFilterActive } = FilterContext.usePicker(['isImageFilterActive'])
+  const { isImageFilterActive } = FilterStore.useStore(['isImageFilterActive'])
 
   const [showImageFilter] = useImageFilter()
 

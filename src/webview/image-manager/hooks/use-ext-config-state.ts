@@ -7,7 +7,7 @@ import { set } from 'lodash-es'
 import { type ConfigType } from '~/core/config/common'
 import { CmdToVscode } from '~/message/cmd'
 import { vscodeApi } from '../../vscode-api'
-import VscodeContext from '../contexts/vscode-context'
+import VscodeStore from '../stores/vscode-store'
 
 /**
  * 追踪插件配置中的某个配置
@@ -24,7 +24,7 @@ export function useExtConfigState<T extends Flatten<ConfigType>, U>(
   deps?: DependencyList,
   _debounceOptions?: DebounceOptions,
 ) {
-  const { setExtConfig } = VscodeContext.usePicker(['setExtConfig'])
+  const { setExtConfig } = VscodeStore.useStore(['setExtConfig'])
 
   const debounceOptions: DebounceOptions = useMemo(
     () => ({

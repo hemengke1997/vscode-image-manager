@@ -15,7 +15,7 @@ import { CmdToVscode } from '~/message/cmd'
 import useScrollRef from '~/webview/image-manager/hooks/use-scroll-ref'
 import { vscodeApi } from '~/webview/vscode-api'
 import ImageGroup from '../../components/image-group'
-import GlobalContext from '../../contexts/global-context'
+import GlobalStore from '../../stores/global-store'
 import useImageManagerEvent, { IMEvent } from '../use-image-manager-event'
 import { type ImperativeModalProps } from '../use-imperative-modal'
 
@@ -33,7 +33,7 @@ function ImageSearch(props: ImperativeModalProps) {
 
   const searchInputRef = useRef<InputRef>(null)
 
-  const { treeData } = GlobalContext.usePicker(['treeData'])
+  const { treeData } = GlobalStore.useStore(['treeData'])
 
   const visibleImagePatterns = useMemo(
     () =>

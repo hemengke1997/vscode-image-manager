@@ -1,9 +1,9 @@
 import { useReducer, useRef, useState } from 'react'
 import { useMemoizedFn } from 'ahooks'
-import { createContainer } from 'context-state'
+import { createStore } from 'context-state'
 import { produce } from 'immer'
 
-function useActionContext() {
+function useActionStore() {
   /* --------------- refresh image -------------- */
   const refreshImageReducer = useMemoizedFn(
     (
@@ -75,6 +75,6 @@ function useActionContext() {
   }
 }
 
-const ActionContext = createContainer(useActionContext)
+const ActionStore = createStore(useActionStore)
 
-export default ActionContext
+export default ActionStore

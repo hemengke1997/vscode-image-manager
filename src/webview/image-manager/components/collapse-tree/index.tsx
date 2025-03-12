@@ -9,8 +9,8 @@ import { produce } from 'immer'
 import { isNil } from 'lodash-es'
 import { classNames } from 'tw-clsx'
 import { DisplayGroupType, DisplayStyleType } from '~/core/persist/workspace/common'
-import ActionContext from '../../contexts/action-context'
-import TreeContext from '../../contexts/tree-context'
+import ActionStore from '../../stores/action-store'
+import TreeStore from '../../stores/tree-store'
 import { DirTree, type DisplayMapType, type FileNode } from '../../utils/dir-tree'
 import { ANIMATION_DURATION } from '../../utils/duration'
 import { type EnableCollapseContextMenuType } from '../context-menus/components/collapse-context-menu'
@@ -87,7 +87,7 @@ function CollapseTree(props: Props) {
   const { displayGroup, displayStyle, multipleWorkspace } = props
   const { t } = useTranslation()
 
-  const { dirs, imageTypes, workspaceFolder, originalWorkspaceFolder, workspaceId } = TreeContext.usePicker([
+  const { dirs, imageTypes, workspaceFolder, originalWorkspaceFolder, workspaceId } = TreeStore.useStore([
     'dirs',
     'imageTypes',
     'workspaceFolder',
@@ -95,9 +95,9 @@ function CollapseTree(props: Props) {
     'workspaceId',
   ])
 
-  const visibleList = TreeContext.useSelector((ctx) => ctx.imageSingleTree.visibleList)
+  const visibleList = TreeStore.useStore((ctx) => ctx.imageSingleTree.visibleList)
 
-  const { collapseIdSet, activeCollapseIdSet, setActiveCollapseIdSet } = ActionContext.usePicker([
+  const { collapseIdSet, activeCollapseIdSet, setActiveCollapseIdSet } = ActionStore.useStore([
     'collapseIdSet',
     'activeCollapseIdSet',
     'setActiveCollapseIdSet',

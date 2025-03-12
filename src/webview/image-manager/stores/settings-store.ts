@@ -1,6 +1,6 @@
 import { useMemo } from 'react'
 import { TinyColor } from '@ctrl/tinycolor'
-import { createContainer } from 'context-state'
+import { createStore } from 'context-state'
 import { uniq } from 'lodash-es'
 import { ConfigKey } from '~/core/config/common'
 import { DisplayGroupType, WorkspaceStateKey } from '~/core/persist/workspace/common'
@@ -9,10 +9,10 @@ import { intelligentPick } from '~/utils/intelligent-pick'
 import { useExtConfigState } from '~/webview/image-manager/hooks/use-ext-config-state'
 import { useWorkspaceState } from '~/webview/image-manager/hooks/use-workspace-state'
 import { vscodeColors } from '~/webview/image-manager/utils/theme'
-import GlobalContext from './global-context'
+import GlobalStore from './global-store'
 
-function useSettingsContext() {
-  const { workspaceState, extConfig, vscodeConfig } = GlobalContext.usePicker([
+function useSettingsStore() {
+  const { workspaceState, extConfig, vscodeConfig } = GlobalStore.useStore([
     'workspaceState',
     'extConfig',
     'vscodeConfig',
@@ -113,6 +113,6 @@ function useSettingsContext() {
   }
 }
 
-const SettingsContext = createContainer(useSettingsContext)
+const SettingsStore = createStore(useSettingsStore)
 
-export default SettingsContext
+export default SettingsStore

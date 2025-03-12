@@ -4,7 +4,7 @@ layout: home
 
 hero:
   name: "VSCode Image Manager"
-  text: "Powerful yet easy-to-use VSCode image management extension"
+  text: "Powerful yet easy-to-use VSCode Image Mananger"
   image:
     src: /logo.svg
     alt: VSCode Image Manager

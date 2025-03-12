@@ -5,12 +5,12 @@ import { useMemoizedFn } from 'ahooks'
 import { Button, Tooltip } from 'antd'
 import delay from 'delay'
 import { classNames } from 'tw-clsx'
-import ActionContext from '~/webview/image-manager/contexts/action-context'
 import { RefreshImageDebounceTimeout } from '~/webview/image-manager/hooks/use-refresh-images'
+import ActionStore from '~/webview/image-manager/stores/action-store'
 
 function Refresh() {
   const { t } = useTranslation()
-  const { refreshImages } = ActionContext.usePicker(['refreshImages'])
+  const { refreshImages } = ActionStore.useStore(['refreshImages'])
 
   const [loading, setLoading] = useState(false)
 

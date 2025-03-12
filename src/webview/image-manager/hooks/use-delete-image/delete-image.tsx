@@ -7,7 +7,7 @@ import { os } from 'un-detector'
 import { ConfigKey } from '~/core/config/common'
 import { useExtConfigState } from '~/webview/image-manager/hooks/use-ext-config-state'
 import AutoFocusButton from '../../components/auto-focus-button'
-import GlobalContext from '../../contexts/global-context'
+import GlobalStore from '../../stores/global-store'
 import { type ImperativeModalProps } from '../use-imperative-modal'
 
 type Props = {
@@ -18,7 +18,7 @@ type Props = {
 function DeleteImage(props: Props & ImperativeModalProps) {
   const { closeModal, onConfirm, filenames } = props
   const { t } = useTranslation()
-  const confirmDelete = GlobalContext.useSelector((ctx) => ctx.extConfig.file.confirmDelete)
+  const confirmDelete = GlobalStore.useStore((ctx) => ctx.extConfig.file.confirmDelete)
   // 删除文件
   const [_, setConfirmDelete] = useExtConfigState(ConfigKey.file_confirmDelete, confirmDelete)
 

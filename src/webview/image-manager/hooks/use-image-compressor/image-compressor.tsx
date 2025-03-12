@@ -16,7 +16,7 @@ import ImageOperator from '../../components/image-operator'
 import Format from '../../components/image-operator/components/format'
 import KeepOriginal from '../../components/image-operator/components/keep-original'
 import SkipCompressed from '../../components/image-operator/components/skip-compressed'
-import GlobalContext from '../../contexts/global-context'
+import GlobalStore from '../../stores/global-store'
 import { ANIMATION_DURATION } from '../../utils/duration'
 import useAbortController from '../use-abort-controller'
 import useImageManagerEvent, { IMEvent } from '../use-image-manager-event'
@@ -46,7 +46,7 @@ function ImageCompressor(props: ImageCompressorProps & ImperativeModalProps) {
 
   const [form] = Form.useForm()
 
-  const { compressor } = GlobalContext.usePicker(['compressor'])
+  const { compressor } = GlobalStore.useStore(['compressor'])
   const [submitting, setSubmitting] = useState(false)
 
   const abortController = useAbortController()

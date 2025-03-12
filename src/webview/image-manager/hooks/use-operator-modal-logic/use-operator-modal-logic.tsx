@@ -13,7 +13,7 @@ import { CmdToVscode } from '~/message/cmd'
 import { AbortError, TimeoutError } from '~/utils/abort-promise'
 import logger from '~/utils/logger'
 import { vscodeApi } from '~/webview/vscode-api'
-import GlobalContext from '../../contexts/global-context'
+import GlobalStore from '../../stores/global-store'
 import { formatBytes, triggerOnce } from '../../utils'
 import { type Group, type Groups } from '../use-operation-result/operation-result'
 import useImageOperationResult from '../use-operation-result/use-operation-result'
@@ -38,7 +38,7 @@ export function useOperatorModalLogic() {
   const { message, notification } = App.useApp()
   const { token } = theme.useToken()
 
-  const errorRange = GlobalContext.useSelector((ctx) => ctx.extConfig.compression.errorRange)
+  const errorRange = GlobalStore.useStore((ctx) => ctx.extConfig.compression.errorRange)
 
   const failedImages = useRef<ImageType[]>([])
 

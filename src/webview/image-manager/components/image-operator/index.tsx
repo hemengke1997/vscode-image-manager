@@ -8,8 +8,8 @@ import { Alert, App, Button, Card, ConfigProvider, type FormInstance, theme, Too
 import { WorkspaceStateKey } from '~/core/persist/workspace/common'
 import useScrollRef from '~/webview/image-manager/hooks/use-scroll-ref'
 import { useWorkspaceState } from '~/webview/image-manager/hooks/use-workspace-state'
-import GlobalContext from '../../contexts/global-context'
 import { Keybinding } from '../../keybinding'
+import GlobalStore from '../../stores/global-store'
 import ImageGroup from '../image-group'
 import './index.css'
 
@@ -74,7 +74,7 @@ function ImageOperator(props: ImageOperatorProps & ImageOperatorStaticProps) {
     },
   )
 
-  const { workspaceState } = GlobalContext.usePicker(['workspaceState'])
+  const { workspaceState } = GlobalStore.useStore(['workspaceState'])
 
   const [showUndoRedoTip, setShowUndoRedoTip] = useWorkspaceState(
     WorkspaceStateKey.show_undo_redo_tip,

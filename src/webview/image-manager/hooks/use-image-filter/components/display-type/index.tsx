@@ -3,7 +3,7 @@ import { RxViewNone } from 'react-icons/rx'
 import { useControlledState } from 'ahooks-x'
 import { Badge, Checkbox, theme } from 'antd'
 import { difference } from 'lodash-es'
-import GlobalContext from '~/webview/image-manager/contexts/global-context'
+import GlobalStore from '~/webview/image-manager/stores/global-store'
 
 type Props = {
   /**
@@ -17,7 +17,7 @@ function DisplayType(props: Props) {
   const { token } = theme.useToken()
   const { value, onChange } = props
 
-  const { imageState, allImageTypes } = GlobalContext.usePicker(['imageState', 'allImageTypes'])
+  const { imageState, allImageTypes } = GlobalStore.useStore(['imageState', 'allImageTypes'])
 
   const allImageFiles = useMemo(() => imageState.data.flatMap((item) => item.images), [imageState.data])
 

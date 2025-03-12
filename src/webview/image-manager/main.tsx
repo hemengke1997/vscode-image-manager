@@ -14,12 +14,12 @@ import { vscodeApi } from '~/webview/vscode-api'
 import ImageManager from '.'
 import AntdConfigProvider from './components/antd-config-provider'
 import Fallback from './components/fallback'
-import ActionContext from './contexts/action-context'
-import FileContext from './contexts/file-context'
-import FilterContext from './contexts/filter-context'
-import GlobalContext from './contexts/global-context'
-import SettingsContext from './contexts/settings-context'
-import VscodeContext from './contexts/vscode-context'
+import ActionStore from './stores/action-store'
+import FileStore from './stores/file-store'
+import FilterStore from './stores/filter-store'
+import GlobalStore from './stores/global-store'
+import SettingsStore from './stores/settings-store'
+import VscodeStore from './stores/vscode-store'
 import './hmr'
 import './styles/index.css'
 
@@ -27,7 +27,7 @@ let key = 0
 
 const i18nChangeLanguage = i18next.changeLanguage
 
-function getReactRoot() {
+function reactRoot() {
   if (!window.__react_root__) {
     window.__react_root__ = ReactDOM.createRoot(getAppRoot())
   }
@@ -79,11 +79,11 @@ function registerApp(children: JSX.Element, reload = false) {
           key = reload ? ~key : key
 
           startTransition(() => {
-            getReactRoot().render(
+            reactRoot().render(
               <div onContextMenu={(e) => e.preventDefault()} key={key}>
-                <VscodeContext.Provider value={{ extConfig: ext, vscodeConfig: vscode, workspaceState }}>
+                <VscodeStore.Provider extConfig={ext} vscodeConfig={vscode} workspaceState={workspaceState}>
                   {children}
-                </VscodeContext.Provider>
+                </VscodeStore.Provider>
               </div>,
             )
           })
@@ -108,7 +108,7 @@ function registerApp(children: JSX.Element, reload = false) {
 }
 
 function mount(reload?: boolean) {
-  getReactRoot().render(
+  reactRoot().render(
     <div className={'flex h-screen w-screen items-center justify-center bg-vscode-editor-background'}>
       <Transition mounted={true} enterDelay={200} initial={true} transition={'fade'}>
         <Logo className={'animate-bounce text-6xl'} />
@@ -117,21 +117,21 @@ function mount(reload?: boolean) {
   )
 
   registerApp(
-    <GlobalContext.Provider>
-      <SettingsContext.Provider>
-        <FilterContext.Provider>
-          <ActionContext.Provider>
-            <FileContext.Provider>
+    <GlobalStore.Provider>
+      <SettingsStore.Provider>
+        <FilterStore.Provider>
+          <ActionStore.Provider>
+            <FileStore.Provider>
               <AntdConfigProvider>
                 <ErrorBoundary FallbackComponent={Fallback}>
                   <ImageManager />
                 </ErrorBoundary>
               </AntdConfigProvider>
-            </FileContext.Provider>
-          </ActionContext.Provider>
-        </FilterContext.Provider>
-      </SettingsContext.Provider>
-    </GlobalContext.Provider>,
+            </FileStore.Provider>
+          </ActionStore.Provider>
+        </FilterStore.Provider>
+      </SettingsStore.Provider>
+    </GlobalStore.Provider>,
     reload,
   )
 }

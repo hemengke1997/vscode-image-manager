@@ -6,14 +6,14 @@ import { useUpdateEffect } from 'ahooks'
 import { Button, Tooltip } from 'antd'
 import { toLower } from 'lodash-es'
 import { getCssVar, setHtmlTheme } from '~/webview/image-manager/utils/theme'
-import SettingsContext from '../../contexts/settings-context'
 import useSettings from '../../hooks/use-settings/use-settings'
+import SettingsStore from '../../stores/settings-store'
 
 function Layout(props: PropsWithChildren) {
   const { children } = props
   const { i18n } = useTranslation()
 
-  const { theme, language } = SettingsContext.usePicker(['theme', 'language'])
+  const { theme, language } = SettingsStore.useStore(['theme', 'language'])
 
   const { t } = useTranslation()
 

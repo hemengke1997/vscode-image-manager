@@ -8,8 +8,8 @@ import AlignColumn, { useColumnWidth } from '~/webview/image-manager/components/
 import AppearMotion from '~/webview/image-manager/components/align-column/components/appear-motion'
 import { useWorkspaceState } from '~/webview/image-manager/hooks/use-workspace-state'
 import { Colors } from '~/webview/image-manager/utils/color'
-import GlobalContext from '../../../contexts/global-context'
-import SettingsContext from '../../../contexts/settings-context'
+import GlobalStore from '../../../stores/global-store'
+import SettingsStore from '../../../stores/settings-store'
 import { type ImperativeModalProps } from '../../use-imperative-modal'
 import DisplayGroup from './components/display-group'
 import DisplaySort from './components/display-sort'
@@ -39,7 +39,7 @@ function Settings(props: ImperativeModalProps) {
 
   const { t } = useTranslation()
 
-  const { workspaceState } = GlobalContext.usePicker(['workspaceState'])
+  const { workspaceState } = GlobalStore.useStore(['workspaceState'])
 
   const {
     primaryColor,
@@ -58,7 +58,7 @@ function Settings(props: ImperativeModalProps) {
     setBackgroundColor,
     hoverShowImageDetail,
     setHoverShowImageDetail,
-  } = SettingsContext.usePicker([
+  } = SettingsStore.useStore([
     'primaryColor',
     'theme',
     'setPrimaryColor',

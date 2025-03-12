@@ -11,7 +11,7 @@ import { ConfigKey, type VscodeConfigType } from './config/common'
 import { Svgo } from './operator/svgo'
 
 export class Global {
-  static rootpaths: string[]
+  static rootpaths: string[] = []
   /**
    * extension context
    */
@@ -90,6 +90,8 @@ export class Global {
       Channel.info(i18n.t('core.workspace_changed', rootpaths.join(',')))
       this.rootpaths = rootpaths.map(normalizePath)
       this._onDidChangeRootPath.fire(this.rootpaths)
+    } else {
+      this.rootpaths = []
     }
   }
 

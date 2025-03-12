@@ -18,9 +18,9 @@ import { isString, range, round } from 'lodash-es'
 import { type PreviewGroupPreview } from 'rc-image/es/PreviewGroup'
 import { classNames } from 'tw-clsx'
 import { isDev } from 'vite-config-preset/client'
-import GlobalContext from '../../contexts/global-context'
-import SettingsContext from '../../contexts/settings-context'
 import useImageManagerEvent, { IMEvent } from '../../hooks/use-image-manager-event'
+import GlobalStore from '../../stores/global-store'
+import SettingsStore from '../../stores/settings-store'
 import useImageContextMenu, {
   type ImageContextMenuType,
 } from '../context-menus/components/image-context-menu/hooks/use-image-context-menu'
@@ -103,8 +103,8 @@ function ImageGroup(props: imageGroupProps, ref: ForwardedRef<HTMLDivElement>) {
 
   const { token } = theme.useToken()
 
-  const { imageWidth, imageState } = GlobalContext.usePicker(['imageWidth', 'imageState'])
-  const { isDarkBackground, backgroundColor, tinyBackgroundColor } = SettingsContext.usePicker([
+  const { imageWidth, imageState } = GlobalStore.useStore(['imageWidth', 'imageState'])
+  const { isDarkBackground, backgroundColor, tinyBackgroundColor } = SettingsStore.useStore([
     'isDarkBackground',
     'backgroundColor',
     'tinyBackgroundColor',

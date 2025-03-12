@@ -1,9 +1,9 @@
 import { useState } from 'react'
-import { createContainer } from 'context-state'
+import { createStore } from 'context-state'
 import { type ConfigType, type VscodeConfigType } from '~/core/config/common'
 import { type WorkspaceStateType } from '~/core/persist/workspace/common'
 
-function useVscodeContext(initial: {
+function useVscodeStore(initial: {
   extConfig: ConfigType
   vscodeConfig: VscodeConfigType
   workspaceState: WorkspaceStateType
@@ -27,6 +27,6 @@ function useVscodeContext(initial: {
   }
 }
 
-const VscodeContext = createContainer(useVscodeContext)
+const VscodeStore = createStore(useVscodeStore)
 
-export default VscodeContext
+export default VscodeStore

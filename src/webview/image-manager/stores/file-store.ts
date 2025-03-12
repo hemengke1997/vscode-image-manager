@@ -1,7 +1,7 @@
 import { useMemo, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { useMemoizedFn, useSetState } from 'ahooks'
-import { createContainer } from 'context-state'
+import { createStore } from 'context-state'
 import { produce } from 'immer'
 import { lowerCase } from 'lodash-es'
 import { CmdToVscode } from '~/message/cmd'
@@ -19,7 +19,7 @@ export enum CopyType {
 /**
  * 文件复制、粘贴、剪切上下文
  */
-function useFileContext() {
+function useFileStore() {
   const { t } = useTranslation()
   const [selectedImageMap, setSelectedImageMap] = useState<Map<string, ImageType[]>>(new Map())
 
@@ -151,6 +151,6 @@ function useFileContext() {
   }
 }
 
-const FileContext = createContainer(useFileContext)
+const FileStore = createStore(useFileStore)
 
-export default FileContext
+export default FileStore

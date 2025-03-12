@@ -1,11 +1,11 @@
 import { memo, useEffect, useMemo, useRef } from 'react'
 import { useSize } from 'ahooks'
-import GlobalContext from '../../contexts/global-context'
+import GlobalStore from '../../stores/global-store'
 import LazyImage from '../lazy-image'
 
 function ImageForSize() {
-  const { imageState, setImagePlaceholderSize } = GlobalContext.usePicker(['setImagePlaceholderSize', 'imageState'])
-  const imageWidth = GlobalContext.useSelector((ctx) => ctx.extConfig.viewer.imageWidth)
+  const { imageState, setImagePlaceholderSize } = GlobalStore.useStore(['setImagePlaceholderSize', 'imageState'])
+  const imageWidth = GlobalStore.useStore((ctx) => ctx.extConfig.viewer.imageWidth)
   const imageForSize = useMemo(() => imageState.data[0]?.images[0], [imageState.data])
   const imageForSizeRef = useRef<HTMLDivElement>(null)
 

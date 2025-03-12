@@ -6,7 +6,7 @@ import { set } from 'lodash-es'
 import { type WorkspaceStateKey } from '~/core/persist/workspace/common'
 import { CmdToVscode } from '~/message/cmd'
 import { vscodeApi } from '../../vscode-api'
-import VscodeContext from '../contexts/vscode-context'
+import VscodeStore from '../stores/vscode-store'
 
 /**
  *
@@ -29,7 +29,7 @@ export function useWorkspaceState<T extends WorkspaceStateKey, U>(
   },
 ) {
   const { deps, defaultValue } = options || {}
-  const { setWorkspaceState } = VscodeContext.usePicker(['setWorkspaceState'])
+  const { setWorkspaceState } = VscodeStore.useStore(['setWorkspaceState'])
 
   const updateWorkspaceState = useMemoizedFn((state: U) => {
     vscodeApi.postMessage({

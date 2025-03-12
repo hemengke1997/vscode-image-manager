@@ -7,10 +7,10 @@ import { Collapse, type CollapseProps } from 'antd'
 import { produce } from 'immer'
 import { isUndefined } from 'lodash-es'
 import { classNames } from 'tw-clsx'
-import FileContext, { CopyType } from '../../contexts/file-context'
-import GlobalContext from '../../contexts/global-context'
 import useImageManagerEvent, { IMEvent } from '../../hooks/use-image-manager-event'
 import useSticky from '../../hooks/use-sticky'
+import FileStore, { CopyType } from '../../stores/file-store'
+import GlobalStore from '../../stores/global-store'
 import { clearTimestamp } from '../../utils'
 import { type EnableCollapseContextMenuType } from '../context-menus/components/collapse-context-menu'
 import useCollapseContextMenu from '../context-menus/components/collapse-context-menu/hooks/use-collapse-context-menu'
@@ -95,7 +95,7 @@ function ImageCollapse(props: ImageCollapseProps) {
     onOpenInit,
   } = props
 
-  const { imageReveal, viewerHeaderStickyHeight, dirReveal, setDirReveal } = GlobalContext.usePicker([
+  const { imageReveal, viewerHeaderStickyHeight, dirReveal, setDirReveal } = GlobalStore.useStore([
     'imageReveal',
     'viewerHeaderStickyHeight',
     'dirReveal',
@@ -292,7 +292,7 @@ function ImageCollapse(props: ImageCollapseProps) {
   }, [open])
 
   // 全局的文件选择
-  const { selectedImageMap, setSelectedImageMap, allSelectedImages, imageCopied } = FileContext.usePicker([
+  const { selectedImageMap, setSelectedImageMap, allSelectedImages, imageCopied } = FileStore.useStore([
     'selectedImageMap',
     'setSelectedImageMap',
     'allSelectedImages',

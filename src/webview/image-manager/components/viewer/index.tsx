@@ -7,14 +7,14 @@ import { useClickAway, useMemoizedFn } from 'ahooks'
 import { Card, Empty, Skeleton } from 'antd'
 import { produce } from 'immer'
 import { floor } from 'lodash-es'
-import FilterContext from '../../contexts/filter-context'
-import GlobalContext from '../../contexts/global-context'
-import SettingsContext from '../../contexts/settings-context'
-import TreeContext from '../../contexts/tree-context'
 import useImageHotKeys from '../../hooks/use-image-hot-keys'
 import useImageOperation from '../../hooks/use-image-operation'
 import useSticky from '../../hooks/use-sticky'
 import useWheelScaleEvent from '../../hooks/use-wheel-scale-event'
+import FilterStore from '../../stores/filter-store'
+import GlobalStore from '../../stores/global-store'
+import SettingsStore from '../../stores/settings-store'
+import TreeStore from '../../stores/tree-store'
 import { ANIMATION_DURATION } from '../../utils/duration'
 import CollapseTree from '../collapse-tree'
 import ImageActions from '../image-actions'
@@ -22,15 +22,15 @@ import TitleIconUI from '../title-icon-UI'
 
 function Viewer() {
   const { t } = useTranslation()
-  const { imageState, setTreeData, setViewerHeaderStickyHeight } = GlobalContext.usePicker([
+  const { imageState, setTreeData, setViewerHeaderStickyHeight } = GlobalStore.useStore([
     'imageState',
     'setTreeData',
     'setViewerHeaderStickyHeight',
   ])
 
-  const { imageFilter } = FilterContext.usePicker(['imageFilter'])
+  const { imageFilter } = FilterStore.useStore(['imageFilter'])
 
-  const { displayGroup, displayStyle, sort } = SettingsContext.usePicker(['displayGroup', 'displayStyle', 'sort'])
+  const { displayGroup, displayStyle, sort } = SettingsStore.useStore(['displayGroup', 'displayStyle', 'sort'])
 
   const onCollectTreeData = useMemoizedFn(
     ({ visibleList, workspaceFolder }: { visibleList: ImageType[]; workspaceFolder: string }) => {
@@ -125,23 +125,21 @@ function Viewer() {
               <div className={'space-y-4'} tabIndex={-1} ref={ref}>
                 {imageState.data.length ? (
                   imageState.data.map((item) => (
-                    <TreeContext.Provider
+                    <TreeStore.Provider
                       key={item.workspaceFolder}
-                      value={{
-                        imageList: item.images,
-                        workspaceFolder: item.workspaceFolder,
-                        workspaceId: item.absWorkspaceFolder,
-                        sort,
-                        imageFilter,
-                        onCollectTreeData,
-                      }}
+                      imageList={item.images}
+                      workspaceFolder={item.workspaceFolder}
+                      workspaceId={item.absWorkspaceFolder}
+                      sort={sort}
+                      imageFilter={imageFilter}
+                      onCollectTreeData={onCollectTreeData}
                     >
                       <CollapseTree
                         multipleWorkspace={imageState.data.length > 1}
                         displayGroup={displayGroup}
                         displayStyle={displayStyle}
                       />
-                    </TreeContext.Provider>
+                    </TreeStore.Provider>
                   ))
                 ) : (
                   <Empty image={Empty.PRESENTED_IMAGE_SIMPLE} description={t('im.no_image')} />

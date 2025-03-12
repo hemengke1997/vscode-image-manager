@@ -15,11 +15,11 @@ import ContextMenus from './components/context-menus'
 import ImageForSize from './components/image-for-size'
 import Layout from './components/layout'
 import Viewer from './components/viewer'
-import ActionContext from './contexts/action-context'
-import GlobalContext, { type WebviewCompressorType, type WebviewFormatConverterType } from './contexts/global-context'
 import useImageOperation from './hooks/use-image-operation'
 import useRefreshImages from './hooks/use-refresh-images'
 import useUpdateWebview from './hooks/use-update-webview'
+import ActionStore from './stores/action-store'
+import GlobalStore, { type WebviewCompressorType, type WebviewFormatConverterType } from './stores/global-store'
 
 vscodeApi.registerEventListener()
 
@@ -37,14 +37,14 @@ function ImageManager() {
   const { message, notification } = App.useApp()
   const { t } = useTranslation()
 
-  const { setCompressor, setFormatConverter, sharpInstalled, extConfig } = GlobalContext.usePicker([
+  const { setCompressor, setFormatConverter, sharpInstalled, extConfig } = GlobalStore.useStore([
     'setCompressor',
     'setFormatConverter',
     'sharpInstalled',
     'extConfig',
   ])
 
-  const { refreshImages } = ActionContext.usePicker(['refreshImages'])
+  const { refreshImages } = ActionStore.useStore(['refreshImages'])
 
   useRefreshImages()
 

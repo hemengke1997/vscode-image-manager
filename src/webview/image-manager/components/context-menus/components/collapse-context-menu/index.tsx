@@ -5,10 +5,10 @@ import { useMemoizedFn } from 'ahooks'
 import { App } from 'antd'
 import defaults from 'defaults'
 import { os } from 'un-detector'
-import FileContext from '~/webview/image-manager/contexts/file-context'
-import GlobalContext from '~/webview/image-manager/contexts/global-context'
 import useImageOperation from '~/webview/image-manager/hooks/use-image-operation'
 import { Keybinding } from '~/webview/image-manager/keybinding'
+import FileStore from '~/webview/image-manager/stores/file-store'
+import GlobalStore from '~/webview/image-manager/stores/global-store'
 import MaskMenu from '../../../mask-menu'
 import Arrow from '../arrow'
 import { type CollapseContextMenuType } from './hooks/use-collapse-context-menu'
@@ -81,7 +81,7 @@ function CollapseContextMenu() {
   const { t } = useTranslation()
   const { message } = App.useApp()
 
-  const { sharpInstalled } = GlobalContext.usePicker(['sharpInstalled'])
+  const { sharpInstalled } = GlobalStore.useStore(['sharpInstalled'])
 
   const {
     openInOsExplorer,
@@ -156,7 +156,7 @@ function CollapseContextMenu() {
     beginDeleteDirProcess(e.props?.path || '')
   })
 
-  const { imageCopied } = FileContext.usePicker(['imageCopied'])
+  const { imageCopied } = FileStore.useStore(['imageCopied'])
 
   return (
     <>

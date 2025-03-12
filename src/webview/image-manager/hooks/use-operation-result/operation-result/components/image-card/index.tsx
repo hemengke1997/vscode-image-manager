@@ -2,12 +2,12 @@ import { AnimatePresence, motion } from 'motion/react'
 import { memo, type PropsWithChildren } from 'react'
 import { Card, type GetProps } from 'antd'
 import { classNames } from 'tw-clsx'
-import GlobalContext from '~/webview/image-manager/contexts/global-context'
+import GlobalStore from '~/webview/image-manager/stores/global-store'
 import { ANIMATION_DURATION } from '~/webview/image-manager/utils/duration'
 import styles from './index.module.css'
 
 function ImageCard(props: PropsWithChildren<GetProps<typeof Card>>) {
-  const { imageWidth } = GlobalContext.usePicker(['imageWidth'])
+  const { imageWidth } = GlobalStore.useStore(['imageWidth'])
   const { children, ...rest } = props
   return (
     <Card {...rest} className={classNames('w-fit', styles.card)} style={{ width: imageWidth + 16 }}>

@@ -181,7 +181,7 @@ export const VscodeMessageCenter = {
 
   /* -------------- get all images -------------- */
   [CmdToVscode.get_all_images]: async (_data: unknown, webview: Webview) => {
-    const absWorkspaceFolders = Global.rootpaths
+    const absWorkspaceFolders = Global.rootpaths || []
     const workspaceFolders = absWorkspaceFolders.map((ws) => path.basename(ws))
 
     const start = performance.now()

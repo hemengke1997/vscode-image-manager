@@ -1,7 +1,7 @@
 import { useMemoizedFn } from 'ahooks'
 import { CmdToVscode } from '~/message/cmd'
 import { vscodeApi } from '../../vscode-api'
-import VscodeContext from '../contexts/vscode-context'
+import VscodeStore from '../stores/vscode-store'
 
 /**
  * 手动更新webview从vscode中获取的配置
@@ -12,7 +12,7 @@ import VscodeContext from '../contexts/vscode-context'
  * 3. workspace state
  */
 export default function useUpdateWebview() {
-  const { setExtConfig, setVscodeConfig, setWorkspaceState } = VscodeContext.usePicker([
+  const { setExtConfig, setVscodeConfig, setWorkspaceState } = VscodeStore.useStore([
     'setExtConfig',
     'setVscodeConfig',
     'setWorkspaceState',
