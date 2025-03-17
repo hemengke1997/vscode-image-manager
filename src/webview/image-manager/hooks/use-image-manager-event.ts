@@ -62,7 +62,7 @@ type Events = {
   /**
    * 清空图片选中
    */
-  [IMEvent.clear_selected_images]: [excludeDir?: string]
+  [IMEvent.clear_selected_images]: [dirs?: string[]]
 }
 
 const instance = ImageManagerEvent.getInstance()

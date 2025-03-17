@@ -86,7 +86,7 @@
     reload_now: 'Reload Now',
     mirror_already_enabled: 'Mirror already enabled',
     mirror_selected: 'Mirror Url Selected. Please reload vscode to take effect',
-    load_sharp_failed: 'Load core script failed, please retry',
+    load_sharp_failed: 'Load core script failed',
     deps_init_aborted: 'Dependencies install aborted',
     deps_init_timeout: 'Dependencies install timeout, please try to switch mirror',
     current_mirror: 'Current Mirror',

@@ -53,7 +53,6 @@ export class FormatConverter extends Operator {
   ): Promise<OperatorResult> {
     this.image = image
     this.option = this.mergeOption(option)
-
     this.inputPath = image.path
 
     const r = await this.convertImage(this.inputPath)
@@ -136,8 +135,8 @@ export class FormatConverter extends Operator {
       return Promise.reject(new SkipError())
     }
 
-    const inputBuffer = await fs.readFile(filePath)
-    const inputSize = await this.getFileSize(filePath)
+    const [inputBuffer, inputSize] = await Promise.all([fs.readFile(filePath), this.getFileSize(filePath)])
+
     let outputPath = ''
     let converters: SharpOperator<ConvertorRuntime>[] | SharpOperator<ConvertorRuntime>
 

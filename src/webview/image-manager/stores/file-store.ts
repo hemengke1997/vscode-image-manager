@@ -6,6 +6,7 @@ import { produce } from 'immer'
 import { lowerCase } from 'lodash-es'
 import { CmdToVscode } from '~/message/cmd'
 import { vscodeApi } from '~/webview/vscode-api'
+import useImageManagerEvent, { IMEvent } from '../hooks/use-image-manager-event'
 
 export type FileChangedResType = { success: boolean; message: string; target: string; source: string }[]
 
@@ -60,6 +61,24 @@ function useFileStore() {
         }
       }),
     )
+  })
+
+  useImageManagerEvent({
+    on: {
+      [IMEvent.clear_selected_images]: (dirs) => {
+        setSelectedImageMap(
+          produce((draft) => {
+            if (dirs) {
+              dirs.forEach((dir) => {
+                draft.delete(dir)
+              })
+            } else {
+              draft.clear()
+            }
+          }),
+        )
+      },
+    },
   })
 
   // 全局的文件操作相关提示

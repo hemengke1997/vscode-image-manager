@@ -265,8 +265,8 @@ function CollapseTree(props: Props) {
                     rename: true,
                     reveal_in_viewer: false,
                   },
+                  inViewer: true,
                   lazyImageProps: {
-                    inViewer: true,
                     imageNameProps: {
                       tooltipDisplayFullPath: !displayGroup.includes(DisplayGroupType.dir),
                     },

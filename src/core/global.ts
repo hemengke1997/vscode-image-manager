@@ -117,8 +117,6 @@ export class Global {
             }
           } else if (e instanceof AbortError) {
             Channel.warn(i18n.t('prompt.deps_init_aborted'), true)
-          } else {
-            Channel.error(i18n.t('prompt.compressor_init_fail'), true)
           }
           reject(e)
         })

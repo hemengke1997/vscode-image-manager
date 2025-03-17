@@ -23,6 +23,10 @@ export type CollapseContextMenuType = {
    * 要显示的菜单项
    */
   enableContextMenu: EnableCollapseContextMenuType
+  /**
+   * onPaste事件
+   */
+  onPaste?: () => void
 }
 
 export default function useCollapseContextMenu() {

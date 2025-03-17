@@ -142,7 +142,7 @@ function ImageCollapse(props: ImageCollapseProps) {
     }
   })
 
-  const { show } = useCollapseContextMenu()
+  const { show, hideAll } = useCollapseContextMenu()
 
   const basePath = useMemo(() => (joinLabel ? id.slice(0, id.lastIndexOf(label)) : id), [id, label, joinLabel])
   const labels = useMemo(() => label.split('/').filter(Boolean), [label])
@@ -208,6 +208,7 @@ function ImageCollapse(props: ImageCollapseProps) {
         images: [images, subfolderImages].find((arr) => arr?.length) || [],
         allSubfolderImages: allSubfolderImages || [],
         enableContextMenu: contextMenu(path),
+        onPaste: hideAll,
       },
     })
   })

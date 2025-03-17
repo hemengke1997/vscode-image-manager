@@ -87,7 +87,7 @@
     reload_now: '今すぐ再起動',
     mirror_already_enabled: 'ミラーを使用した依存関係のダウンロードは既に有効になっています',
     mirror_selected: 'ミラーソースが正常に切り替わりました。vscodeを再起動してください',
-    load_sharp_failed: 'コアスクリプトのロードに失敗しました。再試行してください',
+    load_sharp_failed: 'コアスクリプトのロードに失敗しました',
     deps_init_aborted: '依存関係のインストールが中止されました',
     deps_init_timeout: '依存関係のインストールがタイムアウトしました。ミラーソースを切り替えてみてください',
     current_mirror: '現在のミラー',

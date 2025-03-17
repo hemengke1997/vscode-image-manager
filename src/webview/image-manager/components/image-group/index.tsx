@@ -80,6 +80,10 @@ export type imageGroupProps = {
    * 右键菜单启用项
    */
   enableContextMenu?: ImageContextMenuType['enableContextMenu']
+  /**
+   * 是否是viewer中的图片组
+   */
+  inViewer?: boolean
 }
 
 const ToastKey = 'image-preview-scale'
@@ -99,6 +103,7 @@ function ImageGroup(props: imageGroupProps, ref: ForwardedRef<HTMLDivElement>) {
     renderer = (c) => c,
     allSelectedImages,
     clearSelectedOnBlankClick,
+    inViewer,
   } = props
 
   const { token } = theme.useToken()
@@ -172,6 +177,20 @@ function ImageGroup(props: imageGroupProps, ref: ForwardedRef<HTMLDivElement>) {
     return false
   })
 
+  const clearAllSelectedImages = useMemoizedFn(() => {
+    if (inViewer) {
+      imageManagerEvent.emit(IMEvent.clear_selected_images)
+    }
+  })
+
+  const handleClickAway = useMemoizedFn(() => {
+    if (clearSelectedOnBlankClick) {
+      clearAllSelectedImages()
+    } else {
+      setSelectedImages([])
+    }
+  })
+
   useClickAway(
     (e) => {
       const targetEl = e.target as HTMLElement
@@ -184,7 +203,7 @@ function ImageGroup(props: imageGroupProps, ref: ForwardedRef<HTMLDivElement>) {
         // ant-collapse-content-box 是因为有padding，如果点到了padding部分也需要清空选中图片
         targetEl.classList.contains('ant-collapse-content-box')
       ) {
-        return setSelectedImages([])
+        return handleClickAway()
       }
 
       // 如果不希望在点击的时候清空选中的图片，直接return即可
@@ -211,7 +230,7 @@ function ImageGroup(props: imageGroupProps, ref: ForwardedRef<HTMLDivElement>) {
       }
 
       // 如果没有击中阻止，则清空选中的图片
-      setSelectedImages([])
+      handleClickAway()
     },
     Object.keys(selectedImageRefs.current)
       .map((t) => selectedImageRefs.current[t])
@@ -230,22 +249,23 @@ function ImageGroup(props: imageGroupProps, ref: ForwardedRef<HTMLDivElement>) {
   })
 
   const onContextMenu = useMemoizedFn((e: React.MouseEvent<HTMLDivElement>, image: ImageType) => {
-    let selected = selectedImages
-    if (selectedImages.length <= 1) {
+    let selected: ImageType[] | undefined = undefined
+
+    if (!selectedImages.some((t) => t.path === image.path)) {
+      // 如果之前选中的图片中没有当前图片，则清空选中的图片
+      // 并选中当前图片
+      clearAllSelectedImages()
       selected = [image]
+      setSelectedImages(selected)
+    } else {
+      selected = allSelectedImages
     }
 
-    // 清空非当前组的图片选中
-    if (id) {
-      imageManagerEvent.emit(IMEvent.clear_selected_images, id)
-    }
-
-    setSelectedImages(selected)
     show({
       event: e,
       props: {
         image,
-        images: allSelectedImages || selected,
+        images: selected,
         sameLevelImages: images,
         sameWorkspaceImages: getSameWorkspaceImages(image),
         enableContextMenu: {
@@ -277,6 +297,10 @@ function ImageGroup(props: imageGroupProps, ref: ForwardedRef<HTMLDivElement>) {
 
       if (e.shiftKey) {
         if (!selectedImages.length) {
+          // 没有选中图片，说明是第一次shift点击
+          // 此时如果有其他目录的图片被选中，需要清空
+          clearAllSelectedImages()
+
           setSelectedImages([image])
           return
         }
@@ -290,10 +314,7 @@ function ImageGroup(props: imageGroupProps, ref: ForwardedRef<HTMLDivElement>) {
       }
     }
 
-    // 清空非当前组的图片选中
-    if (id) {
-      imageManagerEvent.emit(IMEvent.clear_selected_images, id)
-    }
+    clearAllSelectedImages()
     setSelectedImages([image])
   })
 
@@ -477,6 +498,7 @@ function ImageGroup(props: imageGroupProps, ref: ForwardedRef<HTMLDivElement>) {
                   {renderer(
                     <LazyImage
                       {...lazyImageProps}
+                      inViewer={inViewer}
                       image={image}
                       selected={selectedImages.some((t) => t.path === image.path)}
                       isMultipleSelecting={isMultipleSelecting}

@@ -156,6 +156,12 @@ function CollapseContextMenu() {
     beginDeleteDirProcess(e.props?.path || '')
   })
 
+  const hanldePasteImage = useMemoizedFn((e: ItemParams<CollapseContextMenuType>) => {
+    beginPasteProcess(e.props?.path || '').finally(() => {
+      e.props?.onPaste?.()
+    })
+  })
+
   const { imageCopied } = FileStore.useStore(['imageCopied'])
 
   return (
@@ -173,7 +179,7 @@ function CollapseContextMenu() {
         </Item>
 
         <Separator />
-        <Item disabled={!imageCopied?.list.length} onClick={(e) => beginPasteProcess(e.props!.path)}>
+        <Item disabled={!imageCopied?.list.length} onClick={hanldePasteImage}>
           {t('im.paste')}
           <RightSlot>{Keybinding.Paste()}</RightSlot>
         </Item>

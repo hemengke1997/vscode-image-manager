@@ -88,7 +88,7 @@
     reload_now: '立即重啟',
     mirror_already_enabled: '鏡像下載依賴已啟用',
     mirror_selected: '切換鏡像源成功，請重啟vscode生效',
-    load_sharp_failed: '加載核心腳本失敗，請重試',
+    load_sharp_failed: '加載核心腳本失敗',
     deps_init_aborted: '已取消安裝依賴',
     deps_init_timeout: '依賴安裝超時，請嘗試切換鏡像源',
     current_mirror: '當前鏡像',

@@ -205,52 +205,59 @@ export function useOperatorModalLogic() {
     },
   )
 
-  const showCompressFinishedNotification = useMemoizedFn((results: OperatorResult[], onView: () => void) => {
-    const groups = groupOperatorResults(results, {
-      errorRange,
-    })
-    const titles = getGroupsTitle(groups)
-
-    const id = nanoid()
-
-    let viewed = false
-
-    notification.open({
-      key: id,
-      message: t('im.processed'),
-      placement: 'top',
-      duration: 0,
-      closable: true,
-      onClose() {
-        if (viewed) {
-          return
-        } else {
-          // 点击关闭按钮，用户不查看结果，清除操作缓存
-          clearOperatorCmdCache(results)
-        }
+  const showCompressFinishedNotification = useMemoizedFn(
+    (
+      results: OperatorResult[],
+      options: {
+        onView: () => void
       },
-      description: (
-        <div className={'flex flex-col gap-2'}>
-          {Object.keys(titles)
-            .filter((t) => titles[t as Group].visible)
-            .map((item, index) => (
-              <div key={index}>{titles[item as Group].content}</div>
-            ))}
-        </div>
-      ),
-      actions: (
-        <Button
-          onClick={triggerOnce(() => {
-            viewed = true
-            notification.destroy(id)
-            onView()
-          })}
-        >
-          {t('im.click_to_view')}
-        </Button>
-      ),
-    })
-  })
+    ) => {
+      const groups = groupOperatorResults(results, {
+        errorRange,
+      })
+      const titles = getGroupsTitle(groups)
+
+      const id = nanoid()
+
+      let viewed = false
+
+      notification.open({
+        key: id,
+        message: t('im.processed'),
+        placement: 'top',
+        duration: 0,
+        closable: true,
+        onClose() {
+          if (viewed) {
+            return
+          } else {
+            // 点击关闭按钮，用户不查看结果，清除操作缓存
+            clearOperatorCmdCache(results)
+          }
+        },
+        description: (
+          <div className={'flex flex-col gap-2'}>
+            {Object.keys(titles)
+              .filter((t) => titles[t as Group].visible)
+              .map((item, index) => (
+                <div key={index}>{titles[item as Group].content}</div>
+              ))}
+          </div>
+        ),
+        actions: (
+          <Button
+            onClick={triggerOnce(() => {
+              viewed = true
+              notification.destroy(id)
+              options.onView()
+            })}
+          >
+            {t('im.click_to_view')}
+          </Button>
+        ),
+      })
+    },
+  )
 
   const handleOperateImage = useLockFn(
     async (
@@ -296,11 +303,13 @@ export function useOperatorModalLogic() {
 
         if (Array.isArray(res)) {
           // 弹通知窗，告知用户压缩完成
-          showCompressFinishedNotification(res, () => {
-            onCompressEnd(res, {
-              onUndoClick,
-              onRedoClick,
-            })
+          showCompressFinishedNotification(res, {
+            onView: () => {
+              onCompressEnd(res, {
+                onUndoClick,
+                onRedoClick,
+              })
+            },
           })
         }
       } catch (e) {

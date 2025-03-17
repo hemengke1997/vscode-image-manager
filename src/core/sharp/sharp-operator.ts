@@ -96,7 +96,7 @@ export class SharpOperator<T extends AnyObject, RuntimeCtx extends AnyObject = T
           try {
             await this.hooks.callHook('after:run', this.ctx, { outputPath })
 
-            fs.ensureFileSync(outputPath)
+            await fs.ensureFile(outputPath)
 
             if (dryRun) {
               await this.hooks.callHook('on:finish', this.ctx, result)

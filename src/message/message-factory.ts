@@ -63,8 +63,10 @@ export type FirstParameterOfMessageCenter<K extends KeyofMessage> =
 export const VscodeMessageCenter = {
   [CmdToVscode.on_webview_ready]: async () => {
     Channel.info(i18n.t('core.webview_ready'))
-    const config = await VscodeMessageCenter[CmdToVscode.get_extension_config]()
-    const workspaceState = await VscodeMessageCenter[CmdToVscode.get_workspace_state]()
+    const [config, workspaceState] = await Promise.all([
+      VscodeMessageCenter[CmdToVscode.get_extension_config](),
+      VscodeMessageCenter[CmdToVscode.get_workspace_state](),
+    ])
     const {
       webviewInitialData: { imageReveal, sharpInstalled },
     } = ImageManagerPanel
@@ -219,7 +221,8 @@ export const VscodeMessageCenter = {
       )
       Channel.debug(`Get all images cost: ${performance.now() - start}ms`)
       return res
-    } catch {
+    } catch (e) {
+      logger.error(e)
       return {
         data: [],
         absWorkspaceFolders,
@@ -367,7 +370,8 @@ export const VscodeMessageCenter = {
         ],
         (task) => task(),
       )
-      logger.debug(`Compress result: `, res)
+
+      logger.debug(`Compress length: `, res.length)
       return res
     } catch (e: any) {
       Channel.debug(`${i18n.t('core.compress_error')}: ${JSON.stringify(e)}`)
@@ -395,6 +399,7 @@ export const VscodeMessageCenter = {
         }),
         (task) => task(),
       )
+
       logger.debug(`Convert result:`, res)
       return res
     } catch (e: any) {
@@ -665,6 +670,7 @@ export const VscodeMessageCenter = {
         })
       }),
     )
+
     return res.map((item, i) => ({
       ...item,
       source: source[i],

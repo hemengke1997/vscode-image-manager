@@ -137,6 +137,8 @@ export class Installer {
   }
 
   async run() {
+    const start = performance.now()
+
     try {
       const cacheTypes = this._getInstalledCacheTypes()
       Channel.debug(`Installed cache types: ${cacheTypes?.length ? cacheTypes.join(',') : 'none'}`)
@@ -163,7 +165,9 @@ export class Installer {
           })
 
           if (!Object.values(installSuccess).every(Boolean)) {
-            throw new Error(i18n.t('core.dep_install_fail'))
+            const errMsg = i18n.t('core.dep_install_fail')
+            Channel.error(errMsg, true)
+            throw new Error(errMsg)
           }
         } finally {
           // 隐藏左下角状态栏
@@ -209,6 +213,8 @@ export class Installer {
       this.event.emit(InstallEvent.success, await this._pollingLoadSharp(currentCacheType))
     } catch (e) {
       this.event.emit(InstallEvent.fail, e as Error)
+    } finally {
+      Channel.debug(`Install cost: ${performance.now() - start}ms`)
     }
     return this
   }
@@ -365,17 +371,18 @@ export class Installer {
     })
   }
 
-  private async _pollingLoadSharp(cacheType: CacheType) {
-    const maxTimes = 5
+  private async _pollingLoadSharp(cacheType: CacheType, maxTimes = 5) {
     let time = 0
-    return new Promise<TSharp>((resolve) => {
+    return new Promise<TSharp>((resolve, reject) => {
       const interval = setImmdiateInterval(async () => {
-        if (time >= maxTimes) {
+        time++
+
+        if (time > maxTimes) {
           clearInterval(interval)
 
+          const errMsg = i18n.t('prompt.load_sharp_failed')
           const RETRY = i18n.t('prompt.retry')
-
-          window.showErrorMessage(i18n.t('prompt.load_sharp_failed'), RETRY).then(async (res) => {
+          window.showErrorMessage(errMsg, RETRY).then(async (res) => {
             if (res === RETRY) {
               try {
                 await this.clearCaches()
@@ -383,14 +390,18 @@ export class Installer {
               commands.executeCommand('workbench.action.reloadWindow')
             }
           })
-          return
+          return reject(errMsg)
         }
-        time++
+
         Channel.debug(`Try polling load sharp: ${time} time, cacheType: ${cacheType}`)
-        const res = await this._loadSharp(cacheType)
-        if (res) {
-          resolve(res)
-          clearInterval(interval)
+        try {
+          const res = await this._loadSharp(cacheType)
+          if (res) {
+            resolve(res)
+            clearInterval(interval)
+          }
+        } catch {
+          // 继续轮询
         }
       }, 250)
     })
