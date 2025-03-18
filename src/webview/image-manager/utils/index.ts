@@ -62,8 +62,8 @@ export function uniqSortByThenMap<T>(images: ImageType[], key: keyof ImageType, 
   if (!images.length) return []
 
   return sortBy(
-    uniqBy(images, (item) => item.key),
-    ['key'],
+    uniqBy(images, (item) => item[key]),
+    [key],
   ).map((item) => convert(item))
 }
 
