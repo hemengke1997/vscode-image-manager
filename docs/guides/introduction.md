@@ -10,6 +10,8 @@ All image processing is done locally, ensuring privacy and security. Feel free t
   <source src="./images/video.mp4" type="video/mp4">
 </video>
 
+There is full introduction video on Bilibili, [click here](https://www.bilibili.com/video/BV15SQaYnEeJ)
+
 ## Features
 
 - **View**: Large image viewing with zoom, rotate, and other features

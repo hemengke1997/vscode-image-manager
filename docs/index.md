@@ -11,10 +11,13 @@ hero:
   actions:
     - theme: brand
       text: Get Started
-      link: /guides/get-started
+      link: /guides/introduction
     - theme: alt
       text: Download
       link: https://marketplace.visualstudio.com/items?itemName=minko.image-manager
+    - theme: alt
+      text: Bilibili
+      link: https://www.bilibili.com/video/BV15SQaYnEeJ
 
 features:
   - title: Absolute Security

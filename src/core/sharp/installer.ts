@@ -5,11 +5,11 @@ import { execaNode } from 'execa'
 import fs from 'fs-extra'
 import { isString, toLower } from 'lodash-es'
 import path from 'node:path'
+import pAny from 'p-any'
 import { commands, StatusBarAlignment, type StatusBarItem, window } from 'vscode'
 import { devDependencies, version } from '~root/package.json'
-import { mirrors } from '~/commands/mirror'
 import { i18n } from '~/i18n'
-import { cleanVersion, isValidHttpsUrl, normalizePath, setImmdiateInterval } from '~/utils'
+import { cleanVersion, normalizePath, setImmdiateInterval } from '~/utils'
 import { type AbortError, abortPromise, type TimeoutError } from '~/utils/abort-promise'
 import { Channel } from '~/utils/channel'
 import { Config, FileCache, Global } from '..'
@@ -35,8 +35,6 @@ enum CacheType {
    */
   extension = 'extension',
 }
-
-const CNPM_BINARY_REGISTRY = () => mirrors()[0].description
 
 // libvips 配置
 const libvips_config = {
@@ -82,9 +80,14 @@ export class Installer {
    */
   private _libvips_bin: string
   /**
-   * 是否使用镜像
+   * 中国地区
    */
-  private _useMirror = false
+  private _isCN: boolean
+  private _CN_host = [
+    'https://registry.npmmirror.com/-/binary',
+    'https://npmmirror.com/mirrors',
+    'https://cdn.npmmirror.com/binaries',
+  ]
   /**
    * 缓存 cache.json 文件路径
    */
@@ -115,7 +118,7 @@ export class Installer {
   ) {
     // 如果语言是中文，视为中国地区，设置npm镜像
     const languages = [Config.appearance_language, Global.vscodeLanguage].map(toLower)
-    this._useMirror = languages.includes('zh-cn') || Config.mirror_enabled
+    this._isCN = languages.includes('zh-cn')
 
     this.cwd = Global.context.extensionUri.fsPath
     this.platform = require(path.resolve(this.getSharpCwd(), 'install/platform')).platform()
@@ -131,7 +134,7 @@ export class Installer {
     Channel.info(`${i18n.t('core.extension_root')}: ${this.cwd}`)
     Channel.info(`${i18n.t('core.tip')}: ${i18n.t('core.dep_url_tip')} ⬇️`)
     Channel.info(
-      `${i18n.t('core.dep_url')}: ${CNPM_BINARY_REGISTRY()}/${libvips_config.name}/v${libvips_config.version}/${this._libvips_bin}`,
+      `${i18n.t('core.dep_url')}: ${this._CN_host[0]}/${libvips_config.name}/v${libvips_config.version}/${this._libvips_bin}`,
     )
     Channel.divider()
   }
@@ -170,6 +173,7 @@ export class Installer {
             throw new Error(errMsg)
           }
         } finally {
+          console.log('fffff')
           // 隐藏左下角状态栏
           this._hideStatusBar()
         }
@@ -487,18 +491,6 @@ export class Installer {
   private async _install() {
     const cwd = this.getSharpCwd()
 
-    Channel.debug(`useMirror: ${this._useMirror}`)
-
-    const resolveMirrorUrl = ({ name, fallbackUrl }: { name: string; fallbackUrl: string }) => {
-      if (this._useMirror) {
-        if (isValidHttpsUrl(Config.mirror_url)) {
-          return new URL(`${Config.mirror_url}/${name}`).toString()
-        }
-        return fallbackUrl
-      }
-      return ''
-    }
-
     const sharpBinaryReleaseDir = path.resolve(this.cwd, 'releases')
 
     Channel.debug(`sharpBinaryReleaseDir: ${sharpBinaryReleaseDir}`)
@@ -515,34 +507,46 @@ export class Installer {
 
     if (libvipsBins.length) {
       Channel.info(`libvips ${i18n.t('core.start_manual_install')}: ${libvipsBins.join(', ')}`)
-      for (let i = 0; i < libvipsBins.length; i++) {
-        // 尝试手动安装
-        try {
-          await execaNode('install/unpack-libvips.js', [path.join(this.cwd, libvipsBins[i])], {
+
+      const abortController = new AbortController()
+
+      await pAny(
+        libvipsBins.map(async (bin) => {
+          // 尝试手动安装
+          await execaNode('install/unpack-libvips.js', [path.join(this.cwd, bin)], {
             cwd,
             env: {
               ...process.env,
             },
+            stdio: 'inherit',
+            signal: abortController.signal,
           })
+          abortController.abort()
           installSuccess.libvips = true
-          Channel.info(`${i18n.t('core.manual_install_success')}: ${libvipsBins[i]}`)
-          break
-        } catch {
-          installSuccess.libvips = false
-        }
-      }
+          Channel.info(`${i18n.t('core.manual_install_success')}: ${bin}`)
+        }),
+      )
     }
 
     if (!installSuccess.libvips) {
       Channel.info(`libvips ${i18n.t('core.start_auto_install')}`)
 
-      try {
-        const npm_config_sharp_libvips_binary_host = resolveMirrorUrl({
-          name: libvips_config.name,
-          fallbackUrl: `${CNPM_BINARY_REGISTRY()}/${libvips_config.name}`,
-        })
+      const hosts = this._isCN
+        ? this._CN_host
+        : [
+            '', // 非中国地区
+            // 中国地区被墙需要从镜像源下载
+            ...this._CN_host,
+          ]
 
-        Channel.debug(`libvips binary host: ${npm_config_sharp_libvips_binary_host}`)
+      const abortController = new AbortController()
+
+      const installLibvipsFromHost = async (url: string) => {
+        const npm_config_sharp_libvips_binary_host = url ? new URL(`${url}/${libvips_config.name}`).toString() : url
+
+        Channel.info(
+          `Downloading libvips: ${npm_config_sharp_libvips_binary_host}/${libvips_config.name}/v${libvips_config.version}/${this._libvips_bin}`,
+        )
 
         await execaNode('install/install-libvips.js', {
           cwd,
@@ -551,50 +555,60 @@ export class Installer {
             npm_package_config_libvips: libvips_config.version,
             npm_config_sharp_libvips_binary_host,
           },
+          stdio: 'inherit',
+          signal: abortController.signal,
         })
+      }
 
-        installSuccess.libvips = true
-      } catch (e) {
-        Channel.error(e)
-        // 安装失败
-        if (installSuccess.libvips === false) {
-          Channel.error(`${i18n.t('core.manual_install_failed')}: ${this._libvips_bin}`)
-          Channel.error(i18n.t('core.manual_install_failed'), true)
-        } else {
-          Channel.error(i18n.t('core.dep_install_fail'), true)
-        }
-        installSuccess.libvips = false
+      try {
+        await pAny(
+          hosts.map(async (host) => {
+            await installLibvipsFromHost(host)
+            Channel.info(`libvips installed from: ${host}`)
+            abortController.abort()
+            installSuccess.libvips = true
+          }),
+        )
+      } catch (e: any) {
+        Channel.error(e.message)
+      }
+
+      // 安装失败
+      if (installSuccess.libvips === false) {
+        Channel.error(`${i18n.t('core.manual_install_failed')}: ${this._libvips_bin}`)
+        Channel.error(i18n.t('core.manual_install_failed'), true)
       }
     }
 
     await execaNode('install/dll-copy.js', {
       cwd,
+      stdio: 'inherit',
     })
 
     if (sharpBins.length) {
       Channel.info(`sharp binary ${i18n.t('core.start_auto_install')}: ${sharpBins.join(', ')}`)
 
-      for (let i = 0; i < sharpBins.length; i++) {
-        try {
+      const abortController = new AbortController()
+
+      await pAny(
+        sharpBins.map(async (bin) => {
           await execaNode(
             'install/unpack-sharp.js',
-            [`--path=${cwd}`, `--binPath=${path.join(sharpBinaryReleaseDir, sharpBins[i])}`],
+            [`--path=${cwd}`, `--binPath=${path.join(sharpBinaryReleaseDir, bin)}`],
             {
               cwd,
+              signal: abortController.signal,
             },
           )
-          Channel.info(`${i18n.t('core.auto_install_success')}: ${sharpBins[i]}`)
+          abortController.abort()
+          Channel.info(`${i18n.t('core.auto_install_success')}: ${bin}`)
           installSuccess.sharp = true
-          break
-        } catch {
-          installSuccess.sharp = false
-        }
-      }
+        }),
+      )
+
       if (!installSuccess.sharp) {
         Channel.error(`sharp ${i18n.t('core.dep_install_fail')}`, true)
       }
-    } else {
-      Channel.error(`sharp ${i18n.t('core.dep_install_fail')}`, true)
     }
 
     Channel.info(i18n.t('core.install_finished'))

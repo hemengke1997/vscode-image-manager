@@ -11,10 +11,13 @@ hero:
   actions:
     - theme: brand
       text: 开始使用
-      link: /zh/guides/get-started
+      link: /zh/guides/introduction
     - theme: alt
       text: 下载
       link: https://marketplace.visualstudio.com/items?itemName=minko.image-manager
+    - theme: alt
+      text: B站视频
+      link: https://www.bilibili.com/video/BV15SQaYnEeJ
 
 features:
   - title: 绝对安全

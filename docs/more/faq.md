@@ -6,19 +6,7 @@ The first time you open the extension, it may be slow because it needs to downlo
 
 ## Error: Dependency Installation Failed, Check Network
 
-If you are in mainland China and have a poor network environment, there are two solutions:
-
-1. Switch Mirror Source
-2. Manually Install Dependencies
-
-### Switch Mirror Source
-
-Use the command palette, type `select mirror url`, and press Enter.
-![Select](./images/select-mirror-1.png)
-
-Then choose a mirror source, restart VS Code, and try downloading the dependencies again.
-
-![Select](./images/select-mirror-2.png)
+If you are in mainland China and have a poor network environment, please install dependencies manually
 
 ### Manually Install Dependencies
 
@@ -27,6 +15,8 @@ Then choose a mirror source, restart VS Code, and try downloading the dependenci
 3. Download the dependencies from the URLs printed in the `Output Channel`.
 4. Place the downloaded files in the `Extension Root` from step 2.
 5. Restart VS Code.
+
+![output](./images/output.png)
 
 ## Can I use the extension without installing dependencies?
 

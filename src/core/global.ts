@@ -1,5 +1,4 @@
-import { commands, type Event, EventEmitter, type ExtensionContext, ExtensionMode, window, workspace } from 'vscode'
-import { Commands } from '~/commands'
+import { type Event, EventEmitter, type ExtensionContext, ExtensionMode, window, workspace } from 'vscode'
 import { Installer, InstallEvent } from '~/core/sharp'
 import { i18n } from '~/i18n'
 import { EXT_NAMESPACE } from '~/meta'
@@ -110,11 +109,7 @@ export class Global {
         })
         .on(InstallEvent.fail, async (e) => {
           if (e instanceof TimeoutError) {
-            const SELECT_MIRROR = i18n.t('pkg.cmd.select_mirror')
-            const result = await window.showErrorMessage(i18n.t('prompt.deps_init_timeout'), SELECT_MIRROR)
-            if (result === SELECT_MIRROR) {
-              commands.executeCommand(Commands.select_mirror)
-            }
+            window.showErrorMessage(i18n.t('prompt.deps_init_timeout'))
           } else if (e instanceof AbortError) {
             Channel.warn(i18n.t('prompt.deps_init_aborted'), true)
           }

@@ -123,14 +123,6 @@ export class Config {
     return this.getConfig(ConfigKey.appearance_primaryColor)
   }
 
-  static get mirror_enabled(): boolean {
-    return this.getConfig(ConfigKey.mirror_enabled)
-  }
-
-  static get mirror_url(): string {
-    return this.getConfig(ConfigKey.mirror_url)
-  }
-
   static get compression(): CompressionOptions {
     return this.getConfig(ConfigKey.compression)
   }

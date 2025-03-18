@@ -40,10 +40,6 @@ export type ConfigType = {
     reduceMotion: ReduceMotion
     primaryColor: string
   }
-  mirror: {
-    enabled: boolean
-    url: string
-  }
   compression: CompressionOptions & {
     errorRange: number
   }
@@ -77,9 +73,6 @@ export enum ConfigKey {
   appearance_language = 'appearance.language',
   appearance_primaryColor = 'appearance.primaryColor',
   appearance_reduceMotion = 'appearance.reduceMotion',
-
-  mirror_enabled = 'mirror.enabled',
-  mirror_url = 'mirror.url',
 
   compression = 'compression',
   compression_errorRange = 'compression.errorRange',
@@ -131,10 +124,6 @@ export const DEFAULT_CONFIG: ConfigType = {
     language: Language.auto,
     primaryColor: '',
     reduceMotion: ReduceMotion.auto,
-  },
-  mirror: {
-    enabled: false,
-    url: '',
   },
   compression: {
     errorRange: 0,

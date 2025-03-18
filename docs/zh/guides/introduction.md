@@ -11,6 +11,8 @@ VSCode Image Manager 是一个用于查看、压缩、裁剪、转换格式、�
   <source src="./images/video.mp4" type="video/mp4">
 </video>
 
+B站有完整介绍视频，[点此查看](https://www.bilibili.com/video/BV15SQaYnEeJ)
+
 ## 功能
 
 - **查看**：大图浏览，支持放大、缩小、旋转等功能

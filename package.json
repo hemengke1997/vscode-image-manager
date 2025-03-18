@@ -102,9 +102,9 @@
     "@vscode/vsce": "^3.3.0",
     "ahooks": "^3.8.4",
     "ahooks-x": "^1.5.4",
-    "antd": "^5.24.3",
+    "antd": "^5.24.4",
     "bumpp": "^10.1.0",
-    "consola": "^3.4.0",
+    "consola": "^3.4.1",
     "context-state": "^4.0.1",
     "conventional-changelog-cli": "^5.0.0",
     "cropperjs": "^1.6.2",
@@ -140,6 +140,7 @@
     "node-fetch": "^3.3.2",
     "npm-run-all2": "^7.0.2",
     "on-change": "^5.0.1",
+    "p-any": "^4.0.0",
     "p-debounce": "^4.0.0",
     "p-map": "^7.0.3",
     "p-timeout": "^6.1.4",
@@ -186,7 +187,7 @@
     "vite-plugin-i18n-ally": "^5.3.1",
     "vite-plugin-markdown": "^2.2.0",
     "vitepress": "^1.6.3",
-    "vitest": "^3.0.8"
+    "vitest": "^3.0.9"
   },
   "engines": {
     "vscode": "^1.70.0"
@@ -211,21 +212,6 @@
       {
         "command": "image-manager.open-channel",
         "title": "%pkg.cmd.show_channel%",
-        "category": "%pkg.title%"
-      },
-      {
-        "command": "image-manager.enable-mirror",
-        "title": "%pkg.cmd.enable_mirror%",
-        "category": "%pkg.title%"
-      },
-      {
-        "command": "image-manager.select-mirror",
-        "title": "%pkg.cmd.select_mirror%",
-        "category": "%pkg.title%"
-      },
-      {
-        "command": "image-manager.select-language",
-        "title": "%pkg.cmd.select_language%",
         "category": "%pkg.title%"
       },
       {
@@ -431,15 +417,6 @@
           "type": "boolean",
           "default": true,
           "description": "%pkg.viewer.showDetailsOnHover%"
-        },
-        "image-manager.mirror.enabled": {
-          "type": "boolean",
-          "default": false,
-          "description": "%pkg.mirror.enabled%"
-        },
-        "image-manager.mirror.url": {
-          "type": "string",
-          "description": "%pkg.mirror.url%"
         },
         "image-manager.compression.errorRange": {
           "type": "number",
