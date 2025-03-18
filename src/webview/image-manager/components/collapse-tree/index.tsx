@@ -1,12 +1,12 @@
-import { motion } from 'motion/react'
 import { memo, type ReactNode, useMemo, useRef } from 'react'
 import { useTranslation } from 'react-i18next'
 import { FaRegImages } from 'react-icons/fa6'
 import { VscFileMedia } from 'react-icons/vsc'
+import { Transition } from 'react-transition-preset'
 import { useMemoizedFn } from 'ahooks'
 import { Card, type CollapseProps, ConfigProvider, Empty } from 'antd'
+import { isNil } from 'es-toolkit'
 import { produce } from 'immer'
-import { isNil } from 'lodash-es'
 import { classNames } from 'tw-clsx'
 import { DisplayGroupType, DisplayStyleType } from '~/core/persist/workspace/common'
 import ActionStore from '../../stores/action-store'
@@ -328,19 +328,19 @@ function CollapseTree(props: Props) {
 
     if (!tree.length) {
       return (
-        <motion.div
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          transition={{ duration: ANIMATION_DURATION.fast, delay: ANIMATION_DURATION.fast }}
-        >
-          <Card
-            title={<div className={'text-ant-color-warning'}>{originalWorkspaceFolder}</div>}
-            variant={'borderless'}
-            type='inner'
-          >
-            <Empty image={Empty.PRESENTED_IMAGE_SIMPLE} description={t('im.no_image')} />
-          </Card>
-        </motion.div>
+        <Transition mounted={true} initial={true} enterDelay={ANIMATION_DURATION.fast}>
+          {(style) => (
+            <div style={style}>
+              <Card
+                title={<div className={'text-ant-color-warning'}>{originalWorkspaceFolder}</div>}
+                variant={'borderless'}
+                type='inner'
+              >
+                <Empty image={Empty.PRESENTED_IMAGE_SIMPLE} description={t('im.no_image')} />
+              </Card>
+            </div>
+          )}
+        </Transition>
       )
     }
 

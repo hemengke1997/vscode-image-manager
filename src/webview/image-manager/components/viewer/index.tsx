@@ -1,12 +1,12 @@
-import { AnimatePresence, motion } from 'motion/react'
 import { memo, useEffect, useMemo, useRef } from 'react'
 import { useTranslation } from 'react-i18next'
 import { IoMdImages } from 'react-icons/io'
+import { Transition } from 'react-transition-preset'
 import { styleObjectToString } from '@minko-fe/style-object-to-string'
 import { useClickAway, useMemoizedFn } from 'ahooks'
 import { Card, Empty, Skeleton } from 'antd'
+import { floor } from 'es-toolkit/compat'
 import { produce } from 'immer'
-import { floor } from 'lodash-es'
 import useImageHotKeys from '../../hooks/use-image-hot-keys'
 import useImageOperation from '../../hooks/use-image-operation'
 import useSticky from '../../hooks/use-sticky'
@@ -105,49 +105,41 @@ function Viewer() {
         extra={<ImageActions />}
         ref={stickyRef}
       >
-        <AnimatePresence mode='sync'>
-          {imageState.loading ? (
-            <motion.div
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              exit={{ opacity: 0 }}
-              transition={{ duration: ANIMATION_DURATION.middle }}
-            >
-              <Skeleton className={'px-4 py-2'} active paragraph={{ rows: 4 }} />
-            </motion.div>
-          ) : (
-            <motion.div
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              transition={{ duration: ANIMATION_DURATION.middle }}
-              ref={contentRef}
-            >
-              <div className={'space-y-4'} tabIndex={-1} ref={ref}>
-                {imageState.data.length ? (
-                  imageState.data.map((item) => (
-                    <TreeStore.Provider
-                      key={item.workspaceFolder}
-                      imageList={item.images}
-                      workspaceFolder={item.workspaceFolder}
-                      workspaceId={item.absWorkspaceFolder}
-                      sort={sort}
-                      imageFilter={imageFilter}
-                      onCollectTreeData={onCollectTreeData}
-                    >
-                      <CollapseTree
-                        multipleWorkspace={imageState.data.length > 1}
-                        displayGroup={displayGroup}
-                        displayStyle={displayStyle}
-                      />
-                    </TreeStore.Provider>
-                  ))
-                ) : (
-                  <Empty image={Empty.PRESENTED_IMAGE_SIMPLE} description={t('im.no_image')} />
-                )}
+        {imageState.loading ? (
+          <Transition mounted={true} initial={true} duration={ANIMATION_DURATION.middle}>
+            {(style) => <Skeleton style={style} className={'px-4 py-2'} active paragraph={{ rows: 4 }} />}
+          </Transition>
+        ) : (
+          <Transition mounted={true} initial={true} duration={ANIMATION_DURATION.middle}>
+            {(style) => (
+              <div ref={contentRef} style={style}>
+                <div className={'space-y-4'} tabIndex={-1} ref={ref}>
+                  {imageState.data.length ? (
+                    imageState.data.map((item) => (
+                      <TreeStore.Provider
+                        key={item.workspaceFolder}
+                        imageList={item.images}
+                        workspaceFolder={item.workspaceFolder}
+                        workspaceId={item.absWorkspaceFolder}
+                        sort={sort}
+                        imageFilter={imageFilter}
+                        onCollectTreeData={onCollectTreeData}
+                      >
+                        <CollapseTree
+                          multipleWorkspace={imageState.data.length > 1}
+                          displayGroup={displayGroup}
+                          displayStyle={displayStyle}
+                        />
+                      </TreeStore.Provider>
+                    ))
+                  ) : (
+                    <Empty image={Empty.PRESENTED_IMAGE_SIMPLE} description={t('im.no_image')} />
+                  )}
+                </div>
               </div>
-            </motion.div>
-          )}
-        </AnimatePresence>
+            )}
+          </Transition>
+        )}
       </Card>
     </div>
   )

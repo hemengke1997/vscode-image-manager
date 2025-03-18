@@ -1,12 +1,12 @@
-import { motion } from 'motion/react'
 import { memo, useEffect, useMemo, useState } from 'react'
 import { Trans, useTranslation } from 'react-i18next'
 import { BsQuestionCircleFill } from 'react-icons/bs'
+import { Transition } from 'react-transition-preset'
 import { useMemoizedFn } from 'ahooks'
 import { Alert, Button, Divider, Form, Input, InputNumber, Segmented, Tooltip } from 'antd'
 import defaults from 'defaults'
+import { intersection, mapValues, omit } from 'es-toolkit'
 import { flatten as flattenObject, unflatten } from 'flat'
-import { intersection, mapValues, omit } from 'lodash-es'
 import { type OperatorResult } from '~/core'
 import { type CompressionOptions } from '~/core/operator/compressor/type'
 import { CmdToVscode } from '~/message/cmd'
@@ -113,7 +113,7 @@ function ImageCompressor(props: ImageCompressorProps & ImperativeModalProps) {
   /* ------------------ 压缩配置相关 ------------------ */
 
   const [activeTab, setActiveTab] = useState<'not-svg' | 'svg'>('not-svg')
-  const SVG_FIELDS = ['svg']
+  const SVG_FIELDS = ['svg'] as const
 
   const hasSomeImageType = useMemoizedFn((type: string) => {
     return images?.some((img) => img.extname === type)
@@ -129,7 +129,7 @@ function ImageCompressor(props: ImageCompressorProps & ImperativeModalProps) {
     {
       value: 'not-svg',
       label: t('im.not_svg'),
-      compressorOption: flattenObject(omit(compressor?.option, SVG_FIELDS)) as AnyObject,
+      compressorOption: flattenObject(omit(compressor!.option, SVG_FIELDS)) as AnyObject,
       componentMap: {
         // png
         'png.compressionLevel': {
@@ -270,7 +270,11 @@ function ImageCompressor(props: ImageCompressorProps & ImperativeModalProps) {
   }, [images])
 
   const allCompressorOption = useMemo(
-    () => defaults(mapValues(fields, 'value'), flattenObject(compressor?.option || {})) as AnyObject,
+    () =>
+      defaults(
+        mapValues(fields || {}, (item) => item?.value),
+        flattenObject(compressor?.option || {}),
+      ) as AnyObject,
     [compressor?.option, fields],
   )
 
@@ -303,23 +307,23 @@ function ImageCompressor(props: ImageCompressorProps & ImperativeModalProps) {
     >
       <div className={'flex flex-col'}>
         {displayTabs.length > 1 ? (
-          <motion.div
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            transition={{ duration: ANIMATION_DURATION.fast }}
-          >
-            <div className={'flex justify-center'}>
-              <Segmented
-                options={displayTabs.map((t) => ({
-                  label: t.label,
-                  value: t.value,
-                }))}
-                value={activeTab}
-                onChange={(value) => setActiveTab(value as typeof activeTab)}
-              ></Segmented>
-            </div>
-            <Divider />
-          </motion.div>
+          <Transition mounted={true} initial={true} duration={ANIMATION_DURATION.fast}>
+            {(style) => (
+              <div style={style}>
+                <div className={'flex justify-center'}>
+                  <Segmented
+                    options={displayTabs.map((t) => ({
+                      label: t.label,
+                      value: t.value,
+                    }))}
+                    value={activeTab}
+                    onChange={(value) => setActiveTab(value as typeof activeTab)}
+                  ></Segmented>
+                </div>
+                <Divider />
+              </div>
+            )}
+          </Transition>
         ) : null}
         <Form
           layout='horizontal'

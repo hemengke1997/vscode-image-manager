@@ -1,6 +1,6 @@
 import { useLayoutEffect, useRef } from 'react'
 import { useThrottleFn } from 'ahooks'
-import { round } from 'lodash-es'
+import { round } from 'es-toolkit'
 import GlobalStore from '../stores/global-store'
 
 /**

@@ -1,4 +1,4 @@
-import { flatten } from 'lodash-es'
+import { flatten } from 'es-toolkit'
 import { type ExtensionModule } from '~/module'
 import clearCache from './clear-cache'
 import openWebview from './open-webview'

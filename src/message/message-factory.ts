@@ -1,6 +1,7 @@
+import { flatten, pick } from 'es-toolkit'
+import { toString } from 'es-toolkit/compat'
 import fs from 'fs-extra'
 import { convertPathToPattern, globby, type GlobEntry } from 'globby'
-import { flatten, pick, toString } from 'lodash-es'
 import micromatch from 'micromatch'
 import mime from 'mime/lite'
 import path from 'node:path'

@@ -1,6 +1,6 @@
 import { useHotkeys } from 'react-hotkeys-hook'
 import { useMemoizedFn } from 'ahooks'
-import { last } from 'lodash-es'
+import { last } from 'es-toolkit'
 import { Key } from 'ts-key-enum'
 import useImageContextMenu from '../components/context-menus/components/image-context-menu/hooks/use-image-context-menu'
 import FileStore from '../stores/file-store'

@@ -1,4 +1,4 @@
-import { isEqual } from 'lodash-es'
+import { isEqual } from 'es-toolkit'
 import path from 'node:path'
 import { commands, FileType, type Uri, workspace } from 'vscode'
 import { Config } from '~/core'

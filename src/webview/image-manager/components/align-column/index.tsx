@@ -1,7 +1,7 @@
 import { memo, type ReactNode, useLayoutEffect, useRef, useState } from 'react'
 import { useMemoizedFn, useSize } from 'ahooks'
+import { max } from 'es-toolkit/compat'
 import { produce } from 'immer'
-import { max } from 'lodash-es'
 import { classNames } from 'tw-clsx'
 
 export function useColumnWidth() {

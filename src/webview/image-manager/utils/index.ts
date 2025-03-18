@@ -1,5 +1,5 @@
 import debounce from 'debounce'
-import { round, sortBy, uniqBy } from 'lodash-es'
+import { round, sortBy, uniqBy } from 'es-toolkit'
 
 export function formatBytes(bytes: number, decimals: number = 2): string {
   if (bytes === 0) {
@@ -61,7 +61,10 @@ export const pathUtil = {
 export function uniqSortByThenMap<T>(images: ImageType[], key: keyof ImageType, convert: (image: ImageType) => T): T[] {
   if (!images.length) return []
 
-  return sortBy(uniqBy(images, key), key).map((item) => convert(item))
+  return sortBy(
+    uniqBy(images, (item) => item.key),
+    ['key'],
+  ).map((item) => convert(item))
 }
 
 /**

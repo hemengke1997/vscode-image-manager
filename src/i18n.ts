@@ -1,5 +1,6 @@
 import destr from 'destr'
-import { isUndefined, toLower } from 'lodash-es'
+import { isUndefined } from 'es-toolkit'
+import { toLower } from 'es-toolkit/compat'
 import fs from 'node:fs'
 import path from 'node:path'
 import { type ExtensionContext } from 'vscode'

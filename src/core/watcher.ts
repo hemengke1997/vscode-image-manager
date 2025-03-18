@@ -1,5 +1,5 @@
+import debounce from 'debounce'
 import { type GlobbyFilterFunction, isGitIgnoredSync } from 'globby'
-import { debounce } from 'lodash-es'
 import micromatch from 'micromatch'
 import path from 'node:path'
 import { type FileSystemWatcher, RelativePattern, type Uri, type Webview, workspace } from 'vscode'
@@ -47,7 +47,7 @@ export class Watcher {
   }
 
   private static handleEvent = debounce(this._handleEvent, 200, {
-    leading: true,
+    immediate: true,
   })
 
   private static _handleEvent(e: Uri, type: 'change' | 'create' | 'delete') {

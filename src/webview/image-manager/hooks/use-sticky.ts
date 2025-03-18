@@ -1,6 +1,6 @@
 import { useEffect, useRef } from 'react'
 import { useEventListener, useInViewport, useMemoizedFn, useUpdateEffect } from 'ahooks'
-import { isUndefined } from 'lodash-es'
+import { isUndefined } from 'es-toolkit'
 import { getAppRoot } from '~/webview/utils'
 
 type Props = {

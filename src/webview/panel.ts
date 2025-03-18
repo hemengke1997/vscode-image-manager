@@ -1,5 +1,5 @@
+import { trim } from 'es-toolkit'
 import fs from 'fs-extra'
-import { trim } from 'lodash-es'
 import path from 'node:path'
 import { inject } from 'tag-inject'
 import {

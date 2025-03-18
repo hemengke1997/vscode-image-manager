@@ -1,5 +1,5 @@
 import destr from 'destr'
-import { isFunction } from 'lodash-es'
+import { isFunction } from 'es-toolkit'
 import { nanoid } from 'nanoid'
 import { type WebviewApi } from 'vscode-webview'
 import { CmdToWebview } from '~/message/cmd'

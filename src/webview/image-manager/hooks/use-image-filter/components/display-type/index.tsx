@@ -2,7 +2,7 @@ import { memo, useMemo } from 'react'
 import { RxViewNone } from 'react-icons/rx'
 import { useControlledState } from 'ahooks-x'
 import { Badge, Checkbox, theme } from 'antd'
-import { difference } from 'lodash-es'
+import { difference } from 'es-toolkit'
 import GlobalStore from '~/webview/image-manager/stores/global-store'
 
 type Props = {

@@ -4,7 +4,7 @@ import { TinyColor } from '@ctrl/tinycolor'
 import { useMemoizedFn } from 'ahooks'
 import { useControlledState } from 'ahooks-x'
 import { ColorPicker, type ColorPickerProps } from 'antd'
-import { uniq } from 'lodash-es'
+import { uniq } from 'es-toolkit'
 import { builtInColors, vscodeColors } from '~/webview/image-manager/utils/theme'
 
 type Props = {

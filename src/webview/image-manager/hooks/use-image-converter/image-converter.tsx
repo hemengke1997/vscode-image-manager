@@ -3,7 +3,8 @@ import { useTranslation } from 'react-i18next'
 import { useMemoizedFn } from 'ahooks'
 import { useTrackState } from 'ahooks-x'
 import { Checkbox, Form, Tag } from 'antd'
-import { isArray, isEmpty, mergeWith, toLower } from 'lodash-es'
+import { mergeWith } from 'es-toolkit'
+import { isArray, isEmpty, toLower } from 'es-toolkit/compat'
 import { type FormatConverterOptions, type OperatorResult } from '~/core'
 import { CmdToVscode } from '~/message/cmd'
 import { abortPromise } from '~/utils/abort-promise'
@@ -55,7 +56,7 @@ function ImageConverter(props: ImageConverterProps & ImperativeModalProps) {
   })
 
   const onFinish = useMemoizedFn((value: FormValue) => {
-    value = mergeWith({}, formatConverter?.option || {}, value, (_, srcValue) => {
+    value = mergeWith(formatConverter?.option || {}, value, (_, srcValue) => {
       if (isArray(srcValue)) return srcValue
     })
 
@@ -173,7 +174,7 @@ function ImageConverter(props: ImageConverterProps & ImperativeModalProps) {
         layout='horizontal'
         colon={false}
         name='image-converter'
-        initialValues={formatConverter.option}
+        initialValues={formatConverter?.option}
         form={form}
         requiredMark={false}
         onFinish={onFinish}

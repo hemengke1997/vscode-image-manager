@@ -1,7 +1,7 @@
 import { memo } from 'react'
 import { useTranslation } from 'react-i18next'
 import { Form, Segmented } from 'antd'
-import { upperCase } from 'lodash-es'
+import { upperCase } from 'es-toolkit'
 
 function Format(props: { exts: string[] | undefined }) {
   const { exts } = props

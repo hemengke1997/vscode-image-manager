@@ -1,4 +1,5 @@
-import { isFunction, toLower } from 'lodash-es'
+import { isFunction } from 'es-toolkit'
+import { toLower } from 'es-toolkit/compat'
 import { ColorThemeKind, env, type ExtensionContext, window, workspace } from 'vscode'
 import { Language, Theme } from '~/enums'
 import { FALLBACK_LANGUAGE } from '~/meta'

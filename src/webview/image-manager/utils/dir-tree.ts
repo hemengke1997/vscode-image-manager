@@ -1,4 +1,5 @@
-import { isEmpty, isNumber, mergeWith, uniq } from 'lodash-es'
+import { mergeWith, uniq } from 'es-toolkit'
+import { isEmpty, isNumber } from 'es-toolkit/compat'
 import { type DisplayGroupType } from '~/core/persist/workspace/common'
 
 export type DisplayMapType<T extends Record<string, any> = Record<string, any>> = {
@@ -209,7 +210,7 @@ export class DirTree<ExtraProps extends Record<string, any> = Record<string, any
 
   sortGroup(group: DisplayGroupType[] | undefined) {
     const allGroupType = Object.keys(this.displayMap).filter((k) => this.displayMap[k].priority)
-    group = uniq(group?.filter((item) => allGroupType.includes(item)))
+    group = uniq(group?.filter((item) => allGroupType.includes(item)) || [])
     if (group.length > 1) {
       const findPriority = (v: DisplayGroupType) => {
         return this.displayMap[allGroupType.find((item) => item === v) || ''].priority || 0

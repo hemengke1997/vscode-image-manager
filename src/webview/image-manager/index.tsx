@@ -30,7 +30,6 @@ toast.setDefaultOptions({
   className:
     'flex items-center justify-center rounded-md bg-black bg-opacity-60 px-2 py-1 text-sm shadow-sm pointer-events-none text-ant-color-text-light-solid',
   pauseOnHover: false,
-  duration: 1500,
 })
 
 function ImageManager() {

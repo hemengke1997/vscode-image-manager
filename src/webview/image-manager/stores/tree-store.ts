@@ -2,7 +2,7 @@ import { useEffect, useMemo } from 'react'
 import { useAsyncEffect, useLatest, useMemoizedFn, usePrevious, useSetState, useUpdateEffect } from 'ahooks'
 import { createStore } from 'context-state'
 import { diff } from 'deep-object-diff'
-import { isFunction, isObject } from 'lodash-es'
+import { isObject } from 'es-toolkit/compat'
 import { SortByType, type SortType, type WorkspaceStateType } from '~/core/persist/workspace/common'
 import { Compressed } from '~/enums'
 import { FilterRadioValue, type ImageFilterType, ImageVisibleFilter } from '../hooks/use-image-filter/image-filter'
@@ -39,21 +39,22 @@ type Condition = {
 
 // 根据条件改变图片的visible
 async function changeImageVisible(imageList: ImageType[], conditions: Condition[]) {
-  const visibilityPromises = imageList.map(async (image, index) => {
-    if (!image.visible) {
-      image.visible = {}
-    }
-
-    const conditionPromises = conditions.map(async ({ key, condition }) => {
-      image.visible![key] = isFunction(condition) ? await condition(image, index) : condition
-    })
-
-    await Promise.all(conditionPromises)
-    return image
-  })
-
   try {
-    const result = await Promise.all(visibilityPromises)
+    const result = await Promise.all(
+      imageList.map(async (image, index) => {
+        if (!image.visible) {
+          image.visible = {}
+        }
+
+        await Promise.all(
+          conditions.map(async ({ key, condition }) => {
+            image.visible![key] = await condition(image, index)
+          }),
+        )
+
+        return image
+      }),
+    )
     return result
   } catch {
     return []

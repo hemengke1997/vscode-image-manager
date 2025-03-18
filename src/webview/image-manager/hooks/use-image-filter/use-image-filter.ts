@@ -1,5 +1,5 @@
 import { useTranslation } from 'react-i18next'
-import { upperFirst } from 'lodash-es'
+import { upperFirst } from 'es-toolkit'
 import useImperativeModal from '../use-imperative-modal'
 import ImageFilter from './image-filter'
 

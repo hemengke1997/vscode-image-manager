@@ -1,5 +1,5 @@
-import { memo, type ReactNode, useMemo, useRef } from 'react'
-import { useInViewport } from 'ahooks'
+import { memo, type ReactNode, useRef } from 'react'
+import { useInViewport, useMemoizedFn } from 'ahooks'
 import { type ImageProps } from 'antd'
 import { classNames } from 'tw-clsx'
 import { DEFAULT_CONFIG } from '~/core/config/common'
@@ -95,20 +95,25 @@ function LazyImage(props: LazyImageProps) {
 
   const { imagePlaceholderSize } = GlobalStore.useStore(['imagePlaceholderSize'])
 
-  const rootMargin = useMemo(
-    () => `${(imagePlaceholderSize?.height || DEFAULT_CONFIG.viewer.imageWidth) * 4.5}px 0px`,
-    [imagePlaceholderSize?.height],
+  const rootMargin = useMemoizedFn(
+    (rate: number) => `${(imagePlaceholderSize?.height || DEFAULT_CONFIG.viewer.imageWidth) * rate}px 0px`,
   ) // expand area of vertical intersection calculation
 
   const elRef = useRef<HTMLDivElement>(null)
 
   const [elInView] = useInViewport(elRef, {
     root,
-    rootMargin,
+    rootMargin: rootMargin(4.5),
   })
 
-  // 目前 motion/react viewport root 有bug，在 root 改变后不会重新observe
-  // 所以这里需要判断 root 是否存在
+  // 懒加载图片
+  // 比 VisibleImage 的加载更多，为了更快读取图片
+  const [imageInView] = useInViewport(elRef, {
+    root,
+    rootMargin: rootMargin(10),
+  })
+
+  // 渲染优化
   if (lazy && !lazy.root) {
     return null
   }
@@ -124,7 +129,9 @@ function LazyImage(props: LazyImageProps) {
             width: imagePlaceholderSize?.width,
             height: imagePlaceholderSize?.height,
           }}
-        ></div>
+        >
+          {imageInView && <img src={image.vscodePath} hidden={true} className={'h-0 w-0'} />}
+        </div>
       )}
     </div>
   )

@@ -1,5 +1,6 @@
 import defaults from 'defaults'
-import { clone, get } from 'lodash-es'
+import { clone } from 'es-toolkit'
+import { get } from 'es-toolkit/compat'
 import { type ConfigurationScope, ConfigurationTarget, workspace } from 'vscode'
 import { EXT_NAMESPACE } from '~/meta'
 import { normalizePath } from '~/utils'

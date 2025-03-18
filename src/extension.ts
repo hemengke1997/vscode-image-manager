@@ -1,5 +1,5 @@
 import type * as vscode from 'vscode'
-import { flatten } from 'lodash-es'
+import { flatten } from 'es-toolkit'
 import commandsModules from '~/commands'
 import { version } from '../package.json'
 import { Global, VscodeSettings } from './core'

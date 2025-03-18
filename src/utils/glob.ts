@@ -1,5 +1,5 @@
+import { remove } from 'es-toolkit'
 import { convertPathToPattern } from 'globby'
-import { remove } from 'lodash-es'
 import micromatch from 'micromatch'
 
 function addLastSlash(path: string) {

@@ -3,7 +3,7 @@ import { useTranslation } from 'react-i18next'
 import { IoIosMore } from 'react-icons/io'
 import { useMemoizedFn } from 'ahooks'
 import { Button, Popover, Space, Tooltip } from 'antd'
-import { upperFirst } from 'lodash-es'
+import { upperFirst } from 'es-toolkit'
 import ActionStore from '~/webview/image-manager/stores/action-store'
 
 function More() {

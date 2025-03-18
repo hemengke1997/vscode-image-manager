@@ -1,4 +1,4 @@
-import { toString } from 'lodash-es'
+import { toString } from 'es-toolkit/compat'
 import { type Commander } from '~/core/commander'
 import { i18n } from '~/i18n'
 import { Channel } from '~/utils/channel'

@@ -1,4 +1,4 @@
-import { get } from 'lodash-es'
+import { get } from 'es-toolkit/compat'
 import { type Webview } from 'vscode'
 import { Global } from '~/core'
 import { EXT_NAMESPACE } from '~/meta'

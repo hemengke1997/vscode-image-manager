@@ -1,7 +1,7 @@
 import { useMemo } from 'react'
 import { TinyColor } from '@ctrl/tinycolor'
 import { createStore } from 'context-state'
-import { uniq } from 'lodash-es'
+import { uniq } from 'es-toolkit'
 import { ConfigKey } from '~/core/config/common'
 import { DisplayGroupType, WorkspaceStateKey } from '~/core/persist/workspace/common'
 import { Language, ReduceMotion, Theme } from '~/enums'

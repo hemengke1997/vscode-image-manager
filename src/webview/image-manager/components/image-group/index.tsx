@@ -14,7 +14,7 @@ import { useClickAway, useMemoizedFn } from 'ahooks'
 import { useControlledState } from 'ahooks-x'
 import { ConfigProvider, Image, theme } from 'antd'
 import { type AliasToken, type ComponentTokenMap } from 'antd/es/theme/interface'
-import { isString, range, round } from 'lodash-es'
+import { isString, range, round } from 'es-toolkit'
 import { type PreviewGroupPreview } from 'rc-image/es/PreviewGroup'
 import { classNames } from 'tw-clsx'
 import { isDev } from 'vite-config-preset/client'
@@ -309,7 +309,10 @@ function ImageGroup(props: imageGroupProps, ref: ForwardedRef<HTMLDivElement>) {
         const end = image
         const indexOfStart = images.findIndex((t) => t.path === start.path)
         const indexOfEnd = images.findIndex((t) => t.path === end.path)
-        setSelectedImages([...range(indexOfStart, indexOfEnd), indexOfEnd].map((i) => images[i]))
+
+        setSelectedImages(
+          [...range(indexOfStart, indexOfEnd, indexOfEnd > indexOfStart ? 1 : -1), indexOfEnd].map((i) => images[i]),
+        )
         return
       }
     }

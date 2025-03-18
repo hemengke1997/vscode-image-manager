@@ -1,5 +1,5 @@
-import { MotionConfig } from 'motion/react'
 import { memo, type PropsWithChildren, useEffect } from 'react'
+import { setGlobalConfig } from 'react-transition-preset'
 import { TinyColor } from '@ctrl/tinycolor'
 import { theme as antdTheme, App, ConfigProvider } from 'antd'
 import { Theme } from '~/enums'
@@ -50,56 +50,60 @@ function AntdConfigProvider({ children }: PropsWithChildren) {
     document.documentElement.style.setProperty('font-size', `${docFontSize}px`)
   }, [docFontSize])
 
+  useEffect(() => {
+    setGlobalConfig({
+      reduceMotion: reduceMotion === 'on',
+    })
+  }, [])
+
   return (
-    <MotionConfig reducedMotion={reduceMotion === 'on' ? 'always' : 'never'}>
-      <ConfigProvider
-        input={{ autoComplete: 'off' }}
-        button={{
-          autoInsertSpace: false,
-        }}
-        theme={{
-          hashed: false,
-          cssVar: true,
-          algorithm: [getThemeAlgorithm()],
-          token: {
-            fontFamily: getCssVar('var(--vscode-font-family)'),
-            motion: reduceMotion === 'on' ? false : true,
-            fontSize: docFontSize,
-            colorPrimary: primaryColor,
-            motionDurationSlow: `${DURATION_BASE * 2}s`,
-            motionDurationMid: `${DURATION_BASE}s`,
-            motionDurationFast: `${DURATION_BASE / 2}s`,
-            ...(isSameTheme(vscodeEditorBackground, theme) && {
-              colorBgContainer: vscodeEditorBackground,
-              colorBgBase: ligherOrDarker(vscodeEditorBackground, theme),
-            }),
-            colorBgMask: new TinyColor(token.token.colorBgMask).setAlpha(theme === Theme.dark ? 0.6 : 0.85).toString(),
+    <ConfigProvider
+      input={{ autoComplete: 'off' }}
+      button={{
+        autoInsertSpace: false,
+      }}
+      theme={{
+        hashed: false,
+        cssVar: true,
+        algorithm: [getThemeAlgorithm()],
+        token: {
+          fontFamily: getCssVar('var(--vscode-font-family)'),
+          motion: reduceMotion === 'on' ? false : true,
+          fontSize: docFontSize,
+          colorPrimary: primaryColor,
+          motionDurationSlow: `${DURATION_BASE * 2}s`,
+          motionDurationMid: `${DURATION_BASE}s`,
+          motionDurationFast: `${DURATION_BASE / 2}s`,
+          ...(isSameTheme(vscodeEditorBackground, theme) && {
+            colorBgContainer: vscodeEditorBackground,
+            colorBgBase: ligherOrDarker(vscodeEditorBackground, theme),
+          }),
+          colorBgMask: new TinyColor(token.token.colorBgMask).setAlpha(theme === Theme.dark ? 0.6 : 0.85).toString(),
+        },
+        components: {
+          Modal: {
+            controlHeight: 24,
           },
-          components: {
-            Modal: {
-              controlHeight: 24,
-            },
-          },
+        },
+      }}
+      componentSize='small'
+      warning={{ strict: true }}
+    >
+      <App
+        className={'bg-ant-color-bg-container'}
+        message={{
+          top: 70,
+          maxCount: 5,
+          duration: 3,
         }}
-        componentSize='small'
-        warning={{ strict: true }}
+        notification={{
+          showProgress: true,
+          pauseOnHover: true,
+        }}
       >
-        <App
-          className={'bg-ant-color-bg-container'}
-          message={{
-            top: 70,
-            maxCount: 5,
-            duration: 3,
-          }}
-          notification={{
-            showProgress: true,
-            pauseOnHover: true,
-          }}
-        >
-          {children}
-        </App>
-      </ConfigProvider>
-    </MotionConfig>
+        {children}
+      </App>
+    </ConfigProvider>
   )
 }
 

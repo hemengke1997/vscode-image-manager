@@ -1,4 +1,3 @@
-import { motion } from 'motion/react'
 import { memo, useEffect, useMemo, useRef } from 'react'
 import { useTranslation } from 'react-i18next'
 import { FiCheckCircle } from 'react-icons/fi'
@@ -11,7 +10,7 @@ import { animateScroll } from 'react-scroll'
 import { useMemoizedFn } from 'ahooks'
 import { useControlledState } from 'ahooks-x'
 import { Image } from 'antd'
-import { trim } from 'lodash-es'
+import { trim } from 'es-toolkit'
 import { classNames } from 'tw-clsx'
 import { DEFAULT_CONFIG } from '~/core/config/common'
 import { Compressed } from '~/enums'
@@ -19,7 +18,6 @@ import useImageDetails from '~/webview/image-manager/hooks/use-image-details/use
 import GlobalStore from '~/webview/image-manager/stores/global-store'
 import SettingsStore from '~/webview/image-manager/stores/settings-store'
 import { bytesToUnit, clearTimestamp, formatBytes } from '~/webview/image-manager/utils'
-import { ANIMATION_DURATION } from '~/webview/image-manager/utils/duration'
 import { getAppRoot } from '~/webview/utils'
 import { type LazyImageProps } from '../..'
 import ImageName from '../../../image-name'
@@ -251,7 +249,7 @@ function VisibleImage(props: VisibleImageProps) {
   )
 
   return (
-    <motion.div
+    <div
       data-image-context-menu={true}
       tabIndex={-1}
       className={classNames(
@@ -260,9 +258,6 @@ function VisibleImage(props: VisibleImageProps) {
         interactive && 'hover:border-ant-color-border',
         interactive && selected && 'border-ant-color-primary-hover hover:border-ant-color-primary-hover',
       )}
-      transition={{ duration: ANIMATION_DURATION.middle }}
-      initial={{ opacity: 0 }}
-      animate={{ opacity: 1 }}
       onContextMenu={(e) => onContextMenu?.(e, image)}
       onDoubleClick={(e) => {
         if (isMultipleSelecting(e)) return
@@ -314,7 +309,7 @@ function VisibleImage(props: VisibleImageProps) {
           </ImageName>
         )}
       </div>
-    </motion.div>
+    </div>
   )
 }
 

@@ -1,4 +1,4 @@
-import { flatten } from 'lodash-es'
+import { flatten } from 'es-toolkit'
 import {
   type BuiltinsWithOptionalParams,
   type BuiltinsWithRequiredParams,

@@ -1,6 +1,6 @@
 import deepMerge from 'deepmerge'
+import { trim } from 'es-toolkit'
 import fs from 'fs-extra'
-import { trim } from 'lodash-es'
 import path from 'node:path'
 import { type Config, loadConfig, optimize } from 'svgo'
 import { FileCache } from '~/core'

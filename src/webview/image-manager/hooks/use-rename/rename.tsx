@@ -1,7 +1,7 @@
 import { memo, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { Button, Form, type InputProps, Space } from 'antd'
-import { isString } from 'lodash-es'
+import { isString } from 'es-toolkit'
 import AutoFocusInput from '../../components/auto-focus-input'
 import { type ImperativeModalProps } from '../use-imperative-modal'
 
