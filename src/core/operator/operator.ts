@@ -10,7 +10,7 @@ import { CmdToVscode } from '~/message/cmd'
 import { generateOutputPath } from '~/utils'
 import { Channel } from '~/utils/channel'
 import logger from '~/utils/logger'
-import { Commander } from '../commander'
+import { commandCache } from '../commander'
 import { Config } from '../config'
 
 export type OperatorOptions = {
@@ -85,10 +85,6 @@ export abstract class Operator {
    * 操作之后的文件输出路径
    */
   abstract outputPath: string
-  /**
-   * 操作命令
-   */
-  public commander: Commander | null = null
 
   /**
    * 支持的文件扩展类型
@@ -161,7 +157,6 @@ export abstract class Operator {
    */
   async resolveResult(res: SetOptional<OperatorResult, 'id' | 'image'>): Promise<OperatorResult> {
     const id = `${res.filePath}~${nanoid()}`
-    this.commander = new Commander(id, this.undo.bind(this))
 
     const isSkiped = res.error instanceof SkipError
     const isLimited = res.error instanceof LimitError
@@ -172,7 +167,10 @@ export abstract class Operator {
     }
     if (res.inputBuffer) {
       this.inputBuffer = res.inputBuffer
-      this.addCommandCache()
+      commandCache.add({
+        id,
+        undo: this.undo.bind(this),
+      })
     }
 
     let image: ImageType
@@ -192,13 +190,6 @@ export abstract class Operator {
       image,
       inputBuffer: null, // 减少非必要的传输数据量
     }
-  }
-
-  /**
-   * 把撤销命令添加到缓存中
-   */
-  addCommandCache() {
-    this.commander?.addToCache.call(this.commander)
   }
 
   /**

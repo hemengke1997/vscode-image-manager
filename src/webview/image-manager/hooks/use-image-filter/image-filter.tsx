@@ -3,7 +3,7 @@ import { useTranslation } from 'react-i18next'
 import { useMemoizedFn } from 'ahooks'
 import { App, Button, ConfigProvider, Divider, Form, InputNumber, Segmented, Select, Space } from 'antd'
 import { isNil } from 'es-toolkit'
-import { defaultState } from '~/core/persist/workspace/common'
+import { DEFAULT_WORKSPACE_STATE } from '~/core/persist/workspace/common'
 import AlignColumn, { useColumnWidth } from '../../components/align-column'
 import AppearMotion from '../../components/align-column/components/appear-motion'
 import FilterStore from '../../stores/filter-store'
@@ -223,7 +223,7 @@ function ImageFilter(props: ImperativeModalProps) {
         <Button
           type='default'
           onClick={() => {
-            form.setFieldsValue(defaultState.image_filter)
+            form.setFieldsValue(DEFAULT_WORKSPACE_STATE.image_filter)
             form.submit()
           }}
         >

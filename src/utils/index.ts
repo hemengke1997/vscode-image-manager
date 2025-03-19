@@ -29,20 +29,6 @@ export function generateOutputPath(input: string, suffix: string) {
 }
 
 /**
- * 判断url是否合法
- * @param url
- * @returns
- */
-export function isValidHttpsUrl(url: string) {
-  try {
-    const urlObj = new URL(url)
-    return urlObj.protocol === 'https:'
-  } catch {
-    return false
-  }
-}
-
-/**
  * 首次立即执行定时器
  * @returns
  */

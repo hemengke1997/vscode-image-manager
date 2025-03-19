@@ -28,7 +28,7 @@ import { WorkspaceState } from '~/core/persist'
 import { type WorkspaceStateKey } from '~/core/persist/workspace/common'
 import { i18n } from '~/i18n'
 import { generateOutputPath, normalizePath, resolveDirPath } from '~/utils'
-import { controlledAbortPromise } from '~/utils/abort-promise'
+import { cancelablePromise } from '~/utils/abort-promise'
 import { Channel } from '~/utils/channel'
 import { convertImageToBase64, convertToBase64IfBrowserNotSupport, isBase64 } from '~/utils/image-type'
 import logger from '~/utils/logger'
@@ -134,7 +134,7 @@ export const VscodeMessageCenter = {
 
         // Browser doesn't support some exts, convert to png base64
         try {
-          vscodePath = (await convertToBase64IfBrowserNotSupport(image.path)) || vscodePath
+          vscodePath = (await convertToBase64IfBrowserNotSupport(image.path, Global.sharp)) || vscodePath
         } catch (e) {
           Channel.error(`${i18n.t('core.covert_base64_error')}: ${e}`)
         }
@@ -189,7 +189,7 @@ export const VscodeMessageCenter = {
 
     const start = performance.now()
     try {
-      const res = await controlledAbortPromise(
+      const res = await cancelablePromise.run(
         async () => {
           const data = await Promise.all(
             absWorkspaceFolders.map(async (workspaceFolder) => {
@@ -319,7 +319,7 @@ export const VscodeMessageCenter = {
     const { filePath } = data
 
     try {
-      return await convertImageToBase64(filePath)
+      return await convertImageToBase64(filePath, Global.sharp)
     } catch (e) {
       Channel.error(`${i18n.t('core.copy_base64_error')}: ${toString(e)}`)
       return ''
@@ -553,7 +553,7 @@ export const VscodeMessageCenter = {
   }) => {
     const { key, value, target } = data
 
-    await controlledAbortPromise(
+    await cancelablePromise.run(
       async () => {
         Global.isProgrammaticChangeConfig = true
         try {
@@ -581,7 +581,7 @@ export const VscodeMessageCenter = {
     value: U | undefined
   }) => {
     const { key, value } = data
-    await controlledAbortPromise(() => WorkspaceState.update(key, value), { key })
+    await cancelablePromise.run(() => WorkspaceState.update(key, value), { key })
     return true
   },
 

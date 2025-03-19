@@ -1,12 +1,10 @@
 import { toString } from 'es-toolkit/compat'
-import { type Commander } from '~/core/commander'
 import { i18n } from '~/i18n'
 import { Channel } from '~/utils/channel'
 import { Operator, type OperatorOptions, type OperatorResult } from '../operator'
 
 export abstract class Compressor extends Operator {
   public inputPath: string = ''
-  public commander: Commander | null = null
   public outputPath: string = ''
   public inputBuffer: Buffer | null = null
 

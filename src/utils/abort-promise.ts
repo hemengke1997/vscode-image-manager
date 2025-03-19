@@ -16,7 +16,7 @@ export class AbortError extends Error {
 }
 
 export async function abortPromise<T = any>(
-  promise: () => Promise<T>,
+  promiseFn: () => Promise<T>,
   options: {
     timeout?: number
     abortController: AbortController
@@ -26,7 +26,7 @@ export async function abortPromise<T = any>(
   const { timeout = Infinity, abortController, mock } = options
 
   try {
-    const res = await pTimeout<T>(mock ? delay(timeout) : promise(), {
+    const res = await pTimeout<T>(mock ? delay(timeout) : promiseFn(), {
       milliseconds: timeout,
       signal: abortController.signal,
     })
@@ -42,29 +42,35 @@ export async function abortPromise<T = any>(
   }
 }
 
-const abortPromiseMap = new Map<string, AbortController>()
-export async function controlledAbortPromise<T = any>(
-  promise: () => Promise<T>,
-  options: {
-    key: string
-    timeout?: number
-    mock?: boolean
-  },
-) {
-  const { key, timeout, mock } = options
+class CancelablePromise {
+  abortPromiseMap = new Map<string, AbortController>()
+  run = async <T = any>(
+    promiseFn: () => Promise<T>,
+    options: {
+      key: string
+      timeout?: number
+      mock?: boolean
+    },
+  ) => {
+    const { key, timeout, mock } = options
 
-  if (abortPromiseMap.has(key)) {
-    abortPromiseMap.get(key)?.abort()
+    if (this.abortPromiseMap.has(key)) {
+      this.abortPromiseMap.get(key)?.abort()
+    }
+
+    const controller = new AbortController()
+    this.abortPromiseMap.set(key, controller)
+
+    return abortPromise(promiseFn, {
+      timeout,
+      abortController: controller,
+      mock,
+    }).finally(() => {
+      this.abortPromiseMap.delete(key)
+    })
   }
-
-  const controller = new AbortController()
-  abortPromiseMap.set(key, controller)
-
-  return abortPromise(promise, {
-    timeout,
-    abortController: controller,
-    mock,
-  }).finally(() => {
-    abortPromiseMap.delete(key)
-  })
 }
+
+const cancelablePromise = new CancelablePromise()
+
+export { cancelablePromise }

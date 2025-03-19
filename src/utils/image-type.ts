@@ -1,25 +1,6 @@
 import fs from 'fs-extra'
 import mime from 'mime/lite'
 import path from 'node:path'
-import { Global } from '~/core'
-
-export function isPng(filePath: string) {
-  return isSomeImageType(filePath, ['png'])
-}
-
-export function isJpg(filePath: string) {
-  return isSomeImageType(filePath, ['jpg', 'jpeg'])
-}
-
-export function isTiff(filePath: string) {
-  return isSomeImageType(filePath, ['tiff', 'tif'])
-}
-
-function isSomeImageType(filePath: string, type: string[]) {
-  const ext = path.extname(filePath).toLowerCase()
-  if (!ext) return type.some((t) => t === filePath)
-  return type.some((t) => ext === `.${t}`)
-}
 
 /**
  * 判断是否为 base64
@@ -38,14 +19,14 @@ export function toBase64(mimetype: string, buffer: Buffer) {
 /**
  * 如果浏览器不支持展示某个格式，则转为 base64
  */
-export async function convertToBase64IfBrowserNotSupport(input: string) {
+export async function convertToBase64IfBrowserNotSupport(input: string, sharp: TSharp | undefined) {
   let mimetype = mime.getType(input)
 
   const notSupported = ['tiff'].map((t) => mime.getType(t))
   if (mimetype && notSupported.includes(mimetype)) {
     mimetype = mime.getType('png')!
     try {
-      const buffer = await Global.sharp!(input).png().toBuffer()
+      const buffer = await sharp!(input).png().toBuffer()
       return toBase64(mimetype, buffer)
     } catch {
       return input
@@ -56,10 +37,10 @@ export async function convertToBase64IfBrowserNotSupport(input: string) {
 /**
  * 图片转 base64
  */
-export async function convertImageToBase64(input: string) {
+export async function convertImageToBase64(input: string, sharp: TSharp | undefined) {
   let mimetype = mime.getType(input)
 
-  const base64 = await convertToBase64IfBrowserNotSupport(input)
+  const base64 = await convertToBase64IfBrowserNotSupport(input, sharp)
   if (base64) {
     return base64
   }

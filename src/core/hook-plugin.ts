@@ -1,4 +1,5 @@
 import { createHooks, type Hookable, type NestedHooks } from '@minko-fe/hookable'
+import { ensureArray } from '~/utils'
 
 const PluginIndicator = '__plugin_indicator__'
 
@@ -7,78 +8,71 @@ interface PluginMeta {
   enforce?: 'pre' | 'default' | 'post'
 }
 
-export interface ObjectPlugin<RuntimeHooks extends AnyObject = AnyObject> extends PluginMeta {
-  hooks: NestedHooks<RuntimeHooks>
-  /**
-   * Execute plugin in parallel with other parallel plugins.
-   * @default false
-   */
-  parallel?: boolean
+export interface ObjectPlugin<T extends AnyObject = AnyObject> extends PluginMeta {
+  hooks: NestedHooks<T>
 }
 
 export function defineOperatorPlugin(plugin: ObjectPlugin): ObjectPlugin {
   return Object.assign(plugin, { [PluginIndicator]: true } as const)
 }
 
-export class HookPlugin<RuntimeHooks extends AnyObject = AnyObject> {
-  private hooksMap: Map<string, Partial<RuntimeHooks>> = new Map()
-  hooks: Hookable<RuntimeHooks>
+export class HookPlugin<T extends AnyObject> {
+  pluginMap: Map<string, NestedHooks<T>> = new Map()
+  hooks: Hookable<T>
 
-  constructor(option?: { plugins: ObjectPlugin<RuntimeHooks>[] }) {
+  constructor(option?: { plugins: ObjectPlugin<T>[] }) {
     const { plugins } = option || {}
-    this.hooks = createHooks<RuntimeHooks>()
+    this.hooks = createHooks<T>()
     try {
       if (plugins?.length) {
-        this._applyPlugins(plugins as ObjectPlugin[])
+        this._applyPlugins(plugins as ObjectPlugin<T>[])
       }
     } catch {}
   }
 
-  use(plugins: ObjectPlugin[]) {
+  applyPlugins(plugins: ObjectPlugin<T>[]) {
     this._applyPlugins(plugins)
     return this
   }
 
-  remove(configHooks: Parameters<(typeof this.hooks)['removeHooks']>[0]) {
-    this.hooks.removeHooks(configHooks)
+  removePlugins(pluginName: string | string[]) {
+    const pluginNames = ensureArray(pluginName)
+
+    const pluginHooks = pluginNames.map((hook) => this.pluginMap.get(hook)).filter((t) => !!t)
+
+    pluginHooks.forEach((hooks) => {
+      this.hooks.removeHooks(hooks)
+    })
+    pluginNames.forEach((name) => {
+      this.pluginMap.delete(name)
+    })
+
     return this
   }
 
-  private async _applyPlugins(plugins: ObjectPlugin[]) {
-    const parallels: Promise<any>[] = []
-    const errors: Error[] = []
-
+  private _applyPlugins(plugins: ObjectPlugin<T>[]) {
     plugins = this._sortPlugins(plugins)
 
     for (const plugin of plugins) {
-      const promise = this._applyPlugin(plugin)
-      if (plugin.parallel) {
-        parallels.push(promise.catch((e) => errors.push(e)))
-      } else {
-        await promise
-      }
-    }
-    await Promise.all(parallels)
-    if (errors.length) {
-      throw errors[0]
+      this._applyPlugin(plugin)
     }
   }
 
-  private async _applyPlugin(plugin: ObjectPlugin) {
-    if (this.hooksMap.has(plugin.name)) {
-      this.remove(this.hooksMap.get(plugin.name)!)
-      this.hooksMap.delete(plugin.name)
+  private _applyPlugin(plugin: ObjectPlugin<T>) {
+    if (this.pluginMap.has(plugin.name)) {
+      this.removePlugins(plugin.name)
     }
+
     if (plugin.hooks) {
       this.hooks.addHooks(plugin.hooks)
-      this.hooksMap.set(plugin.name, plugin.hooks)
+      this.pluginMap.set(plugin.name, plugin.hooks)
     }
   }
 
-  private _sortPlugins(plugins: ObjectPlugin[]) {
-    const prePlugins: ObjectPlugin[] = []
-    const postPlugins: ObjectPlugin[] = []
-    const normalPlugins: ObjectPlugin[] = []
+  private _sortPlugins(plugins: ObjectPlugin<T>[]) {
+    const prePlugins: ObjectPlugin<T>[] = []
+    const postPlugins: ObjectPlugin<T>[] = []
+    const normalPlugins: ObjectPlugin<T>[] = []
 
     plugins.forEach((plugin) => {
       if (plugin.enforce === 'pre') {

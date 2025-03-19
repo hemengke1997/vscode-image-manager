@@ -1,18 +1,14 @@
 import logger from '~/utils/logger'
 
-export class Commander {
+class Commander {
   constructor(
     public id: string,
     public undo: () => Promise<void>,
   ) {}
-
-  addToCache(): void {
-    commandCache.add(this)
-  }
 }
 
 class Cache {
-  private cache: Map<string, Commander>
+  cache: Map<string, Commander>
 
   constructor() {
     this.cache = new Map<string, Commander>()
@@ -21,25 +17,27 @@ class Cache {
   /**
    * 添加Commander到缓存
    */
-  add(commander: Commander): void {
+  add = (commander: Commander) => {
     this.cache.set(commander.id, commander)
     logger.debug('add commander to cache:', commander.id)
+    return this
   }
 
   /**
    * 从缓存中删除Commander
    */
-  remove(id: string): void {
+  remove = (id: string) => {
     if (this.cache.has(id)) {
       this.cache.delete(id)
       logger.debug(`Commander with id ${id} removed from cache`)
     }
+    return this
   }
 
   /**
    * 清空缓存
    */
-  clear(): void {
+  clear = () => {
     this.cache.clear()
     this.cache = new Map<string, Commander>()
     logger.debug('Commander cache cleared')
@@ -48,7 +46,7 @@ class Cache {
   /**
    * 执行Commander的undo方法，并在成功后删除缓存
    */
-  async executeUndo(id: string): Promise<void> {
+  executeUndo = async (id: string): Promise<void> => {
     const commander = this.cache.get(id)
     if (commander) {
       try {

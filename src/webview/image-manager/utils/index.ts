@@ -78,10 +78,10 @@ export function findSameWorkspaceImages(image: ImageType, imageList: ImageType[]
 }
 
 /**
- * 事件只执行一次
+ * 防抖，让事件只执行一次
  */
 export function triggerOnce<T extends (...args: any[]) => any>(fn: T) {
-  return debounce(fn, Number.MAX_SAFE_INTEGER, { immediate: true })
+  return debounce(fn, 0, { immediate: true })
 }
 
 /**

@@ -3,10 +3,10 @@ import { type Webview } from 'vscode'
 import { Global } from '~/core'
 import { EXT_NAMESPACE } from '~/meta'
 import { ImageManagerPanel } from '~/webview/panel'
-import { defaultState, type WorkspaceStateKey, type WorkspaceStateType } from './common'
+import { DEFAULT_WORKSPACE_STATE, type WorkspaceStateKey, type WorkspaceStateType } from './common'
 
 export class WorkspaceState {
-  static readonly defaultState = defaultState
+  static readonly DEFAULT_WORKSPACE_STATE = DEFAULT_WORKSPACE_STATE
   public static webview: Webview | undefined
 
   static init() {
@@ -36,7 +36,7 @@ export class WorkspaceState {
    * @returns 当前正在使用的 workspaceState
    */
   static keys() {
-    return Object.keys(this.defaultState) as WorkspaceStateKey[]
+    return Object.keys(this.DEFAULT_WORKSPACE_STATE) as WorkspaceStateKey[]
   }
 
   static get_all() {
@@ -53,7 +53,7 @@ export class WorkspaceState {
   }
 
   static get<T extends WorkspaceStateKey>(key: T) {
-    return Global.context.workspaceState.get(`${EXT_NAMESPACE}.${key}`, get(this.defaultState, key))
+    return Global.context.workspaceState.get(`${EXT_NAMESPACE}.${key}`, get(this.DEFAULT_WORKSPACE_STATE, key))
   }
 
   static clear(): Promise<void[]> {

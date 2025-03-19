@@ -45,7 +45,7 @@ export type WorkspaceStateType = {
   show_cut_tip: boolean
 }
 
-export const defaultState: WorkspaceStateType = {
+export const DEFAULT_WORKSPACE_STATE: WorkspaceStateType = {
   image_filter: {
     size: {
       min: null,

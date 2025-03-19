@@ -53,7 +53,7 @@
     "type-check": "tsc --noEmit",
     "eslint": "eslint . --fix",
     "commitlint": "commitlint -e",
-    "lint-staged": "tsc --noEmit && lint-staged",
+    "lint-staged": "run-p type-check test && lint-staged",
     "up": "taze -I -w",
     "build:i18n": "tsx scripts/build-i18n",
     "download-sharp-releases": "tsx scripts/download-sharp-releases",
@@ -263,6 +263,7 @@
         },
         "image-manager.file.root": {
           "type": "array",
+          "default": [],
           "items": {
             "type": "string"
           },
@@ -385,11 +386,6 @@
           "type": "number",
           "default": 0,
           "description": "%pkg.viewer.warningSize%"
-        },
-        "image-manager.viewer.showCompressedIcon": {
-          "type": "boolean",
-          "default": true,
-          "description": "%pkg.viewer.showCompressedIcon%"
         },
         "image-manager.viewer.imageWidth": {
           "type": "number",

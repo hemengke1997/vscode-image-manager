@@ -27,7 +27,6 @@
     },
     viewer: {
       warningSize: '如果圖片大小大於此值 (KB)，則圖片右上角顯示警告圖標。值為0時不顯示',
-      showCompressedIcon: '圖片右下角顯示已壓縮圖標',
       imageWidth: '圖片寬度 (px)',
       imageBackgroundColor: '圖片背景色',
       imageRendering: 'image rendering',
