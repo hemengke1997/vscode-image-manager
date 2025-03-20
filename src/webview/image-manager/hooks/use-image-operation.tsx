@@ -228,15 +228,18 @@ function useImageOperation() {
     ) => {
       const { recursive } = options
       return new Promise<boolean>((resolve) => {
-        vscodeApi.postMessage({ cmd: CmdToVscode.delete_file, data: { filePaths, recursive } }, (res) => {
-          if (res) {
-            message.success(t('im.delete_success'))
-            resolve(true)
-          } else {
-            message.error(t('im.delete_failed'))
-            resolve(false)
-          }
-        })
+        vscodeApi.postMessage(
+          { cmd: CmdToVscode.delete_file, data: { filePaths, recursive, useTrash: true } },
+          (res) => {
+            if (res) {
+              message.success(t('im.delete_success'))
+              resolve(true)
+            } else {
+              message.error(t('im.delete_failed'))
+              resolve(false)
+            }
+          },
+        )
       })
     },
   )

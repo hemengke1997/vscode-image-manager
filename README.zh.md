@@ -18,6 +18,10 @@
 
 <video src="https://github.com/user-attachments/assets/a75c4c88-25b8-4bb3-bf3b-94bc2c917b66"></video>
 
+## 视频介绍
+
+Bilibili 上有完整的视频，[点击这里](https://www.bilibili.com/video/BV15SQaYnEeJ)
+
 ## 截图
 
 ### 概览

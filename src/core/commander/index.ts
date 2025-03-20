@@ -1,23 +1,31 @@
 import logger from '~/utils/logger'
 
-class Commander {
+class Commander<T> {
+  details: T = {} as T
   constructor(
     public id: string,
     public undo: () => Promise<void>,
   ) {}
 }
 
-class Cache {
-  cache: Map<string, Commander>
+export class CommanderCache<T> {
+  cache: Map<string, Commander<T>>
 
   constructor() {
-    this.cache = new Map<string, Commander>()
+    this.cache = new Map<string, Commander<T>>()
+  }
+
+  /**
+   * 获取Commander缓存
+   */
+  get = (id: string) => {
+    return this.cache.get(id)
   }
 
   /**
    * 添加Commander到缓存
    */
-  add = (commander: Commander) => {
+  add = (commander: Commander<T>) => {
     this.cache.set(commander.id, commander)
     logger.debug('add commander to cache:', commander.id)
     return this
@@ -39,7 +47,7 @@ class Cache {
    */
   clear = () => {
     this.cache.clear()
-    this.cache = new Map<string, Commander>()
+    this.cache = new Map<string, Commander<T>>()
     logger.debug('Commander cache cleared')
   }
 
@@ -60,4 +68,7 @@ class Cache {
   }
 }
 
-export const commandCache = new Cache()
+export const commandCache = new CommanderCache<{
+  inputBuffer: Buffer | null
+  inputPath: string
+}>()

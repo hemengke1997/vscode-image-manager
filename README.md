@@ -19,6 +19,9 @@ Please read the [documentation](https://hemengke1997.github.io/vscode-image-mana
 
 <video src="https://github.com/user-attachments/assets/a75c4c88-25b8-4bb3-bf3b-94bc2c917b66"></video>
 
+## Introduction Video
+
+There is full introduction video on Bilibili, [click here](https://www.bilibili.com/video/BV15SQaYnEeJ)
 
 ## Screenshot
 

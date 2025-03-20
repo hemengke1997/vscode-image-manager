@@ -5,6 +5,7 @@ import { PiSpinnerGapLight } from 'react-icons/pi'
 import { RiFilterOffLine } from 'react-icons/ri'
 import { VscCaseSensitive, VscWholeWord } from 'react-icons/vsc'
 import { useDebounceFn, useMemoizedFn, useUpdateEffect } from 'ahooks'
+import { type ImperativeModalProps } from 'ahooks-x/use-imperative-antd-modal'
 import { Empty, Input, Tooltip } from 'antd'
 import { type InputRef } from 'antd/es/input'
 import { without } from 'es-toolkit'
@@ -17,7 +18,6 @@ import { vscodeApi } from '~/webview/vscode-api'
 import ImageGroup from '../../components/image-group'
 import GlobalStore from '../../stores/global-store'
 import useImageManagerEvent, { IMEvent } from '../use-image-manager-event'
-import { type ImperativeModalProps } from '../use-imperative-modal'
 
 function ImageSearch(props: ImperativeModalProps) {
   const { closeModal } = props

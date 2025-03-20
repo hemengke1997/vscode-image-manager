@@ -1,6 +1,7 @@
 import { memo } from 'react'
 import { useTranslation } from 'react-i18next'
 import { useMemoizedFn } from 'ahooks'
+import { type ImperativeModalProps } from 'ahooks-x/use-imperative-antd-modal'
 import { Button, Checkbox, Form, Space } from 'antd'
 import { Key } from 'ts-key-enum'
 import { os } from 'un-detector'
@@ -8,7 +9,6 @@ import { ConfigKey } from '~/core/config/common'
 import { useExtConfigState } from '~/webview/image-manager/hooks/use-ext-config-state'
 import AutoFocusButton from '../../components/auto-focus-button'
 import GlobalStore from '../../stores/global-store'
-import { type ImperativeModalProps } from '../use-imperative-modal'
 
 type Props = {
   filenames: string

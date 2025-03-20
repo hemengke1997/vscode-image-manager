@@ -1,13 +1,13 @@
 import { memo } from 'react'
 import { useTranslation } from 'react-i18next'
 import { useMemoizedFn } from 'ahooks'
+import { type ImperativeModalProps } from 'ahooks-x/use-imperative-antd-modal'
 import { App, Button, ConfigProvider, Divider, Form, InputNumber, Segmented, Select, Space } from 'antd'
 import { isNil } from 'es-toolkit'
 import { DEFAULT_WORKSPACE_STATE } from '~/core/persist/workspace/common'
 import AlignColumn, { useColumnWidth } from '../../components/align-column'
 import AppearMotion from '../../components/align-column/components/appear-motion'
 import FilterStore from '../../stores/filter-store'
-import { type ImperativeModalProps } from '../use-imperative-modal'
 import DisplayType from './components/display-type'
 
 export const enum FilterRadioValue {

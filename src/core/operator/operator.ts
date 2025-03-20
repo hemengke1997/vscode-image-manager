@@ -23,7 +23,7 @@ export type OperatorOptions = {
 
 type NativeOperatorResult = {
   /**
-   * 操作id
+   * 操作id（也是commander的id）
    */
   id: string
   /**
@@ -74,7 +74,7 @@ export abstract class Operator {
   public image: ImageType = {} as ImageType
 
   /**
-   * 原文件路径 (同时作为操作id)
+   * 原文件路径
    */
   abstract inputPath: string
   /**
@@ -131,7 +131,7 @@ export abstract class Operator {
       if (this.option.keepOriginal) {
         // 删除新增的文件
         if (fs.existsSync(this.outputPath)) {
-          await this.trashFile(this.outputPath, { useTrash: false })
+          await this.deleteFile(this.outputPath, { useTrash: false })
         } else {
           throw new Error(i18n.t('core.file_not_exist'))
         }
@@ -141,7 +141,7 @@ export abstract class Operator {
         // 否则需要删除新增文件
         if (this.inputPath !== this.outputPath) {
           if (fs.existsSync(this.outputPath)) {
-            await this.trashFile(this.outputPath, { useTrash: false })
+            await this.deleteFile(this.outputPath, { useTrash: false })
           } else {
             throw new Error(i18n.t('core.file_not_exist'))
           }
@@ -170,6 +170,10 @@ export abstract class Operator {
       commandCache.add({
         id,
         undo: this.undo.bind(this),
+        details: {
+          inputBuffer: this.inputBuffer,
+          inputPath: this.inputPath,
+        },
       })
     }
 
@@ -248,7 +252,7 @@ export abstract class Operator {
   /**
    * 删除文件
    */
-  async trashFile(
+  async deleteFile(
     filePath: string,
     options?: {
       useTrash?: boolean

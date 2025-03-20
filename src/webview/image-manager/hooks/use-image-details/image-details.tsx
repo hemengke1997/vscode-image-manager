@@ -1,13 +1,13 @@
 import { memo, useMemo } from 'react'
 import { useTranslation } from 'react-i18next'
 import { HiOutlineViewfinderCircle } from 'react-icons/hi2'
+import { type ImperativeModalProps } from 'ahooks-x/use-imperative-antd-modal'
 import { Button, Descriptions, type DescriptionsProps, Tooltip } from 'antd'
 import dayjs from 'dayjs'
 import { Compressed } from '~/enums'
 import { CmdToVscode } from '~/message/cmd'
 import { vscodeApi } from '~/webview/vscode-api'
 import { formatBytes } from '../../utils'
-import { type ImperativeModalProps } from '../use-imperative-modal'
 
 type Props = {
   image: ImageType

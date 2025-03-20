@@ -1,11 +1,14 @@
 import { type Key, memo, type ReactNode, useMemo, useState } from 'react'
+import { useTranslation } from 'react-i18next'
 import { GiJumpingDog } from 'react-icons/gi'
 import { MdErrorOutline } from 'react-icons/md'
 import { TbFileUnknown } from 'react-icons/tb'
 import { VscSmiley, VscWarning } from 'react-icons/vsc'
 import { useMemoizedFn, useUpdateEffect } from 'ahooks'
-import { Collapse, Tooltip } from 'antd'
+import { type ImperativeModalProps } from 'ahooks-x/use-imperative-antd-modal'
+import { App, Collapse, Tooltip } from 'antd'
 import { ceil } from 'es-toolkit/compat'
+import { produce } from 'immer'
 import { type OperatorResult } from '~/core'
 import { ConfigKey } from '~/core/config/common'
 import { CmdToVscode } from '~/message/cmd'
@@ -13,13 +16,14 @@ import ImageGroup, { type imageGroupProps } from '~/webview/image-manager/compon
 import { useExtConfigState } from '~/webview/image-manager/hooks/use-ext-config-state'
 import GlobalStore from '~/webview/image-manager/stores/global-store'
 import { vscodeApi } from '~/webview/vscode-api'
-import { type ImperativeModalProps } from '../../use-imperative-modal'
 import { type OnEndOptionsType, useOperatorModalLogic } from '../../use-operator-modal-logic/use-operator-modal-logic'
 import useScrollRef from '../../use-scroll-ref'
+import CompareAction from './components/compare-action'
 import ImageCard from './components/image-card'
 import RedoAction from './components/redo-action'
 import SizeChange from './components/size-change'
 import UndoAction from './components/undo-action'
+import useCompareImage from './hooks/use-compare-image/use-compare-image'
 
 export type Group = 'limited' | 'skiped' | 'increase' | 'decrease' | 'error'
 
@@ -34,8 +38,12 @@ export type OperationResultProps = {
 function OperationResult(props: OperationResultProps & ImperativeModalProps) {
   const { results: resultsProp, onUndoClick, onRedoClick, closeModal } = props
 
+  const { t } = useTranslation()
+  const { imageWidth } = GlobalStore.useStore(['imageWidth'])
   const _errorRange = GlobalStore.useStore((ctx) => ctx.extConfig.compression.errorRange)
   const [errorRange, setErrorRange] = useExtConfigState(ConfigKey.compression_errorRange, _errorRange, [])
+
+  const { message } = App.useApp()
 
   const { scrollRef } = useScrollRef()
 
@@ -91,6 +99,43 @@ function OperationResult(props: OperationResultProps & ImperativeModalProps) {
     setResults((prev) => prev.filter((t) => !items.some((item) => item.id === t.id)))
   })
 
+  const [showImageComparison] = useCompareImage()
+
+  const [comparisonCache, setComparisonCache] = useState<Map<string, string>>(new Map())
+
+  const onCompareAction = useMemoizedFn(async (item: OperatorResult) => {
+    const props = {
+      newImage: item.image.vscodePath,
+      imageWidth: item.image.info.metadata.width || imageWidth,
+    }
+    const cachedBase64 = comparisonCache.get(item.id)
+    if (cachedBase64) {
+      showImageComparison({
+        oldImage: cachedBase64,
+        ...props,
+      })
+    } else {
+      // 发送命令，将对应commander缓存中的inputBuffer转为base64，并获取结果
+      vscodeApi.postMessage(
+        {
+          cmd: CmdToVscode.get_cmd_cache_inputBuffer_as_base64,
+          data: { id: item.id },
+        },
+        (res) => {
+          if (res) {
+            setComparisonCache(produce((draft) => draft.set(item.id, res)))
+            showImageComparison({
+              oldImage: res,
+              ...props,
+            })
+          } else {
+            message.error(t('im.get_compare_error'))
+          }
+        },
+      )
+    }
+  })
+
   const imageGroupProps: Omit<imageGroupProps, 'images'> = useMemo(
     () => ({
       lazyImageProps: {
@@ -125,7 +170,7 @@ function OperationResult(props: OperationResultProps & ImperativeModalProps) {
           <ImageGroup
             {...imageGroupProps}
             images={groups.decrease.map((t) => t.image)}
-            renderer={(lazyImage, image) => (
+            renderer={(imageNode, image) => (
               <ImageCard
                 actions={[
                   <UndoAction
@@ -134,8 +179,12 @@ function OperationResult(props: OperationResultProps & ImperativeModalProps) {
                       onUndoAction([findCorrespondingResult(groups.decrease, image)])
                     }}
                   />,
+                  <CompareAction
+                    key={'compare'}
+                    onClick={() => onCompareAction(findCorrespondingResult(groups.decrease, image))}
+                  />,
                 ]}
-                cover={lazyImage}
+                cover={imageNode}
               >
                 <div className={'flex flex-col items-center'}>
                   <SizeChange
@@ -170,6 +219,10 @@ function OperationResult(props: OperationResultProps & ImperativeModalProps) {
                     onClick={() => {
                       onUndoAction([findCorrespondingResult(groups.increase, image)])
                     }}
+                  />,
+                  <CompareAction
+                    key={'compare'}
+                    onClick={() => onCompareAction(findCorrespondingResult(groups.increase, image))}
                   />,
                 ]}
                 cover={lazyImage}

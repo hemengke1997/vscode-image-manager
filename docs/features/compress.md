@@ -31,9 +31,21 @@ Click the `svgo config` button to configure `svgo` compression options. Refer to
 
 After compression, a popup will display the compression results as shown above.
 
+## View Image Differences
+
+Click the `Compare` button to view the differences between the original and compressed images.
+
+![Compare Button](./images/compare-button.png)
+
+You can drag the separator to view the differences between the original and compressed images. Drag left to display the original image and right to display the compressed image. You can also use the mouse wheel to zoom in and out.
+
+![Diff](./images/compare-image.png)
+
 ### Undo Compression
 
 If you are not satisfied with the compression results, click the `Undo` button to restore the original image.
+
+![Undo](./images/revert-image.png)
 
 ### Error Range
 

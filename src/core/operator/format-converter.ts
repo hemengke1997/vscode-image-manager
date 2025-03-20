@@ -104,7 +104,7 @@ export class FormatConverter extends Operator {
             },
             'after:run': async ({ runtime: { filePath, isLast } }) => {
               if (!this.option.keepOriginal) {
-                isLast && (await this.trashFile(filePath))
+                isLast && (await this.deleteFile(filePath))
               }
             },
             'on:generate-output-path': ({ runtime: { ext, filePath } }) => {

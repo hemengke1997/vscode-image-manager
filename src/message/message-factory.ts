@@ -30,7 +30,7 @@ import { i18n } from '~/i18n'
 import { generateOutputPath, normalizePath, resolveDirPath } from '~/utils'
 import { cancelablePromise } from '~/utils/abort-promise'
 import { Channel } from '~/utils/channel'
-import { convertImageToBase64, convertToBase64IfBrowserNotSupport, isBase64 } from '~/utils/image-type'
+import { convertImageToBase64, convertToBase64IfBrowserNotSupport, isBase64, toBase64 } from '~/utils/image-type'
 import logger from '~/utils/logger'
 import { ImageManagerPanel } from '~/webview/panel'
 import { CmdToVscode } from './cmd'
@@ -437,6 +437,25 @@ export const VscodeMessageCenter = {
   /* ------- clear operation command cache ------ */
   [CmdToVscode.clear_operation_cmd_cache]: async () => {
     commandCache.clear()
+  },
+
+  /* ---------------- 获取操作缓存 ---------------- */
+  [CmdToVscode.get_operation_cmd_cache]: (data: { ids: string[] }) => {
+    const { ids } = data
+    return ids.map((id) => commandCache.get(id))
+  },
+
+  /* --------- 把缓存中的inputBuffer转为base64 --------- */
+  [CmdToVscode.get_cmd_cache_inputBuffer_as_base64]: (data: { id: string }) => {
+    const cache = VscodeMessageCenter[CmdToVscode.get_operation_cmd_cache]({ ids: [data.id] })[0]
+    const { details } = cache || {}
+    if (details?.inputBuffer) {
+      const mimeType = mime.getType(details.inputPath)
+      if (mimeType) {
+        return toBase64(mimeType, details.inputBuffer)
+      }
+    }
+    return null
   },
 
   /* -------- match glob with micromatch -------- */

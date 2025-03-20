@@ -22,10 +22,11 @@ import TitleIconUI from '../title-icon-UI'
 
 function Viewer() {
   const { t } = useTranslation()
-  const { imageState, setTreeData, setViewerHeaderStickyHeight } = GlobalStore.useStore([
+  const { imageState, setTreeData, setViewerHeaderStickyHeight, setImageWidth } = GlobalStore.useStore([
     'imageState',
     'setTreeData',
     'setViewerHeaderStickyHeight',
+    'setImageWidth',
   ])
 
   const { imageFilter } = FilterStore.useStore(['imageFilter'])
@@ -48,7 +49,14 @@ function Viewer() {
   )
 
   /* ---------------- image scale --------------- */
-  const [containerRef] = useWheelScaleEvent()
+  const [containerRef] = useWheelScaleEvent({
+    setImageWidth,
+    beforeScale(container) {
+      return !!container?.contains(document.activeElement)
+    },
+    min: 30,
+    max: 600,
+  })
 
   /* --------------- header sticky -------------- */
   const stickyRef = useRef<HTMLDivElement>(null)

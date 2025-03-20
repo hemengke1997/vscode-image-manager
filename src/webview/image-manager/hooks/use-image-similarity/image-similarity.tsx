@@ -1,6 +1,7 @@
 import { memo, useMemo } from 'react'
 import { useTranslation } from 'react-i18next'
 import { useControlledState } from 'ahooks-x'
+import { type ImperativeModalProps } from 'ahooks-x/use-imperative-antd-modal'
 import { Card, Divider, Empty } from 'antd'
 import { remove } from 'es-toolkit'
 import { produce } from 'immer'
@@ -8,7 +9,6 @@ import useScrollRef from '~/webview/image-manager/hooks/use-scroll-ref'
 import ImageGroup from '../../components/image-group'
 import { type ImageOperatorProps } from '../../components/image-operator'
 import useImageManagerEvent, { IMEvent } from '../use-image-manager-event'
-import { type ImperativeModalProps } from '../use-imperative-modal'
 
 export type ImageSimilarityProps = Omit<ImageOperatorProps, 'images'> & {
   /**

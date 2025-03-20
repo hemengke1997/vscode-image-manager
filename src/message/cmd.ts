@@ -58,6 +58,10 @@ export const enum CmdToVscode {
   remove_operation_cmd_cache = 'remove_operation_cmd_cache',
   // 清空操作缓存
   clear_operation_cmd_cache = 'clear_operation_cmd_cache',
+  // 获取操作缓存
+  get_operation_cmd_cache = 'get_operation_cmd_cache',
+  // 把缓存中的inputBuffer转为base64
+  get_cmd_cache_inputBuffer_as_base64 = 'get_cmd_cache_inputBuffer_as_base64',
   // 匹配
   micromatch_ismatch = 'micromatch_ismatch',
   // 保存裁剪后的图片

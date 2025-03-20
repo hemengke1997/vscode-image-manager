@@ -107,7 +107,7 @@ export class UsualCompressor extends Compressor {
             },
             'after:run': async ({ runtime: { filePath } }) => {
               if (!this.option.keepOriginal) {
-                await this.trashFile(filePath)
+                await this.deleteFile(filePath)
               }
             },
             'on:generate-output-path': async ({

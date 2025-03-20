@@ -1,9 +1,9 @@
 import { memo, useState } from 'react'
 import { useTranslation } from 'react-i18next'
+import { type ImperativeModalProps } from 'ahooks-x/use-imperative-antd-modal'
 import { Button, Form, type InputProps, Space } from 'antd'
 import { isString } from 'es-toolkit'
 import AutoFocusInput from '../../components/auto-focus-input'
-import { type ImperativeModalProps } from '../use-imperative-modal'
 
 type Props = {
   /**

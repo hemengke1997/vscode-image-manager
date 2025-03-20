@@ -1,0 +1,10 @@
+.slider {
+  :global {
+    .__rcs-handle-button {
+      @apply h-[32px] w-[32px] gap-[6px] !important;
+      .__rcs-handle-arrow {
+        @apply border-b-[4px] border-r-[6px] border-t-[4px] !important;
+      }
+    }
+  }
+}

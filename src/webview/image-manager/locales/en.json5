@@ -202,6 +202,9 @@
     paste_failed: 'Paste Failed',
     cut_tip: 'Press ESC to cancel cut',
     no_sharp: 'Missing necessary dependencies, unable to use compression, format conversion, find similar images, etc.',
+    compare: 'Compare',
+    diff_tip: 'Drag the slider to compare image differences: drag left to show the original image, drag right to show the processed image',
+    get_compare_error: 'Failed to get comparison image',
   },
   fallback: {
     internal_error: 'Internal Error',

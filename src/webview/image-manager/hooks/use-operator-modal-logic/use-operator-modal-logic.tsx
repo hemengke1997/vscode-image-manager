@@ -54,6 +54,7 @@ export function useOperatorModalLogic() {
       resultsRef.current = undefined
     },
   })
+
   const onCompressEnd = useMemoizedFn((results: OperatorResult[], options: OnEndOptionsType) => {
     showImageOperationResult({
       results,

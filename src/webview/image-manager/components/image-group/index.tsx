@@ -427,7 +427,7 @@ function ImageGroup(props: imageGroupProps, ref: ForwardedRef<HTMLDivElement>) {
       onVisibleChange: handleVisibleChange,
       maxScale: 50,
       minScale: 0.1,
-      scaleStep: 0.3,
+      scaleStep: 0.05,
       imageRender: handleImageRender,
       onTransform: handleTransform,
     }),

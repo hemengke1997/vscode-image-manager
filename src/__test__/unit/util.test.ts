@@ -3,7 +3,7 @@ import { mapValues } from 'es-toolkit'
 import { flatten } from 'flat'
 import { beforeEach, describe, expect, expectTypeOf, it, vi } from 'vitest'
 import pkgJson from '~root/package.json'
-import { commandCache } from '~/core/commander'
+import { CommanderCache } from '~/core/commander'
 import { type ConfigType, DEFAULT_CONFIG } from '~/core/config/common'
 import { HookPlugin } from '~/core/hook-plugin'
 import { DEFAULT_WORKSPACE_STATE, type WorkspaceStateType } from '~/core/persist/workspace/common'
@@ -302,6 +302,7 @@ describe('Hook Plugin', () => {
 })
 
 describe('Cache Commander', () => {
+  const commandCache = new CommanderCache()
   beforeEach(() => {
     commandCache.clear()
   })
@@ -310,6 +311,7 @@ describe('Cache Commander', () => {
     commandCache.add({
       id: 'test',
       undo: async () => {},
+      details: {},
     })
 
     expect(commandCache.cache.size).toBe(1)
@@ -319,6 +321,7 @@ describe('Cache Commander', () => {
     commandCache.add({
       id: 'test',
       undo: async () => {},
+      details: {},
     })
 
     commandCache.remove('test')
@@ -329,6 +332,7 @@ describe('Cache Commander', () => {
     commandCache.add({
       id: 'test',
       undo: async () => {},
+      details: {},
     })
 
     commandCache.clear()
@@ -340,10 +344,21 @@ describe('Cache Commander', () => {
     commandCache.add({
       id: 'test',
       undo,
+      details: {},
     })
 
     await commandCache.executeUndo('test')
     expect(undo).toBeCalledTimes(1)
     expect(commandCache.cache.size).toBe(0)
+  })
+
+  it('should get cache', () => {
+    commandCache.add({
+      id: 'test',
+      undo: async () => {},
+      details: {},
+    })
+
+    expect(commandCache.get('test')).toBeTruthy()
   })
 })

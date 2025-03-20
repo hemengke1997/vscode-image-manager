@@ -202,6 +202,9 @@
     paste_failed: '粘贴失败',
     cut_tip: '按 ESC 取消剪切',
     no_sharp: '缺少必要依赖，无法使用压缩、转化格式、查找相似图片等功能',
+    compare: '对比',
+    diff_tip: '拖动滑块对比图片差异：左拖显示原始图片，右拖显示处理后图片',
+    get_compare_error: '获取对比图片失败',
   },
   fallback: {
     internal_error: '内部错误',
