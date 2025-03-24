@@ -174,7 +174,6 @@ export class Installer {
             throw new Error(errMsg)
           }
         } finally {
-          console.log('fffff')
           // 隐藏左下角状态栏
           this._hideStatusBar()
         }
