@@ -1,6 +1,7 @@
 import { useTranslation } from 'react-i18next'
 import { useMemoizedFn } from 'ahooks'
-import useImperativeModal, { imperativeModalMap } from '../use-imperative-modal'
+import { imperativeModalMap } from 'ahooks-x/use-imperative-antd-modal'
+import useImperativeModal from '../use-imperative-modal'
 import ImageSearch from './image-search'
 
 /**

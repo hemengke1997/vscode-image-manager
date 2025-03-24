@@ -132,7 +132,7 @@ function ImageManager() {
       }
       case CmdToWebview.reveal_image_in_viewer: {
         logger.debug('reveal_image_in_viewer', data.imagePath)
-        beginRevealInViewer(data.imagePath)
+        beginRevealInViewer([data.imagePath])
         break
       }
       default:

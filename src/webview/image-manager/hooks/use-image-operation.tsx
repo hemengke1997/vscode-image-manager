@@ -49,11 +49,10 @@ const UndoMessageContent = (props: { list: string[]; title: ReactNode }) => {
  * 压缩、格式转换、裁剪、查找相似图片、删除、重命名、撤销、拷贝、剪切、粘贴等
  */
 function useImageOperation() {
-  const { compressor, formatConverter, extConfig, setImageReveal } = GlobalStore.useStore([
+  const { compressor, formatConverter, extConfig } = GlobalStore.useStore([
     'compressor',
     'formatConverter',
     'extConfig',
-    'setImageReveal',
   ])
   const { notification, message } = App.useApp()
   const { t } = useTranslation()
@@ -494,9 +493,8 @@ function useImageOperation() {
    * 在图片查看器中打开图片
    */
   const beginRevealInViewer = useMemoizedFn((imagePaths: string[]) => {
+    imageManagerEvent.emit(IMEvent.clear_selected_images)
     imageManagerEvent.emit(IMEvent.reveal_in_viewer, imagePaths)
-    clearSelectedImages()
-    setImageReveal(imagePaths)
   })
 
   // 撤销操作
@@ -542,17 +540,15 @@ function useImageOperation() {
     })
   })
 
-  const { handleCopy, handlePaste, handleCut, setImageCopied, imageCopied, clearSelectedImages, fileTip, setFileTip } =
-    FileStore.useStore([
-      'handleCopy',
-      'handlePaste',
-      'handleCut',
-      'setImageCopied',
-      'imageCopied',
-      'clearSelectedImages',
-      'fileTip',
-      'setFileTip',
-    ])
+  const { handleCopy, handlePaste, handleCut, setImageCopied, imageCopied, fileTip, setFileTip } = FileStore.useStore([
+    'handleCopy',
+    'handlePaste',
+    'handleCut',
+    'setImageCopied',
+    'imageCopied',
+    'fileTip',
+    'setFileTip',
+  ])
 
   const beginCopyProcess = useMemoizedFn((images: ImageType[]) => {
     if (!images.length) return
@@ -665,7 +661,6 @@ function useImageOperation() {
       }
       return t
     })
-    clearSelectedImages()
   })
 
   return {

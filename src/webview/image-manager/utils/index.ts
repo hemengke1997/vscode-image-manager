@@ -93,3 +93,18 @@ export function clearTimestamp(path: string | undefined) {
   if (index !== -1) return path.slice(0, index)
   return path
 }
+
+/**
+ * 判断元素是否完整在视窗内
+ */
+export function isElInViewport(el: HTMLElement | null) {
+  if (el) {
+    const rect = el.getBoundingClientRect()
+    const windowHeight = window.innerHeight || document.documentElement.clientHeight
+    const windowWidth = window.innerWidth || document.documentElement.clientWidth
+    const isInViewport = rect.top >= 0 && rect.left >= 0 && rect.bottom <= windowHeight && rect.right <= windowWidth
+    return isInViewport
+  }
+
+  return false
+}

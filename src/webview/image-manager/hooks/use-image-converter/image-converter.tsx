@@ -15,7 +15,6 @@ import Format from '../../components/image-operator/components/format'
 import KeepOriginal from '../../components/image-operator/components/keep-original'
 import GlobalStore from '../../stores/global-store'
 import useAbortController from '../use-abort-controller'
-import useImageManagerEvent, { IMEvent } from '../use-image-manager-event'
 import useImageOperation from '../use-image-operation'
 import { type FormComponent, useOperatorModalLogic } from '../use-operator-modal-logic/use-operator-modal-logic'
 
@@ -82,14 +81,6 @@ function ImageConverter(props: ImageConverterProps & ImperativeModalProps) {
         },
       },
     )
-  })
-
-  useImageManagerEvent({
-    on: {
-      [IMEvent.reveal_in_viewer]: () => {
-        closeModal()
-      },
-    },
   })
 
   const tab = {

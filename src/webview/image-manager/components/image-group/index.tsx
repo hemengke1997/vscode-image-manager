@@ -94,7 +94,6 @@ const ToastKey = 'image-preview-scale'
  */
 function ImageGroup(props: imageGroupProps, ref: ForwardedRef<HTMLDivElement>) {
   const {
-    id,
     images,
     lazyImageProps,
     enableContextMenu,
@@ -177,6 +176,8 @@ function ImageGroup(props: imageGroupProps, ref: ForwardedRef<HTMLDivElement>) {
     return false
   })
 
+  const { imageManagerEvent } = useImageManagerEvent()
+
   const clearAllSelectedImages = useMemoizedFn(() => {
     if (inViewer) {
       imageManagerEvent.emit(IMEvent.clear_selected_images)
@@ -237,16 +238,6 @@ function ImageGroup(props: imageGroupProps, ref: ForwardedRef<HTMLDivElement>) {
       .filter((t) => !!t),
     ['click', 'contextmenu'],
   )
-
-  const { imageManagerEvent } = useImageManagerEvent({
-    on: {
-      [IMEvent.clear_selected_images]: (_id) => {
-        if (id !== _id) {
-          setSelectedImages([])
-        }
-      },
-    },
-  })
 
   const onContextMenu = useMemoizedFn((e: React.MouseEvent<HTMLDivElement>, image: ImageType) => {
     let selected: ImageType[] | undefined = undefined

@@ -1,4 +1,4 @@
-import { memo, useEffect, useMemo, useRef } from 'react'
+import { memo, useMemo } from 'react'
 import { useTranslation } from 'react-i18next'
 import { FiCheckCircle } from 'react-icons/fi'
 import { HiOutlineViewfinderCircle } from 'react-icons/hi2'
@@ -6,28 +6,25 @@ import { MdOutlineRemoveCircle } from 'react-icons/md'
 import { RiErrorWarningLine } from 'react-icons/ri'
 import { RxDimensions } from 'react-icons/rx'
 import { TbResize } from 'react-icons/tb'
-import { animateScroll } from 'react-scroll'
 import { useMemoizedFn } from 'ahooks'
-import { useControlledState } from 'ahooks-x'
 import { Image } from 'antd'
-import { trim } from 'es-toolkit'
 import { classNames } from 'tw-clsx'
 import { DEFAULT_CONFIG } from '~/core/config/common'
 import { Compressed } from '~/enums'
 import useImageDetails from '~/webview/image-manager/hooks/use-image-details/use-image-details'
 import GlobalStore from '~/webview/image-manager/stores/global-store'
 import SettingsStore from '~/webview/image-manager/stores/settings-store'
-import { bytesToUnit, clearTimestamp, formatBytes } from '~/webview/image-manager/utils'
-import { getAppRoot } from '~/webview/utils'
+import { bytesToUnit, formatBytes } from '~/webview/image-manager/utils'
 import { type LazyImageProps } from '../..'
 import ImageName from '../../../image-name'
 import Corner from '../corner'
 
-type VisibleImageProps = {} & Omit<LazyImageProps, 'lazy' | 'className'>
+type VisibleImageProps = {} & Omit<LazyImageProps, keyof Pick<LazyImageProps, 'lazy' | 'className' | 'inViewer'>>
 
 function VisibleImage(props: VisibleImageProps) {
   const {
     image,
+    selected,
     onPreviewClick,
     onRemoveClick,
     removeRender = (n) => n,
@@ -36,25 +33,12 @@ function VisibleImage(props: VisibleImageProps) {
     onContextMenu,
     isMultipleSelecting = () => false,
     interactive = true,
-    inViewer,
   } = props
 
   const { t } = useTranslation()
   const [showImageDetails] = useImageDetails()
 
-  const [selected, setSelected] = useControlledState<boolean>({
-    value: props.selected,
-    onChange(value) {
-      props.onSelectedChange?.(image, value)
-    },
-  })
-
   const { hoverShowImageDetail } = SettingsStore.useStore(['hoverShowImageDetail'])
-  const { imagePlaceholderSize, imageReveal, setImageReveal } = GlobalStore.useStore([
-    'imagePlaceholderSize',
-    'imageReveal',
-    'setImageReveal',
-  ])
 
   const imageWidth = GlobalStore.useStore((ctx) => ctx.extConfig.viewer.imageWidth)
   const warningSize = GlobalStore.useStore((ctx) => ctx.extConfig.viewer.warningSize)
@@ -67,8 +51,6 @@ function VisibleImage(props: VisibleImageProps) {
     }),
     [imageRendering, antdImageProps.style],
   )
-
-  const elRef = useRef<HTMLDivElement>(null)
 
   const imageMetadata = useMemo(() => {
     return {
@@ -83,73 +65,6 @@ function VisibleImage(props: VisibleImageProps) {
     }
     return false
   }, [image.stats.size, warningSize])
-
-  const isTargetImage = useMemoizedFn(() => {
-    // 在 viewer 中的图片才会被reveal
-    return inViewer && trim(image.path).length && imageReveal.map(clearTimestamp).includes(image.path)
-  })
-
-  /**
-   * 判断元素是否完整在视窗内
-   */
-  const isElInViewport = useMemoizedFn((el) => {
-    const rect = el.getBoundingClientRect()
-    const windowHeight = window.innerHeight || document.documentElement.clientHeight
-    const windowWidth = window.innerWidth || document.documentElement.clientWidth
-    const isInViewport = rect.top >= 0 && rect.left >= 0 && rect.bottom <= windowHeight && rect.right <= windowWidth
-    return isInViewport
-  })
-
-  // 如果当前图片是用户右键打开的图片
-  // 则滚动到图片位置
-  useEffect(() => {
-    let idleTimer: ReturnType<typeof requestIdleCallback>
-    let scrolled = false
-
-    if (isTargetImage()) {
-      // 清除 imageReveal，避免重复选中
-      setImageReveal([])
-
-      // 刚打开时，图片可能还未加载，所以需要等待图片加载完成后再滚动
-      const callback = () => {
-        try {
-          if (scrolled || isElInViewport(elRef.current)) {
-            return
-          }
-          const y = elRef.current?.getBoundingClientRect().top
-          const clientHeight = document.documentElement.clientHeight
-
-          if (y && !scrolled) {
-            animateScroll.scrollTo(
-              y + getAppRoot().scrollTop - clientHeight / 2 + (imagePlaceholderSize?.height || 0) / 2,
-              {
-                duration: 0,
-                smooth: true,
-                delay: 0,
-                containerId: 'root',
-              },
-            )
-            scrolled = true
-          }
-        } finally {
-          setSelected(true)
-        }
-      }
-
-      // 从explorer打开图片时，需要使用 requestIdleCallback
-      idleTimer = requestIdleCallback(() => {
-        callback()
-      })
-    }
-
-    return () => {
-      if (isTargetImage()) {
-        setSelected(false)
-        setImageReveal([])
-        cancelIdleCallback(idleTimer)
-      }
-    }
-  }, [imageReveal, image.path])
 
   /**
    * @param depth 父元素查找深度，默认向上查找3层，如果查不到 [data-disable-dbclick] 元素，则可以双击

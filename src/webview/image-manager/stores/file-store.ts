@@ -34,11 +34,6 @@ function useFileStore() {
     type: CopyType
   }>()
 
-  // 清空选中图片
-  const clearSelectedImages = useMemoizedFn(() => {
-    setSelectedImageMap(new Map())
-  })
-
   // 清除选中图片中已经不存在的图片
   const clearNotExistImages = useMemoizedFn((images: ImageType[]) => {
     const imagePathsSet = new Set(images.map((image) => image.path))
@@ -157,7 +152,6 @@ function useFileStore() {
   return {
     selectedImageMap,
     setSelectedImageMap,
-    clearSelectedImages,
     clearNotExistImages,
     allSelectedImages,
     imageCopied,

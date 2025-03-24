@@ -1,10 +1,15 @@
-import { memo, type ReactNode, useRef } from 'react'
+import { memo, type ReactNode, useEffect, useRef } from 'react'
+import { animateScroll } from 'react-scroll'
 import { useInViewport, useMemoizedFn } from 'ahooks'
+import { useControlledState } from 'ahooks-x'
 import { type ImageProps } from 'antd'
+import { trim } from 'es-toolkit'
 import { classNames } from 'tw-clsx'
 import { DEFAULT_CONFIG } from '~/core/config/common'
 import { getAppRoot } from '~/webview/utils'
+import useImageManagerEvent, { IMEvent } from '../../hooks/use-image-manager-event'
 import GlobalStore from '../../stores/global-store'
+import { clearTimestamp, isElInViewport } from '../../utils'
 import { type ImageNameProps } from '../image-name'
 import VisibleImage from './components/visible-image'
 
@@ -88,12 +93,20 @@ function LazyImage(props: LazyImageProps) {
       root: getAppRoot(),
     },
     className,
+    inViewer,
     ...rest
   } = props
 
   const root = lazy ? lazy.root : null
 
-  const { imagePlaceholderSize } = GlobalStore.useStore(['imagePlaceholderSize'])
+  const [selected, setSelected] = useControlledState<boolean>({
+    value: props.selected,
+    onChange(value) {
+      props.onSelectedChange?.(image, value)
+    },
+  })
+
+  const { imagePlaceholderSize, imageReveal } = GlobalStore.useStore(['imagePlaceholderSize', 'imageReveal'])
 
   const rootMargin = useMemoizedFn(
     (rate: number) => `${(imagePlaceholderSize?.height || DEFAULT_CONFIG.viewer.imageWidth) * rate}px 0px`,
@@ -113,6 +126,64 @@ function LazyImage(props: LazyImageProps) {
     rootMargin: rootMargin(10),
   })
 
+  const isTargetImage = useMemoizedFn(() => {
+    // 在 viewer 中的图片才会被reveal
+    return inViewer && trim(image.path).length && imageReveal.map(clearTimestamp).includes(image.path)
+  })
+
+  const { imageManagerEvent } = useImageManagerEvent()
+
+  // 如果当前图片是用户右键打开的图片
+  // 则滚动到图片位置
+  useEffect(() => {
+    let timer: ReturnType<typeof setTimeout>
+    let scrolled = false
+
+    if (isTargetImage()) {
+      // 清除 imageReveal，避免重复选中
+      imageManagerEvent.emit(IMEvent.clear_image_reveal)
+
+      // 刚打开时，图片可能还未加载，所以需要等待图片加载完成后再滚动
+      const callback = () => {
+        try {
+          if (scrolled || isElInViewport(elRef.current)) {
+            return
+          }
+          const y = elRef.current?.getBoundingClientRect().top
+          const clientHeight = document.documentElement.clientHeight
+
+          if (y && !scrolled) {
+            animateScroll.scrollTo(
+              y + getAppRoot().scrollTop - clientHeight / 2 + (imagePlaceholderSize?.height || 0) / 2,
+              {
+                duration: 0,
+                smooth: true,
+                delay: 0,
+                containerId: 'root',
+              },
+            )
+            scrolled = true
+          }
+        } finally {
+          setSelected(true)
+        }
+      }
+
+      // 从explorer打开图片
+      timer = setTimeout(() => {
+        callback()
+      })
+    }
+
+    return () => {
+      if (isTargetImage()) {
+        setSelected(false)
+        imageManagerEvent.emit(IMEvent.clear_image_reveal)
+        clearTimeout(timer)
+      }
+    }
+  }, [imageReveal, image.path])
+
   // 渲染优化
   if (lazy && !lazy.root) {
     return null
@@ -122,7 +193,7 @@ function LazyImage(props: LazyImageProps) {
     <div ref={elRef} className={classNames('select-none transition-opacity', className?.(image))}>
       {elInView || !lazy ? (
         // 拆出去为了更好的渲染性能
-        <VisibleImage {...rest} image={image} />
+        <VisibleImage {...rest} selected={selected} image={image} />
       ) : (
         <div
           style={{

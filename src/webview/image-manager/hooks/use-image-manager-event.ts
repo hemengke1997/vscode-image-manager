@@ -25,43 +25,48 @@ type Ev<T extends Events, EventName extends EventEmitter.EventNames<T> = EventEm
 }
 
 export enum IMEvent {
+  /**
+   * 删除图片
+   */
   delete = 'delete',
+  /**
+   * 重命名图片
+   */
   rename = 'rename',
+  /**
+   * 在viewer中显示图片
+   */
   reveal_in_viewer = 'reveal_in_viewer',
+  /**
+   * 清除图片reveal
+   */
+  clear_image_reveal = 'clear_image_reveal',
+  /**
+   * 右键图片
+   */
   context_menu = 'context_menu',
+  /**
+   * 删除目录
+   */
   delete_directory = 'delete_directory',
+  /**
+   * 重命名目录
+   */
   rename_directory = 'rename_directory',
+  /**
+   * 清空图片选中
+   */
   clear_selected_images = 'clear_selected_images',
 }
 
 type Events = {
-  /**
-   * 删除图片
-   */
   [IMEvent.delete]: [images: ImageType[]]
-  /**
-   * 重命名图片
-   */
   [IMEvent.rename]: [previosImage: ImageType, newImage: ImageType]
-  /**
-   * 在viewer中显示图片
-   */
   [IMEvent.reveal_in_viewer]: [imagePaths: string[]]
-  /**
-   * 右键图片
-   */
+  [IMEvent.clear_image_reveal]: []
   [IMEvent.context_menu]: [image: ImageType, id: string]
-  /**
-   * 删除目录
-   */
   [IMEvent.delete_directory]: [dirPath: string]
-  /**
-   * 重命名目录
-   */
   [IMEvent.rename_directory]: [previosDirPath: string, newDirPath: string]
-  /**
-   * 清空图片选中
-   */
   [IMEvent.clear_selected_images]: [dirs?: string[]]
 }
 

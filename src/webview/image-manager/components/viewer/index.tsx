@@ -4,10 +4,12 @@ import { IoMdImages } from 'react-icons/io'
 import { Transition } from 'react-transition-preset'
 import { styleObjectToString } from '@minko-fe/style-object-to-string'
 import { useClickAway, useMemoizedFn } from 'ahooks'
+import { imperativeModalMap } from 'ahooks-x/use-imperative-antd-modal'
 import { Card, Empty, Skeleton } from 'antd'
 import { floor } from 'es-toolkit/compat'
 import { produce } from 'immer'
 import useImageHotKeys from '../../hooks/use-image-hot-keys'
+import useImageManagerEvent, { IMEvent } from '../../hooks/use-image-manager-event'
 import useImageOperation from '../../hooks/use-image-operation'
 import useSticky from '../../hooks/use-sticky'
 import useWheelScaleEvent from '../../hooks/use-wheel-scale-event'
@@ -22,11 +24,12 @@ import TitleIconUI from '../title-icon-UI'
 
 function Viewer() {
   const { t } = useTranslation()
-  const { imageState, setTreeData, setViewerHeaderStickyHeight, setImageWidth } = GlobalStore.useStore([
+  const { imageState, setTreeData, setViewerHeaderStickyHeight, setImageWidth, setImageReveal } = GlobalStore.useStore([
     'imageState',
     'setTreeData',
     'setViewerHeaderStickyHeight',
     'setImageWidth',
+    'setImageReveal',
   ])
 
   const { imageFilter } = FilterStore.useStore(['imageFilter'])
@@ -99,6 +102,24 @@ function Viewer() {
     [contentRef],
     ['click'],
   )
+
+  useImageManagerEvent({
+    on: {
+      [IMEvent.reveal_in_viewer]: (imagePaths) => {
+        // 统一从这里处理reveal逻辑
+        // 而不是直接调用setImageReveal
+        setImageReveal(imagePaths)
+
+        // 关闭所有命令式弹窗
+        imperativeModalMap.forEach((modal) => {
+          modal.destroy()
+        })
+      },
+      [IMEvent.clear_image_reveal]: () => {
+        setImageReveal([])
+      },
+    },
+  })
 
   return (
     <div ref={containerRef} className={'space-y-4'}>

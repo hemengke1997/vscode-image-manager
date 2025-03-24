@@ -1,4 +1,4 @@
-import { imperativeModalMap, useImperativeAntdModal } from 'ahooks-x/use-imperative-antd-modal'
+import { useImperativeAntdModal } from 'ahooks-x/use-imperative-antd-modal'
 import { type ModalFuncProps } from 'antd'
 
 const Modal_Instance_Props: ModalFuncProps = {
@@ -10,8 +10,6 @@ const Modal_Instance_Props: ModalFuncProps = {
   destroyOnClose: true,
   closable: true,
 }
-
-export { imperativeModalMap }
 
 const useImperativeModal: typeof useImperativeAntdModal = (args) => {
   const { id, imperativeModalMap, showModal } = useImperativeAntdModal({

@@ -123,6 +123,7 @@ function mount(reload?: boolean) {
           <ActionStore.Provider>
             <FileStore.Provider>
               <AntdConfigProvider>
+                {/* Fallback依赖了antd provider */}
                 <ErrorBoundary FallbackComponent={Fallback}>
                   <ImageManager />
                 </ErrorBoundary>

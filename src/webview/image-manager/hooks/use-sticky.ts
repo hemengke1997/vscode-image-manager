@@ -1,5 +1,5 @@
 import { useEffect, useRef } from 'react'
-import { useEventListener, useInViewport, useMemoizedFn, useUpdateEffect } from 'ahooks'
+import { useEventListener, useInViewport, useMemoizedFn, useThrottleFn, useUpdateEffect } from 'ahooks'
 import { isUndefined } from 'es-toolkit'
 import { getAppRoot } from '~/webview/utils'
 
@@ -73,25 +73,32 @@ export default function useSticky(props: Props) {
     }
   }, [enable])
 
-  const handleScroll = useMemoizedFn(() => {
-    if (target && enable) {
-      const inView = isUndefined(_inView) ? true : !!_inView
+  const { run: handleScroll } = useThrottleFn(
+    () => {
+      if (target && enable) {
+        const inView = isUndefined(_inView) ? true : !!_inView
 
-      const { top } = target.getBoundingClientRect()
+        const { top } = target.getBoundingClientRect()
 
-      let isSticky: boolean
+        let isSticky: boolean
 
-      if (top <= topOffset && inView) {
-        isSticky = true
-      } else {
-        isSticky = false
+        if (top <= topOffset && inView) {
+          isSticky = true
+        } else {
+          isSticky = false
+        }
+
+        if (previousSticky.current !== isSticky) {
+          toogleSticky(isSticky)
+        }
       }
+    },
+    {
+      wait: 200, // 没必要频繁监听滚动
+    },
+  )
 
-      if (previousSticky.current !== isSticky) {
-        toogleSticky(isSticky)
-      }
-    }
+  useEventListener('scroll', handleScroll, {
+    target: root,
   })
-
-  useEventListener('scroll', handleScroll)
 }

@@ -20,7 +20,6 @@ import SkipCompressed from '../../components/image-operator/components/skip-comp
 import GlobalStore from '../../stores/global-store'
 import { ANIMATION_DURATION } from '../../utils/duration'
 import useAbortController from '../use-abort-controller'
-import useImageManagerEvent, { IMEvent } from '../use-image-manager-event'
 import useImageOperation from '../use-image-operation'
 import { type FormComponent, useOperatorModalLogic } from '../use-operator-modal-logic/use-operator-modal-logic'
 import styles from './index.module.css'
@@ -100,14 +99,6 @@ function ImageCompressor(props: ImageCompressorProps & ImperativeModalProps) {
         },
       },
     )
-  })
-
-  useImageManagerEvent({
-    on: {
-      [IMEvent.reveal_in_viewer]: () => {
-        closeModal()
-      },
-    },
   })
 
   /* ------------------ 压缩配置相关 ------------------ */

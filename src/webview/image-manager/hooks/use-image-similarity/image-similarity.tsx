@@ -22,7 +22,7 @@ export type ImageSimilarityProps = Omit<ImageOperatorProps, 'images'> & {
 }
 
 function ImageSimilarity(props: ImageSimilarityProps & ImperativeModalProps) {
-  const { image, similarImages: similarImagesProp, closeModal } = props
+  const { image, similarImages: similarImagesProp } = props
   const { t } = useTranslation()
 
   const [similarImages, setSimilarImages] = useControlledState({
@@ -31,9 +31,6 @@ function ImageSimilarity(props: ImageSimilarityProps & ImperativeModalProps) {
 
   useImageManagerEvent({
     on: {
-      [IMEvent.reveal_in_viewer]: () => {
-        closeModal()
-      },
       [IMEvent.rename]: (previosImage, newImage) => {
         // 图片重命名后，更新相似图片中的图片信息
         setSimilarImages(
