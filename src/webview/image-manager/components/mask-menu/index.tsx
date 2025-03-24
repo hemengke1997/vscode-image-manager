@@ -20,8 +20,10 @@ function MaskMenu(props: MenuProps) {
         onVisibilityChange={(v) => {
           if (v) {
             // menu先展示，再展示mask，避免menu消失
-            Promise.resolve().then(() => {
-              setContextMenuMask(v)
+            setTimeout(() => {
+              Promise.resolve().then(() => {
+                setContextMenuMask(v)
+              })
             })
           } else {
             setContextMenuMask(v)
