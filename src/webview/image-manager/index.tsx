@@ -3,9 +3,8 @@ import { toast } from 'react-atom-toast'
 import { useTranslation } from 'react-i18next'
 import { GoMoveToTop } from 'react-icons/go'
 import { useEventListener, useMemoizedFn } from 'ahooks'
-import { App, FloatButton } from 'antd'
+import { App, Button, FloatButton } from 'antd'
 import { enableMapSet, setAutoFreeze } from 'immer'
-import { isTooManyTries, retryAsync } from 'ts-retry'
 import { type MessageType } from '~/message'
 import { CmdToVscode, CmdToWebview } from '~/message/cmd'
 import logger from '~/utils/logger'
@@ -33,7 +32,7 @@ toast.setDefaultOptions({
 })
 
 function ImageManager() {
-  const { message, notification } = App.useApp()
+  const { notification } = App.useApp()
   const { t } = useTranslation()
 
   const { setCompressor, setFormatConverter, sharpInstalled, extConfig } = GlobalStore.useStore([
@@ -49,9 +48,26 @@ function ImageManager() {
 
   useEffect(() => {
     if (extConfig.core.installDependencies && !sharpInstalled) {
+      const key = 'deps_not_found'
       notification.warning({
         message: t('im.deps_not_found'),
-        description: t('im.no_sharp'),
+        key,
+        description: (
+          <div className={'flex flex-col gap-y-2'}>
+            <div>{t('im.no_sharp')}</div>
+            <div className={'flex w-full justify-end'}>
+              <Button
+                type='primary'
+                href={import.meta.env.IM_QA_URL}
+                onClick={() => {
+                  notification.destroy(key)
+                }}
+              >
+                {t('im.view_solution')}
+              </Button>
+            </div>
+          </div>
+        ),
         duration: 0,
       })
     }
@@ -83,21 +99,12 @@ function ImageManager() {
 
   const getOperator = useMemoizedFn(async () => {
     try {
-      const [compressor, formatConverter] = await retryAsync(
-        () => Promise.all([getCompressor(), getFormatConverter()]),
-        {
-          delay: 1000,
-          maxTry: 10,
-          until: (data) => !!data.length,
-        },
-      )
+      const [compressor, formatConverter] = await Promise.all([getCompressor(), getFormatConverter()])
 
       setCompressor(compressor)
       setFormatConverter(formatConverter)
     } catch (err) {
-      if (isTooManyTries(err)) {
-        message.error(t('im.deps_not_found'))
-      }
+      logger.error(t('im.deps_not_found'), err)
     }
   })
 

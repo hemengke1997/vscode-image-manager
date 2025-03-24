@@ -257,7 +257,7 @@ function ImageCollapse(props: ImageCollapseProps) {
 
   useSticky({
     target: getCollpaseHeader(),
-    holder: holderRef.current,
+    holder: holderRef,
     onStickyToogle(sticky, { rawStyle }) {
       isSticky.current = sticky
       if (sticky) {
@@ -273,12 +273,10 @@ function ImageCollapse(props: ImageCollapseProps) {
         rawStyle += style
       }
 
-      requestAnimationFrame(() => {
-        getCollpaseHeader()?.setAttribute('style', rawStyle)
-      })
+      getCollpaseHeader()?.setAttribute('style', rawStyle)
     },
     topOffset: viewerHeaderStickyHeight,
-    enable: !!(open && holderRef.current),
+    enable: open,
   })
 
   /**

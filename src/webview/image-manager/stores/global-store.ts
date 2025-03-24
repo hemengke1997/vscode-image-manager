@@ -1,6 +1,7 @@
 import { useMemo, useState } from 'react'
 import { useSetState } from 'ahooks'
 import { createStore } from 'context-state'
+import { round } from 'es-toolkit'
 import { type FormatConverterOptions } from '~/core'
 import { ConfigKey } from '~/core/config/common'
 import { type CompressionOptions } from '~/core/operator/compressor/type'
@@ -54,7 +55,10 @@ function useGlobalStore() {
 
   /* ---------------- image width --------------- */
   const [imageWidth, setImageWidth] = useExtConfigState(ConfigKey.viewer_imageWidth, extConfig.viewer.imageWidth, [], {
-    wait: 500,
+    debounce: {
+      wait: 500,
+    },
+    postValue: (value) => round(value, 0),
   })
 
   /* ---------- image placeholder size ---------- */

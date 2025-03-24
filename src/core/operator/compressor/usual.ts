@@ -131,8 +131,7 @@ export class UsualCompressor extends Compressor {
     })
 
     try {
-      const inputSize = await this.getFileSize(filePath)
-      const inputBuffer = await fs.readFile(filePath)
+      const [inputSize, inputBuffer] = await Promise.all([this.getFileSize(filePath), fs.readFile(filePath)])
       const { outputPath } = await compressor.run({
         ext,
         filePath,

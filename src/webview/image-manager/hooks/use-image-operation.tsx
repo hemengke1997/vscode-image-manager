@@ -49,11 +49,7 @@ const UndoMessageContent = (props: { list: string[]; title: ReactNode }) => {
  * 压缩、格式转换、裁剪、查找相似图片、删除、重命名、撤销、拷贝、剪切、粘贴等
  */
 function useImageOperation() {
-  const { compressor, formatConverter, extConfig } = GlobalStore.useStore([
-    'compressor',
-    'formatConverter',
-    'extConfig',
-  ])
+  const { extConfig } = GlobalStore.useStore(['extConfig'])
   const { notification, message } = App.useApp()
   const { t } = useTranslation()
 
@@ -104,34 +100,15 @@ function useImageOperation() {
     })
   })
 
-  const noOperatorTip = useMemoizedFn(() => {
-    if (!compressor || !formatConverter) {
-      notification.error({
-        duration: null,
-        message: t('im.deps_not_found'),
-        description: (
-          <Button type='primary' href={import.meta.env.IM_QA_URL}>
-            {t('im.view_solution')}
-          </Button>
-        ),
-      })
-      return true
-    }
-  })
-
   const [showImageCompressor] = useImageCompressor()
 
   const beginCompressProcess = useMemoizedFn((images: ImageType[]) => {
-    const no = noOperatorTip()
-    if (no) return
     // open compress modal
     showImageCompressor({ images })
   })
 
   const [showImageConveter] = useImageConverter()
   const beginFormatConversionProcess = useMemoizedFn((images: ImageType[]) => {
-    const no = noOperatorTip()
-    if (no) return
     // open format conversion modal
     showImageConveter({
       images,

@@ -1,6 +1,6 @@
-import { type Dispatch, type SetStateAction, useLayoutEffect, useRef } from 'react'
-import { useMemoizedFn, useThrottleFn } from 'ahooks'
-import { clamp, round } from 'es-toolkit'
+import { type Dispatch, type SetStateAction, useRef, useState } from 'react'
+import { useEventListener, useMemoizedFn, useThrottleFn } from 'ahooks'
+import { clamp } from 'es-toolkit'
 
 type Props = {
   setImageWidth: Dispatch<SetStateAction<number>>
@@ -26,6 +26,7 @@ export default function useWheelScaleEvent(props: Props) {
   const { setImageWidth, min, max, beforeScale = () => true, keyborad = true } = props
 
   const ref = useRef<HTMLDivElement>(null)
+  const [isKeyPressed, setIsKeyPressed] = useState(false)
 
   const closeDefault = useMemoizedFn((e: Event) => {
     if (e.preventDefault) {
@@ -40,26 +41,37 @@ export default function useWheelScaleEvent(props: Props) {
 
   const handleWheel = useMemoizedFn((event: WheelEvent) => {
     if (beforeScale(ref.current)) {
-      if (keyborad ? event.ctrlKey || event.metaKey : true) {
+      if (keyborad ? isKeyPressed : true) {
         closeDefault(event)
 
-        requestAnimationFrame(() => {
-          const delta = event.deltaY * 1
+        const delta = event.deltaY * 1
 
-          throttleSetImageWidth((prevWidth) => {
-            const newWidth = prevWidth! - delta
-            return clamp(round(newWidth, 0), min, max)
-          })
+        throttleSetImageWidth((prevWidth) => {
+          const newWidth = prevWidth! - delta
+          return clamp(newWidth, min, max)
         })
         return false
       }
     }
   })
 
-  useLayoutEffect(() => {
-    ref.current?.addEventListener('wheel', handleWheel, { passive: false })
-    return () => ref?.current?.removeEventListener('wheel', handleWheel)
-  }, [])
+  const handleKeyDown = useMemoizedFn((event: KeyboardEvent) => {
+    if (event.ctrlKey || event.metaKey) {
+      setIsKeyPressed(true)
+    }
+  })
+
+  const handleKeyUp = useMemoizedFn(() => {
+    setIsKeyPressed(false)
+  })
+
+  useEventListener('keydown', handleKeyDown)
+  useEventListener('keyup', handleKeyUp)
+
+  useEventListener('wheel', handleWheel, {
+    passive: false,
+    target: ref.current,
+  })
 
   return [ref] as const
 }

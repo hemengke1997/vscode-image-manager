@@ -22,16 +22,20 @@ export function useExtConfigState<T extends Flatten<ConfigType>, U>(
   key: T,
   trackedState: U,
   deps?: DependencyList,
-  _debounceOptions?: DebounceOptions,
+  options?: {
+    debounce?: DebounceOptions
+    postValue?: (value: U) => U
+  },
 ) {
+  const postValue = options?.postValue || ((value) => value)
   const { setExtConfig } = VscodeStore.useStore(['setExtConfig'])
 
   const debounceOptions: DebounceOptions = useMemo(
     () => ({
       wait: 0,
-      ..._debounceOptions,
+      ...options?.debounce,
     }),
-    [_debounceOptions],
+    [options?.debounce],
   )
 
   const { run: debounceUpdate } = useDebounceFn((state: U) => {
@@ -45,13 +49,14 @@ export function useExtConfigState<T extends Flatten<ConfigType>, U>(
   }, debounceOptions)
 
   const onChangeBySet = useMemoizedFn(() => {
+    const value = postValue(state)
     setExtConfig(
       produce((draft) => {
-        set(draft, key, state)
+        set(draft, key, value)
       }),
     )
 
-    debounceUpdate(state)
+    debounceUpdate(value)
   })
 
   const [state, setState] = useTrackState(trackedState, {

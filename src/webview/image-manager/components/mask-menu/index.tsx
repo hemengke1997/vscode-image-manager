@@ -20,6 +20,8 @@ function MaskMenu(props: MenuProps) {
         onVisibilityChange={(v) => {
           if (v) {
             // menu先展示，再展示mask，避免menu消失
+            // 有时候会出现右键后，菜单闪烁马上消失的情况
+            // 通过setTimeout解决
             setTimeout(() => {
               Promise.resolve().then(() => {
                 setContextMenuMask(v)

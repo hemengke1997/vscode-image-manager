@@ -1,4 +1,4 @@
-import { useEffect, useRef } from 'react'
+import { type RefObject, useEffect, useRef } from 'react'
 import { useEventListener, useInViewport, useMemoizedFn, useThrottleFn, useUpdateEffect } from 'ahooks'
 import { isUndefined } from 'es-toolkit'
 import { getAppRoot } from '~/webview/utils'
@@ -11,7 +11,7 @@ type Props = {
   /**
    * sticky外层容器
    */
-  holder?: HTMLElement | null
+  holder: RefObject<HTMLDivElement>
   /**
    * sticky触发的偏移量
    */
@@ -36,7 +36,7 @@ type Props = {
   /**
    * debug
    */
-  debug?: boolean
+  debugInfo?: any
 }
 
 /**
@@ -75,7 +75,7 @@ export default function useSticky(props: Props) {
 
   const { run: handleScroll } = useThrottleFn(
     () => {
-      if (target && enable) {
+      if (enable && target && holder.current) {
         const inView = isUndefined(_inView) ? true : !!_inView
 
         const { top } = target.getBoundingClientRect()

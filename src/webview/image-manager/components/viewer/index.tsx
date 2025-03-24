@@ -66,6 +66,7 @@ function Viewer() {
   const target = useMemo(() => stickyRef.current?.querySelector('.ant-card-head') as HTMLElement, [stickyRef.current])
   useSticky({
     target,
+    holder: stickyRef,
     onStickyToogle(sticky, { rawStyle }) {
       if (sticky) {
         const style =
