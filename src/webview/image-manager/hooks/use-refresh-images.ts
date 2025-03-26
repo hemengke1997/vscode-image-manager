@@ -48,16 +48,16 @@ export default function useRefreshImages() {
       }, RefreshImageDebounceTimeout)
     }
 
-    vscodeApi.postMessage({ cmd: CmdToVscode.get_all_images }, ({ data, workspaceFolders }) => {
+    vscodeApi.postMessage({ cmd: CmdToVscode.get_all_images }, ({ workspaces, workspaceFolders }) => {
       if (currentCounter !== getAllImagesCounter.current) {
         return
       }
-      logger.debug('get_all_images', data, workspaceFolders)
+      logger.debug(CmdToVscode.get_all_images, workspaces, workspaceFolders)
 
       setImageState({
-        data,
         workspaceFolders,
         loading: false,
+        workspaces,
       })
 
       if (isRefresh) {
@@ -70,7 +70,7 @@ export default function useRefreshImages() {
         // 通知更新collapse
         notifyCollapseChange()
         // 把选中图片中不存在的图片去掉
-        clearNotExistImages(data.map((item) => item.images).flat())
+        clearNotExistImages(workspaces.map((item) => item.images).flat())
       })
     })
   })

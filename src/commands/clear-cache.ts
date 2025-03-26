@@ -1,5 +1,5 @@
 import { commands, window } from 'vscode'
-import { Global } from '~/core'
+import { Global } from '~/core/global'
 import { i18n } from '~/i18n'
 import { type ExtensionModule } from '~/module'
 import { Channel } from '~/utils/channel'
@@ -8,7 +8,7 @@ import { Commands } from './commands'
 export default <ExtensionModule>function () {
   async function clearCache() {
     try {
-      await Global.installer.clearCaches()
+      await Global.installer?.clearCaches()
       const RESTART = i18n.t('prompt.reload_now')
       const r = await window.showInformationMessage(i18n.t('prompt.clear_cache_success'), RESTART)
       if (r === RESTART) {

@@ -3,8 +3,9 @@ import fs from 'fs-extra'
 import pMap from 'p-map'
 import { type SharpNS } from '~/@types/global'
 import { i18n } from '~/i18n'
-import { SharpOperator } from '..'
+import { type ImageManagerPanel } from '~/webview/panel'
 import { DEFAULT_CONFIG } from '../config/common'
+import { SharpOperator } from '../sharp/sharp-operator'
 import { Operator, type OperatorOptions, type OperatorResult, SkipError } from './operator'
 
 export type FormatConverterOptions = {
@@ -43,7 +44,10 @@ export class FormatConverter extends Operator {
     to: [...this.extensions, 'ico'],
   }
 
-  constructor(public option: FormatConverterOptions) {
+  constructor(
+    public option: FormatConverterOptions,
+    public imageManagerPanel: ImageManagerPanel,
+  ) {
     super()
   }
 

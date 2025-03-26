@@ -10,6 +10,7 @@
       configure_svgo: '配置svgo',
     },
     core: {
+      multiplePanels: '允許同時存在多個面板',
       installDependencies: '安裝依賴',
     },
     debug: {

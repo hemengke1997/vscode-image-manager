@@ -1,16 +1,16 @@
-import { type Event, EventEmitter, type ExtensionContext, ExtensionMode, window, workspace } from 'vscode'
-import { Installer, InstallEvent } from '~/core/sharp'
+import { type ExtensionContext, ExtensionMode, window, workspace } from 'vscode'
 import { i18n } from '~/i18n'
 import { EXT_NAMESPACE } from '~/meta'
 import { normalizePath } from '~/utils'
 import { AbortError, TimeoutError } from '~/utils/abort-promise'
 import { Channel } from '~/utils/channel'
-import { Config, Watcher, WorkspaceState } from '.'
+import { type ImageManagerPanel } from '~/webview/panel'
 import { ConfigKey, type VscodeConfigType } from './config/common'
-import { Svgo } from './operator/svgo'
+import { Config } from './config/config'
+import { type Installer, InstallEvent } from './sharp/installer'
 
 export class Global {
-  static rootpaths: string[] = []
+  static imageManagerPanels: ImageManagerPanel[] = []
   /**
    * extension context
    */
@@ -32,34 +32,17 @@ export class Global {
    */
   static sharp: TSharp | undefined
   /**
-   * 程序式更改配置
-   */
-  static isProgrammaticChangeConfig = false
-  /**
    * sharp 安装器
    */
-  static installer: Installer
-
-  /**
-   * events
-   */
-  private static _onDidChangeRootPath: EventEmitter<string[]> = new EventEmitter()
-
-  static readonly onDidChangeRootPath: Event<string[]> = Global._onDidChangeRootPath.event
+  static installer: Installer | undefined
 
   static init(context: ExtensionContext, settings: VscodeConfigType) {
     this.context = context
-
-    Watcher.init()
-    WorkspaceState.init()
-    Svgo.init()
-    this.initSharpInstaller()
 
     this.vscodeTheme = settings.theme
     this.vscodeLanguage = settings.language
     this.vscodeReduceMotion = settings.reduceMotion
 
-    context.subscriptions.push(workspace.onDidChangeWorkspaceFolders(() => this.updateRootPath()))
     context.subscriptions.push(
       workspace.onDidChangeConfiguration((e) => {
         for (const config of [ConfigKey.compression, ConfigKey.conversion]) {
@@ -72,9 +55,9 @@ export class Global {
         }
       }),
     )
-    this.updateRootPath()
   }
-  static updateRootPath(_rootpaths?: string[]) {
+
+  static resolveRootPath(_rootpaths?: string[]) {
     let rootpaths = _rootpaths?.length ? _rootpaths : Config.file_root
     if (!rootpaths) {
       if (workspace.rootPath) {
@@ -87,36 +70,31 @@ export class Global {
 
     if (rootpaths?.length) {
       Channel.info(i18n.t('core.workspace_changed', rootpaths.join(',')))
-      this.rootpaths = rootpaths.map(normalizePath)
-      this._onDidChangeRootPath.fire(this.rootpaths)
+      rootpaths = rootpaths.map(normalizePath)
     } else {
-      this.rootpaths = []
+      rootpaths = []
     }
-  }
-
-  static initSharpInstaller() {
-    this.installer = new Installer({
-      timeout: 30 * 1000, // 30s
-    })
+    return rootpaths
   }
 
   static async installSharp() {
+    if (!this.installer) {
+      throw new Error('Installer not initialized')
+    }
     return new Promise<boolean>(async (resolve, reject) => {
-      this.installer.event
-        .on(InstallEvent.success, (sharp) => {
-          Channel.info(i18n.t('prompt.deps_init_success'))
-          Global.sharp = sharp
-        })
-        .on(InstallEvent.fail, async (e) => {
-          if (e instanceof TimeoutError) {
-            window.showErrorMessage(i18n.t('prompt.deps_init_timeout'))
-          } else if (e instanceof AbortError) {
-            Channel.warn(i18n.t('prompt.deps_init_aborted'), true)
-          }
-          reject(e)
-        })
+      this.installer!.event.on(InstallEvent.success, (sharp) => {
+        Channel.info(i18n.t('prompt.deps_init_success'))
+        Global.sharp = sharp
+      }).on(InstallEvent.fail, async (e) => {
+        if (e instanceof TimeoutError) {
+          window.showErrorMessage(i18n.t('prompt.deps_init_timeout'))
+        } else if (e instanceof AbortError) {
+          Channel.warn(i18n.t('prompt.deps_init_aborted'), true)
+        }
+        reject(e)
+      })
 
-      await this.installer.run()
+      await this.installer!.run()
       resolve(true)
     })
   }

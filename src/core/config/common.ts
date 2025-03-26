@@ -1,7 +1,7 @@
 import { type CSSProperties } from 'react'
 import { Language, ReduceMotion, Theme } from '~/enums'
-import { type FormatConverterOptions } from '..'
 import { type CompressionOptions } from '../operator/compressor/type'
+import { type FormatConverterOptions } from '../operator/format-converter'
 
 export type VscodeConfigType = {
   theme: Theme
@@ -11,6 +11,7 @@ export type VscodeConfigType = {
 
 export type ConfigType = {
   core: {
+    multiplePanels: boolean
     installDependencies: boolean
   }
   debug: {
@@ -50,6 +51,7 @@ export type ConfigType = {
 }
 
 export enum ConfigKey {
+  core_multiplePanels = 'core.multiplePanels',
   core_installDependencies = 'core.installDependencies',
 
   debug_enabled = 'debug.enabled',
@@ -97,6 +99,7 @@ export enum ConfigKey {
 // !! Care: sync with package.json
 export const DEFAULT_CONFIG: ConfigType = {
   core: {
+    multiplePanels: false,
     installDependencies: true,
   },
   debug: {

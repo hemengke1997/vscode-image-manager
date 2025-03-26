@@ -10,6 +10,7 @@
       configure_svgo: 'svgoを設定',
     },
     core: {
+      multiplePanels: '複数のパネルを同時に存在させることを許可する',
       installDependencies: '依存関係をインストール',
     },
     debug: {

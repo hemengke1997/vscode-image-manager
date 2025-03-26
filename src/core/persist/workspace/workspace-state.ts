@@ -1,24 +1,13 @@
 import { get } from 'es-toolkit/compat'
-import { type Webview } from 'vscode'
-import { Global } from '~/core'
+import { Config } from '~/core/config/config'
+import { Global } from '~/core/global'
 import { EXT_NAMESPACE } from '~/meta'
-import { ImageManagerPanel } from '~/webview/panel'
 import { DEFAULT_WORKSPACE_STATE, type WorkspaceStateKey, type WorkspaceStateType } from './common'
 
 export class WorkspaceState {
   static readonly DEFAULT_WORKSPACE_STATE = DEFAULT_WORKSPACE_STATE
-  public static webview: Webview | undefined
 
   static init() {
-    ImageManagerPanel.onDidChange((e) => {
-      if (e) {
-        // webview opened
-        this.webview = e
-      } else {
-        // webview closed
-        this.webview = undefined
-      }
-    })
     this.clear_unused()
   }
 
@@ -49,11 +38,20 @@ export class WorkspaceState {
   }
 
   static async update<T extends WorkspaceStateKey, U>(key: T, value: U) {
+    // 多面板模式下，不使用 workspaceState
+    if (Config.core_multiplePanels) {
+      return
+    }
     await Global.context.workspaceState.update(`${EXT_NAMESPACE}.${key}`, value)
   }
 
   static get<T extends WorkspaceStateKey>(key: T) {
-    return Global.context.workspaceState.get(`${EXT_NAMESPACE}.${key}`, get(this.DEFAULT_WORKSPACE_STATE, key))
+    const defaultValue = get(this.DEFAULT_WORKSPACE_STATE, key)
+    // 多面板模式下，不使用 workspaceState
+    if (Config.core_multiplePanels) {
+      return defaultValue
+    }
+    return Global.context.workspaceState.get(`${EXT_NAMESPACE}.${key}`, defaultValue)
   }
 
   static clear(): Promise<void[]> {

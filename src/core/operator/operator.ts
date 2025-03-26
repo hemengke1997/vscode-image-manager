@@ -5,13 +5,14 @@ import { nanoid } from 'nanoid'
 import path from 'node:path'
 import { type SetOptional } from 'type-fest'
 import { i18n } from '~/i18n'
-import { VscodeMessageCenter, WebviewMessageCenter } from '~/message'
+import { VscodeMessageCenter } from '~/message'
 import { CmdToVscode } from '~/message/cmd'
 import { generateOutputPath } from '~/utils'
 import { Channel } from '~/utils/channel'
 import logger from '~/utils/logger'
+import { type ImageManagerPanel } from '~/webview/panel'
 import { commandCache } from '../commander'
-import { Config } from '../config'
+import { Config } from '../config/config'
 
 export type OperatorOptions = {
   /**
@@ -117,6 +118,8 @@ export abstract class Operator {
 
   public abstract option: OperatorOptions
 
+  abstract imageManagerPanel: ImageManagerPanel
+
   /**
    * 执行操作
    */
@@ -199,7 +202,7 @@ export abstract class Operator {
   /**
    * 合并配置
    */
-  mergeOption(option) {
+  mergeOption(option: any) {
     return mergeWith(this.option, option || {}, (_, srcValue) => {
       if (isArray(srcValue)) return srcValue
     })
@@ -320,7 +323,7 @@ export abstract class Operator {
   async getImageInfo(filePath: string): Promise<ImageType> {
     const res = await VscodeMessageCenter[CmdToVscode.get_images](
       { filePaths: [filePath], cwd: this.image.absWorkspaceFolder },
-      WebviewMessageCenter.webview,
+      this.imageManagerPanel,
     )
 
     return res[0]

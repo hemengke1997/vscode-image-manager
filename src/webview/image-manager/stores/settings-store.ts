@@ -30,7 +30,7 @@ function useSettingsStore() {
     return vscodeColors[0]
   }, [_primaryColor])
 
-  // 暗黑主题
+  // 主题
   const [originTheme, setTheme] = useExtConfigState(ConfigKey.appearance_theme, extConfig.appearance.theme)
   // 语言
   const [originLanguage, setLanguage] = useExtConfigState(ConfigKey.appearance_language, extConfig.appearance.language)
@@ -92,6 +92,7 @@ function useSettingsStore() {
   return {
     primaryColor,
     setPrimaryColor,
+    originTheme,
     theme,
     setTheme,
     reduceMotion,

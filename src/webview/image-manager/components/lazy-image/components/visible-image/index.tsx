@@ -150,6 +150,7 @@ function VisibleImage(props: VisibleImageProps) {
         maskClassName: 'rounded-md !cursor-default !transition-none',
         className: 'min-w-24',
         src: antdImageProps.src,
+        movable: false,
       }
     }
 

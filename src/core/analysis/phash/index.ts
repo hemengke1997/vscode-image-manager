@@ -1,5 +1,5 @@
 import { type SharpNS } from '~/@types/global'
-import { Global } from '~/core'
+import { Global } from '~/core/global'
 
 const SAMPLE_SIZE = 32
 

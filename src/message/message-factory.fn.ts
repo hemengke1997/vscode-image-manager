@@ -4,22 +4,32 @@ import { type GlobEntry } from 'globby'
 import { imageSizeFromFile } from 'image-size/fromFile'
 import path from 'node:path'
 import git from 'simple-git'
-import { type Webview } from 'vscode'
 import { type SharpNS } from '~/@types/global'
-import { COMPRESSED_META, Global, Svgo } from '~/core'
-import { Config } from '~/core/config'
+import { Config } from '~/core/config/config'
+import { Global } from '~/core/global'
+import { COMPRESSED_META } from '~/core/operator/meta'
+import { Svgo } from '~/core/operator/svgo'
 import { Compressed } from '~/enums'
 import { i18n } from '~/i18n'
 import { normalizePath } from '~/utils'
 import { Channel } from '~/utils/channel'
 import { imageGlob } from '~/utils/glob'
+import { type ImageManagerPanel } from '~/webview/panel'
 import { CmdToVscode } from './cmd'
 import { VscodeMessageCenter } from './message-factory'
 
 /**
  * 查找图片
  */
-export async function searchImages(absWorkspaceFolder: string, webview: Webview, exts: Set<string>, dirs: Set<string>) {
+export async function searchImages(
+  absWorkspaceFolder: string,
+  imageManagerPanel: ImageManagerPanel,
+  ctx: {
+    exts: Set<string>
+    dirs: Set<string>
+  },
+) {
+  const { dirs, exts } = ctx
   absWorkspaceFolder = normalizePath(absWorkspaceFolder)
 
   const { allImagePatterns } = imageGlob({
@@ -38,16 +48,16 @@ export async function searchImages(absWorkspaceFolder: string, webview: Webview,
         dirPath && dirs.add(dirPath)
       },
     },
-    webview,
+    imageManagerPanel,
   )
 }
 
 /**
  * 获取图片相关信息
  */
-export async function getImageExtraInfo(images: GlobEntry[]) {
+export async function getImageExtraInfo(images: GlobEntry[], imageManagerPanel: ImageManagerPanel) {
   const [gitStaged, metadataResults] = await Promise.all([
-    VscodeMessageCenter[CmdToVscode.get_git_staged_images](),
+    VscodeMessageCenter[CmdToVscode.get_git_staged_images]({}, imageManagerPanel),
     VscodeMessageCenter[CmdToVscode.get_images_metadata]({
       images,
     }),

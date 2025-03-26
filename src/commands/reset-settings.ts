@@ -1,10 +1,10 @@
 import { commands, type QuickPickItem, window } from 'vscode'
-import { Config, Global } from '~/core'
-import { WorkspaceState } from '~/core/persist'
+import { Config } from '~/core/config/config'
+import { Global } from '~/core/global'
+import { WorkspaceState } from '~/core/persist/workspace/workspace-state'
 import { i18n } from '~/i18n'
 import { CmdToWebview } from '~/message/cmd'
 import { type ExtensionModule } from '~/module'
-import { ImageManagerPanel } from '~/webview/panel'
 import { Commands } from '.'
 
 export default <ExtensionModule>function () {
@@ -23,17 +23,26 @@ export default <ExtensionModule>function () {
         // 清除workspaceState
         await WorkspaceState.clear()
         await WorkspaceState.clear_unused()
-        WorkspaceState.webview?.postMessage({
-          cmd: CmdToWebview.update_workspaceState,
+
+        Global.imageManagerPanels.forEach(({ panel }) => {
+          panel.webview.postMessage({
+            cmd: CmdToWebview.update_workspaceState,
+          })
         })
 
         // 重置configuration
         try {
-          Global.isProgrammaticChangeConfig = true
+          Global.imageManagerPanels.forEach((panel) => {
+            panel.isProgrammaticChangeConfig = true
+          })
           await Config.clearAll()
-          ImageManagerPanel.reloadWebview()
+          Global.imageManagerPanels.forEach((panel) => {
+            panel.reloadWebview()
+          })
         } finally {
-          Global.isProgrammaticChangeConfig = false
+          Global.imageManagerPanels.forEach((panel) => {
+            panel.isProgrammaticChangeConfig = false
+          })
         }
         window.showInformationMessage(i18n.t('prompt.reset_settings_success'))
       } catch {

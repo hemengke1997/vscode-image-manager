@@ -107,7 +107,7 @@ function ImageGroup(props: imageGroupProps, ref: ForwardedRef<HTMLDivElement>) {
 
   const { token } = theme.useToken()
 
-  const imageStateData = GlobalStore.useStore((ctx) => ctx.imageState.data)
+  const imageStateWorkspaces = GlobalStore.useStore((ctx) => ctx.imageState.workspaces)
 
   const { imageWidth } = GlobalStore.useStore(['imageWidth'])
   const { isDarkBackground, backgroundColor, tinyBackgroundColor } = SettingsStore.useStore([
@@ -154,9 +154,9 @@ function ImageGroup(props: imageGroupProps, ref: ForwardedRef<HTMLDivElement>) {
 
   const getSameWorkspaceImages = useCallback(
     (image: ImageType) => {
-      return imageStateData.find((t) => t.workspaceFolder === image.workspaceFolder)?.images || []
+      return imageStateWorkspaces.find((t) => t.workspaceFolder === image.workspaceFolder)?.images || []
     },
-    [imageStateData],
+    [imageStateWorkspaces],
   )
 
   const selectedImageRefs = useRef<Record<string, HTMLDivElement>>({})

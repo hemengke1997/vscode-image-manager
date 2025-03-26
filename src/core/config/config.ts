@@ -4,8 +4,8 @@ import { get } from 'es-toolkit/compat'
 import { type ConfigurationScope, ConfigurationTarget, workspace } from 'vscode'
 import { EXT_NAMESPACE } from '~/meta'
 import { normalizePath } from '~/utils'
-import { type FormatConverterOptions } from '..'
 import { type CompressionOptions } from '../operator/compressor/type'
+import { type FormatConverterOptions } from '../operator/format-converter'
 import { ConfigKey, type ConfigType, DEFAULT_CONFIG } from './common'
 
 export class Config {
@@ -49,6 +49,10 @@ export class Config {
     ConfigKey.viewer_imageRendering,
     ConfigKey.viewer_showDetailsOnHover,
   ]
+
+  static get core_multiplePanels(): boolean {
+    return this.getConfig(ConfigKey.core_multiplePanels)
+  }
 
   static get core_installDependencies(): boolean {
     return this.getConfig(ConfigKey.core_installDependencies)

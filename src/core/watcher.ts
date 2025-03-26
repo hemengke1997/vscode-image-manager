@@ -3,38 +3,32 @@ import { type GlobbyFilterFunction, isGitIgnoredSync } from 'globby'
 import micromatch from 'micromatch'
 import path from 'node:path'
 import { type FileSystemWatcher, RelativePattern, type Uri, type Webview, workspace } from 'vscode'
-import { Config, Global } from '~/core'
 import { CmdToWebview } from '~/message/cmd'
 import { Channel } from '~/utils/channel'
 import { imageGlob } from '~/utils/glob'
 import logger from '~/utils/logger'
-import { ImageManagerPanel } from '~/webview/panel'
+import { Config } from './config/config'
+import { Global } from './global'
 
 export class Watcher {
-  public static watchers: FileSystemWatcher[]
-  public static webview: Webview | undefined
-  public static glob: ReturnType<typeof imageGlob>
-  public static gitignores: GlobbyFilterFunction[] = []
+  public watchers: FileSystemWatcher[] = []
+  public glob: ReturnType<typeof imageGlob>
+  public gitignores: GlobbyFilterFunction[] = []
 
-  static init() {
-    ImageManagerPanel.onDidChange((e) => {
-      if (!e) {
-        // webview closed
-        this.dispose()
-        this.webview = undefined
-      } else {
-        // webview opened
-        this.webview = e
-        this._start(Global.rootpaths)
-      }
+  constructor(
+    rootpaths: string[],
+    public webview: Webview,
+  ) {
+    this.glob = imageGlob({
+      scan: Config.file_scan,
+      exclude: Config.file_exclude,
+      cwds: rootpaths,
     })
 
-    Global.onDidChangeRootPath((rootpaths: string[]) => {
-      this._start(rootpaths)
-    })
+    this._start(rootpaths)
   }
 
-  private static _isIgnored(e: Uri, isDirectory: boolean) {
+  private _isIgnored(e: Uri, isDirectory: boolean) {
     if (this._isGitIgnored(e)) {
       return true
     }
@@ -46,11 +40,11 @@ export class Watcher {
     return !micromatch.all(e.fsPath || e.path, this.glob.allImagePatterns)
   }
 
-  private static handleEvent = debounce(this._handleEvent, 200, {
+  private handleEvent = debounce(this._handleEvent, 200, {
     immediate: true,
   })
 
-  private static _handleEvent(e: Uri, type: 'change' | 'create' | 'delete') {
+  private _handleEvent(e: Uri, type: 'change' | 'create' | 'delete') {
     if (e.scheme !== 'file') return
 
     const isDirectory = !path.extname(e.fsPath || e.path)
@@ -67,19 +61,19 @@ export class Watcher {
     })
   }
 
-  private static _onDidChange(e: Uri) {
+  private _onDidChange(e: Uri) {
     this.handleEvent(e, 'change')
   }
 
-  private static _onDidCreate(e: Uri) {
+  private _onDidCreate(e: Uri) {
     this.handleEvent(e, 'create')
   }
 
-  private static _onDidDelete(e: Uri) {
+  private _onDidDelete(e: Uri) {
     this.handleEvent(e, 'delete')
   }
 
-  private static _isGitIgnored(e: Uri) {
+  private _isGitIgnored(e: Uri) {
     if (!Config.file_gitignore) return false
 
     const ignored = this.gitignores.some((fn) => fn(e.fsPath || e.path))
@@ -89,18 +83,10 @@ export class Watcher {
     return ignored
   }
 
-  private static _start(rootpaths: string[]) {
-    this.dispose()
-
+  private _start(rootpaths: string[]) {
     if (!rootpaths.length || !this.webview) {
       return
     }
-
-    this.glob = imageGlob({
-      scan: Config.file_scan,
-      exclude: Config.file_exclude,
-      cwds: rootpaths,
-    })
 
     this.gitignores = rootpaths.map((r) => isGitIgnoredSync({ cwd: r })).filter((t) => !!t)
 
@@ -112,14 +98,14 @@ export class Watcher {
 
     this.watchers = [...watcher]
 
-    Global.context.subscriptions.push(...Watcher.watchers)
+    Global.context.subscriptions.push(...this.watchers)
 
     this.watchers?.forEach((w) => w.onDidChange(this._onDidChange, this))
     this.watchers?.forEach((w) => w.onDidCreate(this._onDidCreate, this))
     this.watchers?.forEach((w) => w.onDidDelete(this._onDidDelete, this))
   }
 
-  public static dispose() {
+  public dispose() {
     this.watchers?.forEach((w) => w.dispose())
   }
 }

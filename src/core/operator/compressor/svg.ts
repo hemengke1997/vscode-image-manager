@@ -2,6 +2,7 @@ import fs from 'fs-extra'
 import { i18n } from '~/i18n'
 import { VscodeMessageCenter } from '~/message'
 import { CmdToVscode } from '~/message/cmd'
+import { type ImageManagerPanel } from '~/webview/panel'
 import { SkipError } from '../operator'
 import { Svgo } from '../svgo'
 import { Compressor } from './compressor'
@@ -14,7 +15,10 @@ export class SvgCompressor extends Compressor {
     to: [...this.extensions],
   }
 
-  constructor(public option: CompressionOptions) {
+  constructor(
+    public option: CompressionOptions,
+    public imageManagerPanel: ImageManagerPanel,
+  ) {
     super()
   }
 

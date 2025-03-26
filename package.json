@@ -248,6 +248,11 @@
     "configuration": {
       "title": "%pkg.title%",
       "properties": {
+        "image-manager.core.multiplePanels": {
+          "type": "boolean",
+          "default": false,
+          "description": "%pkg.core.multiplePanels%"
+        },
         "image-manager.core.installDependencies": {
           "type": "boolean",
           "default": true,

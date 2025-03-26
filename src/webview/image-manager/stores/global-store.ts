@@ -2,9 +2,9 @@ import { useMemo, useState } from 'react'
 import { useSetState } from 'ahooks'
 import { createStore } from 'context-state'
 import { round } from 'es-toolkit'
-import { type FormatConverterOptions } from '~/core'
 import { ConfigKey } from '~/core/config/common'
 import { type CompressionOptions } from '~/core/operator/compressor/type'
+import { type FormatConverterOptions } from '~/core/operator/format-converter'
 import { useExtConfigState } from '~/webview/image-manager/hooks/use-ext-config-state'
 import VscodeStore from '~/webview/image-manager/stores/vscode-store'
 
@@ -39,8 +39,9 @@ function useGlobalStore() {
   /* --------------- images state --------------- */
   const [imageState, setImageState] = useSetState<{
     loading: boolean
+    // 所有工作区
     workspaceFolders: string[]
-    data: {
+    workspaces: {
       images: ImageType[] // 当前工作区所有图片
       workspaceFolder: string // 当前工作区
       absWorkspaceFolder: string // 工作区绝对路径
@@ -50,7 +51,7 @@ function useGlobalStore() {
   }>({
     loading: true,
     workspaceFolders: [],
-    data: [],
+    workspaces: [],
   })
 
   /* ---------------- image width --------------- */
@@ -85,7 +86,7 @@ function useGlobalStore() {
   const [viewerHeaderStickyHeight, setViewerHeaderStickyHeight] = useState<number>(0)
 
   /* ----------------- 项目中所有图片类型 ---------------- */
-  const allImageTypes = useMemo(() => imageState.data.flatMap((item) => item.exts), [imageState.data])
+  const allImageTypes = useMemo(() => imageState.workspaces.flatMap((item) => item.exts), [imageState.workspaces])
 
   return {
     vscodeConfig,

@@ -1,8 +1,9 @@
 import fs from 'fs-extra'
 import { type SharpNS } from '~/@types/global'
-import { SharpOperator } from '~/core/sharp'
+import { SharpOperator } from '~/core/sharp/sharp-operator'
 import { Compressed } from '~/enums'
 import { i18n } from '~/i18n'
+import { type ImageManagerPanel } from '~/webview/panel'
 import { COMPRESSED_META } from '../meta'
 import { SkipError } from '../operator'
 import { Compressor } from './compressor'
@@ -15,7 +16,10 @@ export class UsualCompressor extends Compressor {
     to: [...this.extensions],
   }
 
-  constructor(public option: CompressionOptions) {
+  constructor(
+    public option: CompressionOptions,
+    public imageManagerPanel: ImageManagerPanel,
+  ) {
     super()
   }
 

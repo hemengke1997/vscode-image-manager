@@ -1,6 +1,6 @@
 import { memo } from 'react'
 import { TbArrowBigDownFilled } from 'react-icons/tb'
-import { type OperatorResult } from '~/core'
+import { type OperatorResult } from '~/core/operator/operator'
 import { formatBytes } from '~/webview/image-manager/utils'
 
 function SizeChange(props: Pick<OperatorResult, 'inputSize' | 'outputSize'>) {

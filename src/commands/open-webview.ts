@@ -1,18 +1,35 @@
-import { isEqual } from 'es-toolkit'
+import { isEqual, once, trim } from 'es-toolkit'
 import path from 'node:path'
 import { commands, FileType, type Uri, workspace } from 'vscode'
-import { Config } from '~/core'
+import { Config } from '~/core/config/config'
 import { Global } from '~/core/global'
+import { Svgo } from '~/core/operator/svgo'
+import { WorkspaceState } from '~/core/persist/workspace/workspace-state'
+import { Installer } from '~/core/sharp/installer'
+import { Watcher } from '~/core/watcher'
 import { type ExtensionModule } from '~/module'
 import { normalizePath } from '~/utils'
+import logger from '~/utils/logger'
 import { ImageManagerPanel } from '~/webview/panel'
 import { Commands } from './commands'
 
 export default <ExtensionModule>function (ctx) {
+  let rootpaths = Global.resolveRootPath()
   let previousRoot: string[] = []
   let sharpInstalled: boolean
 
+  const init = once(() => {
+    Global.installer = new Installer({
+      timeout: 30 * 1000, // 30s
+    })
+
+    WorkspaceState.init()
+    Svgo.init()
+  })
+
   async function openWebview(uri: Uri | undefined) {
+    init()
+
     let imagePath = ''
     if (uri?.fsPath) {
       let rootPath = ''
@@ -27,7 +44,7 @@ export default <ExtensionModule>function (ctx) {
         rootPath = fsPath
       }
 
-      Global.updateRootPath([normalizePath(rootPath)])
+      rootpaths = Global.resolveRootPath([normalizePath(rootPath)])
     } else {
       // Open via command palette or shortcut
     }
@@ -36,26 +53,65 @@ export default <ExtensionModule>function (ctx) {
       if (Config.core_installDependencies) {
         // 不必每次打开插件时都安装 sharp
         // 只要一次失败，就认为不支持 sharp
-        if (sharpInstalled !== false) {
+        if (sharpInstalled === undefined) {
           await Global.installSharp()
           sharpInstalled = true
         }
       }
-    } catch {
+    } catch (e) {
+      logger.error(e)
       sharpInstalled = false
     } finally {
-      // Whether to reload the webview panel
-      const reload = !isEqual(previousRoot, Global.rootpaths)
-      ImageManagerPanel.createOrShow({
-        ctx,
-        reload,
-        webviewInitialData: {
-          imageReveal: imagePath,
-          sharpInstalled,
-        },
-      })
+      const imageReveal = trim(imagePath).length ? `${trim(imagePath)}?t=${Date.now()}` : ''
 
-      previousRoot = Global.rootpaths
+      const createPanel = (rootpaths: string[]) => {
+        const imageManagerPanel = new ImageManagerPanel(ctx, {
+          sharpInstalled,
+          imageReveal,
+          rootpaths,
+        })
+
+        Global.imageManagerPanels.push(imageManagerPanel)
+
+        const watcher = new Watcher(rootpaths, imageManagerPanel.panel.webview)
+
+        imageManagerPanel.onDidChange((e) => {
+          if (!e) {
+            watcher.dispose()
+            Global.imageManagerPanels = Global.imageManagerPanels.filter((p) => p.id !== imageManagerPanel.id)
+          }
+        })
+      }
+
+      if (Config.core_multiplePanels) {
+        createPanel(rootpaths)
+      } else {
+        if (Global.imageManagerPanels.length) {
+          const onPanelOpen = (panel: ImageManagerPanel) => {
+            // Whether to reload the webview panel
+            const reload = !isEqual(previousRoot, rootpaths)
+            if (reload) {
+              panel.reloadWebview()
+            } else if (imageReveal) {
+              panel.revealImageInViewer(imageReveal)
+            }
+          }
+
+          const imageManagerPanel = Global.imageManagerPanels[0]
+
+          imageManagerPanel.initialData = {
+            ...imageManagerPanel.initialData,
+            imageReveal,
+            rootpaths,
+          }
+
+          Global.imageManagerPanels[0].show(onPanelOpen)
+        } else {
+          createPanel(rootpaths)
+        }
+      }
+
+      previousRoot = rootpaths
     }
   }
 

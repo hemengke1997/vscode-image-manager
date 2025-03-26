@@ -9,6 +9,7 @@
       configure_svgo: 'Configure svgo',
     },
     core: {
+      multiplePanels: 'Allow multiple panels to exist simultaneously',
       installDependencies: 'Install dependencies',
     },
     debug: {

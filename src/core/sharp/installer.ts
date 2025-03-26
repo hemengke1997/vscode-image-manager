@@ -13,7 +13,9 @@ import { i18n } from '~/i18n'
 import { cleanVersion, normalizePath, setImmdiateInterval } from '~/utils'
 import { type AbortError, abortPromise, type TimeoutError } from '~/utils/abort-promise'
 import { Channel } from '~/utils/channel'
-import { Config, FileCache, Global } from '..'
+import { Config } from '../config/config'
+import { FileCache } from '../file-cache'
+import { Global } from '../global'
 
 export enum InstallEvent {
   success = 'install-success',

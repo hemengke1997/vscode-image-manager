@@ -43,7 +43,7 @@ function Settings(props: ImperativeModalProps) {
 
   const {
     primaryColor,
-    theme,
+    originTheme,
     setPrimaryColor,
     setTheme,
     setLanguage,
@@ -60,7 +60,7 @@ function Settings(props: ImperativeModalProps) {
     setHoverShowImageDetail,
   } = SettingsStore.useStore([
     'primaryColor',
-    'theme',
+    'originTheme',
     'setPrimaryColor',
     'setTheme',
     'setLanguage',
@@ -202,7 +202,7 @@ function Settings(props: ImperativeModalProps) {
       onChange: setLanguage,
     },
     [SettingsKey.theme]: {
-      value: theme,
+      value: originTheme,
       onChange: setTheme,
     },
     [SettingsKey.primaryColor]: {

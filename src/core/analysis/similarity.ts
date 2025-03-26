@@ -1,7 +1,7 @@
 import path from 'node:path'
 import pMap, { pMapSkip } from 'p-map'
 import logger from '~/utils/logger'
-import { Config } from '..'
+import { Config } from '../config/config'
 import { hammingDistance, phash } from './phash'
 
 export class Similarity {

@@ -144,8 +144,8 @@ function Viewer() {
             {(style) => (
               <div ref={contentRef} style={style}>
                 <div className={'space-y-4'} tabIndex={-1} ref={ref}>
-                  {imageState.data.length ? (
-                    imageState.data.map((item) => (
+                  {imageState.workspaces.length ? (
+                    imageState.workspaces.map((item) => (
                       <TreeStore.Provider
                         key={item.workspaceFolder}
                         imageList={item.images}
@@ -156,7 +156,7 @@ function Viewer() {
                         onCollectTreeData={onCollectTreeData}
                       >
                         <CollapseTree
-                          multipleWorkspace={imageState.data.length > 1}
+                          multipleWorkspace={imageState.workspaceFolders.length > 1}
                           displayGroup={displayGroup}
                           displayStyle={displayStyle}
                         />

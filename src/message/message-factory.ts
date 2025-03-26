@@ -6,33 +6,30 @@ import micromatch from 'micromatch'
 import mime from 'mime/lite'
 import path from 'node:path'
 import pMap from 'p-map'
-import { commands, type ConfigurationTarget, Uri, ViewColumn, type Webview, window, workspace } from 'vscode'
+import { commands, type ConfigurationTarget, Uri, ViewColumn, window, workspace } from 'vscode'
 import { type SharpNS } from '~/@types/global'
 import { Commands } from '~/commands'
-import {
-  Config,
-  FormatConverter,
-  type FormatConverterOptions,
-  Global,
-  type OperatorResult,
-  SharpOperator,
-  Svgo,
-} from '~/core'
-import { Similarity } from '~/core/analysis'
+import { Similarity } from '~/core/analysis/similarity'
 import { commandCache } from '~/core/commander'
 import { type ConfigType } from '~/core/config/common'
+import { Config } from '~/core/config/config'
+import { Global } from '~/core/global'
 import { SvgCompressor } from '~/core/operator/compressor/svg'
 import { type CompressionOptions } from '~/core/operator/compressor/type'
 import { UsualCompressor } from '~/core/operator/compressor/usual'
-import { WorkspaceState } from '~/core/persist'
+import { FormatConverter, type FormatConverterOptions } from '~/core/operator/format-converter'
+import { type OperatorResult } from '~/core/operator/operator'
+import { Svgo } from '~/core/operator/svgo'
 import { type WorkspaceStateKey } from '~/core/persist/workspace/common'
+import { WorkspaceState } from '~/core/persist/workspace/workspace-state'
+import { SharpOperator } from '~/core/sharp/sharp-operator'
 import { i18n } from '~/i18n'
 import { generateOutputPath, normalizePath, resolveDirPath } from '~/utils'
 import { cancelablePromise } from '~/utils/abort-promise'
 import { Channel } from '~/utils/channel'
 import { convertImageToBase64, convertToBase64IfBrowserNotSupport, isBase64, toBase64 } from '~/utils/image-type'
 import logger from '~/utils/logger'
-import { ImageManagerPanel } from '~/webview/panel'
+import { type ImageManagerPanel } from '~/webview/panel'
 import { CmdToVscode } from './cmd'
 import { getImageExtraInfo, getImageMetadata, getStagedImages, searchImages } from './message-factory.fn'
 
@@ -62,15 +59,15 @@ export type FirstParameterOfMessageCenter<K extends KeyofMessage> =
  * @description It handles the message from webview and return result to webview
  */
 export const VscodeMessageCenter = {
-  [CmdToVscode.on_webview_ready]: async () => {
+  [CmdToVscode.on_webview_ready]: async (_, imageManagerPanel: ImageManagerPanel) => {
     Channel.info(i18n.t('core.webview_ready'))
     const [config, workspaceState] = await Promise.all([
       VscodeMessageCenter[CmdToVscode.get_extension_config](),
       VscodeMessageCenter[CmdToVscode.get_workspace_state](),
     ])
     const {
-      webviewInitialData: { imageReveal, sharpInstalled },
-    } = ImageManagerPanel
+      initialData: { imageReveal, sharpInstalled },
+    } = imageManagerPanel
 
     return {
       config,
@@ -93,7 +90,7 @@ export const VscodeMessageCenter = {
       cwd: string
       onResolve?: (image: ImageType) => void
     },
-    webview: Webview,
+    imageManagerPanel: ImageManagerPanel,
   ) => {
     const { glob, cwd, onResolve } = options
 
@@ -118,7 +115,7 @@ export const VscodeMessageCenter = {
       return []
     }
 
-    const { gitStaged, metadataResults } = await getImageExtraInfo(images)
+    const { gitStaged, metadataResults } = await getImageExtraInfo(images, imageManagerPanel)
 
     // 项目绝对路径
     const projectPath = normalizePath(path.dirname(cwd))
@@ -130,7 +127,7 @@ export const VscodeMessageCenter = {
     return Promise.all<ImageType>(
       images.map(async (image, index) => {
         image.path = normalizePath(image.path)
-        let vscodePath = webview.asWebviewUri(Uri.file(image.path)).toString()
+        let vscodePath = imageManagerPanel.panel.webview.asWebviewUri(Uri.file(image.path)).toString()
 
         // Browser doesn't support some exts, convert to png base64
         try {
@@ -142,7 +139,7 @@ export const VscodeMessageCenter = {
         const dirPath = resolveDirPath(image.path, cwd)
         const absDirPath = normalizePath(path.dirname(image.path))
         const relativePath =
-          Global.rootpaths.length > 1
+          imageManagerPanel.initialData.rootpaths.length > 1
             ? normalizePath(path.relative(projectPath, image.path)) // 多工作区，相对于项目
             : normalizePath(path.relative(absWorkspaceFolder, image.path)) // 单工作区，相对于工作区
 
@@ -183,41 +180,50 @@ export const VscodeMessageCenter = {
   },
 
   /* -------------- get all images -------------- */
-  [CmdToVscode.get_all_images]: async (_data: unknown, webview: Webview) => {
-    const absWorkspaceFolders = Global.rootpaths || []
+  [CmdToVscode.get_all_images]: async (_data: unknown, imageManagerPanel: ImageManagerPanel) => {
+    const absWorkspaceFolders = imageManagerPanel.initialData.rootpaths || []
     const workspaceFolders = absWorkspaceFolders.map((ws) => path.basename(ws))
 
     const start = performance.now()
     try {
       const res = await cancelablePromise.run(
         async () => {
-          const data = await Promise.all(
+          const workspaces = await Promise.all(
             absWorkspaceFolders.map(async (workspaceFolder) => {
               const exts: Set<string> = new Set()
               const dirs: Set<string> = new Set()
 
-              const images = await searchImages(workspaceFolder, webview, exts, dirs)
+              const images = await searchImages(workspaceFolder, imageManagerPanel, {
+                exts,
+                dirs,
+              })
 
               Channel.debug(`Get images cost: ${performance.now() - start}ms in ${workspaceFolder}`)
 
+              // 以下数据都是单个工作区的
               return {
+                // 所有图片
                 images,
+                // 当前工作区
                 workspaceFolder: path.basename(workspaceFolder),
+                // 当前工作区（绝对路径）
                 absWorkspaceFolder: workspaceFolder,
-                exts: [...exts].filter(Boolean),
-                dirs: [...dirs].filter(Boolean),
+                // 所有图片扩展名
+                exts: [...exts],
+                // 所有目录
+                dirs: [...dirs],
               }
             }),
           )
 
           return {
-            data,
+            workspaces,
             absWorkspaceFolders,
             workspaceFolders,
           }
         },
         {
-          key: CmdToVscode.get_all_images,
+          key: imageManagerPanel.id,
         },
       )
       Channel.debug(`Get all images cost: ${performance.now() - start}ms`)
@@ -225,7 +231,7 @@ export const VscodeMessageCenter = {
     } catch (e) {
       logger.error(e)
       return {
-        data: [],
+        workspaces: [],
         absWorkspaceFolders,
         workspaceFolders,
       }
@@ -238,7 +244,7 @@ export const VscodeMessageCenter = {
       filePaths: string[]
       cwd: string
     },
-    webview: Webview,
+    imageManagerPanel: ImageManagerPanel,
   ) => {
     const { filePaths, cwd } = data
 
@@ -247,7 +253,7 @@ export const VscodeMessageCenter = {
         glob: filePaths.map((t) => convertPathToPattern(t)),
         cwd,
       },
-      webview,
+      imageManagerPanel,
     )
 
     return images
@@ -270,8 +276,8 @@ export const VscodeMessageCenter = {
   },
 
   /* ----------- get compressor ---------- */
-  [CmdToVscode.get_compressor]: async () => {
-    let compressor = new UsualCompressor(Config.compression)
+  [CmdToVscode.get_compressor]: async (_, imageManagerPanel: ImageManagerPanel) => {
+    let compressor = new UsualCompressor(Config.compression, imageManagerPanel)
     const { option, limit } = compressor
     // @ts-expect-error
     compressor = null
@@ -282,8 +288,8 @@ export const VscodeMessageCenter = {
   },
 
   /* ----------- get format converter ----------- */
-  [CmdToVscode.get_format_converter]: async () => {
-    let converter = new FormatConverter(Config.conversion)
+  [CmdToVscode.get_format_converter]: async (_, imageManagerPanel: ImageManagerPanel) => {
+    let converter = new FormatConverter(Config.conversion, imageManagerPanel)
     const { option, limit } = converter
     // @ts-expect-error
     converter = null
@@ -327,10 +333,13 @@ export const VscodeMessageCenter = {
   },
 
   /* -------------- compress image -------------- */
-  [CmdToVscode.compress_image]: async (data: {
-    images: ImageType[]
-    option: CompressionOptions
-  }): Promise<OperatorResult[] | undefined> => {
+  [CmdToVscode.compress_image]: async (
+    data: {
+      images: ImageType[]
+      option: CompressionOptions
+    },
+    imageManagerPanel: ImageManagerPanel,
+  ): Promise<OperatorResult[] | undefined> => {
     try {
       const { images, option } = data
 
@@ -351,7 +360,7 @@ export const VscodeMessageCenter = {
       const res = await pMap(
         [
           ...usuals.map((image) => () => {
-            let compressor = new UsualCompressor(option)
+            let compressor = new UsualCompressor(option, imageManagerPanel)
             try {
               return compressor.run(image, option)
             } finally {
@@ -360,7 +369,7 @@ export const VscodeMessageCenter = {
             }
           }),
           ...svgs.map((image) => () => {
-            let compressor = new SvgCompressor(option)
+            let compressor = new SvgCompressor(option, imageManagerPanel)
             try {
               return compressor.run(image, option)
             } finally {
@@ -381,16 +390,19 @@ export const VscodeMessageCenter = {
   },
 
   /* ----------- convert image format ----------- */
-  [CmdToVscode.convert_image_format]: async (data: {
-    images: ImageType[]
-    option: FormatConverterOptions
-  }): Promise<OperatorResult[] | undefined> => {
+  [CmdToVscode.convert_image_format]: async (
+    data: {
+      images: ImageType[]
+      option: FormatConverterOptions
+    },
+    imageManagerPanel: ImageManagerPanel,
+  ): Promise<OperatorResult[] | undefined> => {
     try {
       const { images, option } = data
       logger.debug(`Convert params:`, data)
       const res = await pMap(
         images.map((image) => () => {
-          let converter = new FormatConverter(Config.conversion)
+          let converter = new FormatConverter(Config.conversion, imageManagerPanel)
           try {
             return converter.run(image, option)
           } finally {
@@ -554,10 +566,10 @@ export const VscodeMessageCenter = {
   },
 
   /* --------- get git staged images --------- */
-  [CmdToVscode.get_git_staged_images]: async () => {
+  [CmdToVscode.get_git_staged_images]: async (_, imageManagerPanel: ImageManagerPanel) => {
     const start = performance.now()
 
-    const images = await Promise.all(Global.rootpaths.map((root) => getStagedImages(root)))
+    const images = await Promise.all(imageManagerPanel.initialData.rootpaths.map((root) => getStagedImages(root)))
 
     Channel.debug(`Get git staged images cost: ${performance.now() - start}ms`)
 
@@ -565,24 +577,27 @@ export const VscodeMessageCenter = {
   },
 
   /* --------- update user configuration -------- */
-  [CmdToVscode.update_user_configuration]: async (data: {
-    key: Flatten<ConfigType>
-    value: any
-    target?: ConfigurationTarget
-  }) => {
+  [CmdToVscode.update_user_configuration]: async (
+    data: {
+      key: Flatten<ConfigType>
+      value: any
+      target?: ConfigurationTarget
+    },
+    imageManagerPanel: ImageManagerPanel,
+  ) => {
     const { key, value, target } = data
 
     await cancelablePromise.run(
       async () => {
-        Global.isProgrammaticChangeConfig = true
+        imageManagerPanel.isProgrammaticChangeConfig = true
         try {
           await Config.updateConfig(key, value, target)
         } finally {
-          Global.isProgrammaticChangeConfig = false
+          imageManagerPanel.isProgrammaticChangeConfig = false
         }
       },
       {
-        key,
+        key: key + imageManagerPanel.id,
       },
     )
 
@@ -595,12 +610,15 @@ export const VscodeMessageCenter = {
   },
 
   /* ---------- update workspace state ---------- */
-  [CmdToVscode.update_workspace_state]: async <T extends WorkspaceStateKey, U>(data: {
-    key: T
-    value: U | undefined
-  }) => {
+  [CmdToVscode.update_workspace_state]: async <T extends WorkspaceStateKey, U>(
+    data: {
+      key: T
+      value: U | undefined
+    },
+    imageMangerPanel: ImageManagerPanel,
+  ) => {
     const { key, value } = data
-    await cancelablePromise.run(() => WorkspaceState.update(key, value), { key })
+    await cancelablePromise.run(() => WorkspaceState.update(key, value), { key: key + imageMangerPanel.id })
     return true
   },
 

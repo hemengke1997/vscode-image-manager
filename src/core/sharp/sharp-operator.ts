@@ -3,7 +3,7 @@ import { env, Uri, window } from 'vscode'
 import { type SharpNS } from '~/@types/global'
 import { i18n } from '~/i18n'
 import { Channel } from '~/utils/channel'
-import { Global } from '..'
+import { Global } from '../global'
 import { HookPlugin, type ObjectPlugin } from '../hook-plugin'
 
 type HookResult<T = void> = Promise<T> | T
