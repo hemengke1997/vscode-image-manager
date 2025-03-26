@@ -17,9 +17,10 @@ function DisplayType(props: Props) {
   const { token } = theme.useToken()
   const { value, onChange } = props
 
-  const { imageState, allImageTypes } = GlobalStore.useStore(['imageState', 'allImageTypes'])
+  const imageStateData = GlobalStore.useStore((ctx) => ctx.imageState.data)
+  const { allImageTypes } = GlobalStore.useStore(['imageState', 'allImageTypes'])
 
-  const allImageFiles = useMemo(() => imageState.data.flatMap((item) => item.images), [imageState.data])
+  const allImageFiles = useMemo(() => imageStateData.flatMap((item) => item.images), [imageStateData])
 
   const options = useMemo(() => {
     const sortedImageTypes = allImageTypes

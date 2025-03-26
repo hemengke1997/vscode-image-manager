@@ -9,6 +9,7 @@ import { produce } from 'immer'
 import { classNames } from 'tw-clsx'
 import useImageManagerEvent, { IMEvent } from '../../hooks/use-image-manager-event'
 import useSticky from '../../hooks/use-sticky'
+import ActionStore from '../../stores/action-store'
 import FileStore, { CopyType } from '../../stores/file-store'
 import GlobalStore from '../../stores/global-store'
 import { clearTimestamp } from '../../utils'
@@ -69,11 +70,9 @@ type ImageCollapseProps = {
    */
   collapsible?: boolean
   /**
-   * 展开态
+   * 强制展开
    */
-  open?: boolean
-  onOpenChange?: (open: boolean) => void
-  onOpenInit?: (open: boolean) => void
+  forceOpen?: boolean
 }
 
 function ImageCollapse(props: ImageCollapseProps) {
@@ -90,10 +89,13 @@ function ImageCollapse(props: ImageCollapseProps) {
     contextMenu,
     imageGroupProps,
     collapsible = true,
-    open: openProp,
-    onOpenChange,
-    onOpenInit,
+    forceOpen,
   } = props
+
+  const { activeCollapseIdSet, setActiveCollapseIdSet } = ActionStore.useStore([
+    'activeCollapseIdSet',
+    'setActiveCollapseIdSet',
+  ])
 
   const { imageReveal, viewerHeaderStickyHeight, dirReveal, setDirReveal } = GlobalStore.useStore([
     'imageReveal',
@@ -147,10 +149,21 @@ function ImageCollapse(props: ImageCollapseProps) {
   const basePath = useMemo(() => (joinLabel ? id.slice(0, id.lastIndexOf(label)) : id), [id, label, joinLabel])
   const labels = useMemo(() => label.split('/').filter(Boolean), [label])
 
+  const onOpenChange = useMemoizedFn((open: boolean) => {
+    setActiveCollapseIdSet(
+      produce((draft) => {
+        if (open) {
+          draft.value.add(id)
+        } else {
+          draft.value.delete(id)
+        }
+      }),
+    )
+  })
+
   const [open, setOpen] = useControlledState<boolean>({
-    value: openProp,
+    value: forceOpen || activeCollapseIdSet.value.has(id),
     onChange: onOpenChange,
-    onInit: onOpenInit,
   })
 
   const onActive = useMemoizedFn((imagePaths: string[]) => {

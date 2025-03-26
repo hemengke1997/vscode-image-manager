@@ -101,7 +101,7 @@ export default function useImageManagerEvent(events?: { on?: Ev<Events> }) {
     return () => {
       unregister?.()
     }
-  }, [])
+  }, [events?.on])
 
   return {
     imageManagerEvent: instance,

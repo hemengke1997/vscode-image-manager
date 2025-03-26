@@ -1,4 +1,4 @@
-import { useEffect, useRef } from 'react'
+import { startTransition, useEffect, useRef } from 'react'
 import { useTranslation } from 'react-i18next'
 import { useDebounceEffect, useMemoizedFn } from 'ahooks'
 import { App } from 'antd'
@@ -66,11 +66,12 @@ export default function useRefreshImages() {
         message.success(t('im.img_refreshed'))
       }
 
-      // 通知更新collapse
-      notifyCollapseChange()
-
-      // 把选中图片中不存在的图片去掉
-      clearNotExistImages(data.map((item) => item.images).flat())
+      startTransition(() => {
+        // 通知更新collapse
+        notifyCollapseChange()
+        // 把选中图片中不存在的图片去掉
+        clearNotExistImages(data.map((item) => item.images).flat())
+      })
     })
   })
 

@@ -107,7 +107,9 @@ function ImageGroup(props: imageGroupProps, ref: ForwardedRef<HTMLDivElement>) {
 
   const { token } = theme.useToken()
 
-  const { imageWidth, imageState } = GlobalStore.useStore(['imageWidth', 'imageState'])
+  const imageStateData = GlobalStore.useStore((ctx) => ctx.imageState.data)
+
+  const { imageWidth } = GlobalStore.useStore(['imageWidth'])
   const { isDarkBackground, backgroundColor, tinyBackgroundColor } = SettingsStore.useStore([
     'isDarkBackground',
     'backgroundColor',
@@ -152,9 +154,9 @@ function ImageGroup(props: imageGroupProps, ref: ForwardedRef<HTMLDivElement>) {
 
   const getSameWorkspaceImages = useCallback(
     (image: ImageType) => {
-      return imageState.data.find((t) => t.workspaceFolder === image.workspaceFolder)?.images || []
+      return imageStateData.find((t) => t.workspaceFolder === image.workspaceFolder)?.images || []
     },
-    [imageState.data],
+    [imageStateData],
   )
 
   const selectedImageRefs = useRef<Record<string, HTMLDivElement>>({})
@@ -176,7 +178,17 @@ function ImageGroup(props: imageGroupProps, ref: ForwardedRef<HTMLDivElement>) {
     return false
   })
 
-  const { imageManagerEvent } = useImageManagerEvent()
+  const { imageManagerEvent } = useImageManagerEvent({
+    on: {
+      [IMEvent.reveal_in_viewer]: () => {
+        if (preview.open) {
+          setPreview({
+            open: false,
+          })
+        }
+      },
+    },
+  })
 
   const clearAllSelectedImages = useMemoizedFn(() => {
     if (inViewer) {
@@ -365,7 +377,7 @@ function ImageGroup(props: imageGroupProps, ref: ForwardedRef<HTMLDivElement>) {
                 sameWorkspaceImages: getSameWorkspaceImages(images[info.current]),
                 enableContextMenu: {
                   ...enableContextMenu,
-                  reveal_in_viewer: false,
+                  reveal_in_viewer: true,
                   copy: false,
                   rename: false,
                   delete: false,

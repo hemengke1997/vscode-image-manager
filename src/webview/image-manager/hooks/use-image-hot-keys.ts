@@ -30,53 +30,55 @@ export default function useImageHotKeys() {
     beginCutProcess(allSelectedImages)
   })
 
+  const onHotKeys = useMemoizedFn((e: KeyboardEvent) => {
+    hideAll()
+    switch (e.key) {
+      case Key.Enter: {
+        if (!OS.isWindows) {
+          handleRename()
+        }
+        return
+      }
+      // windows rename key
+      case Key.F2: {
+        if (OS.isWindows) {
+          handleRename()
+        }
+        return
+      }
+      case Key.Backspace: {
+        if (!OS.isWindows) {
+          handleDelete()
+        }
+        return
+      }
+      // windows delete key
+      case Key.Delete: {
+        if (OS.isWindows) {
+          handleDelete()
+        }
+        return
+      }
+      case 'c': {
+        handleCopy()
+        return
+      }
+      case 'x': {
+        handleCut()
+        return
+      }
+      case Key.Escape: {
+        handleEscapeCutting()
+        return
+      }
+      default:
+        break
+    }
+  })
+
   const ref = useHotkeys<HTMLDivElement>(
     [Key.F2, Key.Enter, `mod+${Key.Backspace}`, Key.Delete, `mod+c`, `mod+x`, Key.Escape],
-    (e) => {
-      hideAll()
-      switch (e.key) {
-        case Key.Enter: {
-          if (!OS.isWindows) {
-            handleRename()
-          }
-          return
-        }
-        // windows rename key
-        case Key.F2: {
-          if (OS.isWindows) {
-            handleRename()
-          }
-          return
-        }
-        case Key.Backspace: {
-          if (!OS.isWindows) {
-            handleDelete()
-          }
-          return
-        }
-        // windows delete key
-        case Key.Delete: {
-          if (OS.isWindows) {
-            handleDelete()
-          }
-          return
-        }
-        case 'c': {
-          handleCopy()
-          return
-        }
-        case 'x': {
-          handleCut()
-          return
-        }
-        case Key.Escape: {
-          handleEscapeCutting()
-          return
-        }
-        default:
-          break
-      }
-    },
+    onHotKeys,
   )
 
   return {

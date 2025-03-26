@@ -4,9 +4,11 @@ import GlobalStore from '../../stores/global-store'
 import LazyImage from '../lazy-image'
 
 function ImageForSize() {
-  const { imageState, setImagePlaceholderSize } = GlobalStore.useStore(['setImagePlaceholderSize', 'imageState'])
+  const image = GlobalStore.useStore((ctx) => ctx.imageState.data[0]?.images[0])
+
+  const { setImagePlaceholderSize } = GlobalStore.useStore(['setImagePlaceholderSize'])
   const imageWidth = GlobalStore.useStore((ctx) => ctx.extConfig.viewer.imageWidth)
-  const imageForSize = useMemo(() => imageState.data[0]?.images[0], [imageState.data])
+  const imageForSize = useMemo(() => image, [image])
   const imageForSizeRef = useRef<HTMLDivElement>(null)
 
   const size = useSize(imageForSizeRef)

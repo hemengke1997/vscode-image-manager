@@ -24,12 +24,12 @@ import TitleIconUI from '../title-icon-UI'
 
 function Viewer() {
   const { t } = useTranslation()
-  const { imageState, setTreeData, setViewerHeaderStickyHeight, setImageWidth, setImageReveal } = GlobalStore.useStore([
-    'imageState',
+  const { setTreeData, setViewerHeaderStickyHeight, setImageWidth, setImageReveal, imageState } = GlobalStore.useStore([
     'setTreeData',
     'setViewerHeaderStickyHeight',
     'setImageWidth',
     'setImageReveal',
+    'imageState',
   ])
 
   const { imageFilter } = FilterStore.useStore(['imageFilter'])

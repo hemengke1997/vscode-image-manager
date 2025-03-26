@@ -22,7 +22,7 @@ export function toBase64(mimetype: string, buffer: Buffer) {
 export async function convertToBase64IfBrowserNotSupport(input: string, sharp: TSharp | undefined) {
   let mimetype = mime.getType(input)
 
-  const notSupported = ['tiff'].map((t) => mime.getType(t))
+  const notSupported = ['tiff', 'tif'].map((t) => mime.getType(t))
   if (mimetype && notSupported.includes(mimetype)) {
     mimetype = mime.getType('png')!
     try {

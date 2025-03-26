@@ -6,7 +6,6 @@ import { Transition } from 'react-transition-preset'
 import { useMemoizedFn } from 'ahooks'
 import { Card, type CollapseProps, ConfigProvider, Empty } from 'antd'
 import { isNil } from 'es-toolkit'
-import { produce } from 'immer'
 import { classNames } from 'tw-clsx'
 import { DisplayGroupType, DisplayStyleType } from '~/core/persist/workspace/common'
 import ActionStore from '../../stores/action-store'
@@ -83,6 +82,11 @@ type Props = {
   multipleWorkspace: boolean
 }
 
+/**
+ * NOTE: 此重组件在大量图片时，会有性能问题，因为每次都会重新计算树结构。
+ * 所以尽量保证，这个组件中的状态和方法是稳定的。
+ * 把经常变动的状态下沉，由轻量子组件处理。
+ */
 function CollapseTree(props: Props) {
   const { displayGroup, displayStyle, multipleWorkspace } = props
   const { t } = useTranslation()
@@ -97,11 +101,7 @@ function CollapseTree(props: Props) {
 
   const visibleList = TreeStore.useStore((ctx) => ctx.imageSingleTree.visibleList)
 
-  const { collapseIdSet, activeCollapseIdSet, setActiveCollapseIdSet } = ActionStore.useStore([
-    'collapseIdSet',
-    'activeCollapseIdSet',
-    'setActiveCollapseIdSet',
-  ])
+  const { collapseIdSet } = ActionStore.useStore(['collapseIdSet'])
 
   const dirTree = useRef<DirTree<TreeExtraProps>>()
 
@@ -116,8 +116,6 @@ function CollapseTree(props: Props) {
       ...contextMenu,
     }
   })
-
-  const firstNodeWithImages = useRef<FileNode>()
 
   const displayMap: DisplayMapType<{
     icon: (props: { path: string }) => ReactNode
@@ -162,30 +160,6 @@ function CollapseTree(props: Props) {
     [workspaceFolder, dirs, imageTypes, getContextMenu],
   )
 
-  const isCollapseOpen = useMemoizedFn(
-    (
-      value: string,
-      options?: {
-        forceOpen?: boolean
-      },
-    ) => {
-      if (options?.forceOpen) return true
-      return activeCollapseIdSet.value.has(value)
-    },
-  )
-
-  const onCollapseOpenChange = useMemoizedFn((open: boolean, value: string) => {
-    setActiveCollapseIdSet(
-      produce((draft) => {
-        if (open) {
-          draft.value.add(value)
-        } else {
-          draft.value.delete(value)
-        }
-      }),
-    )
-  })
-
   const nestedDisplay = useMemoizedFn(
     (
       tree: (FileNode & TreeExtraProps)[],
@@ -218,21 +192,8 @@ function CollapseTree(props: Props) {
                   ...collapseProps,
                 }}
                 collapsible={collapsible}
-                open={isCollapseOpen(value, {
-                  // 不能折叠时，强制展开
-                  forceOpen: !collapsible,
-                })}
-                onOpenInit={(open) => {
-                  // 多工作区的根节点默认展开
-                  // 第一个有图片的节点默认展开
-                  if ((multipleWorkspace && root) || firstNodeWithImages.current?.value === value) {
-                    open = true
-                  }
-                  onCollapseOpenChange(open, value)
-                }}
-                onOpenChange={(open) => {
-                  onCollapseOpenChange(open, value)
-                }}
+                // 不能折叠时，强制展开
+                forceOpen={!collapsible}
                 labelRender={(label) => (
                   <div className={'flex items-center space-x-1'}>
                     <div className={'flex items-center'}>{displayMap[groupType].icon({ path: value })}</div>
@@ -282,21 +243,6 @@ function CollapseTree(props: Props) {
     },
   )
 
-  const findFirstNodeWithImages = useMemoizedFn((tree: FileNode[]): FileNode | undefined => {
-    for (const node of tree) {
-      if (node.renderList?.length) {
-        return node
-      }
-
-      if (node.children.length) {
-        const find = findFirstNodeWithImages(node.children)
-        if (find) {
-          return find
-        }
-      }
-    }
-  })
-
   const displayByPriority = useMemoizedFn(() => {
     dirTree.current = new DirTree(
       {
@@ -343,8 +289,6 @@ function CollapseTree(props: Props) {
         </Transition>
       )
     }
-
-    firstNodeWithImages.current = findFirstNodeWithImages(tree)
 
     // render tree
     return nestedDisplay(tree, { bordered: true }, { root: true })

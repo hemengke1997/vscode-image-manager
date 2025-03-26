@@ -2,8 +2,6 @@ import { startTransition } from 'react'
 import ReactDOM from 'react-dom/client'
 import { ErrorBoundary } from 'react-error-boundary'
 import { initReactI18next } from 'react-i18next'
-import { Transition } from 'react-transition-preset'
-import Logo from '~root/assets/logo.svg?react'
 import i18next from 'i18next'
 import { i18nAlly } from 'vite-plugin-i18n-ally/client'
 import { CmdToVscode } from '~/message/cmd'
@@ -108,14 +106,6 @@ function registerApp(children: JSX.Element, reload = false) {
 }
 
 function mount(reload?: boolean) {
-  reactRoot().render(
-    <div className={'flex h-screen w-screen items-center justify-center bg-vscode-editor-background'}>
-      <Transition mounted={true} enterDelay={200} initial={true} transition={'fade'}>
-        <Logo className={'animate-bounce text-6xl'} />
-      </Transition>
-    </div>,
-  )
-
   registerApp(
     <GlobalStore.Provider>
       <SettingsStore.Provider>
