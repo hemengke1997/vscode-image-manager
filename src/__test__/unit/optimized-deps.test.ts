@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import { initEnv } from '~root/vite/optimized-deps'
+import { initEnv, readOptimizeDepsFile } from '~root/vite/optimized-deps'
 
 describe('vite-plugin-optimized-deps', () => {
   it('should init env', () => {
@@ -9,11 +9,7 @@ describe('vite-plugin-optimized-deps', () => {
 
   it('should read optimize deps file', async () => {
     const filepath = initEnv()
-    const content = await import('fs-extra').then((fs) => fs.readFile(filepath, 'utf-8'))
-    const deps = content
-      .split('\n')
-      .filter(Boolean)
-      .map((dep) => dep.trim())
+    const deps = await readOptimizeDepsFile(filepath)
     expect(deps).length.greaterThan(0)
   })
 })
