@@ -9,13 +9,7 @@ import AlignColumn, { useColumnWidth } from '../../components/align-column'
 import AppearMotion from '../../components/align-column/components/appear-motion'
 import FilterStore from '../../stores/filter-store'
 import DisplayType from './components/display-type'
-
-export const enum FilterRadioValue {
-  all = 0,
-  yes = 1,
-  no = 2,
-  unknown = 3,
-}
+import { FilterRadioValue, ImageVisibleFilter } from './const'
 
 export type ImageFilterType = {
   /**
@@ -38,13 +32,6 @@ export type ImageFilterType = {
    * 0: all, 1: yes, 2: no
    */
   compressed: ValueOf<typeof FilterRadioValue>
-}
-
-export enum ImageVisibleFilter {
-  exclude_types = 'exclude_types',
-  size = 'size',
-  git_staged = 'git_staged',
-  compressed = 'compressed',
 }
 
 const UnitOptions: ImageFilterType['size']['unit'][] = ['KB', 'MB']

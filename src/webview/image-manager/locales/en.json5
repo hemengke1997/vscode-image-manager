@@ -205,6 +205,10 @@
     compare: 'Compare',
     diff_tip: 'Drag the slider to compare image differences: drag left to show the original image, drag right to show the processed image',
     get_compare_error: 'Failed to get comparison image',
+    version: 'Version',
+    upgrade: 'Upgrade',
+    author: 'Author',
+    source_code: 'Source Code',
   },
   fallback: {
     internal_error: 'Internal Error',

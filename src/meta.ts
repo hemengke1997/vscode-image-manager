@@ -26,3 +26,6 @@ export const locales = [
     label: '日本語',
   },
 ]
+
+// preload helper
+export const PRELOAD_HELPER = 'window.__vscode_preload_url__'

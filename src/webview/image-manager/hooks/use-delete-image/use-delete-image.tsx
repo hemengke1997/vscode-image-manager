@@ -1,6 +1,8 @@
+import { lazy } from 'react'
 import { useTranslation } from 'react-i18next'
 import useImperativeModal from '../use-imperative-modal'
-import DeleteImage from './delete-image'
+
+const DeleteImage = lazy(() => import('./delete-image'))
 
 /**
  * 删除图片弹窗

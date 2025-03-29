@@ -5,8 +5,8 @@ import { GoMoveToTop } from 'react-icons/go'
 import { useEventListener, useMemoizedFn } from 'ahooks'
 import { App, Button, FloatButton } from 'antd'
 import { enableMapSet, setAutoFreeze } from 'immer'
-import { type MessageType } from '~/message'
 import { CmdToVscode, CmdToWebview } from '~/message/cmd'
+import { type MessageType } from '~/message/message-factory'
 import logger from '~/utils/logger'
 import { getAppRoot } from '../utils'
 import { vscodeApi } from '../vscode-api'
@@ -14,6 +14,7 @@ import ContextMenus from './components/context-menus'
 import ImageForSize from './components/image-for-size'
 import Layout from './components/layout'
 import Viewer from './components/viewer'
+import useFetchExtension from './hooks/use-fetch-extension'
 import useImageOperation from './hooks/use-image-operation'
 import useRefreshImages from './hooks/use-refresh-images'
 import useUpdateWebview from './hooks/use-update-webview'
@@ -45,6 +46,8 @@ function ImageManager() {
   const { refreshImages } = ActionStore.useStore(['refreshImages'])
 
   useRefreshImages()
+
+  useFetchExtension()
 
   useEffect(() => {
     if (extConfig.core.installDependencies && !sharpInstalled) {

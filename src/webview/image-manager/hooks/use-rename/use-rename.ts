@@ -1,6 +1,8 @@
+import { lazy } from 'react'
 import { useTranslation } from 'react-i18next'
 import useImperativeModal from '../use-imperative-modal'
-import Rename from './rename'
+
+const Rename = lazy(() => import('./rename'))
 
 /**
  * 重命名单个图片/目录弹窗

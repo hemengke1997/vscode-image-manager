@@ -1,7 +1,9 @@
+import { lazy } from 'react'
 import { useTranslation } from 'react-i18next'
 import { type ModalFuncProps } from 'antd'
 import useImperativeModal from '../use-imperative-modal'
-import OperationResult from './operation-result'
+
+const OperationResult = lazy(() => import('./operation-result'))
 
 /**
  * 查看操作结果的弹窗

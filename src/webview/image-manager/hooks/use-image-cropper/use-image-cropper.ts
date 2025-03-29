@@ -1,6 +1,8 @@
+import { lazy } from 'react'
 import { useTranslation } from 'react-i18next'
 import useImperativeModal from '../use-imperative-modal'
-import imageCropper from './image-cropper'
+
+const ImageCropper = lazy(() => import('./image-cropper'))
 
 /**
  * 裁剪图片的弹窗
@@ -12,7 +14,7 @@ export default function useImageCropper() {
     modalProps: {
       title: t('im.crop'),
     },
-    FC: imageCropper,
+    FC: ImageCropper,
   })
 
   return [showModal] as const

@@ -8,13 +8,12 @@ import { i18nAlly } from 'vite-plugin-i18n-ally'
 import { plugin as markdown, Mode } from 'vite-plugin-markdown'
 import { type InlineConfig } from 'vitest/node'
 import { DEV_PORT } from './src/meta'
+import { optimizeDeps } from './vite/optimized-deps'
+import { preloadHelper } from './vite/preload-helper'
 
 export default defineConfig(async (env) => {
   return preset({
     env,
-    optimizeDeps: {
-      force: true,
-    },
     server: {
       host: '0.0.0.0',
       port: DEV_PORT,
@@ -44,6 +43,8 @@ export default defineConfig(async (env) => {
         localesPaths: [path.resolve(__dirname, './src/webview/image-manager/locales')],
       }),
       markdown({ mode: [Mode.MARKDOWN] }),
+      preloadHelper(),
+      optimizeDeps(),
     ],
     build: {
       outDir: path.resolve(__dirname, './dist-webview/'),
@@ -51,11 +52,6 @@ export default defineConfig(async (env) => {
       minify: true,
       rollupOptions: {
         treeshake: true,
-        output: {
-          entryFileNames: 'assets/[name].js',
-          chunkFileNames: 'assets/[name].js',
-          assetFileNames: 'assets/[name].[ext]',
-        },
       },
       target: 'es2020',
     },

@@ -119,6 +119,7 @@ export class Installer {
       timeout: number
     },
   ) {
+    Channel.debug('Installer init')
     // 如果语言是中文，视为中国地区，设置npm镜像
     const languages = [Config.appearance_language, Global.vscodeLanguage].map(toLower)
     this._isCN = languages.includes('zh-cn')

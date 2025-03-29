@@ -1,8 +1,8 @@
+import { lazy } from 'react'
 import { useTranslation } from 'react-i18next'
-import { useMemoizedFn } from 'ahooks'
-import { imperativeModalMap } from 'ahooks-x/use-imperative-antd-modal'
 import useImperativeModal from '../use-imperative-modal'
-import ImageSearch from './image-search'
+
+const ImageSearch = lazy(() => import('./image-search'))
 
 /**
  * 查找图片弹窗
@@ -10,7 +10,7 @@ import ImageSearch from './image-search'
 export default function useImageSearch() {
   const { t } = useTranslation()
 
-  const { showModal, id } = useImperativeModal({
+  const { showModal, id, imperativeModalMap } = useImperativeModal({
     modalProps: {
       title: t('im.search_image'),
       keyboard: false,
@@ -18,10 +18,5 @@ export default function useImageSearch() {
     FC: ImageSearch,
   })
 
-  const showImageSearch = useMemoizedFn(() => {
-    if (imperativeModalMap.get(id)) return
-    showModal({})
-  })
-
-  return [showImageSearch] as const
+  return [showModal, { imperativeModalMap, id }] as const
 }

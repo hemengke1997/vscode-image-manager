@@ -1,4 +1,4 @@
-import { startTransition } from 'react'
+import { startTransition, Suspense } from 'react'
 import ReactDOM from 'react-dom/client'
 import { ErrorBoundary } from 'react-error-boundary'
 import { initReactI18next } from 'react-i18next'
@@ -74,7 +74,7 @@ function registerApp(children: JSX.Element, reload = false) {
           i18next.changeLanguage(language)
         },
         onInited() {
-          key = reload ? ~key : key
+          key = reload ? key + 1 : key
 
           startTransition(() => {
             reactRoot().render(
@@ -115,7 +115,9 @@ function mount(reload?: boolean) {
               <AntdConfigProvider>
                 {/* Fallback依赖了antd provider */}
                 <ErrorBoundary FallbackComponent={Fallback}>
-                  <ImageManager />
+                  <Suspense fallback={<div />}>
+                    <ImageManager />
+                  </Suspense>
                 </ErrorBoundary>
               </AntdConfigProvider>
             </FileStore.Provider>

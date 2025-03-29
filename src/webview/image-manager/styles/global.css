@@ -11,7 +11,7 @@ hr,
 figure,
 p,
 pre {
-  margin: 0;
+  @apply m-0;
 }
 
 html,
@@ -57,4 +57,24 @@ body {
     /* 让center看起来更舒适 */
     @apply top-[-12%];
   }
+}
+
+::-webkit-scrollbar {
+  @apply h-2 w-2;
+}
+
+::-webkit-scrollbar-thumb {
+  @apply rounded bg-vscode-scrollbarSlider-background;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  @apply bg-vscode-scrollbarSlider-hoverBackground;
+}
+
+::-webkit-scrollbar-track {
+  @apply bg-transparent;
+}
+
+::-webkit-scrollbar-corner {
+  @apply bg-vscode-editor-background;
 }

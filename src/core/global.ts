@@ -37,7 +37,7 @@ export class Global {
   static installer: Installer | undefined
 
   static init(context: ExtensionContext, settings: VscodeConfigType) {
-    this.context = context
+    Channel.debug('Global init')
 
     this.vscodeTheme = settings.theme
     this.vscodeLanguage = settings.language
@@ -99,11 +99,11 @@ export class Global {
     })
   }
 
-  static isDevelopment() {
+  static isDevelopment = () => {
     return this.context.extensionMode === ExtensionMode.Development
   }
 
-  static isProduction() {
+  static isProduction = () => {
     return this.context.extensionMode === ExtensionMode.Production
   }
 }

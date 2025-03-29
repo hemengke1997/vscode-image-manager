@@ -1,6 +1,8 @@
+import { lazy } from 'react'
 import { useTranslation } from 'react-i18next'
 import useImperativeModal from '../use-imperative-modal'
-import Settings from './settings'
+
+const Settings = lazy(() => import('./settings'))
 
 export default function useSettings() {
   const { t } = useTranslation()

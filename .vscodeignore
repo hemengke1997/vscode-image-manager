@@ -19,6 +19,7 @@ scripts
 lib
 examples
 patches
+vite
 
 temp*
 temp/**

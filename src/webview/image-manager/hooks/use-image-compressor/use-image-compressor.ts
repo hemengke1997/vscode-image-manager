@@ -1,6 +1,8 @@
+import { lazy } from 'react'
 import { useTranslation } from 'react-i18next'
 import useImperativeModal from '../use-imperative-modal'
-import ImageCompressor from './image-compressor'
+
+const ImageCompressor = lazy(() => import('./image-compressor'))
 
 /**
  * 图片压缩的弹窗

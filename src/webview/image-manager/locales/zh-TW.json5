@@ -205,6 +205,10 @@
     compare: '對比',
     diff_tip: '拖動滑塊對比圖片差異：左拖顯示原始圖片，右拖顯示處理後圖片',
     get_compare_error: '獲取對比圖片失敗',
+    version: '版本',
+    upgrade: '升級',
+    author: '作者',
+    source_code: '原始碼',
   },
   fallback: {
     internal_error: '內部錯誤',

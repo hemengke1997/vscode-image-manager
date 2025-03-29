@@ -59,6 +59,8 @@ function Viewer() {
     },
     min: 30,
     max: 600,
+    // 步长缩小50%，让缩放更加精确
+    scaleStep: 0.5,
   })
 
   /* --------------- header sticky -------------- */
@@ -112,9 +114,7 @@ function Viewer() {
         setImageReveal(imagePaths)
 
         // 关闭所有命令式弹窗
-        imperativeModalMap.forEach((modal) => {
-          modal.destroy()
-        })
+        imperativeModalMap.clear()
       },
       [IMEvent.clear_image_reveal]: () => {
         setImageReveal([])

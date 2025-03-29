@@ -205,6 +205,10 @@
     compare: '对比',
     diff_tip: '拖动滑块对比图片差异：左拖显示原始图片，右拖显示处理后图片',
     get_compare_error: '获取对比图片失败',
+    version: '版本',
+    upgrade: '升级',
+    author: '作者',
+    source_code: '源代码',
   },
   fallback: {
     internal_error: '内部错误',

@@ -2,23 +2,17 @@ import { lazy } from 'react'
 import { useTranslation } from 'react-i18next'
 import useImperativeModal from '../use-imperative-modal'
 
-const ImageDetails = lazy(() => import('./image-details'))
+const Changelog = lazy(() => import('./changelog'))
 
-/**
- * 图片详情弹窗
- */
-export default function useImageDetails() {
+export default function useChangelog() {
   const { t } = useTranslation()
 
   const { showModal } = useImperativeModal({
-    id: 'image-details',
     modalProps: {
-      title: t('im.image_detail'),
-      width: 500,
-      centered: true,
+      title: t('im.changelog'),
       keyboard: true,
     },
-    FC: ImageDetails,
+    FC: Changelog,
   })
 
   return [showModal] as const

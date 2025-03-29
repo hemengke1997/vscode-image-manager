@@ -75,12 +75,14 @@ export default <ExtensionModule>function (ctx) {
 
         const watcher = new Watcher(rootpaths, imageManagerPanel.panel.webview)
 
-        imageManagerPanel.onDidChange((e) => {
-          if (!e) {
-            watcher.dispose()
-            Global.imageManagerPanels = Global.imageManagerPanels.filter((p) => p.id !== imageManagerPanel.id)
-          }
-        })
+        ctx.subscriptions.push(
+          imageManagerPanel.onDidChange((e) => {
+            if (!e) {
+              watcher.dispose()
+              Global.imageManagerPanels = Global.imageManagerPanels.filter((p) => p.id !== imageManagerPanel.id)
+            }
+          }),
+        )
       }
 
       if (Config.core_multiplePanels) {

@@ -1,14 +1,10 @@
-import { lazy, memo, Suspense } from 'react'
+import { lazy, memo } from 'react'
 import { type ChangelogProps } from './renderer'
 
 const Renderer = lazy(() => import('./renderer'))
 
 function ChangeLog(props: ChangelogProps) {
-  return (
-    <Suspense fallback={null}>
-      <Renderer {...props} />
-    </Suspense>
-  )
+  return <Renderer {...props} />
 }
 
 export default memo(ChangeLog)

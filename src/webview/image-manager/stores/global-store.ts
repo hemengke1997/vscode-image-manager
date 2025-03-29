@@ -1,7 +1,7 @@
 import { useMemo, useState } from 'react'
 import { useSetState } from 'ahooks'
 import { createStore } from 'context-state'
-import { round } from 'es-toolkit'
+import { floor } from 'es-toolkit/compat'
 import { ConfigKey } from '~/core/config/common'
 import { type CompressionOptions } from '~/core/operator/compressor/type'
 import { type FormatConverterOptions } from '~/core/operator/format-converter'
@@ -59,7 +59,8 @@ function useGlobalStore() {
     debounce: {
       wait: 500,
     },
-    postValue: (value) => round(value, 0),
+    // 向下取整，避免出现小数，也为了保证图片不换行
+    postValue: (value) => floor(value, 0),
   })
 
   /* ---------- image placeholder size ---------- */
@@ -88,6 +89,9 @@ function useGlobalStore() {
   /* ----------------- 项目中所有图片类型 ---------------- */
   const allImageTypes = useMemo(() => imageState.workspaces.flatMap((item) => item.exts), [imageState.workspaces])
 
+  /* ------------------ 插件最新信息 ------------------ */
+  const [extLastetInfo, setExtLastetInfo] = useState<{ version: string; author: string } | null>(null)
+
   return {
     vscodeConfig,
     workspaceState,
@@ -112,6 +116,8 @@ function useGlobalStore() {
     setDirReveal,
     allImageTypes,
     sharpInstalled,
+    extLastetInfo,
+    setExtLastetInfo,
   }
 }
 

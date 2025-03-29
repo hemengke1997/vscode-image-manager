@@ -205,6 +205,10 @@
     compare: '比較',
     diff_tip: 'スライダーをドラッグして画像の違いを比較します: 左にドラッグすると元の画像が表示され、右にドラッグすると処理後の画像が表示されます',
     get_compare_error: '比較画像の取得に失敗しました',
+    version: 'バージョン',
+    upgrade: 'アップグレード',
+    author: '作者',
+    source_code: 'ソースコード',
   },
   fallback: {
     internal_error: '内部エラー',

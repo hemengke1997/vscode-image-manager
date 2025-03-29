@@ -5,7 +5,8 @@ import { diff } from 'deep-object-diff'
 import { isObject } from 'es-toolkit/compat'
 import { SortByType, type SortType, type WorkspaceStateType } from '~/core/persist/workspace/common'
 import { Compressed } from '~/enums'
-import { FilterRadioValue, type ImageFilterType, ImageVisibleFilter } from '../hooks/use-image-filter/image-filter'
+import { FilterRadioValue, ImageVisibleFilter } from '../hooks/use-image-filter/const'
+import { type ImageFilterType } from '../hooks/use-image-filter/image-filter'
 import { bytesToUnit, uniqSortByThenMap } from '../utils'
 
 export type ImageStateType = {

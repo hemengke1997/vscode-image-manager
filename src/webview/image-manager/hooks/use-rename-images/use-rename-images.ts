@@ -1,6 +1,8 @@
+import { lazy } from 'react'
 import { useTranslation } from 'react-i18next'
 import useImperativeModal from '../use-imperative-modal'
-import renameImages from './rename-images'
+
+const RenameImages = lazy(() => import('./rename-images'))
 
 /**
  * 重命名多个图片弹窗
@@ -15,7 +17,7 @@ export default function useRenameImages() {
       centered: true,
       keyboard: true,
     },
-    FC: renameImages,
+    FC: RenameImages,
   })
 
   return [showModal] as const

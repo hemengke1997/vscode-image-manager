@@ -1,7 +1,7 @@
 import { commands } from 'vscode'
 import { Svgo } from '~/core/operator/svgo'
-import { VscodeMessageCenter } from '~/message'
 import { CmdToVscode } from '~/message/cmd'
+import { VscodeMessageCenter } from '~/message/message-factory'
 import { type ExtensionModule } from '~/module'
 import { Commands } from './commands'
 

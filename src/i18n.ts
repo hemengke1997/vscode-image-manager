@@ -14,6 +14,8 @@ export class i18n {
   static messages: Record<string, string> = {}
 
   static init(ctx: ExtensionContext, vscodeLanguage: Language) {
+    Channel.debug('i18n init')
+
     const extensionPath = ctx.extensionUri.fsPath
 
     const language = toLower(intelligentPick(Config.appearance_language, vscodeLanguage, Language.auto))

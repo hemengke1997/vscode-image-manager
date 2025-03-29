@@ -19,7 +19,7 @@ export class Svgo {
 
   static init() {
     const svgoConfigPath = Svgo.configPath
-    Channel.debug(`svgo配置文件路径: ${svgoConfigPath}`)
+    Channel.debug(`svgo init 配置文件路径: ${svgoConfigPath}`)
     if (!fs.existsSync(svgoConfigPath)) {
       fs.ensureFileSync(svgoConfigPath)
       fs.writeFileSync(

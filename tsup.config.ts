@@ -26,7 +26,7 @@ function buildExternals(option: Options): Options[] {
       entry: ['lib/**/*.ts'],
       outDir: 'dist/lib',
       format: ['cjs'],
-      target: 'node16',
+      target: 'node18',
       minify: !option.watch,
       esbuildPlugins: [
         {
@@ -77,7 +77,7 @@ export default defineConfig((option) => [
     noExternal: ['@minko-fe/sharp/package.json'],
     clean: !option.watch,
     dts: false,
-    target: 'node16',
+    target: 'node18',
     minify: !option.watch,
     env: {
       NODE_ENV: option.watch ? 'development' : process.env.NODE_ENV || 'production',

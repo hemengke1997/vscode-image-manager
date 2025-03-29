@@ -8,5 +8,5 @@
     },
     "types": ["vite-config-preset/plugin"]
   },
-  "exclude": ["temp", "dist", "dist-webview"]
+  "exclude": ["temp", "dist", "dist-webview", "node_modules"]
 }

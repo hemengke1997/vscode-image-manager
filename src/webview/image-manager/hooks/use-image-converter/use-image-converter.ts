@@ -1,6 +1,8 @@
+import { lazy } from 'react'
 import { useTranslation } from 'react-i18next'
 import useImperativeModal from '../use-imperative-modal'
-import ImageConverter from './image-converter'
+
+const ImageConverter = lazy(() => import('./image-converter'))
 
 /**
  * 转化图片格式的弹窗

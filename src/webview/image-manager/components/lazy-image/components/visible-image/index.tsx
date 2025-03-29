@@ -31,7 +31,7 @@ function VisibleImage(props: VisibleImageProps) {
     antdImageProps,
     imageNameProps,
     onContextMenu,
-    isMultipleSelecting = () => false,
+    multipleSelecting = false,
     interactive = true,
   } = props
 
@@ -104,13 +104,11 @@ function VisibleImage(props: VisibleImageProps) {
         {onPreviewClick && (
           <div
             className={classNames(
-              'flex cursor-pointer items-center space-x-1 truncate transition-colors hover:text-ant-color-primary-text',
+              'flex items-center space-x-1 truncate transition-colors',
+              !multipleSelecting && 'cursor-pointer hover:text-ant-color-primary-text',
             )}
-            onClick={(e) => {
-              if (isMultipleSelecting(e)) return
-              // prevent click away
-              e.stopPropagation()
-              e.preventDefault()
+            onClick={() => {
+              if (multipleSelecting) return
               onPreviewClick(image)
             }}
             data-disable-dbclick
@@ -143,7 +141,7 @@ function VisibleImage(props: VisibleImageProps) {
     )
   })
 
-  const imagePreivew = useMemo(() => {
+  const imagePreivew = useMemoizedFn(() => {
     if (hoverShowImageDetail) {
       return {
         mask: previewMask(),
@@ -155,7 +153,7 @@ function VisibleImage(props: VisibleImageProps) {
     }
 
     return false
-  }, [previewMask, antdImageProps.src, hoverShowImageDetail])
+  })
 
   const compressedMap = useMemo(
     () => ({
@@ -176,7 +174,7 @@ function VisibleImage(props: VisibleImageProps) {
       )}
       onContextMenu={(e) => onContextMenu?.(e, image)}
       onDoubleClick={(e) => {
-        if (isMultipleSelecting(e)) return
+        if (multipleSelecting) return
         const el = e.target as HTMLElement
         if (preventDbClick(el)) return
         showImageDetails({
@@ -211,7 +209,7 @@ function VisibleImage(props: VisibleImageProps) {
         <Image
           {...antdImageProps}
           className={classNames('rounded-md object-contain p-1 will-change-auto', antdImageProps.className)}
-          preview={imagePreivew}
+          preview={imagePreivew()}
           rootClassName={classNames('transition-all', antdImageProps.rootClassName)}
           style={imageStyle}
           src={image.vscodePath}

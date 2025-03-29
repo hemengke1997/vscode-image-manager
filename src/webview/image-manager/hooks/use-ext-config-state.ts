@@ -38,25 +38,27 @@ export function useExtConfigState<T extends Flatten<ConfigType>, U>(
     [options?.debounce],
   )
 
-  const { run: debounceUpdate } = useDebounceFn((state: U) => {
+  const { run: debounceUpdate } = useDebounceFn((state: U, value: U) => {
+    // webview中的状态不跟postValue走，直接更新
+    // 避免循环更新
+    setExtConfig(
+      produce((draft) => {
+        set(draft, key, state)
+      }),
+    )
+
     vscodeApi.postMessage({
       cmd: CmdToVscode.update_user_configuration,
       data: {
         key,
-        value: state,
+        value,
       },
     })
   }, debounceOptions)
 
   const onChangeBySet = useMemoizedFn(() => {
     const value = postValue(state)
-    setExtConfig(
-      produce((draft) => {
-        set(draft, key, value)
-      }),
-    )
-
-    debounceUpdate(value)
+    debounceUpdate(state, value)
   })
 
   const [state, setState] = useTrackState(trackedState, {

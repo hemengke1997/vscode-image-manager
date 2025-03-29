@@ -17,9 +17,10 @@ import {
 import { Config } from '~/core/config/config'
 import { Global } from '~/core/global'
 import { i18n } from '~/i18n'
-import { type MessageType, WebviewMessageFactory } from '~/message'
 import { CmdToWebview } from '~/message/cmd'
-import { DEV_PORT, EXT_NAMESPACE } from '~/meta'
+import { type MessageType } from '~/message/message-factory'
+import { WebviewMessageFactory } from '~/message/webview-message-factory'
+import { DEV_PORT, EXT_NAMESPACE, PRELOAD_HELPER } from '~/meta'
 import { Channel } from '~/utils/channel'
 
 export class ImageManagerPanel {
@@ -49,15 +50,18 @@ export class ImageManagerPanel {
     this.id = `imageManager-${nanoid()}`
     this.panel = this.createPanel()
     this.webviewMessageCenter = new WebviewMessageFactory(this)
-    // Listen for when the panel is disposed
-    // This happens when the user closes the panel or when the panel is closed programatically
-    this.panel.onDidDispose(() => this.dispose(), null, this._disposables)
+
+    // 监听面板被关闭的事件
+    // 在用户关闭面板或程序化关闭面板时触发
+    this.ctx.subscriptions.push(this.panel.onDidDispose(() => this.dispose(), null, this._disposables))
 
     // 监听webview发送的消息
-    this.panel.webview.onDidReceiveMessage((msg: MessageType) => this._handleMessage(msg), null, this._disposables)
+    this.ctx.subscriptions.push(
+      this.panel.webview.onDidReceiveMessage((msg: MessageType) => this._handleMessage(msg), null, this._disposables),
+    )
 
     // 监听vscode配置变化
-    workspace.onDidChangeConfiguration(this.update, null, this._disposables)
+    this.ctx.subscriptions.push(workspace.onDidChangeConfiguration(this.update, null, this._disposables))
 
     this._getWebviewHtml().then((res) => {
       this.panel.webview.html = res
@@ -169,7 +173,7 @@ export class ImageManagerPanel {
 
   private async _getWebviewHtml() {
     const isProd = Global.isProduction()
-    const webview = this.panel.webview
+    const { webview } = this.panel
 
     let html = ''
     let content_src = ''
@@ -202,17 +206,23 @@ export class ImageManagerPanel {
         attrs: {
           'http-equiv': 'Content-Security-Policy',
           'content': [
-            `default-src 'self' https://*`,
+            `default-src 'none'`,
             `connect-src 'self' https://\* http://\* wss://\* ${content_src}`,
             `font-src 'self' vscode-webview://* https://* blob: data:`,
             `frame-src ${webview.cspSource} vscode-webview://* https://* blob: data:`,
             `media-src 'self' https://* blob: data:`,
             `img-src ${webview.cspSource} vscode-webview://* https://* http://* blob: data:`,
             `worker-src 'self' blob: https://* http://*`,
-            `script-src vscode-webview://* 'self' 'unsafe-inline' 'unsafe-eval' https://\* ${script_src}`,
+            `script-src ${webview.cspSource} vscode-webview://* 'unsafe-inline' 'unsafe-eval' https://\* ${script_src}`,
             `style-src ${webview.cspSource} 'unsafe-inline' https://* blob: data: http://*`,
           ].join('; '),
         },
+      },
+      {
+        injectTo: 'head-prepend',
+        tag: 'script',
+        // 让正式环境支持资源异步加载，不然会从 vscode-webview://* 读取资源，这样会导致资源加载失败，因为正式环境的资源是放在 dist-webview 目录下的
+        children: `${PRELOAD_HELPER} = '${this._getUri(['dist-webview']).toString()}'`,
       },
     ])
 
@@ -233,12 +243,12 @@ export class ImageManagerPanel {
     return html
   }
 
-  private _getUri(extensionUri: Uri, pathList: string[]) {
-    return this.panel.webview.asWebviewUri(Uri.joinPath(extensionUri, ...pathList))
+  private _getUri(pathList: string[]) {
+    return this.panel.webview.asWebviewUri(Uri.joinPath(this.ctx.extensionUri, ...pathList))
   }
 
   private _getHtml(htmlPath: string[]) {
-    const htmlWebviewPath = this._getUri(this.ctx.extensionUri, htmlPath).fsPath
+    const htmlWebviewPath = this._getUri(htmlPath).fsPath
     const htmlContent = fs.readFileSync(htmlWebviewPath, 'utf-8')
 
     Channel.debug(`htmlPath: ${htmlWebviewPath}`)

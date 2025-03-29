@@ -7,11 +7,12 @@ import dayjs from 'dayjs'
 import { Compressed } from '~/enums'
 import { CmdToVscode } from '~/message/cmd'
 import { vscodeApi } from '~/webview/vscode-api'
+import { type LazyImageProps } from '../../components/lazy-image'
 import { formatBytes } from '../../utils'
 
 type Props = {
   image: ImageType
-  onPreview?: (image: ImageType) => void
+  onPreview?: LazyImageProps['onPreviewClick']
 }
 
 function ImageDetails(props: Props & ImperativeModalProps) {

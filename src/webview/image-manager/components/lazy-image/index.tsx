@@ -71,7 +71,7 @@ export type LazyImageProps = {
   /**
    * 处于多选状态
    */
-  isMultipleSelecting?: (e: React.MouseEvent<HTMLDivElement, MouseEvent>) => boolean
+  multipleSelecting?: boolean
   /**
    * 交互样式 (hover，selected)
    */

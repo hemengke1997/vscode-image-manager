@@ -1,7 +1,7 @@
 import fs from 'fs-extra'
 import { i18n } from '~/i18n'
-import { VscodeMessageCenter } from '~/message'
 import { CmdToVscode } from '~/message/cmd'
+import { VscodeMessageCenter } from '~/message/message-factory'
 import { type ImageManagerPanel } from '~/webview/panel'
 import { SkipError } from '../operator'
 import { Svgo } from '../svgo'

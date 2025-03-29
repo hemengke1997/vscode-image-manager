@@ -3,6 +3,7 @@ import { toLower } from 'es-toolkit/compat'
 import { ColorThemeKind, env, type ExtensionContext, window, workspace } from 'vscode'
 import { Language, Theme } from '~/enums'
 import { FALLBACK_LANGUAGE } from '~/meta'
+import { Channel } from '~/utils/channel'
 import { type VscodeConfigType } from '../config/common'
 
 export class VscodeSettings {
@@ -11,6 +12,8 @@ export class VscodeSettings {
   static theme: Theme
 
   static init(ctx: ExtensionContext): VscodeConfigType {
+    Channel.debug('VscodeSettings init')
+
     ctx.subscriptions.push(window.onDidChangeActiveColorTheme(() => this.initTheme()))
     ctx.subscriptions.push(
       workspace.onDidChangeConfiguration((e) => {

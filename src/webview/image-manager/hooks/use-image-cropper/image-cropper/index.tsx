@@ -208,7 +208,7 @@ function ImageCropper(props: ImageCropperProps) {
             <div className={'flex h-full flex-col justify-between'}>
               <div className={'flex flex-col space-y-1'}>
                 <Popover
-                  trigger={['hover']}
+                  trigger={['hover', 'click']}
                   content={
                     <div className={'flex w-full flex-col flex-wrap gap-x-1'}>
                       <Checkbox
@@ -246,6 +246,7 @@ function ImageCropper(props: ImageCropperProps) {
                       </Checkbox>
                     </div>
                   }
+                  arrow={false}
                 >
                   <Button type='default' icon={<IoIosArrowDropup />}>
                     {t('im.toggle_options')}

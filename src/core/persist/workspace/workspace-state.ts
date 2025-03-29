@@ -2,12 +2,14 @@ import { get } from 'es-toolkit/compat'
 import { Config } from '~/core/config/config'
 import { Global } from '~/core/global'
 import { EXT_NAMESPACE } from '~/meta'
+import { Channel } from '~/utils/channel'
 import { DEFAULT_WORKSPACE_STATE, type WorkspaceStateKey, type WorkspaceStateType } from './common'
 
 export class WorkspaceState {
   static readonly DEFAULT_WORKSPACE_STATE = DEFAULT_WORKSPACE_STATE
 
   static init() {
+    Channel.debug('WorkspaceState init')
     this.clear_unused()
   }
 

@@ -1,7 +1,8 @@
-import { useMemo } from 'react'
+import { lazy, useMemo } from 'react'
 import { useTranslation } from 'react-i18next'
 import useImperativeModal from '../use-imperative-modal'
-import ImageSimilarity from './image-similarity'
+
+const ImageSimilarity = lazy(() => import('./image-similarity'))
 
 /**
  * 查看相似图片的弹窗

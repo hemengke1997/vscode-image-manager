@@ -10,12 +10,13 @@ import {
   useState,
 } from 'react'
 import { toast } from 'react-atom-toast'
-import { useClickAway, useMemoizedFn } from 'ahooks'
+import { useClickAway, useKeyPress, useMemoizedFn } from 'ahooks'
 import { useControlledState } from 'ahooks-x'
 import { ConfigProvider, Image, theme } from 'antd'
 import { type AliasToken, type ComponentTokenMap } from 'antd/es/theme/interface'
 import { isString, range, round } from 'es-toolkit'
 import { type PreviewGroupPreview } from 'rc-image/es/PreviewGroup'
+import { Key } from 'ts-key-enum'
 import { classNames } from 'tw-clsx'
 import { isDev } from 'vite-config-preset/client'
 import useImageManagerEvent, { IMEvent } from '../../hooks/use-image-manager-event'
@@ -347,9 +348,29 @@ function ImageGroup(props: imageGroupProps, ref: ForwardedRef<HTMLDivElement>) {
   /**
    * 是否正在多选
    */
-  const isMultipleSelecting = useMemoizedFn((e: React.MouseEvent<HTMLDivElement, MouseEvent>) => {
-    return enableMultipleSelect ? e.metaKey || e.ctrlKey || e.shiftKey : false
+  const isMultipleSelecting = useMemoizedFn((e: KeyboardEvent) => {
+    return enableMultipleSelect
+      ? e.metaKey || e.ctrlKey || e.shiftKey || [Key.Meta, Key.Shift, Key.Control].includes(e.key as Key)
+      : false
   })
+
+  const [multipleSelecting, setMultipleSelecting] = useState(false)
+
+  /**
+   * 多选时，某些按钮不可用，比如预览按钮
+   */
+  useKeyPress(
+    isMultipleSelecting,
+    (event) => {
+      if (enableMultipleSelect) {
+        setMultipleSelecting(event.type === 'keydown')
+      }
+    },
+    {
+      events: ['keydown', 'keyup'],
+      exactMatch: true,
+    },
+  )
 
   const handlePreviewChange = useMemoizedFn((current: number) => {
     setPreview({ current, open: true })
@@ -367,34 +388,7 @@ function ImageGroup(props: imageGroupProps, ref: ForwardedRef<HTMLDivElement>) {
   const handleImageRender = useMemoizedFn<Exclude<PreviewGroupPreview['imageRender'], undefined>>(
     (originalNode, info) => {
       return (
-        <div
-          onContextMenu={(e) => {
-            show({
-              event: e,
-              props: {
-                image: images[info.current],
-                sameLevelImages: images,
-                sameWorkspaceImages: getSameWorkspaceImages(images[info.current]),
-                enableContextMenu: {
-                  ...enableContextMenu,
-                  reveal_in_viewer: true,
-                  copy: false,
-                  rename: false,
-                  delete: false,
-                  cut: false,
-                  compress: false,
-                  crop: false,
-                  find_similar_in_all: false,
-                  find_similar_in_same_level: false,
-                  format_conversion: false,
-                  preview: false, // 已经是预览状态了，禁止再次预览
-                },
-                shortcutsVisible: false, // 预览状态下，不显示快捷键
-              },
-            })
-          }}
-          className={'contents'}
-        >
+        <>
           <div
             className={
               'fixed left-[50%] top-16 z-[1] translate-x-[-50%] rounded bg-[rgba(0,0,0,0.1)] px-3 py-1 text-xl text-ant-color-text-light-solid shadow'
@@ -402,8 +396,37 @@ function ImageGroup(props: imageGroupProps, ref: ForwardedRef<HTMLDivElement>) {
           >
             {images[info.current]?.basename}
           </div>
-          {originalNode}
-        </div>
+          <div
+            onContextMenu={(e) => {
+              show({
+                event: e,
+                props: {
+                  image: images[info.current],
+                  sameLevelImages: images,
+                  sameWorkspaceImages: getSameWorkspaceImages(images[info.current]),
+                  enableContextMenu: {
+                    ...enableContextMenu,
+                    reveal_in_viewer: true,
+                    copy: false,
+                    rename: false,
+                    delete: false,
+                    cut: false,
+                    compress: false,
+                    crop: false,
+                    find_similar_in_all: false,
+                    find_similar_in_same_level: false,
+                    format_conversion: false,
+                    preview: false, // 已经是预览状态了，禁止再次预览
+                  },
+                  shortcutsVisible: false, // 预览状态下，不显示快捷键
+                },
+              })
+            }}
+            className={'contents'}
+          >
+            {originalNode}
+          </div>
+        </>
       )
     },
   )
@@ -507,7 +530,7 @@ function ImageGroup(props: imageGroupProps, ref: ForwardedRef<HTMLDivElement>) {
                       inViewer={inViewer}
                       image={image}
                       selected={selectedImages.some((t) => t.path === image.path)}
-                      isMultipleSelecting={isMultipleSelecting}
+                      multipleSelecting={multipleSelecting}
                       antdImageProps={antdImageProps}
                       onSelectedChange={handleSelectedChange}
                       onPreviewClick={handlePreviewClick}

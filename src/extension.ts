@@ -10,6 +10,8 @@ import { Channel } from './utils/channel'
 export function activate(ctx: vscode.ExtensionContext) {
   Channel.info(`Activated, v${version}`)
 
+  Global.context = ctx
+
   const settings = VscodeSettings.init(ctx)
 
   i18n.init(ctx, settings.language)

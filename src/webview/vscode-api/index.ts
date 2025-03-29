@@ -14,28 +14,25 @@ import logger from '~/utils/logger'
 export type MessageCallbackFn<T extends KeyofMessage> = (data: ReturnOfMessageCenter<T>) => void
 
 /**
- * A utility wrapper around the acquireVsCodeApi() function, which enables
- * message passing and state management between the webview and extension
- * contexts.
+ * 工具类，封装了acquireVsCodeApi()函数，
+ * 使webview和扩展上下文之间能够进行消息传递和状态管理。
  *
- * This utility also enables webview code to be run in a web browser-based
- * dev server by using native web browser features that mock the functionality
- * enabled by acquireVsCodeApi.
+ * 允许在基于web浏览器的开发服务器中运行webview代码，
+ * 通过使用本机web浏览器功能来模拟acquireVsCodeApi启用的功能。
  */
 class VscodeApi {
   private readonly vsCodeApi: WebviewApi<unknown> | undefined
   private _callbacks: Record<string, (data: any) => void> = {}
 
   constructor() {
-    // Check if the acquireVsCodeApi function exists in the current development
-    // context (i.e. VS Code development window or web browser)
+    // 检查acquireVsCodeApi函数是否存在于当前开发上下文中（VSCode开发窗口或web浏览器）
     if (typeof acquireVsCodeApi === 'function') {
       this.vsCodeApi = acquireVsCodeApi()
     }
   }
 
   public registerEventListener() {
-    // Listen message from vscode
+    // 监听来自vscode的消息
     window.addEventListener('message', (event) => {
       const message = event.data as MessageType
       const { callbackId, data } = message
@@ -58,12 +55,10 @@ class VscodeApi {
   private _getRandomId = () => `${Date.now()}_${nanoid()}`
 
   /**
-   * Post a message (i.e. send arbitrary data) to the owner of the webview (i.e. vscode extension).
+   * 向webview的拥有者（即vscode扩展）发送消息（即发送任意数据）。
+   * @remarks 当在web浏览器中运行webview代码时，postMessage将把给定的消息记录到控制台。
    *
-   * @remarks When running webview code inside a web browser, postMessage will instead
-   * log the given message to the console.
-   *
-   * @param message Abitrary data (must be JSON serializable) to send to the extension context.
+   * @param message 任意数据（必须是JSON可序列化的）发送到扩展上下文。
    */
   public postMessage<T extends KeyofMessage>(
     message: FirstParameterOfMessageCenter<T> extends never
@@ -89,12 +84,11 @@ class VscodeApi {
   }
 
   /**
-   * Get the persistent state stored for this webview.
+   * 获取webview存储的持久化状态。
    *
-   * @remarks When running webview source code inside a web browser, getState will retrieve state
-   * from local storage (https://developer.mozilla.org/en-US/docs/Web/API/Window/localStorage).
+   * @remarks 当在web浏览器中运行webview源代码时，getState将从本地存储中检索状态 (https://developer.mozilla.org/en-US/docs/Web/API/Window/localStorage)。
    *
-   * @return The current state or `undefined` if no state has been set.
+   * @return 当前状态或 `undefined`（如果没有设置状态）
    */
   public getState(): unknown | undefined {
     if (this.vsCodeApi) {
@@ -106,15 +100,13 @@ class VscodeApi {
   }
 
   /**
-   * Set the persistent state stored for this webview.
+   * 设置webview存储的持久化状态。
    *
-   * @remarks When running webview source code inside a web browser, setState will set the given
-   * state using local storage (https://developer.mozilla.org/en-US/docs/Web/API/Window/localStorage).
+   * @remarks 当在web浏览器中运行webview源代码时，setState将使用本地存储设置给定的状态(https://developer.mozilla.org/en-US/docs/Web/API/Window/localStorage)。
    *
-   * @param newState New persisted state. This must be a JSON serializable object. Can be retrieved
-   * using {@link getState}.
+   * @param newState 新的持久化状态。必须是一个JSON可序列化的对象。可以通过{@link getState}检索
    *
-   * @return The new state.
+   * @return 新的持久化状态
    */
   public setState<T extends unknown | undefined>(newState: T): T {
     if (this.vsCodeApi) {
@@ -126,5 +118,5 @@ class VscodeApi {
   }
 }
 
-// Exports class singleton to prevent multiple invocations of acquireVsCodeApi.
+// 导出单例，防止多次调用acquireVsCodeApi
 export const vscodeApi = new VscodeApi()

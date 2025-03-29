@@ -8,12 +8,15 @@ import { Keybinding } from '~/webview/image-manager/keybinding'
 
 function Search() {
   const { t } = useTranslation()
-  const [showImageSearch] = useImageSearch()
+  const [showImageSearch, { imperativeModalMap }] = useImageSearch()
 
   useHotkeys<HTMLDivElement>(
     `mod+f`,
     () => {
-      showImageSearch()
+      // 没有已经打开的弹窗时，才能触发快捷搜索
+      if (![...imperativeModalMap.keys()].length) {
+        showImageSearch({})
+      }
     },
     {
       enabled: true,
