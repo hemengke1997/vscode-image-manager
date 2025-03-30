@@ -349,7 +349,7 @@ function Settings(props: ImperativeModalProps) {
     },
     {
       key: 'about',
-      label: '关于',
+      label: t('im.about'),
       form: false,
       children: (
         <AppearMotion>

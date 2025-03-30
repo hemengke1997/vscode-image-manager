@@ -210,6 +210,7 @@
     upgrade: '升级',
     author: '作者',
     source_code: '源代码',
+    about: '关于',
   },
   fallback: {
     internal_error: '内部错误',
