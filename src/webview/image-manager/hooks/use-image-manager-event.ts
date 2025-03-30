@@ -54,9 +54,13 @@ export enum IMEvent {
    */
   rename_directory = 'rename_directory',
   /**
-   * 清空图片选中
+   * 清空viewer中图片选中
    */
-  clear_selected_images = 'clear_selected_images',
+  clear_viewer_selected_images = 'clear_viewer_selected_images',
+  /**
+   * 清空viewer中剪切图片
+   */
+  clear_viewer_cut_images = 'clear_viewer_cut_images',
 }
 
 type Events = {
@@ -67,7 +71,8 @@ type Events = {
   [IMEvent.context_menu]: [image: ImageType, id: string]
   [IMEvent.delete_directory]: [dirPath: string]
   [IMEvent.rename_directory]: [previosDirPath: string, newDirPath: string]
-  [IMEvent.clear_selected_images]: [dirs?: string[]]
+  [IMEvent.clear_viewer_selected_images]: [dirs?: string[]]
+  [IMEvent.clear_viewer_cut_images]: []
 }
 
 const instance = ImageManagerEvent.getInstance()

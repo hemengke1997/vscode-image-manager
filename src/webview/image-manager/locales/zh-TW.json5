@@ -115,6 +115,7 @@
     no_image_to_convert_format: '無可轉換格式的圖片',
     deps_not_found: '依賴安裝失敗',
     skip_compressed: '跳過已壓縮的圖片',
+    skip_same_ext: '跳過格式未變的圖片',
     toggle_options: '選項配置',
     operation: '操作',
     center_x: '左右居中',

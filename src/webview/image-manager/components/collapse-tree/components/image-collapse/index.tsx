@@ -7,15 +7,16 @@ import { Collapse, type CollapseProps } from 'antd'
 import { isUndefined } from 'es-toolkit'
 import { produce } from 'immer'
 import { classNames } from 'tw-clsx'
-import useImageManagerEvent, { IMEvent } from '../../hooks/use-image-manager-event'
-import useSticky from '../../hooks/use-sticky'
-import ActionStore from '../../stores/action-store'
-import FileStore, { CopyType } from '../../stores/file-store'
-import GlobalStore from '../../stores/global-store'
-import { clearTimestamp } from '../../utils'
-import { type EnableCollapseContextMenuType } from '../context-menus/components/collapse-context-menu'
-import useCollapseContextMenu from '../context-menus/components/collapse-context-menu/hooks/use-collapse-context-menu'
-import ImageGroup, { type imageGroupProps } from '../image-group'
+import useImageManagerEvent, { IMEvent } from '../../../../hooks/use-image-manager-event'
+import useSticky from '../../../../hooks/use-sticky'
+import ActionStore from '../../../../stores/action-store'
+import FileStore, { CopyType } from '../../../../stores/file-store'
+import GlobalStore from '../../../../stores/global-store'
+import { clearTimestamp } from '../../../../utils'
+import { type EnableCollapseContextMenuType } from '../../../context-menus/components/collapse-context-menu'
+import useCollapseContextMenu from '../../../context-menus/components/collapse-context-menu/hooks/use-collapse-context-menu'
+import ImageGroup, { type imageGroupProps } from '../../../image-group'
+import { type ImageNameProps } from '../../../image-name'
 import SingleLabel from './components/single-label'
 import './index.css'
 
@@ -62,10 +63,6 @@ type ImageCollapseProps = {
    */
   contextMenu: (path: string) => EnableCollapseContextMenuType
   /**
-   * ImagePreview组件的透传prop
-   */
-  imageGroupProps?: Partial<imageGroupProps>
-  /**
    * 是否可以展开
    */
   collapsible?: boolean
@@ -73,8 +70,15 @@ type ImageCollapseProps = {
    * 强制展开
    */
   forceOpen?: boolean
+  /**
+   * 图片名称显示方式
+   */
+  tooltipDisplayFullPath: ImageNameProps['tooltipDisplayFullPath']
 }
 
+/**
+ * viewer 目录图片组件
+ */
 function ImageCollapse(props: ImageCollapseProps) {
   const {
     collapseProps,
@@ -87,9 +91,9 @@ function ImageCollapse(props: ImageCollapseProps) {
     allSubfolderImages,
     id,
     contextMenu,
-    imageGroupProps,
     collapsible = true,
     forceOpen,
+    tooltipDisplayFullPath,
   } = props
 
   const { activeCollapseIdSet, setActiveCollapseIdSet } = ActionStore.useStore([
@@ -193,7 +197,7 @@ function ImageCollapse(props: ImageCollapseProps) {
     }
   }, [id])
 
-  useImageManagerEvent({
+  const { imageManagerEvent } = useImageManagerEvent({
     on: {
       [IMEvent.reveal_in_viewer]: (imagePaths) => {
         onActive(imagePaths)
@@ -304,15 +308,15 @@ function ImageCollapse(props: ImageCollapseProps) {
   }, [open])
 
   // 全局的文件选择
-  const { selectedImageMap, setSelectedImageMap, allSelectedImages, imageCopied } = FileStore.useStore([
-    'selectedImageMap',
-    'setSelectedImageMap',
-    'allSelectedImages',
+  const { imageSelectedMap, setImageSelectedMap, imageSelected, imageCopied } = FileStore.useStore([
+    'imageSelectedMap',
+    'setImageSelectedMap',
+    'imageSelected',
     'imageCopied',
   ])
 
   const onSelectedImagesChange = useMemoizedFn((images: ImageType[]) => {
-    setSelectedImageMap(
+    setImageSelectedMap(
       produce((draft) => {
         // 优化渲染
         if (!images.length && !draft.get(id)?.length) return
@@ -325,6 +329,10 @@ function ImageCollapse(props: ImageCollapseProps) {
     if (imageCopied?.type === CopyType.MOVE && imageCopied.list.length) {
       return imageCopied.list.some((item) => item.path === image.path)
     }
+  })
+
+  const onClearImageGroupSelected = useMemoizedFn(() => {
+    imageManagerEvent.emit(IMEvent.clear_viewer_selected_images)
   })
 
   if (!images?.length && !children) return null
@@ -351,17 +359,33 @@ function ImageCollapse(props: ImageCollapseProps) {
                 <ImageGroup
                   ref={holderRef}
                   id={id}
-                  selectedImages={selectedImageMap.get(id) || []}
+                  selectedImages={imageSelectedMap.get(id) || []}
                   onSelectedImagesChange={onSelectedImagesChange}
-                  allSelectedImages={allSelectedImages}
-                  clearSelectedOnBlankClick={true}
-                  {...imageGroupProps}
+                  enableMultipleSelect={true}
+                  onMultipleSelectContextMenu={() => imageSelected}
+                  enableContextMenu={{
+                    compress: true,
+                    format_conversion: true,
+                    crop: true,
+                    find_similar_in_all: true,
+                    find_similar_in_same_level: true,
+                    cut: true,
+                    copy: true,
+                    delete: true,
+                    rename: true,
+                    reveal_in_viewer: false,
+                  }}
                   lazyImageProps={{
-                    ...imageGroupProps?.lazyImageProps,
                     // 剪切的图片添加透明度
                     className: (image) => (isCutImage(image) ? classNames('opacity-50') : ''),
+                    inViewer: true,
+                    imageNameProps: {
+                      tooltipDisplayFullPath,
+                    },
                   }}
                   images={images}
+                  onClearImageGroupSelected={onClearImageGroupSelected}
+                  clearSelectedOnBlankClick={true}
                 />
                 {children}
               </div>

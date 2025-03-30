@@ -5,3 +5,4 @@ fuse.js
 mime/lite
 cropperjs
 dayjs
+react-compare-slider

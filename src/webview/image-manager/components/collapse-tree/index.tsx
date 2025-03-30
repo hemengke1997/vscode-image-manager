@@ -13,7 +13,7 @@ import TreeStore from '../../stores/tree-store'
 import { DirTree, type DisplayMapType, type FileNode } from '../../utils/dir-tree'
 import { ANIMATION_DURATION } from '../../utils/duration'
 import { type EnableCollapseContextMenuType } from '../context-menus/components/collapse-context-menu'
-import ImageCollapse from '../image-collapse'
+import ImageCollapse from './components/image-collapse'
 import RevealInFolder from './components/reveal-in-folder'
 import styles from './index.module.css'
 
@@ -212,27 +212,7 @@ function CollapseTree(props: Props) {
                 images={renderList}
                 subfolderImages={subfolderImages}
                 allSubfolderImages={allSubfolderImages}
-                imageGroupProps={{
-                  enableMultipleSelect: true,
-                  enableContextMenu: {
-                    compress: true,
-                    format_conversion: true,
-                    crop: true,
-                    find_similar_in_all: true,
-                    find_similar_in_same_level: true,
-                    cut: true,
-                    copy: true,
-                    delete: true,
-                    rename: true,
-                    reveal_in_viewer: false,
-                  },
-                  inViewer: true,
-                  lazyImageProps: {
-                    imageNameProps: {
-                      tooltipDisplayFullPath: !displayGroup.includes(DisplayGroupType.dir),
-                    },
-                  },
-                }}
+                tooltipDisplayFullPath={!displayGroup.includes(DisplayGroupType.dir)}
               >
                 {label ? nestedDisplay(children) : null}
               </ImageCollapse>

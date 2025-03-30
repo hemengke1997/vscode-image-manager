@@ -18,16 +18,16 @@ export enum CopyType {
 }
 
 /**
- * 文件复制、粘贴、剪切上下文
+ * viewer中 文件复制、粘贴、剪切上下文
  */
 function useFileStore() {
   const { t } = useTranslation()
-  const [selectedImageMap, setSelectedImageMap] = useState<Map<string, ImageType[]>>(new Map())
+  const [imageSelectedMap, setImageSelectedMap] = useState<Map<string, ImageType[]>>(new Map())
 
   // 所有选中的图片
-  const allSelectedImages = useMemo(() => {
-    return Array.from(selectedImageMap.values()).flat()
-  }, [selectedImageMap])
+  const imageSelected = useMemo(() => {
+    return Array.from(imageSelectedMap.values()).flat()
+  }, [imageSelectedMap])
 
   const [imageCopied, setImageCopied] = useState<{
     list: ImageType[]
@@ -38,7 +38,7 @@ function useFileStore() {
   const clearNotExistImages = useMemoizedFn((images: ImageType[]) => {
     const imagePathsSet = new Set(images.map((image) => image.path))
 
-    setSelectedImageMap(
+    setImageSelectedMap(
       produce((draft) => {
         let hasChanges = false
 
@@ -60,8 +60,8 @@ function useFileStore() {
 
   useImageManagerEvent({
     on: {
-      [IMEvent.clear_selected_images]: (dirs) => {
-        setSelectedImageMap(
+      [IMEvent.clear_viewer_selected_images]: (dirs) => {
+        setImageSelectedMap(
           produce((draft) => {
             if (dirs) {
               dirs.forEach((dir) => {
@@ -72,6 +72,15 @@ function useFileStore() {
             }
           }),
         )
+      },
+      [IMEvent.clear_viewer_cut_images]: () => {
+        // 取消剪切态
+        setImageCopied((t) => {
+          if (t?.type === 'move' && t.list.length) {
+            return undefined
+          }
+          return t
+        })
       },
     },
   })
@@ -150,10 +159,10 @@ function useFileStore() {
   })
 
   return {
-    selectedImageMap,
-    setSelectedImageMap,
+    imageSelectedMap,
+    setImageSelectedMap,
     clearNotExistImages,
-    allSelectedImages,
+    imageSelected,
     imageCopied,
     setImageCopied,
     handleCopy,

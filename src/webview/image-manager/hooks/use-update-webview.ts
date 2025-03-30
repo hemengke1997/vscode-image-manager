@@ -20,7 +20,6 @@ export default function useUpdateWebview() {
 
   const updateConfig = useMemoizedFn(() => {
     vscodeApi.postMessage({ cmd: CmdToVscode.get_extension_config }, (data) => {
-      console.log(data, 'data')
       if (data) {
         setExtConfig(data.ext)
         setVscodeConfig(data.vscode)

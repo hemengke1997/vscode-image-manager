@@ -14,6 +14,9 @@ const tooltipProps: TooltipProps = {
 export type ImageNameProps = {
   children?: string
   image?: ImageType
+  /**
+   * 是否显示完整路径
+   */
   tooltipDisplayFullPath?: boolean
 }
 

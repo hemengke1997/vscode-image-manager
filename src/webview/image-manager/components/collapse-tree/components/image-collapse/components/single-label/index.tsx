@@ -5,8 +5,8 @@ import { classNames } from 'tw-clsx'
 import useImageManagerEvent, { IMEvent } from '~/webview/image-manager/hooks/use-image-manager-event'
 import useImageOperation from '~/webview/image-manager/hooks/use-image-operation'
 import { OS } from '~/webview/image-manager/utils/device'
-import { type EnableCollapseContextMenuType } from '../../../context-menus/components/collapse-context-menu'
-import useCollapseContextMenu from '../../../context-menus/components/collapse-context-menu/hooks/use-collapse-context-menu'
+import { type EnableCollapseContextMenuType } from '../../../../../context-menus/components/collapse-context-menu'
+import useCollapseContextMenu from '../../../../../context-menus/components/collapse-context-menu/hooks/use-collapse-context-menu'
 
 type SingleLabelProps = {
   children: ReactNode
@@ -111,7 +111,7 @@ function SingleLabel(props: SingleLabelProps) {
           // 防止触发父元素的打开collapse事件
           e.stopPropagation()
           // 清除图片选中状态
-          imageManagerEvent.emit(IMEvent.clear_selected_images)
+          imageManagerEvent.emit(IMEvent.clear_viewer_selected_images)
         }}
       >
         {children}

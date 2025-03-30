@@ -10,7 +10,6 @@ import { floor } from 'es-toolkit/compat'
 import { produce } from 'immer'
 import useImageHotKeys from '../../hooks/use-image-hot-keys'
 import useImageManagerEvent, { IMEvent } from '../../hooks/use-image-manager-event'
-import useImageOperation from '../../hooks/use-image-operation'
 import useSticky from '../../hooks/use-sticky'
 import useWheelScaleEvent from '../../hooks/use-wheel-scale-event'
 import FilterStore from '../../stores/filter-store'
@@ -93,20 +92,7 @@ function Viewer() {
     }
   }, [target])
 
-  const { ref } = useImageHotKeys()
-
-  const { handleEscapeCutting } = useImageOperation()
-  const contentRef = useRef<HTMLDivElement>(null)
-  useClickAway(
-    () => {
-      // 取消剪切状态
-      handleEscapeCutting()
-    },
-    [contentRef],
-    ['click'],
-  )
-
-  useImageManagerEvent({
+  const { imageManagerEvent } = useImageManagerEvent({
     on: {
       [IMEvent.reveal_in_viewer]: (imagePaths) => {
         // 统一从这里处理reveal逻辑
@@ -114,13 +100,27 @@ function Viewer() {
         setImageReveal(imagePaths)
 
         // 关闭所有命令式弹窗
-        imperativeModalMap.clear()
+        // note: 虽然 imperativeModalMap 是响应式的，但是由于react hook的组件卸载机制，导致clear的watch不一定能执行到
+        // 所以还是手动关闭modal最稳健
+        imperativeModalMap.forEach((modal) => modal.destroy())
       },
       [IMEvent.clear_image_reveal]: () => {
         setImageReveal([])
       },
     },
   })
+
+  const { ref } = useImageHotKeys()
+
+  const contentRef = useRef<HTMLDivElement>(null)
+  useClickAway(
+    () => {
+      // 取消剪切状态
+      imageManagerEvent.emit(IMEvent.clear_viewer_cut_images)
+    },
+    [contentRef],
+    ['click'],
+  )
 
   return (
     <div ref={containerRef} className={'space-y-4'}>

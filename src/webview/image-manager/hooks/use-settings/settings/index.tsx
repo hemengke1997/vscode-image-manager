@@ -209,7 +209,7 @@ function Settings(props: ImperativeModalProps) {
       children: (
         <Space>
           <Typography.Text strong={true}>{version}</Typography.Text>
-          {extLastetInfo?.version && extLastetInfo.version === version && (
+          {extLastetInfo?.version && extLastetInfo.version !== version && (
             <Button
               icon={<MdBrowserUpdated />}
               href={'https://marketplace.visualstudio.com/items?itemName=minko.image-manager'}

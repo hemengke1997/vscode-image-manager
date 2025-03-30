@@ -116,6 +116,7 @@
     no_image_to_convert_format: 'No image to convert format',
     deps_not_found: 'Dependencies install failed',
     skip_compressed: 'Skip compressed',
+    skip_same_ext: 'Skip unchanged format',
     toggle_options: 'Toggle Options',
     operation: 'Operations',
     center_x: 'Center X',

@@ -5,30 +5,32 @@ import { Key } from 'ts-key-enum'
 import useImageContextMenu from '../components/context-menus/components/image-context-menu/hooks/use-image-context-menu'
 import FileStore from '../stores/file-store'
 import { OS } from '../utils/device'
+import useImageManagerEvent, { IMEvent } from './use-image-manager-event'
 import useImageOperation from './use-image-operation'
 
 export default function useImageHotKeys() {
   const { hideAll } = useImageContextMenu()
-  const { allSelectedImages } = FileStore.useStore(['allSelectedImages'])
+  const { imageSelected } = FileStore.useStore(['imageSelected'])
 
-  const { beginRenameImageProcess, beginDeleteImageProcess, beginCopyProcess, beginCutProcess, handleEscapeCutting } =
-    useImageOperation()
+  const { beginRenameImageProcess, beginDeleteImageProcess, beginCopyProcess, beginCutProcess } = useImageOperation()
 
   const handleRename = useMemoizedFn(() => {
-    beginRenameImageProcess(last(allSelectedImages)!, allSelectedImages)
+    beginRenameImageProcess(last(imageSelected)!, imageSelected)
   })
 
   const handleDelete = useMemoizedFn(() => {
-    beginDeleteImageProcess(allSelectedImages)
+    beginDeleteImageProcess(imageSelected)
   })
 
   const handleCopy = useMemoizedFn(() => {
-    beginCopyProcess(allSelectedImages)
+    beginCopyProcess(imageSelected)
   })
 
   const handleCut = useMemoizedFn(() => {
-    beginCutProcess(allSelectedImages)
+    beginCutProcess(imageSelected)
   })
+
+  const { imageManagerEvent } = useImageManagerEvent()
 
   const onHotKeys = useMemoizedFn((e: KeyboardEvent) => {
     hideAll()
@@ -68,7 +70,8 @@ export default function useImageHotKeys() {
         return
       }
       case Key.Escape: {
-        handleEscapeCutting()
+        imageManagerEvent.emit(IMEvent.clear_viewer_selected_images)
+        imageManagerEvent.emit(IMEvent.clear_viewer_cut_images)
         return
       }
       default:

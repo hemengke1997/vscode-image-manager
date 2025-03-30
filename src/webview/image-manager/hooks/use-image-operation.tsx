@@ -470,7 +470,7 @@ function useImageOperation() {
    * 在图片查看器中打开图片
    */
   const beginRevealInViewer = useMemoizedFn((imagePaths: string[]) => {
-    imageManagerEvent.emit(IMEvent.clear_selected_images)
+    imageManagerEvent.emit(IMEvent.clear_viewer_selected_images)
     imageManagerEvent.emit(IMEvent.reveal_in_viewer, imagePaths)
   })
 
@@ -629,17 +629,6 @@ function useImageOperation() {
     }
   })
 
-  // 取消剪切状态
-  const handleEscapeCutting = useMemoizedFn(() => {
-    // 取消剪切、选中状态
-    setImageCopied((t) => {
-      if (t?.type === 'move' && t.list.length) {
-        return undefined
-      }
-      return t
-    })
-  })
-
   return {
     openInVscodeExplorer,
     openInOsExplorer,
@@ -659,7 +648,6 @@ function useImageOperation() {
     beginCopyProcess,
     beginPasteProcess,
     beginCutProcess,
-    handleEscapeCutting,
   }
 }
 

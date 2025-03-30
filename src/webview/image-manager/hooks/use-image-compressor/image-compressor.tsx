@@ -9,9 +9,7 @@ import defaults from 'defaults'
 import { intersection, mapValues, omit } from 'es-toolkit'
 import { flatten as flattenObject, unflatten } from 'flat'
 import { type CompressionOptions } from '~/core/operator/compressor/type'
-import { type OperatorResult } from '~/core/operator/operator'
 import { CmdToVscode } from '~/message/cmd'
-import { abortPromise } from '~/utils/abort-promise'
 import { vscodeApi } from '~/webview/vscode-api'
 import ImageOperator from '../../components/image-operator'
 import Format from '../../components/image-operator/components/format'
@@ -19,9 +17,8 @@ import KeepOriginal from '../../components/image-operator/components/keep-origin
 import SkipCompressed from '../../components/image-operator/components/skip-compressed'
 import GlobalStore from '../../stores/global-store'
 import { ANIMATION_DURATION } from '../../utils/duration'
-import useAbortController from '../use-abort-controller'
 import useImageOperation from '../use-image-operation'
-import { type FormComponent, useOperatorModalLogic } from '../use-operator-modal-logic/use-operator-modal-logic'
+import useOperationFormLogic, { type FormComponent, OperatorMode } from '../use-operation/use-operation-form-logic'
 import styles from './index.module.css'
 
 type FormValue = CompressionOptions & {
@@ -39,33 +36,33 @@ export type ImageCompressorProps = {
 function ImageCompressor(props: ImageCompressorProps & ImperativeModalProps) {
   const { images: imagesProp, fields, closeModal } = props
 
-  const [images, setImages] = useState(imagesProp)
-
   const { t } = useTranslation()
 
   const [form] = Form.useForm()
 
-  const { compressor } = GlobalStore.useStore(['compressor'])
-  const [submitting, setSubmitting] = useState(false)
+  const { beginCompressProcess } = useImageOperation()
 
-  const abortController = useAbortController()
-
-  const { beginCompressProcess, beginUndoProcess } = useImageOperation()
-  const { handleOperateImage } = useOperatorModalLogic()
-
-  const compressImage = useMemoizedFn((images: ImageType[], option: FormValue, abortController: AbortController) => {
-    const fn = () =>
-      new Promise<OperatorResult[] | undefined>((resolve) => {
-        vscodeApi.postMessage({ cmd: CmdToVscode.compress_image, data: { images, option } }, (data) => {
-          resolve(data)
-        })
-      })
-
-    return abortPromise(fn, {
-      abortController,
-      timeout: (15 + images.length) * 1000,
-    })
+  const {
+    images,
+    submitting,
+    setSubmitting,
+    onFinish: onOperationFinish,
+    setImages,
+  } = useOperationFormLogic<FormValue>({
+    apiCommand: CmdToVscode.compress_image,
+    images: imagesProp,
+    onOperation: {
+      onRedoClick(images) {
+        beginCompressProcess(images)
+      },
+      onSuccess() {
+        closeModal()
+      },
+      operationMode: OperatorMode.compression,
+    },
   })
+
+  const { compressor } = GlobalStore.useStore(['compressor'])
 
   const onFinish = useMemoizedFn((value: FormValue) => {
     value = defaults(value, flattenObject(compressor?.option || {}))
@@ -77,28 +74,7 @@ function ImageCompressor(props: ImageCompressorProps & ImperativeModalProps) {
       value.size = Number(value.size)
     }
 
-    handleOperateImage(
-      () => {
-        return compressImage(images, unflatten(value), abortController)
-      },
-      {
-        onSuccess() {
-          closeModal()
-        },
-        onCancel() {
-          abortController.abort()
-        },
-        onFinal() {
-          setSubmitting(false)
-        },
-        onRedoClick(images) {
-          beginCompressProcess(images)
-        },
-        onUndoClick(results) {
-          beginUndoProcess(results)
-        },
-      },
-    )
+    onOperationFinish(unflatten(value))
   })
 
   /* ------------------ 压缩配置相关 ------------------ */

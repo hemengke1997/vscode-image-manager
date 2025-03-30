@@ -1,6 +1,8 @@
+import { lazy } from 'react'
 import { type ModalFuncProps } from 'antd'
 import useImperativeModal from '~/webview/image-manager/hooks/use-imperative-modal'
-import compareImage from './compare-image'
+
+const CompareImage = lazy(() => import('./compare-image'))
 
 export default function useCompareImage(modalProps?: ModalFuncProps) {
   const { showModal } = useImperativeModal({
@@ -12,7 +14,7 @@ export default function useCompareImage(modalProps?: ModalFuncProps) {
       width: '100%',
       ...modalProps,
     },
-    FC: compareImage,
+    FC: CompareImage,
   })
 
   return [showModal] as const

@@ -54,6 +54,10 @@ export type imageGroupProps = {
    */
   enableMultipleSelect?: boolean
   /**
+   * 多选时，右键菜单回调
+   */
+  onMultipleSelectContextMenu?: () => ImageType[]
+  /**
    * 是否可交互
    */
   interactive?: boolean
@@ -82,9 +86,9 @@ export type imageGroupProps = {
    */
   enableContextMenu?: ImageContextMenuType['enableContextMenu']
   /**
-   * 是否是viewer中的图片组
+   * 清空所有图片组选中的图片
    */
-  inViewer?: boolean
+  onClearImageGroupSelected?: () => void
 }
 
 const ToastKey = 'image-preview-scale'
@@ -92,6 +96,7 @@ const ToastKey = 'image-preview-scale'
 /**
  * 图片组
  * 展示一组图片列表，并支持预览、多选等功能
+ * 页面中可能同时存在多个图片组
  */
 function ImageGroup(props: imageGroupProps, ref: ForwardedRef<HTMLDivElement>) {
   const {
@@ -101,9 +106,9 @@ function ImageGroup(props: imageGroupProps, ref: ForwardedRef<HTMLDivElement>) {
     enableMultipleSelect = false,
     interactive = true,
     renderer = (c) => c,
-    allSelectedImages,
+    onMultipleSelectContextMenu,
     clearSelectedOnBlankClick,
-    inViewer,
+    onClearImageGroupSelected,
   } = props
 
   const { token } = theme.useToken()
@@ -170,7 +175,7 @@ function ImageGroup(props: imageGroupProps, ref: ForwardedRef<HTMLDivElement>) {
       }
       if (
         isString(parent.className) &&
-        classNames.filter(Boolean).some((className) => parent?.className.includes(className))
+        classNames.filter(Boolean).some((className) => parent?.classList.contains(className))
       ) {
         return true
       }
@@ -179,7 +184,7 @@ function ImageGroup(props: imageGroupProps, ref: ForwardedRef<HTMLDivElement>) {
     return false
   })
 
-  const { imageManagerEvent } = useImageManagerEvent({
+  useImageManagerEvent({
     on: {
       [IMEvent.reveal_in_viewer]: () => {
         if (preview.open) {
@@ -191,18 +196,9 @@ function ImageGroup(props: imageGroupProps, ref: ForwardedRef<HTMLDivElement>) {
     },
   })
 
-  const clearAllSelectedImages = useMemoizedFn(() => {
-    if (inViewer) {
-      imageManagerEvent.emit(IMEvent.clear_selected_images)
-    }
-  })
-
   const handleClickAway = useMemoizedFn(() => {
-    if (clearSelectedOnBlankClick) {
-      clearAllSelectedImages()
-    } else {
-      setSelectedImages([])
-    }
+    onClearImageGroupSelected?.()
+    setSelectedImages([])
   })
 
   useClickAway(
@@ -222,6 +218,10 @@ function ImageGroup(props: imageGroupProps, ref: ForwardedRef<HTMLDivElement>) {
 
       // 如果不希望在点击的时候清空选中的图片，直接return即可
 
+      if (targetEl.getAttribute('data-id') === 'context-menu-mask') {
+        return
+      }
+
       if (
         // collapse 中的 image-group 传了ref，其他的没有传
         // 所以正好用这个ref来判断是否是在collapse中了
@@ -236,10 +236,6 @@ function ImageGroup(props: imageGroupProps, ref: ForwardedRef<HTMLDivElement>) {
           'ant-collapse-item',
         ])
       ) {
-        return
-      }
-
-      if (targetEl.getAttribute('data-id') === 'context-menu-mask') {
         return
       }
 
@@ -258,11 +254,11 @@ function ImageGroup(props: imageGroupProps, ref: ForwardedRef<HTMLDivElement>) {
     if (!selectedImages.some((t) => t.path === image.path)) {
       // 如果之前选中的图片中没有当前图片，则清空选中的图片
       // 并选中当前图片
-      clearAllSelectedImages()
+      onClearImageGroupSelected?.()
       selected = [image]
       setSelectedImages(selected)
     } else {
-      selected = allSelectedImages
+      selected = onMultipleSelectContextMenu?.() || selectedImages
     }
 
     show({
@@ -303,7 +299,7 @@ function ImageGroup(props: imageGroupProps, ref: ForwardedRef<HTMLDivElement>) {
         if (!selectedImages.length) {
           // 没有选中图片，说明是第一次shift点击
           // 此时如果有其他目录的图片被选中，需要清空
-          clearAllSelectedImages()
+          onClearImageGroupSelected?.()
 
           setSelectedImages([image])
           return
@@ -321,7 +317,8 @@ function ImageGroup(props: imageGroupProps, ref: ForwardedRef<HTMLDivElement>) {
       }
     }
 
-    clearAllSelectedImages()
+    // 如果没有开启多选，或者没有按下 ctrl/meta/shift 键，则清空选中的图片
+    onClearImageGroupSelected?.()
     setSelectedImages([image])
   })
 
@@ -527,7 +524,6 @@ function ImageGroup(props: imageGroupProps, ref: ForwardedRef<HTMLDivElement>) {
                   {renderer(
                     <LazyImage
                       {...lazyImageProps}
-                      inViewer={inViewer}
                       image={image}
                       selected={selectedImages.some((t) => t.path === image.path)}
                       multipleSelecting={multipleSelecting}

@@ -1,6 +1,6 @@
 import { type Key, memo, type ReactNode, useMemo, useState } from 'react'
 import { useTranslation } from 'react-i18next'
-import { GiJumpingDog } from 'react-icons/gi'
+import { GoSkip } from 'react-icons/go'
 import { MdErrorOutline } from 'react-icons/md'
 import { TbFileUnknown } from 'react-icons/tb'
 import { VscSmiley, VscWarning } from 'react-icons/vsc'
@@ -16,8 +16,9 @@ import ImageGroup, { type imageGroupProps } from '~/webview/image-manager/compon
 import { useExtConfigState } from '~/webview/image-manager/hooks/use-ext-config-state'
 import GlobalStore from '~/webview/image-manager/stores/global-store'
 import { vscodeApi } from '~/webview/vscode-api'
-import { type OnEndOptionsType, useOperatorModalLogic } from '../../use-operator-modal-logic/use-operator-modal-logic'
-import useScrollRef from '../../use-scroll-ref'
+import useScrollRef from '../../../use-scroll-ref'
+import { type OnEndOptionsType } from '../../use-operation-form-logic'
+import { useOperatorModalLogic } from '../../use-operator-modal-logic/use-operator-modal-logic'
 import CompareAction from './components/compare-action'
 import ImageCard from './components/image-card'
 import RedoAction from './components/redo-action'
@@ -31,12 +32,12 @@ export type Groups = {
   [key in Group]: OperatorResult[]
 }
 
-export type OperationResultProps = {
+type OperationResultProps = {
   results: OperatorResult[]
 } & OnEndOptionsType
 
 function OperationResult(props: OperationResultProps & ImperativeModalProps) {
-  const { results: resultsProp, onUndoClick, onRedoClick, closeModal } = props
+  const { results: resultsProp, onUndoClick, onRedoClick, closeModal, operationMode } = props
 
   const { t } = useTranslation()
   const { imageWidth } = GlobalStore.useStore(['imageWidth'])
@@ -67,8 +68,9 @@ function OperationResult(props: OperationResultProps & ImperativeModalProps) {
           value: errorRange,
           onChange: setErrorRange,
         },
+        operationMode,
       }),
-    [groups, errorRange],
+    [groups, errorRange, operationMode],
   )
 
   const getPercent = useMemoizedFn((result: OperatorResult) => {
@@ -297,7 +299,7 @@ function OperationResult(props: OperationResultProps & ImperativeModalProps) {
             renderer={(lazyImage) => (
               <ImageCard cover={lazyImage}>
                 <div className={'flex items-center justify-center gap-1'}>
-                  <GiJumpingDog className={'text-ant-color-text'} />
+                  <GoSkip className={'text-ant-color-text'} />
                 </div>
               </ImageCard>
             )}

@@ -1,23 +1,18 @@
-import { memo, useState } from 'react'
+import { memo } from 'react'
 import { useTranslation } from 'react-i18next'
 import { useMemoizedFn } from 'ahooks'
-import { useTrackState } from 'ahooks-x'
 import { type ImperativeModalProps } from 'ahooks-x/use-imperative-antd-modal'
 import { Checkbox, Form, Tag } from 'antd'
 import { mergeWith } from 'es-toolkit'
 import { isArray, isEmpty, toLower } from 'es-toolkit/compat'
 import { type FormatConverterOptions } from '~/core/operator/format-converter'
-import { type OperatorResult } from '~/core/operator/operator'
 import { CmdToVscode } from '~/message/cmd'
-import { abortPromise } from '~/utils/abort-promise'
-import { vscodeApi } from '~/webview/vscode-api'
 import ImageOperator, { type ImageOperatorProps } from '../../components/image-operator'
 import Format from '../../components/image-operator/components/format'
 import KeepOriginal from '../../components/image-operator/components/keep-original'
 import GlobalStore from '../../stores/global-store'
-import useAbortController from '../use-abort-controller'
 import useImageOperation from '../use-image-operation'
-import { type FormComponent, useOperatorModalLogic } from '../use-operator-modal-logic/use-operator-modal-logic'
+import useOperationFormLogic, { type FormComponent, OperatorMode } from '../use-operation/use-operation-form-logic'
 
 export type ImageConverterProps = {} & ImageOperatorProps
 
@@ -29,30 +24,26 @@ function ImageConverter(props: ImageConverterProps & ImperativeModalProps) {
   const { formatConverter } = GlobalStore.useStore(['formatConverter'])
   const [form] = Form.useForm()
 
-  const [images, setImages] = useTrackState(imagesProp)
+  const { beginFormatConversionProcess } = useImageOperation()
 
-  const abortController = useAbortController()
-
-  const [submitting, setSubmitting] = useState(false)
-
-  // const hasSomeImageType = useMemoizedFn((type: string) => {
-  //   return images?.some((img) => img.extname === type)
-  // })
-
-  const { beginFormatConversionProcess, beginUndoProcess } = useImageOperation()
-  const { handleOperateImage } = useOperatorModalLogic()
-
-  const convertImages = useMemoizedFn((images: ImageType[], option: FormValue, abortController: AbortController) => {
-    const fn = () =>
-      new Promise<OperatorResult[] | undefined>((resolve) => {
-        vscodeApi.postMessage({ cmd: CmdToVscode.convert_image_format, data: { images, option } }, (data) => {
-          resolve(data)
-        })
-      })
-    return abortPromise(fn, {
-      abortController,
-      timeout: (15 + images.length) * 1000,
-    })
+  const {
+    images,
+    submitting,
+    setSubmitting,
+    onFinish: onOperationFinish,
+    setImages,
+  } = useOperationFormLogic<FormValue>({
+    images: imagesProp,
+    apiCommand: CmdToVscode.convert_image_format,
+    onOperation: {
+      onRedoClick(images) {
+        beginFormatConversionProcess(images)
+      },
+      onSuccess() {
+        closeModal()
+      },
+      operationMode: OperatorMode.conversion,
+    },
   })
 
   const onFinish = useMemoizedFn((value: FormValue) => {
@@ -60,28 +51,7 @@ function ImageConverter(props: ImageConverterProps & ImperativeModalProps) {
       if (isArray(srcValue)) return srcValue
     })
 
-    handleOperateImage(
-      () => {
-        return convertImages(images, value, abortController)
-      },
-      {
-        onSuccess() {
-          closeModal()
-        },
-        onCancel() {
-          abortController.abort()
-        },
-        onFinal() {
-          setSubmitting(false)
-        },
-        onRedoClick() {
-          beginFormatConversionProcess(images)
-        },
-        onUndoClick(results) {
-          beginUndoProcess(results)
-        },
-      },
-    )
+    onOperationFinish(value)
   })
 
   const tab = {

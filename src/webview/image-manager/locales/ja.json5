@@ -116,6 +116,7 @@
     no_image_to_convert_format: '形式を変換する画像がありません',
     deps_not_found: '依存関係のインストールに失敗しました',
     skip_compressed: '圧縮済みをスキップ',
+    skip_same_ext: 'フォーマットが変更されていない画像をスキップ',
     toggle_options: 'オプションを切り替え',
     operation: '操作',
     center_x: '中心 X',
