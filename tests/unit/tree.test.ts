@@ -319,8 +319,9 @@ describe('增量更新', () => {
         origin: UpdateOrigin.dir,
         data: {
           payload: {
-            path: 'webview',
             workspaceFolder: 'project',
+            dirPath: 'webview',
+            absDirPath: '/Users/path/to/project/webview',
           },
           type: UpdateEvent.delete,
         },
@@ -329,8 +330,9 @@ describe('增量更新', () => {
         origin: UpdateOrigin.dir,
         data: {
           payload: {
-            path: 'path/to',
             workspaceFolder: 'project',
+            dirPath: 'path/to',
+            absDirPath: '/Users/path/to/project/path/to',
           },
           type: UpdateEvent.delete,
         },
@@ -356,8 +358,9 @@ describe('增量更新', () => {
         origin: UpdateOrigin.dir,
         data: {
           payload: {
-            path: 'path/to/a',
             workspaceFolder: 'project',
+            dirPath: 'path/to/a',
+            absDirPath: '/Users/path/to/project/path/to/a',
           },
           type: UpdateEvent.create,
         },
@@ -366,7 +369,8 @@ describe('增量更新', () => {
         origin: UpdateOrigin.dir,
         data: {
           payload: {
-            path: 'webview',
+            dirPath: 'webview',
+            absDirPath: '/Users/path/to/project/webview',
             workspaceFolder: 'project',
           },
           type: UpdateEvent.create,

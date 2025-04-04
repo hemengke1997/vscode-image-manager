@@ -112,11 +112,19 @@ function Viewer() {
         ref={stickyRef}
       >
         {imageState.loading ? (
-          <Transition mounted={true} initial={true} duration={ANIMATION_DURATION.middle}>
+          <Transition
+            mounted={true}
+            keepMounted={false}
+            initial={true}
+            duration={ANIMATION_DURATION.middle}
+            enterDelay={ANIMATION_DURATION.slow}
+            exitDelay={0}
+            key='loading'
+          >
             {(style) => <Skeleton style={style} className={'px-4 py-2'} active paragraph={{ rows: 4 }} />}
           </Transition>
         ) : (
-          <Transition mounted={true} initial={true} duration={ANIMATION_DURATION.middle}>
+          <Transition mounted={true} initial={true} duration={ANIMATION_DURATION.middle} key='viewer'>
             {(style) => (
               <div ref={contentRef} style={style}>
                 <div className={'space-y-4'} tabIndex={-1} ref={ref}>

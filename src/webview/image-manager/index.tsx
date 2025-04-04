@@ -129,7 +129,7 @@ function ImageManager() {
     switch (cmd) {
       case CmdToWebview.update_images: {
         data = data as CmdToWebviewData<CmdToWebview.update_images>
-        logger.debug(CmdToWebview.update_images, data)
+        logger.debug('更新图片', data)
 
         switch (data.updateType) {
           case UpdateType.full:
@@ -158,7 +158,7 @@ function ImageManager() {
       }
       case CmdToWebview.reveal_image_in_viewer: {
         data = data as CmdToWebviewData<CmdToWebview.reveal_image_in_viewer>
-        logger.debug('reveal_image_in_viewer', data.imagePath)
+        logger.debug(CmdToWebview.reveal_image_in_viewer, data.imagePath)
         beginRevealInViewer([data.imagePath])
         break
       }

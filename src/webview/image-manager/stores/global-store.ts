@@ -24,10 +24,12 @@ export type Workspace = {
   images: ImageType[] // 图片
   workspaceFolder: string // 工作区名称
   absWorkspaceFolder: string // 工作区绝对路径
-  update?: {
-    payloads: UpdatePayload[] // 更新的图片
-    type: UpdateType // 更新类型，全量更新/增量更新
-  }
+  update:
+    | {
+        payloads: UpdatePayload[] // 更新的图片
+        type: UpdateType // 更新类型，全量更新/增量更新
+      }
+    | undefined
 }
 
 export type WebviewFormatConverterType = {
@@ -86,6 +88,10 @@ function useGlobalStore() {
                 workspaceFolder: action.workspaceFolder,
                 absWorkspaceFolder: action.absWorkspaceFolder,
                 images,
+                update: {
+                  payloads: [],
+                  type: UpdateType.full,
+                },
               })
             }
 
@@ -132,6 +138,22 @@ function useGlobalStore() {
 
                     case UpdateEvent.delete: {
                       remove(workspace.images, (image) => image.path === payload.path)
+                      break
+                    }
+
+                    default:
+                      break
+                  }
+                })
+
+              payloads
+                .filter((t) => t.origin === UpdateOrigin.dir)
+                .forEach((item) => {
+                  const { type, payload } = item.data
+
+                  switch (type) {
+                    case UpdateEvent.delete: {
+                      remove(workspace.images, (image) => image.absDirPath === payload.absDirPath)
                       break
                     }
 

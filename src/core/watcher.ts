@@ -102,7 +102,8 @@ export class Watcher {
             data: {
               type,
               payload: {
-                path: e.path,
+                dirPath: resolveDirPath(e.path, this._guessCwdFromPath(e.path), true),
+                absDirPath: e.path,
                 workspaceFolder: path.basename(this._guessCwdFromPath(e.path)),
               },
             },

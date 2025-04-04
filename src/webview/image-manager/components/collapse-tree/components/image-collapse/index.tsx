@@ -21,6 +21,7 @@ import SingleLabel from './components/single-label'
 import './index.css'
 
 type ImageCollapseProps = {
+  workspaceFolder: string
   /**
    * 透传给 antd collapse 的 props
    */
@@ -76,6 +77,7 @@ type ImageCollapseProps = {
  */
 function ImageCollapse(props: ImageCollapseProps) {
   const {
+    workspaceFolder,
     collapseProps,
     children,
     labelRender,
@@ -95,12 +97,17 @@ function ImageCollapse(props: ImageCollapseProps) {
     'setActiveCollapseIdSet',
   ])
 
-  const { imageReveal, viewerHeaderStickyHeight, dirReveal, setDirReveal } = GlobalStore.useStore([
+  const { imageReveal, viewerHeaderStickyHeight, dirReveal, setDirReveal, workspaceImages } = GlobalStore.useStore([
     'imageReveal',
     'viewerHeaderStickyHeight',
     'dirReveal',
     'setDirReveal',
+    'workspaceImages',
   ])
+
+  const sameWorkspaceImages = useMemo(() => {
+    return workspaceImages.find((item) => item.workspaceFolder === workspaceFolder)?.images
+  }, [workspaceImages])
 
   const stickyRef = useRef<HTMLDivElement>(null)
   const holderRef = useRef<HTMLDivElement>(null)
@@ -380,8 +387,7 @@ function ImageCollapse(props: ImageCollapseProps) {
                     },
                   }}
                   images={images}
-                  // TODO
-                  visibleImages={[]}
+                  workspaceImages={sameWorkspaceImages}
                   onClearImageGroupSelected={onClearImageGroupSelected}
                   clearSelectedOnBlankClick={true}
                 />

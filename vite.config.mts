@@ -14,6 +14,9 @@ import { preloadHelper } from './vite/preload-helper'
 export default defineConfig(async (env) => {
   return preset({
     env,
+    optimizeDeps: {
+      // force: true,
+    },
     server: {
       host: '0.0.0.0',
       port: DEV_PORT,

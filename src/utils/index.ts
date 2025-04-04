@@ -61,14 +61,15 @@ export function isFsWritable(path: string) {
 }
 
 /**
- * 解析图片相对于当前工作目录的路径
- * @param imagePath 图片路径
+ * 解析路径相对于当前工作目录的路径
+ * @param 文件路径
  * @param cwd 当前工作目录
  * @returns
  */
-export function resolveDirPath(imagePath: string, cwd: string) {
-  if (cwd === path.dirname(imagePath)) return ''
-  return normalizePath(path.relative(cwd, path.dirname(imagePath)))
+export function resolveDirPath(imagePath: string, cwd: string, isDirectory = false) {
+  const target = isDirectory ? imagePath : path.dirname(imagePath)
+  if (cwd === target) return ''
+  return normalizePath(path.relative(cwd, target))
 }
 
 export function ensureArray<T>(value: T | T[]): T[] {

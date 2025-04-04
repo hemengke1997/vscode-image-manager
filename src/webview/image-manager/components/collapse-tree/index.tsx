@@ -32,41 +32,50 @@ function CollapseTree(props: Props) {
 
   const { imageFilter } = FilterStore.useStore(['imageFilter'])
 
-  useEffect(() => {}, [])
+  const afterUpdate = useMemoizedFn(() => {
+    const nestedTree = treeManager.current?.toNestedArray()
+    resetPartialState()
+    setNestedTree(nestedTree)
+
+    // 获取当前工作区的可见图片列表
+    startTransition(() => {
+      const images = flatten(treeManager.current!.toArray(nestedTree || [], (node) => node.data.images || []))
+      setWorkspaceImages(
+        produce((draft) => {
+          const index = draft.findIndex((t) => t.workspaceFolder === workspace.workspaceFolder)
+          if (index !== -1) {
+            draft[index].images = images
+          } else {
+            draft.push({ workspaceFolder: workspace.workspaceFolder, images })
+          }
+        }),
+      )
+    })
+  })
 
   useEffect(() => {
-    if (workspace.images.length) {
-      switch (workspace.update?.type) {
+    if (workspace.images.length && workspace.update) {
+      switch (workspace.update.type) {
         case UpdateType.patch:
           treeManager.current?.updateTree(workspace.update.payloads)
           break
-        default:
+        case UpdateType.full:
           generateTree()
           break
+        default:
+          break
       }
-      const nestedTree = treeManager.current?.toNestedArray()
-      resetPartialState()
-      setNestedTree(nestedTree)
 
-      // 获取当前工作区的可见图片列表
-      startTransition(() => {
-        const images = flatten(treeManager.current!.toArray(nestedTree || [], (node) => node.data.images || []))
-        setWorkspaceImages(
-          produce((draft) => {
-            const index = draft.findIndex((t) => t.workspaceFolder === workspace.workspaceFolder)
-            if (index !== -1) {
-              draft[index].images = images
-            } else {
-              draft.push({ workspaceFolder: workspace.workspaceFolder, images })
-            }
-          }),
-        )
-      })
+      afterUpdate()
     }
+  }, [workspace.images, workspace.update])
 
-    // 注意这些依赖，变动时，会重新生成树结构
-    // 在大量图片时，可能会有性能问题
-  }, [workspace.images, displayGroup, displayStyle, imageFilter, sort])
+  useEffect(() => {
+    if (workspace.images.length) {
+      generateTree()
+      afterUpdate()
+    }
+  }, [displayGroup, displayStyle, imageFilter, sort])
 
   const displayGroupToTreeStyle = useMemoizedFn((group: DisplayGroupType[]) => {
     if (isSubset(group, [DisplayGroupType.dir, DisplayGroupType.extname])) {

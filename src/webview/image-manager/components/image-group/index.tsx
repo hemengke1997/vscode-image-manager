@@ -37,7 +37,7 @@ export type imageGroupProps = {
   /**
    * 工作区所有可见图片
    */
-  visibleImages?: ImageType[]
+  workspaceImages?: ImageType[]
   /**
    * 透传给 LazyImage 组件的 props
    */
@@ -94,7 +94,7 @@ const ToastKey = 'image-preview-scale'
 function ImageGroup(props: imageGroupProps, ref: ForwardedRef<HTMLDivElement>) {
   const {
     images,
-    visibleImages,
+    workspaceImages,
     lazyImageProps,
     enableContextMenu,
     enableMultipleSelect = false,
@@ -252,7 +252,7 @@ function ImageGroup(props: imageGroupProps, ref: ForwardedRef<HTMLDivElement>) {
         image,
         images: selected,
         sameLevelImages: images,
-        sameWorkspaceImages: visibleImages,
+        sameWorkspaceImages: workspaceImages,
         enableContextMenu: {
           ...enableContextMenu,
           preview: true,
@@ -365,7 +365,7 @@ function ImageGroup(props: imageGroupProps, ref: ForwardedRef<HTMLDivElement>) {
                 props: {
                   image: images[info.current],
                   sameLevelImages: images,
-                  sameWorkspaceImages: visibleImages,
+                  sameWorkspaceImages: workspaceImages,
                   enableContextMenu: {
                     ...enableContextMenu,
                     reveal_in_viewer: true,

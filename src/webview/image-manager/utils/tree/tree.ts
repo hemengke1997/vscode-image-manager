@@ -1,4 +1,5 @@
 import { isNil, last, mergeWith, uniq } from 'es-toolkit'
+import logger from '~/utils/logger'
 
 export type NodeID = string
 
@@ -130,7 +131,10 @@ export class Tree<T extends Record<string, any>> {
    */
   deleteNode(id: NodeID): void {
     const node = this.nodes.get(id)
-    if (!node) return
+    if (!node) {
+      logger.warn(`Node with id ${id} does not exist.`)
+      return
+    }
 
     // 递归删除所有子节点
     const deleteRecursive = (currentId: NodeID) => {

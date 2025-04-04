@@ -39,7 +39,8 @@ export type ImageUpdateType =
 export type DirUpdateType = {
   type: UpdateEvent.create | UpdateEvent.delete | UpdateEvent.update
   payload: {
-    path: string
+    dirPath: string
+    absDirPath: string
     workspaceFolder: string
   }
 }
@@ -265,8 +266,6 @@ export class TreeManager {
     const { type, payload: image } = data
     const { id, nodeType } = this.genId(image)
 
-    logger.debug('热更新', type, image)
-
     switch (type) {
       case UpdateEvent.create: {
         this.tree.addNode(id, {
@@ -327,19 +326,18 @@ export class TreeManager {
   private dirUpdate(data: DirUpdateType) {
     const { type, payload } = data
 
-    const id = this.tree.formatId(`${this.rootId}/${payload.path}`)
+    const id = this.tree.formatId(`${this.rootId}/${payload.dirPath}`)
 
     switch (type) {
       case UpdateEvent.create: {
-        logger.debug('热更新：创建目录')
         break
       }
       case UpdateEvent.delete: {
-        logger.debug('热更新：删除目录')
-        console.log('删除目录', id)
-
+        logger.debug(id, 'directory delete')
+        logger.debug(this.tree.nodes, 'node')
         this.tree.deleteNode(id)
         this.deleteEmptyNodes(this.tree.parseParentId(id))
+
         break
       }
       case UpdateEvent.update: {

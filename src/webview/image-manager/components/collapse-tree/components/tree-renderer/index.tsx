@@ -136,6 +136,7 @@ function TreeRenderer(props: Props) {
                 }
                 label={data.path!}
                 images={data.images}
+                workspaceFolder={workspaceFolder}
                 folderImages={treeManager?.getImages(id)}
                 subfolderImages={treeManager?.getAllImages(id)}
                 tooltipDisplayFullPath={!displayGroup.includes(DisplayGroupType.dir)}
