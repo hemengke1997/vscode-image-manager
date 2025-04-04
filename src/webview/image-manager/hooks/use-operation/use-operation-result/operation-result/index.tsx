@@ -12,7 +12,7 @@ import { produce } from 'immer'
 import { ConfigKey } from '~/core/config/common'
 import { type OperatorResult } from '~/core/operator/operator'
 import { CmdToVscode } from '~/message/cmd'
-import ImageGroup, { type imageGroupProps } from '~/webview/image-manager/components/image-group'
+import ImageGroup, { type ImageGroupProps } from '~/webview/image-manager/components/image-group'
 import { useExtConfigState } from '~/webview/image-manager/hooks/use-ext-config-state'
 import GlobalStore from '~/webview/image-manager/stores/global-store'
 import { vscodeApi } from '~/webview/vscode-api'
@@ -124,6 +124,7 @@ function OperationResult(props: OperationResultProps & ImperativeModalProps) {
           data: { id: item.id },
         },
         (res) => {
+          console.log(res, 'res')
           if (res) {
             setComparisonCache(produce((draft) => draft.set(item.id, res)))
             showImageComparison({
@@ -138,7 +139,7 @@ function OperationResult(props: OperationResultProps & ImperativeModalProps) {
     }
   })
 
-  const imageGroupProps: Omit<imageGroupProps, 'images'> = useMemo(
+  const imageGroupProps: Omit<ImageGroupProps, 'images'> = useMemo(
     () => ({
       lazyImageProps: {
         imageNameProps: {

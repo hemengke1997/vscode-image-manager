@@ -26,7 +26,7 @@ function More() {
         setOpen(open)
       }}
       arrow={false}
-      overlayClassName={'select-none'}
+      rootClassName={'select-none'}
       content={
         <div className={'flex flex-col gap-2'}>
           <div className={'flex items-center space-x-2'}>

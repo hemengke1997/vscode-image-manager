@@ -5,11 +5,11 @@ import { useControlledState } from 'ahooks-x'
 import { type ImageProps } from 'antd'
 import { trim } from 'es-toolkit'
 import { classNames } from 'tw-clsx'
-import { DEFAULT_CONFIG } from '~/core/config/common'
 import { getAppRoot } from '~/webview/utils'
 import useImageManagerEvent, { IMEvent } from '../../hooks/use-image-manager-event'
 import GlobalStore from '../../stores/global-store'
 import { clearTimestamp, isElInViewport } from '../../utils'
+import { useLazyMargin } from '../image-group/use-lazy-load-images'
 import { type ImageNameProps } from '../image-name'
 import VisibleImage from './components/visible-image'
 
@@ -95,7 +95,6 @@ function LazyImage(props: LazyImageProps) {
     },
     className,
     inViewer,
-
     ...rest
   } = props
 
@@ -110,22 +109,19 @@ function LazyImage(props: LazyImageProps) {
 
   const { imagePlaceholderSize, imageReveal } = GlobalStore.useStore(['imagePlaceholderSize', 'imageReveal'])
 
-  const rootMargin = useMemoizedFn(
-    (rate: number) => `${(imagePlaceholderSize?.height || DEFAULT_CONFIG.viewer.imageWidth) * rate}px 0px`,
-  ) // expand area of vertical intersection calculation
-
+  const { rootVerticalMargin } = useLazyMargin()
   const elRef = useRef<HTMLDivElement>(null)
 
   const [elInView] = useInViewport(elRef, {
     root,
-    rootMargin: rootMargin(4.5),
+    rootMargin: `${rootVerticalMargin(4.5)}px 0px`,
   })
 
   // 懒加载图片
   // 比 VisibleImage 的加载更多，为了更快读取图片
   const [imageInView] = useInViewport(elRef, {
     root,
-    rootMargin: rootMargin(10),
+    rootMargin: `${rootVerticalMargin(10)}px 0px`,
   })
 
   const isTargetImage = useMemoizedFn(() => {

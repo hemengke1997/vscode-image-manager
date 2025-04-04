@@ -98,14 +98,16 @@ function TreeRenderer(props: Props) {
         <div className={'select-none space-y-2'}>
           {tree.map((node) => {
             const { data, id, children } = node
-            collapseIdSet.current.add(node.id)
+            const resolvedId = resolvePath(id)
+
+            collapseIdSet.current.add(resolvedId)
+
             if (!data) return null
 
             // 非根节点，或者多工作区时，可以折叠
             const collapsible = !root || workspaceLength > 1
 
             // 全路径
-            const resolvedId = resolvePath(id)
 
             return (
               <ImageCollapse
@@ -118,7 +120,7 @@ function TreeRenderer(props: Props) {
                 }}
                 collapsible={collapsible}
                 // 不能折叠时，强制展开
-                forceOpen={!collapsible}
+                forceOpen={!collapsible ? true : undefined}
                 labelRender={(label) => (
                   <div className={'flex items-center space-x-1'}>
                     <div className={'flex items-center'}>{fnStrategy(data.nodeType).icon({ path: resolvedId })}</div>

@@ -15,6 +15,7 @@ import useImageContextMenu, {
   type ImageContextMenuType,
 } from '../context-menus/components/image-context-menu/hooks/use-image-context-menu'
 import LazyImage, { type LazyImageProps } from '../lazy-image'
+import useLazyLoadImages from './use-lazy-load-images'
 
 function imageToken(isDarkBackground: boolean): Partial<ComponentTokenMap['Image'] & AliasToken> {
   return {
@@ -25,7 +26,7 @@ function imageToken(isDarkBackground: boolean): Partial<ComponentTokenMap['Image
   }
 }
 
-export type imageGroupProps = {
+export type ImageGroupProps = {
   /**
    * 图片组标识(目录绝对路径)
    */
@@ -91,9 +92,9 @@ const ToastKey = 'image-preview-scale'
  * 展示一组图片列表，并支持预览、多选等功能
  * 页面中可能同时存在多个图片组
  */
-function ImageGroup(props: imageGroupProps, ref: ForwardedRef<HTMLDivElement>) {
+function ImageGroup(props: ImageGroupProps, ref: ForwardedRef<HTMLDivElement>) {
   const {
-    images,
+    images: imagesProp,
     workspaceImages,
     lazyImageProps,
     enableContextMenu,
@@ -106,6 +107,12 @@ function ImageGroup(props: imageGroupProps, ref: ForwardedRef<HTMLDivElement>) {
   } = props
 
   const { token } = theme.useToken()
+
+  const [images] = useLazyLoadImages({
+    images: imagesProp,
+    pageSize: 200,
+    target: ref as React.MutableRefObject<HTMLElement>,
+  })
 
   const { imageWidth } = GlobalStore.useStore(['imageWidth'])
   const { isDarkBackground, backgroundColor, tinyBackgroundColor } = SettingsStore.useStore([

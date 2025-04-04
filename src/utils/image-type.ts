@@ -19,14 +19,20 @@ export function toBase64(mimetype: string, buffer: Buffer) {
 /**
  * 如果浏览器不支持展示某个格式，则转为 base64
  */
-export async function convertToBase64IfBrowserNotSupport(input: string, sharp: TSharp | undefined) {
+export async function convertToBase64IfBrowserNotSupport(
+  input: string,
+  sharp: TSharp | undefined,
+  inputBuffer?: Buffer,
+) {
   let mimetype = mime.getType(input)
 
   const notSupported = ['tiff', 'tif'].map((t) => mime.getType(t))
   if (mimetype && notSupported.includes(mimetype)) {
     mimetype = mime.getType('png')!
     try {
-      const buffer = await sharp!(input).png().toBuffer()
+      const buffer = await sharp!(inputBuffer || input)
+        .png()
+        .toBuffer()
       return toBase64(mimetype, buffer)
     } catch {
       return input

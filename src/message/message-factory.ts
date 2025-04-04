@@ -30,7 +30,7 @@ import { generateOutputPath, normalizePath, resolveDirPath } from '~/utils'
 import { cancelablePromise } from '~/utils/abort-promise'
 import { Channel } from '~/utils/channel'
 import { imageGlob } from '~/utils/glob'
-import { convertImageToBase64, convertToBase64IfBrowserNotSupport, isBase64, toBase64 } from '~/utils/image-type'
+import { convertImageToBase64, convertToBase64IfBrowserNotSupport, isBase64 } from '~/utils/image-type'
 import logger from '~/utils/logger'
 import { UpdateEvent, UpdateOrigin, UpdateType } from '~/webview/image-manager/utils/tree/const'
 import { type ImageManagerPanel } from '~/webview/panel'
@@ -461,10 +461,7 @@ export const VscodeMessageFactory = {
     const cache = VscodeMessageFactory[CmdToVscode.get_operation_cmd_cache]({ ids: [data.id] })[0]
     const { details } = cache || {}
     if (details?.inputBuffer) {
-      const mimeType = mime.getType(details.inputPath)
-      if (mimeType) {
-        return toBase64(mimeType, details.inputBuffer)
-      }
+      return convertToBase64IfBrowserNotSupport(details.inputPath, Global.sharp, details.inputBuffer)
     }
     return null
   },

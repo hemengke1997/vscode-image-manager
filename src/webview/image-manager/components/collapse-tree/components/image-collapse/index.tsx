@@ -15,7 +15,7 @@ import GlobalStore from '../../../../stores/global-store'
 import { clearTimestamp } from '../../../../utils'
 import { type EnableCollapseContextMenuType } from '../../../context-menus/components/collapse-context-menu'
 import useCollapseContextMenu from '../../../context-menus/components/collapse-context-menu/hooks/use-collapse-context-menu'
-import ImageGroup, { type imageGroupProps } from '../../../image-group'
+import ImageGroup, { type ImageGroupProps } from '../../../image-group'
 import { type ImageNameProps } from '../../../image-name'
 import SingleLabel from './components/single-label'
 import './index.css'
@@ -37,15 +37,15 @@ type ImageCollapseProps = {
   /**
    * 需要渲染的图片
    */
-  images: imageGroupProps['images'] | undefined
+  images: ImageGroupProps['images'] | undefined
   /**
    * 当前文件夹下的图片
    */
-  folderImages: imageGroupProps['images'] | undefined
+  folderImages: ImageGroupProps['images'] | undefined
   /**
    * 当前文件夹下的所有图片（包括子目录）
    */
-  subfolderImages: imageGroupProps['images'] | undefined
+  subfolderImages: ImageGroupProps['images'] | undefined
   /**
    * 嵌套子组件
    */
@@ -338,6 +338,36 @@ function ImageCollapse(props: ImageCollapseProps) {
     imageManagerEvent.emit(IMEvent.clear_viewer_selected_images)
   })
 
+  const lazyImageProps: ImageGroupProps['lazyImageProps'] = useMemo(() => {
+    return {
+      // 剪切的图片添加透明度
+      className: (image) => (isCutImage(image) ? classNames('opacity-50') : ''),
+      inViewer: true,
+      imageNameProps: {
+        tooltipDisplayFullPath,
+      },
+    }
+  }, [tooltipDisplayFullPath, isCutImage])
+
+  const enableContextMenu: ImageGroupProps['enableContextMenu'] = useMemo(() => {
+    return {
+      compress: true,
+      format_conversion: true,
+      crop: true,
+      find_similar_in_all: true,
+      find_similar_in_same_level: true,
+      cut: true,
+      copy: true,
+      delete: true,
+      rename: true,
+      reveal_in_viewer: false,
+    }
+  }, [])
+
+  const onMultipleSelectContextMenu = useMemoizedFn(() => {
+    return imageSelected
+  })
+
   if (!images?.length && !children) return null
 
   return (
@@ -362,30 +392,12 @@ function ImageCollapse(props: ImageCollapseProps) {
                 <ImageGroup
                   ref={holderRef}
                   id={id}
-                  selectedImages={imageSelectedMap.get(id) || []}
+                  selectedImages={imageSelectedMap.get(id)}
                   onSelectedImagesChange={onSelectedImagesChange}
                   enableMultipleSelect={true}
-                  onMultipleSelectContextMenu={() => imageSelected}
-                  enableContextMenu={{
-                    compress: true,
-                    format_conversion: true,
-                    crop: true,
-                    find_similar_in_all: true,
-                    find_similar_in_same_level: true,
-                    cut: true,
-                    copy: true,
-                    delete: true,
-                    rename: true,
-                    reveal_in_viewer: false,
-                  }}
-                  lazyImageProps={{
-                    // 剪切的图片添加透明度
-                    className: (image) => (isCutImage(image) ? classNames('opacity-50') : ''),
-                    inViewer: true,
-                    imageNameProps: {
-                      tooltipDisplayFullPath,
-                    },
-                  }}
+                  onMultipleSelectContextMenu={onMultipleSelectContextMenu}
+                  enableContextMenu={enableContextMenu}
+                  lazyImageProps={lazyImageProps}
                   images={images}
                   workspaceImages={sameWorkspaceImages}
                   onClearImageGroupSelected={onClearImageGroupSelected}

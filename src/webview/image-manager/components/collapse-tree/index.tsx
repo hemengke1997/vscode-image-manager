@@ -1,5 +1,5 @@
 import { memo, startTransition, useEffect, useRef, useState } from 'react'
-import { useMemoizedFn } from 'ahooks'
+import { useMemoizedFn, useUpdateEffect } from 'ahooks'
 import { ConfigProvider } from 'antd'
 import { flatten, isSubset } from 'es-toolkit'
 import { produce } from 'immer'
@@ -70,7 +70,7 @@ function CollapseTree(props: Props) {
     }
   }, [workspace.images, workspace.update])
 
-  useEffect(() => {
+  useUpdateEffect(() => {
     if (workspace.images.length) {
       generateTree()
       afterUpdate()

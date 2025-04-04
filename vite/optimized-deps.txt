@@ -34,3 +34,4 @@ tw-clsx
 react-hotkeys-hook
 ts-key-enum
 vite-config-preset/client
+delay

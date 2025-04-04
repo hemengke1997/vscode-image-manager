@@ -27,7 +27,7 @@ function useFileStore() {
   // 所有选中的图片
   const imageSelected = useMemo(() => {
     return Array.from(imageSelectedMap.values()).flat()
-  }, [imageSelectedMap])
+  }, [imageSelectedMap.values()])
 
   const [imageCopied, setImageCopied] = useState<{
     list: ImageType[]
@@ -68,7 +68,10 @@ function useFileStore() {
                 draft.delete(dir)
               })
             } else {
+              // TODO
+              // 为什么immer中为什么要clear再newMap才能把数据清空
               draft.clear()
+              draft = new Map()
             }
           }),
         )
