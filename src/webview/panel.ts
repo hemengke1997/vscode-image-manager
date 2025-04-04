@@ -16,12 +16,13 @@ import {
 } from 'vscode'
 import { Config } from '~/core/config/config'
 import { Global } from '~/core/global'
+import { type Watcher } from '~/core/watcher'
 import { i18n } from '~/i18n'
 import { CmdToWebview } from '~/message/cmd'
 import { type MessageType } from '~/message/message-factory'
-import { WebviewMessageFactory } from '~/message/webview-message-factory'
 import { DEV_PORT, EXT_NAMESPACE, PRELOAD_HELPER } from '~/meta'
 import { Channel } from '~/utils/channel'
+import { MessageCenter } from './message-center'
 
 export class ImageManagerPanel {
   id: string
@@ -30,13 +31,15 @@ export class ImageManagerPanel {
   private _onDidChanged = new EventEmitter<Webview | false>()
   public onDidChange = this._onDidChanged.event
 
+  watcher: Watcher | null = null
+
   /**
    * 程序式修改配置
    */
   isProgrammaticChangeConfig = false
 
   panel: WebviewPanel
-  webviewMessageCenter: WebviewMessageFactory
+  messageCenter: MessageCenter
   private _disposables: Disposable[] = []
 
   constructor(
@@ -49,7 +52,7 @@ export class ImageManagerPanel {
   ) {
     this.id = `imageManager-${nanoid()}`
     this.panel = this.createPanel()
-    this.webviewMessageCenter = new WebviewMessageFactory(this)
+    this.messageCenter = new MessageCenter(this)
 
     // 监听面板被关闭的事件
     // 在用户关闭面板或程序化关闭面板时触发
@@ -121,7 +124,7 @@ export class ImageManagerPanel {
           Channel.debug(`Programmatic change config, skip update webview`)
           return
         }
-        this.webviewMessageCenter.postMessage({ cmd: CmdToWebview.update_config, data: {} })
+        this.messageCenter.postMessage({ cmd: CmdToWebview.update_config, data: undefined })
       }
     }
   }
@@ -130,9 +133,7 @@ export class ImageManagerPanel {
    * 在viewer中打开指定图片
    */
   revealImageInViewer(imageReveal: string) {
-    this.webviewMessageCenter.postMessage<{
-      imagePath: string
-    }>({
+    this.messageCenter.postMessage({
       cmd: CmdToWebview.reveal_image_in_viewer,
       data: {
         imagePath: imageReveal,
@@ -144,9 +145,9 @@ export class ImageManagerPanel {
    * 重启webview
    */
   reloadWebview() {
-    this.webviewMessageCenter.postMessage({
+    this.messageCenter.postMessage({
       cmd: CmdToWebview.program_reload_webview,
-      data: {},
+      data: undefined,
     })
   }
 
@@ -155,7 +156,7 @@ export class ImageManagerPanel {
    */
   private async _handleMessage(message: MessageType) {
     Channel.debug(`Receive cmd: ${message.cmd}`)
-    this.webviewMessageCenter.handleMessages(message)
+    this.messageCenter.handleMessages(message)
   }
 
   /**
@@ -167,6 +168,8 @@ export class ImageManagerPanel {
 
     // Dispose all the disposables
     Disposable.from(...this._disposables).dispose()
+
+    this.watcher?.dispose()
 
     this._onDidChanged.fire(false)
   }
@@ -212,8 +215,8 @@ export class ImageManagerPanel {
             `frame-src ${webview.cspSource} vscode-webview://* https://* blob: data:`,
             `media-src 'self' https://* blob: data:`,
             `img-src ${webview.cspSource} vscode-webview://* https://* http://* blob: data:`,
-            `worker-src 'self' blob: https://* http://*`,
-            `script-src ${webview.cspSource} vscode-webview://* 'unsafe-inline' 'unsafe-eval' https://\* ${script_src}`,
+            `worker-src ${script_src} data: vscode-webview://* blob: https://* http://*`,
+            `script-src ${webview.cspSource} vscode-webview://* 'unsafe-inline' 'unsafe-eval' https://\* ${script_src} data:`,
             `style-src ${webview.cspSource} 'unsafe-inline' https://* blob: data: http://*`,
           ].join('; '),
         },

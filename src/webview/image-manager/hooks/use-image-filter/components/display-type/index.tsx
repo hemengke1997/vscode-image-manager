@@ -2,7 +2,7 @@ import { memo, useMemo } from 'react'
 import { RxViewNone } from 'react-icons/rx'
 import { useControlledState } from 'ahooks-x'
 import { Badge, Checkbox, theme } from 'antd'
-import { difference } from 'es-toolkit'
+import { difference, uniq } from 'es-toolkit'
 import GlobalStore from '~/webview/image-manager/stores/global-store'
 
 type Props = {
@@ -18,7 +18,16 @@ function DisplayType(props: Props) {
   const { value, onChange } = props
 
   const imageStateWorkspaces = GlobalStore.useStore((ctx) => ctx.imageState.workspaces)
-  const { allImageTypes } = GlobalStore.useStore(['imageState', 'allImageTypes'])
+  const { imageState } = GlobalStore.useStore(['imageState'])
+
+  const allImageTypes = useMemo(() => {
+    return uniq(
+      imageState.workspaces.reduce((acc, item) => {
+        const types = item.images.map((image) => image.extname)
+        return acc.concat(types)
+      }, [] as string[]),
+    )
+  }, [imageState.workspaces])
 
   const allImageFiles = useMemo(() => imageStateWorkspaces.flatMap((item) => item.images), [imageStateWorkspaces])
 

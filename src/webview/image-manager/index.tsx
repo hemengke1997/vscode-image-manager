@@ -6,7 +6,7 @@ import { useEventListener, useMemoizedFn } from 'ahooks'
 import { App, Button, FloatButton } from 'antd'
 import { enableMapSet, setAutoFreeze } from 'immer'
 import { CmdToVscode, CmdToWebview } from '~/message/cmd'
-import { type MessageType } from '~/message/message-factory'
+import { type CmdToWebviewMessage } from '~/message/webview-message-factory'
 import logger from '~/utils/logger'
 import { getAppRoot } from '../utils'
 import { vscodeApi } from '../vscode-api'
@@ -16,10 +16,10 @@ import Layout from './components/layout'
 import Viewer from './components/viewer'
 import useFetchExtension from './hooks/use-fetch-extension'
 import useImageOperation from './hooks/use-image-operation'
-import useRefreshImages from './hooks/use-refresh-images'
+import useUpdateImages from './hooks/use-update-images'
 import useUpdateWebview from './hooks/use-update-webview'
-import ActionStore from './stores/action-store'
 import GlobalStore, { type WebviewCompressorType, type WebviewFormatConverterType } from './stores/global-store'
+import { UpdateType } from './utils/tree/const'
 
 vscodeApi.registerEventListener()
 
@@ -42,10 +42,6 @@ function ImageManager() {
     'sharpInstalled',
     'extConfig',
   ])
-
-  const { refreshImages } = ActionStore.useStore(['refreshImages'])
-
-  useRefreshImages()
 
   useFetchExtension()
 
@@ -111,8 +107,11 @@ function ImageManager() {
     }
   })
 
+  const { getAllImages, patchUpdate, fullUpdate } = useUpdateImages()
+
   useEffect(() => {
     getOperator()
+    getAllImages()
   }, [])
 
   const { updateConfig, updateWorkspaceState } = useUpdateWebview()
@@ -120,11 +119,28 @@ function ImageManager() {
   const { beginRevealInViewer } = useImageOperation()
 
   const onMessage = useMemoizedFn((e: MessageEvent) => {
-    const { cmd, data } = e.data as MessageType<Record<string, any>, keyof typeof CmdToWebview>
+    type CmdToWebviewData<K extends keyof CmdToWebviewMessage> = CmdToWebviewMessage[K]
+
+    let { cmd, data } = e.data as {
+      cmd: keyof CmdToWebviewMessage
+      data: CmdToWebviewMessage[typeof cmd]
+    }
 
     switch (cmd) {
-      case CmdToWebview.refresh_images: {
-        refreshImages({ type: 'slient-refresh' })
+      case CmdToWebview.update_images: {
+        data = data as CmdToWebviewData<CmdToWebview.update_images>
+        logger.debug(CmdToWebview.update_images, data)
+
+        switch (data.updateType) {
+          case UpdateType.full:
+            fullUpdate(data)
+            break
+          case UpdateType.patch:
+            patchUpdate(data)
+            break
+          default:
+            break
+        }
         break
       }
       case CmdToWebview.program_reload_webview: {
@@ -141,6 +157,7 @@ function ImageManager() {
         break
       }
       case CmdToWebview.reveal_image_in_viewer: {
+        data = data as CmdToWebviewData<CmdToWebview.reveal_image_in_viewer>
         logger.debug('reveal_image_in_viewer', data.imagePath)
         beginRevealInViewer([data.imagePath])
         break

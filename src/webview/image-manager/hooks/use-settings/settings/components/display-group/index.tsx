@@ -14,13 +14,8 @@ function DisplayGroup<T extends string = DisplayGroupType>(props: DisplayGroupPr
   const { t } = useTranslation()
 
   /* ---------------- image group --------------- */
-  const groupType: { label: ReactNode; value: DisplayGroupType; hidden?: boolean }[] = useMemo(
+  const groupType: { label: ReactNode; value: DisplayGroupType }[] = useMemo(
     () => [
-      {
-        label: 'TODO: workspace',
-        value: DisplayGroupType.workspace,
-        hidden: true,
-      },
       {
         label: t('im.group_by_dir'),
         value: DisplayGroupType.dir,
@@ -41,11 +36,7 @@ function DisplayGroup<T extends string = DisplayGroupType>(props: DisplayGroupPr
   return (
     <>
       <Checkbox.Group
-        options={
-          groupType
-            .filter((t) => !t.hidden)
-            .map((item) => ({ label: item.label, value: item.value })) as CheckboxOptionType[]
-        }
+        options={groupType.map((item) => ({ label: item.label, value: item.value })) as CheckboxOptionType[]}
         onChange={setGroups}
         value={groups}
       ></Checkbox.Group>

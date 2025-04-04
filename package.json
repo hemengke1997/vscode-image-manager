@@ -1,7 +1,7 @@
 {
   "publisher": "Minko",
   "name": "image-manager",
-  "version": "2.9.3",
+  "version": "2.9.4",
   "private": true,
   "packageManager": "npm@10.9.2",
   "description": "Powerful yet easy-to-use VSCode image manager",
@@ -89,7 +89,6 @@
     "@minko-fe/style-object-to-string": "^1.0.0",
     "@minko-fe/tsconfig": "^2.1.1",
     "@types/fs-extra": "^11.0.4",
-    "@types/lodash": "^4.17.16",
     "@types/markdown-it": "^14.1.2",
     "@types/micromatch": "^4.0.9",
     "@types/minimist": "^1.2.5",

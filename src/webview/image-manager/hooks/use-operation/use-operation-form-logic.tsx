@@ -216,10 +216,10 @@ export default function useOperationFormLogic<T>({
     },
   )
 
-  const performOperation = useMemoizedFn((images: ImageType[], options: T) => {
+  const performOperation = useMemoizedFn((images: ImageType[], option: T) => {
     const fn = () =>
       new Promise<OperatorResult[] | undefined>((resolve) => {
-        vscodeApi.postMessage({ cmd: apiCommand, data: { images, options } }, (data) => {
+        vscodeApi.postMessage({ cmd: apiCommand, data: { images, option } }, (data) => {
           resolve(data as OperatorResult[])
         })
       })
@@ -230,8 +230,8 @@ export default function useOperationFormLogic<T>({
     })
   })
 
-  const onFinish = useMemoizedFn((options: T) => {
-    handleOperateImage(() => performOperation(images, options), {
+  const onFinish = useMemoizedFn((option: T) => {
+    handleOperateImage(() => performOperation(images, option), {
       ...onOperation,
       onCancel: () => abortController.abort(),
       onFinal: () => setSubmitting(false),

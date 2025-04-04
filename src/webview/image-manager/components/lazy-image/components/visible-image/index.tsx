@@ -31,7 +31,7 @@ function VisibleImage(props: VisibleImageProps) {
     antdImageProps,
     imageNameProps,
     onContextMenu,
-    multipleSelecting = false,
+    isMultipleSelecting = () => false,
     interactive = true,
   } = props
 
@@ -105,10 +105,10 @@ function VisibleImage(props: VisibleImageProps) {
           <div
             className={classNames(
               'flex items-center space-x-1 truncate transition-colors',
-              !multipleSelecting && 'cursor-pointer hover:text-ant-color-primary-text',
+              'cursor-pointer hover:text-ant-color-primary-text',
             )}
-            onClick={() => {
-              if (multipleSelecting) return
+            onClick={(e) => {
+              if (isMultipleSelecting(e)) return
               onPreviewClick(image)
             }}
             data-disable-dbclick
@@ -174,7 +174,7 @@ function VisibleImage(props: VisibleImageProps) {
       )}
       onContextMenu={(e) => onContextMenu?.(e, image)}
       onDoubleClick={(e) => {
-        if (multipleSelecting) return
+        if (isMultipleSelecting(e)) return
         const el = e.target as HTMLElement
         if (preventDbClick(el)) return
         showImageDetails({

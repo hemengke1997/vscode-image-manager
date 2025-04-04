@@ -22,14 +22,14 @@ function ImageSearch() {
 
   const searchInputRef = useRef<InputRef>(null)
 
-  const { treeData } = GlobalStore.useStore(['treeData'])
+  const { workspaceImages } = GlobalStore.useStore(['workspaceImages'])
 
-  const visibleImagePatterns = useMemo(
+  const workspacesImagePatterns = useMemo(
     () =>
-      treeData.reduce((prev, cur) => {
-        return prev.concat(cur.visibleList)
+      workspaceImages.reduce((prev, cur) => {
+        return prev.concat(cur.images)
       }, [] as ImageType[]),
-    [treeData],
+    [workspaceImages],
   )
 
   // 大小写敏感
@@ -51,7 +51,7 @@ function ImageSearch() {
     if (searchValue?.length) {
       minMatchCharLength = Math.max(minMatchCharLength, searchValue.length - 2)
     }
-    return new Fuse(visibleImagePatterns, {
+    return new Fuse(workspacesImagePatterns, {
       isCaseSensitive: caseSensitive,
       minMatchCharLength,
       includeMatches: true,

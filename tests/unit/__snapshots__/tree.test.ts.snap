@@ -1,0 +1,41 @@
+// Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
+
+exports[`节点中图片的排序和visible过滤 > 过滤 1`] = `
+Map {
+  "project" => {
+    "childrenIds": [],
+    "data": {
+      "compact": {
+        "is": false,
+      },
+      "images": [
+        {
+          "absDirPath": "/Users/path/to/project",
+          "absWorkspaceFolder": "/Users/path/to/project",
+          "basename": "root.svg",
+          "dirPath": "",
+          "extname": "svg",
+          "name": "root",
+          "path": "/Users/path/to/project/root.svg",
+          "stats": {
+            "mtimeMs": 1697059200000,
+            "size": 1024,
+          },
+          "visible": {
+            "compressed": true,
+            "exclude_types": true,
+            "git_staged": true,
+            "size": true,
+          },
+          "workspaceFolder": "project",
+        },
+      ],
+      "nodeType": "dir",
+      "path": "project",
+      "treeStyle": "dir",
+    },
+    "id": "project",
+    "parentId": "",
+  },
+}
+`;

@@ -8,7 +8,7 @@ type ValueOf<T> = T[keyof T]
 
 type MakeRequired<T, K extends keyof T> = Omit<T, K> & Required<Pick<T, K>>
 
-type RmPromise<T> = T extends Promise<infer U> ? U : T
+type FirstParameter<F> = F extends (arg: infer A, ...args: any) => any ? A : never
 
 type AnyObject = Record<PropertyKey, any>
 

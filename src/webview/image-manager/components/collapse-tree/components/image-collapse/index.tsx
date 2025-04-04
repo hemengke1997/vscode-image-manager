@@ -30,11 +30,6 @@ type ImageCollapseProps = {
    */
   label: string
   /**
-   * 是否在路径上添加label
-   * 为了在os或exploerer中打开时层级深一层，避免再点进去一次
-   */
-  joinLabel: boolean
-  /**
    * 增强label渲染
    */
   labelRender: (children: ReactNode) => ReactNode
@@ -45,11 +40,11 @@ type ImageCollapseProps = {
   /**
    * 当前文件夹下的图片
    */
-  subfolderImages: imageGroupProps['images'] | undefined
+  folderImages: imageGroupProps['images'] | undefined
   /**
    * 当前文件夹下的所有图片（包括子目录）
    */
-  allSubfolderImages: imageGroupProps['images'] | undefined
+  subfolderImages: imageGroupProps['images'] | undefined
   /**
    * 嵌套子组件
    */
@@ -61,7 +56,7 @@ type ImageCollapseProps = {
   /**
    * collapse头部菜单上下文
    */
-  contextMenu: (path: string) => EnableCollapseContextMenuType
+  contextMenu: ((path: string) => EnableCollapseContextMenuType) | undefined
   /**
    * 是否可以展开
    */
@@ -85,10 +80,9 @@ function ImageCollapse(props: ImageCollapseProps) {
     children,
     labelRender,
     label,
-    joinLabel,
     images,
+    folderImages,
     subfolderImages,
-    allSubfolderImages,
     id,
     contextMenu,
     collapsible = true,
@@ -150,7 +144,7 @@ function ImageCollapse(props: ImageCollapseProps) {
 
   const { show, hideAll } = useCollapseContextMenu()
 
-  const basePath = useMemo(() => (joinLabel ? id.slice(0, id.lastIndexOf(label)) : id), [id, label, joinLabel])
+  const basePath = useMemo(() => id.slice(0, id.lastIndexOf(label)), [id, label])
   const labels = useMemo(() => label.split('/').filter(Boolean), [label])
 
   const onOpenChange = useMemoizedFn((open: boolean) => {
@@ -172,7 +166,7 @@ function ImageCollapse(props: ImageCollapseProps) {
 
   const onActive = useMemoizedFn((imagePaths: string[]) => {
     // 判断当前collapse是否active
-    if (imagePaths.length && allSubfolderImages?.find((image) => imagePaths.includes(image.path))) {
+    if (imagePaths.length && subfolderImages?.find((image) => imagePaths.includes(image.path))) {
       setOpen(true)
     }
   })
@@ -216,21 +210,23 @@ function ImageCollapse(props: ImageCollapseProps) {
   })
 
   const onContextMenu = useMemoizedFn((e: React.MouseEvent<HTMLDivElement>, index: number) => {
+    if (!contextMenu) return
+
     const path = getCurrentPath(index) || ''
 
     show({
       event: e,
       props: {
         path,
-        images: [images, subfolderImages].find((arr) => arr?.length) || [],
-        allSubfolderImages: allSubfolderImages || [],
+        images: [images, folderImages].find((arr) => arr?.length) || [],
+        subfolderImages: subfolderImages || [],
         enableContextMenu: contextMenu(path),
         onPaste: hideAll,
       },
     })
   })
 
-  const onLabelClick = useMemoizedFn(() => {
+  const onClick = useMemoizedFn(() => {
     if (!collapsible) return
     setOpen((t) => !t)
   })
@@ -243,9 +239,9 @@ function ImageCollapse(props: ImageCollapseProps) {
             <div key={i} className={classNames('flex items-center', i === labels.length - 1 && 'flex-1')}>
               <SingleLabel
                 index={i}
-                contextMenu={contextMenu(getCurrentPath(i))}
+                contextMenu={contextMenu?.(getCurrentPath(i))}
                 onContextMenu={(e) => onContextMenu(e, i)}
-                onClick={onLabelClick}
+                onClick={onClick}
                 dirPath={getCurrentPath(i)}
                 className={classNames(collapsible && 'cursor-pointer')}
               >
@@ -259,9 +255,9 @@ function ImageCollapse(props: ImageCollapseProps) {
     } else {
       return (
         <SingleLabel
-          onClick={onLabelClick}
+          onClick={onClick}
           index={0}
-          contextMenu={contextMenu(id)}
+          contextMenu={contextMenu?.(id)}
           onContextMenu={(e) => onContextMenu(e, 0)}
           dirPath={id}
           className={classNames(collapsible && 'cursor-pointer')}
@@ -384,6 +380,8 @@ function ImageCollapse(props: ImageCollapseProps) {
                     },
                   }}
                   images={images}
+                  // TODO
+                  visibleImages={[]}
                   onClearImageGroupSelected={onClearImageGroupSelected}
                   clearSelectedOnBlankClick={true}
                 />

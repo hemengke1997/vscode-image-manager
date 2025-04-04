@@ -1,22 +1,11 @@
-import {
-  type ForwardedRef,
-  forwardRef,
-  memo,
-  type ReactNode,
-  useCallback,
-  useEffect,
-  useMemo,
-  useRef,
-  useState,
-} from 'react'
+import { type ForwardedRef, forwardRef, memo, type ReactNode, useEffect, useMemo, useRef, useState } from 'react'
 import { toast } from 'react-atom-toast'
-import { useClickAway, useKeyPress, useMemoizedFn } from 'ahooks'
+import { useClickAway, useMemoizedFn } from 'ahooks'
 import { useControlledState } from 'ahooks-x'
 import { ConfigProvider, Image, theme } from 'antd'
 import { type AliasToken, type ComponentTokenMap } from 'antd/es/theme/interface'
 import { isString, range, round } from 'es-toolkit'
 import { type PreviewGroupPreview } from 'rc-image/es/PreviewGroup'
-import { Key } from 'ts-key-enum'
 import { classNames } from 'tw-clsx'
 import { isDev } from 'vite-config-preset/client'
 import useImageManagerEvent, { IMEvent } from '../../hooks/use-image-manager-event'
@@ -45,6 +34,10 @@ export type imageGroupProps = {
    * 图片列表
    */
   images: ImageType[]
+  /**
+   * 工作区所有可见图片
+   */
+  visibleImages?: ImageType[]
   /**
    * 透传给 LazyImage 组件的 props
    */
@@ -101,6 +94,7 @@ const ToastKey = 'image-preview-scale'
 function ImageGroup(props: imageGroupProps, ref: ForwardedRef<HTMLDivElement>) {
   const {
     images,
+    visibleImages,
     lazyImageProps,
     enableContextMenu,
     enableMultipleSelect = false,
@@ -112,8 +106,6 @@ function ImageGroup(props: imageGroupProps, ref: ForwardedRef<HTMLDivElement>) {
   } = props
 
   const { token } = theme.useToken()
-
-  const imageStateWorkspaces = GlobalStore.useStore((ctx) => ctx.imageState.workspaces)
 
   const { imageWidth } = GlobalStore.useStore(['imageWidth'])
   const { isDarkBackground, backgroundColor, tinyBackgroundColor } = SettingsStore.useStore([
@@ -157,13 +149,6 @@ function ImageGroup(props: imageGroupProps, ref: ForwardedRef<HTMLDivElement>) {
       key: ToastKey,
     })
   })
-
-  const getSameWorkspaceImages = useCallback(
-    (image: ImageType) => {
-      return imageStateWorkspaces.find((t) => t.workspaceFolder === image.workspaceFolder)?.images || []
-    },
-    [imageStateWorkspaces],
-  )
 
   const selectedImageRefs = useRef<Record<string, HTMLDivElement>>({})
 
@@ -267,7 +252,7 @@ function ImageGroup(props: imageGroupProps, ref: ForwardedRef<HTMLDivElement>) {
         image,
         images: selected,
         sameLevelImages: images,
-        sameWorkspaceImages: getSameWorkspaceImages(image),
+        sameWorkspaceImages: visibleImages,
         enableContextMenu: {
           ...enableContextMenu,
           preview: true,
@@ -345,29 +330,9 @@ function ImageGroup(props: imageGroupProps, ref: ForwardedRef<HTMLDivElement>) {
   /**
    * 是否正在多选
    */
-  const isMultipleSelecting = useMemoizedFn((e: KeyboardEvent) => {
-    return enableMultipleSelect
-      ? e.metaKey || e.ctrlKey || e.shiftKey || [Key.Meta, Key.Shift, Key.Control].includes(e.key as Key)
-      : false
+  const isMultipleSelecting = useMemoizedFn((e: React.MouseEvent<HTMLDivElement, MouseEvent>) => {
+    return enableMultipleSelect ? e.metaKey || e.ctrlKey || e.shiftKey : false
   })
-
-  const [multipleSelecting, setMultipleSelecting] = useState(false)
-
-  /**
-   * 多选时，某些按钮不可用，比如预览按钮
-   */
-  useKeyPress(
-    isMultipleSelecting,
-    (event) => {
-      if (enableMultipleSelect) {
-        setMultipleSelecting(event.type === 'keydown')
-      }
-    },
-    {
-      events: ['keydown', 'keyup'],
-      exactMatch: true,
-    },
-  )
 
   const handlePreviewChange = useMemoizedFn((current: number) => {
     setPreview({ current, open: true })
@@ -400,7 +365,7 @@ function ImageGroup(props: imageGroupProps, ref: ForwardedRef<HTMLDivElement>) {
                 props: {
                   image: images[info.current],
                   sameLevelImages: images,
-                  sameWorkspaceImages: getSameWorkspaceImages(images[info.current]),
+                  sameWorkspaceImages: visibleImages,
                   enableContextMenu: {
                     ...enableContextMenu,
                     reveal_in_viewer: true,
@@ -526,7 +491,7 @@ function ImageGroup(props: imageGroupProps, ref: ForwardedRef<HTMLDivElement>) {
                       {...lazyImageProps}
                       image={image}
                       selected={selectedImages.some((t) => t.path === image.path)}
-                      multipleSelecting={multipleSelecting}
+                      isMultipleSelecting={isMultipleSelecting}
                       antdImageProps={antdImageProps}
                       onSelectedChange={handleSelectedChange}
                       onPreviewClick={handlePreviewClick}

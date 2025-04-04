@@ -3,19 +3,15 @@ import { useTranslation } from 'react-i18next'
 import { IoMdImages } from 'react-icons/io'
 import { Transition } from 'react-transition-preset'
 import { styleObjectToString } from '@minko-fe/style-object-to-string'
-import { useClickAway, useMemoizedFn } from 'ahooks'
+import { useClickAway } from 'ahooks'
 import { imperativeModalMap } from 'ahooks-x/use-imperative-antd-modal'
 import { Card, Empty, Skeleton } from 'antd'
 import { floor } from 'es-toolkit/compat'
-import { produce } from 'immer'
 import useImageHotKeys from '../../hooks/use-image-hot-keys'
 import useImageManagerEvent, { IMEvent } from '../../hooks/use-image-manager-event'
 import useSticky from '../../hooks/use-sticky'
 import useWheelScaleEvent from '../../hooks/use-wheel-scale-event'
-import FilterStore from '../../stores/filter-store'
 import GlobalStore from '../../stores/global-store'
-import SettingsStore from '../../stores/settings-store'
-import TreeStore from '../../stores/tree-store'
 import { ANIMATION_DURATION } from '../../utils/duration'
 import CollapseTree from '../collapse-tree'
 import ImageActions from '../image-actions'
@@ -23,32 +19,12 @@ import TitleIconUI from '../title-icon-UI'
 
 function Viewer() {
   const { t } = useTranslation()
-  const { setTreeData, setViewerHeaderStickyHeight, setImageWidth, setImageReveal, imageState } = GlobalStore.useStore([
-    'setTreeData',
+  const { setViewerHeaderStickyHeight, setImageWidth, setImageReveal, imageState } = GlobalStore.useStore([
     'setViewerHeaderStickyHeight',
     'setImageWidth',
     'setImageReveal',
     'imageState',
   ])
-
-  const { imageFilter } = FilterStore.useStore(['imageFilter'])
-
-  const { displayGroup, displayStyle, sort } = SettingsStore.useStore(['displayGroup', 'displayStyle', 'sort'])
-
-  const onCollectTreeData = useMemoizedFn(
-    ({ visibleList, workspaceFolder }: { visibleList: ImageType[]; workspaceFolder: string }) => {
-      setTreeData(
-        produce((draft) => {
-          const index = draft.findIndex((t) => t.workspaceFolder === workspaceFolder)
-          if (index !== -1) {
-            draft[index].visibleList = [...visibleList]
-          } else {
-            draft.push({ workspaceFolder, visibleList })
-          }
-        }),
-      )
-    },
-  )
 
   /* ---------------- image scale --------------- */
   const [containerRef] = useWheelScaleEvent({
@@ -145,23 +121,7 @@ function Viewer() {
               <div ref={contentRef} style={style}>
                 <div className={'space-y-4'} tabIndex={-1} ref={ref}>
                   {imageState.workspaces.length ? (
-                    imageState.workspaces.map((item) => (
-                      <TreeStore.Provider
-                        key={item.workspaceFolder}
-                        imageList={item.images}
-                        workspaceFolder={item.workspaceFolder}
-                        workspaceId={item.absWorkspaceFolder}
-                        sort={sort}
-                        imageFilter={imageFilter}
-                        onCollectTreeData={onCollectTreeData}
-                      >
-                        <CollapseTree
-                          multipleWorkspace={imageState.workspaceFolders.length > 1}
-                          displayGroup={displayGroup}
-                          displayStyle={displayStyle}
-                        />
-                      </TreeStore.Provider>
-                    ))
+                    imageState.workspaces.map((item) => <CollapseTree key={item.workspaceFolder} workspace={item} />)
                   ) : (
                     <Empty image={Empty.PRESENTED_IMAGE_SIMPLE} description={t('im.no_image')} />
                   )}

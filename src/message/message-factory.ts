@@ -4,6 +4,8 @@ import fs from 'fs-extra'
 import { convertPathToPattern, globby, type GlobEntry } from 'globby'
 import micromatch from 'micromatch'
 import mime from 'mime/lite'
+import { nanoid } from 'nanoid'
+import os from 'node:os'
 import path from 'node:path'
 import pMap from 'p-map'
 import { commands, type ConfigurationTarget, Uri, ViewColumn, window, workspace } from 'vscode'
@@ -27,17 +29,19 @@ import { i18n } from '~/i18n'
 import { generateOutputPath, normalizePath, resolveDirPath } from '~/utils'
 import { cancelablePromise } from '~/utils/abort-promise'
 import { Channel } from '~/utils/channel'
+import { imageGlob } from '~/utils/glob'
 import { convertImageToBase64, convertToBase64IfBrowserNotSupport, isBase64, toBase64 } from '~/utils/image-type'
 import logger from '~/utils/logger'
+import { UpdateEvent, UpdateOrigin, UpdateType } from '~/webview/image-manager/utils/tree/const'
 import { type ImageManagerPanel } from '~/webview/panel'
-import { CmdToVscode } from './cmd'
-import { getImageExtraInfo, getImageMetadata, getStagedImages, searchImages } from './message-factory.fn'
+import { CmdToVscode, CmdToWebview } from './cmd'
+import { getImageExtraInfo, getImageMetadata, getStagedImages } from './message-factory.fn'
 
-export type VscodeMessageCenterType = typeof VscodeMessageCenter
+type MessageFactoryType = typeof VscodeMessageFactory
+type MessageMethodType<K extends KeyofMessage> = MessageFactoryType[K]
 
-export type KeyofMessage = keyof VscodeMessageCenterType
-
-export type MessageType<D extends Record<string, any> = Record<string, any>, C extends string = any> = {
+export type KeyofMessage = keyof MessageFactoryType
+export type MessageType<D extends Record<string, any> | undefined = Record<string, any>, C extends string = any> = {
   cmd: C
   data: D
   msgId?: string
@@ -45,25 +49,21 @@ export type MessageType<D extends Record<string, any> = Record<string, any>, C e
   callbackId?: string
 }
 
-type MessageMethodType<K extends KeyofMessage> = VscodeMessageCenterType[K]
+export type ReturnOfMessage<K extends KeyofMessage> = Awaited<ReturnType<MessageMethodType<K>>>
 
-export type ReturnOfMessageCenter<K extends KeyofMessage> = RmPromise<ReturnType<MessageMethodType<K>>>
-
-type FirstParameter<F> = F extends (arg: infer A, ...args: any) => any ? A : never
-
-export type FirstParameterOfMessageCenter<K extends KeyofMessage> =
+export type ParameterOfMessage<K extends KeyofMessage> =
   FirstParameter<MessageMethodType<K>> extends Record<string, any> ? FirstParameter<MessageMethodType<K>> : never
 
 /**
- * @name MessageCenter
+ * @name MessageFactory
  * @description It handles the message from webview and return result to webview
  */
-export const VscodeMessageCenter = {
+export const VscodeMessageFactory = {
   [CmdToVscode.on_webview_ready]: async (_, imageManagerPanel: ImageManagerPanel) => {
     Channel.info(i18n.t('core.webview_ready'))
     const [config, workspaceState] = await Promise.all([
-      VscodeMessageCenter[CmdToVscode.get_extension_config](),
-      VscodeMessageCenter[CmdToVscode.get_workspace_state](),
+      VscodeMessageFactory[CmdToVscode.get_extension_config](),
+      VscodeMessageFactory[CmdToVscode.get_workspace_state](),
     ])
     const {
       initialData: { imageReveal, sharpInstalled },
@@ -88,11 +88,10 @@ export const VscodeMessageCenter = {
     options: {
       glob: string | string[]
       cwd: string
-      onResolve?: (image: ImageType) => void
     },
     imageManagerPanel: ImageManagerPanel,
   ) => {
-    const { glob, cwd, onResolve } = options
+    const { glob, cwd } = options
 
     const start = performance.now()
 
@@ -116,7 +115,6 @@ export const VscodeMessageCenter = {
     }
 
     const { gitStaged, metadataResults } = await getImageExtraInfo(images, imageManagerPanel)
-
     // 项目绝对路径
     const projectPath = normalizePath(path.dirname(cwd))
     // 工作区绝对路径
@@ -124,117 +122,123 @@ export const VscodeMessageCenter = {
     // 工作区名称
     const workspaceFolder = normalizePath(path.basename(cwd))
 
-    return Promise.all<ImageType>(
-      images.map(async (image, index) => {
-        image.path = normalizePath(image.path)
-        let vscodePath = imageManagerPanel.panel.webview.asWebviewUri(Uri.file(image.path)).toString()
+    const res = await pMap(images, async (image, index) => {
+      image.path = normalizePath(image.path)
+      let vscodePath = imageManagerPanel.panel.webview.asWebviewUri(Uri.file(image.path)).toString()
 
-        // Browser doesn't support some exts, convert to png base64
-        try {
-          vscodePath = (await convertToBase64IfBrowserNotSupport(image.path, Global.sharp)) || vscodePath
-        } catch (e) {
-          Channel.error(`${i18n.t('core.covert_base64_error')}: ${e}`)
-        }
+      // Browser doesn't support some exts, convert to png base64
+      try {
+        vscodePath = (await convertToBase64IfBrowserNotSupport(image.path, Global.sharp)) || vscodePath
+      } catch (e) {
+        Channel.error(`${i18n.t('core.covert_base64_error')}: ${e}`)
+      }
 
-        const dirPath = resolveDirPath(image.path, cwd)
-        const absDirPath = normalizePath(path.dirname(image.path))
-        const relativePath =
-          imageManagerPanel.initialData.rootpaths.length > 1
-            ? normalizePath(path.relative(projectPath, image.path)) // 多工作区，相对于项目
-            : normalizePath(path.relative(absWorkspaceFolder, image.path)) // 单工作区，相对于工作区
+      const dirPath = resolveDirPath(image.path, cwd)
+      const absDirPath = normalizePath(path.dirname(image.path))
+      const relativePath =
+        imageManagerPanel.initialData.rootpaths.length > 1
+          ? normalizePath(path.relative(projectPath, image.path)) // 多工作区，相对于项目
+          : normalizePath(path.relative(absWorkspaceFolder, image.path)) // 单工作区，相对于工作区
 
-        const metadata = metadataResults[index]
+      const metadata = metadataResults[index]
 
-        // 非base64 添加mtimeMs时间戳，避免webview缓存问题
-        const vscodePathWithQuery = `${vscodePath}?t=${image.stats?.mtimeMs}`
+      // 非base64 添加mtimeMs时间戳，避免webview缓存问题
+      const vscodePathWithQuery = `${vscodePath}?t=${image.stats?.mtimeMs}`
 
-        const parsedPath = path.parse(image.path)
+      const parsedPath = path.parse(image.path)
 
-        // 为了减少内存占用，尽量存储少量数据
-        const imageInfo: ImageType = {
-          basename: path.basename(image.path),
-          name: parsedPath.name,
-          path: image.path,
-          extname: parsedPath.ext.replace('.', ''),
-          stats: pick(image.stats!, ['mtimeMs', 'size']),
-          dirPath,
-          absDirPath,
-          workspaceFolder,
-          // base64 不能添加时间戳，会导致图片无法显示
-          vscodePath: isBase64(vscodePath) ? vscodePath : vscodePathWithQuery,
-          // 为避免base64相同的vscodePath在react渲染中作为key重复出现，使用路径作为key
-          key: isBase64(vscodePath) ? image.path : vscodePathWithQuery,
-          absWorkspaceFolder,
-          relativePath: normalizePath(`./${relativePath}`),
-          info: {
-            ...metadata,
-            gitStaged: gitStaged.includes(image.path),
-          },
-        }
+      // 为了减少内存占用，尽量存储少量数据
+      const imageInfo: ImageType = {
+        basename: path.basename(image.path),
+        name: parsedPath.name,
+        path: image.path,
+        extname: parsedPath.ext.replace('.', ''),
+        stats: pick(image.stats!, ['mtimeMs', 'size']),
+        dirPath,
+        absDirPath,
+        workspaceFolder,
+        // base64 不能添加时间戳，会导致图片无法显示
+        vscodePath: isBase64(vscodePath) ? vscodePath : vscodePathWithQuery,
+        // 为避免base64相同的vscodePath在react渲染中作为key重复出现，使用路径作为key
+        key: isBase64(vscodePath) ? image.path : vscodePathWithQuery,
+        absWorkspaceFolder,
+        relativePath: normalizePath(`./${relativePath}`),
+        info: {
+          ...metadata,
+          gitStaged: gitStaged.includes(image.path),
+        },
+      }
 
-        onResolve?.(imageInfo)
+      return imageInfo
+    })
 
-        return imageInfo
-      }),
-    )
+    return res
   },
 
-  /* -------------- get all images -------------- */
-  [CmdToVscode.get_all_images]: async (_data: unknown, imageManagerPanel: ImageManagerPanel) => {
-    const absWorkspaceFolders = imageManagerPanel.initialData.rootpaths || []
-    const workspaceFolders = absWorkspaceFolders.map((ws) => path.basename(ws))
+  /* -------------- 获取cwds下的所有图片 -------------- */
+  [CmdToVscode.get_all_images_from_cwds]: async (
+    data: {
+      glob?: string
+    } = {},
+    imageManagerPanel: ImageManagerPanel,
+  ) => {
+    const workspaces = imageManagerPanel.initialData.rootpaths || []
+
+    const { glob } = data
 
     const start = performance.now()
     try {
-      const res = await cancelablePromise.run(
-        async () => {
-          const workspaces = await Promise.all(
-            absWorkspaceFolders.map(async (workspaceFolder) => {
-              const exts: Set<string> = new Set()
-              const dirs: Set<string> = new Set()
+      await cancelablePromise.run(
+        () => {
+          return Promise.all(
+            workspaces.map(async (absWorkspaceFolder) => {
+              absWorkspaceFolder = normalizePath(absWorkspaceFolder)
+              const workspaceFolder = path.basename(absWorkspaceFolder)
 
-              const images = await searchImages(workspaceFolder, imageManagerPanel, {
-                exts,
-                dirs,
+              const { allImagePatterns } = imageGlob({
+                cwds: [glob || absWorkspaceFolder],
+                scan: Config.file_scan,
+                exclude: Config.file_exclude,
               })
 
-              Channel.debug(`Get images cost: ${performance.now() - start}ms in ${workspaceFolder}`)
+              const images = await VscodeMessageFactory[CmdToVscode.get_image_info](
+                {
+                  glob: allImagePatterns,
+                  cwd: absWorkspaceFolder,
+                },
+                imageManagerPanel,
+              )
 
-              // 以下数据都是单个工作区的
-              return {
-                // 所有图片
-                images,
-                // 当前工作区
-                workspaceFolder: path.basename(workspaceFolder),
-                // 当前工作区（绝对路径）
-                absWorkspaceFolder: workspaceFolder,
-                // 所有图片扩展名
-                exts: [...exts],
-                // 所有目录
-                dirs: [...dirs],
-              }
+              // 通知webview更新图片
+              imageManagerPanel.messageCenter.postMessage({
+                cmd: CmdToWebview.update_images,
+                data: {
+                  updateType: glob ? UpdateType.patch : UpdateType.full,
+                  payloads: images.map((image) => ({
+                    data: {
+                      payload: image,
+                      type: UpdateEvent.create,
+                    },
+                    origin: UpdateOrigin.image,
+                  })),
+                  workspaceFolder,
+                  absWorkspaceFolder,
+                  id: nanoid(),
+                },
+              })
             }),
           )
-
-          return {
-            workspaces,
-            absWorkspaceFolders,
-            workspaceFolders,
-          }
         },
         {
-          key: imageManagerPanel.id,
+          key: imageManagerPanel.id + (glob ? glob : '-'),
         },
       )
+
       Channel.debug(`Get all images cost: ${performance.now() - start}ms`)
-      return res
+      return true
     } catch (e) {
       logger.error(e)
-      return {
-        workspaces: [],
-        absWorkspaceFolders,
-        workspaceFolders,
-      }
+      return false
     }
   },
 
@@ -248,7 +252,7 @@ export const VscodeMessageCenter = {
   ) => {
     const { filePaths, cwd } = data
 
-    const images = await VscodeMessageCenter[CmdToVscode.get_image_info](
+    const images = await VscodeMessageFactory[CmdToVscode.get_image_info](
       {
         glob: filePaths.map((t) => convertPathToPattern(t)),
         cwd,
@@ -343,8 +347,6 @@ export const VscodeMessageCenter = {
     try {
       const { images, option } = data
 
-      logger.debug(`Compress params: `, data)
-
       const svgs: ImageType[] = []
       const usuals: ImageType[] = []
 
@@ -381,7 +383,6 @@ export const VscodeMessageCenter = {
         (task) => task(),
       )
 
-      logger.debug(`Compress length: `, res.length)
       return res
     } catch (e: any) {
       Channel.debug(`${i18n.t('core.compress_error')}: ${JSON.stringify(e)}`)
@@ -399,7 +400,6 @@ export const VscodeMessageCenter = {
   ): Promise<OperatorResult[] | undefined> => {
     try {
       const { images, option } = data
-      logger.debug(`Convert params:`, data)
       const res = await pMap(
         images.map((image) => () => {
           let converter = new FormatConverter(Config.conversion, imageManagerPanel)
@@ -413,7 +413,6 @@ export const VscodeMessageCenter = {
         (task) => task(),
       )
 
-      logger.debug(`Convert result:`, res)
       return res
     } catch (e: any) {
       logger.debug(`Convert error:`, e)
@@ -459,7 +458,7 @@ export const VscodeMessageCenter = {
 
   /* --------- 把缓存中的inputBuffer转为base64 --------- */
   [CmdToVscode.get_cmd_cache_inputBuffer_as_base64]: (data: { id: string }) => {
-    const cache = VscodeMessageCenter[CmdToVscode.get_operation_cmd_cache]({ ids: [data.id] })[0]
+    const cache = VscodeMessageFactory[CmdToVscode.get_operation_cmd_cache]({ ids: [data.id] })[0]
     const { details } = cache || {}
     if (details?.inputBuffer) {
       const mimeType = mime.getType(details.inputPath)
@@ -559,7 +558,13 @@ export const VscodeMessageCenter = {
 
     const { images } = data
 
-    const results = await Promise.all(images.map((image) => getImageMetadata(image)))
+    const results = await pMap(
+      images.map((image) => () => getImageMetadata(image)),
+      (task) => task(),
+      {
+        concurrency: os.cpus().length,
+      },
+    )
 
     Channel.debug(`Get images metadata cost: ${performance.now() - start}ms`)
     return results

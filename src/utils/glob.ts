@@ -59,7 +59,6 @@ export function imageGlob(options: { scan: string[]; exclude: string[]; cwds: st
   return {
     imagePattern,
     allImagePatterns,
-
     allCwdPatterns,
   }
 }

@@ -8,8 +8,8 @@
 export const enum CmdToWebview {
   // webview 发送命令后的回调
   webview_callback = 'webview_callback',
-  // 图片改变
-  refresh_images = 'refresh_images',
+  // 图片更新
+  update_images = 'update_images',
   // 重新加载webview
   program_reload_webview = 'program_reload_webview',
   // 更新配置
@@ -31,7 +31,7 @@ export const enum CmdToVscode {
   // 获取图片信息
   get_image_info = 'get_image_info',
   // 获取所有图片
-  get_all_images = 'get_all_images',
+  get_all_images_from_cwds = 'get_all_images_from_cwds',
   // 获取多张图片
   get_images = 'get_images',
   // 获取图片元信息

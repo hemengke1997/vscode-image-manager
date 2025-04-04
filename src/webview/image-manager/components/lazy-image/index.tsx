@@ -68,10 +68,11 @@ export type LazyImageProps = {
    * 图片状态改变回调
    */
   onSelectedChange?: (image: ImageType, active: boolean) => void
+
   /**
    * 处于多选状态
    */
-  multipleSelecting?: boolean
+  isMultipleSelecting?: (e: React.MouseEvent<HTMLDivElement, MouseEvent>) => boolean
   /**
    * 交互样式 (hover，selected)
    */
@@ -94,6 +95,7 @@ function LazyImage(props: LazyImageProps) {
     },
     className,
     inViewer,
+
     ...rest
   } = props
 

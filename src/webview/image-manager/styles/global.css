@@ -48,11 +48,6 @@ body {
     }
   }
 
-  /* antd 5.22.5 为了解决 https://github.com/ant-design/ant-design/issues/51912，导致出现了新的bug。此处临时修复 */
-  .ant-modal-confirm .ant-modal-confirm-paragraph {
-    @apply max-w-none;
-  }
-
   .ant-modal-root .ant-modal-centered .ant-modal {
     /* 让center看起来更舒适 */
     @apply top-[-12%];

@@ -69,8 +69,9 @@ export class Global {
     }
 
     if (rootpaths?.length) {
-      Channel.info(i18n.t('core.workspace_changed', rootpaths.join(',')))
       rootpaths = rootpaths.map(normalizePath)
+
+      Channel.info(i18n.t('core.workspace_changed', rootpaths.join(',')))
     } else {
       rootpaths = []
     }

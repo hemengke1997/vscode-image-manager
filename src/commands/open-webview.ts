@@ -72,13 +72,11 @@ export default <ExtensionModule>function (ctx) {
         })
 
         Global.imageManagerPanels.push(imageManagerPanel)
-
-        const watcher = new Watcher(rootpaths, imageManagerPanel.panel.webview)
+        imageManagerPanel.watcher = new Watcher(rootpaths, imageManagerPanel)
 
         ctx.subscriptions.push(
           imageManagerPanel.onDidChange((e) => {
             if (!e) {
-              watcher.dispose()
               Global.imageManagerPanels = Global.imageManagerPanels.filter((p) => p.id !== imageManagerPanel.id)
             }
           }),
@@ -89,9 +87,10 @@ export default <ExtensionModule>function (ctx) {
         createPanel(rootpaths)
       } else {
         if (Global.imageManagerPanels.length) {
+          const reload = !isEqual(previousRoot, rootpaths)
+
           const onPanelOpen = (panel: ImageManagerPanel) => {
-            // Whether to reload the webview panel
-            const reload = !isEqual(previousRoot, rootpaths)
+            // 如果前后的 rootpaths 不一样，则reload webview
             if (reload) {
               panel.reloadWebview()
             } else if (imageReveal) {
@@ -108,6 +107,11 @@ export default <ExtensionModule>function (ctx) {
           }
 
           Global.imageManagerPanels[0].show(onPanelOpen)
+          // rootpaths变了，重新watch
+          if (reload) {
+            imageManagerPanel.watcher?.dispose()
+            imageManagerPanel.watcher = new Watcher(rootpaths, imageManagerPanel)
+          }
         } else {
           createPanel(rootpaths)
         }

@@ -24,9 +24,10 @@ export default <ExtensionModule>function () {
         await WorkspaceState.clear()
         await WorkspaceState.clear_unused()
 
-        Global.imageManagerPanels.forEach(({ panel }) => {
-          panel.webview.postMessage({
+        Global.imageManagerPanels.forEach(({ messageCenter }) => {
+          messageCenter.postMessage({
             cmd: CmdToWebview.update_workspaceState,
+            data: undefined,
           })
         })
 

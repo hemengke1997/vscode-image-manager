@@ -2,23 +2,39 @@ import { memo, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { TbRefresh } from 'react-icons/tb'
 import { useMemoizedFn } from 'ahooks'
-import { Button, Tooltip } from 'antd'
-import delay from 'delay'
+import { App, Button, Tooltip } from 'antd'
 import { classNames } from 'tw-clsx'
-import { RefreshImageDebounceTimeout } from '~/webview/image-manager/hooks/use-refresh-images'
-import ActionStore from '~/webview/image-manager/stores/action-store'
+import useUpdateImages from '~/webview/image-manager/hooks/use-update-images'
 
 function Refresh() {
   const { t } = useTranslation()
-  const { refreshImages } = ActionStore.useStore(['refreshImages'])
+  const { message } = App.useApp()
 
   const [loading, setLoading] = useState(false)
 
+  const { getAllImages } = useUpdateImages()
+
   const handleRefresh = useMemoizedFn(async () => {
     if (loading) return
+
+    const messageKey = 'refresh_images'
+
+    const timer = window.setTimeout(() => {
+      message.loading({
+        content: t('im.img_refreshing'),
+        key: messageKey,
+        duration: 0,
+      })
+      clearTimeout(timer)
+    }, 200)
+
     setLoading(true)
-    refreshImages({ type: 'refresh' })
-    await delay(RefreshImageDebounceTimeout + 100)
+    await getAllImages()
+
+    message.destroy(messageKey)
+    clearTimeout(timer)
+    message.success(t('im.img_refreshed'))
+
     setLoading(false)
   })
 

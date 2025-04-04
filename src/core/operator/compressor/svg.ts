@@ -1,7 +1,7 @@
 import fs from 'fs-extra'
 import { i18n } from '~/i18n'
 import { CmdToVscode } from '~/message/cmd'
-import { VscodeMessageCenter } from '~/message/message-factory'
+import { VscodeMessageFactory } from '~/message/message-factory'
 import { type ImageManagerPanel } from '~/webview/panel'
 import { SkipError } from '../operator'
 import { Svgo } from '../svgo'
@@ -66,7 +66,7 @@ export class SvgCompressor extends Compressor {
           try {
             if (err) {
               // 删除文件，重新创建svg文件
-              await VscodeMessageCenter[CmdToVscode.delete_file]({ filePaths: [filePath] })
+              await VscodeMessageFactory[CmdToVscode.delete_file]({ filePaths: [filePath] })
               fs.ensureFileSync(outputPath)
             }
             const minifiedSvg = await Svgo.minify(svgString, this.option.svg)

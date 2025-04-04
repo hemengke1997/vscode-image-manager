@@ -22,6 +22,9 @@ export default defineConfig(async (env) => {
         host: 'localhost',
         protocol: 'ws',
       },
+      headers: {
+        'access-control-allow-origin': '*',
+      },
       cors: {
         origin: '*',
       },
@@ -33,7 +36,7 @@ export default defineConfig(async (env) => {
     },
     plugins: [
       createHtmlPlugin({
-        entry: path.resolve(__dirname, './src/webview/image-manager/main.tsx'),
+        entry: '/src/webview/image-manager/main.tsx',
         // relative path to root
         template: './src/webview/image-manager/index.html',
         minify: env.command === 'build',
@@ -56,7 +59,7 @@ export default defineConfig(async (env) => {
       target: 'es2020',
     },
     test: {
-      include: ['**/__test__/**/*.test.ts'],
+      include: ['./tests/**/*.test.ts'],
     } as InlineConfig,
   })
 })

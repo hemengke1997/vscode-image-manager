@@ -14,8 +14,6 @@ export enum SortType {
 }
 
 export enum DisplayGroupType {
-  // 按工作区分组
-  workspace = 'workspace',
   // 按目录分组
   dir = 'dir',
   // 按文件类型分组 (命名兼容)

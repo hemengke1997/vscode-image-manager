@@ -68,16 +68,6 @@ export function uniqSortByThenMap<T>(images: ImageType[], key: keyof ImageType, 
 }
 
 /**
- * 从图片列表中找出同工作区的图片
- * @param image
- * @param imageList
- * @returns
- */
-export function findSameWorkspaceImages(image: ImageType, imageList: ImageType[]) {
-  return imageList.filter((item) => image.workspaceFolder === item.workspaceFolder)
-}
-
-/**
  * 防抖，让事件只执行一次
  */
 export function triggerOnce<T extends (...args: any[]) => any>(fn: T) {

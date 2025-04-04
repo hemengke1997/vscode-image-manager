@@ -6,7 +6,7 @@ import path from 'node:path'
 import { type SetOptional } from 'type-fest'
 import { i18n } from '~/i18n'
 import { CmdToVscode } from '~/message/cmd'
-import { VscodeMessageCenter } from '~/message/message-factory'
+import { VscodeMessageFactory } from '~/message/message-factory'
 import { generateOutputPath } from '~/utils'
 import { Channel } from '~/utils/channel'
 import logger from '~/utils/logger'
@@ -263,7 +263,7 @@ export abstract class Operator {
   ) {
     try {
       const { useTrash = Config.file_trashAfterProcessing } = options || {}
-      await VscodeMessageCenter[CmdToVscode.delete_file]({ filePaths: [filePath], useTrash })
+      await VscodeMessageFactory[CmdToVscode.delete_file]({ filePaths: [filePath], useTrash })
     } catch (e) {
       Channel.info(`${i18n.t('core.trash_error')}: ${e}`)
     }
@@ -321,7 +321,7 @@ export abstract class Operator {
    * @param filePath 图片路径
    */
   async getImageInfo(filePath: string): Promise<ImageType> {
-    const res = await VscodeMessageCenter[CmdToVscode.get_images](
+    const res = await VscodeMessageFactory[CmdToVscode.get_images](
       { filePaths: [filePath], cwd: this.image.absWorkspaceFolder },
       this.imageManagerPanel,
     )

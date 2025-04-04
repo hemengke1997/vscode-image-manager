@@ -1,46 +1,27 @@
-import { i18n } from '~/i18n'
-import { Channel } from '~/utils/channel'
-import { type ImageManagerPanel } from '~/webview/panel'
-import { CmdToWebview } from './cmd'
-import { type MessageType, VscodeMessageCenter } from './message-factory'
+import { type UpdateType } from '~/webview/image-manager/utils/tree/const'
+import { type UpdatePayload } from '~/webview/image-manager/utils/tree/tree-manager'
+import { type CmdToWebview } from './cmd'
 
-export class WebviewMessageFactory {
-  constructor(public imageManagerPanel: ImageManagerPanel) {}
+export type FullUpdate = {
+  updateType: UpdateType.full
+  payloads: UpdatePayload[]
+  id: string
+  workspaceFolder: string
+  absWorkspaceFolder: string
+}
+export type PatchUpdate = {
+  updateType: UpdateType.patch
+  payloads: UpdatePayload[]
+  id: string
+  workspaceFolder?: string
+  absWorkspaceFolder?: string
+}
 
-  slientMessages: string[] = [CmdToWebview.webview_callback]
-
-  /**
-   * 向webview发送消息
-   * @param message
-   */
-  postMessage<T extends Record<string, any>, U extends keyof typeof CmdToWebview = keyof typeof CmdToWebview>(
-    message: MessageType<T, U>,
-  ) {
-    // Filter some message
-    if (!this.slientMessages.includes(message.cmd)) {
-      Channel.debug(`${i18n.t('core.post_message_to_webview')}: ${message.cmd}`)
-    }
-
-    this.imageManagerPanel.panel.webview.postMessage(message)
-  }
-
-  /**
-   * 处理webview发送给vscode的消息
-   * @param message
-   */
-  async handleMessages(message: MessageType) {
-    const handler: (data: Record<string, any>, panel: ImageManagerPanel) => Thenable<any> = VscodeMessageCenter[
-      message.cmd
-    ] as any
-
-    if (handler) {
-      // 执行对应消息的处理函数
-      const data = await handler(message.data, this.imageManagerPanel)
-
-      // 如果消息有回调id，则返回数据给webview
-      this.postMessage({ cmd: CmdToWebview.webview_callback, callbackId: message.callbackId, data })
-    } else {
-      Channel.error(i18n.t('core.handler_fn_not_exist', message.cmd))
-    }
-  }
+export type CmdToWebviewMessage = {
+  [CmdToWebview.update_images]: FullUpdate | PatchUpdate
+  [CmdToWebview.reveal_image_in_viewer]: { imagePath: string }
+  [CmdToWebview.program_reload_webview]: undefined
+  [CmdToWebview.update_config]: undefined
+  [CmdToWebview.update_workspaceState]: undefined
+  [CmdToWebview.webview_callback]: undefined
 }

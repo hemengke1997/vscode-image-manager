@@ -3,7 +3,7 @@ import { TinyColor } from '@ctrl/tinycolor'
 import { createStore } from 'context-state'
 import { uniq } from 'es-toolkit'
 import { ConfigKey } from '~/core/config/common'
-import { DisplayGroupType, WorkspaceStateKey } from '~/core/persist/workspace/common'
+import { type DisplayGroupType, WorkspaceStateKey } from '~/core/persist/workspace/common'
 import { Language, ReduceMotion, Theme } from '~/enums'
 import { intelligentPick } from '~/utils/intelligent-pick'
 import { useExtConfigState } from '~/webview/image-manager/hooks/use-ext-config-state'
@@ -69,10 +69,7 @@ function useSettingsStore() {
     workspaceState.display_group,
   )
 
-  const displayGroup: DisplayGroupType[] = useMemo(
-    () => uniq([DisplayGroupType.workspace, ...(_displayGroup || [])]),
-    [_displayGroup],
-  )
+  const displayGroup: DisplayGroupType[] = useMemo(() => uniq([...(_displayGroup || [])]), [_displayGroup])
 
   /* ----------- image backgroundColor ---------- */
   const [backgroundColor, setBackgroundColor] = useExtConfigState(

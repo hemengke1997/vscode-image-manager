@@ -104,14 +104,17 @@ function SingleLabel(props: SingleLabelProps) {
         data-dir-path={dirPath}
         className={classNames(
           'inline-flex',
-          'cursor-pointer transition-all hover:text-ant-color-primary-text-hover focus:text-ant-color-primary-text-hover focus:underline',
+          !!contextMenu &&
+            'cursor-pointer transition-all hover:text-ant-color-primary-text-hover focus:text-ant-color-primary-text-hover focus:underline',
         )}
         tabIndex={-1}
         onClick={(e) => {
-          // 防止触发父元素的打开collapse事件
-          e.stopPropagation()
-          // 清除图片选中状态
-          imageManagerEvent.emit(IMEvent.clear_viewer_selected_images)
+          if (contextMenu) {
+            // 防止触发父元素的打开collapse事件
+            e.stopPropagation()
+            // 清除图片选中状态
+            imageManagerEvent.emit(IMEvent.clear_viewer_selected_images)
+          }
         }}
       >
         {children}

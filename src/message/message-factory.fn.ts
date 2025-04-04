@@ -11,54 +11,18 @@ import { COMPRESSED_META } from '~/core/operator/meta'
 import { Svgo } from '~/core/operator/svgo'
 import { Compressed } from '~/enums'
 import { i18n } from '~/i18n'
-import { normalizePath } from '~/utils'
 import { Channel } from '~/utils/channel'
-import { imageGlob } from '~/utils/glob'
 import { type ImageManagerPanel } from '~/webview/panel'
 import { CmdToVscode } from './cmd'
-import { VscodeMessageCenter } from './message-factory'
-
-/**
- * 查找图片
- */
-export async function searchImages(
-  absWorkspaceFolder: string,
-  imageManagerPanel: ImageManagerPanel,
-  ctx: {
-    exts: Set<string>
-    dirs: Set<string>
-  },
-) {
-  const { dirs, exts } = ctx
-  absWorkspaceFolder = normalizePath(absWorkspaceFolder)
-
-  const { allImagePatterns } = imageGlob({
-    cwds: [absWorkspaceFolder],
-    scan: Config.file_scan,
-    exclude: Config.file_exclude,
-  })
-
-  return VscodeMessageCenter[CmdToVscode.get_image_info](
-    {
-      glob: allImagePatterns,
-      cwd: absWorkspaceFolder,
-      onResolve: (image) => {
-        const { extname, dirPath } = image
-        exts && exts.add(extname)
-        dirPath && dirs.add(dirPath)
-      },
-    },
-    imageManagerPanel,
-  )
-}
+import { VscodeMessageFactory } from './message-factory'
 
 /**
  * 获取图片相关信息
  */
 export async function getImageExtraInfo(images: GlobEntry[], imageManagerPanel: ImageManagerPanel) {
   const [gitStaged, metadataResults] = await Promise.all([
-    VscodeMessageCenter[CmdToVscode.get_git_staged_images]({}, imageManagerPanel),
-    VscodeMessageCenter[CmdToVscode.get_images_metadata]({
+    VscodeMessageFactory[CmdToVscode.get_git_staged_images]({}, imageManagerPanel),
+    VscodeMessageFactory[CmdToVscode.get_images_metadata]({
       images,
     }),
   ])
@@ -89,12 +53,15 @@ export async function getStagedImages(root: string) {
   const simpleGit = git({ baseDir: root, binary: 'git' })
 
   try {
-    const files = (await simpleGit.diff(['--cached', '--diff-filter=ACMR', '--name-only'])).split('\n')
-    // Filter out non-image files
-    let imageFiles = files.filter((file) => Config.file_scan.includes(path.extname(file).slice(1)))
-    // Add the full path to the file
-    const gitRoot = await simpleGit.revparse(['--show-toplevel'])
-    imageFiles = imageFiles.map((file) => path.join(gitRoot, file))
+    const [gitRoot, files] = await Promise.all([
+      simpleGit.revparse(['--show-toplevel']),
+      simpleGit.diff(['--cached', '--diff-filter=ACMR', '--name-only']),
+    ])
+
+    const imageFiles = files
+      .split('\n')
+      .filter((file) => Config.file_scan.includes(path.extname(file).slice(1)))
+      .map((file) => path.join(gitRoot, file))
 
     gitStagedCache.set(cacheKey, {
       timestamp: Date.now(),
@@ -162,24 +129,11 @@ export async function getImageMetadata(image: GlobEntry): Promise<{
   let metadata: SharpNS.Metadata = {} as SharpNS.Metadata
   let sharpFormatSupported = true
 
-  const initialRes = {
-    filePath,
-    metadata,
-    compressed,
-  }
-
-  try {
-    await fs.access(filePath)
-  } catch {
-    return initialRes
-  }
-
   try {
     if (!Global.sharp) {
       throw new Error('sharp is not installed')
     }
 
-    Global.sharp?.cache({ files: 0 })
     metadata = await Global.sharp?.(filePath).metadata()
   } catch {
     // sharp 不支持该类型

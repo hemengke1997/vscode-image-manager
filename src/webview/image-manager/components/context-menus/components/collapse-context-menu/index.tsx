@@ -23,6 +23,7 @@ enum COLLAPSE_CONTEXT_MENU {
   format_conversion_in_recursive_directories = 'format_conversion_in_recursive_directories',
   rename_directory = 'rename_directory',
   delete_directory = 'delete_directory',
+  paste = 'paste',
 }
 
 const defaultCollapseContextMenu = {
@@ -66,6 +67,11 @@ const defaultCollapseContextMenu = {
    * @default false
    */
   [COLLAPSE_CONTEXT_MENU.delete_directory]: false,
+  /**
+   * 粘贴图片
+   * @default true
+   */
+  [COLLAPSE_CONTEXT_MENU.paste]: true,
 }
 
 const sharpRelated = [
@@ -129,7 +135,7 @@ function CollapseContextMenu() {
   })
 
   const handleCompressImageDeeply = useMemoizedFn((e: ItemParams<CollapseContextMenuType>) => {
-    _compressImage(e.props!.allSubfolderImages)
+    _compressImage(e.props!.subfolderImages)
   })
 
   const _formatConversion = useMemoizedFn((images: ImageType[] | undefined) => {
@@ -145,7 +151,7 @@ function CollapseContextMenu() {
   })
 
   const handleFormatConversionDeeply = useMemoizedFn((e: ItemParams<CollapseContextMenuType>) => {
-    _formatConversion(e.props!.allSubfolderImages)
+    _formatConversion(e.props!.subfolderImages)
   })
 
   const handleRenameDir = useMemoizedFn((e: ItemParams<CollapseContextMenuType>) => {
@@ -178,8 +184,13 @@ function CollapseContextMenu() {
           {t('im.reveal_in_explorer')}
         </Item>
 
-        <Separator />
-        <Item disabled={!imageCopied?.list.length} onClick={hanldePasteImage}>
+        <Separator hidden={isItemHidden} data={COLLAPSE_CONTEXT_MENU.paste} />
+        <Item
+          hidden={isItemHidden}
+          disabled={!imageCopied?.list.length}
+          onClick={hanldePasteImage}
+          data={COLLAPSE_CONTEXT_MENU.paste}
+        >
           {t('im.paste')}
           <RightSlot>{Keybinding.Paste()}</RightSlot>
         </Item>

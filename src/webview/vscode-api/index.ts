@@ -4,14 +4,14 @@ import { nanoid } from 'nanoid'
 import { type WebviewApi } from 'vscode-webview'
 import { CmdToWebview } from '~/message/cmd'
 import {
-  type FirstParameterOfMessageCenter,
   type KeyofMessage,
   type MessageType,
-  type ReturnOfMessageCenter,
+  type ParameterOfMessage,
+  type ReturnOfMessage,
 } from '~/message/message-factory'
 import logger from '~/utils/logger'
 
-export type MessageCallbackFn<T extends KeyofMessage> = (data: ReturnOfMessageCenter<T>) => void
+type MessageCallbackFn<T extends KeyofMessage> = (data: ReturnOfMessage<T>) => void
 
 /**
  * 工具类，封装了acquireVsCodeApi()函数，
@@ -61,11 +61,11 @@ class VscodeApi {
    * @param message 任意数据（必须是JSON可序列化的）发送到扩展上下文。
    */
   public postMessage<T extends KeyofMessage>(
-    message: FirstParameterOfMessageCenter<T> extends never
+    message: ParameterOfMessage<T> extends never
       ? Omit<Partial<MessageType>, 'cmd'> & {
           cmd: T
         }
-      : MessageType<FirstParameterOfMessageCenter<T>, T>,
+      : MessageType<ParameterOfMessage<T>, T>,
     callback?: MessageCallbackFn<T>,
   ) {
     message.msgId = this._getRandomId()
