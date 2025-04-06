@@ -94,4 +94,6 @@ export const enum CmdToVscode {
   get_sibling_resource = 'get_sibling_resource',
   // 打开svgo配置文件
   open_svgo_config = 'open_svgo_config',
+  // 获取图片的metadata/git staged等信息
+  get_images_extra_info = 'get_images_extra_info',
 }

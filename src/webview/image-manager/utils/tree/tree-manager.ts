@@ -206,7 +206,9 @@ export class TreeManager {
       })
     }
 
-    result.push(buildNestedTree(this.rootId))
+    if (this.tree.nodes.size) {
+      result.push(buildNestedTree(this.rootId))
+    }
     logger.timeEnd('toNestedArray')
     return result
   }

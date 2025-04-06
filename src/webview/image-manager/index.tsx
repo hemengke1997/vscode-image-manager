@@ -5,6 +5,7 @@ import { GoMoveToTop } from 'react-icons/go'
 import { useEventListener, useMemoizedFn } from 'ahooks'
 import { App, Button, FloatButton } from 'antd'
 import { enableMapSet, setAutoFreeze } from 'immer'
+import { classNames } from 'tw-clsx'
 import { CmdToVscode, CmdToWebview } from '~/message/cmd'
 import { type CmdToWebviewMessage } from '~/message/webview-message-factory'
 import logger from '~/utils/logger'
@@ -27,9 +28,11 @@ setAutoFreeze(false)
 enableMapSet()
 
 toast.setDefaultOptions({
-  className:
-    'flex items-center justify-center rounded-md bg-black bg-opacity-60 px-2 py-1 text-sm shadow-sm pointer-events-none text-ant-color-text-light-solid',
-  pauseOnHover: false,
+  className: classNames(
+    'flex items-center justify-center rounded-md bg-black bg-opacity-60 px-2 py-1 text-sm shadow-sm text-white',
+    'prevent-click-away',
+  ),
+  pauseOnHover: true,
 })
 
 function ImageManager() {

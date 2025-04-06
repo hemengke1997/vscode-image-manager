@@ -60,21 +60,8 @@ function useFileStore() {
 
   useImageManagerEvent({
     on: {
-      [IMEvent.clear_viewer_selected_images]: (dirs) => {
-        setImageSelectedMap(
-          produce((draft) => {
-            if (dirs) {
-              dirs.forEach((dir) => {
-                draft.delete(dir)
-              })
-            } else {
-              // TODO
-              // 为什么immer中为什么要clear再newMap才能把数据清空
-              draft.clear()
-              draft = new Map()
-            }
-          }),
-        )
+      [IMEvent.clear_viewer_selected_images]: () => {
+        setImageSelectedMap(new Map())
       },
       [IMEvent.clear_viewer_cut_images]: () => {
         // 取消剪切态

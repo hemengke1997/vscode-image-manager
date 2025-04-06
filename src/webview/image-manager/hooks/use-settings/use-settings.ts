@@ -12,6 +12,9 @@ export default function useSettings() {
       title: t('im.settings'),
       keyboard: true,
       width: 'fit-content',
+      style: {
+        minWidth: '30%',
+      },
       centered: true,
     },
     FC: Settings,

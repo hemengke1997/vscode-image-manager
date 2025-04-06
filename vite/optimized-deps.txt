@@ -35,3 +35,9 @@ react-hotkeys-hook
 ts-key-enum
 vite-config-preset/client
 delay
+immer
+es-toolkit/compat
+es-toolkit
+consola
+defaults
+debounce

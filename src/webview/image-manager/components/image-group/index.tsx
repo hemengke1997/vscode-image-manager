@@ -1,14 +1,18 @@
 import { type ForwardedRef, forwardRef, memo, type ReactNode, useEffect, useMemo, useRef, useState } from 'react'
 import { toast } from 'react-atom-toast'
+import { FaLock, FaLockOpen } from 'react-icons/fa6'
 import { useClickAway, useMemoizedFn } from 'ahooks'
 import { useControlledState } from 'ahooks-x'
-import { ConfigProvider, Image, theme } from 'antd'
+import { Button, ConfigProvider, Image, theme } from 'antd'
 import { type AliasToken, type ComponentTokenMap } from 'antd/es/theme/interface'
-import { isString, range, round } from 'es-toolkit'
+import { range, round } from 'es-toolkit'
 import { type PreviewGroupPreview } from 'rc-image/es/PreviewGroup'
 import { classNames } from 'tw-clsx'
 import { isDev } from 'vite-config-preset/client'
+import { WorkspaceStateKey } from '~/core/persist/workspace/common'
+import logger from '~/utils/logger'
 import useImageManagerEvent, { IMEvent } from '../../hooks/use-image-manager-event'
+import { useWorkspaceState } from '../../hooks/use-workspace-state'
 import GlobalStore from '../../stores/global-store'
 import SettingsStore from '../../stores/settings-store'
 import useImageContextMenu, {
@@ -67,10 +71,7 @@ export type ImageGroupProps = {
    * 受控 selectedImages 改变时的回调
    */
   onSelectedImagesChange?: (selectedImages: ImageType[]) => void
-  /**
-   * 所有选中的图片（包括但不限于当前图片组选中的图片）
-   */
-  allSelectedImages?: ImageType[]
+
   /**
    * 点击空白处时，是否清空选中的图片
    */
@@ -104,28 +105,35 @@ function ImageGroup(props: ImageGroupProps, ref: ForwardedRef<HTMLDivElement>) {
     onMultipleSelectContextMenu,
     clearSelectedOnBlankClick,
     onClearImageGroupSelected,
+    selectedImages: selectedImagesProp,
+    onSelectedImagesChange,
   } = props
 
   const { token } = theme.useToken()
 
   const [images] = useLazyLoadImages({
     images: imagesProp,
+    // 每次加载200张图片
     pageSize: 200,
     target: ref as React.MutableRefObject<HTMLElement>,
   })
 
   const { imageWidth } = GlobalStore.useStore(['imageWidth'])
+  const preview_scale = GlobalStore.useStore((ctx) => ctx.workspaceState.preview_scale)
   const { isDarkBackground, backgroundColor, tinyBackgroundColor } = SettingsStore.useStore([
     'isDarkBackground',
     'backgroundColor',
     'tinyBackgroundColor',
   ])
 
+  const [previewScale, setPreviewScale] = useWorkspaceState(WorkspaceStateKey.preview_scale, preview_scale)
+  const [lockedScale, setLockedScale] = useState(false)
+
   /* ------------------- 选择的图片 ------------------ */
   const [selectedImages, _setSelectedImages] = useControlledState({
     defaultValue: [],
-    value: props.selectedImages,
-    onChange: props.onSelectedImagesChange,
+    value: selectedImagesProp,
+    onChange: onSelectedImagesChange,
   })
 
   const setSelectedImages: typeof _setSelectedImages = useMemoizedFn((...args) => {
@@ -139,20 +147,52 @@ function ImageGroup(props: ImageGroupProps, ref: ForwardedRef<HTMLDivElement>) {
 
   useEffect(() => {
     if (!preview.open) {
-      toast.close(ToastKey)
+      onToastClose()
       hideAll()
     }
   }, [preview.open])
 
+  const onToastClose = useMemoizedFn(() => {
+    if (!lockedScale) {
+      setPreviewScale(1)
+    }
+
+    toast.close(ToastKey)
+  })
+
+  const toastContent = useMemoizedFn((sclalePercent: number, lockedScale: boolean) => {
+    const Icon = lockedScale ? FaLock : FaLockOpen
+
+    return (
+      <div className={'flex items-center gap-2'}>
+        <span>{sclalePercent}%</span>
+        <Button
+          size={'small'}
+          // TODO: 为什么这个icon的parentElement是null
+          icon={<Icon className={'prevent-click-away !text-white'} />}
+          onClick={() => {
+            setLockedScale((t) => !t)
+            if (!lockedScale) {
+              setPreviewScale(sclalePercent / 100)
+              logger.debug('锁定缩放比例', sclalePercent / 100)
+            }
+            toast.update(ToastKey, {
+              content: toastContent(sclalePercent, !lockedScale),
+            })
+          }}
+          type='text'
+        ></Button>
+      </div>
+    )
+  })
+
   const openToast = useMemoizedFn((sclalePercent: number) => {
     if (!sclalePercent || !preview.open) return
 
+    setLockedScale(false)
+
     toast.open({
-      content: (
-        <div className={'flex items-center'}>
-          <span>{sclalePercent}%</span>
-        </div>
-      ),
+      content: toastContent(sclalePercent, lockedScale),
       key: ToastKey,
     })
   })
@@ -165,14 +205,13 @@ function ImageGroup(props: ImageGroupProps, ref: ForwardedRef<HTMLDivElement>) {
       if (parent.tagName === 'body') {
         return false
       }
-      if (
-        isString(parent.className) &&
-        classNames.filter(Boolean).some((className) => parent?.classList.contains(className))
-      ) {
+      if (classNames.filter(Boolean).some((className) => parent?.classList.contains(className))) {
         return true
       }
+
       parent = parent.parentElement!
     }
+
     return false
   })
 
@@ -209,8 +248,7 @@ function ImageGroup(props: ImageGroupProps, ref: ForwardedRef<HTMLDivElement>) {
       }
 
       // 如果不希望在点击的时候清空选中的图片，直接return即可
-
-      if (targetEl.getAttribute('data-id') === 'context-menu-mask') {
+      if (targetEl.classList.contains('prevent-click-away')) {
         return
       }
 
@@ -226,6 +264,7 @@ function ImageGroup(props: ImageGroupProps, ref: ForwardedRef<HTMLDivElement>) {
           'ant-notification',
           'ant-modal',
           'ant-collapse-item',
+          'prevent-click-away',
         ])
       ) {
         return
@@ -343,7 +382,7 @@ function ImageGroup(props: ImageGroupProps, ref: ForwardedRef<HTMLDivElement>) {
 
   const handlePreviewChange = useMemoizedFn((current: number) => {
     setPreview({ current, open: true })
-    toast.close(ToastKey)
+    onToastClose()
   })
 
   const handleVisibleChange = useMemoizedFn((v: boolean, _, current: number) => {
@@ -407,8 +446,8 @@ function ImageGroup(props: ImageGroupProps, ref: ForwardedRef<HTMLDivElement>) {
     }
   })
 
-  const previewProps: PreviewGroupPreview = useMemo(
-    () => ({
+  const previewProps: PreviewGroupPreview = useMemo(() => {
+    return {
       destroyOnClose: true,
       visible: preview?.open,
       current: preview?.current,
@@ -425,9 +464,16 @@ function ImageGroup(props: ImageGroupProps, ref: ForwardedRef<HTMLDivElement>) {
       scaleStep: 0.05,
       imageRender: handleImageRender,
       onTransform: handleTransform,
-    }),
-    [preview, handlePreviewChange, handleVisibleChange, handleImageRender, handleTransform],
-  )
+      initialTransform: {
+        x: 0,
+        y: 0,
+        rotate: 0,
+        scale: previewScale,
+        flipX: false,
+        flipY: false,
+      },
+    }
+  }, [preview, previewScale, handlePreviewChange, handleVisibleChange, handleImageRender, handleTransform])
 
   const previewItems = useMemo(
     () =>

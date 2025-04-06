@@ -12,6 +12,7 @@ import useImageManagerEvent, { IMEvent } from '../../hooks/use-image-manager-eve
 import useSticky from '../../hooks/use-sticky'
 import useWheelScaleEvent from '../../hooks/use-wheel-scale-event'
 import GlobalStore from '../../stores/global-store'
+import ImageStore from '../../stores/image-store'
 import { ANIMATION_DURATION } from '../../utils/duration'
 import CollapseTree from '../collapse-tree'
 import ImageActions from '../image-actions'
@@ -19,12 +20,13 @@ import TitleIconUI from '../title-icon-UI'
 
 function Viewer() {
   const { t } = useTranslation()
-  const { setViewerHeaderStickyHeight, setImageWidth, setImageReveal, imageState } = GlobalStore.useStore([
+  const { setViewerHeaderStickyHeight, setImageWidth, setImageReveal } = GlobalStore.useStore([
     'setViewerHeaderStickyHeight',
     'setImageWidth',
     'setImageReveal',
-    'imageState',
   ])
+
+  const { imageState } = ImageStore.useStore(['imageState'])
 
   /* ---------------- image scale --------------- */
   const [containerRef] = useWheelScaleEvent({

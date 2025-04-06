@@ -26,6 +26,10 @@ declare global {
      * @param reload 为 true 则刷新app
      */
     mountApp: (reload?: boolean) => void
+    /**
+     * react root
+     */
+    __react_root__: ReactDOM.Root
 
     /**
      * vscode 设置到window上的全局变量

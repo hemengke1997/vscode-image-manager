@@ -392,7 +392,7 @@ function ImageCollapse(props: ImageCollapseProps) {
                 <ImageGroup
                   ref={holderRef}
                   id={id}
-                  selectedImages={imageSelectedMap.get(id)}
+                  selectedImages={imageSelectedMap.get(id) || []}
                   onSelectedImagesChange={onSelectedImagesChange}
                   enableMultipleSelect={true}
                   onMultipleSelectContextMenu={onMultipleSelectContextMenu}

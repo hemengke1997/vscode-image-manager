@@ -7,7 +7,7 @@ import { Card, type CollapseProps, Empty } from 'antd'
 import { classNames } from 'tw-clsx'
 import { DisplayGroupType } from '~/core/persist/workspace/common'
 import ActionStore from '~/webview/image-manager/stores/action-store'
-import GlobalStore from '~/webview/image-manager/stores/global-store'
+import ImageStore from '~/webview/image-manager/stores/image-store'
 import SettingsStore from '~/webview/image-manager/stores/settings-store'
 import { ANIMATION_DURATION } from '~/webview/image-manager/utils/duration'
 import { NodeType } from '~/webview/image-manager/utils/tree/tree'
@@ -27,7 +27,7 @@ function TreeRenderer(props: Props) {
   const { t } = useTranslation()
   const { tree, treeManager, workspaceFolder, workspaceId } = props
 
-  const workspaceLength = GlobalStore.useStore((ctx) => ctx.imageState.workspaces.length)
+  const workspaceLength = ImageStore.useStore((ctx) => ctx.imageState.workspaces.length)
 
   const { displayGroup } = SettingsStore.useStore(['displayGroup'])
 

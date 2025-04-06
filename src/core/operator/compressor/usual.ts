@@ -1,3 +1,4 @@
+import { round } from 'es-toolkit'
 import fs from 'fs-extra'
 import { type SharpNS } from '~/@types/global'
 import { SharpOperator } from '~/core/sharp/sharp-operator'
@@ -103,8 +104,8 @@ export class UsualCompressor extends Compressor {
 
               if (size !== 1) {
                 sharp?.resize({
-                  width: width! * size,
-                  height: height! * size,
+                  width: round(width! * size, 0),
+                  height: round(height! * size, 0),
                   fit: 'contain',
                 })
               }

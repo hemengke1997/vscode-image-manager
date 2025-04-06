@@ -30,12 +30,12 @@ import { generateOutputPath, normalizePath, resolveDirPath } from '~/utils'
 import { cancelablePromise } from '~/utils/abort-promise'
 import { Channel } from '~/utils/channel'
 import { imageGlob } from '~/utils/glob'
-import { convertImageToBase64, convertToBase64IfBrowserNotSupport, isBase64 } from '~/utils/image-type'
+import { bufferTobase64, convertImageToBase64, convertToBase64IfBrowserNotSupport, isBase64 } from '~/utils/image-type'
 import logger from '~/utils/logger'
 import { UpdateEvent, UpdateOrigin, UpdateType } from '~/webview/image-manager/utils/tree/const'
 import { type ImageManagerPanel } from '~/webview/panel'
 import { CmdToVscode, CmdToWebview } from './cmd'
-import { getImageExtraInfo, getImageMetadata, getStagedImages } from './message-factory.fn'
+import { getImageMetadata, getStagedImages } from './message-factory.fn'
 
 type MessageFactoryType = typeof VscodeMessageFactory
 type MessageMethodType<K extends KeyofMessage> = MessageFactoryType[K]
@@ -114,7 +114,11 @@ export const VscodeMessageFactory = {
       return []
     }
 
-    const { gitStaged, metadataResults } = await getImageExtraInfo(images, imageManagerPanel)
+    const { gitStaged, metadataResults } = await VscodeMessageFactory[CmdToVscode.get_images_extra_info](
+      { images },
+      imageManagerPanel,
+    )
+
     // 项目绝对路径
     const projectPath = normalizePath(path.dirname(cwd))
     // 工作区绝对路径
@@ -175,6 +179,27 @@ export const VscodeMessageFactory = {
     return res
   },
 
+  /* ------------------ 获取图片元信息 ----------------- */
+  [CmdToVscode.get_images_extra_info]: async (
+    data: {
+      images: (string | GlobEntry)[]
+    },
+    imageManagerPanel: ImageManagerPanel,
+  ) => {
+    const { images } = data
+    const [gitStaged, metadataResults] = await Promise.all([
+      VscodeMessageFactory[CmdToVscode.get_git_staged_images]({}, imageManagerPanel),
+      VscodeMessageFactory[CmdToVscode.get_images_metadata]({
+        images,
+      }),
+    ])
+
+    return {
+      gitStaged,
+      metadataResults,
+    }
+  },
+
   /* -------------- 获取cwds下的所有图片 -------------- */
   [CmdToVscode.get_all_images_from_cwds]: async (
     data: {
@@ -185,6 +210,14 @@ export const VscodeMessageFactory = {
     const workspaces = imageManagerPanel.initialData.rootpaths || []
 
     const { glob } = data
+
+    const abortKey = imageManagerPanel.id + (glob ? glob : '-')
+
+    imageManagerPanel.onDidChange((e) => {
+      if (!e) {
+        cancelablePromise.abortPromiseMap.get(abortKey)?.abort()
+      }
+    })
 
     const start = performance.now()
     try {
@@ -230,7 +263,7 @@ export const VscodeMessageFactory = {
           )
         },
         {
-          key: imageManagerPanel.id + (glob ? glob : '-'),
+          key: abortKey,
         },
       )
 
@@ -461,7 +494,7 @@ export const VscodeMessageFactory = {
     const cache = VscodeMessageFactory[CmdToVscode.get_operation_cmd_cache]({ ids: [data.id] })[0]
     const { details } = cache || {}
     if (details?.inputBuffer) {
-      return convertToBase64IfBrowserNotSupport(details.inputPath, Global.sharp, details.inputBuffer)
+      return bufferTobase64(details.inputBuffer, details.inputPath, Global.sharp)
     }
     return null
   },
@@ -550,7 +583,7 @@ export const VscodeMessageFactory = {
   },
 
   /* ------------ get images metadata ------------ */
-  [CmdToVscode.get_images_metadata]: async (data: { images: GlobEntry[] }) => {
+  [CmdToVscode.get_images_metadata]: async (data: { images: (string | GlobEntry)[] }) => {
     const start = performance.now()
 
     const { images } = data

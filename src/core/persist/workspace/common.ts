@@ -34,13 +34,10 @@ export type WorkspaceStateType = {
   display_style: DisplayStyleType
   recent_image_backgroundColors: string[]
   recent_primary_colors: string[]
-
-  // 调整精确度的提示
   show_precision_tip: boolean
-  // 撤销/恢复提示
   show_undo_redo_tip: boolean
-  // 剪切提示
   show_cut_tip: boolean
+  preview_scale: number
 }
 
 export const DEFAULT_WORKSPACE_STATE: WorkspaceStateType = {
@@ -62,14 +59,21 @@ export const DEFAULT_WORKSPACE_STATE: WorkspaceStateType = {
   show_precision_tip: true,
   show_undo_redo_tip: true,
   show_cut_tip: true,
+  preview_scale: 1,
 }
 
 export const enum WorkspaceStateKey {
+  // 图片过滤
   image_filter = 'image_filter',
+  // 排序
   display_sort = 'display_sort',
+  // 分组方式（目录/文件类型）
   display_group = 'display_group',
+  // 展示方式（紧凑/嵌套）
   display_style = 'display_style',
+  // 最近使用的图片背景色
   recent_image_backgroundColors = 'recent_image_backgroundColors',
+  // 最近使用的主色
   recent_primary_colors = 'recent_primary_colors',
   // 精度提示
   show_precision_tip = 'show_precision_tip',
@@ -77,4 +81,6 @@ export const enum WorkspaceStateKey {
   show_undo_redo_tip = 'show_undo_redo_tip',
   // 剪切提示
   show_cut_tip = 'show_cut_tip',
+  // 图片缩放比例
+  preview_scale = 'preview_scale',
 }

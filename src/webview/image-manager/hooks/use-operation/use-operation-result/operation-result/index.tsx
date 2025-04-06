@@ -124,7 +124,6 @@ function OperationResult(props: OperationResultProps & ImperativeModalProps) {
           data: { id: item.id },
         },
         (res) => {
-          console.log(res, 'res')
           if (res) {
             setComparisonCache(produce((draft) => draft.set(item.id, res)))
             showImageComparison({

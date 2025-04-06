@@ -6,8 +6,10 @@ import { produce } from 'immer'
 import { DisplayGroupType, DisplayStyleType } from '~/core/persist/workspace/common'
 import logger from '~/utils/logger'
 import useUpdateImages from '../../hooks/use-update-images'
+import ActionStore from '../../stores/action-store'
 import FilterStore from '../../stores/filter-store'
-import GlobalStore, { type Workspace } from '../../stores/global-store'
+import GlobalStore from '../../stores/global-store'
+import { type Workspace } from '../../stores/image-store'
 import SettingsStore from '../../stores/settings-store'
 import { UpdateType } from '../../utils/tree/const'
 import { TreeStyle } from '../../utils/tree/tree'
@@ -31,11 +33,12 @@ function CollapseTree(props: Props) {
   const { displayGroup, displayStyle, sort } = SettingsStore.useStore(['displayGroup', 'displayStyle', 'sort'])
 
   const { imageFilter } = FilterStore.useStore(['imageFilter'])
+  const { notifyCollapseChange } = ActionStore.useStore(['notifyCollapseChange'])
 
   const afterUpdate = useMemoizedFn(() => {
     const nestedTree = treeManager.current?.toNestedArray()
     resetPartialState()
-    setNestedTree(nestedTree)
+    setNestedTree(nestedTree || [])
 
     // 获取当前工作区的可见图片列表
     startTransition(() => {
@@ -50,6 +53,8 @@ function CollapseTree(props: Props) {
           }
         }),
       )
+      // TODO：不一定生效
+      notifyCollapseChange()
     })
   })
 
@@ -90,7 +95,7 @@ function CollapseTree(props: Props) {
     return TreeStyle.flat
   })
 
-  const [nestedTree, setNestedTree] = useState<NestedTreeNode[]>()
+  const [nestedTree, setNestedTree] = useState<NestedTreeNode[]>([])
   const treeManager = useRef<TreeManager>()
 
   const generateTree = useMemoizedFn(() => {
@@ -120,7 +125,7 @@ function CollapseTree(props: Props) {
       }}
     >
       <TreeRenderer
-        tree={nestedTree || []}
+        tree={nestedTree}
         treeManager={treeManager.current}
         workspaceFolder={workspace.workspaceFolder}
         workspaceId={workspace.absWorkspaceFolder}

@@ -29,13 +29,15 @@ function Refresh() {
     }, 200)
 
     setLoading(true)
-    await getAllImages()
+    try {
+      await getAllImages()
+    } finally {
+      clearTimeout(timer)
+      setLoading(false)
+    }
 
     message.destroy(messageKey)
-    clearTimeout(timer)
     message.success(t('im.img_refreshed'))
-
-    setLoading(false)
   })
 
   return (

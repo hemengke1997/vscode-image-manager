@@ -16,6 +16,7 @@ import ActionStore from './stores/action-store'
 import FileStore from './stores/file-store'
 import FilterStore from './stores/filter-store'
 import GlobalStore from './stores/global-store'
+import ImageStore from './stores/image-store'
 import SettingsStore from './stores/settings-store'
 import VscodeStore from './stores/vscode-store'
 import './hmr'
@@ -108,22 +109,24 @@ function registerApp(children: JSX.Element, reload = false) {
 function mount(reload?: boolean) {
   registerApp(
     <GlobalStore.Provider>
-      <SettingsStore.Provider>
-        <FilterStore.Provider>
-          <ActionStore.Provider>
-            <FileStore.Provider>
-              <AntdConfigProvider>
-                {/* Fallback依赖了antd provider */}
-                <ErrorBoundary FallbackComponent={Fallback}>
-                  <Suspense fallback={<div />}>
-                    <ImageManager />
-                  </Suspense>
-                </ErrorBoundary>
-              </AntdConfigProvider>
-            </FileStore.Provider>
-          </ActionStore.Provider>
-        </FilterStore.Provider>
-      </SettingsStore.Provider>
+      <ImageStore.Provider>
+        <SettingsStore.Provider>
+          <FilterStore.Provider>
+            <ActionStore.Provider>
+              <FileStore.Provider>
+                <AntdConfigProvider>
+                  {/* Fallback依赖了antd provider */}
+                  <ErrorBoundary FallbackComponent={Fallback}>
+                    <Suspense fallback={<div />}>
+                      <ImageManager />
+                    </Suspense>
+                  </ErrorBoundary>
+                </AntdConfigProvider>
+              </FileStore.Provider>
+            </ActionStore.Provider>
+          </FilterStore.Provider>
+        </SettingsStore.Provider>
+      </ImageStore.Provider>
     </GlobalStore.Provider>,
     reload,
   )

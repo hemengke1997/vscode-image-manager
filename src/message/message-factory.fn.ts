@@ -1,3 +1,4 @@
+import { isString } from 'antd/es/button'
 import readExif from 'exif-reader'
 import fs from 'fs-extra'
 import { type GlobEntry } from 'globby'
@@ -12,26 +13,6 @@ import { Svgo } from '~/core/operator/svgo'
 import { Compressed } from '~/enums'
 import { i18n } from '~/i18n'
 import { Channel } from '~/utils/channel'
-import { type ImageManagerPanel } from '~/webview/panel'
-import { CmdToVscode } from './cmd'
-import { VscodeMessageFactory } from './message-factory'
-
-/**
- * 获取图片相关信息
- */
-export async function getImageExtraInfo(images: GlobEntry[], imageManagerPanel: ImageManagerPanel) {
-  const [gitStaged, metadataResults] = await Promise.all([
-    VscodeMessageFactory[CmdToVscode.get_git_staged_images]({}, imageManagerPanel),
-    VscodeMessageFactory[CmdToVscode.get_images_metadata]({
-      images,
-    }),
-  ])
-
-  return {
-    gitStaged,
-    metadataResults,
-  }
-}
 
 const gitStagedCache = new Map<string, { timestamp: number; data: string[] }>()
 const GIT_CACHE_DURATION = 10 * 1000 // 10s
@@ -111,12 +92,22 @@ function isMetadataCacheValid(filePath: string, mtimeMs: number | undefined) {
 /**
  * 获取图片元信息
  */
-export async function getImageMetadata(image: GlobEntry): Promise<{
+export async function getImageMetadata(image: string | GlobEntry): Promise<{
   filePath: string
   metadata: Metadata
   compressed: Compressed
 }> {
-  const { path: filePath, stats } = image
+  let filePath = ''
+  let stats: fs.Stats | undefined
+  if (isString(image)) {
+    filePath = image
+    try {
+      stats = await fs.stat(filePath)
+    } catch {}
+  } else {
+    filePath = image.path
+    stats = image.stats
+  }
 
   if (isMetadataCacheValid(filePath, stats?.mtimeMs)) {
     const cache = metadataCache.get(filePath)

@@ -1,0 +1,78 @@
+diff --git a/node_modules/rc-image/es/Image.d.ts b/node_modules/rc-image/es/Image.d.ts
+index 193393f..d6122ca 100644
+--- a/node_modules/rc-image/es/Image.d.ts
++++ b/node_modules/rc-image/es/Image.d.ts
+@@ -28,6 +28,7 @@ export interface ImagePreviewType extends Omit<IDialogPropTypes, 'mask' | 'visib
+     }) => React.ReactNode;
+     onTransform?: PreviewProps['onTransform'];
+     toolbarRender?: (originalNode: React.ReactElement, info: Omit<ToolbarRenderInfoType, 'current' | 'total'>) => React.ReactNode;
++    initialTransform?: TransformType;
+ }
+ export interface ImageProps extends Omit<React.ImgHTMLAttributes<HTMLImageElement>, 'placeholder' | 'onClick'> {
+     src?: string;
+diff --git a/node_modules/rc-image/es/Preview.js b/node_modules/rc-image/es/Preview.js
+index 25d223f..e76a223 100644
+--- a/node_modules/rc-image/es/Preview.js
++++ b/node_modules/rc-image/es/Preview.js
+@@ -71,6 +71,7 @@ var Preview = function Preview(props) {
+     toolbarRender = props.toolbarRender,
+     onTransform = props.onTransform,
+     onChange = props.onChange,
++    initialTransform = props.initialTransform,
+     restProps = _objectWithoutProperties(props, _excluded2);
+   var imgRef = useRef();
+   var groupContext = useContext(PreviewGroupContext);
+@@ -80,7 +81,7 @@ var Preview = function Preview(props) {
+     _useState2 = _slicedToArray(_useState, 2),
+     enableTransition = _useState2[0],
+     setEnableTransition = _useState2[1];
+-  var _useImageTransform = useImageTransform(imgRef, minScale, maxScale, onTransform),
++  var _useImageTransform = useImageTransform(imgRef, minScale, maxScale, onTransform, initialTransform),
+     transform = _useImageTransform.transform,
+     resetTransform = _useImageTransform.resetTransform,
+     updateTransform = _useImageTransform.updateTransform,
+diff --git a/node_modules/rc-image/es/hooks/useImageTransform.js b/node_modules/rc-image/es/hooks/useImageTransform.js
+index 1f47007..d9c3449 100644
+--- a/node_modules/rc-image/es/hooks/useImageTransform.js
++++ b/node_modules/rc-image/es/hooks/useImageTransform.js
+@@ -1,10 +1,12 @@
+ import _objectSpread from "@babel/runtime/helpers/esm/objectSpread2";
+ import _slicedToArray from "@babel/runtime/helpers/esm/slicedToArray";
++import { useUpdateEffect } from "ahooks";
+ import { getClientSize } from "rc-util/es/Dom/css";
+ import isEqual from "rc-util/es/isEqual";
+ import raf from "rc-util/es/raf";
+ import { useRef, useState } from 'react';
+-var initialTransform = {
++
++var internalInitialTransform = {
+   x: 0,
+   y: 0,
+   rotate: 0,
+@@ -12,7 +14,9 @@ var initialTransform = {
+   flipX: false,
+   flipY: false
+ };
+-export default function useImageTransform(imgRef, minScale, maxScale, onTransform) {
++
++export default function useImageTransform(imgRef, minScale, maxScale, onTransform, initialTransform) {
++  initialTransform = initialTransform || internalInitialTransform;
+   var frame = useRef(null);
+   var queue = useRef([]);
+   var _useState = useState(initialTransform),
+@@ -29,6 +33,15 @@ export default function useImageTransform(imgRef, minScale, maxScale, onTransfor
+     }
+   };
+ 
++  useUpdateEffect(() => {
++    setTransform((t) => {
++      return {
++        ...t,
++        scale: initialTransform.scale
++      }
++    });
++  },[initialTransform.scale])
++
+   /** Direct update transform */
+   var updateTransform = function updateTransform(newTransform, action) {
+     if (frame.current === null) {

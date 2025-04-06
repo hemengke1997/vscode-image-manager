@@ -71,7 +71,7 @@ type Events = {
   [IMEvent.context_menu]: [image: ImageType, id: string]
   [IMEvent.delete_directory]: [dirPath: string]
   [IMEvent.rename_directory]: [previosDirPath: string, newDirPath: string]
-  [IMEvent.clear_viewer_selected_images]: [dirs?: string[]]
+  [IMEvent.clear_viewer_selected_images]: []
   [IMEvent.clear_viewer_cut_images]: []
 }
 

@@ -17,44 +17,62 @@ export function toBase64(mimetype: string, buffer: Buffer) {
 }
 
 /**
- * 如果浏览器不支持展示某个格式，则转为 base64
+ * 判断浏览器是否支持某个图片格式
+ * 如果不支持，则返回一个默认的 mimetype
  */
-export async function convertToBase64IfBrowserNotSupport(
-  input: string,
-  sharp: TSharp | undefined,
-  inputBuffer?: Buffer,
-) {
-  let mimetype = mime.getType(input)
-
-  const notSupported = ['tiff', 'tif'].map((t) => mime.getType(t))
-  if (mimetype && notSupported.includes(mimetype)) {
-    mimetype = mime.getType('png')!
-    try {
-      const buffer = await sharp!(inputBuffer || input)
-        .png()
-        .toBuffer()
-      return toBase64(mimetype, buffer)
-    } catch {
-      return input
+export function isBrowserSupportImageType(filepath: string) {
+  const mimetype = mime.getType(filepath)
+  if (!mimetype) {
+    return {
+      suppprted: false,
+      mimetype: `image/${path.extname(filepath).slice(1)}`,
     }
+  }
+  const notSupported = ['tiff', 'tif'].map((t) => mime.getType(t))
+  return {
+    suppprted: !notSupported.includes(mimetype),
+    mimetype,
   }
 }
 
 /**
- * 图片转 base64
+ * 根据图片buffer 转 base64
+ */
+export async function bufferTobase64(buffer: Buffer, filepath: string, sharp: TSharp | undefined) {
+  const { mimetype, suppprted } = isBrowserSupportImageType(filepath)
+
+  if (suppprted) {
+    return toBase64(mimetype, buffer)
+  }
+
+  buffer = await sharp!(buffer).png().toBuffer()
+  return toBase64(mimetype, buffer)
+}
+
+/**
+ * 根据图片path 转 base64
  */
 export async function convertImageToBase64(input: string, sharp: TSharp | undefined) {
-  let mimetype = mime.getType(input)
+  const { mimetype, suppprted } = isBrowserSupportImageType(input)
 
-  const base64 = await convertToBase64IfBrowserNotSupport(input, sharp)
-  if (base64) {
-    return base64
+  if (suppprted) {
+    return toBase64(mimetype, await fs.readFile(input))
   }
 
-  if (!mimetype) {
-    mimetype = `image/${path.extname(input).slice(1)}`
-  }
-  const buffer = await fs.readFile(input)
-
+  const buffer = await sharp!(input).png().toBuffer()
   return toBase64(mimetype, buffer)
+}
+
+/**
+ * 如果浏览器不支持展示某个格式，则转为 base64
+ * 支持，则返回空
+ */
+export async function convertToBase64IfBrowserNotSupport(input: string, sharp: TSharp | undefined) {
+  const { suppprted } = isBrowserSupportImageType(input)
+
+  if (suppprted) {
+    return null
+  }
+
+  return convertImageToBase64(input, sharp)
 }

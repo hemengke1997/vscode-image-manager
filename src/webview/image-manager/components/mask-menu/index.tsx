@@ -11,8 +11,7 @@ function MaskMenu(props: MenuProps) {
   return (
     <>
       <div
-        className={classNames('fixed inset-0 z-[9999]', contextMenuMask ? 'block' : 'hidden')}
-        data-id='context-menu-mask'
+        className={classNames('fixed inset-0 z-[9999]', contextMenuMask ? 'block' : 'hidden', 'prevent-click-away')}
       ></div>
       <Menu
         {...props}

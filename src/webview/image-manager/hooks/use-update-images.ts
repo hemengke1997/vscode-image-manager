@@ -4,13 +4,13 @@ import { CmdToVscode } from '~/message/cmd'
 import { type FullUpdate, type PatchUpdate } from '~/message/webview-message-factory'
 import logger from '~/utils/logger'
 import { vscodeApi } from '~/webview/vscode-api'
-import GlobalStore from '../stores/global-store'
+import ImageStore from '../stores/image-store'
 
 /**
  * 更新图片
  */
 export default function useUpdateImages() {
-  const { dispatchImageState } = GlobalStore.useStore(['dispatchImageState'])
+  const { dispatchImageState } = ImageStore.useStore(['dispatchImageState'])
 
   /**
    * 全量更新

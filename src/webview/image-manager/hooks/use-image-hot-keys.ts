@@ -15,7 +15,6 @@ export default function useImageHotKeys() {
   const { beginRenameImageProcess, beginDeleteImageProcess, beginCopyProcess, beginCutProcess } = useImageOperation()
 
   const handleRename = useMemoizedFn(() => {
-    console.log(imageSelected, 'imageSelected')
     beginRenameImageProcess(last(imageSelected)!, imageSelected)
   })
 

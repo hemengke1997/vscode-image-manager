@@ -123,15 +123,15 @@ function VisibleImage(props: VisibleImageProps) {
             {formatBytes(image.stats.size)}
           </span>
         </div>
-        {imageMetadata?.metadata.width && imageMetadata?.metadata.height ? (
+        {imageMetadata.metadata.width && imageMetadata.metadata.height ? (
           <div className={'flex items-center space-x-1 truncate'}>
             <RxDimensions />
             <span className={'flex items-center'}>
-              {imageMetadata?.metadata.width}x{imageMetadata?.metadata.height}
+              {imageMetadata.metadata.width}x{imageMetadata.metadata.height}
             </span>
           </div>
         ) : null}
-        {imageMetadata?.compressed === Compressed.yes ? (
+        {imageMetadata.compressed === Compressed.yes ? (
           <div className={'flex items-center space-x-1 truncate'}>
             <FiCheckCircle />
             <span>{t('im.compressed')}</span>

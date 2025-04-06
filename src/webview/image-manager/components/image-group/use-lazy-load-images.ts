@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useRef, useState } from 'react'
+import { useMemo, useRef, useState } from 'react'
 import { useEventListener, useMemoizedFn, useThrottleFn, useUpdateEffect } from 'ahooks'
 import { ceil } from 'es-toolkit/compat'
 import { DEFAULT_CONFIG } from '~/core/config/common'
@@ -7,10 +7,10 @@ import GlobalStore from '../../stores/global-store'
 
 interface UseElementBottomStatusProps {
   targetRef: React.MutableRefObject<HTMLElement>
-  offset?: number // 距离底部的偏移量
+  offset: number // 距离底部的偏移量
 }
 
-function useElementBottom({ targetRef, offset = 100 }: UseElementBottomStatusProps) {
+function useElementBottom({ targetRef, offset }: UseElementBottomStatusProps) {
   const [isBottomInView, setIsBottomInView] = useState(false)
 
   const { run } = useThrottleFn(
@@ -26,7 +26,7 @@ function useElementBottom({ targetRef, offset = 100 }: UseElementBottomStatusPro
       setIsBottomInView(isBottom)
     },
     {
-      wait: 100,
+      wait: 60,
     },
   )
 
@@ -47,20 +47,24 @@ export default function useLazyLoadImages(props: Props) {
 
   const { rootVerticalMargin } = useLazyMargin()
 
+  const [loadedImages, setLoadedImages] = useState<{
+    images: ImageType[]
+    page: number
+  }>({
+    images: images.slice(0, pageSize),
+    page: 1,
+  })
+
+  const hasMore = useMemoizedFn((loaded: ImageType[]) => {
+    return loaded.length < images.length
+  })
+
   const status = useRef<{
     loading: boolean
     hasMore: boolean
   }>({
     loading: false,
-    hasMore: true,
-  })
-
-  const [loadedImages, setLoadedImages] = useState<{
-    images: ImageType[]
-    page: number
-  }>({
-    images: [],
-    page: 0,
+    hasMore: hasMore(loadedImages.images),
   })
 
   const isBottomInView = useElementBottom({ targetRef: target, offset: rootVerticalMargin(10) })
@@ -72,10 +76,12 @@ export default function useLazyLoadImages(props: Props) {
 
     setLoadedImages(() => {
       const nextImages = images.slice(0, pageSize * pageNum)
-      if (nextImages.length >= images.length) {
+
+      if (!hasMore(nextImages)) {
         status.current.hasMore = false
         pageNum = ceil(images.length / pageSize)
       }
+
       return {
         images: nextImages,
         page: pageNum,
@@ -85,7 +91,7 @@ export default function useLazyLoadImages(props: Props) {
     status.current.loading = false
   })
 
-  useEffect(() => {
+  useUpdateEffect(() => {
     status.current.hasMore = true
     if (loadedImages.images.length) {
       addImages(loadedImages.page)

@@ -3,7 +3,7 @@ import { RxViewNone } from 'react-icons/rx'
 import { useControlledState } from 'ahooks-x'
 import { Badge, Checkbox, theme } from 'antd'
 import { difference, uniq } from 'es-toolkit'
-import GlobalStore from '~/webview/image-manager/stores/global-store'
+import ImageStore from '~/webview/image-manager/stores/image-store'
 
 type Props = {
   /**
@@ -17,8 +17,7 @@ function DisplayType(props: Props) {
   const { token } = theme.useToken()
   const { value, onChange } = props
 
-  const imageStateWorkspaces = GlobalStore.useStore((ctx) => ctx.imageState.workspaces)
-  const { imageState } = GlobalStore.useStore(['imageState'])
+  const { imageState } = ImageStore.useStore(['imageState'])
 
   const allImageTypes = useMemo(() => {
     return uniq(
@@ -29,7 +28,7 @@ function DisplayType(props: Props) {
     )
   }, [imageState.workspaces])
 
-  const allImageFiles = useMemo(() => imageStateWorkspaces.flatMap((item) => item.images), [imageStateWorkspaces])
+  const allImageFiles = useMemo(() => imageState.workspaces.flatMap((item) => item.images), [imageState.workspaces])
 
   const options = useMemo(() => {
     const sortedImageTypes = allImageTypes
