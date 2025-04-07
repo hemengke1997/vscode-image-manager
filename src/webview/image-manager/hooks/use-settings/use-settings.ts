@@ -13,7 +13,7 @@ export default function useSettings() {
       keyboard: true,
       width: 'fit-content',
       style: {
-        minWidth: '30%',
+        minWidth: 400,
       },
       centered: true,
     },

@@ -99,7 +99,7 @@ export class FormatConverter extends Operator {
               if (this.isIco(ext)) {
                 //
                 if (ctx.sharp) {
-                  ctx.sharp = await this._resizeIco(ctx.sharp, { size: size! })
+                  ctx.sharp = await this.resizeIco(ctx.sharp, { size: size! })
                 }
                 // convert to png first, then encode to ico
                 ext = 'png'
@@ -222,7 +222,7 @@ export class FormatConverter extends Operator {
   /**
    * @description resize ico
    */
-  private async _resizeIco(
+  private async resizeIco(
     image: SharpNS.Sharp,
     { size, resizeOptions }: { size: number; resizeOptions?: SharpNS.ResizeOptions },
   ) {

@@ -160,6 +160,7 @@ export class Installer {
         this.showStausBar(LoadingText)
         const abortController = new AbortController()
         const Cancel = i18n.t('prompt.cancel')
+
         window.showInformationMessage(LoadingText, Cancel).then((r) => {
           if (r === Cancel) {
             abortController.abort()
@@ -182,7 +183,7 @@ export class Installer {
         }
 
         Channel.info(`✅ ${isUpdate ? i18n.t('prompt.updated') : i18n.t('prompt.initialized')}`, true)
-        await this._tryCopyCacheToOs(this._cacheable)
+        await this.tryCopyCacheToOs(this._cacheable)
       } else {
         Channel.info(`${i18n.t('core.load_from_cache')}: ${cacheTypes[0]}`)
       }
@@ -193,7 +194,7 @@ export class Installer {
 
       if (pkg.libvips !== libvips_config.version) {
         fs.emptyDirSync(path.resolve(this.getDepCacheDir(), CacheDirs.vendor))
-        if (await this._tryCopyCacheToOs([CacheDirs.vendor])) {
+        if (await this.tryCopyCacheToOs([CacheDirs.vendor])) {
           Channel.info(i18n.t('core.libvips_diff'))
         }
         this.writeCacheJson({ libvips: libvips_config.version })
@@ -202,14 +203,14 @@ export class Installer {
       const SHARP_VERSION = cleanVersion(devDependencies['@minko-fe/sharp'])
       if (pkg['@minko-fe/sharp'] !== SHARP_VERSION) {
         fs.emptyDirSync(path.resolve(this.getDepCacheDir(), CacheDirs.build))
-        if (await this._tryCopyCacheToOs([CacheDirs.build, CacheDirs.sharp])) {
+        if (await this.tryCopyCacheToOs([CacheDirs.build, CacheDirs.sharp])) {
           Channel.info(i18n.t('core.sharp_diff'))
         }
         this.writeCacheJson({ '@minko-fe/sharp': SHARP_VERSION })
       }
 
       if (pkg.version !== version) {
-        if (await this._tryCopyCacheToOs([CacheDirs.json])) {
+        if (await this.tryCopyCacheToOs([CacheDirs.json])) {
           Channel.info(i18n.t('core.version_diff'))
         }
         this.writeCacheJson({ version })
@@ -217,7 +218,7 @@ export class Installer {
 
       const currentCacheType = this.getInstalledCacheTypes()![0]
       Channel.debug(`Current cache type: ${currentCacheType}`)
-      this.event.emit(InstallEvent.success, await this._pollingLoadSharp(currentCacheType))
+      this.event.emit(InstallEvent.success, await this.pollingLoadSharp(currentCacheType))
     } catch (e) {
       this.event.emit(InstallEvent.fail, e as Error)
     } finally {
@@ -360,7 +361,7 @@ export class Installer {
     return caches
   }
 
-  private async _loadSharp(cacheType: CacheType) {
+  private async loadSharp(cacheType: CacheType) {
     const localSharpPath = this.getCaches().find((cache) => cache.type === cacheType)!.sharpFsPath
 
     Channel.debug(`Load sharp from: ${localSharpPath}`)
@@ -377,7 +378,7 @@ export class Installer {
     })
   }
 
-  private async _pollingLoadSharp(cacheType: CacheType, maxTimes = 5) {
+  private async pollingLoadSharp(cacheType: CacheType, maxTimes = 5) {
     let time = 0
     return new Promise<TSharp>((resolve, reject) => {
       const interval = setImmdiateInterval(async () => {
@@ -401,7 +402,7 @@ export class Installer {
 
         Channel.debug(`Try polling load sharp: ${time} time, cacheType: ${cacheType}`)
         try {
-          const res = await this._loadSharp(cacheType)
+          const res = await this.loadSharp(cacheType)
           if (res) {
             resolve(res)
             clearInterval(interval)
@@ -416,7 +417,7 @@ export class Installer {
   /**
    * 把缓存复制到系统缓存目录
    */
-  private async _tryCopyCacheToOs(cacheDirs: ValueOf<typeof CacheDirs>[]) {
+  private async tryCopyCacheToOs(cacheDirs: ValueOf<typeof CacheDirs>[]) {
     if (!FileCache.osCachable) return false
     // 确保缓存目录存在
     fs.ensureDirSync(this.getDepCacheDir())
@@ -469,7 +470,7 @@ export class Installer {
     return normalizePath(path.resolve(FileCache.cacheDir, 'lib'))
   }
 
-  private async _rm(path: string) {
+  private async rm(path: string) {
     if (fs.existsSync(path)) {
       await fs.rm(path, { recursive: true })
     }
@@ -480,12 +481,12 @@ export class Installer {
       () => {
         if (FileCache.osCachable) {
           // 如果有系统级缓存，清除
-          this._rm(this.getDepCacheDir())
+          this.rm(this.getDepCacheDir())
         }
       },
       // 清除 extension cache
       ...[CacheDirs.vendor, CacheDirs.build, CacheDirs.cache_json].map((dir) =>
-        this._rm(path.resolve(this.getSharpCwd(), dir)),
+        this.rm(path.resolve(this.getSharpCwd(), dir)),
       ),
     ])
   }

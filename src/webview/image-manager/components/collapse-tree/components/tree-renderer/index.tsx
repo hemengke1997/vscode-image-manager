@@ -131,8 +131,8 @@ function TreeRenderer(props: Props) {
                   fnStrategy(data.nodeType).contextMenu
                     ? (id) =>
                         fnStrategy(data.nodeType).contextMenu!({
-                          rename_directory: id !== workspaceFolder,
-                          delete_directory: id !== workspaceFolder,
+                          rename_directory: id !== workspaceId,
+                          delete_directory: id !== workspaceId,
                         })
                     : undefined
                 }
