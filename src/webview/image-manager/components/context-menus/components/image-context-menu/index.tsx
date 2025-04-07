@@ -234,7 +234,7 @@ function ImageContextMenu() {
   })
 
   const handleRevealInViewer = useLockFn(async (e: ItemParamsContextMenu) => {
-    beginRevealInViewer([e.props!.image.path])
+    beginRevealInViewer(e.props!.image.path)
   })
 
   const isSvg = useMemoizedFn((e: HandlerParams<Required<ImageContextMenuType>>) => {

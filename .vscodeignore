@@ -13,7 +13,7 @@ node_modules
 src
 screenshots
 docs
-test
+tests
 locales
 scripts
 lib
@@ -24,15 +24,9 @@ vite
 temp*
 temp/**
 
-eslint.config.*
-commitlint.config.*
-taze.config.*
-tailwind.config.*
-postcss.config.*
-.tazerc.json
+*.config.*
 tsconfig.json
 package-lock.json
-renovate.json
 
 TODO.md
 CHANGELOG-CODE.md

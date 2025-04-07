@@ -1,4 +1,4 @@
-import { memo, useEffect, useMemo, useRef } from 'react'
+import { memo, useEffect, useMemo, useRef, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { IoMdImages } from 'react-icons/io'
 import { Transition } from 'react-transition-preset'
@@ -16,7 +16,8 @@ import ImageStore from '../../stores/image-store'
 import { ANIMATION_DURATION } from '../../utils/duration'
 import CollapseTree from '../collapse-tree'
 import ImageActions from '../image-actions'
-import TitleIconUI from '../title-icon-UI'
+import TitleIconUI from './components/title-icon-UI'
+import useClickImageAway from './hooks/use-click-image-away'
 
 function Viewer() {
   const { t } = useTranslation()
@@ -72,21 +73,39 @@ function Viewer() {
 
   const { imageManagerEvent } = useImageManagerEvent({
     on: {
-      [IMEvent.reveal_in_viewer]: (imagePaths) => {
+      [IMEvent.reveal_in_viewer]: (imagePath) => {
         // 统一从这里处理reveal逻辑
         // 而不是直接调用setImageReveal
-        setImageReveal(imagePaths)
+        setImageReveal(imagePath)
 
         // 关闭所有命令式弹窗
-        // note: 虽然 imperativeModalMap 是响应式的，但是由于react hook的组件卸载机制，导致clear的watch不一定能执行到
-        // 所以还是手动关闭modal最稳健
         imperativeModalMap.forEach((modal) => modal.destroy())
       },
       [IMEvent.clear_image_reveal]: () => {
-        setImageReveal([])
+        setImageReveal(undefined)
       },
     },
   })
+
+  const [showSkeleton, setShowSkeleton] = useState(false)
+
+  useEffect(() => {
+    let timeout: ReturnType<typeof setTimeout> | null = null
+
+    if (imageState.loading) {
+      timeout = setTimeout(() => {
+        setShowSkeleton(true)
+      }, 500)
+    } else {
+      setShowSkeleton(false)
+    }
+
+    return () => {
+      if (timeout) {
+        clearTimeout(timeout)
+      }
+    }
+  }, [imageState.loading])
 
   const { ref } = useImageHotKeys()
 
@@ -99,6 +118,8 @@ function Viewer() {
     [contentRef],
     ['click'],
   )
+
+  useClickImageAway()
 
   return (
     <div ref={containerRef} className={'space-y-4'}>
@@ -114,17 +135,22 @@ function Viewer() {
         ref={stickyRef}
       >
         {imageState.loading ? (
-          <Transition
-            mounted={true}
-            keepMounted={false}
-            initial={true}
-            duration={ANIMATION_DURATION.middle}
-            enterDelay={ANIMATION_DURATION.slow}
-            exitDelay={0}
-            key='loading'
-          >
-            {(style) => <Skeleton style={style} className={'px-4 py-2'} active paragraph={{ rows: 4 }} />}
-          </Transition>
+          showSkeleton ? (
+            <Transition
+              mounted={true}
+              initial={true}
+              duration={ANIMATION_DURATION.middle}
+              enterDelay={ANIMATION_DURATION.slow}
+              exitDelay={0}
+              key='loading'
+            >
+              {(style) => (
+                <div style={style}>
+                  <Skeleton className={'px-4 py-2'} active paragraph={{ rows: 4 }} />
+                </div>
+              )}
+            </Transition>
+          ) : null
         ) : (
           <Transition mounted={true} initial={true} duration={ANIMATION_DURATION.middle} key='viewer'>
             {(style) => (

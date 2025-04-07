@@ -1,4 +1,4 @@
-import { useMemo, useRef, useState } from 'react'
+import { useEffect, useMemo, useRef, useState } from 'react'
 import { useEventListener, useMemoizedFn, useThrottleFn, useUpdateEffect } from 'ahooks'
 import { ceil } from 'es-toolkit/compat'
 import { DEFAULT_CONFIG } from '~/core/config/common'
@@ -41,9 +41,13 @@ type Props = {
   images: ImageType[]
   pageSize: number
   target: React.MutableRefObject<HTMLElement> | null
+  /**
+   * 如果index!==-1，则加载index位置的图片
+   */
+  index: number
 }
 export default function useLazyLoadImages(props: Props) {
-  const { images, pageSize, target } = props
+  const { images, pageSize, target, index } = props
 
   const { rootVerticalMargin } = useLazyMargin()
 
@@ -90,6 +94,16 @@ export default function useLazyLoadImages(props: Props) {
 
     status.current.loading = false
   })
+
+  useEffect(() => {
+    if (index !== -1) {
+      const target = images[index]
+      if (target) {
+        const pageNum = ceil(index + 1 / pageSize)
+        addImages(pageNum)
+      }
+    }
+  }, [index])
 
   useUpdateEffect(() => {
     status.current.hasMore = true

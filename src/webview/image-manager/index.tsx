@@ -15,6 +15,7 @@ import ContextMenus from './components/context-menus'
 import ImageForSize from './components/image-for-size'
 import Layout from './components/layout'
 import Viewer from './components/viewer'
+import { PreventClickAway } from './components/viewer/hooks/use-click-image-away'
 import useFetchExtension from './hooks/use-fetch-extension'
 import useImageOperation from './hooks/use-image-operation'
 import useUpdateImages from './hooks/use-update-images'
@@ -30,7 +31,7 @@ enableMapSet()
 toast.setDefaultOptions({
   className: classNames(
     'flex items-center justify-center rounded-md bg-black bg-opacity-60 px-2 py-1 text-sm shadow-sm text-white',
-    'prevent-click-away',
+    PreventClickAway.Viewer,
   ),
   pauseOnHover: true,
 })
@@ -162,7 +163,7 @@ function ImageManager() {
       case CmdToWebview.reveal_image_in_viewer: {
         data = data as CmdToWebviewData<CmdToWebview.reveal_image_in_viewer>
         logger.debug(CmdToWebview.reveal_image_in_viewer, data.imagePath)
-        beginRevealInViewer([data.imagePath])
+        beginRevealInViewer(data.imagePath)
         break
       }
       default:
@@ -182,7 +183,14 @@ function ImageManager() {
 
       <ImageForSize />
 
-      <FloatButton.BackTop target={getAppRoot} duration={0} icon={<GoMoveToTop />} type='primary' shape='square' />
+      <FloatButton.BackTop
+        target={getAppRoot}
+        duration={0}
+        icon={<GoMoveToTop />}
+        type='primary'
+        shape='square'
+        visibilityHeight={1000}
+      />
     </>
   )
 }

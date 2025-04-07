@@ -2,6 +2,7 @@ import { memo, useState } from 'react'
 import { Menu, type MenuProps } from 'react-contexify'
 import { classNames } from 'tw-clsx'
 import SettingsStore from '../../stores/settings-store'
+import { PreventClickAway, ShouldClickAway } from '../viewer/hooks/use-click-image-away'
 
 function MaskMenu(props: MenuProps) {
   const { theme } = SettingsStore.useStore(['theme'])
@@ -11,7 +12,12 @@ function MaskMenu(props: MenuProps) {
   return (
     <>
       <div
-        className={classNames('fixed inset-0 z-[9999]', contextMenuMask ? 'block' : 'hidden', 'prevent-click-away')}
+        className={classNames(
+          'fixed inset-0 z-[9999]',
+          contextMenuMask ? 'block' : 'hidden',
+          ShouldClickAway.Other,
+          PreventClickAway.Viewer,
+        )}
       ></div>
       <Menu
         {...props}

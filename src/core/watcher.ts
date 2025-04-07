@@ -110,15 +110,13 @@ export class Watcher {
   }
 
   private processEvents(events: typeof this.eventQueue) {
-    // 1. 如果有新增，则把新增图片查询出来，返回给webview
-    // 2. 如果有修改，也需要查询修改后的图片
-    // 3. 如果有删除，只需要返回删除的图片路径
     return Promise.all(
       events.map(async (event): Promise<UpdatePayload | undefined> => {
         const { e, type, isDirectory } = event
 
         if (isDirectory) {
           switch (type) {
+            // 如果是创建目录，则需要获取目录下的所有图片
             case UpdateEvent.create: {
               VscodeMessageFactory[CmdToVscode.get_all_images_from_cwds]({ glob: e.path }, this.imageManagerPanel)
               break
@@ -139,6 +137,9 @@ export class Watcher {
             },
           }
         } else {
+          // 1. 如果有新增，则把新增图片查询出来，返回给webview
+          // 2. 如果有修改，也需要查询修改后的图片
+          // 3. 如果有删除，只需要返回删除的图片路径
           if ([UpdateEvent.create, UpdateEvent.update].includes(type)) {
             const res = await VscodeMessageFactory[CmdToVscode.get_images](
               {

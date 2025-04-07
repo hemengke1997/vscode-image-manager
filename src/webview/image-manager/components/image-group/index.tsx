@@ -1,7 +1,7 @@
-import { type ForwardedRef, forwardRef, memo, type ReactNode, useEffect, useMemo, useRef, useState } from 'react'
+import { type ForwardedRef, forwardRef, memo, type ReactNode, useEffect, useMemo, useState } from 'react'
 import { toast } from 'react-atom-toast'
 import { FaLock, FaLockOpen } from 'react-icons/fa6'
-import { useClickAway, useMemoizedFn } from 'ahooks'
+import { useMemoizedFn } from 'ahooks'
 import { useControlledState } from 'ahooks-x'
 import { Button, ConfigProvider, Image, theme } from 'antd'
 import { type AliasToken, type ComponentTokenMap } from 'antd/es/theme/interface'
@@ -15,10 +15,12 @@ import useImageManagerEvent, { IMEvent } from '../../hooks/use-image-manager-eve
 import { useWorkspaceState } from '../../hooks/use-workspace-state'
 import GlobalStore from '../../stores/global-store'
 import SettingsStore from '../../stores/settings-store'
+import { clearTimestamp } from '../../utils'
 import useImageContextMenu, {
   type ImageContextMenuType,
 } from '../context-menus/components/image-context-menu/hooks/use-image-context-menu'
 import LazyImage, { type LazyImageProps } from '../lazy-image'
+import { PreventClickAway, ShouldClickAway } from '../viewer/hooks/use-click-image-away'
 import useLazyLoadImages from './use-lazy-load-images'
 
 function imageToken(isDarkBackground: boolean): Partial<ComponentTokenMap['Image'] & AliasToken> {
@@ -84,9 +86,16 @@ export type ImageGroupProps = {
    * 清空所有图片组选中的图片
    */
   onClearImageGroupSelected?: () => void
+  /**
+   * 是否是viewer中的图片组
+   */
+  inViewer?: boolean
 }
 
 const ToastKey = 'image-preview-scale'
+
+// 每次加载200张图片
+const PageSize = 200
 
 /**
  * 图片组
@@ -107,18 +116,33 @@ function ImageGroup(props: ImageGroupProps, ref: ForwardedRef<HTMLDivElement>) {
     onClearImageGroupSelected,
     selectedImages: selectedImagesProp,
     onSelectedImagesChange,
+    inViewer,
   } = props
 
   const { token } = theme.useToken()
+  const { imageWidth, imageReveal } = GlobalStore.useStore(['imageWidth', 'imageReveal'])
+
+  const [index, setIndex] = useState<number>(-1)
 
   const [images] = useLazyLoadImages({
     images: imagesProp,
-    // 每次加载200张图片
-    pageSize: 200,
+    pageSize: PageSize,
     target: ref as React.MutableRefObject<HTMLElement>,
+    index,
   })
 
-  const { imageWidth } = GlobalStore.useStore(['imageWidth'])
+  useEffect(() => {
+    if (inViewer) {
+      if (imageReveal) {
+        const cleanPath = clearTimestamp(imageReveal)
+        const index = imagesProp.findIndex((t) => t.path === cleanPath)
+        setIndex(index)
+      } else {
+        setIndex(-1)
+      }
+    }
+  }, [imageReveal])
+
   const preview_scale = GlobalStore.useStore((ctx) => ctx.workspaceState.preview_scale)
   const { isDarkBackground, backgroundColor, tinyBackgroundColor } = SettingsStore.useStore([
     'isDarkBackground',
@@ -197,24 +221,6 @@ function ImageGroup(props: ImageGroupProps, ref: ForwardedRef<HTMLDivElement>) {
     })
   })
 
-  const selectedImageRefs = useRef<Record<string, HTMLDivElement>>({})
-
-  const preventClickAway = useMemoizedFn((el: HTMLElement, classNames: string[]) => {
-    let parent = el.parentElement
-    while (parent) {
-      if (parent.tagName === 'body') {
-        return false
-      }
-      if (classNames.filter(Boolean).some((className) => parent?.classList.contains(className))) {
-        return true
-      }
-
-      parent = parent.parentElement!
-    }
-
-    return false
-  })
-
   useImageManagerEvent({
     on: {
       [IMEvent.reveal_in_viewer]: () => {
@@ -224,60 +230,22 @@ function ImageGroup(props: ImageGroupProps, ref: ForwardedRef<HTMLDivElement>) {
           })
         }
       },
+      [IMEvent.clear_selected_images]: () => {
+        if (!inViewer) {
+          if (selectedImages.length) {
+            setSelectedImages([])
+          }
+        }
+      },
+      [IMEvent.clear_viewer_selected_images]: () => {
+        if (inViewer) {
+          if (selectedImages.length) {
+            setSelectedImages([])
+          }
+        }
+      },
     },
   })
-
-  const handleClickAway = useMemoizedFn(() => {
-    onClearImageGroupSelected?.()
-    setSelectedImages([])
-  })
-
-  useClickAway(
-    (e) => {
-      const targetEl = e.target as HTMLElement
-
-      // 一些优先级比较高的清空
-      // 点击的时候清空选中的图片
-      if (
-        // data-clear-selected 是我希望点击就清空的元素属性
-        targetEl.getAttribute('data-clear-selected') === 'true' ||
-        // ant-collapse-content-box 是因为有padding，如果点到了padding部分也需要清空选中图片
-        targetEl.classList.contains('ant-collapse-content-box')
-      ) {
-        return handleClickAway()
-      }
-
-      // 如果不希望在点击的时候清空选中的图片，直接return即可
-      if (targetEl.classList.contains('prevent-click-away')) {
-        return
-      }
-
-      if (
-        // collapse 中的 image-group 传了ref，其他的没有传
-        // 所以正好用这个ref来判断是否是在collapse中了
-        ref &&
-        preventClickAway(targetEl, [
-          'ant-image-preview',
-          'ant-message',
-          'ant-tooltip',
-          'ant-popover',
-          'ant-notification',
-          'ant-modal',
-          'ant-collapse-item',
-          'prevent-click-away',
-        ])
-      ) {
-        return
-      }
-
-      // 如果没有击中阻止，则清空选中的图片
-      handleClickAway()
-    },
-    Object.keys(selectedImageRefs.current)
-      .map((t) => selectedImageRefs.current[t])
-      .filter((t) => !!t),
-    ['click', 'contextmenu'],
-  )
 
   const onContextMenu = useMemoizedFn((e: React.MouseEvent<HTMLDivElement>, image: ImageType) => {
     let selected: ImageType[] | undefined = undefined
@@ -510,9 +478,8 @@ function ImageGroup(props: ImageGroupProps, ref: ForwardedRef<HTMLDivElement>) {
   return (
     <>
       <div
-        className={classNames('flex flex-wrap gap-1.5')}
+        className={classNames('flex flex-wrap gap-1.5', clearSelectedOnBlankClick && ShouldClickAway.Viewer)}
         ref={ref}
-        data-clear-selected={Boolean(clearSelectedOnBlankClick)}
       >
         <ConfigProvider
           theme={{
@@ -537,7 +504,7 @@ function ImageGroup(props: ImageGroupProps, ref: ForwardedRef<HTMLDivElement>) {
                 <div
                   key={image.key}
                   onClick={(e) => onClick(e, image)}
-                  ref={(ref) => (selectedImageRefs.current[image.path] = ref!)}
+                  className={classNames(PreventClickAway.Viewer, PreventClickAway.Other)}
                 >
                   {renderer(
                     <LazyImage

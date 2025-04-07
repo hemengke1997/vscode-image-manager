@@ -391,7 +391,7 @@ function useImageOperation() {
                       imageManagerEvent.emit(IMEvent.rename, image, newImage[0])
                     } else {
                       // 否则，聚焦到新图片
-                      beginRevealInViewer([newImage[0].path])
+                      beginRevealInViewer(newImage[0].path)
                     }
                   },
                 )
@@ -470,9 +470,9 @@ function useImageOperation() {
   /**
    * 在图片查看器中打开图片
    */
-  const beginRevealInViewer = useMemoizedFn((imagePaths: string[]) => {
+  const beginRevealInViewer = useMemoizedFn((imagePath: string) => {
     imageManagerEvent.emit(IMEvent.clear_viewer_selected_images)
-    imageManagerEvent.emit(IMEvent.reveal_in_viewer, imagePaths)
+    imageManagerEvent.emit(IMEvent.reveal_in_viewer, imagePath)
   })
 
   // 撤销操作
@@ -557,7 +557,7 @@ function useImageOperation() {
               <Button
                 className={'ml-2'}
                 onClick={() => {
-                  beginRevealInViewer([item.source, item.target])
+                  beginRevealInViewer(item.target)
                 }}
               >
                 {t('im.view')}

@@ -71,6 +71,7 @@ export default function useImageHotKeys() {
       }
       case Key.Escape: {
         imageManagerEvent.emit(IMEvent.clear_viewer_selected_images)
+        imageManagerEvent.emit(IMEvent.clear_selected_images)
         imageManagerEvent.emit(IMEvent.clear_viewer_cut_images)
         return
       }

@@ -58,6 +58,10 @@ export enum IMEvent {
    */
   clear_viewer_selected_images = 'clear_viewer_selected_images',
   /**
+   * 清空非viewer中图片选中
+   */
+  clear_selected_images = 'clear_selected_images',
+  /**
    * 清空viewer中剪切图片
    */
   clear_viewer_cut_images = 'clear_viewer_cut_images',
@@ -66,12 +70,13 @@ export enum IMEvent {
 type Events = {
   [IMEvent.delete]: [images: ImageType[]]
   [IMEvent.rename]: [previosImage: ImageType, newImage: ImageType]
-  [IMEvent.reveal_in_viewer]: [imagePaths: string[]]
+  [IMEvent.reveal_in_viewer]: [imagePath: string]
   [IMEvent.clear_image_reveal]: []
   [IMEvent.context_menu]: [image: ImageType, id: string]
   [IMEvent.delete_directory]: [dirPath: string]
-  [IMEvent.rename_directory]: [previosDirPath: string, newDirPath: string]
+  [IMEvent.rename_directory]: [previousDirPath: string, newDirPath: string]
   [IMEvent.clear_viewer_selected_images]: []
+  [IMEvent.clear_selected_images]: []
   [IMEvent.clear_viewer_cut_images]: []
 }
 

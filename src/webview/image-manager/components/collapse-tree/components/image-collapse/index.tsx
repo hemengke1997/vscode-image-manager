@@ -182,7 +182,7 @@ function ImageCollapse(props: ImageCollapseProps) {
   // 所以需要在 `reveal_in_viewer` 的时候，主动触发collapse渲染
   useEffect(() => {
     if (!open) {
-      onActive(imageReveal.map(clearTimestamp))
+      onActive([clearTimestamp(imageReveal)])
     }
   }, [imageReveal])
 
@@ -200,11 +200,11 @@ function ImageCollapse(props: ImageCollapseProps) {
 
   const { imageManagerEvent } = useImageManagerEvent({
     on: {
-      [IMEvent.reveal_in_viewer]: (imagePaths) => {
-        onActive(imagePaths)
+      [IMEvent.reveal_in_viewer]: (imagePath) => {
+        onActive([imagePath])
       },
-      [IMEvent.rename_directory]: (previosDirPath, newPath) => {
-        if (previosDirPath === id) {
+      [IMEvent.rename_directory]: (previousDirPath, newPath) => {
+        if (previousDirPath === id) {
           setDirReveal(newPath)
         }
       },
@@ -402,6 +402,7 @@ function ImageCollapse(props: ImageCollapseProps) {
                   workspaceImages={sameWorkspaceImages}
                   onClearImageGroupSelected={onClearImageGroupSelected}
                   clearSelectedOnBlankClick={true}
+                  inViewer={true}
                 />
                 {children}
               </div>

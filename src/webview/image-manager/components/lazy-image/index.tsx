@@ -126,7 +126,7 @@ function LazyImage(props: LazyImageProps) {
 
   const isTargetImage = useMemoizedFn(() => {
     // 在 viewer 中的图片才会被reveal
-    return inViewer && trim(image.path).length && imageReveal.map(clearTimestamp).includes(image.path)
+    return inViewer && trim(image.path).length && clearTimestamp(imageReveal) === image.path
   })
 
   const { imageManagerEvent } = useImageManagerEvent()
