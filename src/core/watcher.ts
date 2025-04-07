@@ -55,7 +55,7 @@ export class Watcher {
     )
   }
 
-  private restart(rootpaths: string[]) {
+  restart(rootpaths: string[]) {
     this.dispose()
     this.glob = imageGlob({
       scan: Config.file_scan,

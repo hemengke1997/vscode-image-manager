@@ -17,6 +17,7 @@ import FileStore, { type FileChangedResType } from '../stores/file-store'
 import GlobalStore from '../stores/global-store'
 import { pathUtil } from '../utils'
 import { LOADING_DURATION } from '../utils/duration'
+import { normalizePathClient } from '../utils/tree/utils'
 import useDeleteImage from './use-delete-image/use-delete-image'
 import useImageCompressor from './use-image-compressor/use-image-compressor'
 import useImageConverter from './use-image-converter/use-image-converter'
@@ -366,7 +367,7 @@ function useImageOperation() {
         currentName: image.name,
         onSubmit: async (newName, type) => {
           return new Promise<void>((resolve, reject) => {
-            const target = `${image.absDirPath}/${newName}.${image.extname}`
+            const target = normalizePathClient(`${image.absDirPath}/${newName}.${image.extname}`)
             handleRename(
               [
                 {
@@ -443,7 +444,7 @@ function useImageOperation() {
       currentName: pathUtil.getDirname(dirPath),
       onSubmit: (newName, type) => {
         return new Promise<void>((resolve, reject) => {
-          const target = `${pathUtil.getAbsDir(dirPath)}/${newName}`
+          const target = normalizePathClient(`${pathUtil.getAbsDir(dirPath)}/${newName}`)
           handleRename(
             [
               {

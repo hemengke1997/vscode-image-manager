@@ -1,4 +1,4 @@
-import { type Key, memo, type ReactNode, useEffect, useMemo, useState } from 'react'
+import { type Key, memo, type ReactNode, useMemo, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { GoSkip } from 'react-icons/go'
 import { MdErrorOutline } from 'react-icons/md'
@@ -86,14 +86,6 @@ function OperationResult(props: OperationResultProps & ImperativeModalProps) {
       closeModal()
     }
   }, [groups])
-
-  useEffect(() => {
-    // 没有图片时，就把弹窗关了
-    // 因为用户可以通过撤销操作来删除图片，所以可能会有结果为空的情况
-    if (!results.length) {
-      closeModal()
-    }
-  }, [results])
 
   const onUndoAction = useMemoizedFn((items: OperatorResult[]) => {
     onUndoClick(items)

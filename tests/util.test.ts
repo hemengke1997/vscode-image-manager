@@ -10,7 +10,7 @@ import { DEFAULT_WORKSPACE_STATE, type WorkspaceStateType } from '~/core/persist
 import {
   cleanVersion,
   generateOutputPath,
-  normalizePath,
+  normalizePathNode,
   promiseAllWithFirst,
   resolveDirPath,
   setImmdiateInterval,
@@ -172,7 +172,7 @@ describe('Util test', () => {
   })
 
   it('should normalize path', () => {
-    expect(normalizePath('a\\b\\c')).toBe('a/b/c')
+    expect(normalizePathNode('a\\b\\c')).toBe('a/b/c')
   })
 
   it('should generate output path', () => {

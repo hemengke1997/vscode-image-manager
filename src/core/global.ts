@@ -1,7 +1,7 @@
 import { type ExtensionContext, ExtensionMode, window, workspace } from 'vscode'
 import { i18n } from '~/i18n'
 import { EXT_NAMESPACE } from '~/meta'
-import { normalizePath } from '~/utils'
+import { normalizePathNode } from '~/utils'
 import { AbortError, TimeoutError } from '~/utils/abort-promise'
 import { Channel } from '~/utils/channel'
 import { type ImageManagerPanel } from '~/webview/panel'
@@ -67,7 +67,7 @@ export class Global {
     }
 
     if (rootpaths?.length) {
-      rootpaths = rootpaths.map(normalizePath)
+      rootpaths = rootpaths.map(normalizePathNode)
 
       Channel.info(i18n.t('core.workspace_changed', rootpaths.join(',')))
     } else {

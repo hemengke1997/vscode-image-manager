@@ -127,7 +127,7 @@ function ImageGroup(props: ImageGroupProps, ref: ForwardedRef<HTMLDivElement>) {
   ])
 
   const [previewScale, setPreviewScale] = useWorkspaceState(WorkspaceStateKey.preview_scale, preview_scale)
-  const [lockedScale, setLockedScale] = useState(previewScale !== DEFAULT_WORKSPACE_STATE.preview_scale)
+  const [lockedScale, setLockedScale] = useState(true)
 
   /* ------------------- 选择的图片 ------------------ */
   const [selectedImages, _setSelectedImages] = useControlledState({
@@ -153,8 +153,8 @@ function ImageGroup(props: ImageGroupProps, ref: ForwardedRef<HTMLDivElement>) {
   }, [preview.open])
 
   const onToastClose = useMemoizedFn(() => {
-    if (previewScale === DEFAULT_WORKSPACE_STATE.preview_scale) {
-      setPreviewScale(1)
+    if (!lockedScale) {
+      setPreviewScale(DEFAULT_WORKSPACE_STATE.preview_scale)
     }
 
     toast.close(ToastKey)

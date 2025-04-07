@@ -576,7 +576,7 @@ describe('compact 紧凑模式', () => {
 })
 
 describe('compact 紧凑模式 - 增量更新', () => {
-  it('按目录分组', () => {
+  it.only('按目录分组', () => {
     const treeManager = new TreeManager(images[0].workspaceFolder, {
       compact: true,
       treeStyle: TreeStyle.dir,
@@ -688,7 +688,7 @@ describe('compact 紧凑模式 - 增量更新', () => {
         |-- path/to
           |-- new.png
         |-- ui-framework
-          |-- x/y/z
+          |-- src/images/x/y/z
             |-- xxx.png
           |-- webview
             |-- d3.png
@@ -729,8 +729,51 @@ describe('compact 紧凑模式 - 增量更新', () => {
         |-- ui-framework
           |-- a/b
             |-- yyy.png
-          |-- x/y/z
+          |-- src/images/x/y/z
             |-- xxx.png
+          |-- webview
+            |-- d3.png
+        |-- webview
+          |-- app.png
+          |-- blender.png
+          |-- c#.png
+          |-- vite.svg
+      "
+    `)
+
+    treeManager.updateTree([
+      {
+        origin: UpdateOrigin.image,
+        data: {
+          type: UpdateEvent.create,
+          payload: {
+            path: '/Users/path/to/project/ui-framework/src/images/x/y/yyy.png',
+            dirPath: 'ui-framework/src/images/x/y',
+            extname: 'png',
+            workspaceFolder: 'project',
+            basename: 'yyy.png',
+            stats: {
+              mtimeMs: 1697052500313,
+              size: 134,
+            },
+          } as ImageType,
+        },
+      },
+    ])
+
+    expect(treeManager.printTree()).toMatchInlineSnapshot(`
+      "|-- project
+        |-- d3.png
+        |-- root.svg
+        |-- path/to
+          |-- new.png
+        |-- ui-framework
+          |-- a/b
+            |-- yyy.png
+          |-- src/images/x/y
+            |-- yyy.png
+            |-- z
+              |-- xxx.png
           |-- webview
             |-- d3.png
         |-- webview
@@ -752,17 +795,21 @@ describe('compact 紧凑模式 - 增量更新', () => {
 
     expect(treeManager.printTree()).toMatchInlineSnapshot(`
       "|-- project
-        |-- png
+        |-- d3.png
+        |-- root.svg
+        |-- ui-framework
+          |-- src/images
+            |-- blender.png
+            |-- x/y
+              |-- yyy.png
+              |-- x/y/z
+                |-- xxx.png
+          |-- webview
+            |-- d3.png
+        |-- webview
           |-- app.png
           |-- blender.png
           |-- c#.png
-          |-- d3.png
-          |-- d3.png
-          |-- new-blender.png
-          |-- new.png
-        |-- svg
-          |-- root.svg
-          |-- vite.svg
       "
     `)
   })

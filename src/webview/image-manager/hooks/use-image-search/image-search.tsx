@@ -16,6 +16,7 @@ import useScrollRef from '~/webview/image-manager/hooks/use-scroll-ref'
 import { vscodeApi } from '~/webview/vscode-api'
 import ImageGroup from '../../components/image-group'
 import GlobalStore from '../../stores/global-store'
+import { normalizePathClient } from '../../utils/tree/utils'
 
 function ImageSearch() {
   const { t } = useTranslation()
@@ -133,7 +134,7 @@ function ImageSearch() {
   })
 
   const generateFullPath = useMemoizedFn((image: ImageType) => {
-    return `${image.dirPath}/${image.path}`
+    return normalizePathClient(`${image.dirPath}/${image.path}`)
   })
 
   const applyFilter = useMemoizedFn(

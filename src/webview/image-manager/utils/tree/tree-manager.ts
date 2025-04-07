@@ -11,6 +11,7 @@ import { FilterRadioValue, ImageVisibleFilter } from '../../hooks/use-image-filt
 import { type ImageFilterType } from '../../hooks/use-image-filter/image-filter'
 import { UpdateEvent, UpdateOrigin } from './const'
 import { type NodeID, NodeType, Tree, type TreeNode, TreeStyle } from './tree'
+import { normalizePathClient } from './utils'
 
 export type UpdatePayload =
   | {
@@ -82,6 +83,9 @@ export type TreeData = {
     ed?: boolean
     // 是否是紧凑节点
     is?: boolean
+    // compact节点合并之前的路径
+    // 当ed设置true时，也同时需要设置Path
+    originalPath?: string
   }
   /**
    * 节点是否改变
@@ -328,15 +332,13 @@ export class TreeManager {
   private dirUpdate(data: DirUpdateType) {
     const { type, payload } = data
 
-    const id = this.tree.formatId(`${this.rootId}/${payload.dirPath}`)
+    const id = normalizePathClient(`${this.rootId}/${payload.dirPath}`)
 
     switch (type) {
       case UpdateEvent.create: {
         break
       }
       case UpdateEvent.delete: {
-        logger.debug(id, 'directory delete')
-        logger.debug(this.tree.nodes, 'node')
         this.tree.deleteNode(id)
         this.deleteEmptyNodes(this.tree.parseParentId(id))
 
@@ -353,6 +355,8 @@ export class TreeManager {
         })
         break
       }
+      default:
+        break
     }
   }
 
@@ -366,7 +370,10 @@ export class TreeManager {
     childNode.data.compact ||= {}
 
     if (!childNode.data.compact.ed) {
-      childNode.data.path = `${node.data.path}/${childNode.data.path}`
+      // 留根，保存原路径
+      childNode.data.compact.originalPath = childNode.data.path
+
+      childNode.data.path = normalizePathClient(`${node.data.path}/${childNode.data.path}`)
     }
 
     childNode.data.compact.ed = true
@@ -452,22 +459,22 @@ export class TreeManager {
     switch (this.options.treeStyle) {
       case TreeStyle.dir: {
         return {
-          id: this.tree.formatId(`${this.tree.rootId}/${image.dirPath}`),
+          id: normalizePathClient(`${this.tree.rootId}/${image.dirPath}`),
           parentId: null,
           nodeType: NodeType.dir,
         }
       }
       case TreeStyle.extension: {
         return {
-          id: this.tree.formatId(`${this.tree.rootId}/${image.extname}`),
+          id: normalizePathClient(`${this.tree.rootId}/${image.extname}`),
           parentId: null,
           nodeType: NodeType.ext,
         }
       }
       case TreeStyle.dir_extension: {
         return {
-          id: this.tree.formatId(`${this.tree.rootId}/${image.dirPath}/${image.extname}`),
-          parentId: `${this.tree.rootId}/${image.dirPath}`,
+          id: normalizePathClient(`${this.tree.rootId}/${image.dirPath}/${image.extname}`),
+          parentId: normalizePathClient(`${this.tree.rootId}/${image.dirPath}`),
           nodeType: NodeType.ext,
         }
       }
@@ -549,8 +556,13 @@ export class TreeManager {
         this.tree.updateNode(node.id, {
           data: (data) => {
             return produce(data, (draft) => {
-              draft.compact ||= {}
-              draft.compact.is = isCompact
+              // 恢复compact节点的路径
+              draft.path = draft.compact?.originalPath || draft.path
+
+              // 初始化compact
+              draft.compact = {
+                is: isCompact,
+              }
             })
           },
         })

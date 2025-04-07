@@ -12,6 +12,7 @@ import SettingsStore from '~/webview/image-manager/stores/settings-store'
 import { ANIMATION_DURATION } from '~/webview/image-manager/utils/duration'
 import { NodeType } from '~/webview/image-manager/utils/tree/tree'
 import { type NestedTreeNode, type TreeManager } from '~/webview/image-manager/utils/tree/tree-manager'
+import { normalizePathClient } from '~/webview/image-manager/utils/tree/utils'
 import { type EnableCollapseContextMenuType } from '../../../context-menus/components/collapse-context-menu'
 import ImageCollapse from '../image-collapse'
 import RevealInFolder from '../reveal-in-folder'
@@ -40,7 +41,7 @@ function TreeRenderer(props: Props) {
    */
   const resolvePath = useMemoizedFn((id: string) => {
     const path = id.split('/').slice(1).join('/')
-    return `${workspaceId}/${path}`
+    return normalizePathClient(`${workspaceId}/${path}`)
   })
 
   const getContextMenu = useMemoizedFn((contextMenu: EnableCollapseContextMenuType): EnableCollapseContextMenuType => {

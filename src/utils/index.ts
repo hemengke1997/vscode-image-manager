@@ -5,7 +5,7 @@ import slash from 'slash'
 /**
  * 格式化路径
  */
-export function normalizePath(id: string): string {
+export function normalizePathNode(id: string): string {
   return slash(id)
 }
 
@@ -69,7 +69,7 @@ export function isFsWritable(path: string) {
 export function resolveDirPath(imagePath: string, cwd: string, isDirectory = false) {
   const target = isDirectory ? imagePath : path.dirname(imagePath)
   if (cwd === target) return ''
-  return normalizePath(path.relative(cwd, target))
+  return normalizePathNode(path.relative(cwd, target))
 }
 
 export function ensureArray<T>(value: T | T[]): T[] {

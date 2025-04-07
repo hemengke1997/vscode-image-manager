@@ -8,7 +8,7 @@ import { WorkspaceState } from '~/core/persist/workspace/workspace-state'
 import { Installer } from '~/core/sharp/installer'
 import { Watcher } from '~/core/watcher'
 import { type ExtensionModule } from '~/module'
-import { normalizePath } from '~/utils'
+import { normalizePathNode } from '~/utils'
 import logger from '~/utils/logger'
 import { ImageManagerPanel } from '~/webview/panel'
 import { Commands } from './commands'
@@ -33,9 +33,7 @@ export default <ExtensionModule>function (ctx) {
     let imagePath = ''
     if (uri?.fsPath) {
       let rootPath = ''
-      // Open via context menu
-      // Higher priority than "userConfig'root"
-      const fsPath = normalizePath(uri.fsPath)
+      const fsPath = normalizePathNode(uri.fsPath)
       const stat = await workspace.fs.stat(uri)
       if (stat.type !== FileType.Directory) {
         rootPath = path.dirname(fsPath)
@@ -44,9 +42,7 @@ export default <ExtensionModule>function (ctx) {
         rootPath = fsPath
       }
 
-      rootpaths = Global.resolveRootPath([normalizePath(rootPath)])
-    } else {
-      // Open via command palette or shortcut
+      rootpaths = Global.resolveRootPath([rootPath])
     }
 
     try {
@@ -107,8 +103,7 @@ export default <ExtensionModule>function (ctx) {
           Global.imageManagerPanels[0].show(onPanelOpen)
           // rootpaths变了，重新watch
           if (reload) {
-            imageManagerPanel.watcher?.dispose()
-            imageManagerPanel.watcher = new Watcher(rootpaths, imageManagerPanel)
+            imageManagerPanel.watcher?.restart(rootpaths)
           }
         } else {
           createPanel(rootpaths)

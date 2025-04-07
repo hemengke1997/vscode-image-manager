@@ -1,7 +1,7 @@
 import fg from 'fast-glob'
 import path from 'node:path'
 import { describe, expect, it } from 'vitest'
-import { normalizePath } from '~/utils'
+import { normalizePathNode } from '~/utils'
 import { imageGlob } from '~/utils/glob'
 
 type Config = Parameters<typeof imageGlob>[0]
@@ -9,7 +9,7 @@ const workspaceFolder = path.resolve(__dirname, './fixture')
 
 async function glob(pattern: string[], cwd?: string) {
   return await fg(pattern, {
-    cwd: normalizePath(cwd || process.cwd()),
+    cwd: normalizePathNode(cwd || process.cwd()),
     objectMode: false,
     dot: false,
     absolute: true,

@@ -1,5 +1,6 @@
 import { isNil, last, mergeWith, uniq } from 'es-toolkit'
 import logger from '~/utils/logger'
+import { normalizePathClient } from './utils'
 
 export type NodeID = string
 
@@ -26,8 +27,11 @@ export enum TreeStyle {
 }
 
 export enum NodeType {
+  // 根节点
   root = 'root',
+  // 目录节点
   dir = 'dir',
+  // 图片扩展节点
   ext = 'ext',
 }
 
@@ -51,14 +55,6 @@ export class Tree<T extends Record<string, any>> {
   }
 
   /**
-   * 格式化ID
-   */
-  formatId<T = NodeID | null | undefined>(id: T): T {
-    if (!id) return id
-    return (id as any).replace(/\/+/g, '/').replace(/\/$/, '')
-  }
-
-  /**
    * 添加节点，可指定父节点
    */
   addNode(
@@ -71,9 +67,9 @@ export class Tree<T extends Record<string, any>> {
   ) {
     let { data, childrenId, parentId } = options
 
-    id = this.formatId(id)
-    parentId = this.formatId(parentId)
-    childrenId = this.formatId(childrenId)
+    id = normalizePathClient(id)
+    parentId = normalizePathClient(parentId)
+    childrenId = normalizePathClient(childrenId)
 
     if (this.nodes.has(id)) {
       this.updateNode(id, {
@@ -167,7 +163,7 @@ export class Tree<T extends Record<string, any>> {
   ) {
     const node = this.nodes.get(id)
     if (!node) {
-      console.warn(`Node with id ${id} does not exist.`)
+      logger.warn(`Node with id ${id} does not exist.`)
       return
     }
 

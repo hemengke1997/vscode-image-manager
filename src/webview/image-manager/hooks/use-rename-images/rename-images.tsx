@@ -5,6 +5,7 @@ import { type ImperativeModalProps } from 'ahooks-x/use-imperative-antd-modal'
 import { Button, Divider, Form, Input, Segmented, Space } from 'antd'
 import { type SegmentedOptions } from 'antd/es/segmented'
 import AutoFocusInput from '../../components/auto-focus-input'
+import { normalizePathClient } from '../../utils/tree/utils'
 
 type Props = {
   /**
@@ -140,7 +141,7 @@ function RenameImages(props: Props & ImperativeModalProps) {
             const newName = image.name.replace(find, replace)
             return {
               source: image.path,
-              target: `${image.absDirPath}/${newName}.${image.extname}`,
+              target: normalizePathClient(`${image.absDirPath}/${newName}.${image.extname}`),
             }
           })
           try {
@@ -175,7 +176,7 @@ function RenameImages(props: Props & ImperativeModalProps) {
             const newName = getPositionedName(image.name, added, position)
             return {
               source: image.path,
-              target: `${image.absDirPath}/${newName}.${image.extname}`,
+              target: normalizePathClient(`${image.absDirPath}/${newName}.${image.extname}`),
             }
           })
           try {

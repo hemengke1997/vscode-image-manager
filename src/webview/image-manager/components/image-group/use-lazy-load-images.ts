@@ -6,7 +6,7 @@ import { getAppRoot } from '~/webview/utils'
 import GlobalStore from '../../stores/global-store'
 
 interface UseElementBottomStatusProps {
-  targetRef: React.MutableRefObject<HTMLElement>
+  targetRef: React.MutableRefObject<HTMLElement> | null
   offset: number // 距离底部的偏移量
 }
 
@@ -15,7 +15,7 @@ function useElementBottom({ targetRef, offset }: UseElementBottomStatusProps) {
 
   const { run } = useThrottleFn(
     () => {
-      const target = targetRef.current
+      const target = targetRef?.current
       if (!target) return
 
       const containerRect = getAppRoot().getBoundingClientRect()
@@ -40,7 +40,7 @@ function useElementBottom({ targetRef, offset }: UseElementBottomStatusProps) {
 type Props = {
   images: ImageType[]
   pageSize: number
-  target: React.MutableRefObject<HTMLElement>
+  target: React.MutableRefObject<HTMLElement> | null
 }
 export default function useLazyLoadImages(props: Props) {
   const { images, pageSize, target } = props

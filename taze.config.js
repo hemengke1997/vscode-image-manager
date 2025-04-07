@@ -22,9 +22,9 @@ export default defineConfig({
     '@types/node',
   ],
   packageMode: {
-    'ts-key-enum': 'patch',
-    'vite': 'patch',
-    'cropperjs': 'patch',
+    'ts-key-enum': 'minor',
+    'vite': 'minor',
+    'cropperjs': 'minor',
   },
   force: true,
   write: true,
