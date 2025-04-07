@@ -576,7 +576,7 @@ describe('compact 紧凑模式', () => {
 })
 
 describe('compact 紧凑模式 - 增量更新', () => {
-  it.only('按目录分组', () => {
+  it('按目录分组', () => {
     const treeManager = new TreeManager(images[0].workspaceFolder, {
       compact: true,
       treeStyle: TreeStyle.dir,
@@ -795,21 +795,17 @@ describe('compact 紧凑模式 - 增量更新', () => {
 
     expect(treeManager.printTree()).toMatchInlineSnapshot(`
       "|-- project
-        |-- d3.png
-        |-- root.svg
-        |-- ui-framework
-          |-- src/images
-            |-- blender.png
-            |-- x/y
-              |-- yyy.png
-              |-- x/y/z
-                |-- xxx.png
-          |-- webview
-            |-- d3.png
-        |-- webview
+        |-- png
           |-- app.png
           |-- blender.png
           |-- c#.png
+          |-- d3.png
+          |-- d3.png
+          |-- new-blender.png
+          |-- new.png
+        |-- svg
+          |-- root.svg
+          |-- vite.svg
       "
     `)
   })
