@@ -211,7 +211,7 @@ export abstract class Operator {
   /**
    * 检查是否支持该图片
    */
-  private _isSupported(filePath: string) {
+  private isSupported(filePath: string) {
     const ext = this.getFileExt(filePath)
 
     if (!this.limit.from.includes(ext)) {
@@ -230,7 +230,7 @@ export abstract class Operator {
    * 检查是否支持图片类型
    */
   public checkLimit(filePath: string) {
-    const res = this._isSupported(filePath)
+    const res = this.isSupported(filePath)
     if (isString(res)) {
       return Promise.reject(new LimitError(res))
     }

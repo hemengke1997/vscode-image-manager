@@ -74,13 +74,11 @@ export default <ExtensionModule>function (ctx) {
         Global.imageManagerPanels.push(imageManagerPanel)
         imageManagerPanel.watcher = new Watcher(rootpaths, imageManagerPanel)
 
-        ctx.subscriptions.push(
-          imageManagerPanel.onDidChange((e) => {
-            if (!e) {
-              Global.imageManagerPanels = Global.imageManagerPanels.filter((p) => p.id !== imageManagerPanel.id)
-            }
-          }),
-        )
+        imageManagerPanel.onDidChange((e) => {
+          if (!e) {
+            Global.imageManagerPanels = Global.imageManagerPanels.filter((p) => p.id !== imageManagerPanel.id)
+          }
+        })
       }
 
       if (Config.core_multiplePanels) {

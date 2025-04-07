@@ -77,16 +77,16 @@ export class Installer {
   /**
    * 状态栏
    */
-  private _statusBarItem: StatusBarItem | undefined
+  private statusBarItem: StatusBarItem | undefined
   /**
    * libvips binary 文件名
    */
-  private _libvips_bin: string
+  private libvips_bin: string
   /**
    * 中国地区
    */
-  private _isCN: boolean
-  private _CN_host = [
+  private isCN: boolean
+  private CN_host = [
     'https://registry.npmmirror.com/-/binary',
     'https://npmmirror.com/mirrors',
     'https://cdn.npmmirror.com/binaries',
@@ -94,7 +94,7 @@ export class Installer {
   /**
    * 缓存 cache.json 文件路径
    */
-  private _cacheFilePath: string
+  private cacheFilePath: string
 
   /**
    * vendor 里面是 libvips binary
@@ -122,14 +122,14 @@ export class Installer {
     Channel.debug('Installer init')
     // 如果语言是中文，视为中国地区，设置npm镜像
     const languages = [Config.appearance_language, Global.vscodeLanguage].map(toLower)
-    this._isCN = languages.includes('zh-cn')
+    this.isCN = languages.includes('zh-cn')
 
     this.cwd = Global.context.extensionUri.fsPath
     this.platform = require(path.resolve(this.getSharpCwd(), 'install/platform')).platform()
 
-    this._cacheFilePath = path.join(this.getDepCacheDir(), CacheDirs.cache_json)
+    this.cacheFilePath = path.join(this.getDepCacheDir(), CacheDirs.cache_json)
 
-    this._libvips_bin = `libvips-${libvips_config.version}-${this.platform}.tar.gz`
+    this.libvips_bin = `libvips-${libvips_config.version}-${this.platform}.tar.gz`
 
     Channel.debug(`OS缓存是否可写: ${FileCache.cacheDir}`)
 
@@ -138,7 +138,7 @@ export class Installer {
     Channel.info(`${i18n.t('core.extension_root')}: ${this.cwd}`)
     Channel.info(`${i18n.t('core.tip')}: ${i18n.t('core.dep_url_tip')} ⬇️`)
     Channel.info(
-      `${i18n.t('core.dep_url')}: ${this._CN_host[0]}/${libvips_config.name}/v${libvips_config.version}/${this._libvips_bin}`,
+      `${i18n.t('core.dep_url')}: ${this.CN_host[0]}/${libvips_config.name}/v${libvips_config.version}/${this.libvips_bin}`,
     )
     Channel.divider()
   }
@@ -147,17 +147,17 @@ export class Installer {
     const start = performance.now()
 
     try {
-      const cacheTypes = this._getInstalledCacheTypes()
+      const cacheTypes = this.getInstalledCacheTypes()
       Channel.debug(`Installed cache types: ${cacheTypes?.length ? cacheTypes.join(',') : 'none'}`)
 
-      const isUpdate = fs.existsSync(this._cacheFilePath)
+      const isUpdate = fs.existsSync(this.cacheFilePath)
 
       // 如果系统/扩展均无满足版本条件的缓存，则安装依赖
       if (!cacheTypes?.length || Config.debug_forceInstall) {
         const LoadingText = isUpdate ? i18n.t('prompt.updating') : i18n.t('prompt.initializing')
 
         // 显示左下角状态栏
-        this._showStausBar(LoadingText)
+        this.showStausBar(LoadingText)
         const abortController = new AbortController()
         const Cancel = i18n.t('prompt.cancel')
         window.showInformationMessage(LoadingText, Cancel).then((r) => {
@@ -166,7 +166,7 @@ export class Installer {
           }
         })
         try {
-          const installSuccess = await abortPromise(this._install.bind(this), {
+          const installSuccess = await abortPromise(this.install.bind(this), {
             timeout: this.options.timeout,
             abortController,
           })
@@ -178,7 +178,7 @@ export class Installer {
           }
         } finally {
           // 隐藏左下角状态栏
-          this._hideStatusBar()
+          this.hideStatusBar()
         }
 
         Channel.info(`✅ ${isUpdate ? i18n.t('prompt.updated') : i18n.t('prompt.initialized')}`, true)
@@ -187,8 +187,8 @@ export class Installer {
         Channel.info(`${i18n.t('core.load_from_cache')}: ${cacheTypes[0]}`)
       }
 
-      this._initCacheJson()
-      const pkg = this._readCacheJson()
+      this.initCacheJson()
+      const pkg = this.readCacheJson()
       Channel.debug(`Cached package.json: ${JSON.stringify(pkg)}`)
 
       if (pkg.libvips !== libvips_config.version) {
@@ -196,7 +196,7 @@ export class Installer {
         if (await this._tryCopyCacheToOs([CacheDirs.vendor])) {
           Channel.info(i18n.t('core.libvips_diff'))
         }
-        this._writeCacheJson({ libvips: libvips_config.version })
+        this.writeCacheJson({ libvips: libvips_config.version })
       }
 
       const SHARP_VERSION = cleanVersion(devDependencies['@minko-fe/sharp'])
@@ -205,17 +205,17 @@ export class Installer {
         if (await this._tryCopyCacheToOs([CacheDirs.build, CacheDirs.sharp])) {
           Channel.info(i18n.t('core.sharp_diff'))
         }
-        this._writeCacheJson({ '@minko-fe/sharp': SHARP_VERSION })
+        this.writeCacheJson({ '@minko-fe/sharp': SHARP_VERSION })
       }
 
       if (pkg.version !== version) {
         if (await this._tryCopyCacheToOs([CacheDirs.json])) {
           Channel.info(i18n.t('core.version_diff'))
         }
-        this._writeCacheJson({ version })
+        this.writeCacheJson({ version })
       }
 
-      const currentCacheType = this._getInstalledCacheTypes()![0]
+      const currentCacheType = this.getInstalledCacheTypes()![0]
       Channel.debug(`Current cache type: ${currentCacheType}`)
       this.event.emit(InstallEvent.success, await this._pollingLoadSharp(currentCacheType))
     } catch (e) {
@@ -234,19 +234,19 @@ export class Installer {
    * - libvips 版本
    * - \@minko-fe/sharp 版本
    */
-  private _initCacheJson() {
+  private initCacheJson() {
     let shouldInit = false
-    if (!fs.existsSync(this._cacheFilePath)) {
-      fs.ensureFileSync(this._cacheFilePath)
+    if (!fs.existsSync(this.cacheFilePath)) {
+      fs.ensureFileSync(this.cacheFilePath)
       shouldInit = true
     } else {
-      const pkgRaw = fs.readFileSync(this._cacheFilePath, 'utf-8')
+      const pkgRaw = fs.readFileSync(this.cacheFilePath, 'utf-8')
       if (!pkgRaw) {
         shouldInit = true
       }
     }
     if (shouldInit) {
-      this._writeCacheJson({
+      this.writeCacheJson({
         version,
         'libvips': libvips_config.version,
         '@minko-fe/sharp': cleanVersion(devDependencies['@minko-fe/sharp']),
@@ -254,8 +254,8 @@ export class Installer {
     }
   }
 
-  private _readCacheJson() {
-    const pkgStr = fs.readFileSync(this._cacheFilePath, 'utf-8')
+  private readCacheJson() {
+    const pkgStr = fs.readFileSync(this.cacheFilePath, 'utf-8')
     let pkg: { 'version'?: string; 'libvips'?: string; '@minko-fe/sharp'?: string } = {}
     if (isString(pkgStr)) {
       try {
@@ -265,9 +265,9 @@ export class Installer {
     return pkg
   }
 
-  private _writeCacheJson(value: ReturnType<typeof this._readCacheJson>) {
-    fs.writeJSONSync(this._cacheFilePath, {
-      ...this._readCacheJson(),
+  private writeCacheJson(value: ReturnType<typeof this.readCacheJson>) {
+    fs.writeJSONSync(this.cacheFilePath, {
+      ...this.readCacheJson(),
       ...value,
     })
   }
@@ -275,20 +275,19 @@ export class Installer {
   /**
    * 显示状态栏
    */
-  private _showStausBar(loadingText: string) {
-    this._statusBarItem = window.createStatusBarItem(StatusBarAlignment.Left)
-    Global.context.subscriptions.push(this._statusBarItem)
-    this._statusBarItem.text = `$(sync~spin) ${loadingText}`
-    this._statusBarItem.tooltip = i18n.t('prompt.initializing_tooltip')
-    this._statusBarItem.show()
+  private showStausBar(loadingText: string) {
+    this.statusBarItem = window.createStatusBarItem(StatusBarAlignment.Left)
+    this.statusBarItem.text = `$(sync~spin) ${loadingText}`
+    this.statusBarItem.tooltip = i18n.t('prompt.initializing_tooltip')
+    this.statusBarItem.show()
   }
 
   /**
    * 隐藏状态栏
    */
-  private _hideStatusBar() {
-    this._statusBarItem?.hide()
-    this._statusBarItem?.dispose()
+  private hideStatusBar() {
+    this.statusBarItem?.hide()
+    this.statusBarItem?.dispose()
   }
 
   /**
@@ -339,7 +338,7 @@ export class Installer {
   /**
    * 获取已安装的缓存类型
    */
-  private _getInstalledCacheTypes(): CacheType[] | undefined {
+  private getInstalledCacheTypes(): CacheType[] | undefined {
     const caches = this.getCaches()
       .filter((cache) => {
         const { releaseDirPath, sharpFsPath, vendorDirPath } = cache
@@ -423,7 +422,7 @@ export class Installer {
     fs.ensureDirSync(this.getDepCacheDir())
     // 复制稳定文件到缓存目录
     try {
-      await this._copyDirsToOsCache(cacheDirs)
+      await this.copyDirsToOsCache(cacheDirs)
     } catch {
       return false
     }
@@ -433,7 +432,7 @@ export class Installer {
   /**
    * 复制扩展缓存到系统缓存
    */
-  private _copyDirsToOsCache(dirs: string[]) {
+  private copyDirsToOsCache(dirs: string[]) {
     Channel.debug(`Copy [${dirs.join(',')}] to ${this.getDepCacheDir()}`)
 
     return Promise.all(
@@ -491,7 +490,7 @@ export class Installer {
     ])
   }
 
-  private async _install() {
+  private async install() {
     const cwd = this.getSharpCwd()
 
     const sharpBinaryReleaseDir = path.resolve(this.cwd, 'releases')
@@ -534,12 +533,12 @@ export class Installer {
     if (!installSuccess.libvips) {
       Channel.info(`libvips ${i18n.t('core.start_auto_install')}`)
 
-      const hosts = this._isCN
-        ? this._CN_host
+      const hosts = this.isCN
+        ? this.CN_host
         : [
             '', // 非中国地区
             // 中国地区被墙需要从镜像源下载
-            ...this._CN_host,
+            ...this.CN_host,
           ]
 
       const abortController = new AbortController()
@@ -548,7 +547,7 @@ export class Installer {
         const npm_config_sharp_libvips_binary_host = url ? new URL(`${url}/${libvips_config.name}`).toString() : url
 
         Channel.info(
-          `Downloading libvips: ${npm_config_sharp_libvips_binary_host}/${libvips_config.name}/v${libvips_config.version}/${this._libvips_bin}`,
+          `Downloading libvips: ${npm_config_sharp_libvips_binary_host}/${libvips_config.name}/v${libvips_config.version}/${this.libvips_bin}`,
         )
 
         await execaNode('install/install-libvips.js', {
@@ -578,7 +577,7 @@ export class Installer {
 
       // 安装失败
       if (installSuccess.libvips === false) {
-        Channel.error(`${i18n.t('core.manual_install_failed')}: ${this._libvips_bin}`)
+        Channel.error(`${i18n.t('core.manual_install_failed')}: ${this.libvips_bin}`)
         Channel.error(i18n.t('core.manual_install_failed'), true)
       }
     }

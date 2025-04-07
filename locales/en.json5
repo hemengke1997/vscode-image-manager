@@ -90,6 +90,7 @@
     reset_settings_success: 'Reset successful',
     reset_settings_fail: 'Reset failed',
     cancel_operation_tip: 'Operation canceled',
+    watch_root: 'Watching root workspace: {0}',
   },
   core: {
     compress_fail: 'Compress Fail',

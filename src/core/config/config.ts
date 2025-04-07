@@ -3,14 +3,12 @@ import { clone } from 'es-toolkit'
 import { get } from 'es-toolkit/compat'
 import { type ConfigurationScope, ConfigurationTarget, workspace } from 'vscode'
 import { EXT_NAMESPACE } from '~/meta'
-import { normalizePath } from '~/utils'
 import { type CompressionOptions } from '../operator/compressor/type'
 import { type FormatConverterOptions } from '../operator/format-converter'
 import { ConfigKey, type ConfigType, DEFAULT_CONFIG } from './common'
 
 export class Config {
   static readonly reloadConfigs = [
-    ConfigKey.file_root,
     ConfigKey.file_exclude,
     ConfigKey.file_scan,
     ConfigKey.file_gitignore,
@@ -64,12 +62,6 @@ export class Config {
 
   static get debug_forceInstall(): boolean {
     return this.getConfig(ConfigKey.debug_forceInstall)
-  }
-
-  static get file_root(): string[] {
-    const userRoot = this.getConfig<string[]>(ConfigKey.file_root)
-    if (userRoot?.length) return userRoot
-    return workspace.workspaceFolders?.map((t) => normalizePath(t.uri.fsPath)) || []
   }
 
   static get viewer_warningSize(): number {
@@ -167,7 +159,7 @@ export class Config {
   }
 
   static getConfig<T, U extends Flatten<ConfigType> = Flatten<ConfigType>>(
-    key: U, // e.g. `file.root`
+    key: U, // e.g. `file.exclude`
     scope?: ConfigurationScope | undefined,
   ): T {
     return workspace.getConfiguration(EXT_NAMESPACE, scope).get<T>(key) ?? get(DEFAULT_CONFIG, key as string)

@@ -27,7 +27,6 @@ export type ConfigType = {
     showDetailsOnHover: boolean
   }
   file: {
-    root: string[]
     exclude: string[]
     scan: string[]
     gitignore: boolean
@@ -63,7 +62,6 @@ export enum ConfigKey {
   viewer_imageRendering = 'viewer.imageRendering',
   viewer_showDetailsOnHover = 'viewer.showDetailsOnHover',
 
-  file_root = 'file.root',
   file_exclude = 'file.exclude',
   file_scan = 'file.scan',
   file_gitignore = 'file.gitignore',
@@ -114,7 +112,6 @@ export const DEFAULT_CONFIG: ConfigType = {
     showDetailsOnHover: true,
   },
   file: {
-    root: [],
     scan: ['png', 'jpg', 'jpeg', 'webp', 'gif', 'tiff', 'tif', 'avif', 'heif', 'heic', 'apng', 'svg', 'bmp', 'ico'],
     gitignore: true,
     exclude: [

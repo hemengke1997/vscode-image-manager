@@ -91,6 +91,7 @@
     reset_settings_success: '重置成功',
     reset_settings_fail: '重置失败',
     cancel_operation_tip: '取消操作',
+    watch_root: '监听根工作区: {0}',
   },
   // 核心代码
   core: {

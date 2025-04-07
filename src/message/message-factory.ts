@@ -213,7 +213,7 @@ export const VscodeMessageFactory = {
 
     const abortKey = imageManagerPanel.id + (glob ? glob : '-')
 
-    imageManagerPanel.onDidChange((e) => {
+    const disposable = imageManagerPanel.onDidChange((e) => {
       if (!e) {
         cancelablePromise.abortPromiseMap.get(abortKey)?.abort()
       }
@@ -272,6 +272,8 @@ export const VscodeMessageFactory = {
     } catch (e) {
       logger.error(e)
       return false
+    } finally {
+      disposable.dispose()
     }
   },
 

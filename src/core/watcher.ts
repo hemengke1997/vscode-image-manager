@@ -3,9 +3,18 @@ import { type GlobbyFilterFunction, isGitIgnoredSync } from 'globby'
 import micromatch from 'micromatch'
 import { nanoid } from 'nanoid'
 import path from 'node:path'
-import { type FileSystemWatcher, RelativePattern, type Uri, workspace } from 'vscode'
+import {
+  type ConfigurationChangeEvent,
+  Disposable,
+  type FileSystemWatcher,
+  RelativePattern,
+  type Uri,
+  workspace,
+} from 'vscode'
+import { i18n } from '~/i18n'
 import { CmdToVscode, CmdToWebview } from '~/message/cmd'
 import { VscodeMessageFactory } from '~/message/message-factory'
+import { EXT_NAMESPACE } from '~/meta'
 import { resolveDirPath } from '~/utils'
 import { AbortError, abortPromise } from '~/utils/abort-promise'
 import { Channel } from '~/utils/channel'
@@ -14,50 +23,71 @@ import logger from '~/utils/logger'
 import { UpdateEvent, UpdateOrigin, UpdateType } from '~/webview/image-manager/utils/tree/const'
 import { type UpdatePayload } from '~/webview/image-manager/utils/tree/tree-manager'
 import { type ImageManagerPanel } from '~/webview/panel'
+import { ConfigKey } from './config/common'
 import { Config } from './config/config'
-import { Global } from './global'
 
 export class Watcher {
   public watchers: FileSystemWatcher[] = []
-  public glob: ReturnType<typeof imageGlob>
+  public glob: ReturnType<typeof imageGlob> | undefined
   public gitignores: GlobbyFilterFunction[] = []
+
+  private disposables: Disposable[] = []
 
   constructor(
     public rootpaths: string[],
     public imageManagerPanel: ImageManagerPanel,
   ) {
+    this.restart(rootpaths)
+
+    workspace.onDidChangeConfiguration(
+      (e: ConfigurationChangeEvent) => {
+        for (const config of [ConfigKey.file_exclude, ConfigKey.file_scan, ConfigKey.file_gitignore]) {
+          const key = `${EXT_NAMESPACE}.${config}`
+          if (e.affectsConfiguration(key)) {
+            this.restart(rootpaths)
+            logger.debug(`Watcher: ${key} changed`)
+            break
+          }
+        }
+      },
+      null,
+      this.disposables,
+    )
+  }
+
+  private restart(rootpaths: string[]) {
+    this.dispose()
     this.glob = imageGlob({
       scan: Config.file_scan,
       exclude: Config.file_exclude,
       cwds: rootpaths,
     })
-
-    this._start(rootpaths)
+    this.startWatch(rootpaths)
   }
 
-  private _isIgnored(e: Uri, isDirectory: boolean) {
-    if (this._isGitIgnored(e)) {
+  private isIgnored(e: Uri, isDirectory: boolean) {
+    if (this.isGitIgnored(e)) {
       return true
     }
 
     if (isDirectory) {
-      return !micromatch.all(e.path, this.glob.allCwdPatterns)
+      return !micromatch.all(e.path, this.glob!.allCwdPatterns)
     }
 
-    return !micromatch.all(e.path, this.glob.allImagePatterns)
+    return !micromatch.all(e.path, this.glob!.allImagePatterns)
   }
 
   private eventQueue: { e: Uri; type: UpdateEvent; isDirectory: boolean }[] = []
   private eventProcessingTimer: NodeJS.Timeout | null = null
   private abortController: AbortController | null = null
 
-  private async _processEventQueue() {
+  private async processEventQueue() {
     // 合并队列中的事件
-    const uniqueEvents = this._mergeEvents(this.eventQueue)
+    const uniqueEvents = this.mergeEvents(this.eventQueue)
 
     try {
       const payloads = (
-        await abortPromise(() => this._processEvents(uniqueEvents), {
+        await abortPromise(() => this.processEvents(uniqueEvents), {
           abortController: this.abortController!,
         })
       ).filter((p) => !!p)
@@ -79,7 +109,7 @@ export class Watcher {
     }
   }
 
-  private _processEvents(events: typeof this.eventQueue) {
+  private processEvents(events: typeof this.eventQueue) {
     // 1. 如果有新增，则把新增图片查询出来，返回给webview
     // 2. 如果有修改，也需要查询修改后的图片
     // 3. 如果有删除，只需要返回删除的图片路径
@@ -102,9 +132,9 @@ export class Watcher {
             data: {
               type,
               payload: {
-                dirPath: resolveDirPath(e.path, this._guessCwdFromPath(e.path), true),
+                dirPath: resolveDirPath(e.path, this.guessCwdFromPath(e.path), true),
                 absDirPath: e.path,
-                workspaceFolder: path.basename(this._guessCwdFromPath(e.path)),
+                workspaceFolder: path.basename(this.guessCwdFromPath(e.path)),
               },
             },
           }
@@ -113,7 +143,7 @@ export class Watcher {
             const res = await VscodeMessageFactory[CmdToVscode.get_images](
               {
                 filePaths: [e.path],
-                cwd: this._guessCwdFromPath(e.path),
+                cwd: this.guessCwdFromPath(e.path),
               },
               this.imageManagerPanel,
             )
@@ -134,10 +164,10 @@ export class Watcher {
                   path: e.path,
                   name: parsedPath.name,
                   basename: path.basename(e.path),
-                  dirPath: resolveDirPath(e.path, this._guessCwdFromPath(e.path)),
+                  dirPath: resolveDirPath(e.path, this.guessCwdFromPath(e.path)),
                   extname: parsedPath.ext.replace('.', ''),
-                  workspaceFolder: path.basename(this._guessCwdFromPath(e.path)),
-                  absWorkspaceFolder: this._guessCwdFromPath(e.path),
+                  workspaceFolder: path.basename(this.guessCwdFromPath(e.path)),
+                  absWorkspaceFolder: this.guessCwdFromPath(e.path),
                 } as ImageType,
                 type,
               },
@@ -148,13 +178,13 @@ export class Watcher {
     )
   }
 
-  private _guessCwdFromPath(path: string) {
+  private guessCwdFromPath(path: string) {
     const weight = this.rootpaths.map((r) => r.split(path)[0].length)
     const index = weight.indexOf(max(weight)!)
     return this.rootpaths[index]
   }
 
-  private _mergeEvents(events: typeof this.eventQueue) {
+  private mergeEvents(events: typeof this.eventQueue) {
     const eventMap = new Map<string, (typeof events)[number]>()
 
     for (const event of events) {
@@ -171,7 +201,7 @@ export class Watcher {
 
     const isDirectory = !path.extname(e.path)
 
-    if (this._isIgnored(e, isDirectory)) {
+    if (this.isIgnored(e, isDirectory)) {
       logger.debug(`Ignored: ${e.path}`)
       return
     }
@@ -186,23 +216,23 @@ export class Watcher {
     this.abortController = new AbortController()
 
     this.eventProcessingTimer = setTimeout(() => {
-      this._processEventQueue()
+      this.processEventQueue()
     }, 120) // timer大的话，会影响第一次的响应时间，所以要尽量小，但也要保持好防抖
   }
 
-  private _onDidChange(e: Uri) {
+  private onDidChange(e: Uri) {
     this.handleEvent(e, UpdateEvent.update)
   }
 
-  private _onDidCreate(e: Uri) {
+  private onDidCreate(e: Uri) {
     this.handleEvent(e, UpdateEvent.create)
   }
 
-  private _onDidDelete(e: Uri) {
+  private onDidDelete(e: Uri) {
     this.handleEvent(e, UpdateEvent.delete)
   }
 
-  private _isGitIgnored(e: Uri) {
+  private isGitIgnored(e: Uri) {
     if (!Config.file_gitignore) return false
 
     const ignored = this.gitignores.some((fn) => fn(e.path))
@@ -212,10 +242,10 @@ export class Watcher {
     return ignored
   }
 
-  private _start(rootpaths: string[]) {
+  private startWatch(rootpaths: string[]) {
     this.gitignores = rootpaths.map((r) => isGitIgnoredSync({ cwd: r })).filter((t) => !!t)
 
-    Channel.debug(`Watch Root: ${rootpaths.join(',')}`)
+    Channel.info(i18n.t('prompt.watch_root', rootpaths.join(',')))
 
     const watcher = rootpaths.map((r) => {
       return workspace.createFileSystemWatcher(new RelativePattern(r, '**/'))
@@ -223,15 +253,13 @@ export class Watcher {
 
     this.watchers = [...watcher]
 
-    Global.context.subscriptions.push(...this.watchers)
-
-    this.watchers?.forEach((w) => w.onDidChange(this._onDidChange, this))
-    this.watchers?.forEach((w) => w.onDidCreate(this._onDidCreate, this))
-    this.watchers?.forEach((w) => w.onDidDelete(this._onDidDelete, this))
+    this.watchers?.forEach((w) => w.onDidChange(this.onDidChange, this))
+    this.watchers?.forEach((w) => w.onDidCreate(this.onDidCreate, this))
+    this.watchers?.forEach((w) => w.onDidDelete(this.onDidDelete, this))
   }
 
   public dispose() {
-    this.watchers?.forEach((w) => w.dispose())
+    Disposable.from(...this.disposables, ...this.watchers).dispose()
     this.eventProcessingTimer && clearTimeout(this.eventProcessingTimer)
     this.abortController?.abort()
     Channel.debug('Watcher disposed')

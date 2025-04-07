@@ -25,13 +25,17 @@ export class HookPlugin<T extends AnyObject> {
     this.hooks = createHooks<T>()
     try {
       if (plugins?.length) {
-        this._applyPlugins(plugins as ObjectPlugin<T>[])
+        this.applyPlugins(plugins as ObjectPlugin<T>[])
       }
     } catch {}
   }
 
   applyPlugins(plugins: ObjectPlugin<T>[]) {
-    this._applyPlugins(plugins)
+    plugins = this.sortPlugins(plugins)
+
+    for (const plugin of plugins) {
+      this.applyPlugin(plugin)
+    }
     return this
   }
 
@@ -50,15 +54,7 @@ export class HookPlugin<T extends AnyObject> {
     return this
   }
 
-  private _applyPlugins(plugins: ObjectPlugin<T>[]) {
-    plugins = this._sortPlugins(plugins)
-
-    for (const plugin of plugins) {
-      this._applyPlugin(plugin)
-    }
-  }
-
-  private _applyPlugin(plugin: ObjectPlugin<T>) {
+  private applyPlugin(plugin: ObjectPlugin<T>) {
     if (this.pluginMap.has(plugin.name)) {
       this.removePlugins(plugin.name)
     }
@@ -69,7 +65,7 @@ export class HookPlugin<T extends AnyObject> {
     }
   }
 
-  private _sortPlugins(plugins: ObjectPlugin<T>[]) {
+  private sortPlugins(plugins: ObjectPlugin<T>[]) {
     const prePlugins: ObjectPlugin<T>[] = []
     const postPlugins: ObjectPlugin<T>[] = []
     const normalPlugins: ObjectPlugin<T>[] = []

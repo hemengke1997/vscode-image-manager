@@ -1,5 +1,11 @@
 # CHANGELOG
 
+## 3.0.1 (2025-04-07)
+
+### Break Change
+
+- 废弃 `image-manager.file.root` 配置
+
 ## 3.0.0 (2025-04-07)
 
 ### Feat

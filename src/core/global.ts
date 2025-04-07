@@ -6,7 +6,6 @@ import { AbortError, TimeoutError } from '~/utils/abort-promise'
 import { Channel } from '~/utils/channel'
 import { type ImageManagerPanel } from '~/webview/panel'
 import { ConfigKey, type VscodeConfigType } from './config/common'
-import { Config } from './config/config'
 import { type Installer, InstallEvent } from './sharp/installer'
 
 export class Global {
@@ -45,7 +44,7 @@ export class Global {
 
     context.subscriptions.push(
       workspace.onDidChangeConfiguration((e) => {
-        for (const config of [ConfigKey.compression, ConfigKey.conversion]) {
+        for (const config of Object.values(ConfigKey)) {
           const key = `${EXT_NAMESPACE}.${config}`
 
           if (e.affectsConfiguration(key)) {
@@ -57,8 +56,7 @@ export class Global {
     )
   }
 
-  static resolveRootPath(_rootpaths?: string[]) {
-    let rootpaths = _rootpaths?.length ? _rootpaths : Config.file_root
+  static resolveRootPath(rootpaths?: string[]) {
     if (!rootpaths) {
       if (workspace.rootPath) {
         rootpaths = [workspace.rootPath]

@@ -152,7 +152,7 @@
     "prettier-plugin-tailwindcss": "^0.6.11",
     "pump": "3.0.0",
     "react": "^18.3.1",
-    "react-atom-toast": "^2.0.2",
+    "react-atom-toast": "^2.0.3",
     "react-compare-slider": "^3.1.0",
     "react-contexify": "^6.0.0",
     "react-dom": "^18.3.1",
@@ -180,9 +180,9 @@
     "tsx": "^4.19.3",
     "tw-clsx": "^1.0.0",
     "type-fest": "^4.39.1",
-    "typescript": "^5.8.2",
+    "typescript": "^5.8.3",
     "un-detector": "^1.1.4",
-    "vite": "^5.4.14",
+    "vite": "^5.4.17",
     "vite-config-preset": "^1.6.8",
     "vite-plugin-html": "^3.2.2",
     "vite-plugin-i18n-ally": "^5.4.0",
@@ -268,14 +268,6 @@
           "type": "boolean",
           "default": false,
           "description": "%pkg.debug.forceInstall%"
-        },
-        "image-manager.file.root": {
-          "type": "array",
-          "default": [],
-          "items": {
-            "type": "string"
-          },
-          "description": "%pkg.file.root%"
         },
         "image-manager.file.exclude": {
           "type": [

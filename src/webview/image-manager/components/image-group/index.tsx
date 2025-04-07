@@ -9,7 +9,7 @@ import { range, round } from 'es-toolkit'
 import { type PreviewGroupPreview } from 'rc-image/es/PreviewGroup'
 import { classNames } from 'tw-clsx'
 import { isDev } from 'vite-config-preset/client'
-import { WorkspaceStateKey } from '~/core/persist/workspace/common'
+import { DEFAULT_WORKSPACE_STATE, WorkspaceStateKey } from '~/core/persist/workspace/common'
 import logger from '~/utils/logger'
 import useImageManagerEvent, { IMEvent } from '../../hooks/use-image-manager-event'
 import { useWorkspaceState } from '../../hooks/use-workspace-state'
@@ -127,7 +127,7 @@ function ImageGroup(props: ImageGroupProps, ref: ForwardedRef<HTMLDivElement>) {
   ])
 
   const [previewScale, setPreviewScale] = useWorkspaceState(WorkspaceStateKey.preview_scale, preview_scale)
-  const [lockedScale, setLockedScale] = useState(false)
+  const [lockedScale, setLockedScale] = useState(previewScale !== DEFAULT_WORKSPACE_STATE.preview_scale)
 
   /* ------------------- 选择的图片 ------------------ */
   const [selectedImages, _setSelectedImages] = useControlledState({
@@ -153,7 +153,7 @@ function ImageGroup(props: ImageGroupProps, ref: ForwardedRef<HTMLDivElement>) {
   }, [preview.open])
 
   const onToastClose = useMemoizedFn(() => {
-    if (!lockedScale) {
+    if (previewScale === DEFAULT_WORKSPACE_STATE.preview_scale) {
       setPreviewScale(1)
     }
 

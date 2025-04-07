@@ -28,8 +28,8 @@ export class ImageManagerPanel {
   id: string
 
   // events
-  private _onDidChanged = new EventEmitter<Webview | false>()
-  public onDidChange = this._onDidChanged.event
+  private onDidChanged = new EventEmitter<Webview | false>()
+  public onDidChange = this.onDidChanged.event
 
   watcher: Watcher | null = null
 
@@ -40,7 +40,8 @@ export class ImageManagerPanel {
 
   panel: WebviewPanel
   messageCenter: MessageCenter
-  private _disposables: Disposable[] = []
+
+  private disposables: Disposable[] = []
 
   constructor(
     readonly ctx: ExtensionContext,
@@ -56,17 +57,15 @@ export class ImageManagerPanel {
 
     // 监听面板被关闭的事件
     // 在用户关闭面板或程序化关闭面板时触发
-    this.ctx.subscriptions.push(this.panel.onDidDispose(() => this.dispose(), null, this._disposables))
+    this.panel.onDidDispose(() => this.dispose(), null, this.disposables)
 
     // 监听webview发送的消息
-    this.ctx.subscriptions.push(
-      this.panel.webview.onDidReceiveMessage((msg: MessageType) => this._handleMessage(msg), null, this._disposables),
-    )
+    this.panel.webview.onDidReceiveMessage((msg: MessageType) => this.handleMessage(msg), null, this.disposables)
 
     // 监听vscode配置变化
-    this.ctx.subscriptions.push(workspace.onDidChangeConfiguration(this.update, null, this._disposables))
+    workspace.onDidChangeConfiguration(this.update, null, this.disposables)
 
-    this._getWebviewHtml().then((res) => {
+    this.getWebviewHtml().then((res) => {
       this.panel.webview.html = res
       this.panel.reveal()
     })
@@ -154,8 +153,8 @@ export class ImageManagerPanel {
   /**
    * 处理webview发送给vscode的消息
    */
-  private async _handleMessage(message: MessageType) {
-    Channel.debug(`Receive cmd: ${message.cmd}`)
+  private async handleMessage(message: MessageType) {
+    // Channel.debug(`Receive cmd: ${message.cmd}`)
     this.messageCenter.handleMessages(message)
   }
 
@@ -163,18 +162,12 @@ export class ImageManagerPanel {
    * 关闭面板时触发
    */
   dispose() {
-    // Clean up resources
-    this.panel.dispose()
+    this.onDidChanged.fire(false)
 
-    // Dispose all the disposables
-    Disposable.from(...this._disposables).dispose()
-
-    this.watcher?.dispose()
-
-    this._onDidChanged.fire(false)
+    Disposable.from(...this.disposables, this.panel, this.watcher!, this.onDidChanged).dispose()
   }
 
-  private async _getWebviewHtml() {
+  private async getWebviewHtml() {
     const isProd = Global.isProduction()
     const { webview } = this.panel
 
@@ -183,8 +176,8 @@ export class ImageManagerPanel {
     let script_src = ''
 
     if (isProd) {
-      const { htmlContent, htmlPath } = this._getHtml(['dist-webview', 'index.html'])
-      html = this._transformHtml(htmlPath, htmlContent)
+      const { htmlContent, htmlPath } = this.getHtml(['dist-webview', 'index.html'])
+      html = this.transformHtml(htmlPath, htmlContent)
     } else {
       const localServerUrl = `http://localhost:${DEV_PORT}`
 
@@ -225,14 +218,14 @@ export class ImageManagerPanel {
         injectTo: 'head-prepend',
         tag: 'script',
         // 让正式环境支持资源异步加载，不然会从 vscode-webview://* 读取资源，这样会导致资源加载失败，因为正式环境的资源是放在 dist-webview 目录下的
-        children: `${PRELOAD_HELPER} = '${this._getUri(['dist-webview']).toString()}'`,
+        children: `${PRELOAD_HELPER} = '${this.getUri(['dist-webview']).toString()}'`,
       },
     ])
 
     return html
   }
 
-  private _transformHtml(htmlPath: string, html: string) {
+  private transformHtml(htmlPath: string, html: string) {
     Channel.debug(`htmlPath: ${htmlPath}`)
     const htmlDirPath = path.dirname(htmlPath)
 
@@ -246,12 +239,12 @@ export class ImageManagerPanel {
     return html
   }
 
-  private _getUri(pathList: string[]) {
+  private getUri(pathList: string[]) {
     return this.panel.webview.asWebviewUri(Uri.joinPath(this.ctx.extensionUri, ...pathList))
   }
 
-  private _getHtml(htmlPath: string[]) {
-    const htmlWebviewPath = this._getUri(htmlPath).fsPath
+  private getHtml(htmlPath: string[]) {
+    const htmlWebviewPath = this.getUri(htmlPath).fsPath
     const htmlContent = fs.readFileSync(htmlWebviewPath, 'utf-8')
 
     Channel.debug(`htmlPath: ${htmlWebviewPath}`)

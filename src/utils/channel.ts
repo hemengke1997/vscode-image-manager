@@ -5,13 +5,13 @@ import { i18n } from '~/i18n'
 import { EXT_NAME } from '~/meta'
 
 export class Channel {
-  private static _channel: OutputChannel
+  private static channel: OutputChannel
 
   static get outputChannel(): OutputChannel {
-    if (!this._channel) {
-      this._channel = window.createOutputChannel(EXT_NAME)
+    if (!this.channel) {
+      this.channel = window.createOutputChannel(EXT_NAME)
     }
-    return this._channel
+    return this.channel
   }
 
   static raw(...values: any[]) {
@@ -54,7 +54,7 @@ export class Channel {
   }
 
   static show() {
-    this._channel.show()
+    this.channel.show()
   }
 
   static divider() {

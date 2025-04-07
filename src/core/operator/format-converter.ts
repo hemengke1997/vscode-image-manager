@@ -80,7 +80,7 @@ export class FormatConverter extends Operator {
     }
   }
 
-  private _createConverter(size?: number) {
+  private createConverter(size?: number) {
     const converter: SharpOperator<ConvertorRuntime> = new SharpOperator({
       plugins: [
         {
@@ -96,7 +96,7 @@ export class FormatConverter extends Operator {
             },
             'before:run': async (ctx) => {
               let { ext } = ctx.runtime
-              if (this._isIco(ext)) {
+              if (this.isIco(ext)) {
                 //
                 if (ctx.sharp) {
                   ctx.sharp = await this._resizeIco(ctx.sharp, { size: size! })
@@ -145,14 +145,14 @@ export class FormatConverter extends Operator {
     let converters: SharpOperator<ConvertorRuntime>[] | SharpOperator<ConvertorRuntime>
 
     try {
-      if (this._isIco(ext)) {
+      if (this.isIco(ext)) {
         if (!this.option.icoSize) {
           this.option.icoSize = DEFAULT_CONFIG.conversion.icoSize
         }
         converters = this.option.icoSize
           .map((size) => toNumber(size))
           .sort((a, b) => b - a)
-          .map((size) => this._createConverter(size)) as SharpOperator<ConvertorRuntime>[]
+          .map((size) => this.createConverter(size)) as SharpOperator<ConvertorRuntime>[]
         const len = converters.length
         const res = await pMap(
           converters.map(
@@ -175,12 +175,12 @@ export class FormatConverter extends Operator {
             concurrency: 1,
           },
         )
-        const icoBuffer = this._encodeIco(res.map((r) => r.buffer))
+        const icoBuffer = this.encodeIco(res.map((r) => r.buffer))
         // write ico file
         outputPath = res[0].outputPath
         await fs.writeFile(outputPath, icoBuffer)
       } else {
-        converters = this._createConverter()
+        converters = this.createConverter()
         const res = await converters.run({
           ext,
           filePath,
@@ -206,14 +206,14 @@ export class FormatConverter extends Operator {
     }
   }
 
-  private _isIco(ext: string) {
+  private isIco(ext: string) {
     return ext === 'ico'
   }
 
   /**
    * @description encode ico
    */
-  private _encodeIco(bufferList: Buffer[]) {
+  private encodeIco(bufferList: Buffer[]) {
     // ico-endec only support cjs
     const icoEndec = require('ico-endec')
     return icoEndec.encode(bufferList) as Buffer

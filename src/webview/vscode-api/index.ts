@@ -22,7 +22,7 @@ type MessageCallbackFn<T extends KeyofMessage> = (data: ReturnOfMessage<T>) => v
  */
 class VscodeApi {
   private readonly vsCodeApi: WebviewApi<unknown> | undefined
-  private _callbacks: Record<string, (data: any) => void> = {}
+  private callbacks: Record<string, (data: any) => void> = {}
 
   constructor() {
     // 检查acquireVsCodeApi函数是否存在于当前开发上下文中（VSCode开发窗口或web浏览器）
@@ -39,11 +39,11 @@ class VscodeApi {
       if (!callbackId) return
       switch (message.cmd) {
         case CmdToWebview.webview_callback: {
-          const callback = this._callbacks[callbackId]
+          const callback = this.callbacks[callbackId]
           if (isFunction(callback)) {
             callback(data)
           }
-          delete this._callbacks[callbackId]
+          delete this.callbacks[callbackId]
           break
         }
         default:
@@ -52,7 +52,7 @@ class VscodeApi {
     })
   }
 
-  private _getRandomId = () => `${Date.now()}_${nanoid()}`
+  private getRandomId = () => `${Date.now()}_${nanoid()}`
 
   /**
    * 向webview的拥有者（即vscode扩展）发送消息（即发送任意数据）。
@@ -68,11 +68,11 @@ class VscodeApi {
       : MessageType<ParameterOfMessage<T>, T>,
     callback?: MessageCallbackFn<T>,
   ) {
-    message.msgId = this._getRandomId()
+    message.msgId = this.getRandomId()
     message.postTime = new Date().toLocaleString()
     if (callback) {
-      const callbackId = this._getRandomId()
-      this._callbacks[callbackId] = callback
+      const callbackId = this.getRandomId()
+      this.callbacks[callbackId] = callback
       message.callbackId = callbackId
     }
     if (this.vsCodeApi) {

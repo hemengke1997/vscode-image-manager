@@ -71,10 +71,7 @@ export class SvgCompressor extends Compressor {
             }
             const minifiedSvg = await Svgo.minify(svgString, this.option.svg)
 
-            await this._writeStreamFile({
-              path: outputPath,
-              data: minifiedSvg,
-            })
+            await fs.writeFile(filePath, minifiedSvg, 'utf-8')
 
             const outputSize = await this.getFileSize(outputPath)
             resolve({
@@ -86,22 +83,6 @@ export class SvgCompressor extends Compressor {
           }
         })
       } catch (e: any) {
-        reject(e)
-      }
-    })
-  }
-
-  private _writeStreamFile({ path, data }: { path: string; data: string }) {
-    return new Promise<boolean>((resolve, reject) => {
-      try {
-        const fileWritableStream = fs.createWriteStream(path)
-        fileWritableStream.on('finish', () => {
-          resolve(true)
-        })
-
-        fileWritableStream.write(data)
-        fileWritableStream.end()
-      } catch (e) {
         reject(e)
       }
     })
