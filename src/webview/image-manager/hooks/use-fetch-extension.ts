@@ -1,5 +1,6 @@
 import { useAsyncEffect } from 'ahooks'
 import { EXT_ID } from '~/meta'
+import logger from '~/utils/logger'
 import GlobalStore from '../stores/global-store'
 
 async function getExtensionLatestVersion(extensionName: string) {
@@ -50,6 +51,13 @@ export default function useFetchExtension() {
   useAsyncEffect(async () => {
     try {
       const ext = await getExtensionLatestVersion(EXT_ID)
+      logger.debug(
+        {
+          author: ext.publisher.publisherName,
+          version: ext.versions[0].version,
+        },
+        'ext info',
+      )
       setExtLastetInfo({
         author: ext.publisher.publisherName,
         version: ext.versions[0].version,

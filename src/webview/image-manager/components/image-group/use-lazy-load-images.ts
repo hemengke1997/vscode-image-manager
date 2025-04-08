@@ -6,16 +6,16 @@ import { getAppRoot } from '~/webview/utils'
 import GlobalStore from '../../stores/global-store'
 
 interface UseElementBottomStatusProps {
-  targetRef: React.MutableRefObject<HTMLElement> | null
+  target: HTMLElement | null
+  container: HTMLElement
   offset: number // 距离底部的偏移量
 }
 
-function useElementBottom({ targetRef, offset }: UseElementBottomStatusProps) {
+function useElementBottom({ target, offset, container }: UseElementBottomStatusProps) {
   const [isBottomInView, setIsBottomInView] = useState(false)
 
   const { run } = useThrottleFn(
     () => {
-      const target = targetRef?.current
       if (!target) return
 
       const containerRect = getAppRoot().getBoundingClientRect()
@@ -31,7 +31,7 @@ function useElementBottom({ targetRef, offset }: UseElementBottomStatusProps) {
   )
 
   useEventListener('scroll', run, {
-    target: getAppRoot(),
+    target: container,
   })
 
   return isBottomInView
@@ -40,14 +40,13 @@ function useElementBottom({ targetRef, offset }: UseElementBottomStatusProps) {
 type Props = {
   images: ImageType[]
   pageSize: number
-  target: React.MutableRefObject<HTMLElement> | null
   /**
    * 如果index!==-1，则加载index位置的图片
    */
   index: number
-}
+} & Pick<UseElementBottomStatusProps, 'target' | 'container'>
 export default function useLazyLoadImages(props: Props) {
-  const { images, pageSize, target, index } = props
+  const { images, pageSize, index, target, container } = props
 
   const { rootVerticalMargin } = useLazyMargin()
 
@@ -71,7 +70,7 @@ export default function useLazyLoadImages(props: Props) {
     hasMore: hasMore(loadedImages.images),
   })
 
-  const isBottomInView = useElementBottom({ targetRef: target, offset: rootVerticalMargin(10) })
+  const isBottomInView = useElementBottom({ target, container, offset: rootVerticalMargin(10) })
 
   const addImages = useMemoizedFn((pageNum: number) => {
     if (status.current.loading || !status.current.hasMore) return

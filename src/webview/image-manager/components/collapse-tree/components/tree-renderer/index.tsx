@@ -6,7 +6,6 @@ import { useMemoizedFn } from 'ahooks'
 import { Card, type CollapseProps, Empty } from 'antd'
 import { classNames } from 'tw-clsx'
 import { DisplayGroupType } from '~/core/persist/workspace/common'
-import { slashPath } from '~/utils'
 import ActionStore from '~/webview/image-manager/stores/action-store'
 import ImageStore from '~/webview/image-manager/stores/image-store'
 import SettingsStore from '~/webview/image-manager/stores/settings-store'
@@ -39,8 +38,9 @@ function TreeRenderer(props: Props) {
    * @returns 目录的完整路径
    */
   const resolvePath = useMemoizedFn((nodeId: string) => {
-    const path = nodeId.replace(new RegExp(`^${treeManager?.tree.rootId}/`), '')
-    return slashPath(`${workspaceId}/${path}`)
+    if (nodeId === workspaceFolder) return workspaceId
+
+    return nodeId.replace(new RegExp(`^${workspaceFolder}`), `${workspaceId}`)
   })
 
   const getContextMenu = useMemoizedFn((contextMenu: EnableCollapseContextMenuType): EnableCollapseContextMenuType => {
@@ -106,8 +106,6 @@ function TreeRenderer(props: Props) {
 
             // 非根节点，或者多工作区时，可以折叠
             const collapsible = !root || workspaceLength > 1
-
-            // 全路径
 
             return (
               <ImageCollapse

@@ -170,6 +170,7 @@ describe('Util test', () => {
     expect(slashPath('a/b/c')).toBe('a/b/c')
     expect(slashPath('a//b//c')).toBe('a/b/c')
     expect(slashPath('/a/b/c//')).toBe('/a/b/c/')
+    expect(slashPath('//a///b/c.png')).toBe('/a/b/c.png')
     expect(slashPath('')).toBe('')
   })
 

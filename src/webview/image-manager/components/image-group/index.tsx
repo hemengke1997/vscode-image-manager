@@ -1,4 +1,4 @@
-import { type ForwardedRef, forwardRef, memo, type ReactNode, useEffect, useMemo, useState } from 'react'
+import { type ForwardedRef, forwardRef, memo, type ReactNode, useEffect, useMemo, useRef, useState } from 'react'
 import { toast } from 'react-atom-toast'
 import { FaLock, FaLockOpen } from 'react-icons/fa6'
 import { useMemoizedFn } from 'ahooks'
@@ -11,6 +11,7 @@ import { classNames } from 'tw-clsx'
 import { isDev } from 'vite-config-preset/client'
 import { DEFAULT_WORKSPACE_STATE, WorkspaceStateKey } from '~/core/persist/workspace/common'
 import logger from '~/utils/logger'
+import { getAppRoot } from '~/webview/utils'
 import useImageManagerEvent, { IMEvent } from '../../hooks/use-image-manager-event'
 import { useWorkspaceState } from '../../hooks/use-workspace-state'
 import GlobalStore from '../../stores/global-store'
@@ -120,6 +121,7 @@ function ImageGroup(props: ImageGroupProps, ref: ForwardedRef<HTMLDivElement>) {
   } = props
 
   const { token } = theme.useToken()
+  const containerRef = useRef<HTMLDivElement>(null)
   const { imageWidth, imageReveal } = GlobalStore.useStore(['imageWidth', 'imageReveal'])
 
   const [index, setIndex] = useState<number>(-1)
@@ -127,7 +129,8 @@ function ImageGroup(props: ImageGroupProps, ref: ForwardedRef<HTMLDivElement>) {
   const [images] = useLazyLoadImages({
     images: imagesProp,
     pageSize: PageSize,
-    target: ref as React.MutableRefObject<HTMLElement>,
+    target: containerRef?.current,
+    container: lazyImageProps?.lazy ? lazyImageProps.lazy.root : getAppRoot(),
     index,
   })
 
@@ -476,7 +479,7 @@ function ImageGroup(props: ImageGroupProps, ref: ForwardedRef<HTMLDivElement>) {
   })
 
   return (
-    <>
+    <div ref={containerRef}>
       <div
         className={classNames('flex flex-wrap gap-1.5', clearSelectedOnBlankClick && ShouldClickAway.Viewer)}
         ref={ref}
@@ -526,7 +529,7 @@ function ImageGroup(props: ImageGroupProps, ref: ForwardedRef<HTMLDivElement>) {
           </Image.PreviewGroup>
         </ConfigProvider>
       </div>
-    </>
+    </div>
   )
 }
 
