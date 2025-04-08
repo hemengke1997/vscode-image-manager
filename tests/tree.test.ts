@@ -8,28 +8,17 @@ import { TreeManager, type UpdatePayload } from '~/webview/image-manager/utils/t
 
 setAutoFreeze(false)
 
-function mockImages(
-  options: {
-    isWindows?: boolean
-  } = {
-    isWindows: false,
-  },
-) {
-  function generatePath(p: string) {
-    const prefix = options.isWindows ? 'c:' : ''
-    return `${prefix}${p}`
-  }
-
+function mockImages() {
   const images: ImageType[] = [
     {
       basename: 'root.svg',
       name: 'root',
-      path: generatePath('/Users/path/to/project/root.svg'),
+      path: '/Users/path/to/project/root.svg',
       dirPath: '',
-      absDirPath: generatePath('/Users/path/to/project'),
+      absDirPath: '/Users/path/to/project',
       extname: 'svg',
       workspaceFolder: 'project',
-      absWorkspaceFolder: generatePath('/Users/path/to/project'),
+      absWorkspaceFolder: '/Users/path/to/project',
       stats: {
         mtimeMs: 1697059200000,
         size: 1024,
@@ -38,12 +27,12 @@ function mockImages(
     {
       basename: 'c#.png',
       name: 'c#',
-      path: generatePath('/Users/path/to/project/webview/c#.png'),
+      path: '/Users/path/to/project/webview/c#.png',
       dirPath: 'webview',
-      absDirPath: generatePath('/Users/path/to/project/webview'),
+      absDirPath: '/Users/path/to/project/webview',
       extname: 'png',
       workspaceFolder: 'project',
-      absWorkspaceFolder: generatePath('/Users/path/to/project'),
+      absWorkspaceFolder: '/Users/path/to/project',
       stats: {
         mtimeMs: 1697059200313,
         size: 12,
@@ -52,12 +41,12 @@ function mockImages(
     {
       basename: 'app.png',
       name: 'app',
-      path: generatePath('/Users/path/to/project/webview/app.png'),
+      path: '/Users/path/to/project/webview/app.png',
       dirPath: 'webview',
-      absDirPath: generatePath('/Users/path/to/project/webview'),
+      absDirPath: '/Users/path/to/project/webview',
       extname: 'png',
       workspaceFolder: 'project',
-      absWorkspaceFolder: generatePath('/Users/path/to/project'),
+      absWorkspaceFolder: '/Users/path/to/project',
       stats: {
         mtimeMs: 1697059200443,
         size: 15,
@@ -66,12 +55,12 @@ function mockImages(
     {
       basename: 'blender.png',
       name: 'blender',
-      path: generatePath('/Users/path/to/project/webview/blender.png'),
+      path: '/Users/path/to/project/webview/blender.png',
       dirPath: 'webview',
-      absDirPath: generatePath('/Users/path/to/project/webview'),
+      absDirPath: '/Users/path/to/project/webview',
       extname: 'png',
       workspaceFolder: 'project',
-      absWorkspaceFolder: generatePath('/Users/path/to/project'),
+      absWorkspaceFolder: '/Users/path/to/project',
       stats: {
         mtimeMs: 1697059200343,
         size: 20,
@@ -80,12 +69,12 @@ function mockImages(
     {
       basename: 'blender.png',
       name: 'blender',
-      path: generatePath('/Users/path/to/project/ui-framework/src/images/blender.png'),
-      dirPath: generatePath('ui-framework/src/images'),
-      absDirPath: generatePath('/Users/path/to/project/ui-framework/src/images'),
+      path: '/Users/path/to/project/ui-framework/src/images/blender.png',
+      dirPath: 'ui-framework/src/images',
+      absDirPath: '/Users/path/to/project/ui-framework/src/images',
       extname: 'png',
       workspaceFolder: 'project',
-      absWorkspaceFolder: generatePath('/Users/path/to/project'),
+      absWorkspaceFolder: '/Users/path/to/project',
       stats: {
         mtimeMs: 1697059300313,
         size: 52,
@@ -94,12 +83,12 @@ function mockImages(
     {
       basename: 'd3.png',
       name: 'd3',
-      path: generatePath('/Users/path/to/project/d3.png'),
+      path: '/Users/path/to/project/d3.png',
       dirPath: '',
-      absDirPath: generatePath('/Users/path/to/project'),
+      absDirPath: '/Users/path/to/project',
       extname: 'png',
       workspaceFolder: 'project',
-      absWorkspaceFolder: generatePath('/Users/path/to/project'),
+      absWorkspaceFolder: '/Users/path/to/project',
       stats: {
         mtimeMs: 1692059200313,
         size: 12311213,
@@ -108,12 +97,12 @@ function mockImages(
     {
       basename: 'd3.png',
       name: 'd3',
-      path: generatePath('/Users/path/to/project/ui-framework/webview/d3.png'),
+      path: '/Users/path/to/project/ui-framework/webview/d3.png',
       dirPath: 'ui-framework/webview',
-      absDirPath: generatePath('/Users/path/to/project/ui-framework/webview'),
+      absDirPath: '/Users/path/to/project/ui-framework/webview',
       extname: 'png',
       workspaceFolder: 'project',
-      absWorkspaceFolder: generatePath('/Users/path/to/project'),
+      absWorkspaceFolder: '/Users/path/to/project',
       stats: {
         mtimeMs: 1697059500313,
         size: 1442321003,
@@ -619,7 +608,53 @@ describe('compact 紧凑模式 - 增量更新', () => {
           |-- vite.svg
       "
     `)
+  })
 
+  it('紧凑情况下，增删图片，目录紧凑正确', () => {
+    const treeManager = new TreeManager(images[0].workspaceFolder, {
+      compact: true,
+      treeStyle: TreeStyle.dir,
+    })
+    treeManager.generateTree(images)
+
+    expect(treeManager.printTree()).toMatchInlineSnapshot(`
+      "|-- project
+        |-- d3.png
+        |-- root.svg
+        |-- ui-framework
+          |-- src/images
+            |-- blender.png
+          |-- webview
+            |-- d3.png
+        |-- webview
+          |-- app.png
+          |-- blender.png
+          |-- c#.png
+      "
+    `)
+
+    treeManager.updateTree(imageUpdates)
+
+    expect(treeManager.printTree()).toMatchInlineSnapshot(`
+      "|-- project
+        |-- d3.png
+        |-- root.svg
+        |-- path/to
+          |-- new.png
+        |-- ui-framework
+          |-- src/images
+            |-- new-blender.png
+          |-- webview
+            |-- d3.png
+        |-- webview
+          |-- app.png
+          |-- blender.png
+          |-- c#.png
+          |-- vite.svg
+      "
+    `)
+
+    // 创建深层图片
     treeManager.updateTree([
       {
         origin: UpdateOrigin.image,
@@ -661,6 +696,7 @@ describe('compact 紧凑模式 - 增量更新', () => {
       "
     `)
 
+    // 删除图片
     treeManager.updateTree([
       {
         origin: UpdateOrigin.image,
@@ -700,6 +736,7 @@ describe('compact 紧凑模式 - 增量更新', () => {
       "
     `)
 
+    // 再创建深层图片
     treeManager.updateTree([
       {
         origin: UpdateOrigin.image,
@@ -864,6 +901,95 @@ describe('compact 紧凑模式 - 增量更新', () => {
         |-- new.png
         |-- root.svg
         |-- vite.svg
+      "
+    `)
+  })
+
+  it('修改目录', () => {
+    const treeManager = new TreeManager(images[0].workspaceFolder, {
+      compact: true,
+      treeStyle: TreeStyle.dir,
+    })
+    treeManager.generateTree(images)
+
+    expect(treeManager.printTree()).toMatchInlineSnapshot(`
+      "|-- project
+        |-- d3.png
+        |-- root.svg
+        |-- ui-framework
+          |-- src/images
+            |-- blender.png
+          |-- webview
+            |-- d3.png
+        |-- webview
+          |-- app.png
+          |-- blender.png
+          |-- c#.png
+      "
+    `)
+
+    treeManager.updateTree([
+      {
+        origin: UpdateOrigin.dir,
+        data: {
+          payload: {
+            workspaceFolder: 'project',
+            dirPath: 'ui-framework/new-src',
+            absDirPath: '/Users/path/to/project/ui-framework/new-src',
+          },
+          type: UpdateEvent.create,
+        },
+      },
+      {
+        origin: UpdateOrigin.dir,
+        data: {
+          payload: {
+            workspaceFolder: 'project',
+            dirPath: 'ui-framework/src',
+            absDirPath: '/Users/path/to/project/ui-framework/src',
+          },
+          type: UpdateEvent.delete,
+        },
+      },
+    ])
+
+    // 模拟watcher中的获取新目录下的图片
+    treeManager.updateTree([
+      {
+        origin: UpdateOrigin.image,
+        data: {
+          type: UpdateEvent.create,
+          payload: {
+            basename: 'blender.png',
+            name: 'blender',
+            path: '/Users/path/to/project/ui-framework/new-src/images/blender.png',
+            dirPath: 'ui-framework/new-src/images',
+            absDirPath: '/Users/path/to/project/ui-framework/new-src/images',
+            extname: 'png',
+            workspaceFolder: 'project',
+            absWorkspaceFolder: '/Users/path/to/project',
+            stats: {
+              mtimeMs: 1697059300313,
+              size: 52,
+            },
+          } as ImageType,
+        },
+      },
+    ])
+
+    expect(treeManager.printTree()).toMatchInlineSnapshot(`
+      "|-- project
+        |-- d3.png
+        |-- root.svg
+        |-- ui-framework
+          |-- new-src/images
+            |-- blender.png
+          |-- webview
+            |-- d3.png
+        |-- webview
+          |-- app.png
+          |-- blender.png
+          |-- c#.png
       "
     `)
   })

@@ -1,7 +1,10 @@
 /**
- * 格式化路径，把路径中的多余斜杠和结尾斜杠去掉
+ * 格式化展示路径
  */
-export function normalizePathClient<T extends string>(path: T | null | undefined): T {
+export function formatPath<T extends string>(path: T | null | undefined): T {
   if (!path) return path as T
-  return path.replace(/\/+/g, '/').replace(/\/$/, '') as T
+  return path
+    .replace(/\/+/g, '/')
+    .replace(/^\/(?=.+)/, '')
+    .replace(/(?<=.+)\/$/, '') as T
 }

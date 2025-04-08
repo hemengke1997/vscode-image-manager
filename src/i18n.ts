@@ -7,8 +7,8 @@ import { type ExtensionContext } from 'vscode'
 import { Config } from './core/config/config'
 import { Language } from './enums'
 import { FALLBACK_LANGUAGE } from './meta'
-import { Channel } from './utils/channel'
-import { intelligentPick } from './utils/intelligent-pick'
+import { intelligentPick } from './utils/'
+import { Channel } from './utils/node/channel'
 
 export class i18n {
   static messages: Record<string, string> = {}

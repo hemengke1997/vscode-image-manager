@@ -1,15 +1,15 @@
 import fg from 'fast-glob'
 import path from 'node:path'
 import { describe, expect, it } from 'vitest'
-import { normalizePathNode } from '~/utils'
-import { imageGlob } from '~/utils/glob'
+import { slashPath } from '~/utils'
+import { convertPatternToGlob, imageGlob } from '~/utils/node/glob'
 
 type Config = Parameters<typeof imageGlob>[0]
 const workspaceFolder = path.resolve(__dirname, './fixture')
 
 async function glob(pattern: string[], cwd?: string) {
   return await fg(pattern, {
-    cwd: normalizePathNode(cwd || process.cwd()),
+    cwd: slashPath(cwd || process.cwd()),
     objectMode: false,
     dot: false,
     absolute: true,
@@ -73,5 +73,17 @@ describe('Glob images', () => {
     const images = await glob(allImagePatterns, config.cwds[0])
 
     expect(images.every((t) => !t.includes('.png'))).toBe(true)
+  })
+
+  it('should convert patterns to valid glob', () => {
+    expect(convertPatternToGlob(['**/*.png', '**/*.jpg', 'test', 'test/a', 'src/a.png'])).toMatchInlineSnapshot(`
+      [
+        "**/*.png",
+        "**/*.jpg",
+        "test/**",
+        "test/a/**",
+        "src/a.png",
+      ]
+    `)
   })
 })

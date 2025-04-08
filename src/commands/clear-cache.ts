@@ -2,7 +2,7 @@ import { commands, window } from 'vscode'
 import { Global } from '~/core/global'
 import { i18n } from '~/i18n'
 import { type ExtensionModule } from '~/module'
-import { Channel } from '~/utils/channel'
+import { Channel } from '~/utils/node/channel'
 import { Commands } from './commands'
 
 export default <ExtensionModule>function () {

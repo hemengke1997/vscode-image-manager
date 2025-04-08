@@ -5,7 +5,7 @@ import { version } from '../package.json'
 import { Global } from './core/global'
 import { VscodeSettings } from './core/vscode-setting/vscode-settings'
 import { i18n } from './i18n'
-import { Channel } from './utils/channel'
+import { Channel } from './utils/node/channel'
 
 export function activate(ctx: vscode.ExtensionContext) {
   Channel.info(`Activated, v${version}`)

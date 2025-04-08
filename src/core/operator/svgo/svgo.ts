@@ -4,7 +4,7 @@ import fs from 'fs-extra'
 import path from 'node:path'
 import { type Config, loadConfig, optimize } from 'svgo'
 import { FileCache } from '~/core/file-cache'
-import { Channel } from '~/utils/channel'
+import { Channel } from '~/utils/node/channel'
 import { type CustomSvgCompressionOptions } from '../compressor/type'
 import { type SvgoPlugin } from './meta'
 

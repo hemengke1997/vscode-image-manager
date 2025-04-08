@@ -7,18 +7,12 @@ import { CommanderCache } from '~/core/commander'
 import { type ConfigType, DEFAULT_CONFIG } from '~/core/config/common'
 import { HookPlugin } from '~/core/hook-plugin'
 import { DEFAULT_WORKSPACE_STATE, type WorkspaceStateType } from '~/core/persist/workspace/common'
-import {
-  cleanVersion,
-  generateOutputPath,
-  normalizePathNode,
-  promiseAllWithFirst,
-  resolveDirPath,
-  setImmdiateInterval,
-} from '~/utils'
+import { cleanVersion, intelligentPick, promiseAllWithFirst, setImmdiateInterval, slashPath } from '~/utils'
 import { AbortError, abortPromise, cancelablePromise, TimeoutError } from '~/utils/abort-promise'
-import { isBase64, toBase64 } from '~/utils/image-type'
-import { intelligentPick } from '~/utils/intelligent-pick'
+import { generateOutputPath, resolveDirPath } from '~/utils/node'
+import { isBase64, toBase64 } from '~/utils/node/image-type'
 import { clearTimestamp, formatBytes, pathUtil, triggerOnce } from '~/webview/image-manager/utils'
+import { formatPath } from '~/webview/image-manager/utils/tree/utils'
 
 describe('Util test', () => {
   it('should trigger once', () => {
@@ -171,8 +165,20 @@ describe('Util test', () => {
     expect(isBase64(toBase64('image/png', Buffer.from('')))).toBeTruthy()
   })
 
-  it('should normalize path', () => {
-    expect(normalizePathNode('a\\b\\c')).toBe('a/b/c')
+  it('should slash path', () => {
+    expect(slashPath('a\\b\\c')).toBe('a/b/c')
+    expect(slashPath('a/b/c')).toBe('a/b/c')
+    expect(slashPath('a//b//c')).toBe('a/b/c')
+    expect(slashPath('/a/b/c//')).toBe('/a/b/c/')
+    expect(slashPath('')).toBe('')
+  })
+
+  it('should format path', () => {
+    expect(formatPath('a/b/c')).toBe('a/b/c')
+    expect(formatPath('a//b//c')).toBe('a/b/c')
+    expect(formatPath('a/b/c//')).toBe('a/b/c')
+    expect(formatPath('/a/b')).toBe('a/b')
+    expect(formatPath('//a///b/')).toBe('a/b')
   })
 
   it('should generate output path', () => {

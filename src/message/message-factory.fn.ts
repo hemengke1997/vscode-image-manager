@@ -12,7 +12,7 @@ import { COMPRESSED_META } from '~/core/operator/meta'
 import { Svgo } from '~/core/operator/svgo'
 import { Compressed } from '~/enums'
 import { i18n } from '~/i18n'
-import { Channel } from '~/utils/channel'
+import { Channel } from '~/utils/node/channel'
 
 const gitStagedCache = new Map<string, { timestamp: number; data: string[] }>()
 const GIT_CACHE_DURATION = 10 * 1000 // 10s

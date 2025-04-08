@@ -21,7 +21,7 @@ import { i18n } from '~/i18n'
 import { CmdToWebview } from '~/message/cmd'
 import { type MessageType } from '~/message/message-factory'
 import { DEV_PORT, EXT_NAMESPACE, PRELOAD_HELPER } from '~/meta'
-import { Channel } from '~/utils/channel'
+import { Channel } from '~/utils/node/channel'
 import { MessageCenter } from './message-center'
 
 export class ImageManagerPanel {

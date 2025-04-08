@@ -10,9 +10,9 @@ import pAny from 'p-any'
 import { commands, StatusBarAlignment, type StatusBarItem, window } from 'vscode'
 import { devDependencies, version } from '~root/package.json'
 import { i18n } from '~/i18n'
-import { cleanVersion, normalizePathNode, setImmdiateInterval } from '~/utils'
+import { cleanVersion, setImmdiateInterval, slashPath } from '~/utils'
 import { type AbortError, abortPromise, type TimeoutError } from '~/utils/abort-promise'
-import { Channel } from '~/utils/channel'
+import { Channel } from '~/utils/node/channel'
 import { Config } from '../config/config'
 import { FileCache } from '../file-cache'
 import { Global } from '../global'
@@ -327,7 +327,7 @@ export class Installer {
         return cachedFiles.reduce((prev, current) => {
           return {
             ...prev,
-            [current.key]: normalizePathNode(path.resolve(cwd, current.value)),
+            [current.key]: slashPath(path.resolve(cwd, current.value)),
             type,
           }
         }, {})
@@ -454,7 +454,7 @@ export class Installer {
    * @returns /{extension-cwd}/dist/lib
    */
   private getSharpCwd() {
-    return normalizePathNode(path.resolve(this.cwd, 'dist/lib'))
+    return slashPath(path.resolve(this.cwd, 'dist/lib'))
   }
 
   /**
@@ -467,7 +467,7 @@ export class Installer {
    * /{extension-cwd}/dist/lib
    */
   public getDepCacheDir() {
-    return normalizePathNode(path.resolve(FileCache.cacheDir, 'lib'))
+    return slashPath(path.resolve(FileCache.cacheDir, 'lib'))
   }
 
   private async rm(path: string) {

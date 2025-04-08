@@ -8,7 +8,7 @@ import { WorkspaceState } from '~/core/persist/workspace/workspace-state'
 import { Installer } from '~/core/sharp/installer'
 import { Watcher } from '~/core/watcher'
 import { type ExtensionModule } from '~/module'
-import { normalizePathNode } from '~/utils'
+import { slashPath } from '~/utils'
 import logger from '~/utils/logger'
 import { ImageManagerPanel } from '~/webview/panel'
 import { Commands } from './commands'
@@ -33,7 +33,7 @@ export default <ExtensionModule>function (ctx) {
     let imagePath = ''
     if (uri?.fsPath) {
       let rootPath = ''
-      const fsPath = normalizePathNode(uri.fsPath)
+      const fsPath = slashPath(uri.fsPath)
       const stat = await workspace.fs.stat(uri)
       if (stat.type !== FileType.Directory) {
         rootPath = path.dirname(fsPath)

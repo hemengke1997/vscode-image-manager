@@ -1,6 +1,6 @@
 import { isNil, last, mergeWith, uniq } from 'es-toolkit'
 import logger from '~/utils/logger'
-import { normalizePathClient } from './utils'
+import { formatPath } from './utils'
 
 export type NodeID = string
 
@@ -67,9 +67,9 @@ export class Tree<T extends Record<string, any>> {
   ) {
     let { data, childrenId, parentId } = options
 
-    id = normalizePathClient(id)
-    parentId = normalizePathClient(parentId)
-    childrenId = normalizePathClient(childrenId)
+    id = formatPath(id)
+    parentId = formatPath(parentId)
+    childrenId = formatPath(childrenId)
 
     if (this.nodes.has(id)) {
       this.updateNode(id, {

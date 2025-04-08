@@ -1,7 +1,7 @@
 import { produce } from 'immer'
 import { type ConfigType } from '~/core/config/common'
 import { Language, Theme } from '~/enums'
-import { intelligentPick } from '~/utils/intelligent-pick'
+import { intelligentPick } from '~/utils/'
 
 /**
  * @description 从`auto`智能选择配置

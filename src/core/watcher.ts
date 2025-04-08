@@ -15,11 +15,11 @@ import { i18n } from '~/i18n'
 import { CmdToVscode, CmdToWebview } from '~/message/cmd'
 import { VscodeMessageFactory } from '~/message/message-factory'
 import { EXT_NAMESPACE } from '~/meta'
-import { resolveDirPath } from '~/utils'
 import { AbortError, abortPromise } from '~/utils/abort-promise'
-import { Channel } from '~/utils/channel'
-import { imageGlob } from '~/utils/glob'
 import logger from '~/utils/logger'
+import { resolveDirPath } from '~/utils/node'
+import { Channel } from '~/utils/node/channel'
+import { imageGlob } from '~/utils/node/glob'
 import { UpdateEvent, UpdateOrigin, UpdateType } from '~/webview/image-manager/utils/tree/const'
 import { type UpdatePayload } from '~/webview/image-manager/utils/tree/tree-manager'
 import { type ImageManagerPanel } from '~/webview/panel'
@@ -115,6 +115,7 @@ export class Watcher {
         const { e, type, isDirectory } = event
 
         if (isDirectory) {
+          // 目录不会触发 onDidChange
           switch (type) {
             // 如果是创建目录，则需要获取目录下的所有图片
             case UpdateEvent.create: {

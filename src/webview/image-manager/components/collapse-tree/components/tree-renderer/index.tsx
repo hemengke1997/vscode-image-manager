@@ -6,13 +6,13 @@ import { useMemoizedFn } from 'ahooks'
 import { Card, type CollapseProps, Empty } from 'antd'
 import { classNames } from 'tw-clsx'
 import { DisplayGroupType } from '~/core/persist/workspace/common'
+import { slashPath } from '~/utils'
 import ActionStore from '~/webview/image-manager/stores/action-store'
 import ImageStore from '~/webview/image-manager/stores/image-store'
 import SettingsStore from '~/webview/image-manager/stores/settings-store'
 import { ANIMATION_DURATION } from '~/webview/image-manager/utils/duration'
 import { NodeType } from '~/webview/image-manager/utils/tree/tree'
 import { type NestedTreeNode, type TreeManager } from '~/webview/image-manager/utils/tree/tree-manager'
-import { normalizePathClient } from '~/webview/image-manager/utils/tree/utils'
 import { type EnableCollapseContextMenuType } from '../../../context-menus/components/collapse-context-menu'
 import ImageCollapse from '../image-collapse'
 import RevealInFolder from '../reveal-in-folder'
@@ -35,13 +35,12 @@ function TreeRenderer(props: Props) {
   const { collapseIdSet } = ActionStore.useStore(['collapseIdSet'])
 
   /**
-   * 根据ID解析路径
-   * 因为ID是以工作区名称开头的，所以需要去掉工作区名称
-   * 并且加上工作区绝对路径
+   * nodeID是以工作区名称开头的，需要去掉工作区名称，然后加上工作区绝对路径
+   * @returns 目录的完整路径
    */
-  const resolvePath = useMemoizedFn((id: string) => {
-    const path = id.split('/').slice(1).join('/')
-    return normalizePathClient(`${workspaceId}/${path}`)
+  const resolvePath = useMemoizedFn((nodeId: string) => {
+    const path = nodeId.replace(new RegExp(`^${treeManager?.tree.rootId}/`), '')
+    return slashPath(`${workspaceId}/${path}`)
   })
 
   const getContextMenu = useMemoizedFn((contextMenu: EnableCollapseContextMenuType): EnableCollapseContextMenuType => {
@@ -99,8 +98,8 @@ function TreeRenderer(props: Props) {
         <div className={'select-none space-y-2'}>
           {tree.map((node) => {
             const { data, id, children } = node
-            const resolvedId = resolvePath(id)
 
+            const resolvedId = resolvePath(id)
             collapseIdSet.current.add(resolvedId)
 
             if (!data) return null

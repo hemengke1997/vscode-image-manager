@@ -11,7 +11,7 @@ import { FilterRadioValue, ImageVisibleFilter } from '../../hooks/use-image-filt
 import { type ImageFilterType } from '../../hooks/use-image-filter/image-filter'
 import { UpdateEvent, UpdateOrigin } from './const'
 import { type NodeID, NodeType, Tree, type TreeNode, TreeStyle } from './tree'
-import { normalizePathClient } from './utils'
+import { formatPath } from './utils'
 
 export type UpdatePayload =
   | {
@@ -332,7 +332,7 @@ export class TreeManager {
   private dirUpdate(data: DirUpdateType) {
     const { type, payload } = data
 
-    const id = normalizePathClient(`${this.rootId}/${payload.dirPath}`)
+    const id = formatPath(`${this.rootId}/${payload.dirPath}`)
 
     switch (type) {
       case UpdateEvent.create: {
@@ -373,7 +373,7 @@ export class TreeManager {
       // 留根，保存原路径
       childNode.data.compact.originalPath = childNode.data.path
 
-      childNode.data.path = normalizePathClient(`${node.data.path}/${childNode.data.path}`)
+      childNode.data.path = formatPath(`${node.data.path}/${childNode.data.path}`)
     }
 
     childNode.data.compact.ed = true
@@ -459,22 +459,22 @@ export class TreeManager {
     switch (this.options.treeStyle) {
       case TreeStyle.dir: {
         return {
-          id: normalizePathClient(`${this.tree.rootId}/${image.dirPath}`),
+          id: formatPath(`${this.tree.rootId}/${image.dirPath}`),
           parentId: null,
           nodeType: NodeType.dir,
         }
       }
       case TreeStyle.extension: {
         return {
-          id: normalizePathClient(`${this.tree.rootId}/${image.extname}`),
+          id: formatPath(`${this.tree.rootId}/${image.extname}`),
           parentId: null,
           nodeType: NodeType.ext,
         }
       }
       case TreeStyle.dir_extension: {
         return {
-          id: normalizePathClient(`${this.tree.rootId}/${image.dirPath}/${image.extname}`),
-          parentId: normalizePathClient(`${this.tree.rootId}/${image.dirPath}`),
+          id: formatPath(`${this.tree.rootId}/${image.dirPath}/${image.extname}`),
+          parentId: formatPath(`${this.tree.rootId}/${image.dirPath}`),
           nodeType: NodeType.ext,
         }
       }

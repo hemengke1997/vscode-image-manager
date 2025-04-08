@@ -1,6 +1,6 @@
 import os from 'node:os'
 import path from 'node:path'
-import { isFsWritable } from '~/utils'
+import { isFsWritable } from '~/utils/node'
 import { Global } from './global'
 
 export class FileCache {

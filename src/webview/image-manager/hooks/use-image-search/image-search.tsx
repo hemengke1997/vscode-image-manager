@@ -1,14 +1,12 @@
-import { type HTMLAttributes, memo, useEffect, useMemo, useRef, useState } from 'react'
-import Highlighter from 'react-highlight-words'
+import { memo, useEffect, useMemo, useRef, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { PiSpinnerGapLight } from 'react-icons/pi'
-import { RiFilterOffLine } from 'react-icons/ri'
 import { VscCaseSensitive, VscWholeWord } from 'react-icons/vsc'
 import { useDebounceFn, useMemoizedFn, useUpdateEffect } from 'ahooks'
 import { Empty, Input, Tooltip } from 'antd'
 import { type InputRef } from 'antd/es/input'
 import { without } from 'es-toolkit'
-import Fuse, { type FuseResult, type FuseResultMatch } from 'fuse.js'
+import Fuse, { type FuseResult } from 'fuse.js'
 import { Key } from 'ts-key-enum'
 import { classNames } from 'tw-clsx'
 import { CmdToVscode } from '~/message/cmd'
@@ -16,7 +14,9 @@ import useScrollRef from '~/webview/image-manager/hooks/use-scroll-ref'
 import { vscodeApi } from '~/webview/vscode-api'
 import ImageGroup from '../../components/image-group'
 import GlobalStore from '../../stores/global-store'
-import { normalizePathClient } from '../../utils/tree/utils'
+import { formatPath } from '../../utils/tree/utils'
+import Highlight from './components/highlight'
+import IconUI from './components/icon-ui'
 
 function ImageSearch() {
   const { t } = useTranslation()
@@ -37,9 +37,6 @@ function ImageSearch() {
   const [caseSensitive, setCaseSensitive] = useState(false)
   // 全字匹配
   const [wholeWord, setWholeWord] = useState(false)
-  // 是否禁用过滤
-  const [disableInclude, setDisableInclude] = useState(false)
-  const [disableExclude, setDisableExclude] = useState(false)
 
   // includeGlob is a glob pattern to filter the search results
   const [includeGlob, setIncludeGlob] = useState<string>()
@@ -56,7 +53,7 @@ function ImageSearch() {
       isCaseSensitive: caseSensitive,
       minMatchCharLength,
       includeMatches: true,
-      keys: ['name'],
+      keys: ['basename'],
       shouldSort: true,
       threshold: wholeWord ? 0 : 0.1,
       distance: wholeWord ? 0 : undefined,
@@ -133,19 +130,19 @@ function ImageSearch() {
     })
   })
 
-  const generateFullPath = useMemoizedFn((image: ImageType) => {
-    return normalizePathClient(`${image.dirPath}/${image.path}`)
+  const generatePath = useMemoizedFn((image: ImageType) => {
+    return formatPath(`${image.dirPath}/${image.basename}`)
   })
 
   const applyFilter = useMemoizedFn(
-    async (result: FuseResult<ImageType>[], glob: string | undefined, disable: boolean, isExclude: boolean) => {
-      if (glob?.trim().length && !disable) {
+    async (result: FuseResult<ImageType>[], glob: string | undefined, isExclude: boolean) => {
+      if (glob?.trim().length) {
         const filterResult = await filterByGlob(
-          result.map((t) => generateFullPath(t.item)),
+          result.map((t) => generatePath(t.item)),
           glob,
           isExclude,
         )
-        return result.filter((t) => filterResult.includes(generateFullPath(t.item)))
+        return result.filter((t) => filterResult.includes(generatePath(t.item)))
       }
       return result
     },
@@ -163,8 +160,8 @@ function ImageSearch() {
 
       let result = fuse().search(search?.value ?? '')
 
-      result = await applyFilter(result, includeGlob, disableInclude, false)
-      result = await applyFilter(result, excludeGlobal, disableExclude, true)
+      result = await applyFilter(result, includeGlob, false)
+      result = await applyFilter(result, excludeGlobal, true)
       setSearchResult({ items: result, searchValue: search?.value || '' })
     } finally {
       setLoading(false)
@@ -189,7 +186,7 @@ function ImageSearch() {
   useUpdateEffect(() => {
     cancel()
     handleSearch()
-  }, [caseSensitive, wholeWord, disableInclude, disableExclude])
+  }, [caseSensitive, wholeWord])
 
   useEffect(() => {
     searchInputRef.current?.focus({ cursor: 'all', preventScroll: true })
@@ -199,7 +196,7 @@ function ImageSearch() {
 
   return (
     <>
-      <div className={'my-4 flex justify-between space-x-4'}>
+      <div className={'my-4 flex flex-col gap-4'}>
         <Input.Search
           ref={searchInputRef}
           classNames={{
@@ -242,49 +239,33 @@ function ImageSearch() {
             handleSearch()
           }}
         />
-        <div className={'flex flex-1 gap-1'}>
-          <Input
-            size='middle'
-            placeholder={t('im.include_glob_placeholder')}
-            value={includeGlob}
-            onChange={(e) => setIncludeGlob(e.target.value)}
-            onPressEnter={() => {
-              cancel()
-              handleSearch()
-            }}
-            suffix={
-              <IconUI
-                active={disableInclude}
-                onClick={() => {
-                  setDisableInclude((t) => !t)
-                }}
-                title={t('im.disable_filter')}
-              >
-                <RiFilterOffLine />
-              </IconUI>
-            }
-          />
-          <Input
-            size='middle'
-            placeholder={t('im.include_glob_placeholder')}
-            value={excludeGlobal}
-            onChange={(e) => setExcludeGlobal(e.target.value)}
-            onPressEnter={() => {
-              cancel()
-              handleSearch()
-            }}
-            suffix={
-              <IconUI
-                active={disableExclude}
-                onClick={() => {
-                  setDisableExclude((t) => !t)
-                }}
-                title={t('im.disable_filter')}
-              >
-                <RiFilterOffLine />
-              </IconUI>
-            }
-          />
+        <div className={'flex flex-1 gap-4'}>
+          <div className={'flex flex-1 flex-col gap-y-2'}>
+            <div>{t('im.file_to_include')}</div>
+            <Input
+              size='middle'
+              placeholder={t('im.include_glob_placeholder')}
+              value={includeGlob}
+              onChange={(e) => setIncludeGlob(e.target.value)}
+              onPressEnter={() => {
+                cancel()
+                handleSearch()
+              }}
+            />
+          </div>
+          <div className={'flex flex-1 flex-col gap-y-2'}>
+            <div>{t('im.file_to_exclude')}</div>
+            <Input
+              size='middle'
+              placeholder={t('im.exclude_glob_placeholder')}
+              value={excludeGlobal}
+              onChange={(e) => setExcludeGlobal(e.target.value)}
+              onPressEnter={() => {
+                cancel()
+                handleSearch()
+              }}
+            />
+          </div>
         </div>
       </div>
 
@@ -321,7 +302,7 @@ function ImageSearch() {
                       <Highlight
                         caseSensitive={caseSensitive}
                         matches={result.matches}
-                        text={result.item.relativePath.slice(2)}
+                        text={generatePath(result.item)}
                         preLen={result.item.dirPath.length + 1}
                       ></Highlight>
                     }
@@ -352,48 +333,3 @@ function ImageSearch() {
 }
 
 export default memo(ImageSearch)
-
-function IconUI(
-  props: {
-    active: boolean
-  } & HTMLAttributes<HTMLDivElement>,
-) {
-  const { active, className, ...rest } = props
-  return (
-    <div
-      className={classNames(
-        'flex h-full cursor-pointer select-none items-center rounded-md border-solid border-transparent p-0.5 text-lg transition-all hover:bg-ant-color-bg-text-hover',
-        active && '!border-ant-color-primary !text-ant-color-primary hover:bg-transparent',
-        className,
-      )}
-      {...rest}
-    >
-      {props.children}
-    </div>
-  )
-}
-
-function Highlight(props: {
-  text: string
-  caseSensitive: boolean
-  matches: readonly FuseResultMatch[] | undefined
-  preLen?: number
-}) {
-  const { text, caseSensitive, matches, preLen = 0 } = props
-  return (
-    <Highlighter
-      findChunks={() =>
-        matches?.length
-          ? matches?.map((match) => ({
-              start: match.indices[0][0] + preLen,
-              end: match.indices[0][1] + 1 + preLen,
-            }))
-          : []
-      }
-      highlightClassName='bg-ant-color-primary rounded-sm text-ant-color-text mx-0.5'
-      textToHighlight={text}
-      searchWords={[]}
-      caseSensitive={caseSensitive}
-    ></Highlighter>
-  )
-}

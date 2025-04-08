@@ -1,40 +1,26 @@
-import fs from 'fs-extra'
-import path from 'node:path'
 import slash from 'slash'
 
 /**
- * 格式化路径
+ * 从两个值中智能选择一个值
+ * @param first
+ * @param second
+ * @param exclude 被排除的值
+ *
+ * @note webview 和 core 中都用到了这个方法，所以单独提取出来
  */
-export function normalizePathNode(id: string): string {
-  return slash(id)
+export function intelligentPick<T>(first: T, second: T, exclude: T) {
+  return first === exclude ? second : first
 }
 
 /**
- * 生成输入路径
- * @param input 输入路径
- * @param suffix 后缀
- * @returns
+ * 格式化文件路径
  */
-export function generateOutputPath(input: string, suffix: string) {
-  const { name, ext, dir } = path.parse(input)
-  const filename = `${name}${suffix}`
-  const outputPath = `${dir}/${filename}${ext}`
-
-  const fileExists = fs.existsSync(outputPath)
-
-  if (fileExists) {
-    return generateOutputPath(outputPath, suffix)
-  }
-  return outputPath
+export function slashPath(p: string) {
+  return slash(p).replace(/\/+/g, '/')
 }
 
-/**
- * 首次立即执行定时器
- * @returns
- */
-export function setImmdiateInterval(callback: () => void, interval: number) {
-  callback()
-  return setInterval(callback, interval)
+export function ensureArray<T>(value: T | T[]): T[] {
+  return Array.isArray(value) ? value : [value]
 }
 
 /**
@@ -47,33 +33,12 @@ export function cleanVersion(version: string) {
 }
 
 /**
- * 文件路径是否可写
- * @param path
+ * 首次立即执行定时器
  * @returns
  */
-export function isFsWritable(path: string) {
-  try {
-    fs.accessSync(path, fs.constants.W_OK)
-    return true
-  } catch {
-    return false
-  }
-}
-
-/**
- * 解析路径相对于当前工作目录的路径
- * @param 文件路径
- * @param cwd 当前工作目录
- * @returns
- */
-export function resolveDirPath(imagePath: string, cwd: string, isDirectory = false) {
-  const target = isDirectory ? imagePath : path.dirname(imagePath)
-  if (cwd === target) return ''
-  return normalizePathNode(path.relative(cwd, target))
-}
-
-export function ensureArray<T>(value: T | T[]): T[] {
-  return Array.isArray(value) ? value : [value]
+export function setImmdiateInterval(callback: () => void, interval: number) {
+  callback()
+  return setInterval(callback, interval)
 }
 
 /**

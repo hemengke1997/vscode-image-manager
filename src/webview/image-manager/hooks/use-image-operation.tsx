@@ -9,6 +9,7 @@ import { ConfigKey } from '~/core/config/common'
 import { type OperatorResult } from '~/core/operator/operator'
 import { WorkspaceStateKey } from '~/core/persist/workspace/common'
 import { CmdToVscode } from '~/message/cmd'
+import { slashPath } from '~/utils'
 import logger from '~/utils/logger'
 import { useExtConfigState } from '~/webview/image-manager/hooks/use-ext-config-state'
 import { useWorkspaceState } from '~/webview/image-manager/hooks/use-workspace-state'
@@ -17,7 +18,6 @@ import FileStore, { type FileChangedResType } from '../stores/file-store'
 import GlobalStore from '../stores/global-store'
 import { pathUtil } from '../utils'
 import { LOADING_DURATION } from '../utils/duration'
-import { normalizePathClient } from '../utils/tree/utils'
 import useDeleteImage from './use-delete-image/use-delete-image'
 import useImageCompressor from './use-image-compressor/use-image-compressor'
 import useImageConverter from './use-image-converter/use-image-converter'
@@ -367,7 +367,7 @@ function useImageOperation() {
         currentName: image.name,
         onSubmit: async (newName, type) => {
           return new Promise<void>((resolve, reject) => {
-            const target = normalizePathClient(`${image.absDirPath}/${newName}.${image.extname}`)
+            const target = slashPath(`${image.absDirPath}/${newName}.${image.extname}`)
             handleRename(
               [
                 {
@@ -444,7 +444,7 @@ function useImageOperation() {
       currentName: pathUtil.getDirname(dirPath),
       onSubmit: (newName, type) => {
         return new Promise<void>((resolve, reject) => {
-          const target = normalizePathClient(`${pathUtil.getAbsDir(dirPath)}/${newName}`)
+          const target = slashPath(`${pathUtil.getAbsDir(dirPath)}/${newName}`)
           handleRename(
             [
               {

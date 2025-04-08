@@ -2,7 +2,7 @@ import fs from 'fs-extra'
 import { env, Uri, window } from 'vscode'
 import { type SharpNS } from '~/@types/global'
 import { i18n } from '~/i18n'
-import { Channel } from '~/utils/channel'
+import { Channel } from '~/utils/node/channel'
 import { Global } from '../global'
 import { HookPlugin, type ObjectPlugin } from '../hook-plugin'
 

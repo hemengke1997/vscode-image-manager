@@ -26,12 +26,18 @@ import { type WorkspaceStateKey } from '~/core/persist/workspace/common'
 import { WorkspaceState } from '~/core/persist/workspace/workspace-state'
 import { SharpOperator } from '~/core/sharp/sharp-operator'
 import { i18n } from '~/i18n'
-import { generateOutputPath, normalizePathNode, resolveDirPath } from '~/utils'
+import { slashPath } from '~/utils'
 import { cancelablePromise } from '~/utils/abort-promise'
-import { Channel } from '~/utils/channel'
-import { imageGlob } from '~/utils/glob'
-import { bufferTobase64, convertImageToBase64, convertToBase64IfBrowserNotSupport, isBase64 } from '~/utils/image-type'
 import logger from '~/utils/logger'
+import { generateOutputPath, resolveDirPath } from '~/utils/node'
+import { Channel } from '~/utils/node/channel'
+import { convertPatternToGlob, imageGlob } from '~/utils/node/glob'
+import {
+  bufferTobase64,
+  convertImageToBase64,
+  convertToBase64IfBrowserNotSupport,
+  isBase64,
+} from '~/utils/node/image-type'
 import { UpdateEvent, UpdateOrigin, UpdateType } from '~/webview/image-manager/utils/tree/const'
 import { type ImageManagerPanel } from '~/webview/panel'
 import { CmdToVscode, CmdToWebview } from './cmd'
@@ -120,14 +126,14 @@ export const VscodeMessageFactory = {
     )
 
     // 项目绝对路径
-    const projectPath = normalizePathNode(path.dirname(cwd))
+    const projectPath = slashPath(path.dirname(cwd))
     // 工作区绝对路径
-    const absWorkspaceFolder = normalizePathNode(cwd)
+    const absWorkspaceFolder = slashPath(cwd)
     // 工作区名称
-    const workspaceFolder = normalizePathNode(path.basename(cwd))
+    const workspaceFolder = slashPath(path.basename(cwd))
 
     const res = await pMap(images, async (image, index) => {
-      image.path = normalizePathNode(image.path)
+      image.path = slashPath(image.path)
       let vscodePath = imageManagerPanel.panel.webview.asWebviewUri(Uri.file(image.path)).toString()
 
       // Browser doesn't support some exts, convert to png base64
@@ -138,11 +144,11 @@ export const VscodeMessageFactory = {
       }
 
       const dirPath = resolveDirPath(image.path, cwd)
-      const absDirPath = normalizePathNode(path.dirname(image.path))
+      const absDirPath = slashPath(path.dirname(image.path))
       const relativePath =
         imageManagerPanel.initialData.rootpaths.length > 1
-          ? normalizePathNode(path.relative(projectPath, image.path)) // 多工作区，相对于项目
-          : normalizePathNode(path.relative(absWorkspaceFolder, image.path)) // 单工作区，相对于工作区
+          ? slashPath(path.relative(projectPath, image.path)) // 多工作区，相对于项目
+          : slashPath(path.relative(absWorkspaceFolder, image.path)) // 单工作区，相对于工作区
 
       const metadata = metadataResults[index]
 
@@ -166,7 +172,7 @@ export const VscodeMessageFactory = {
         // 为避免base64相同的vscodePath在react渲染中作为key重复出现，使用路径作为key
         key: isBase64(vscodePath) ? image.path : vscodePathWithQuery,
         absWorkspaceFolder,
-        relativePath: normalizePathNode(`./${relativePath}`),
+        relativePath: slashPath(`./${relativePath}`),
         info: {
           ...metadata,
           gitStaged: gitStaged.includes(image.path),
@@ -225,7 +231,7 @@ export const VscodeMessageFactory = {
         () => {
           return Promise.all(
             workspaces.map(async (absWorkspaceFolder) => {
-              absWorkspaceFolder = normalizePathNode(absWorkspaceFolder)
+              absWorkspaceFolder = slashPath(absWorkspaceFolder)
               const workspaceFolder = path.basename(absWorkspaceFolder)
 
               const { allImagePatterns } = imageGlob({
@@ -503,7 +509,10 @@ export const VscodeMessageFactory = {
 
   /* -------- match glob with micromatch -------- */
   [CmdToVscode.micromatch_ismatch]: (data: { filePaths: string[]; globs: string[]; not?: boolean }) => {
-    const { filePaths, globs, not } = data
+    let { filePaths, globs, not } = data
+
+    globs = convertPatternToGlob(globs)
+
     if (not) {
       return micromatch.not(filePaths, globs)
     }

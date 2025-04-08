@@ -1,9 +1,9 @@
 import { type ExtensionContext, ExtensionMode, window, workspace } from 'vscode'
 import { i18n } from '~/i18n'
 import { EXT_NAMESPACE } from '~/meta'
-import { normalizePathNode } from '~/utils'
+import { slashPath } from '~/utils'
 import { AbortError, TimeoutError } from '~/utils/abort-promise'
-import { Channel } from '~/utils/channel'
+import { Channel } from '~/utils/node/channel'
 import { type ImageManagerPanel } from '~/webview/panel'
 import { ConfigKey, type VscodeConfigType } from './config/common'
 import { type Installer, InstallEvent } from './sharp/installer'
@@ -67,7 +67,7 @@ export class Global {
     }
 
     if (rootpaths?.length) {
-      rootpaths = rootpaths.map(normalizePathNode)
+      rootpaths = rootpaths.map(slashPath)
 
       Channel.info(i18n.t('core.workspace_changed', rootpaths.join(',')))
     } else {

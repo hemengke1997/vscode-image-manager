@@ -1,6 +1,6 @@
 import { toString } from 'es-toolkit/compat'
 import { i18n } from '~/i18n'
-import { Channel } from '~/utils/channel'
+import { Channel } from '~/utils/node/channel'
 import { Operator, type OperatorOptions, type OperatorResult } from '../operator'
 
 export abstract class Compressor extends Operator {

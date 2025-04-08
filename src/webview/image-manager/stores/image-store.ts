@@ -124,7 +124,8 @@ function useImageStore() {
 
                   switch (type) {
                     case UpdateEvent.delete: {
-                      remove(workspace.images, (image) => image.absDirPath === payload.absDirPath)
+                      // 清除payload的目录以及子目录下的图片
+                      remove(workspace.images, (image) => image.absDirPath.startsWith(payload.absDirPath))
                       break
                     }
 

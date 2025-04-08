@@ -2,7 +2,7 @@ import { i18n } from '~/i18n'
 import { CmdToWebview } from '~/message/cmd'
 import { type MessageType, VscodeMessageFactory } from '~/message/message-factory'
 import { type CmdToWebviewMessage } from '~/message/webview-message-factory'
-import { Channel } from '~/utils/channel'
+import { Channel } from '~/utils/node/channel'
 import { type ImageManagerPanel } from '~/webview/panel'
 
 export class MessageCenter {

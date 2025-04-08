@@ -1,12 +1,14 @@
 import { remove } from 'es-toolkit'
 import { convertPathToPattern } from 'globby'
+import isGlob from 'is-glob'
 import micromatch from 'micromatch'
+import path from 'node:path'
 
 function addLastSlash(path: string) {
   return path.replace(/\/?$/g, '/')
 }
 
-export type Pattern = string
+type Pattern = string
 
 function isNegativePattern(pattern: Pattern): boolean {
   return pattern.startsWith('!') && pattern[1] !== '('
@@ -61,4 +63,19 @@ export function imageGlob(options: { scan: string[]; exclude: string[]; cwds: st
     allImagePatterns,
     allCwdPatterns,
   }
+}
+
+export function convertPatternToGlob(patterns: string[]) {
+  return patterns.map((pattern) => {
+    if (isGlob(pattern)) {
+      return pattern
+    }
+
+    // 判断pattern是否是一个文件路径
+    if (path.extname(pattern)) {
+      return pattern
+    }
+
+    return `${convertPathToPattern(pattern)}/**`.replace(/\/+/g, '/')
+  })
 }
