@@ -1002,10 +1002,10 @@ describe('tree manager 方法测试', () => {
       treeStyle: TreeStyle.dir,
     }).generateTree(images)
 
-    expect(treeManager.getImages('project/ui-framework')).toHaveLength(0)
-    expect(treeManager.getImages('project/ui-framework/src')).toHaveLength(1)
-    expect(treeManager.getAllImages('project/webview')).toHaveLength(3)
-    expect(treeManager.getAllImages('project')).toHaveLength(7)
+    expect(treeManager.getNodeImages('project/ui-framework')).toHaveLength(0)
+    expect(treeManager.getNodeImages('project/ui-framework/src')).toHaveLength(1)
+    expect(treeManager.getSubnodeImages('project/webview')).toHaveLength(3)
+    expect(treeManager.getSubnodeImages('project')).toHaveLength(7)
   })
 })
 
@@ -1132,7 +1132,7 @@ describe('节点中图片的排序和visible过滤', () => {
     `)
 
     expect(flatten(treeManager.toArray(nested, (node) => node.data.images)).length).toEqual(
-      treeManager.getAllImages('project')?.length,
+      treeManager.getSubnodeImages('project')?.length,
     )
   })
 

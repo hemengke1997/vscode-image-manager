@@ -65,7 +65,7 @@ function CollapseTree(props: Props) {
           treeManager.current?.updateTree(workspace.update.payloads)
           break
         case UpdateType.full:
-          generateTree()
+          generateRenderTree()
           break
         default:
           break
@@ -77,7 +77,7 @@ function CollapseTree(props: Props) {
 
   useUpdateEffect(() => {
     if (workspace.images.length) {
-      generateTree()
+      generateRenderTree()
       afterUpdate()
     }
   }, [displayGroup, displayStyle, imageFilter, sort])
@@ -98,7 +98,7 @@ function CollapseTree(props: Props) {
   const [nestedTree, setNestedTree] = useState<NestedTreeNode[]>([])
   const treeManager = useRef<TreeManager>()
 
-  const generateTree = useMemoizedFn(() => {
+  const generateRenderTree = useMemoizedFn(() => {
     const treeStyle = displayGroupToTreeStyle(displayGroup)
 
     const isCompact = displayStyle === DisplayStyleType.compact

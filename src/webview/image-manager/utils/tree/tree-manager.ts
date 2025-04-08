@@ -286,21 +286,6 @@ export class TreeManager {
         })
         break
       }
-      case UpdateEvent.delete: {
-        this.tree.updateNode(id, {
-          data: (data) => {
-            const images = data.images?.filter((img) => img.path !== image.path)
-            return produce(data, (draft) => {
-              draft.images = images
-              draft.changed ||= {}
-              draft.changed.images = true
-            })
-          },
-        })
-
-        this.deleteEmptyNodes(this.tree.parseParentId(id))
-        break
-      }
 
       case UpdateEvent.update: {
         this.tree.updateNode(id, {
@@ -321,6 +306,23 @@ export class TreeManager {
         })
         break
       }
+
+      case UpdateEvent.delete: {
+        this.tree.updateNode(id, {
+          data: (data) => {
+            const images = data.images?.filter((img) => img.path !== image.path)
+            return produce(data, (draft) => {
+              draft.images = images
+              draft.changed ||= {}
+              draft.changed.images = true
+            })
+          },
+        })
+
+        this.deleteEmptyNodes(this.tree.parseParentId(id))
+        break
+      }
+
       default:
         break
     }
@@ -340,19 +342,9 @@ export class TreeManager {
       }
       case UpdateEvent.delete: {
         this.tree.deleteNode(id)
-        this.deleteEmptyNodes(this.tree.parseParentId(id))
 
-        break
-      }
-      case UpdateEvent.update: {
-        this.tree.updateNode(id, {
-          data: (data) => {
-            return produce(data, (draft) => {
-              draft.changed ||= {}
-              draft.changed.images = true
-            })
-          },
-        })
+        // 如果删除节点后，父节点是空节点，也删除
+        this.deleteEmptyNodes(this.tree.parseParentId(id))
         break
       }
       default:
@@ -416,23 +408,23 @@ export class TreeManager {
   /**
    * 获取节点的图片（如果是紧凑节点，则获取子节点的图片）
    */
-  getImages(nodeId: NodeID): ImageType[] | undefined {
+  getNodeImages(nodeId: NodeID): ImageType[] | undefined {
     const node = this.tree.getNode(nodeId)
     if (!node) return
 
     // 如果节点是紧凑节点，则获取子节点的图片
     if (node.data.compact?.is) {
       const childId = node.childrenIds[0]
-      return this.getImages(childId)
+      return this.getNodeImages(childId)
     }
 
     return node.data.images || []
   }
 
   /**
-   * 获取节点下所有节点的图片
+   * 获取节点以及节点下所有节点的图片
    */
-  getAllImages(nodeId: NodeID): ImageType[] | undefined {
+  getSubnodeImages(nodeId: NodeID): ImageType[] | undefined {
     // 从当前节点开始向下递归获取所有子节点的图片
     const traverse = (id: NodeID): ImageType[] => {
       const node = this.tree.getNode(id)

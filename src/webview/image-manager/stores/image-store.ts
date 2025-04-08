@@ -25,6 +25,10 @@ export type Workspace = {
     | undefined
 }
 
+export enum WorkspaceUpdate {
+  reset = 'reset',
+}
+
 function useImageStore() {
   /* --------------- images state --------------- */
   const [imageState, dispatchImageState] = useReducer(
@@ -37,10 +41,10 @@ function useImageStore() {
         | FullUpdate
         | PatchUpdate
         | {
-            updateType: 'reset'
+            updateType: WorkspaceUpdate.reset
           },
     ) => {
-      if (action.updateType === 'reset') {
+      if (action.updateType === WorkspaceUpdate.reset) {
         state = produce(state, (draft) => {
           draft.workspaces.forEach((workspace) => {
             workspace.update = undefined
@@ -93,6 +97,7 @@ function useImageStore() {
                 .forEach((item) => {
                   const { type, payload } = item.data
 
+                  // NOTE: 这里的情况和imageUpdate是一一对应的
                   switch (type) {
                     case UpdateEvent.create: {
                       workspace.images.push(payload)
@@ -122,6 +127,7 @@ function useImageStore() {
                 .forEach((item) => {
                   const { type, payload } = item.data
 
+                  // NOTE: 这里的情况和dirUpdate是一一对应的
                   switch (type) {
                     case UpdateEvent.delete: {
                       // 清除payload的目录以及子目录下的图片

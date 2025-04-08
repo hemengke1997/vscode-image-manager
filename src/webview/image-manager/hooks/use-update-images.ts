@@ -4,7 +4,7 @@ import { CmdToVscode } from '~/message/cmd'
 import { type FullUpdate, type PatchUpdate } from '~/message/webview-message-factory'
 import logger from '~/utils/logger'
 import { vscodeApi } from '~/webview/vscode-api'
-import ImageStore from '../stores/image-store'
+import ImageStore, { WorkspaceUpdate } from '../stores/image-store'
 
 /**
  * 更新图片
@@ -36,7 +36,7 @@ export default function useUpdateImages() {
   const resetPartialState = useMemoizedFn(() => {
     startTransition(() => {
       dispatchImageState({
-        updateType: 'reset',
+        updateType: WorkspaceUpdate.reset,
       })
     })
   })
