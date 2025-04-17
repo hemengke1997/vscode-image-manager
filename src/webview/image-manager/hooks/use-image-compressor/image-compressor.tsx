@@ -25,7 +25,7 @@ type FormValue = CompressionOptions & {
   customResize?: number
 }
 
-export type ImageCompressorProps = {
+type Props = {
   images: ImageType[]
   /**
    * 上层控制渲染表单字段
@@ -33,7 +33,7 @@ export type ImageCompressorProps = {
   fields?: FormComponent<CompressionOptions>
 }
 
-function ImageCompressor(props: ImageCompressorProps & ImperativeModalProps) {
+function ImageCompressor(props: Props & ImperativeModalProps) {
   const { images: imagesProp, fields, closeModal } = props
 
   const { t } = useTranslation()

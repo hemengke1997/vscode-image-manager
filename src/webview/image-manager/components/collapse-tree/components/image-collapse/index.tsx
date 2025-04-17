@@ -3,10 +3,11 @@ import { Element, scroller } from 'react-scroll'
 import { styleObjectToString } from '@minko-fe/style-object-to-string'
 import { useMemoizedFn, useUpdateEffect } from 'ahooks'
 import { useControlledState } from 'ahooks-x'
-import { Collapse, type CollapseProps } from 'antd'
+import { Collapse, type CollapseProps, type GetProps } from 'antd'
 import { isUndefined } from 'es-toolkit'
 import { produce } from 'immer'
 import { classNames } from 'tw-clsx'
+import type imageName from '../../../image-name'
 import useImageManagerEvent, { IMEvent } from '../../../../hooks/use-image-manager-event'
 import useSticky from '../../../../hooks/use-sticky'
 import ActionStore from '../../../../stores/action-store'
@@ -15,10 +16,9 @@ import GlobalStore from '../../../../stores/global-store'
 import { clearTimestamp } from '../../../../utils'
 import { type EnableCollapseContextMenuType } from '../../../context-menus/components/collapse-context-menu'
 import useCollapseContextMenu from '../../../context-menus/components/collapse-context-menu/hooks/use-collapse-context-menu'
-import ImageGroup, { type ImageGroupProps } from '../../../image-group'
-import { type ImageNameProps } from '../../../image-name'
-import SingleLabel from './components/single-label'
+import ImageGroup from '../../../image-group'
 import './index.css'
+import SingleLabel from './components/single-label'
 
 type ImageCollapseProps = {
   workspaceFolder: string
@@ -37,15 +37,15 @@ type ImageCollapseProps = {
   /**
    * 需要渲染的图片
    */
-  images: ImageGroupProps['images'] | undefined
+  images: ImageType[] | undefined
   /**
    * 当前文件夹下的图片
    */
-  folderImages: ImageGroupProps['images'] | undefined
+  folderImages: ImageType[] | undefined
   /**
    * 当前文件夹下的所有图片（包括子目录）
    */
-  subfolderImages: ImageGroupProps['images'] | undefined
+  subfolderImages: ImageType[] | undefined
   /**
    * 嵌套子组件
    */
@@ -69,7 +69,7 @@ type ImageCollapseProps = {
   /**
    * 图片名称显示方式
    */
-  tooltipDisplayFullPath: ImageNameProps['tooltipDisplayFullPath']
+  tooltipDisplayFullPath: GetProps<typeof imageName>['tooltipDisplayFullPath']
 }
 
 /**
@@ -338,7 +338,7 @@ function ImageCollapse(props: ImageCollapseProps) {
     imageManagerEvent.emit(IMEvent.clear_viewer_selected_images)
   })
 
-  const lazyImageProps: ImageGroupProps['lazyImageProps'] = useMemo(() => {
+  const lazyImageProps: GetProps<typeof ImageGroup>['lazyImageProps'] = useMemo(() => {
     return {
       // 剪切的图片添加透明度
       className: (image) => (isCutImage(image) ? classNames('opacity-50') : ''),
@@ -349,7 +349,7 @@ function ImageCollapse(props: ImageCollapseProps) {
     }
   }, [tooltipDisplayFullPath, isCutImage])
 
-  const enableContextMenu: ImageGroupProps['enableContextMenu'] = useMemo(() => {
+  const enableContextMenu: GetProps<typeof ImageGroup>['enableContextMenu'] = useMemo(() => {
     return {
       compress: true,
       format_conversion: true,

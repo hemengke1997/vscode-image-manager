@@ -7,18 +7,18 @@ import { mergeWith } from 'es-toolkit'
 import { isArray, isEmpty, toLower } from 'es-toolkit/compat'
 import { type FormatConverterOptions } from '~/core/operator/format-converter'
 import { CmdToVscode } from '~/message/cmd'
-import ImageOperator, { type ImageOperatorProps } from '../../components/image-operator'
+import ImageOperator, { type Props as ImageOperatorProps } from '../../components/image-operator'
 import Format from '../../components/image-operator/components/format'
 import KeepOriginal from '../../components/image-operator/components/keep-original'
 import GlobalStore from '../../stores/global-store'
 import useImageOperation from '../use-image-operation'
 import useOperationFormLogic, { type FormComponent, OperatorMode } from '../use-operation/use-operation-form-logic'
 
-export type ImageConverterProps = {} & ImageOperatorProps
+type Props = {} & ImageOperatorProps
 
 type FormValue = FormatConverterOptions
 
-function ImageConverter(props: ImageConverterProps & ImperativeModalProps) {
+function ImageConverter(props: Props & ImperativeModalProps) {
   const { images: imagesProp, closeModal } = props
   const { t } = useTranslation()
   const { formatConverter } = GlobalStore.useStore(['formatConverter'])

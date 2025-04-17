@@ -3,7 +3,7 @@ import { toast } from 'react-atom-toast'
 import { FaLock, FaLockOpen } from 'react-icons/fa6'
 import { useMemoizedFn } from 'ahooks'
 import { useControlledState } from 'ahooks-x'
-import { Button, ConfigProvider, Image, theme } from 'antd'
+import { Button, ConfigProvider, type GetProps, Image, theme } from 'antd'
 import { type AliasToken, type ComponentTokenMap } from 'antd/es/theme/interface'
 import { range, round } from 'es-toolkit'
 import { type PreviewGroupPreview } from 'rc-image/es/PreviewGroup'
@@ -20,7 +20,7 @@ import { clearTimestamp } from '../../utils'
 import useImageContextMenu, {
   type ImageContextMenuType,
 } from '../context-menus/components/image-context-menu/hooks/use-image-context-menu'
-import LazyImage, { type LazyImageProps } from '../lazy-image'
+import LazyImage from '../lazy-image'
 import { PreventClickAway, ShouldClickAway } from '../viewer/hooks/use-click-image-away'
 import useLazyLoadImages from './use-lazy-load-images'
 
@@ -33,7 +33,7 @@ function imageToken(isDarkBackground: boolean): Partial<ComponentTokenMap['Image
   }
 }
 
-export type ImageGroupProps = {
+type Props = {
   /**
    * 图片组标识(目录绝对路径)
    */
@@ -49,7 +49,7 @@ export type ImageGroupProps = {
   /**
    * 透传给 LazyImage 组件的 props
    */
-  lazyImageProps?: Partial<LazyImageProps>
+  lazyImageProps?: Partial<GetProps<typeof LazyImage>>
   /**
    * 是否开启多选功能
    */
@@ -103,7 +103,7 @@ const PageSize = 200
  * 展示一组图片列表，并支持预览、多选等功能
  * 页面中可能同时存在多个图片组
  */
-function ImageGroup(props: ImageGroupProps, ref: ForwardedRef<HTMLDivElement>) {
+function ImageGroup(props: Props, ref: ForwardedRef<HTMLDivElement>) {
   const {
     images: imagesProp,
     workspaceImages,

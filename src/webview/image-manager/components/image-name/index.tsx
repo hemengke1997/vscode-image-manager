@@ -11,7 +11,7 @@ const tooltipProps: TooltipProps = {
   },
 }
 
-export type ImageNameProps = {
+type Props = {
   children?: string
   image?: ImageType
   /**
@@ -20,7 +20,7 @@ export type ImageNameProps = {
   tooltipDisplayFullPath?: boolean
 }
 
-function ImageName(props: ImageNameProps) {
+function ImageName(props: Props) {
   const { children, image, tooltipDisplayFullPath } = props
 
   const tooltipTitle = useMemoizedFn(() => {

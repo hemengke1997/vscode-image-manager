@@ -7,10 +7,10 @@ import { remove } from 'es-toolkit'
 import { produce } from 'immer'
 import useScrollRef from '~/webview/image-manager/hooks/use-scroll-ref'
 import ImageGroup from '../../components/image-group'
-import { type ImageOperatorProps } from '../../components/image-operator'
+import { type Props as ImageOperatorProps } from '../../components/image-operator'
 import useImageManagerEvent, { IMEvent } from '../use-image-manager-event'
 
-export type ImageSimilarityProps = Omit<ImageOperatorProps, 'images'> & {
+type Props = Omit<ImageOperatorProps, 'images'> & {
   /**
    * 被比较的图片
    */
@@ -21,7 +21,7 @@ export type ImageSimilarityProps = Omit<ImageOperatorProps, 'images'> & {
   similarImages: { image: ImageType; distance: number }[]
 }
 
-function ImageSimilarity(props: ImageSimilarityProps & ImperativeModalProps) {
+function ImageSimilarity(props: Props & ImperativeModalProps) {
   const { image, similarImages: similarImagesProp } = props
   const { t } = useTranslation()
 

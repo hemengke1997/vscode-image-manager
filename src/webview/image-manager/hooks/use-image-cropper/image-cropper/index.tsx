@@ -20,11 +20,11 @@ import { DETAIL_MAP, getAspectRatios, getViewmodes } from './utils'
 import 'cropperjs/dist/cropper.css'
 import styles from './index.module.css'
 
-export type ImageCropperProps = {
+type Props = {
   image: ImageType | undefined
 } & ImperativeModalProps
 
-function ImageCropper(props: ImageCropperProps) {
+function ImageCropper(props: Props) {
   const { image, closeModal } = props || {}
 
   const { t, i18n } = useTranslation()

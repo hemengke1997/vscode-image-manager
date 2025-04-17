@@ -1,6 +1,7 @@
 import { type ShowContextMenuParams, useContextMenu } from 'react-contexify'
 import { useMemoizedFn } from 'ahooks'
-import { type LazyImageProps } from '~/webview/image-manager/components/lazy-image'
+import { type GetProps } from 'antd'
+import type lazyImage from '~/webview/image-manager/components/lazy-image'
 import { type EnableImageContextMenuType, IMAGE_CONTEXT_MENU_ID } from '..'
 
 export type ImageContextMenuType = {
@@ -29,7 +30,7 @@ export type ImageContextMenuType = {
    */
   z_commands?: {
     preview?: {
-      onClick: LazyImageProps['onPreviewClick']
+      onClick: GetProps<typeof lazyImage>['onPreviewClick']
     }
   }
   /**

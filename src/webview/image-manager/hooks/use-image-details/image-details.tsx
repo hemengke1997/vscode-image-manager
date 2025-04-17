@@ -2,17 +2,17 @@ import { memo, useMemo } from 'react'
 import { useTranslation } from 'react-i18next'
 import { HiOutlineViewfinderCircle } from 'react-icons/hi2'
 import { type ImperativeModalProps } from 'ahooks-x/use-imperative-antd-modal'
-import { Button, Descriptions, type DescriptionsProps, Tooltip } from 'antd'
+import { Button, Descriptions, type DescriptionsProps, type GetProps, Tooltip } from 'antd'
 import dayjs from 'dayjs'
 import { Compressed } from '~/enums'
 import { CmdToVscode } from '~/message/cmd'
 import { vscodeApi } from '~/webview/vscode-api'
-import { type LazyImageProps } from '../../components/lazy-image'
+import type lazyImage from '../../components/lazy-image'
 import { formatBytes } from '../../utils'
 
 type Props = {
   image: ImageType
-  onPreview?: LazyImageProps['onPreviewClick']
+  onPreview?: GetProps<typeof lazyImage>['onPreviewClick']
 }
 
 function ImageDetails(props: Props & ImperativeModalProps) {

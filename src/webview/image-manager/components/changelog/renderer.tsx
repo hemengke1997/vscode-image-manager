@@ -5,12 +5,12 @@ import { Modal, Skeleton } from 'antd'
 import MarkdownIt from 'markdown-it'
 import { markdown } from '~root/CHANGELOG.md'
 
-export type ChangelogProps = {
+type Props = {
   open: boolean
   onOpenChange: (open: boolean) => void
 }
 
-function ChangeLogRenderer(props: ChangelogProps) {
+function ChangeLogRenderer(props: Props) {
   const { open: openProp, onOpenChange } = props
 
   const [open, setOpen] = useControlledState({

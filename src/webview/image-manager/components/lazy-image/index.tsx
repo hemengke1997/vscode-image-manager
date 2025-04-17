@@ -2,18 +2,18 @@ import { memo, type ReactNode, useEffect, useRef } from 'react'
 import { animateScroll } from 'react-scroll'
 import { useInViewport, useMemoizedFn } from 'ahooks'
 import { useControlledState } from 'ahooks-x'
-import { type ImageProps } from 'antd'
+import { type GetProps, type ImageProps } from 'antd'
 import { trim } from 'es-toolkit'
 import { classNames } from 'tw-clsx'
 import { getAppRoot } from '~/webview/utils'
+import type ImageName from '../image-name'
 import useImageManagerEvent, { IMEvent } from '../../hooks/use-image-manager-event'
 import GlobalStore from '../../stores/global-store'
 import { clearTimestamp, isElInViewport } from '../../utils'
 import { useLazyMargin } from '../image-group/use-lazy-load-images'
-import { type ImageNameProps } from '../image-name'
 import VisibleImage from './components/visible-image'
 
-export type LazyImageProps = {
+type Props = {
   /**
    * 图片信息
    */
@@ -59,7 +59,7 @@ export type LazyImageProps = {
   /**
    * 透传给 ImageName 组件的props
    */
-  imageNameProps?: ImageNameProps
+  imageNameProps?: GetProps<typeof ImageName>
   /**
    * 图片选中
    */
@@ -87,7 +87,7 @@ export type LazyImageProps = {
   inViewer?: boolean
 }
 
-function LazyImage(props: LazyImageProps) {
+function LazyImage(props: Props) {
   const {
     image,
     lazy = {

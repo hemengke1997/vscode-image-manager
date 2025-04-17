@@ -6,13 +6,13 @@ import { TbFileUnknown } from 'react-icons/tb'
 import { VscSmiley, VscWarning } from 'react-icons/vsc'
 import { useMemoizedFn, useUpdateEffect } from 'ahooks'
 import { type ImperativeModalProps } from 'ahooks-x/use-imperative-antd-modal'
-import { App, Collapse, Tooltip } from 'antd'
+import { App, Collapse, type GetProps, Tooltip } from 'antd'
 import { ceil } from 'es-toolkit/compat'
 import { produce } from 'immer'
 import { ConfigKey } from '~/core/config/common'
 import { type OperatorResult } from '~/core/operator/operator'
 import { CmdToVscode } from '~/message/cmd'
-import ImageGroup, { type ImageGroupProps } from '~/webview/image-manager/components/image-group'
+import ImageGroup from '~/webview/image-manager/components/image-group'
 import { useExtConfigState } from '~/webview/image-manager/hooks/use-ext-config-state'
 import GlobalStore from '~/webview/image-manager/stores/global-store'
 import { vscodeApi } from '~/webview/vscode-api'
@@ -138,7 +138,7 @@ function OperationResult(props: OperationResultProps & ImperativeModalProps) {
     }
   })
 
-  const imageGroupProps: Omit<ImageGroupProps, 'images'> = useMemo(
+  const imageGroupProps: Omit<GetProps<typeof ImageGroup>, 'images'> = useMemo(
     () => ({
       lazyImageProps: {
         imageNameProps: {

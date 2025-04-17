@@ -1,9 +1,9 @@
 import { lazy, memo } from 'react'
-import { type ChangelogProps } from './renderer'
+import { type GetProps } from 'antd'
 
 const Renderer = lazy(() => import('./renderer'))
 
-function ChangeLog(props: ChangelogProps) {
+function ChangeLog(props: GetProps<typeof Renderer>) {
   return <Renderer {...props} />
 }
 

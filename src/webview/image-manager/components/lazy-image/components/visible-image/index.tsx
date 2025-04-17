@@ -7,7 +7,7 @@ import { RiErrorWarningLine } from 'react-icons/ri'
 import { RxDimensions } from 'react-icons/rx'
 import { TbResize } from 'react-icons/tb'
 import { useMemoizedFn } from 'ahooks'
-import { Image } from 'antd'
+import { type GetProps, Image } from 'antd'
 import { classNames } from 'tw-clsx'
 import { DEFAULT_CONFIG } from '~/core/config/common'
 import { Compressed } from '~/enums'
@@ -15,11 +15,14 @@ import useImageDetails from '~/webview/image-manager/hooks/use-image-details/use
 import GlobalStore from '~/webview/image-manager/stores/global-store'
 import SettingsStore from '~/webview/image-manager/stores/settings-store'
 import { bytesToUnit, formatBytes } from '~/webview/image-manager/utils'
-import { type LazyImageProps } from '../..'
+import type lazyImage from '../..'
 import ImageName from '../../../image-name'
 import Corner from '../corner'
 
-type VisibleImageProps = {} & Omit<LazyImageProps, keyof Pick<LazyImageProps, 'lazy' | 'className' | 'inViewer'>>
+type VisibleImageProps = {} & Omit<
+  GetProps<typeof lazyImage>,
+  keyof Pick<GetProps<typeof lazyImage>, 'lazy' | 'className' | 'inViewer'>
+>
 
 function VisibleImage(props: VisibleImageProps) {
   const {

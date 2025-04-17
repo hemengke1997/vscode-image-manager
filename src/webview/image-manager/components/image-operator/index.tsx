@@ -13,7 +13,7 @@ import GlobalStore from '../../stores/global-store'
 import ImageGroup from '../image-group'
 import './index.css'
 
-export type ImageOperatorProps = {
+export type Props = {
   images: ImageType[]
 }
 
@@ -27,7 +27,7 @@ type ImageOperatorStaticProps = {
 
 const LoadingKey = `image-operator-loading`
 
-function ImageOperator(props: ImageOperatorProps & ImageOperatorStaticProps) {
+function ImageOperator(props: Props & ImageOperatorStaticProps) {
   const { t } = useTranslation()
   const { images: imagesProp, form, children, submitting: submittingProp, onSubmittingChange, onImagesChange } = props
   const { token } = theme.useToken()

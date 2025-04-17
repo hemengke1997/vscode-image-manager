@@ -1,3 +1,4 @@
+import './hmr'
 import { startTransition, Suspense } from 'react'
 import ReactDOM from 'react-dom/client'
 import { ErrorBoundary } from 'react-error-boundary'
@@ -19,7 +20,6 @@ import GlobalStore from './stores/global-store'
 import ImageStore from './stores/image-store'
 import SettingsStore from './stores/settings-store'
 import VscodeStore from './stores/vscode-store'
-import './hmr'
 import './styles/index.css'
 
 let key = 0
