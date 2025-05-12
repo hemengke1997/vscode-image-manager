@@ -101,24 +101,24 @@ function useImageOperation() {
     })
   })
 
-  const [showImageCompressor] = useImageCompressor()
+  const { showImageCompressor } = useImageCompressor()
 
   const beginCompressProcess = useMemoizedFn((images: ImageType[]) => {
     // open compress modal
     showImageCompressor({ images })
   })
 
-  const [showImageConveter] = useImageConverter()
+  const { showImageConverter } = useImageConverter()
   const beginFormatConversionProcess = useMemoizedFn((images: ImageType[]) => {
     // open format conversion modal
-    showImageConveter({
+    showImageConverter({
       images,
     })
   })
 
-  const [showCropperModal] = useImageCropper()
+  const { showImageCropper } = useImageCropper()
   const cropImage = useMemoizedFn((image: ImageType) => {
-    showCropperModal({ image })
+    showImageCropper({ image })
   })
 
   const findSimilarImages = useMemoizedFn((image: ImageType, scope: ImageType[]) => {
@@ -151,7 +151,7 @@ function useImageOperation() {
     show_precision_tip,
   )
 
-  const [showImageSimilarity, isSimilarityOpened] = useImageSimilarity()
+  const { isOpened: isSimilarityOpened, showImageSimilarity } = useImageSimilarity()
   const beginFindSimilarProcess = useLockFn(async (image: ImageType, images: ImageType[]) => {
     const loadingKey = 'similarity-loading'
     const timer = setTimeout(() => {
@@ -223,7 +223,7 @@ function useImageOperation() {
 
   // 删除文件
   const [confirmDelete] = useExtConfigState(ConfigKey.file_confirmDelete, extConfig.file.confirmDelete)
-  const [showDeleteImage] = useDeleteImage()
+  const { showDeleteImage } = useDeleteImage()
   const beginDeleteProcess = useLockFn(
     async (
       files: {
@@ -351,8 +351,8 @@ function useImageOperation() {
     },
   )
 
-  const [beginRenameProcess] = useRename()
-  const [beginRenameImagesProcess] = useRenameImages()
+  const { showRename } = useRename()
+  const { showRenameImages } = useRenameImages()
 
   /**
    * 重命名图片
@@ -363,7 +363,7 @@ function useImageOperation() {
     if (!images.length) return
     if (images.length === 1) {
       const image = images[0]
-      beginRenameProcess({
+      showRename({
         currentName: image.name,
         onSubmit: async (newName, type) => {
           return new Promise<void>((resolve, reject) => {
@@ -409,7 +409,7 @@ function useImageOperation() {
       })
     } else {
       // 批量重命名
-      beginRenameImagesProcess({
+      showRenameImages({
         images,
         selectedImage,
         onSubmit: async (files) => {
@@ -440,7 +440,7 @@ function useImageOperation() {
    * @param dirPath 目录路径
    */
   const beginRenameDirProcess = useMemoizedFn((dirPath: string) => {
-    beginRenameProcess({
+    showRename({
       currentName: pathUtil.getDirname(dirPath),
       onSubmit: (newName, type) => {
         return new Promise<void>((resolve, reject) => {

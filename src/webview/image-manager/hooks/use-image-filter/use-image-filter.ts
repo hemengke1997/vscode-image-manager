@@ -20,5 +20,7 @@ export default function useImageFilter() {
     FC: ImageFilter,
   })
 
-  return [showModal] as const
+  return {
+    showImageFilter: showModal,
+  }
 }

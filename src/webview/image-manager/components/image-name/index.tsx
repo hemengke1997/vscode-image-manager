@@ -5,7 +5,7 @@ import { Tooltip, type TooltipProps } from 'antd'
 const tooltipProps: TooltipProps = {
   arrow: false,
   placement: 'bottom',
-  destroyTooltipOnHide: true,
+  destroyOnHidden: true,
   align: {
     offset: [0, 8],
   },

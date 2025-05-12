@@ -21,5 +21,7 @@ export default function useImageDetails() {
     FC: ImageDetails,
   })
 
-  return [showModal] as const
+  return {
+    showImageDetails: showModal,
+  }
 }

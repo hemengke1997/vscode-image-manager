@@ -378,7 +378,7 @@ function ImageCollapse(props: ImageCollapseProps) {
          * 由于图片数量可能很多，如果打开了collapse之后，即使关闭了也会一直渲染
          * 所以需要在关闭的时候销毁inactive的panel
          */
-        destroyInactivePanel
+        destroyOnHidden
         ref={stickyRef}
         activeKey={open ? [id] : []}
         onChange={(keys) => onCollapseChange(keys as string[])}

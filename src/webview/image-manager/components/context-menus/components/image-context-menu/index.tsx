@@ -241,7 +241,7 @@ function ImageContextMenu() {
     return e.props!.images.every((image) => image.extname === 'svg') || false
   })
 
-  const [showImageDetails] = useImageDetails()
+  const { showImageDetails } = useImageDetails()
 
   return (
     <>

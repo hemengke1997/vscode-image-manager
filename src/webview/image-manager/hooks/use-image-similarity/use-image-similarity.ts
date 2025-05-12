@@ -21,5 +21,8 @@ export default function useImageSimilarity() {
     return imperativeModalMap.has(id)
   }, [imperativeModalMap, id])
 
-  return [showModal, isOpened] as const
+  return {
+    showImageSimilarity: showModal,
+    isOpened,
+  }
 }

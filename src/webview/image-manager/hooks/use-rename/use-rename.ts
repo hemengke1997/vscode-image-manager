@@ -20,5 +20,7 @@ export default function useRename() {
     FC: Rename,
   })
 
-  return [showModal] as const
+  return {
+    showRename: showModal,
+  }
 }

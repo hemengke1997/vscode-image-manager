@@ -20,5 +20,7 @@ export default function useRenameImages() {
     FC: RenameImages,
   })
 
-  return [showModal] as const
+  return {
+    showRenameImages: showModal,
+  }
 }

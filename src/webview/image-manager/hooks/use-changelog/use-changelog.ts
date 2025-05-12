@@ -15,5 +15,7 @@ export default function useChangelog() {
     FC: Changelog,
   })
 
-  return [showModal] as const
+  return {
+    showChangelog: showModal,
+  }
 }

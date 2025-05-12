@@ -8,7 +8,7 @@ import { type AliasToken, type ComponentTokenMap } from 'antd/es/theme/interface
 import { range, round } from 'es-toolkit'
 import { type PreviewGroupPreview } from 'rc-image/es/PreviewGroup'
 import { classNames } from 'tw-clsx'
-import { isDev } from 'vite-config-preset/client'
+import { isDev } from 'vite-config-preset/isomorph'
 import { DEFAULT_WORKSPACE_STATE, WorkspaceStateKey } from '~/core/persist/workspace/common'
 import logger from '~/utils/logger'
 import { getAppRoot } from '~/webview/utils'
@@ -419,7 +419,7 @@ function ImageGroup(props: Props, ref: ForwardedRef<HTMLDivElement>) {
 
   const previewProps: PreviewGroupPreview = useMemo(() => {
     return {
-      destroyOnClose: true,
+      destroyOnHidden: true,
       visible: preview?.open,
       current: preview?.current,
       maskClosable: false,

@@ -19,5 +19,7 @@ export default function useOperationResult(modalProps: ModalFuncProps) {
     FC: OperationResult,
   })
 
-  return [showModal] as const
+  return {
+    showOperationResult: showModal,
+  }
 }

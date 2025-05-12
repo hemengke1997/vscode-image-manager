@@ -113,7 +113,7 @@ function Settings(props: ImperativeModalProps) {
     },
   ]
 
-  const [showChangelogModal] = useChangelog()
+  const { showChangelog } = useChangelog()
 
   const viewerItems = [
     {
@@ -234,7 +234,7 @@ function Settings(props: ImperativeModalProps) {
       key: 'changelog',
       label: t('im.changelog'),
       children: (
-        <Button icon={<GoLog />} onClick={showChangelogModal}>
+        <Button icon={<GoLog />} onClick={showChangelog}>
           {t('im.view')}
         </Button>
       ),

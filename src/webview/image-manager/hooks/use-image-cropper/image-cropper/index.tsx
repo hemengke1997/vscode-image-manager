@@ -383,7 +383,7 @@ function ImageCropper(props: Props) {
 
       <Modal
         forceRender
-        destroyOnClose
+        destroyOnHidden
         open={saveModalOpen}
         footer={
           <div>

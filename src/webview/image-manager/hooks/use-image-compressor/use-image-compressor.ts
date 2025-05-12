@@ -17,5 +17,7 @@ export default function useImageCompressor() {
     FC: ImageCompressor,
   })
 
-  return [showModal] as const
+  return {
+    showImageCompressor: showModal,
+  }
 }

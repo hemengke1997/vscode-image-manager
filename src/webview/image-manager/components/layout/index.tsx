@@ -32,7 +32,7 @@ function Layout(props: PropsWithChildren) {
     i18n.changeLanguage(language)
   }, [language])
 
-  const [showSettings] = useSettings()
+  const { showSettings } = useSettings()
 
   return (
     <div className={'min-w-screen min-h-screen space-y-2 p-4'} ref={domRef}>

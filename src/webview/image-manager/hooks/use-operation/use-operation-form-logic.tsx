@@ -76,7 +76,7 @@ export default function useOperationFormLogic<T>({
   })
 
   const resultsRef = useRef<OperatorResult[]>()
-  const [showImageOperationResult] = useOperationResult({
+  const { showOperationResult } = useOperationResult({
     afterClose() {
       resultsRef.current && clearOperatorCmdCache(resultsRef.current)
       resultsRef.current = undefined
@@ -84,7 +84,7 @@ export default function useOperationFormLogic<T>({
   })
 
   const onEnd = useMemoizedFn((results: OperatorResult[], options: OnEndOptionsType) => {
-    showImageOperationResult({
+    showOperationResult({
       results,
       ...options,
     })

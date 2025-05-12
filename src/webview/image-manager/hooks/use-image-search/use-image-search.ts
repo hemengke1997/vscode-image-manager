@@ -18,5 +18,9 @@ export default function useImageSearch() {
     FC: ImageSearch,
   })
 
-  return [showModal, { imperativeModalMap, id }] as const
+  return {
+    showImageSearch: showModal,
+    id,
+    imperativeModalMap,
+  }
 }

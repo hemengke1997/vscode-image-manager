@@ -101,7 +101,7 @@ function OperationResult(props: OperationResultProps & ImperativeModalProps) {
     setResults((prev) => prev.filter((t) => !items.some((item) => item.id === t.id)))
   })
 
-  const [showImageComparison] = useCompareImage()
+  const { showCompareImage } = useCompareImage()
 
   const [comparisonCache, setComparisonCache] = useState<Map<string, string>>(new Map())
 
@@ -112,7 +112,7 @@ function OperationResult(props: OperationResultProps & ImperativeModalProps) {
     }
     const cachedBase64 = comparisonCache.get(item.id)
     if (cachedBase64) {
-      showImageComparison({
+      showCompareImage({
         oldImage: cachedBase64,
         ...props,
       })
@@ -126,7 +126,7 @@ function OperationResult(props: OperationResultProps & ImperativeModalProps) {
         (res) => {
           if (res) {
             setComparisonCache(produce((draft) => draft.set(item.id, res)))
-            showImageComparison({
+            showCompareImage({
               oldImage: res,
               ...props,
             })
@@ -344,7 +344,7 @@ function OperationResult(props: OperationResultProps & ImperativeModalProps) {
         activeKey={activeKeys as string[]}
         onChange={(key) => setActiveKeys(key as string[])}
         className={'select-none'}
-        destroyInactivePanel={true}
+        destroyOnHidden={true}
         collapsible={'icon'}
       ></Collapse>
     </div>

@@ -17,5 +17,7 @@ export default function useCompareImage(modalProps?: ModalFuncProps) {
     FC: CompareImage,
   })
 
-  return [showModal] as const
+  return {
+    showCompareImage: showModal,
+  }
 }

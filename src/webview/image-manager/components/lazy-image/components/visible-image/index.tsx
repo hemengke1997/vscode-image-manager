@@ -39,7 +39,7 @@ function VisibleImage(props: VisibleImageProps) {
   } = props
 
   const { t } = useTranslation()
-  const [showImageDetails] = useImageDetails()
+  const { showImageDetails } = useImageDetails()
 
   const { hoverShowImageDetail } = SettingsStore.useStore(['hoverShowImageDetail'])
 

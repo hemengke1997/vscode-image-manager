@@ -17,5 +17,7 @@ export default function useImageCropper() {
     FC: ImageCropper,
   })
 
-  return [showModal] as const
+  return {
+    showImageCropper: showModal,
+  }
 }

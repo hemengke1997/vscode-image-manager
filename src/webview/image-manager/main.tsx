@@ -4,7 +4,7 @@ import ReactDOM from 'react-dom/client'
 import { ErrorBoundary } from 'react-error-boundary'
 import { initReactI18next } from 'react-i18next'
 import i18next from 'i18next'
-import { i18nAlly } from 'vite-plugin-i18n-ally/client'
+import { I18nAllyClient } from 'vite-plugin-i18n-ally/client'
 import { CmdToVscode } from '~/message/cmd'
 import { FALLBACK_LANGUAGE } from '~/meta'
 import logger from '~/utils/logger'
@@ -54,9 +54,9 @@ function registerApp(children: JSX.Element, reload = false) {
 
       const { language } = config.appearance
 
-      const { asyncLoadResource } = i18nAlly({
-        language,
-        onInit() {
+      const i18nAlly = new I18nAllyClient({
+        lng: language,
+        onBeforeInit() {
           i18next.use(initReactI18next).init({
             returnNull: false,
             react: {
@@ -87,8 +87,8 @@ function registerApp(children: JSX.Element, reload = false) {
             )
           })
         },
-        onResourceLoaded: (resource, { language }) => {
-          i18next.addResourceBundle(language, i18next.options.defaultNS?.[0], resource)
+        onResourceLoaded: (resource, { lng }) => {
+          i18next.addResourceBundle(lng, i18next.options.defaultNS?.[0], resource)
         },
         fallbackLng: FALLBACK_LANGUAGE,
         detection: [
@@ -99,7 +99,7 @@ function registerApp(children: JSX.Element, reload = false) {
       })
 
       i18next.changeLanguage = async (lang: string, ...args) => {
-        await asyncLoadResource(lang)
+        await i18nAlly.asyncLoadResource(lang)
         return i18nChangeLanguage(lang, ...args)
       }
     },

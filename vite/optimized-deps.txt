@@ -33,7 +33,7 @@ react-scroll
 tw-clsx
 react-hotkeys-hook
 ts-key-enum
-vite-config-preset/client
+vite-config-preset/isomorph
 delay
 immer
 es-toolkit/compat

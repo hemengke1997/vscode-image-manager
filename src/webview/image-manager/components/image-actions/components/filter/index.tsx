@@ -9,7 +9,7 @@ function Filter() {
   const { t } = useTranslation()
   const { isImageFilterActive } = FilterStore.useStore(['isImageFilterActive'])
 
-  const [showImageFilter] = useImageFilter()
+  const { showImageFilter } = useImageFilter()
 
   return (
     <Tooltip title={t('im.filter')} arrow={false} placement={'bottom'}>

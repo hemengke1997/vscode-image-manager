@@ -20,5 +20,7 @@ export default function useSettings() {
     FC: Settings,
   })
 
-  return [showModal] as const
+  return {
+    showSettings: showModal,
+  }
 }

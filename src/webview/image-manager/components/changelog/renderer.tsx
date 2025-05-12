@@ -34,7 +34,7 @@ function ChangeLogRenderer(props: Props) {
         setOpen(false)
       }}
       keyboard
-      destroyOnClose
+      destroyOnHidden
       width={'70%'}
       centered
       footer={null}

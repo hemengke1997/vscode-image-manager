@@ -20,5 +20,7 @@ export default function useDeleteImage() {
     FC: DeleteImage,
   })
 
-  return [showModal] as const
+  return {
+    showDeleteImage: showModal,
+  }
 }

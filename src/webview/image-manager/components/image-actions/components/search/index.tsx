@@ -8,7 +8,7 @@ import { Keybinding } from '~/webview/image-manager/keybinding'
 
 function Search() {
   const { t } = useTranslation()
-  const [showImageSearch, { imperativeModalMap }] = useImageSearch()
+  const { imperativeModalMap, showImageSearch } = useImageSearch()
 
   useHotkeys<HTMLDivElement>(
     `mod+f`,

@@ -17,5 +17,7 @@ export default function useImageConverter() {
     FC: ImageConverter,
   })
 
-  return [showModal] as const
+  return {
+    showImageConverter: showModal,
+  }
 }

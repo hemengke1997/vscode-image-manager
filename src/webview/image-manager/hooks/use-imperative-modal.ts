@@ -12,7 +12,7 @@ const Modal_Instance_Props: ModalFuncProps = {
 }
 
 const useImperativeModal: typeof useImperativeAntdModal = (args) => {
-  const { id, imperativeModalMap, showModal } = useImperativeAntdModal({
+  const { id, imperativeModalMap, showModal, updateModal } = useImperativeAntdModal({
     ...args,
     modalProps: {
       ...Modal_Instance_Props,
@@ -22,6 +22,7 @@ const useImperativeModal: typeof useImperativeAntdModal = (args) => {
 
   return {
     showModal,
+    updateModal,
     id,
     imperativeModalMap,
   }
