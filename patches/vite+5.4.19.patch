@@ -1,12 +1,12 @@
-diff --git a/node_modules/vite/dist/node/chunks/dep-Dyl6b77n.js b/node_modules/vite/dist/node/chunks/dep-Dyl6b77n.js
-index 980fe44..470c30f 100644
---- a/node_modules/vite/dist/node/chunks/dep-Dyl6b77n.js
-+++ b/node_modules/vite/dist/node/chunks/dep-Dyl6b77n.js
+diff --git a/node_modules/vite/dist/node/chunks/dep-C6uTJdX2.js b/node_modules/vite/dist/node/chunks/dep-C6uTJdX2.js
+index 80cb890..b193c39 100644
+--- a/node_modules/vite/dist/node/chunks/dep-C6uTJdX2.js
++++ b/node_modules/vite/dist/node/chunks/dep-C6uTJdX2.js
 @@ -50100,6 +50100,24 @@ async function createDepsOptimizer(config, server) {
            timestamp: true
          }
        );
-+      
++
 +      const cacheFile = path.resolve(process.cwd(), process.env.VITE_OPTIMIZE_DEPS_FILE)
 +
 +      if (!fs.existsSync(cacheFile)) {
