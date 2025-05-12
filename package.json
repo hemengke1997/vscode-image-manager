@@ -365,7 +365,8 @@
             "en",
             "zh-CN",
             "zh-TW",
-            "ja"
+            "ja",
+            "de"
           ],
           "description": "%pkg.appearance.language%"
         },

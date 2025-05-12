@@ -25,6 +25,10 @@ export const locales = [
     key: Language.ja,
     label: '日本語',
   },
+  {
+    key: Language.de,
+    label: 'Deutsch',
+  },
 ]
 
 // preload helper

@@ -9,6 +9,7 @@ export enum Language {
   zh_CN = 'zh-CN',
   zh_TW = 'zh-TW',
   ja = 'ja',
+  de = 'de',
   auto = 'auto',
 }
 
