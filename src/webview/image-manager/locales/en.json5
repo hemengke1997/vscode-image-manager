@@ -140,7 +140,7 @@
     svg_compressed_tip: "Please determine whether it's compressed by examining the SVG code format yourself",
     view_svg: 'View svg code',
     format_not_supported: '{{extname}} format is not supported',
-    find_similar_images: 'Find similar images',
+    find_similar_images: 'Find Similar Images',
     similar_images: 'Similar images',
     no_similar_images_title: 'No similar images found',
     no_similar_images_desc: 'You can adjust the precision by setting <0>{{option}}</0>',
