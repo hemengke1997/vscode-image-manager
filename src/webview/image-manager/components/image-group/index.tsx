@@ -163,7 +163,7 @@ function ImageGroup(props: Props, ref: ForwardedRef<HTMLDivElement>) {
     onChange: onSelectedImagesChange,
   })
 
-  const setSelectedImages: typeof _setSelectedImages = useMemoizedFn((...args) => {
+  const setSelectedImages = useMemoizedFn((...args: Parameters<typeof _setSelectedImages>) => {
     if (!interactive) return
     _setSelectedImages(...args)
   })

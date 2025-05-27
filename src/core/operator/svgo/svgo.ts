@@ -39,7 +39,9 @@ export class Svgo {
         {
           name: 'preset-default',
           params: {
-            overrides: {},
+            overrides: {
+              removeViewBox: false,
+            },
           },
         },
       ],
