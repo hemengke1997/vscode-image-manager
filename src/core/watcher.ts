@@ -15,6 +15,7 @@ import { i18n } from '~/i18n'
 import { CmdToVscode, CmdToWebview } from '~/message/cmd'
 import { VscodeMessageFactory } from '~/message/message-factory'
 import { EXT_NAMESPACE } from '~/meta'
+import { slashPath } from '~/utils'
 import { AbortError, abortPromise } from '~/utils/abort-promise'
 import logger from '~/utils/logger'
 import { resolveDirPath } from '~/utils/node'
@@ -71,10 +72,10 @@ export class Watcher {
     }
 
     if (isDirectory) {
-      return !micromatch.all(e.path, this.glob!.allCwdPatterns)
+      return !micromatch.all(slashPath(e.fsPath), this.glob!.allCwdPatterns)
     }
 
-    return !micromatch.all(e.path, this.glob!.allImagePatterns)
+    return !micromatch.all(slashPath(e.fsPath), this.glob!.allImagePatterns)
   }
 
   private eventQueue: { e: Uri; type: UpdateEvent; isDirectory: boolean }[] = []
@@ -119,7 +120,10 @@ export class Watcher {
           switch (type) {
             // 如果是创建目录，则需要获取目录下的所有图片
             case UpdateEvent.create: {
-              VscodeMessageFactory[CmdToVscode.get_all_images_from_cwds]({ glob: e.path }, this.imageManagerPanel)
+              VscodeMessageFactory[CmdToVscode.get_all_images_from_cwds](
+                { glob: slashPath(e.fsPath) },
+                this.imageManagerPanel,
+              )
               break
             }
             default: {
@@ -131,9 +135,9 @@ export class Watcher {
             data: {
               type,
               payload: {
-                dirPath: resolveDirPath(e.path, this.guessCwdFromPath(e.path), true),
-                absDirPath: e.path,
-                workspaceFolder: path.basename(this.guessCwdFromPath(e.path)),
+                dirPath: resolveDirPath(slashPath(e.fsPath), this.guessCwdFromPath(slashPath(e.fsPath)), true),
+                absDirPath: slashPath(e.fsPath),
+                workspaceFolder: path.basename(this.guessCwdFromPath(slashPath(e.fsPath))),
               },
             },
           }
@@ -144,8 +148,8 @@ export class Watcher {
           if ([UpdateEvent.create, UpdateEvent.update].includes(type)) {
             const res = await VscodeMessageFactory[CmdToVscode.get_images](
               {
-                filePaths: [e.path],
-                cwd: this.guessCwdFromPath(e.path),
+                filePaths: [slashPath(e.fsPath)],
+                cwd: this.guessCwdFromPath(slashPath(e.fsPath)),
               },
               this.imageManagerPanel,
             )
@@ -158,18 +162,18 @@ export class Watcher {
             }
           }
           if (type === UpdateEvent.delete) {
-            const parsedPath = path.parse(e.path)
+            const parsedPath = path.parse(slashPath(e.fsPath))
             return {
               origin: UpdateOrigin.image,
               data: {
                 payload: {
-                  path: e.path,
+                  path: slashPath(e.fsPath),
                   name: parsedPath.name,
-                  basename: path.basename(e.path),
-                  dirPath: resolveDirPath(e.path, this.guessCwdFromPath(e.path)),
+                  basename: path.basename(slashPath(e.fsPath)),
+                  dirPath: resolveDirPath(slashPath(e.fsPath), this.guessCwdFromPath(slashPath(e.fsPath))),
                   extname: parsedPath.ext.replace('.', ''),
-                  workspaceFolder: path.basename(this.guessCwdFromPath(e.path)),
-                  absWorkspaceFolder: this.guessCwdFromPath(e.path),
+                  workspaceFolder: path.basename(this.guessCwdFromPath(slashPath(e.fsPath))),
+                  absWorkspaceFolder: this.guessCwdFromPath(slashPath(e.fsPath)),
                 } as ImageType,
                 type,
               },
@@ -183,6 +187,7 @@ export class Watcher {
   private guessCwdFromPath(path: string) {
     const weight = this.rootpaths.map((r) => r.split(path)[0].length)
     const index = weight.indexOf(max(weight)!)
+
     return this.rootpaths[index]
   }
 
@@ -190,7 +195,7 @@ export class Watcher {
     const eventMap = new Map<string, (typeof events)[number]>()
 
     for (const event of events) {
-      const key = event.e.path
+      const key = slashPath(event.e.fsPath)
       // 如果已经存在该路径的事件，则后来的事件覆盖之前的事件
       eventMap.set(key, event)
     }
@@ -201,10 +206,10 @@ export class Watcher {
   private handleEvent(e: Uri, type: UpdateEvent) {
     if (e.scheme !== 'file') return
 
-    const isDirectory = !path.extname(e.path)
+    const isDirectory = !path.extname(slashPath(e.fsPath))
 
     if (this.isIgnored(e, isDirectory)) {
-      logger.debug(`Ignored: ${e.path}`)
+      logger.debug(`Ignored: ${slashPath(e.fsPath)}`)
       return
     }
 
@@ -237,9 +242,9 @@ export class Watcher {
   private isGitIgnored(e: Uri) {
     if (!Config.file_gitignore) return false
 
-    const ignored = this.gitignores.some((fn) => fn(e.path))
+    const ignored = this.gitignores.some((fn) => fn(slashPath(e.fsPath)))
     if (ignored) {
-      logger.debug(`git ignored: ${e.path}`)
+      logger.debug(`git ignored: ${slashPath(e.fsPath)}`)
     }
     return ignored
   }

@@ -167,7 +167,7 @@
     ico_128: '這個尺寸的圖像通常用於各種大尺寸的顯示場景',
     ico_256: '這是ico文件可以包含的最大尺寸的圖像，通常用於高分辨率的顯示場景',
     no_tip: '不再提示',
-    timout: '操作超時，請重試',
+    timeout: '操作超時，請重試',
     canceled: '操作已取消',
     irreversible_operation: '操作不可逆！',
     cancel_operation_tip: '確定要取消此操作?',

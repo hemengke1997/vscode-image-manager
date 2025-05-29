@@ -7,7 +7,6 @@ import { nanoid } from 'nanoid'
 import { type OperatorResult } from '~/core/operator/operator'
 import { CmdToVscode } from '~/message/cmd'
 import { AbortError, abortPromise, TimeoutError } from '~/utils/abort-promise'
-import logger from '~/utils/logger'
 import { vscodeApi } from '~/webview/vscode-api'
 import GlobalStore from '../../stores/global-store'
 import { triggerOnce } from '../../utils'
@@ -166,6 +165,7 @@ export default function useOperationFormLogic<T>({
                 }}
                 okText={t('im.yes')}
                 cancelText={t('im.no')}
+                zIndex={9999}
               >
                 <Button danger>{t('im.cancel')}</Button>
               </Popconfirm>
@@ -174,12 +174,10 @@ export default function useOperationFormLogic<T>({
           duration: 0,
           key: MessageLoadingKey,
         })
-        clearTimeout(timer)
       }, 500)
 
       try {
         const res = await fn()
-        clearTimeout(timer)
 
         onSuccess()
 
@@ -199,17 +197,15 @@ export default function useOperationFormLogic<T>({
       } catch (e) {
         if (e instanceof TimeoutError) {
           // 超时
-          message.error({
-            content: t('im.timout'),
-          })
+          message.error(t('im.timeout'))
         } else if (e instanceof AbortError) {
           // 用户手动取消
-          message.error({
-            content: t('im.canceled'),
-          })
+          message.error(t('im.canceled'))
+        } else {
+          message.error(`${t('im.operation_failed')}: ${e}`)
         }
-        logger.error(e)
       } finally {
+        clearTimeout(timer)
         message.destroy(MessageLoadingKey)
         onFinal()
       }
@@ -218,9 +214,13 @@ export default function useOperationFormLogic<T>({
 
   const performOperation = useMemoizedFn((images: ImageType[], option: T) => {
     const fn = () =>
-      new Promise<OperatorResult[] | undefined>((resolve) => {
-        vscodeApi.postMessage({ cmd: apiCommand, data: { images, option } }, (data) => {
-          resolve(data as OperatorResult[])
+      new Promise<OperatorResult[] | undefined>((resolve, reject) => {
+        vscodeApi.postMessage({ cmd: apiCommand, data: { images, option } }, (data: any) => {
+          if (data.error) {
+            reject(data.error)
+          } else {
+            resolve(data as OperatorResult[])
+          }
         })
       })
 

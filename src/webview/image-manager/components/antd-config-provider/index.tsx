@@ -87,7 +87,7 @@ function AntdConfigProvider({ children }: PropsWithChildren) {
         },
       }}
       componentSize='small'
-      warning={{ strict: true }}
+      warning={{ strict: false }}
     >
       <App
         className={'bg-ant-color-bg-container'}

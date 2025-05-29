@@ -384,7 +384,12 @@ export const VscodeMessageFactory = {
       option: CompressionOptions
     },
     imageManagerPanel: ImageManagerPanel,
-  ): Promise<OperatorResult[] | undefined> => {
+  ): Promise<
+    | OperatorResult[]
+    | {
+        error: string
+      }
+  > => {
     try {
       const { images, option } = data
 
@@ -426,8 +431,10 @@ export const VscodeMessageFactory = {
 
       return res
     } catch (e: any) {
-      Channel.debug(`${i18n.t('core.compress_error')}: ${JSON.stringify(e)}`)
-      return e
+      logger.error(`${i18n.t('core.compress_error')}`, e)
+      return {
+        error: e instanceof Error ? e.message : toString(e),
+      }
     }
   },
 
@@ -438,7 +445,12 @@ export const VscodeMessageFactory = {
       option: FormatConverterOptions
     },
     imageManagerPanel: ImageManagerPanel,
-  ): Promise<OperatorResult[] | undefined> => {
+  ): Promise<
+    | OperatorResult[]
+    | {
+        error: string
+      }
+  > => {
     try {
       const { images, option } = data
       const res = await pMap(
@@ -456,8 +468,10 @@ export const VscodeMessageFactory = {
 
       return res
     } catch (e: any) {
-      logger.debug(`Convert error:`, e)
-      return e
+      logger.error('Convert Error', e)
+      return {
+        error: e instanceof Error ? e.message : toString(e),
+      }
     }
   },
 

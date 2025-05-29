@@ -167,7 +167,7 @@
     ico_128: 'Diese Bildgröße wird normalerweise für verschiedene großformatige Anzeigeumgebungen verwendet',
     ico_256: 'Dies ist die maximale Bildgröße, die eine ICO-Datei enthalten kann, und wird normalerweise für hochauflösende Anzeigeumgebungen verwendet',
     no_tip: 'Nicht mehr anzeigen',
-    timout: 'Zeitüberschreitung, bitte erneut versuchen',
+    timeout: 'Zeitüberschreitung, bitte erneut versuchen',
     canceled: 'Operation abgebrochen',
     irreversible_operation: 'Operation ist irreversibel!',
     cancel_operation_tip: 'Möchten Sie diese Operation wirklich abbrechen?',
