@@ -15,6 +15,5 @@
     "**/__snapshots__/**": true,
     "CHANGELOG-CODE.md": true,
     "patches/**": true
-  },
-  "arrayIndexInlay.enabled": true
+  }
 }
