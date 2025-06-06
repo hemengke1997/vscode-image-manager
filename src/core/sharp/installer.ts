@@ -12,6 +12,7 @@ import { devDependencies, version } from '~root/package.json'
 import { i18n } from '~/i18n'
 import { cleanVersion, setImmdiateInterval, slashPath } from '~/utils'
 import { type AbortError, abortPromise, type TimeoutError } from '~/utils/abort-promise'
+import logger from '~/utils/logger'
 import { Channel } from '~/utils/node/channel'
 import { Config } from '../config/config'
 import { FileCache } from '../file-cache'
@@ -407,7 +408,8 @@ export class Installer {
             resolve(res)
             clearInterval(interval)
           }
-        } catch {
+        } catch (e) {
+          logger.error(e)
           // 继续轮询
         }
       }, 250)
@@ -547,10 +549,6 @@ export class Installer {
       const installLibvipsFromHost = async (url: string) => {
         const npm_config_sharp_libvips_binary_host = url ? new URL(`${url}/${libvips_config.name}`).toString() : url
 
-        Channel.info(
-          `Downloading libvips: ${npm_config_sharp_libvips_binary_host}/${libvips_config.name}/v${libvips_config.version}/${this.libvips_bin}`,
-        )
-
         await execaNode('install/install-libvips.js', {
           cwd,
           env: {
@@ -567,7 +565,7 @@ export class Installer {
         await pAny(
           hosts.map(async (host) => {
             await installLibvipsFromHost(host)
-            Channel.info(`libvips installed from: ${host}`)
+            Channel.info(`libvips installed from: ${host ? host : 'Github Release'}`)
             abortController.abort()
             installSuccess.libvips = true
           }),

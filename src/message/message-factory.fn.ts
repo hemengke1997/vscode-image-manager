@@ -131,7 +131,7 @@ export async function getImageMetadata(image: string | GlobEntry): Promise<{
     sharpFormatSupported = false
 
     try {
-      metadata = (await imageSizeFromFile(filePath).catch(() => {})) || {}
+      metadata = ((await imageSizeFromFile(filePath).catch(() => {})) || {}) as SharpNS.Metadata
     } catch (e) {
       Channel.error(e)
     }

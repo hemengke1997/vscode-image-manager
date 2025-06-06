@@ -27,14 +27,18 @@ function isVersionDiff() {
   }
 
   isDiff = lastVersion !== currentVersion
-  if (isDiff) {
-    fs.writeJSONSync(versionJsonFile, { version: currentVersion }, { spaces: 2 })
+
+  return {
+    isDiff,
+    onSuccess: () => {
+      fs.writeJSONSync(versionJsonFile, { version: currentVersion }, { spaces: 2 })
+    },
   }
-  return isDiff
 }
 
 ;(async () => {
-  if (!isVersionDiff()) {
+  const { isDiff, onSuccess } = isVersionDiff()
+  if (!isDiff) {
     logger.info('[Sharp Release]: No new version detected.')
     return
   }
@@ -72,6 +76,8 @@ function isVersionDiff() {
 
       // clean up old releases
       await Promise.all(oldReleases.map((file) => fs.unlink(path.join(ReleaseDir, file))))
+
+      onSuccess()
     } else {
       logger.error('No releases found.')
     }
