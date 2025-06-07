@@ -213,6 +213,7 @@
     author: '作者',
     source_code: 'ソースコード',
     about: '概要',
+    try_keep_original: '不明なエラーが発生しました。元の画像を保持することを選択して、再試行してください。',
   },
   fallback: {
     internal_error: '内部エラー',

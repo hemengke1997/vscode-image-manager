@@ -7,6 +7,10 @@
 - 升级 sharp-libvips 8.16.1
 - 升级 sharp 0.34.2
 
+### Perf
+
+- Windows上压缩jpeg时报错提示优化
+
 ## [3.1.2] - 2025-05-29
 
 ### Fix

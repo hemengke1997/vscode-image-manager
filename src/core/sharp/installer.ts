@@ -7,6 +7,7 @@ import { execaNode } from 'execa'
 import fs from 'fs-extra'
 import path from 'node:path'
 import pAny from 'p-any'
+import pTimeout from 'p-timeout'
 import { commands, StatusBarAlignment, type StatusBarItem, window } from 'vscode'
 import { devDependencies, version } from '~root/package.json'
 import { i18n } from '~/i18n'
@@ -365,7 +366,7 @@ export class Installer {
   private async loadSharp(cacheType: CacheType) {
     const localSharpPath = this.getCaches().find((cache) => cache.type === cacheType)!.sharpFsPath
 
-    Channel.debug(`Load sharp from: ${localSharpPath}`)
+    logger.info(`Load sharp from: ${localSharpPath}`)
 
     return new Promise<TSharp>((resolve, reject) => {
       try {
@@ -561,17 +562,22 @@ export class Installer {
         })
       }
 
-      try {
-        await pAny(
-          hosts.map(async (host) => {
-            await installLibvipsFromHost(host)
-            Channel.info(`libvips installed from: ${host ? host : 'Github Release'}`)
-            abortController.abort()
-            installSuccess.libvips = true
-          }),
-        )
-      } catch (e: any) {
-        Channel.error(e.message)
+      for (const host of hosts) {
+        try {
+          await pTimeout(
+            installLibvipsFromHost(host).then(() => {
+              Channel.info(`libvips installed from: ${host ? host : 'Github Release'}`)
+              abortController.abort()
+              installSuccess.libvips = true
+            }),
+            {
+              milliseconds: 30 * 1000,
+            },
+          )
+          break
+        } catch (e: any) {
+          Channel.error(e.message)
+        }
       }
 
       // 安装失败

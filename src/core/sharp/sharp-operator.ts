@@ -2,7 +2,7 @@ import fs from 'fs-extra'
 import { env, Uri, window } from 'vscode'
 import { type SharpNS } from '~/@types/global'
 import { i18n } from '~/i18n'
-import { Channel } from '~/utils/node/channel'
+import logger from '~/utils/logger'
 import { Global } from '../global'
 import { HookPlugin, type ObjectPlugin } from '../hook-plugin'
 
@@ -93,36 +93,33 @@ export class SharpOperator<T extends AnyObject, RuntimeCtx extends AnyObject = T
             buffer,
           }
 
-          try {
-            await this.hooks.callHook('after:run', this.ctx, { outputPath })
+          await this.hooks.callHook('after:run', this.ctx, { outputPath })
 
-            await fs.ensureFile(outputPath)
+          await fs.ensureFile(outputPath)
 
-            if (dryRun) {
-              await this.hooks.callHook('on:finish', this.ctx, result)
-              return resolve(result)
-            }
-
-            fs.access(outputPath, fs.constants.W_OK, (err) => {
-              if (err) {
-                Channel.error(err.message)
-                reject(err)
-              } else {
-                const fileWritableStream = fs.createWriteStream(outputPath)
-                fileWritableStream.on('finish', async () => {
-                  try {
-                    await this.hooks.callHook('on:finish', this.ctx, result)
-                  } finally {
-                    resolve(result)
-                  }
-                })
-                fileWritableStream.write(buffer)
-                fileWritableStream.end()
-              }
-            })
-          } catch (e) {
-            reject(e)
+          if (dryRun) {
+            await this.hooks.callHook('on:finish', this.ctx, result)
+            return resolve(result)
           }
+
+          await fs.access(outputPath, fs.constants.W_OK)
+          const fileWritableStream = fs.createWriteStream(outputPath)
+          fileWritableStream.on('finish', async () => {
+            try {
+              await this.hooks.callHook('on:finish', this.ctx, result)
+            } finally {
+              resolve(result)
+            }
+          })
+
+          // TODO: 修复 win32 写入文件时报错：
+          // UNKNOWN: unknown error, open '...jpg'
+          fileWritableStream.on('error', (e) => {
+            logger.error(e)
+            reject(e)
+          })
+
+          fileWritableStream.end(buffer)
         })
         .catch((e) => {
           reject(e)

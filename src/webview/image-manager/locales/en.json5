@@ -213,6 +213,7 @@
     author: 'Author',
     source_code: 'Source Code',
     about: 'About',
+    try_keep_original: 'An unknown error occurred. Please choose to keep the original image and try again.',
   },
   fallback: {
     internal_error: 'Internal Error',

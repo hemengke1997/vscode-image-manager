@@ -213,6 +213,7 @@
     author: '作者',
     source_code: '源代码',
     about: '关于',
+    try_keep_original: '发生未知错误，请选择保留原始图片后重试',
   },
   fallback: {
     internal_error: '内部错误',

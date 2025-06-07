@@ -213,6 +213,7 @@
     author: 'Autor',
     source_code: 'Quellcode',
     about: 'Über',
+    try_keep_original: 'Ein unbekannter Fehler ist aufgetreten. Bitte wählen Sie, das Originalbild zu behalten, und versuchen Sie es erneut.',
   },
   fallback: {
     internal_error: 'Interner Fehler',

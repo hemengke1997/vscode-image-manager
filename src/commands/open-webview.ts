@@ -27,8 +27,13 @@ export default <ExtensionModule>function (ctx) {
     Svgo.init()
   })
 
+  let isLoading = false
   async function openWebview(uri: Uri | undefined) {
     init()
+
+    if (isLoading) return
+
+    isLoading = true
 
     let imagePath = ''
     if (uri?.fsPath) {
@@ -58,6 +63,8 @@ export default <ExtensionModule>function (ctx) {
       logger.error(e)
       sharpInstalled = false
     } finally {
+      isLoading = false
+
       const imageReveal = trim(imagePath).length ? `${trim(imagePath)}?t=${Date.now()}` : ''
 
       const createPanel = (rootpaths: string[]) => {

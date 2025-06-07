@@ -260,32 +260,32 @@ function OperationResult(props: OperationResultProps & ImperativeModalProps) {
           <ImageGroup
             {...imageGroupProps}
             images={groups.error.map((t) => t.image)}
-            renderer={(lazyImage, image) => (
-              <ImageCard
-                actions={[
-                  <RedoAction
-                    key='redo'
-                    onClick={() => {
-                      onRedoAction([findCorrespondingResult(groups.error, image)])
-                    }}
-                  ></RedoAction>,
-                ]}
-                cover={lazyImage}
-              >
-                <div className={'flex flex-wrap items-center justify-center gap-1'}>
-                  <MdErrorOutline className={'text-ant-color-error'} />
-                  <Tooltip
-                    title={findCorrespondingResult(groups.error, image).error}
-                    placement={'bottom'}
-                    arrow={false}
-                  >
-                    <div className={'max-w-full truncate text-center text-ant-color-text'}>
-                      {findCorrespondingResult(groups.error, image).error}
-                    </div>
-                  </Tooltip>
-                </div>
-              </ImageCard>
-            )}
+            renderer={(lazyImage, image) => {
+              const current = findCorrespondingResult(groups.error, image)
+              const error = String(current.error).includes('UNKNOWN')
+                ? `${current.error}...${t('im.try_keep_original')}`
+                : current.error
+              return (
+                <ImageCard
+                  actions={[
+                    <RedoAction
+                      key='redo'
+                      onClick={() => {
+                        onRedoAction([current])
+                      }}
+                    ></RedoAction>,
+                  ]}
+                  cover={lazyImage}
+                >
+                  <div className={'flex flex-wrap items-center justify-center gap-1'}>
+                    <MdErrorOutline className={'text-ant-color-error'} />
+                    <Tooltip title={error} placement={'bottom'} arrow={false}>
+                      <div className={'max-w-full truncate text-center text-ant-color-text'}>{error}</div>
+                    </Tooltip>
+                  </div>
+                </ImageCard>
+              )
+            }}
           ></ImageGroup>
         ),
       },
