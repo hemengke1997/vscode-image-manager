@@ -146,8 +146,8 @@ export class Installer {
             timeout: this.options.timeout,
             abortController,
             params: {
-              libvips: !libvipsInstalled,
-              sharp: !sharpInstalled,
+              libvips: !libvipsInstalled || Config.debug_forceInstall,
+              sharp: !sharpInstalled || Config.debug_forceInstall,
             },
           })
 

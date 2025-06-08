@@ -1,7 +1,7 @@
 {
   "publisher": "Minko",
   "name": "image-manager",
-  "version": "3.2.0",
+  "version": "3.3.0",
   "private": true,
   "packageManager": "npm@10.9.2",
   "description": "Powerful yet easy-to-use VSCode image manager",
