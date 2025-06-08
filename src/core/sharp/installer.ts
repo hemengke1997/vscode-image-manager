@@ -1,23 +1,22 @@
-import { config } from '@minko-fe/sharp/package.json'
 import destr from 'destr'
 import { isString } from 'es-toolkit'
-import { toLower } from 'es-toolkit/compat'
 import { EventEmitter } from 'eventemitter3'
-import { execaNode } from 'execa'
 import fs from 'fs-extra'
 import path from 'node:path'
-import pAny from 'p-any'
-import pTimeout from 'p-timeout'
 import { commands, StatusBarAlignment, type StatusBarItem, window } from 'vscode'
-import { devDependencies, version } from '~root/package.json'
+import { version } from '~root/package.json'
 import { i18n } from '~/i18n'
-import { cleanVersion, setImmdiateInterval, slashPath } from '~/utils'
+import { setImmdiateInterval, slashPath } from '~/utils'
 import { type AbortError, abortPromise, type TimeoutError } from '~/utils/abort-promise'
 import logger from '~/utils/logger'
 import { Channel } from '~/utils/node/channel'
 import { Config } from '../config/config'
 import { FileCache } from '../file-cache'
 import { Global } from '../global'
+import { type BaseDownloader } from './downloader/base'
+import { LibvipsDownloader } from './downloader/libvips'
+import { SharpDownloader } from './downloader/sharp'
+import { SharpjsCache } from './sharpjs-cache'
 
 export enum InstallEvent {
   success = 'install-success',
@@ -29,49 +28,7 @@ type Events = {
   [InstallEvent.fail]: [TimeoutError | AbortError | Error]
 }
 
-enum CacheType {
-  /**
-   * 系统级缓存 (os.homedir()|os.tmpDir()/.vscode-image-manager-cache)
-   */
-  os = 'os',
-  /**
-   * 扩展级缓存，默认情况下，sharp相关文件生成在扩展目录的dist目录下
-   * Extension cache (By default, sharp-related files are generated in the dist directory of the extension directory)
-   */
-  extension = 'extension',
-}
-
-// libvips 配置
-const libvips_config = {
-  /**
-   * 解析名称，用于下载。固定而非自定义
-   */
-  name: 'sharp-libvips',
-  /**
-   * 版本
-   */
-  version: config.libvips,
-}
-
-// 缓存目录
-enum CacheDirs {
-  // vendor 里面是 libvips binary
-  vendor = 'vendor',
-  // build 里面是 sharp binary
-  build = 'build',
-  // sharp 里面是 sharp 的 index.js 源码
-  sharp = 'sharp',
-  // json 里面是 sharp 的 package.json
-  json = 'json',
-  // cache.json 里面是 ImageManager 插件版本、libvips 版本、@minko-fe/sharp 版本
-  cache_json = 'cache.json',
-}
-
 export class Installer {
-  /**
-   * 系统平台
-   */
-  public platform: string
   /**
    * 扩展根目录
    */
@@ -80,39 +37,26 @@ export class Installer {
    * 状态栏
    */
   private statusBarItem: StatusBarItem | undefined
-  /**
-   * libvips binary 文件名
-   */
-  private libvips_bin: string
-  /**
-   * 中国地区
-   */
-  private isCN: boolean
-  private CN_host = [
-    'https://registry.npmmirror.com/-/binary',
-    'https://npmmirror.com/mirrors',
-    'https://cdn.npmmirror.com/binaries',
-  ]
+
   /**
    * 缓存 cache.json 文件路径
    */
-  private cacheFilePath: string
+  private cacheJson: string
 
   /**
-   * vendor 里面是 libvips binary
-   * 需要用户端下载
-   * 为了避免用户每次安装扩展后都下载此依赖，需要把依赖缓存到本地中
-   *
-   * build 里面是 sharp binary
-   * 由于 sharp@0.33.0 之后无法再本地编译，所以我fork了sharp，更新其核心功能。所以无法从npm镜像上下载了
-   * 为了更好的用户体验，把常见系统的二进制文件打包到了扩展内
-   * 从 v1.0.0 开始，内置在扩展源码中了
-   *
-   * json 里面是 sharp 的 package.json
-   *
-   * sharp 里面是 sharp 的 index.js 源码
+   * livips下载器
    */
-  private readonly _cacheable = [CacheDirs.vendor, CacheDirs.build, CacheDirs.json, CacheDirs.sharp]
+  private libvipsDownloader: LibvipsDownloader
+
+  /**
+   * sharp下载器
+   */
+  private sharpDownloader: SharpDownloader
+
+  /**
+   * sharpjs 缓存管理器
+   */
+  private sharpjsCache: SharpjsCache
 
   event: EventEmitter<Events> = new EventEmitter()
 
@@ -122,40 +66,68 @@ export class Installer {
     },
   ) {
     Channel.debug('Installer init')
-    // 如果语言是中文，视为中国地区，设置npm镜像
-    const languages = [Config.appearance_language, Global.vscodeLanguage].map(toLower)
-    this.isCN = languages.includes('zh-cn')
 
     this.cwd = Global.context.extensionUri.fsPath
-    this.platform = require(path.resolve(this.getSharpCwd(), 'install/platform')).platform()
 
-    this.cacheFilePath = path.join(this.getDepCacheDir(), CacheDirs.cache_json)
+    this.cacheJson = path.join(this.libCacheDir, 'cache.json')
 
-    this.libvips_bin = `libvips-${libvips_config.version}-${this.platform}.tar.gz`
+    this.libvipsDownloader = new LibvipsDownloader({
+      readCacheJson: this.readCacheJson.bind(this),
+      writeCacheJson: this.writeCacheJson.bind(this),
+    })
+    this.sharpDownloader = new SharpDownloader({
+      readCacheJson: this.readCacheJson.bind(this),
+      writeCacheJson: this.writeCacheJson.bind(this),
+    })
+    this.sharpjsCache = new SharpjsCache()
 
-    Channel.debug(`OS缓存是否可写: ${FileCache.cacheDir}`)
+    Channel.debug(`os writable ${FileCache.cacheDir} : ${FileCache.osCachable}`)
 
     Channel.divider()
     Channel.info(`${i18n.t('core.dep_cache_dir')}: ${FileCache.cacheDir}`)
     Channel.info(`${i18n.t('core.extension_root')}: ${this.cwd}`)
-    Channel.info(`${i18n.t('core.tip')}: ${i18n.t('core.dep_url_tip')} ⬇️`)
-    Channel.info(
-      `${i18n.t('core.dep_url')}: ${this.CN_host[0]}/${libvips_config.name}/v${libvips_config.version}/${this.libvips_bin}`,
-    )
     Channel.divider()
+  }
+
+  /**
+   * 获取缓存中依赖的目录路径
+   * @returns
+   * /{tmpdir}/vscode-image-manager-cache/lib
+   * or
+   * /{homedir}/vscode-image-manager-cache/lib
+   * or
+   * /{extension-cwd}/dist/lib
+   */
+  public get libCacheDir() {
+    return slashPath(path.resolve(FileCache.cacheDir, 'lib'))
+  }
+
+  private removeOldOsCache() {
+    if (FileCache.osCachable) {
+      // 删除 v3.2版本之前的旧本地缓存
+      if (fs.existsSync(path.join(this.libCacheDir, 'vendor'))) {
+        fs.rmSync(this.libCacheDir, { recursive: true, force: true })
+      }
+    }
   }
 
   async run() {
     const start = performance.now()
+    this.removeOldOsCache()
 
     try {
-      const cacheTypes = this.getInstalledCacheTypes()
-      Channel.debug(`Installed cache types: ${cacheTypes?.length ? cacheTypes.join(',') : 'none'}`)
+      // 如果有cache.json，则是升级而非首次安装
+      const isUpdate = fs.existsSync(this.cacheJson)
 
-      const isUpdate = fs.existsSync(this.cacheFilePath)
+      this.initCacheJson()
+
+      const [libvipsInstalled, sharpInstalled] = await Promise.all([
+        this.libvipsDownloader.isInstalled(),
+        this.sharpDownloader.isInstalled(),
+      ])
 
       // 如果系统/扩展均无满足版本条件的缓存，则安装依赖
-      if (!cacheTypes?.length || Config.debug_forceInstall) {
+      if ([libvipsInstalled, sharpInstalled].some((t) => !t) || Config.debug_forceInstall) {
         const LoadingText = isUpdate ? i18n.t('prompt.updating') : i18n.t('prompt.initializing')
 
         // 显示左下角状态栏
@@ -168,13 +140,18 @@ export class Installer {
             abortController.abort()
           }
         })
+
         try {
           const installSuccess = await abortPromise(this.install.bind(this), {
             timeout: this.options.timeout,
             abortController,
+            params: {
+              libvips: !libvipsInstalled,
+              sharp: !sharpInstalled,
+            },
           })
 
-          if (!Object.values(installSuccess).every(Boolean)) {
+          if (!installSuccess) {
             const errMsg = i18n.t('core.dep_install_fail')
             Channel.error(errMsg, true)
             throw new Error(errMsg)
@@ -185,42 +162,11 @@ export class Installer {
         }
 
         Channel.info(`✅ ${isUpdate ? i18n.t('prompt.updated') : i18n.t('prompt.initialized')}`, true)
-        await this.tryCopyCacheToOs(this._cacheable)
       } else {
-        Channel.info(`${i18n.t('core.load_from_cache')}: ${cacheTypes[0]}`)
+        Channel.info(`${i18n.t('core.load_from_cache')}`)
       }
 
-      this.initCacheJson()
-      const pkg = this.readCacheJson()
-      Channel.debug(`Cached package.json: ${JSON.stringify(pkg)}`)
-
-      if (pkg.libvips !== libvips_config.version) {
-        fs.emptyDirSync(path.resolve(this.getDepCacheDir(), CacheDirs.vendor))
-        if (await this.tryCopyCacheToOs([CacheDirs.vendor])) {
-          Channel.info(i18n.t('core.libvips_diff'))
-        }
-        this.writeCacheJson({ libvips: libvips_config.version })
-      }
-
-      const SHARP_VERSION = cleanVersion(devDependencies['@minko-fe/sharp'])
-      if (pkg['@minko-fe/sharp'] !== SHARP_VERSION) {
-        fs.emptyDirSync(path.resolve(this.getDepCacheDir(), CacheDirs.build))
-        if (await this.tryCopyCacheToOs([CacheDirs.build, CacheDirs.sharp])) {
-          Channel.info(i18n.t('core.sharp_diff'))
-        }
-        this.writeCacheJson({ '@minko-fe/sharp': SHARP_VERSION })
-      }
-
-      if (pkg.version !== version) {
-        if (await this.tryCopyCacheToOs([CacheDirs.json])) {
-          Channel.info(i18n.t('core.version_diff'))
-        }
-        this.writeCacheJson({ version })
-      }
-
-      const currentCacheType = this.getInstalledCacheTypes()![0]
-      Channel.debug(`Current cache type: ${currentCacheType}`)
-      this.event.emit(InstallEvent.success, await this.pollingLoadSharp(currentCacheType))
+      this.event.emit(InstallEvent.success, await this.pollingLoadSharp())
     } catch (e) {
       this.event.emit(InstallEvent.fail, e as Error)
     } finally {
@@ -229,37 +175,14 @@ export class Installer {
     return this
   }
 
-  /**
-   * 初始化缓存 json 文件
-   *
-   * 包含：
-   * - version: ImageManager 插件版本
-   * - libvips 版本
-   * - \@minko-fe/sharp 版本
-   */
   private initCacheJson() {
-    let shouldInit = false
-    if (!fs.existsSync(this.cacheFilePath)) {
-      fs.ensureFileSync(this.cacheFilePath)
-      shouldInit = true
-    } else {
-      const pkgRaw = fs.readFileSync(this.cacheFilePath, 'utf-8')
-      if (!pkgRaw) {
-        shouldInit = true
-      }
-    }
-    if (shouldInit) {
-      this.writeCacheJson({
-        version,
-        'libvips': libvips_config.version,
-        '@minko-fe/sharp': cleanVersion(devDependencies['@minko-fe/sharp']),
-      })
-    }
+    fs.ensureFileSync(this.cacheJson)
+    this.writeCacheJson({ version })
   }
 
   private readCacheJson() {
-    const pkgStr = fs.readFileSync(this.cacheFilePath, 'utf-8')
-    let pkg: { 'version'?: string; 'libvips'?: string; '@minko-fe/sharp'?: string } = {}
+    const pkgStr = fs.readFileSync(this.cacheJson, 'utf-8')
+    let pkg: { version?: string } = {}
     if (isString(pkgStr)) {
       try {
         pkg = destr<AnyObject>(pkgStr)
@@ -269,7 +192,7 @@ export class Installer {
   }
 
   private writeCacheJson(value: ReturnType<typeof this.readCacheJson>) {
-    fs.writeJSONSync(this.cacheFilePath, {
+    fs.writeJSONSync(this.cacheJson, {
       ...this.readCacheJson(),
       ...value,
     })
@@ -293,94 +216,26 @@ export class Installer {
     this.statusBarItem?.dispose()
   }
 
-  /**
-   * 预定义的缓存依赖数组
-   */
-  public getCaches() {
-    const cachedFiles = [
-      {
-        key: 'releaseDirPath',
-        value: `${CacheDirs.build}/Release`,
-      },
-      {
-        key: 'vendorDirPath',
-        value: `${CacheDirs.vendor}/${libvips_config.version}`,
-      },
-      {
-        key: 'sharpFsPath',
-        value: 'sharp/index.js',
-      },
-    ]
-
-    const caches = [
-      {
-        type: CacheType.os,
-        cwd: this.getDepCacheDir(),
-        exists: FileCache.osCachable,
-      },
-      {
-        type: CacheType.extension,
-        cwd: this.getSharpCwd(),
-        exists: true,
-      },
-    ]
-      .filter(({ exists }) => !!exists)
-      .map(({ type, cwd }) => {
-        return cachedFiles.reduce((prev, current) => {
-          return {
-            ...prev,
-            [current.key]: slashPath(path.resolve(cwd, current.value)),
-            type,
-          }
-        }, {})
-      }) as { releaseDirPath: string; vendorDirPath: string; sharpFsPath: string; type: CacheType }[]
-
-    return caches
-  }
-
-  /**
-   * 获取已安装的缓存类型
-   */
-  private getInstalledCacheTypes(): CacheType[] | undefined {
-    const caches = this.getCaches()
-      .filter((cache) => {
-        const { releaseDirPath, sharpFsPath, vendorDirPath } = cache
-        if (
-          // .node file exists
-          fs.existsSync(releaseDirPath) &&
-          fs.readdirSync(releaseDirPath).some((t) => t.includes('.node')) &&
-          // vendor exists
-          fs.existsSync(vendorDirPath) &&
-          // sharp/index.js exists
-          fs.existsSync(sharpFsPath)
-        ) {
-          return true
-        }
-        return false
-      })
-      .map((cache) => cache.type)
-
-    return caches
-  }
-
-  private async loadSharp(cacheType: CacheType) {
-    const localSharpPath = this.getCaches().find((cache) => cache.type === cacheType)!.sharpFsPath
-
+  private async loadSharp() {
+    const localSharpPath = this.sharpjsCache.getSharpPath()
     logger.info(`Load sharp from: ${localSharpPath}`)
 
-    return new Promise<TSharp>((resolve, reject) => {
-      try {
-        const sharpModule = require(localSharpPath)
-        Channel.info(i18n.t('core.load_core_script_success'))
-        resolve(sharpModule.default || sharpModule.sharp)
-      } catch (e) {
-        Channel.error(`${i18n.t('core.load_core_script_fail')}: ${e}`)
-        reject(e)
-      }
-    })
+    if (localSharpPath) {
+      return new Promise<TSharp>((resolve, reject) => {
+        try {
+          const sharpModule = require(localSharpPath)
+          Channel.info(i18n.t('core.load_core_script_success'))
+          resolve(sharpModule.default || sharpModule.sharp)
+        } catch (e) {
+          Channel.error(`${i18n.t('core.load_core_script_fail')}: ${e}`)
+          reject(e)
+        }
+      })
+    }
+    throw new Error(i18n.t('core.load_core_script_fail'))
   }
 
-  private async pollingLoadSharp(cacheType: CacheType, maxTimes = 5) {
+  private async pollingLoadSharp(maxTimes = 5) {
     let time = 0
     return new Promise<TSharp>((resolve, reject) => {
       const interval = setImmdiateInterval(async () => {
@@ -402,9 +257,9 @@ export class Installer {
           return reject(errMsg)
         }
 
-        Channel.debug(`Try polling load sharp: ${time} time, cacheType: ${cacheType}`)
+        Channel.debug(`Try polling load sharp: ${time} time`)
         try {
-          const res = await this.loadSharp(cacheType)
+          const res = await this.loadSharp()
           if (res) {
             resolve(res)
             clearInterval(interval)
@@ -417,208 +272,32 @@ export class Installer {
     })
   }
 
-  /**
-   * 把缓存复制到系统缓存目录
-   */
-  private async tryCopyCacheToOs(cacheDirs: ValueOf<typeof CacheDirs>[]) {
-    if (!FileCache.osCachable) return false
-    // 确保缓存目录存在
-    fs.ensureDirSync(this.getDepCacheDir())
-    // 复制稳定文件到缓存目录
-    try {
-      await this.copyDirsToOsCache(cacheDirs)
-    } catch {
-      return false
-    }
-    return true
-  }
-
-  /**
-   * 复制扩展缓存到系统缓存
-   */
-  private copyDirsToOsCache(dirs: string[]) {
-    Channel.debug(`Copy [${dirs.join(',')}] to ${this.getDepCacheDir()}`)
-
-    return Promise.all(
-      dirs.map(async (dir) => {
-        const source = path.resolve(this.getSharpCwd(), dir)
-        if (fs.existsSync(source)) {
-          await fs.copy(path.resolve(this.getSharpCwd(), dir), path.resolve(this.getDepCacheDir(), dir))
-          Channel.debug(`Copy ${dir} success`)
-        } else {
-          Channel.debug(`${dir} not exists`)
-        }
-      }),
-    )
-  }
-
-  /**
-   * 获取sharp的cwd
-   * @returns /{extension-cwd}/dist/lib
-   */
-  private getSharpCwd() {
-    return slashPath(path.resolve(this.cwd, 'dist/lib'))
-  }
-
-  /**
-   * 获取缓存中依赖的目录路径
-   * @returns
-   * /{tmpdir}/vscode-image-manager-cache/lib
-   * or
-   * /{homedir}/vscode-image-manager-cache/lib
-   * or
-   * /{extension-cwd}/dist/lib
-   */
-  public getDepCacheDir() {
-    return slashPath(path.resolve(FileCache.cacheDir, 'lib'))
-  }
-
-  private async rm(path: string) {
-    if (fs.existsSync(path)) {
-      await fs.rm(path, { recursive: true })
-    }
-  }
-
   public async clearCaches() {
-    Promise.all([
-      () => {
-        if (FileCache.osCachable) {
-          // 如果有系统级缓存，清除
-          this.rm(this.getDepCacheDir())
-        }
-      },
-      // 清除 extension cache
-      ...[CacheDirs.vendor, CacheDirs.build, CacheDirs.cache_json].map((dir) =>
-        this.rm(path.resolve(this.getSharpCwd(), dir)),
-      ),
-    ])
+    if (FileCache.osCachable) {
+      // 如果有系统级缓存，清除
+      try {
+        await fs.rm(this.libCacheDir, { recursive: true, force: true })
+      } catch (e) {
+        logger.error(e)
+      }
+    }
   }
 
-  private async install() {
-    const cwd = this.getSharpCwd()
+  private async install(options?: { libvips?: boolean; sharp?: boolean }) {
+    const { libvips = true, sharp = true } = options || {}
 
-    const sharpBinaryReleaseDir = path.resolve(this.cwd, 'releases')
+    const downloaders: BaseDownloader[] = []
 
-    Channel.debug(`sharpBinaryReleaseDir: ${sharpBinaryReleaseDir}`)
-
-    // 如果扩展根目录有 libvips 的 .tar.gz 文件，用户可能有意手动安装依赖
-    const libvipsBins = fs.readdirSync(this.cwd).filter((file) => /^libvips.+\.tar\.gz$/.test(file))
-
-    const sharpBins = fs.readdirSync(sharpBinaryReleaseDir).filter((file) => /^sharp.+\.tar\.gz$/.test(file))
-
-    const installSuccess = {
-      libvips: false,
-      sharp: false,
+    if (libvips) {
+      downloaders.push(this.libvipsDownloader)
+    }
+    if (sharp) {
+      downloaders.push(this.sharpDownloader)
     }
 
-    if (libvipsBins.length) {
-      Channel.info(`libvips ${i18n.t('core.start_manual_install')}: ${libvipsBins.join(', ')}`)
-
-      const abortController = new AbortController()
-
-      await pAny(
-        libvipsBins.map(async (bin) => {
-          // 尝试手动安装
-          await execaNode('install/unpack-libvips.js', [path.join(this.cwd, bin)], {
-            cwd,
-            env: {
-              ...process.env,
-            },
-            stdio: 'inherit',
-            signal: abortController.signal,
-          })
-          abortController.abort()
-          installSuccess.libvips = true
-          Channel.info(`${i18n.t('core.manual_install_success')}: ${bin}`)
-        }),
-      )
-    }
-
-    if (!installSuccess.libvips) {
-      Channel.info(`libvips ${i18n.t('core.start_auto_install')}`)
-
-      const hosts = this.isCN
-        ? this.CN_host
-        : [
-            '', // 非中国地区
-            // 中国地区被墙需要从镜像源下载
-            ...this.CN_host,
-          ]
-
-      const abortController = new AbortController()
-
-      const installLibvipsFromHost = async (url: string) => {
-        const npm_config_sharp_libvips_binary_host = url ? new URL(`${url}/${libvips_config.name}`).toString() : url
-
-        await execaNode('install/install-libvips.js', {
-          cwd,
-          env: {
-            ...process.env,
-            npm_package_config_libvips: libvips_config.version,
-            npm_config_sharp_libvips_binary_host,
-          },
-          stdio: 'inherit',
-          signal: abortController.signal,
-        })
-      }
-
-      for (const host of hosts) {
-        try {
-          await pTimeout(
-            installLibvipsFromHost(host).then(() => {
-              Channel.info(`libvips installed from: ${host ? host : 'Github Release'}`)
-              abortController.abort()
-              installSuccess.libvips = true
-            }),
-            {
-              milliseconds: 30 * 1000,
-            },
-          )
-          break
-        } catch (e: any) {
-          Channel.error(e.message)
-        }
-      }
-
-      // 安装失败
-      if (installSuccess.libvips === false) {
-        Channel.error(`${i18n.t('core.manual_install_failed')}: ${this.libvips_bin}`)
-        Channel.error(i18n.t('core.manual_install_failed'), true)
-      }
-    }
-
-    await execaNode('install/dll-copy.js', {
-      cwd,
-      stdio: 'inherit',
-    })
-
-    if (sharpBins.length) {
-      Channel.info(`sharp binary ${i18n.t('core.start_auto_install')}: ${sharpBins.join(', ')}`)
-
-      const abortController = new AbortController()
-
-      await pAny(
-        sharpBins.map(async (bin) => {
-          await execaNode(
-            'install/unpack-sharp.js',
-            [`--path=${cwd}`, `--binPath=${path.join(sharpBinaryReleaseDir, bin)}`],
-            {
-              cwd,
-              signal: abortController.signal,
-            },
-          )
-          abortController.abort()
-          Channel.info(`${i18n.t('core.auto_install_success')}: ${bin}`)
-          installSuccess.sharp = true
-        }),
-      )
-
-      if (!installSuccess.sharp) {
-        Channel.error(`sharp ${i18n.t('core.dep_install_fail')}`, true)
-      }
-    }
+    await Promise.all(downloaders.map((t) => t.install()))
 
     Channel.info(i18n.t('core.install_finished'))
-    return installSuccess
+    return true
   }
 }

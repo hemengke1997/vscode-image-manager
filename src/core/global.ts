@@ -6,7 +6,7 @@ import { AbortError, TimeoutError } from '~/utils/abort-promise'
 import { Channel } from '~/utils/node/channel'
 import { type ImageManagerPanel } from '~/webview/panel'
 import { ConfigKey, type VscodeConfigType } from './config/common'
-import { type Installer, InstallEvent } from './sharp/installer'
+import { Installer, InstallEvent } from './sharp/installer'
 
 export class Global {
   static imageManagerPanels: ImageManagerPanel[] = []
@@ -41,6 +41,10 @@ export class Global {
     this.vscodeTheme = settings.theme
     this.vscodeLanguage = settings.language
     this.vscodeReduceMotion = settings.reduceMotion
+
+    Global.installer = new Installer({
+      timeout: 30 * 1000, // 30s
+    })
 
     context.subscriptions.push(
       workspace.onDidChangeConfiguration((e) => {

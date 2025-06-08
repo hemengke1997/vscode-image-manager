@@ -15,18 +15,19 @@ export class AbortError extends Error {
   }
 }
 
-export async function abortPromise<T = any>(
-  promiseFn: () => Promise<T>,
+export async function abortPromise<P = any, T = any>(
+  promiseFn: (params?: P) => Promise<T>,
   options: {
     timeout?: number
     abortController: AbortController
     mock?: boolean
+    params?: P
   },
 ) {
-  const { timeout = Infinity, abortController, mock } = options
+  const { timeout = Infinity, abortController, mock, params } = options
 
   try {
-    const res = await pTimeout<T>(mock ? delay(timeout) : promiseFn(), {
+    const res = await pTimeout<T>(mock ? delay(timeout) : promiseFn(params), {
       milliseconds: timeout,
       signal: abortController.signal,
     })
@@ -44,15 +45,16 @@ export async function abortPromise<T = any>(
 
 class CancelablePromise {
   abortPromiseMap = new Map<string, AbortController>()
-  run = async <T = any>(
-    promiseFn: () => Promise<T>,
+  run = async <P = any, T = any>(
+    promiseFn: (params?: P) => Promise<T>, // 修改为支持接受参数
     options: {
       key: string
       timeout?: number
       mock?: boolean
+      params?: P
     },
   ) => {
-    const { key, timeout, mock } = options
+    const { key, timeout, mock, params } = options
 
     if (this.abortPromiseMap.has(key)) {
       this.abortPromiseMap.get(key)?.abort()
@@ -65,6 +67,7 @@ class CancelablePromise {
       timeout,
       abortController: controller,
       mock,
+      params, // 将参数传递给 abortPromise
     }).finally(() => {
       this.abortPromiseMap.delete(key)
     })

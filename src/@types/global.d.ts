@@ -1,4 +1,4 @@
-import type SharpNS from '@minko-fe/sharp'
+import type SharpNS from 'sharp'
 import { type ReactElement } from 'react'
 import { type Stats } from 'fs-extra'
 import {

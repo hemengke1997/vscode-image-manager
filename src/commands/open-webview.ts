@@ -5,7 +5,6 @@ import { Config } from '~/core/config/config'
 import { Global } from '~/core/global'
 import { Svgo } from '~/core/operator/svgo'
 import { WorkspaceState } from '~/core/persist/workspace/workspace-state'
-import { Installer } from '~/core/sharp/installer'
 import { Watcher } from '~/core/watcher'
 import { type ExtensionModule } from '~/module'
 import { slashPath } from '~/utils'
@@ -19,10 +18,6 @@ export default <ExtensionModule>function (ctx) {
   let sharpInstalled: boolean
 
   const init = once(() => {
-    Global.installer = new Installer({
-      timeout: 30 * 1000, // 30s
-    })
-
     WorkspaceState.init()
     Svgo.init()
   })

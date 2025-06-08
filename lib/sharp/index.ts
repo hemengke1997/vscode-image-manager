@@ -1,4 +1,4 @@
-import sharp from '@minko-fe/sharp'
+import sharp from 'sharp'
 
 export { sharp }
 export default sharp
