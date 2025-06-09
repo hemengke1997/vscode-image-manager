@@ -28,7 +28,7 @@ function imageToken(isDarkBackground: boolean): Partial<ComponentTokenMap['Image
   return {
     previewOperationColor: isDarkBackground ? 'rgba(255, 255, 255, 1)' : 'rgba(0, 0, 0, 1)',
     previewOperationColorDisabled: isDarkBackground ? 'rgba(255, 255, 255, 0.25)' : 'rgba(0, 0, 0, 0.25)',
-    previewOperationHoverColor: isDarkBackground ? 'rgba(255, 255, 255, 0.85)' : 'rgba(0, 0, 0, 0.85)',
+    previewOperationHoverColor: isDarkBackground ? 'rgba(255, 255, 255, 0.8)' : 'rgba(0, 0, 0, 0.8)',
     colorTextLightSolid: isDarkBackground ? 'rgba(255, 255, 255, 1)' : 'rgba(0, 0, 0, 1)',
   }
 }
@@ -419,7 +419,7 @@ function ImageGroup(props: Props, ref: ForwardedRef<HTMLDivElement>) {
 
   const previewProps: PreviewGroupPreview = useMemo(() => {
     return {
-      destroyOnHidden: true,
+      destroyOnClose: true,
       visible: preview?.open,
       current: preview?.current,
       maskClosable: false,
@@ -443,7 +443,7 @@ function ImageGroup(props: Props, ref: ForwardedRef<HTMLDivElement>) {
         flipX: false,
         flipY: false,
       },
-    }
+    } satisfies PreviewGroupPreview
   }, [preview, previewScale, handlePreviewChange, handleVisibleChange, handleImageRender, handleTransform])
 
   const previewItems = useMemo(

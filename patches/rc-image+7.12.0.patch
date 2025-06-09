@@ -32,7 +32,7 @@ index 25d223f..e8093b5 100644
      resetTransform = _useImageTransform.resetTransform,
      updateTransform = _useImageTransform.updateTransform,
 diff --git a/node_modules/rc-image/es/hooks/useImageTransform.js b/node_modules/rc-image/es/hooks/useImageTransform.js
-index 1f47007..077de7a 100644
+index 1f47007..12edecf 100644
 --- a/node_modules/rc-image/es/hooks/useImageTransform.js
 +++ b/node_modules/rc-image/es/hooks/useImageTransform.js
 @@ -1,10 +1,12 @@
@@ -55,8 +55,8 @@ index 1f47007..077de7a 100644
  };
 -export default function useImageTransform(imgRef, minScale, maxScale, onTransform) {
 +
-+export default function useImageTransform(imgRef, minScale, maxScale, onTransform, initialTransform) {
-+  initialTransform = initialTransform || internalInitialTransform;
++export default function useImageTransform(imgRef, minScale, maxScale, onTransform, _initialTransform) {
++  var initialTransform = _initialTransform || internalInitialTransform;
    var frame = useRef(null);
    var queue = useRef([]);
    var _useState = useState(initialTransform),
@@ -71,7 +71,7 @@ index 1f47007..077de7a 100644
 +        scale: initialTransform.scale
 +      }
 +    });
-+  },[initialTransform.scale])
++  }, [initialTransform.scale])
 +
    /** Direct update transform */
    var updateTransform = function updateTransform(newTransform, action) {

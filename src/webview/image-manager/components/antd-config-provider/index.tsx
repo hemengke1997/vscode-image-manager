@@ -2,7 +2,7 @@ import { memo, type PropsWithChildren, useEffect } from 'react'
 import { setGlobalConfig } from 'react-transition-preset'
 import { TinyColor } from '@ctrl/tinycolor'
 import { theme as antdTheme, App, ConfigProvider } from 'antd'
-import { Theme } from '~/enums'
+import { type Theme } from '~/enums'
 import SettingsStore from '~/webview/image-manager/stores/settings-store'
 import { getCssVar } from '~/webview/image-manager/utils/theme'
 
@@ -78,7 +78,7 @@ function AntdConfigProvider({ children }: PropsWithChildren) {
             colorBgContainer: vscodeEditorBackground,
             colorBgBase: ligherOrDarker(vscodeEditorBackground, theme),
           }),
-          colorBgMask: new TinyColor(token.token.colorBgMask).setAlpha(theme === Theme.dark ? 0.6 : 0.85).toString(),
+          colorBgMask: new TinyColor(token.token.colorBgMask).setAlpha(0.5).toString(),
         },
         components: {
           Modal: {
