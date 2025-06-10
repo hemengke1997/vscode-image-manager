@@ -194,6 +194,7 @@ export abstract class BaseDownloader {
    */
   private async extractRelease(options: { tarPath: string; dest: string; clean?: boolean }) {
     const { tarPath, dest, clean = true } = options
+
     await pipeline(fs.createReadStream(tarPath), zlib.createGunzip(), tarFs.extract(dest))
     logger.info(`Extracted ${tarPath} to ${dest}`)
 
@@ -210,7 +211,7 @@ export abstract class BaseDownloader {
   /**
    * 温馨提示
    */
-  warmTip() {
+  private warmTip() {
     Channel.divider()
     Channel.info(`${i18n.t('core.tip')}: ${i18n.t('core.dep_url_tip')} ⬇️`)
     this.generateDownloadUrls().forEach((url) => {

@@ -1,7 +1,6 @@
-import fs from 'fs-extra'
+import { globby } from 'globby'
 import { runtimePlatformArch } from 'sharp/lib/libvips'
 import { config } from 'sharp/package.json'
-import { type Promisable } from 'type-fest'
 import { cleanVersion } from '~/utils'
 import { BaseDownloader } from './base'
 
@@ -22,8 +21,12 @@ export class LibvipsDownloader extends BaseDownloader {
     return `v${this.version}/libvips-${this.version}-${runtimePlatformArch()}${armVersion}.tar.gz`
   }
 
-  detectUserLocalRelease(): Promisable<string[]> {
-    const libvipsBins = fs.readdirSync(this.extensionCwd).filter((file) => /^libvips.+\.tar\.gz$/.test(file))
+  async detectUserLocalRelease(): Promise<string[]> {
+    const libvipsBins = await globby('libvips-*.tar.gz', {
+      cwd: this.extensionCwd,
+      absolute: true,
+      onlyFiles: true,
+    })
     return libvipsBins
   }
 

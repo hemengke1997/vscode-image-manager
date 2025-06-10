@@ -1,7 +1,6 @@
-import fs from 'fs-extra'
+import { globby } from 'globby'
 import { runtimePlatformArch } from 'sharp/lib/libvips'
 import { version } from 'sharp/package.json'
-import { type Promisable } from 'type-fest'
 import { BaseDownloader } from './base'
 
 export class SharpDownloader extends BaseDownloader {
@@ -13,8 +12,12 @@ export class SharpDownloader extends BaseDownloader {
     return `v${this.version}/sharp-v${this.version}-napi-v9-${runtimePlatformArch()}.tar.gz`
   }
 
-  detectUserLocalRelease(): Promisable<string[]> {
-    const sharpBins = fs.readdirSync(this.extensionCwd).filter((file) => /^sharp.+\.tar\.gz$/.test(file))
+  async detectUserLocalRelease(): Promise<string[]> {
+    const sharpBins = await globby('sharp-*.tar.gz', {
+      cwd: this.extensionCwd,
+      absolute: true,
+      onlyFiles: true,
+    })
     return sharpBins
   }
 
