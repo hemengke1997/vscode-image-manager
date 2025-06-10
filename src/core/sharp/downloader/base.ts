@@ -1,4 +1,5 @@
 import fs from 'fs-extra'
+import { globby } from 'globby'
 import { nanoid } from 'nanoid'
 import fetch from 'node-fetch'
 import os from 'node:os'
@@ -22,36 +23,36 @@ const pipeline = util.promisify(stream.pipeline)
 
 export abstract class BaseDownloader {
   // 包名称
-  abstract name: string
+  protected abstract name: string
   // 包版本
-  abstract version: string
+  protected abstract version: string
   // 包解压后目录
-  abstract dest: string
-
-  hosts = [
+  protected abstract dest: string
+  // 用户本地二进制包的glob匹配
+  protected abstract userLocalReleaseGlob: string
+  // 地区可用的binary下载地址
+  protected hosts = [
     'https://registry.npmmirror.com/-/binary',
     'https://npmmirror.com/mirrors',
     'https://cdn.npmmirror.com/binaries',
-    '',
+    '', // github fallback
   ]
 
   /**
+   * 生成二进制包名称
+   */
+  protected abstract genRemoteReleaseName(): string
+  /**
    * 生成下载地址
    */
-  abstract generateDownloadUrls(): string[]
+  protected abstract generateDownloadUrls(): string[]
 
-  /**
-   * 探测用户本地是否存在已下载的二进制包
-   * 如果有，表示用户期望手动安装，则不从远程下载
-   */
-  abstract detectUserLocalRelease(): Promisable<string[]>
-
-  extensionCwd = Global.context.extensionUri.fsPath
-  osCacheDir = slashPath(path.join(FileCache.cacheDir, 'lib/src'))
-  extensionCacheDir = slashPath(path.join(this.extensionCwd, 'dist/lib/src'))
+  private extensionCwd = Global.context.extensionUri.fsPath
+  private osCacheDir = slashPath(path.join(FileCache.cacheDir, 'lib/src'))
+  private extensionCacheDir = slashPath(path.join(this.extensionCwd, 'dist/lib/src'))
 
   constructor(
-    public options: {
+    private options: {
       readCacheJson: () => Record<string, string>
       writeCacheJson: (cache: Record<string, string>) => Promisable<void>
     },
@@ -69,6 +70,19 @@ export abstract class BaseDownloader {
         [this.name]: this.version,
       })
     }
+  }
+
+  /**
+   * 探测用户本地是否存在已下载的二进制包
+   * 如果有，表示用户期望手动安装，则不从远程下载
+   */
+  private async detectUserLocalRelease() {
+    const bins = await globby(this.userLocalReleaseGlob, {
+      cwd: this.extensionCwd,
+      absolute: true,
+      deep: 0,
+    })
+    return bins
   }
 
   /**
@@ -206,6 +220,13 @@ export abstract class BaseDownloader {
     }
 
     this.addToOsCache()
+  }
+
+  /**
+   * 获取二进制包的基本名称
+   */
+  protected getBasename(str: string) {
+    return path.basename(str)
   }
 
   /**

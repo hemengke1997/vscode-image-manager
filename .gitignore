@@ -6,6 +6,8 @@
 *.tgz
 *.vsix
 
+*.tar.gz
+
 coverage
 lib-cov
 logs
