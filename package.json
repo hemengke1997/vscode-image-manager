@@ -100,7 +100,7 @@
     "@types/tar-fs": "2.0.4",
     "@types/vscode": "^1.70.0",
     "@types/vscode-webview": "^1.57.5",
-    "@vitejs/plugin-react": "^4.5.1",
+    "@vitejs/plugin-react": "^4.5.2",
     "@vscode/vsce": "^3.5.0",
     "ahooks": "^3.8.5",
     "ahooks-x": "^2.2.0",
@@ -179,6 +179,7 @@
     "ts-key-enum": "2.0.13",
     "tsup": "8.3.0",
     "tsx": "^4.19.4",
+    "tunnel-agent": "^0.6.0",
     "tw-clsx": "^1.0.0",
     "type-fest": "^4.41.0",
     "typescript": "^5.8.3",
@@ -189,7 +190,7 @@
     "vite-plugin-i18n-ally": "^6.1.0",
     "vite-plugin-markdown": "^2.2.0",
     "vitepress": "^1.6.3",
-    "vitest": "^3.2.2"
+    "vitest": "^3.2.3"
   },
   "engines": {
     "vscode": "^1.70.0"

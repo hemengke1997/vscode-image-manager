@@ -95,15 +95,17 @@ export abstract class BaseDownloader {
       const extensionCacheDir = path.join(this.extensionCacheDir, this.dest)
       const osCacheDir = path.join(this.osCacheDir, this.dest)
 
-      isInstalled = await pAny(
-        [extensionCacheDir, osCacheDir].map(async (dir) => {
-          try {
-            return Boolean((await fs.readdir(dir)).length)
-          } catch {
-            return false
-          }
-        }),
-      )
+      try {
+        isInstalled = await pAny(
+          [extensionCacheDir, osCacheDir].map(async (dir) => {
+            const files = await fs.readdir(dir)
+            return Boolean(files.length)
+          }),
+        )
+      } catch {
+        // 插件缓存/本地缓存都不存在
+        isInstalled = false
+      }
     }
 
     Channel.debug(`${this.name} is already installed: ${isInstalled}`)
@@ -151,6 +153,7 @@ export abstract class BaseDownloader {
 
     const buffer = await pAny(
       urls.map(async (url) => {
+        Channel.debug(`Downloading ${this.name} from: ${url}`)
         const buffer = await pTimeout(this.downloadRelease(url), {
           milliseconds: 30 * 1000,
           signal: abortController.signal,

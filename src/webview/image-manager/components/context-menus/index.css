@@ -1,8 +1,8 @@
 [data-theme='dark'] {
-  --custom-contexify-menu-bgColor: rgba(55, 55, 55, 0.7);
+  --custom-contexify-menu-bgColor: rgba(40, 40, 40, 0.4);
 }
 [data-theme='light'] {
-  --custom-contexify-menu-bgColor: rgba(200, 200, 200, 0.7);
+  --custom-contexify-menu-bgColor: rgba(222, 222, 222, 0.4);
 }
 
 .contexify {

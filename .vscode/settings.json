@@ -7,7 +7,7 @@
   "i18n-ally.namespace": false,
   "i18n-ally.pathMatcher": "{locale}.json5",
   "i18n-ally.sourceLanguage": "zh-CN",
-  "image-manager.appearance.language": "en",
+  "image-manager.appearance.language": "zh-TW",
   "search.exclude": {
     "**/__snapshots__/**": true,
     "CHANGELOG-CODE.md": true,
