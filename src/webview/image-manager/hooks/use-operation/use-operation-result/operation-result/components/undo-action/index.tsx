@@ -8,7 +8,7 @@ function UndoAction(props: { onClick: () => void }) {
   const { onClick } = props
   const { t } = useTranslation()
   return (
-    <Tooltip title={t('im.undo')} placement={'bottom'}>
+    <Tooltip title={t('im.undo')} placement={'bottom'} arrow={false}>
       <Button
         onClick={triggerOnce(() => {
           onClick()

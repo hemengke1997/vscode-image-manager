@@ -1,11 +1,12 @@
-import { memo, useRef, useState } from 'react'
+import { memo, useEffect, useRef, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { GoLog } from 'react-icons/go'
 import { MdBrowserUpdated } from 'react-icons/md'
 import { useMemoizedFn, useTrackedEffect } from 'ahooks'
 import { type ImperativeModalProps } from 'ahooks-x/use-imperative-antd-modal'
 import { App, Button, Divider, Form, Space, Tabs, type TabsProps, Typography } from 'antd'
-import { isNil } from 'es-toolkit'
+import { isEqual, isNil } from 'es-toolkit'
+import { some } from 'es-toolkit/compat'
 import { author, version } from '~root/package.json'
 import { WorkspaceStateKey } from '~/core/persist/workspace/common'
 import AlignColumn, { useColumnWidth } from '~/webview/image-manager/components/align-column'
@@ -41,7 +42,7 @@ enum SettingsKey {
 function Settings(props: ImperativeModalProps) {
   const { closeModal } = props
 
-  const { t } = useTranslation()
+  const { t, i18n } = useTranslation()
 
   const { workspaceState, extLastetInfo } = GlobalStore.useStore(['workspaceState', 'extLastetInfo'])
 
@@ -368,16 +369,53 @@ function Settings(props: ImperativeModalProps) {
     },
   ]
 
+  const shouldShowMessage = useRef(false)
+
   const [form] = Form.useForm()
   const { message } = App.useApp()
   const onFinish = useMemoizedFn((values) => {
     closeModal()
+    const changed: {
+      [key in keyof typeof formStrategy]?: boolean
+    } = {}
     for (const key in values) {
       const value = values[key]
-      if (!isNil(value)) {
-        formStrategy[key].onChange(values[key])
+
+      // 深对比
+      if (!isEqual(value, formStrategy[key].value)) {
+        changed[key] = true
+
+        if (!isNil(value)) {
+          formStrategy[key].onChange(values[key])
+        }
       }
     }
+    if (some(changed, (t) => !!t)) {
+      if (changed[SettingsKey.language]) {
+        // 在语言变化后在提示修改成功
+        shouldShowMessage.current = true
+      } else {
+        // 直接提示
+        onModifySuccess()
+      }
+    }
+  })
+
+  useEffect(() => {
+    function event() {
+      if (shouldShowMessage) {
+        onModifySuccess()
+        shouldShowMessage.current = false
+      }
+    }
+    i18n.on('languageChanged', event)
+
+    return () => {
+      i18n.off('languageChanged', event)
+    }
+  }, [i18n])
+
+  const onModifySuccess = useMemoizedFn(() => {
     message.success(t('im.modify_success'))
   })
 

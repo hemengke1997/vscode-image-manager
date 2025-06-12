@@ -1,7 +1,11 @@
 import { memo } from 'react'
 import { useTranslation } from 'react-i18next'
+import { useMemoizedFn } from 'ahooks'
 import { useControlledState } from 'ahooks-x'
 import { Segmented } from 'antd'
+import Preview from '../preview'
+import Compact from './images/compact.png?base64'
+import Nest from './images/nest.png?base64'
 
 export type DisplayStyleType = 'compact' | 'nested'
 
@@ -16,28 +20,40 @@ function DisplayStyle(props: DisplayStyleProps) {
   const { t } = useTranslation()
 
   const [displayStyle, setDisplayStyle] = useControlledState({
-    defaultValue: 'nested',
+    defaultValue: 'compact',
     value,
     onChange,
   })
 
+  const image = useMemoizedFn(() => {
+    switch (displayStyle) {
+      case 'compact':
+        return Compact
+      case 'nested':
+        return Nest
+    }
+  })
+
   return (
-    <Segmented
-      options={[
-        {
-          label: t('im.compact'),
-          value: 'compact',
-        },
-        {
-          label: t('im.nested'),
-          value: 'nested',
-        },
-      ]}
-      value={displayStyle}
-      onChange={(value) => {
-        setDisplayStyle(value as DisplayStyleType)
-      }}
-    ></Segmented>
+    <div className={'flex items-center gap-x-2'}>
+      <Segmented
+        options={[
+          {
+            label: t('im.compact'),
+            value: 'compact',
+          },
+          {
+            label: t('im.nested'),
+            value: 'nested',
+          },
+        ]}
+        value={displayStyle}
+        onChange={(value) => {
+          setDisplayStyle(value as DisplayStyleType)
+        }}
+      ></Segmented>
+      <Preview image={image()} className={'w-[200px]'} />
+    </div>
   )
 }
 

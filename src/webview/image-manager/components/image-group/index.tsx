@@ -1,7 +1,7 @@
 import { type ForwardedRef, forwardRef, memo, type ReactNode, useEffect, useMemo, useRef, useState } from 'react'
 import { toast } from 'react-atom-toast'
 import { FaLock, FaLockOpen } from 'react-icons/fa6'
-import { useMemoizedFn } from 'ahooks'
+import { useDeepCompareEffect, useMemoizedFn } from 'ahooks'
 import { useControlledState } from 'ahooks-x'
 import { Button, ConfigProvider, type GetProps, Image, theme } from 'antd'
 import { type AliasToken, type ComponentTokenMap } from 'antd/es/theme/interface'
@@ -74,7 +74,6 @@ type Props = {
    * 受控 selectedImages 改变时的回调
    */
   onSelectedImagesChange?: (selectedImages: ImageType[]) => void
-
   /**
    * 点击空白处时，是否清空选中的图片
    */
@@ -134,17 +133,21 @@ function ImageGroup(props: Props, ref: ForwardedRef<HTMLDivElement>) {
     index,
   })
 
-  useEffect(() => {
+  useDeepCompareEffect(() => {
     if (inViewer) {
       if (imageReveal) {
         const cleanPath = clearTimestamp(imageReveal)
         const index = imagesProp.findIndex((t) => t.path === cleanPath)
+        logger.debug('Reveal Image Index', index)
         setIndex(index)
-      } else {
-        setIndex(-1)
       }
     }
-  }, [imageReveal])
+  }, [
+    imageReveal,
+    // 可能在imageReveal变化后，但 imagesProp 还未更新，导致index找不到
+    // 所以需要依赖 imagesProp
+    imagesProp,
+  ])
 
   const preview_scale = GlobalStore.useStore((ctx) => ctx.workspaceState.preview_scale)
   const { isDarkBackground, backgroundColor, tinyBackgroundColor } = SettingsStore.useStore([

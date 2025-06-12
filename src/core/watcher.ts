@@ -28,15 +28,16 @@ import { ConfigKey } from './config/common'
 import { Config } from './config/config'
 
 export class Watcher {
-  public watchers: FileSystemWatcher[] = []
-  public glob: ReturnType<typeof imageGlob> | undefined
-  public gitignores: GlobbyFilterFunction[] = []
+  private watchers: FileSystemWatcher[] = []
+  private glob: ReturnType<typeof imageGlob> | undefined
+  private gitignores: GlobbyFilterFunction[] = []
+  private rootpaths: string[] = []
 
   private disposables: Disposable[] = []
 
   constructor(
-    public rootpaths: string[],
-    public imageManagerPanel: ImageManagerPanel,
+    rootpaths: string[],
+    private imageManagerPanel: ImageManagerPanel,
   ) {
     this.restart(rootpaths)
 
@@ -45,7 +46,7 @@ export class Watcher {
         for (const config of [ConfigKey.file_exclude, ConfigKey.file_scan, ConfigKey.file_gitignore]) {
           const key = `${EXT_NAMESPACE}.${config}`
           if (e.affectsConfiguration(key)) {
-            this.restart(rootpaths)
+            this.restart(this.rootpaths)
             logger.debug(`Watcher: ${key} changed`)
             break
           }
@@ -72,10 +73,10 @@ export class Watcher {
     }
 
     if (isDirectory) {
-      return !micromatch.all(slashPath(e.fsPath), this.glob!.allCwdPatterns)
+      return !micromatch.all(this.fsPath(e), this.glob!.allCwdPatterns)
     }
 
-    return !micromatch.all(slashPath(e.fsPath), this.glob!.allImagePatterns)
+    return !micromatch.all(this.fsPath(e), this.glob!.allImagePatterns)
   }
 
   private eventQueue: { e: Uri; type: UpdateEvent; isDirectory: boolean }[] = []
@@ -115,13 +116,18 @@ export class Watcher {
       events.map(async (event): Promise<UpdatePayload | undefined> => {
         const { e, type, isDirectory } = event
 
+        const basename = path.basename(this.fsPath(e))
+        const absWorkspaceFolder = this.guessCwdFromPath(this.fsPath(e))
+        const dirPath = resolveDirPath(this.fsPath(e), absWorkspaceFolder)
+        const workspaceFolder = path.basename(absWorkspaceFolder)
+
         if (isDirectory) {
           // 目录不会触发 onDidChange
           switch (type) {
             // 如果是创建目录，则需要获取目录下的所有图片
             case UpdateEvent.create: {
               VscodeMessageFactory[CmdToVscode.get_all_images_from_cwds](
-                { glob: slashPath(e.fsPath) },
+                { glob: this.fsPath(e) },
                 this.imageManagerPanel,
               )
               break
@@ -135,9 +141,9 @@ export class Watcher {
             data: {
               type,
               payload: {
-                dirPath: resolveDirPath(slashPath(e.fsPath), this.guessCwdFromPath(slashPath(e.fsPath)), true),
-                absDirPath: slashPath(e.fsPath),
-                workspaceFolder: path.basename(this.guessCwdFromPath(slashPath(e.fsPath))),
+                absDirPath: this.fsPath(e),
+                dirPath,
+                workspaceFolder,
               },
             },
           }
@@ -148,8 +154,8 @@ export class Watcher {
           if ([UpdateEvent.create, UpdateEvent.update].includes(type)) {
             const res = await VscodeMessageFactory[CmdToVscode.get_images](
               {
-                filePaths: [slashPath(e.fsPath)],
-                cwd: this.guessCwdFromPath(slashPath(e.fsPath)),
+                filePaths: [this.fsPath(e)],
+                cwd: absWorkspaceFolder,
               },
               this.imageManagerPanel,
             )
@@ -162,18 +168,18 @@ export class Watcher {
             }
           }
           if (type === UpdateEvent.delete) {
-            const parsedPath = path.parse(slashPath(e.fsPath))
+            const parsedPath = path.parse(this.fsPath(e))
             return {
               origin: UpdateOrigin.image,
               data: {
                 payload: {
-                  path: slashPath(e.fsPath),
+                  path: this.fsPath(e),
                   name: parsedPath.name,
-                  basename: path.basename(slashPath(e.fsPath)),
-                  dirPath: resolveDirPath(slashPath(e.fsPath), this.guessCwdFromPath(slashPath(e.fsPath))),
                   extname: parsedPath.ext.replace('.', ''),
-                  workspaceFolder: path.basename(this.guessCwdFromPath(slashPath(e.fsPath))),
-                  absWorkspaceFolder: this.guessCwdFromPath(slashPath(e.fsPath)),
+                  basename,
+                  dirPath,
+                  workspaceFolder,
+                  absWorkspaceFolder,
                 } as ImageType,
                 type,
               },
@@ -184,10 +190,16 @@ export class Watcher {
     )
   }
 
+  /**
+   * 兼容 Windows 和 Linux 的路径
+   */
+  private fsPath(e: Uri) {
+    return slashPath(e.fsPath)
+  }
+
   private guessCwdFromPath(path: string) {
     const weight = this.rootpaths.map((r) => r.split(path)[0].length)
     const index = weight.indexOf(max(weight)!)
-
     return this.rootpaths[index]
   }
 
@@ -206,10 +218,10 @@ export class Watcher {
   private handleEvent(e: Uri, type: UpdateEvent) {
     if (e.scheme !== 'file') return
 
-    const isDirectory = !path.extname(slashPath(e.fsPath))
+    const isDirectory = !path.extname(this.fsPath(e))
 
     if (this.isIgnored(e, isDirectory)) {
-      logger.debug(`Ignored: ${slashPath(e.fsPath)}`)
+      logger.debug(`Ignored: ${this.fsPath(e)}`)
       return
     }
 
@@ -242,14 +254,15 @@ export class Watcher {
   private isGitIgnored(e: Uri) {
     if (!Config.file_gitignore) return false
 
-    const ignored = this.gitignores.some((fn) => fn(slashPath(e.fsPath)))
+    const ignored = this.gitignores.some((fn) => fn(this.fsPath(e)))
     if (ignored) {
-      logger.debug(`git ignored: ${slashPath(e.fsPath)}`)
+      logger.debug(`git ignored: ${this.fsPath(e)}`)
     }
     return ignored
   }
 
   private startWatch(rootpaths: string[]) {
+    this.rootpaths = rootpaths
     this.gitignores = rootpaths.map((r) => isGitIgnoredSync({ cwd: r })).filter((t) => !!t)
 
     Channel.info(i18n.t('prompt.watch_root', rootpaths.join(',')))

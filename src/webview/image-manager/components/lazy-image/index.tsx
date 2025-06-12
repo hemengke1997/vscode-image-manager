@@ -5,6 +5,7 @@ import { useControlledState } from 'ahooks-x'
 import { type GetProps, type ImageProps } from 'antd'
 import { trim } from 'es-toolkit'
 import { classNames } from 'tw-clsx'
+import logger from '~/utils/logger'
 import { getAppRoot } from '~/webview/utils'
 import type ImageName from '../image-name'
 import useImageManagerEvent, { IMEvent } from '../../hooks/use-image-manager-event'
@@ -141,12 +142,18 @@ function LazyImage(props: Props) {
       // 清除 imageReveal，避免重复选中
       imageManagerEvent.emit(IMEvent.clear_image_reveal)
 
+      logger.debug('Reveal图片', image.path)
+
       // 刚打开时，图片可能还未加载，所以需要等待图片加载完成后再滚动
       const callback = () => {
         try {
           if (scrolled || isElInViewport(elRef.current)) {
+            logger.debug('图片已在视口中，无需滚动', image.path)
             return
           }
+
+          logger.debug('打开Reveal图片', image.path)
+
           const y = elRef.current?.getBoundingClientRect().top
           const clientHeight = document.documentElement.clientHeight
 
@@ -170,11 +177,13 @@ function LazyImage(props: Props) {
       // 从explorer打开图片
       timer = setTimeout(() => {
         callback()
+        imageManagerEvent.emit(IMEvent.clear_image_reveal)
       })
     }
 
     return () => {
       if (isTargetImage()) {
+        logger.debug('清除Reveal图片')
         setSelected(false)
         imageManagerEvent.emit(IMEvent.clear_image_reveal)
         clearTimeout(timer)

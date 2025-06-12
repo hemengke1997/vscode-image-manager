@@ -52,6 +52,11 @@ body {
     /* 让center看起来更舒适 */
     @apply top-[-12%];
   }
+
+  .ant-modal-confirm .ant-modal-confirm-paragraph {
+    /* modal内容宽度占满 */
+    @apply max-w-none;
+  }
 }
 
 ::-webkit-scrollbar {

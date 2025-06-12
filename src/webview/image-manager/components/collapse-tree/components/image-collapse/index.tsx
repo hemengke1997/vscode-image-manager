@@ -1,4 +1,6 @@
-import { memo, type ReactNode, useEffect, useMemo, useRef, useState } from 'react'
+import './index.css'
+
+import { memo, type ReactNode, useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { Element, scroller } from 'react-scroll'
 import { styleObjectToString } from '@minko-fe/style-object-to-string'
 import { useMemoizedFn, useUpdateEffect } from 'ahooks'
@@ -17,7 +19,6 @@ import { clearTimestamp } from '../../../../utils'
 import { type EnableCollapseContextMenuType } from '../../../context-menus/components/collapse-context-menu'
 import useCollapseContextMenu from '../../../context-menus/components/collapse-context-menu/hooks/use-collapse-context-menu'
 import ImageGroup from '../../../image-group'
-import './index.css'
 import SingleLabel from './components/single-label'
 
 type ImageCollapseProps = {
@@ -328,11 +329,15 @@ function ImageCollapse(props: ImageCollapseProps) {
     )
   })
 
-  const isCutImage = useMemoizedFn((image: ImageType) => {
-    if (imageCopied?.type === CopyType.MOVE && imageCopied.list.length) {
-      return imageCopied.list.some((item) => item.path === image.path)
-    }
-  })
+  // 这是使用useCallback是为了能够在imageCopied改变时，触发lazyImageProps的渲染
+  const isCutImage = useCallback(
+    (image: ImageType) => {
+      if (imageCopied?.type === CopyType.MOVE && imageCopied.list.length) {
+        return imageCopied.list.some((item) => item.path === image.path)
+      }
+    },
+    [imageCopied],
+  )
 
   const onClearImageGroupSelected = useMemoizedFn(() => {
     imageManagerEvent.emit(IMEvent.clear_viewer_selected_images)

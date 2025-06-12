@@ -8,7 +8,7 @@
 .contexify {
   --contexify-menu-bgColor: var(--custom-contexify-menu-bgColor);
   --contexify-activeItem-color: var(--ant-color-text);
-  --contexify-activeItem-bgColor: var(--ant-color-primary-hover);
+  --contexify-activeItem-bgColor: var(--ant-color-primary-bg-hover);
   --contexify-separator-color: var(--ant-color-border);
   --contexify-menu-minWidth: 170px;
   --contexify-menu-padding: var(--ant-padding-xxs);
@@ -16,11 +16,12 @@
   --contexify-separator-margin: var(--ant-margin-xxs);
   --contexify-menu-shadow: var(--ant-box-shadow-popover-arrow);
   --contexify-item-color: var(--ant-color-text);
+  --contexify-activeRightSlot-color: var(--ant-color-text-secondary);
   --contexify-zIndex: 9999;
 
   &::before {
     content: '';
-    @apply absolute bottom-0 left-0 right-0 top-0 rounded-[var(--contexify-menu-radius)] bg-[var(--contexify-menu-bgColor)] backdrop-blur-[15px];
+    @apply absolute bottom-0 left-0 right-0 top-0 rounded-[var(--contexify-menu-radius)] bg-[var(--contexify-menu-bgColor)] backdrop-blur-[20px];
   }
 
   @apply border border-solid border-ant-color-border text-sm;

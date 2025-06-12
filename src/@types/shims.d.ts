@@ -21,3 +21,8 @@ declare module '*.md' {
   // Modify below per your usage
   export { attributes, toc, html, markdown, ReactComponent }
 }
+
+declare module '*?base64' {
+  const value: string
+  export default value
+}

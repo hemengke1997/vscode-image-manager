@@ -85,7 +85,10 @@ function useImageStore() {
           state = produce(state, (draft) => {
             Object.entries(groupedPayload).forEach(([workspaceFolder, payloads]) => {
               const workspace = find(draft.workspaces, { workspaceFolder })
-              if (!workspace) return
+              if (!workspace) {
+                logger.error('Workspace not found:', workspaceFolder)
+                return
+              }
 
               workspace.update = {
                 payloads,

@@ -8,7 +8,7 @@ function RedoAction(props: { onClick: () => void }) {
   const { onClick } = props
   const { t } = useTranslation()
   return (
-    <Tooltip title={t('im.retry')} placement={'bottom'}>
+    <Tooltip title={t('im.retry')} placement={'bottom'} arrow={false}>
       <Button
         onClick={triggerOnce(() => {
           onClick()

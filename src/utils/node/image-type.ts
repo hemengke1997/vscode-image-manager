@@ -38,28 +38,28 @@ export function isBrowserSupportImageType(filepath: string) {
 /**
  * 根据图片buffer 转 base64
  */
-export async function bufferTobase64(buffer: Buffer, filepath: string, sharp: TSharp | undefined) {
+export async function bufferTobase64(buffer: Buffer, filepath: string, sharp: TSharp) {
   const { mimetype, suppprted } = isBrowserSupportImageType(filepath)
 
   if (suppprted) {
     return toBase64(mimetype, buffer)
   }
 
-  buffer = await sharp!(buffer).png().toBuffer()
+  buffer = await sharp(buffer).png().toBuffer()
   return toBase64(mimetype, buffer)
 }
 
 /**
  * 根据图片path 转 base64
  */
-export async function convertImageToBase64(input: string, sharp: TSharp | undefined) {
+export async function convertImageToBase64(input: string, sharp: TSharp) {
   const { mimetype, suppprted } = isBrowserSupportImageType(input)
 
   if (suppprted) {
     return toBase64(mimetype, await fs.readFile(input))
   }
 
-  const buffer = await sharp!(input).png().toBuffer()
+  const buffer = await sharp(input).png().toBuffer()
   return toBase64(mimetype, buffer)
 }
 
@@ -67,7 +67,7 @@ export async function convertImageToBase64(input: string, sharp: TSharp | undefi
  * 如果浏览器不支持展示某个格式，则转为 base64
  * 支持，则返回空
  */
-export async function convertToBase64IfBrowserNotSupport(input: string, sharp: TSharp | undefined) {
+export async function convertToBase64IfBrowserNotSupport(input: string, sharp: TSharp) {
   const { suppprted } = isBrowserSupportImageType(input)
 
   if (suppprted) {

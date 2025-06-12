@@ -1,10 +1,11 @@
 import { memo, startTransition, useEffect, useRef, useState } from 'react'
-import { useMemoizedFn, useUpdateEffect } from 'ahooks'
+import { useMemoizedFn } from 'ahooks'
 import { ConfigProvider } from 'antd'
 import { flatten, isSubset } from 'es-toolkit'
 import { produce } from 'immer'
 import { DisplayGroupType, DisplayStyleType } from '~/core/persist/workspace/common'
 import logger from '~/utils/logger'
+import useUpdateDeepEffect from '../../hooks/use-update-deep-effect'
 import useUpdateImages from '../../hooks/use-update-images'
 import ActionStore from '../../stores/action-store'
 import FilterStore from '../../stores/filter-store'
@@ -75,7 +76,7 @@ function CollapseTree(props: Props) {
     }
   }, [workspace.images, workspace.update])
 
-  useUpdateEffect(() => {
+  useUpdateDeepEffect(() => {
     if (workspace.images.length) {
       generateRenderTree()
       afterUpdate()

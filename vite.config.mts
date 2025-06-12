@@ -8,6 +8,8 @@ import { i18nAlly } from 'vite-plugin-i18n-ally'
 import { plugin as markdown, Mode } from 'vite-plugin-markdown'
 import { type InlineConfig } from 'vitest/node'
 import { DEV_PORT } from './src/meta'
+import { base64 } from './vite/base64'
+import { clean } from './vite/clean'
 import { optimizeDeps } from './vite/optimized-deps'
 import { preloadHelper } from './vite/preload-helper'
 
@@ -51,6 +53,8 @@ export default defineConfig(async (env) => {
       markdown({ mode: [Mode.MARKDOWN] }),
       preloadHelper(),
       optimizeDeps(),
+      base64(),
+      clean(),
     ],
     build: {
       outDir: path.resolve(__dirname, './dist-webview/'),

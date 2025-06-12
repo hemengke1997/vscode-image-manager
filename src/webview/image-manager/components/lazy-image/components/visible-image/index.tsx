@@ -107,8 +107,7 @@ function VisibleImage(props: VisibleImageProps) {
         {onPreviewClick && (
           <div
             className={classNames(
-              'flex items-center space-x-1 truncate transition-colors',
-              'cursor-pointer hover:text-ant-color-primary-text',
+              'flex cursor-pointer items-center space-x-1 truncate transition-opacity hover:opacity-85',
             )}
             onClick={(e) => {
               if (isMultipleSelecting(e)) return

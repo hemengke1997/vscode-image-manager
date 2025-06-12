@@ -4,7 +4,7 @@ import { BsSortDown, BsSortUpAlt } from 'react-icons/bs'
 import { MdOutlineKeyboardDoubleArrowRight } from 'react-icons/md'
 import { useMemoizedFn } from 'ahooks'
 import { useControlledState } from 'ahooks-x'
-import { Cascader, ConfigProvider, theme } from 'antd'
+import { Cascader, ConfigProvider } from 'antd'
 import { type SortType } from '~/core/persist/workspace/common'
 
 type DisplaySortProps = {
@@ -15,7 +15,6 @@ type DisplaySortProps = {
 
 function DisplaySort(props: DisplaySortProps) {
   const { options, value, onChange } = props
-  const { token } = theme.useToken()
 
   const { t } = useTranslation()
 
@@ -57,7 +56,6 @@ function DisplaySort(props: DisplaySortProps) {
         theme={{
           components: {
             Cascader: {
-              optionSelectedBg: token.colorPrimaryActive,
               optionPadding: '2px 12px',
               dropdownHeight: 'auto',
               controlWidth: 'auto',

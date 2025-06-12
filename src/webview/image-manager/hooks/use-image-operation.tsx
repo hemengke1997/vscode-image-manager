@@ -35,7 +35,7 @@ const UndoMessageContent = (props: { list: string[]; title: ReactNode }) => {
     <div className={'flex items-center'}>
       <div>{title}</div>
       <Divider type='vertical' />
-      <div className={'flex flex-col items-start gap-0.5'}>
+      <div className={'flex max-h-80 flex-col items-start gap-0.5 overflow-y-auto'}>
         {list.map((t, index) => (
           <div key={index}>{t}</div>
         ))}
@@ -473,6 +473,7 @@ function useImageOperation() {
   const beginRevealInViewer = useMemoizedFn((imagePath: string) => {
     imageManagerEvent.emit(IMEvent.clear_viewer_selected_images)
     imageManagerEvent.emit(IMEvent.reveal_in_viewer, imagePath)
+    logger.debug('在查看器中打开图片', imagePath)
   })
 
   // 撤销操作

@@ -121,13 +121,16 @@ export class Installer {
 
       this.initCacheJson()
 
-      const [libvipsInstalled, sharpInstalled] = await Promise.all([
+      let [libvipsInstalled, sharpInstalled] = await Promise.all([
         this.libvipsDownloader.isInstalled(),
         this.sharpDownloader.isInstalled(),
       ])
 
+      libvipsInstalled = Config.debug_forceInstall ? false : libvipsInstalled
+      sharpInstalled = Config.debug_forceInstall ? false : sharpInstalled
+
       // 如果系统/扩展均无满足版本条件的缓存，则安装依赖
-      if ([libvipsInstalled, sharpInstalled].some((t) => !t) || Config.debug_forceInstall) {
+      if ([libvipsInstalled, sharpInstalled].some((t) => !t)) {
         const LoadingText = isUpdate ? i18n.t('prompt.updating') : i18n.t('prompt.initializing')
 
         // 显示左下角状态栏
@@ -146,8 +149,8 @@ export class Installer {
             timeout: this.options.timeout,
             abortController,
             params: {
-              libvips: !libvipsInstalled || Config.debug_forceInstall,
-              sharp: !sharpInstalled || Config.debug_forceInstall,
+              libvips: !libvipsInstalled,
+              sharp: !sharpInstalled,
             },
           })
 

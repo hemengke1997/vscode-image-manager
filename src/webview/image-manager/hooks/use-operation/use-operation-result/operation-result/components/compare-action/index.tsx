@@ -10,7 +10,7 @@ function CompareAction(props: { onClick: () => void }) {
   const { t } = useTranslation()
 
   return (
-    <Tooltip title={t('im.compare')} placement={'bottom'}>
+    <Tooltip title={t('im.compare')} placement={'bottom'} arrow={false}>
       <Button
         onClick={triggerOnce(() => {
           onClick()
