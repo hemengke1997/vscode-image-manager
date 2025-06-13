@@ -7,7 +7,6 @@ export class LibvipsDownloader extends BaseDownloader {
   protected name = 'sharp-libvips'
   protected dest = `sharp-libvips-${runtimePlatformArch()}`
   protected version = cleanVersion(config.libvips)
-  protected userLocalReleaseGlob = this.getBasename(this.genRemoteReleaseName())
 
   protected genRemoteReleaseName() {
     const arch = process.arch

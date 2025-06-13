@@ -12,6 +12,7 @@ export function clean(): PluginOption {
     },
     closeBundle: {
       order: 'post',
+      sequential: true,
       async handler() {
         const cwd = path.resolve(config.root, config.build.outDir)
         await fs.rm(path.join(cwd, 'src'), { recursive: true, force: true })

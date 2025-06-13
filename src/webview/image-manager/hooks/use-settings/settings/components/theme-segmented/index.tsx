@@ -3,7 +3,7 @@ import { useTranslation } from 'react-i18next'
 import { MdOutlineDarkMode, MdOutlineLightMode } from 'react-icons/md'
 import { VscColorMode } from 'react-icons/vsc'
 import { Segmented } from 'antd'
-import { Theme } from '~/enums'
+import { Theme } from '~/meta'
 import styles from './index.module.css'
 
 type Props = {

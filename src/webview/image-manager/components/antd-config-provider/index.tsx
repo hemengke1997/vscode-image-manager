@@ -2,7 +2,7 @@ import { memo, type PropsWithChildren, useEffect } from 'react'
 import { setGlobalConfig } from 'react-transition-preset'
 import { TinyColor } from '@ctrl/tinycolor'
 import { theme as antdTheme, App, ConfigProvider } from 'antd'
-import { type Theme } from '~/enums'
+import { type Theme } from '~/meta'
 import SettingsStore from '~/webview/image-manager/stores/settings-store'
 import { getCssVar } from '~/webview/image-manager/utils/theme'
 

@@ -28,7 +28,7 @@ function Preview(props: Props) {
         },
       }}
       arrow={false}
-      placement={'bottom'}
+      placement={'right'}
     >
       <Button type='text' icon={<BsQuestionCircleFill />}></Button>
     </Tooltip>

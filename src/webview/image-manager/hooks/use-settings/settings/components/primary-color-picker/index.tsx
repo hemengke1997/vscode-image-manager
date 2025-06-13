@@ -87,7 +87,7 @@ function PrimaryColorPicker(props: Props, ref: ForwardedRef<PrimaryColorPickerRe
       ]}
       value={selectedColor}
       onChangeComplete={onColorChange}
-      placement='bottom'
+      placement='right'
       showText={true}
       {...colorPickerProps}
     ></ColorPicker>

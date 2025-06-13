@@ -10,8 +10,8 @@ import { Config } from '~/core/config/config'
 import { Global } from '~/core/global'
 import { COMPRESSED_META } from '~/core/operator/meta'
 import { Svgo } from '~/core/operator/svgo'
-import { Compressed } from '~/enums'
 import { i18n } from '~/i18n'
+import { Compressed } from '~/meta'
 import { Channel } from '~/utils/node/channel'
 
 const gitStagedCache = new Map<string, { timestamp: number; data: string[] }>()

@@ -6,7 +6,6 @@ export class SharpDownloader extends BaseDownloader {
   protected name = 'sharp'
   protected dest = ''
   protected version = version
-  protected userLocalReleaseGlob = this.getBasename(this.genRemoteReleaseName())
 
   protected genRemoteReleaseName() {
     return `v${this.version}/sharp-v${this.version}-napi-v9-${runtimePlatformArch()}.tar.gz`

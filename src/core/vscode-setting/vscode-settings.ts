@@ -1,8 +1,7 @@
 import { isFunction } from 'es-toolkit'
 import { toLower } from 'es-toolkit/compat'
 import { ColorThemeKind, env, type ExtensionContext, window, workspace } from 'vscode'
-import { Language, Theme } from '~/enums'
-import { FALLBACK_LANGUAGE } from '~/meta'
+import { FALLBACK_LANGUAGE, Language, Theme } from '~/meta'
 import { Channel } from '~/utils/node/channel'
 import { type VscodeConfigType } from '../config/common'
 

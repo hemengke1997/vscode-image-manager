@@ -3,7 +3,6 @@ import { i18n } from '~/i18n'
 import { EXT_NAMESPACE } from '~/meta'
 import { slashPath } from '~/utils'
 import { AbortError, TimeoutError } from '~/utils/abort-promise'
-import logger from '~/utils/logger'
 import { Channel } from '~/utils/node/channel'
 import { type ImageManagerPanel } from '~/webview/panel'
 import { ConfigKey, type VscodeConfigType } from './config/common'
@@ -62,7 +61,6 @@ export class Global {
   }
 
   static resolveRootPath(rootpaths?: string[]) {
-    logger.debug('resolveRootPath: ', rootpaths)
     if (!rootpaths) {
       if (workspace.rootPath) {
         rootpaths = [workspace.rootPath]

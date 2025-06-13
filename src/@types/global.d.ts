@@ -6,7 +6,7 @@ import {
   type Language as LanguageEnum,
   type ReduceMotion as ReduceMotionEnum,
   type Theme as ThemeEnum,
-} from '~/enums'
+} from '~/meta'
 import { type ImageVisibleFilter } from '~/webview/image-manager/hooks/use-image-filter/image-filter'
 
 declare global {

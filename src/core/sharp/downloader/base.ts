@@ -17,7 +17,7 @@ import { i18n } from '~/i18n'
 import { slashPath } from '~/utils'
 import logger from '~/utils/logger'
 import { Channel } from '~/utils/node/channel'
-import { agent } from './agent'
+import { agent } from './utils/agent'
 
 const pipeline = util.promisify(stream.pipeline)
 
@@ -28,8 +28,7 @@ export abstract class BaseDownloader {
   protected abstract version: string
   // 包解压后目录
   protected abstract dest: string
-  // 用户本地二进制包的glob匹配
-  protected abstract userLocalReleaseGlob: string
+
   // 地区可用的binary下载地址
   protected hosts = [
     'https://registry.npmmirror.com/-/binary',
@@ -77,7 +76,7 @@ export abstract class BaseDownloader {
    * 如果有，表示用户期望手动安装，则不从远程下载
    */
   private async detectUserLocalRelease() {
-    const bins = await globby(this.userLocalReleaseGlob, {
+    const bins = await globby(this.getBasename(this.genRemoteReleaseName()), {
       cwd: this.extensionCwd,
       absolute: true,
       deep: 0,
@@ -225,7 +224,7 @@ export abstract class BaseDownloader {
   /**
    * 获取二进制包的基本名称
    */
-  protected getBasename(str: string) {
+  private getBasename(str: string) {
     return path.basename(str)
   }
 

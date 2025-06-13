@@ -11,6 +11,7 @@ import { DEV_PORT } from './src/meta'
 import { base64 } from './vite/base64'
 import { clean } from './vite/clean'
 import { optimizeDeps } from './vite/optimized-deps'
+import { prefetch } from './vite/prefetch'
 import { preloadHelper } from './vite/preload-helper'
 
 export default defineConfig(async (env) => {
@@ -55,6 +56,7 @@ export default defineConfig(async (env) => {
       optimizeDeps(),
       base64(),
       clean(),
+      prefetch({ exclude: ['virtual_i18n-ally'] }),
     ],
     build: {
       outDir: path.resolve(__dirname, './dist-webview/'),

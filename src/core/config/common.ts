@@ -1,5 +1,5 @@
 import { type CSSProperties } from 'react'
-import { Language, ReduceMotion, Theme } from '~/enums'
+import { Language, ReduceMotion, Theme } from '~/meta'
 import { type CompressionOptions } from '../operator/compressor/type'
 import { type FormatConverterOptions } from '../operator/format-converter'
 
