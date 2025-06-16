@@ -1,14 +1,18 @@
+import './index.css'
+
 import { memo, useMemo } from 'react'
 import { useTranslation } from 'react-i18next'
 import { HiOutlineViewfinderCircle } from 'react-icons/hi2'
 import { type ImperativeModalProps } from 'ahooks-x/use-imperative-antd-modal'
 import { Button, Descriptions, type DescriptionsProps, type GetProps, Tooltip } from 'antd'
 import dayjs from 'dayjs'
+import { classNames } from 'tw-clsx'
 import { CmdToVscode } from '~/message/cmd'
 import { Compressed } from '~/meta'
 import { vscodeApi } from '~/webview/vscode-api'
 import type lazyImage from '../../components/lazy-image'
 import { formatBytes } from '../../utils'
+import WithCopy from './components/with-copy'
 
 type Props = {
   image: ImageType
@@ -39,7 +43,9 @@ function ImageDetails(props: Props & ImperativeModalProps) {
       label: t('im.name'),
       children: (
         <div className={'flex items-center justify-between gap-x-1'}>
-          <div className={'w-0 flex-1 truncate'}>{image.basename}</div>
+          <div className={'w-0 flex-1 truncate'}>
+            <WithCopy>{image.basename}</WithCopy>
+          </div>
           {onPreview && (
             <Tooltip title={t('im.preview')} arrow={false} placement={'bottom'}>
               <Button
@@ -57,29 +63,25 @@ function ImageDetails(props: Props & ImperativeModalProps) {
     },
     {
       label: t('im.workspace'),
-      children: <div>{image.workspaceFolder}</div>,
+      children: <WithCopy>{image.workspaceFolder}</WithCopy>,
     },
     {
       label: t('im.directory'),
-      children: <div>{image.dirPath || '/'}</div>,
+      children: <WithCopy>{image.dirPath || '/'}</WithCopy>,
     },
     width && height
       ? {
           label: `${t('im.dimensions')}(px)`,
-          children: (
-            <div>
-              {width} × {height}
-            </div>
-          ),
+          children: <WithCopy>{`${width} x ${height}`}</WithCopy>,
         }
       : undefined,
     {
       label: t('im.size'),
-      children: <div>{formatBytes(image.stats.size)}</div>,
+      children: <WithCopy>{formatBytes(image.stats.size)}</WithCopy>,
     },
     {
       label: t('im.status_changed_time'),
-      children: <div>{dayjs(image.stats.mtimeMs).format('YYYY-MM-DD HH:mm:ss')}</div>,
+      children: <WithCopy>{dayjs(image.stats.mtimeMs).format('YYYY-MM-DD HH:mm:ss')}</WithCopy>,
     },
     {
       label: t('im.whether_compressed'),
@@ -110,7 +112,7 @@ function ImageDetails(props: Props & ImperativeModalProps) {
   return (
     <>
       <Descriptions
-        className={'mt-2'}
+        className={classNames('mt-2', 'image-details')}
         layout='horizontal'
         column={1}
         size='small'

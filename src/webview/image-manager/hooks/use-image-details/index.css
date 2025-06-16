@@ -1,0 +1,9 @@
+.image-details {
+  .ant-descriptions-item-label {
+    @apply whitespace-nowrap;
+  }
+
+  .ant-descriptions-item-content {
+    @apply break-all;
+  }
+}
