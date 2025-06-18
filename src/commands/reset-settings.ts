@@ -1,13 +1,13 @@
+import type { ExtensionModule } from '~/module'
 import { commands, type QuickPickItem, window } from 'vscode'
 import { Config } from '~/core/config/config'
 import { Global } from '~/core/global'
 import { WorkspaceState } from '~/core/persist/workspace/workspace-state'
 import { i18n } from '~/i18n'
 import { CmdToWebview } from '~/message/cmd'
-import { type ExtensionModule } from '~/module'
 import { Commands } from '.'
 
-export default <ExtensionModule>function () {
+export default <ExtensionModule> function () {
   async function resetSettings() {
     const options: QuickPickItem[] = [
       { label: `$(check) ${i18n.t('prompt.yes')}` },
@@ -40,13 +40,15 @@ export default <ExtensionModule>function () {
           Global.imageManagerPanels.forEach((panel) => {
             panel.reloadWebview()
           })
-        } finally {
+        }
+        finally {
           Global.imageManagerPanels.forEach((panel) => {
             panel.isProgrammaticChangeConfig = false
           })
         }
         window.showInformationMessage(i18n.t('prompt.reset_settings_success'))
-      } catch {
+      }
+      catch {
         window.showErrorMessage(i18n.t('prompt.reset_settings_fail'))
       }
     }

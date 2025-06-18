@@ -1,3 +1,4 @@
+import type { Buffer } from 'node:buffer'
 import logger from '~/utils/logger'
 
 class Commander<T> {
@@ -59,10 +60,12 @@ export class CommanderCache<T> {
     if (commander) {
       try {
         await commander.undo()
-      } finally {
+      }
+      finally {
         this.remove(id)
       }
-    } else {
+    }
+    else {
       logger.warn(`Commander with id ${id} not found in cache`)
     }
   }

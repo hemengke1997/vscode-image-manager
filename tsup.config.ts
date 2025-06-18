@@ -1,6 +1,7 @@
-import { execa } from 'execa'
 import path from 'node:path'
+import process from 'node:process'
 import { fileURLToPath } from 'node:url'
+import { execa } from 'execa'
 import { defineConfig, type Options } from 'tsup'
 import { loadEnv } from 'vite'
 import logger from '~/utils/logger'
@@ -19,7 +20,7 @@ function buildExternals(option: Options): Options[] {
   ]
 }
 
-export default defineConfig((option) => [
+export default defineConfig(option => [
   {
     entry: ['src/extension.ts'],
     format: 'cjs',
@@ -32,6 +33,9 @@ export default defineConfig((option) => [
     env: {
       NODE_ENV: option.watch ? 'development' : process.env.NODE_ENV || 'production',
       ...loadEnv('', __dirname, 'IM_'),
+    },
+    define: {
+      'import.meta.env': JSON.stringify({}),
     },
     onSuccess() {
       execa('npm', ['run', 'build:i18n'])

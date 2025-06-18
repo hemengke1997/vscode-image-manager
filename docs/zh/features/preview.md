@@ -1,6 +1,5 @@
 # 大图预览
 
-
 如果 `image-manager.viewer.showDetailsOnHover` 为 `true`，则鼠标悬停在图片上即可点击预览按钮查看大图。
 
 ![大图浏览](./images/preview-hover.png)

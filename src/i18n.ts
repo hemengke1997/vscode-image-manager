@@ -1,9 +1,9 @@
+import type { ExtensionContext } from 'vscode'
+import fs from 'node:fs'
+import path from 'node:path'
 import destr from 'destr'
 import { isUndefined } from 'es-toolkit'
 import { toLower } from 'es-toolkit/compat'
-import fs from 'node:fs'
-import path from 'node:path'
-import { type ExtensionContext } from 'vscode'
 import { Config } from './core/config/config'
 import { FALLBACK_LANGUAGE, Language } from './meta'
 import { intelligentPick } from './utils/'
@@ -30,7 +30,7 @@ export class i18n {
   }
 
   static format(str: string, args: any[]) {
-    return str.replace(/{(\d+)}/g, (match, number) => {
+    return str.replace(/\{(\d+)\}/g, (match, number) => {
       return !isUndefined(args[number]) ? args[number].toString() : match
     })
   }

@@ -1,12 +1,13 @@
+import type { Buffer } from 'node:buffer'
+import path from 'node:path'
 import fs from 'fs-extra'
 import mime from 'mime/lite'
-import path from 'node:path'
 
 /**
  * 判断是否为 base64
  */
 export function isBase64(str: string) {
-  return /^data:([a-z]+\/[a-z]+);base64,/.test(str)
+  return /^data:[a-z]+\/[a-z]+;base64,/.test(str)
 }
 
 /**
@@ -28,7 +29,7 @@ export function isBrowserSupportImageType(filepath: string) {
       mimetype: `image/${path.extname(filepath).slice(1)}`,
     }
   }
-  const notSupported = ['tiff', 'tif'].map((t) => mime.getType(t))
+  const notSupported = ['tiff', 'tif'].map(t => mime.getType(t))
   return {
     suppprted: !notSupported.includes(mimetype),
     mimetype,

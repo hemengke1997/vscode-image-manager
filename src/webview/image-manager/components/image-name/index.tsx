@@ -1,6 +1,6 @@
-import { memo } from 'react'
 import { useMemoizedFn } from 'ahooks'
 import { Tooltip, type TooltipProps } from 'antd'
+import { memo } from 'react'
 
 const tooltipProps: TooltipProps = {
   arrow: false,
@@ -11,7 +11,7 @@ const tooltipProps: TooltipProps = {
   },
 }
 
-type Props = {
+interface Props {
   children?: string
   image?: ImageType
   /**
@@ -27,21 +27,24 @@ function ImageName(props: Props) {
     let title = ''
     if (tooltipDisplayFullPath && image) {
       title = image.relativePath.slice(2)
-    } else {
+    }
+    else {
       title = children || ''
     }
     return <div data-disable_dbclick>{title}</div>
   })
 
-  return tooltipDisplayFullPath ? (
-    <Tooltip {...tooltipProps} title={tooltipTitle()}>
-      {children}
-    </Tooltip>
-  ) : (
-    <span title={children} className={'w-full'}>
-      {children}
-    </span>
-  )
+  return tooltipDisplayFullPath
+    ? (
+        <Tooltip {...tooltipProps} title={tooltipTitle()}>
+          {children}
+        </Tooltip>
+      )
+    : (
+        <span title={children} className='w-full'>
+          {children}
+        </span>
+      )
 }
 
 export default memo(ImageName)

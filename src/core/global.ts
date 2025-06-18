@@ -1,10 +1,10 @@
+import type { ImageManagerPanel } from '~/webview/panel'
 import { type ExtensionContext, ExtensionMode, window, workspace } from 'vscode'
 import { i18n } from '~/i18n'
 import { EXT_NAMESPACE } from '~/meta'
 import { slashPath } from '~/utils'
 import { AbortError, TimeoutError } from '~/utils/abort-promise'
 import { Channel } from '~/utils/node/channel'
-import { type ImageManagerPanel } from '~/webview/panel'
 import { ConfigKey, type VscodeConfigType } from './config/common'
 import { Installer, InstallEvent } from './sharp/installer'
 
@@ -66,7 +66,7 @@ export class Global {
         rootpaths = [workspace.rootPath]
       }
       if (workspace.workspaceFolders) {
-        rootpaths = workspace.workspaceFolders.map((f) => f.uri.fsPath)
+        rootpaths = workspace.workspaceFolders.map(f => f.uri.fsPath)
       }
     }
 
@@ -74,7 +74,8 @@ export class Global {
       rootpaths = rootpaths.map(slashPath)
 
       Channel.info(i18n.t('core.workspace_changed', rootpaths.join(',')))
-    } else {
+    }
+    else {
       rootpaths = []
     }
     return rootpaths
@@ -91,7 +92,8 @@ export class Global {
       }).on(InstallEvent.fail, async (e) => {
         if (e instanceof TimeoutError) {
           window.showErrorMessage(i18n.t('prompt.deps_init_timeout'))
-        } else if (e instanceof AbortError) {
+        }
+        else if (e instanceof AbortError) {
           Channel.warn(i18n.t('prompt.deps_init_aborted'), true)
         }
         reject(e)

@@ -3,7 +3,7 @@ declare module '*.md' {
   const attributes: Record<string, unknown>
 
   // When "Mode.TOC" is requested
-  const toc: { level: string; content: string }[]
+  const toc: { level: string, content: string }[]
 
   // When "Mode.HTML" is requested
   const html: string
@@ -16,10 +16,11 @@ declare module '*.md' {
 
   // When "Mode.React" is requested. VFC could take a generic like React.VFC<{ MyComponent: TypeOfMyComponent }>
   import type React from 'react'
+
   const ReactComponent: React.VFC
 
   // Modify below per your usage
-  export { attributes, toc, html, markdown, ReactComponent }
+  export { attributes, html, markdown, ReactComponent, toc }
 }
 
 declare module '*?base64' {

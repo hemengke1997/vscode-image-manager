@@ -1,4 +1,4 @@
-import { type ImageFilterType } from '~/webview/image-manager/hooks/use-image-filter/image-filter'
+import type { ImageFilterType } from '~/webview/image-manager/hooks/use-image-filter/image-filter'
 
 export enum SortByType {
   // 按文件名排序（命名兼容）
@@ -27,7 +27,7 @@ export enum DisplayStyleType {
   nested = 'nested',
 }
 
-export type WorkspaceStateType = {
+export interface WorkspaceStateType {
   image_filter: ImageFilterType
   display_sort: [SortByType, SortType]
   display_group: DisplayGroupType[]
@@ -62,7 +62,7 @@ export const DEFAULT_WORKSPACE_STATE: WorkspaceStateType = {
   preview_scale: 1,
 }
 
-export const enum WorkspaceStateKey {
+export enum WorkspaceStateKey {
   // 图片过滤
   image_filter = 'image_filter',
   // 排序

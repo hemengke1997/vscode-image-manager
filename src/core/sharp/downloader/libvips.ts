@@ -1,3 +1,4 @@
+import process from 'node:process'
 import { runtimePlatformArch } from 'sharp/lib/libvips'
 import { config } from 'sharp/package.json'
 import { cleanVersion } from '~/utils'
@@ -14,7 +15,8 @@ export class LibvipsDownloader extends BaseDownloader {
     if (arch === 'arm') {
       const fallback = process.versions.electron ? '7' : '6'
       armVersion = `v${process.env.npm_config_arm_version || fallback}`
-    } else if (arch === 'arm64') {
+    }
+    else if (arch === 'arm64') {
       armVersion = `v${process.env.npm_config_arm_version || '8'}`
     }
     return `v${this.version}/libvips-${this.version}-${runtimePlatformArch()}${armVersion}.tar.gz`

@@ -2,7 +2,6 @@
 
 可点击右上角设置按钮进行自定义设置
 
-
 ## 查看器设置
 
 ![查看器设置](./images/customize-viewer.png)

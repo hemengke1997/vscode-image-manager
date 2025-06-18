@@ -1,15 +1,15 @@
+import { useMemoizedFn } from 'ahooks'
+import { Segmented } from 'antd'
 import { memo } from 'react'
 import { useTranslation } from 'react-i18next'
-import { useMemoizedFn } from 'ahooks'
-import { useControlledState } from 'ahooks-x'
-import { Segmented } from 'antd'
+import { useControlledState } from '~/webview/image-manager/hooks/use-controlled-state'
 import Preview from '../preview'
 import Compact from './images/compact.png?base64'
 import Nest from './images/nest.png?base64'
 
 export type DisplayStyleType = 'compact' | 'nested'
 
-type DisplayStyleProps = {
+interface DisplayStyleProps {
   value?: DisplayStyleType
   onChange?: (style: DisplayStyleType) => void
 }
@@ -35,7 +35,7 @@ function DisplayStyle(props: DisplayStyleProps) {
   })
 
   return (
-    <div className={'flex items-center gap-x-2'}>
+    <div className='flex items-center gap-x-2'>
       <Segmented
         options={[
           {
@@ -51,8 +51,9 @@ function DisplayStyle(props: DisplayStyleProps) {
         onChange={(value) => {
           setDisplayStyle(value as DisplayStyleType)
         }}
-      ></Segmented>
-      <Preview image={image()} className={'w-[200px]'} />
+      >
+      </Segmented>
+      <Preview image={image()} className='w-[200px]' />
     </div>
   )
 }

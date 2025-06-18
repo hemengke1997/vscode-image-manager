@@ -1,11 +1,11 @@
-import { memo, useState } from 'react'
-import { useTranslation } from 'react-i18next'
-import { type ImperativeModalProps } from 'ahooks-x/use-imperative-antd-modal'
+import type { ImperativeModalProps } from '~/webview/image-manager/hooks/use-imperative-antd-modal'
 import { Button, Form, type InputProps, Space } from 'antd'
 import { isString } from 'es-toolkit'
+import { memo, useState } from 'react'
+import { useTranslation } from 'react-i18next'
 import AutoFocusInput from '../../components/auto-focus-input'
 
-type Props = {
+interface Props {
   /**
    * 当前名称
    */
@@ -48,20 +48,22 @@ function Rename(props: Props & ImperativeModalProps) {
         try {
           await onSubmit(rename, type)
           closeModal()
-        } catch (e) {
+        }
+        catch (e) {
           form.setFields([{ name: 'rename', errors: [(e as string) || t('im.rename_failed')] }])
-        } finally {
+        }
+        finally {
           setLoading(false)
         }
       }}
-      className={'mt-6'}
+      className='mt-6'
     >
       <Form.Item
         rules={[
           () => ({
             validateTrigger: ['onSubmit'],
             async validator(_, value) {
-              if (isString(value) && value.match(/[\/]/)) {
+              if (isString(value) && value.match(/\//)) {
                 return Promise.reject(t('im.file_name_invalid', { type }))
               }
               if (value === currentName) {
@@ -74,9 +76,9 @@ function Rename(props: Props & ImperativeModalProps) {
         ]}
         name='rename'
       >
-        <AutoFocusInput size={'middle'} placeholder={currentName} {...inputProps} />
+        <AutoFocusInput size='middle' placeholder={currentName} {...inputProps} />
       </Form.Item>
-      <div className={'flex justify-end'}>
+      <div className='flex justify-end'>
         <Space>
           <Button
             onClick={() => {
@@ -85,7 +87,7 @@ function Rename(props: Props & ImperativeModalProps) {
           >
             {t('im.cancel')}
           </Button>
-          <Button htmlType={'submit'} type={'primary'} loading={loading}>
+          <Button htmlType='submit' type='primary' loading={loading}>
             {t('im.confirm')}
           </Button>
         </Space>

@@ -1,8 +1,8 @@
+import path from 'node:path'
 import { remove } from 'es-toolkit'
 import { convertPathToPattern } from 'globby'
 import isGlob from 'is-glob'
 import micromatch from 'micromatch'
-import path from 'node:path'
 
 function addLastSlash(path: string) {
   return path.replace(/\/?$/g, '/')
@@ -38,17 +38,17 @@ function convertToIgnore(patterns: string[]) {
   })
 }
 
-export function imageGlob(options: { scan: string[]; exclude: string[]; cwds: string[] }) {
+export function imageGlob(options: { scan: string[], exclude: string[], cwds: string[] }) {
   const { scan, exclude, cwds } = options
 
   const imagePattern = `**/*.{${scan.join(',')}}`
 
   const create = (pattern: string, exclude: string[]) => {
-    const patterns = cwds.map((cwd) => `${addLastSlash(convertPathToPattern(cwd))}${pattern}`)
+    const patterns = cwds.map(cwd => `${addLastSlash(convertPathToPattern(cwd))}${pattern}`)
     exclude.forEach((e) => {
       patterns.forEach((pattern) => {
         if (micromatch.isMatch(pattern, e)) {
-          remove(exclude, (t) => t === e)
+          remove(exclude, t => t === e)
         }
       })
     })

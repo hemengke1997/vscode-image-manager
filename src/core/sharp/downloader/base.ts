@@ -1,16 +1,18 @@
+import type { Promisable } from 'type-fest'
+import { Buffer } from 'node:buffer'
+import os from 'node:os'
+import path from 'node:path'
+import process from 'node:process'
+import stream from 'node:stream'
+import util from 'node:util'
+import zlib from 'node:zlib'
 import fs from 'fs-extra'
 import { globby } from 'globby'
 import { nanoid } from 'nanoid'
 import fetch from 'node-fetch'
-import os from 'node:os'
-import path from 'node:path'
-import stream from 'node:stream'
-import util from 'node:util'
-import zlib from 'node:zlib'
 import pAny from 'p-any'
 import pTimeout from 'p-timeout'
 import tarFs from 'tar-fs'
-import { type Promisable } from 'type-fest'
 import { FileCache } from '~/core/file-cache'
 import { Global } from '~/core/global'
 import { i18n } from '~/i18n'
@@ -90,7 +92,8 @@ export abstract class BaseDownloader {
   private shouldUpdate() {
     const cache = this.options.readCacheJson()
 
-    if (!cache[this.name]) return false
+    if (!cache[this.name])
+      return false
     if (cache[this.name] !== this.version) {
       return true
     }
@@ -104,7 +107,8 @@ export abstract class BaseDownloader {
     let isInstalled = false
     if (this.shouldUpdate()) {
       isInstalled = false
-    } else {
+    }
+    else {
       const extensionCacheDir = path.join(this.extensionCacheDir, this.dest)
       const osCacheDir = path.join(this.osCacheDir, this.dest)
 
@@ -115,7 +119,8 @@ export abstract class BaseDownloader {
             return Boolean(files.length)
           }),
         )
-      } catch {
+      }
+      catch {
         // 插件缓存/本地缓存都不存在
         isInstalled = false
       }
@@ -140,7 +145,7 @@ export abstract class BaseDownloader {
     if (userLocalReleases.length) {
       Channel.info(`Discover Local Resource of ${this.name}, start installing...`)
       await Promise.all(
-        userLocalReleases.map((release) =>
+        userLocalReleases.map(release =>
           this.extractRelease({
             tarPath: release,
             dest: path.join(this.extensionCacheDir, this.dest),
@@ -197,7 +202,8 @@ export abstract class BaseDownloader {
     if (res.ok) {
       const data = await res.arrayBuffer()
       return data
-    } else {
+    }
+    else {
       throw new Error(`Failed to download release from ${url}: ${res.status} ${res.statusText}`)
     }
   }
@@ -205,7 +211,7 @@ export abstract class BaseDownloader {
   /***
    * 解压下载后的包到指定目录
    */
-  private async extractRelease(options: { tarPath: string; dest: string; clean?: boolean }) {
+  private async extractRelease(options: { tarPath: string, dest: string, clean?: boolean }) {
     const { tarPath, dest, clean = true } = options
 
     await pipeline(fs.createReadStream(tarPath), zlib.createGunzip(), tarFs.extract(dest))

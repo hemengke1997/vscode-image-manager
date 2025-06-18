@@ -1,10 +1,10 @@
+import path from 'node:path'
+import { fileURLToPath } from 'node:url'
 import destr from 'destr'
 import fg from 'fast-glob'
 import { flatten } from 'flat'
 import fs from 'fs-extra'
 import JSON5 from 'json5'
-import path from 'node:path'
-import { fileURLToPath } from 'node:url'
 import { FALLBACK_LANGUAGE } from '~/meta'
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url))

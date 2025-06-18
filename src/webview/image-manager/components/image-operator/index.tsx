@@ -1,23 +1,25 @@
+import { useHistoryTravel, useMemoizedFn, useUpdateEffect } from 'ahooks'
+import { Alert, App, Button, Card, ConfigProvider, type FormInstance, theme, Tooltip } from 'antd'
+import { useAtomValue } from 'jotai'
+import { selectAtom } from 'jotai/utils'
 import { memo, type ReactNode, useEffect, useState } from 'react'
 import { useHotkeys } from 'react-hotkeys-hook'
 import { useTranslation } from 'react-i18next'
 import { VscChromeClose } from 'react-icons/vsc'
-import { useHistoryTravel, useUpdateEffect } from 'ahooks'
-import { useControlledState } from 'ahooks-x'
-import { Alert, App, Button, Card, ConfigProvider, type FormInstance, theme, Tooltip } from 'antd'
 import { WorkspaceStateKey } from '~/core/persist/workspace/common'
+import { useControlledState } from '~/webview/image-manager/hooks/use-controlled-state'
 import useScrollRef from '~/webview/image-manager/hooks/use-scroll-ref'
 import { useWorkspaceState } from '~/webview/image-manager/hooks/use-workspace-state'
 import { Keybinding } from '../../keybinding'
-import GlobalStore from '../../stores/global-store'
+import { VscodeAtoms } from '../../stores/vscode/vscode-store'
 import ImageGroup from '../image-group'
 import './index.css'
 
-export type Props = {
+export interface Props {
   images: ImageType[]
 }
 
-type ImageOperatorStaticProps = {
+interface ImageOperatorStaticProps {
   form: FormInstance
   children: ReactNode
   submitting: boolean
@@ -25,7 +27,7 @@ type ImageOperatorStaticProps = {
   onImagesChange: (images: ImageType[]) => void
 }
 
-const LoadingKey = `image-operator-loading`
+const LoadingKey = 'image-operator-loading'
 
 function ImageOperator(props: Props & ImageOperatorStaticProps) {
   const { t } = useTranslation()
@@ -54,9 +56,10 @@ function ImageOperator(props: Props & ImageOperatorStaticProps) {
   }, [images])
 
   useHotkeys<HTMLDivElement>(
-    `mod+z`,
+    'mod+z',
     () => {
-      if (backLength <= 0) return
+      if (backLength <= 0)
+        return
       back()
     },
     {
@@ -65,7 +68,7 @@ function ImageOperator(props: Props & ImageOperatorStaticProps) {
   )
 
   useHotkeys<HTMLDivElement>(
-    `mod+shift+z`,
+    'mod+shift+z',
     () => {
       forward()
     },
@@ -74,19 +77,24 @@ function ImageOperator(props: Props & ImageOperatorStaticProps) {
     },
   )
 
-  const { workspaceState } = GlobalStore.useStore(['workspaceState'])
+  const show_undo_redo_tip = useAtomValue(
+    selectAtom(
+      VscodeAtoms.workspaceStateAtom,
+      useMemoizedFn(state => state[WorkspaceStateKey.show_undo_redo_tip]),
+    ),
+  )
 
   const [showUndoRedoTip, setShowUndoRedoTip] = useWorkspaceState(
     WorkspaceStateKey.show_undo_redo_tip,
-    workspaceState.show_undo_redo_tip,
+    show_undo_redo_tip,
   )
 
   const { scrollRef } = useScrollRef()
 
   return (
-    <div className={'flex w-full flex-col items-center space-y-2 overflow-auto'}>
-      <Card className={'max-h-[46vh] w-full overflow-y-auto'} ref={scrollRef}>
-        <div className={'flex flex-col gap-y-4'}>
+    <div className='flex w-full flex-col items-center space-y-2 overflow-auto'>
+      <Card className='max-h-[46vh] w-full overflow-y-auto' ref={scrollRef}>
+        <div className='flex flex-col gap-y-4'>
           <ImageGroup
             images={images || []}
             lazyImageProps={{
@@ -94,7 +102,7 @@ function ImageOperator(props: Props & ImageOperatorStaticProps) {
                 images && images?.length <= 1
                   ? undefined
                   : (image) => {
-                      setImages(images?.filter((item) => item.path !== image.path) || [])
+                      setImages(images?.filter(item => item.path !== image.path) || [])
                       setRemoved(true)
                     },
               lazy: {
@@ -104,7 +112,8 @@ function ImageOperator(props: Props & ImageOperatorStaticProps) {
                 tooltipDisplayFullPath: true,
               },
             }}
-          ></ImageGroup>
+          >
+          </ImageGroup>
           {removed && showUndoRedoTip && (
             <Alert
               type='info'
@@ -112,11 +121,11 @@ function ImageOperator(props: Props & ImageOperatorStaticProps) {
                 undo: Keybinding.Undo(),
                 redo: Keybinding.Redo(),
               })}
-              onClick={(e) => e.stopPropagation()}
+              onClick={e => e.stopPropagation()}
               closable={{
                 closeIcon: (
                   <Tooltip title={t('im.no_tip')}>
-                    <VscChromeClose className={'anticon-close text-base'} />
+                    <VscChromeClose className='anticon-close text-base' />
                   </Tooltip>
                 ),
               }}
@@ -128,7 +137,7 @@ function ImageOperator(props: Props & ImageOperatorStaticProps) {
         </div>
       </Card>
 
-      <Card className={'w-full'}>
+      <Card className='w-full'>
         <ConfigProvider
           theme={{
             components: {
@@ -141,10 +150,10 @@ function ImageOperator(props: Props & ImageOperatorStaticProps) {
             },
           }}
         >
-          <div className={'operator'}>{children}</div>
+          <div className='operator'>{children}</div>
         </ConfigProvider>
       </Card>
-      <div className={'flex w-full justify-center pt-4'}>
+      <div className='flex w-full justify-center pt-4'>
         <Button
           loading={submitting}
           type='primary'

@@ -1,8 +1,9 @@
+import type { BaseDownloader } from './downloader/base'
+import path from 'node:path'
 import destr from 'destr'
 import { isString } from 'es-toolkit'
 import { EventEmitter } from 'eventemitter3'
 import fs from 'fs-extra'
-import path from 'node:path'
 import { commands, StatusBarAlignment, type StatusBarItem, window } from 'vscode'
 import { version } from '~root/package.json'
 import { i18n } from '~/i18n'
@@ -13,7 +14,6 @@ import { Channel } from '~/utils/node/channel'
 import { Config } from '../config/config'
 import { FileCache } from '../file-cache'
 import { Global } from '../global'
-import { type BaseDownloader } from './downloader/base'
 import { LibvipsDownloader } from './downloader/libvips'
 import { SharpDownloader } from './downloader/sharp'
 import { SharpjsCache } from './sharpjs-cache'
@@ -23,7 +23,7 @@ export enum InstallEvent {
   fail = 'install-fail',
 }
 
-type Events = {
+interface Events {
   [InstallEvent.success]: [TSharp]
   [InstallEvent.fail]: [TimeoutError | AbortError | Error]
 }
@@ -130,7 +130,7 @@ export class Installer {
       sharpInstalled = Config.debug_forceInstall ? false : sharpInstalled
 
       // 如果系统/扩展均无满足版本条件的缓存，则安装依赖
-      if ([libvipsInstalled, sharpInstalled].some((t) => !t)) {
+      if ([libvipsInstalled, sharpInstalled].some(t => !t)) {
         const LoadingText = isUpdate ? i18n.t('prompt.updating') : i18n.t('prompt.initializing')
 
         // 显示左下角状态栏
@@ -159,20 +159,24 @@ export class Installer {
             Channel.error(errMsg, true)
             throw new Error(errMsg)
           }
-        } finally {
+        }
+        finally {
           // 隐藏左下角状态栏
           this.hideStatusBar()
         }
 
         Channel.info(`✅ ${isUpdate ? i18n.t('prompt.updated') : i18n.t('prompt.initialized')}`, true)
-      } else {
+      }
+      else {
         Channel.info(`${i18n.t('core.load_from_cache')}`)
       }
 
       this.event.emit(InstallEvent.success, await this.pollingLoadSharp())
-    } catch (e) {
+    }
+    catch (e) {
       this.event.emit(InstallEvent.fail, e as Error)
-    } finally {
+    }
+    finally {
       Channel.debug(`Install cost: ${performance.now() - start}ms`)
     }
     return this
@@ -189,7 +193,8 @@ export class Installer {
     if (isString(pkgStr)) {
       try {
         pkg = destr<AnyObject>(pkgStr)
-      } catch {}
+      }
+      catch {}
     }
     return pkg
   }
@@ -229,7 +234,8 @@ export class Installer {
           const sharpModule = require(localSharpPath)
           Channel.info(i18n.t('core.load_core_script_success'))
           resolve(sharpModule.default || sharpModule.sharp)
-        } catch (e) {
+        }
+        catch (e) {
           Channel.error(`${i18n.t('core.load_core_script_fail')}: ${e}`)
           reject(e)
         }
@@ -253,7 +259,8 @@ export class Installer {
             if (res === RETRY) {
               try {
                 await this.clearCaches()
-              } catch {}
+              }
+              catch {}
               commands.executeCommand('workbench.action.reloadWindow')
             }
           })
@@ -267,7 +274,8 @@ export class Installer {
             resolve(res)
             clearInterval(interval)
           }
-        } catch (e) {
+        }
+        catch (e) {
           logger.error(e)
           // 继续轮询
         }
@@ -280,13 +288,14 @@ export class Installer {
       // 如果有系统级缓存，清除
       try {
         await fs.rm(this.libCacheDir, { recursive: true, force: true })
-      } catch (e) {
+      }
+      catch (e) {
         logger.error(e)
       }
     }
   }
 
-  private async install(options?: { libvips?: boolean; sharp?: boolean }) {
+  private async install(options?: { libvips?: boolean, sharp?: boolean }) {
     const { libvips = true, sharp = true } = options || {}
 
     const downloaders: BaseDownloader[] = []
@@ -298,7 +307,7 @@ export class Installer {
       downloaders.push(this.sharpDownloader)
     }
 
-    await Promise.all(downloaders.map((t) => t.install()))
+    await Promise.all(downloaders.map(t => t.install()))
 
     Channel.info(i18n.t('core.install_finished'))
     return true

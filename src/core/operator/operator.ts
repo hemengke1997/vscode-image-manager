@@ -1,20 +1,21 @@
+import type { Buffer } from 'node:buffer'
+import type { SetOptional } from 'type-fest'
+import type { ImageManagerPanel } from '~/webview/panel'
+import path from 'node:path'
 import { isString, mergeWith } from 'es-toolkit'
 import { isArray, toString } from 'es-toolkit/compat'
 import fs from 'fs-extra'
 import { nanoid } from 'nanoid'
-import path from 'node:path'
-import { type SetOptional } from 'type-fest'
 import { i18n } from '~/i18n'
 import { CmdToVscode } from '~/message/cmd'
 import { VscodeMessageFactory } from '~/message/message-factory'
 import logger from '~/utils/logger'
 import { generateOutputPath } from '~/utils/node'
 import { Channel } from '~/utils/node/channel'
-import { type ImageManagerPanel } from '~/webview/panel'
 import { commandCache } from '../commander'
 import { Config } from '../config/config'
 
-export type OperatorOptions = {
+export interface OperatorOptions {
   /**
    * @description whether keep original image file
    * @default false
@@ -22,7 +23,7 @@ export type OperatorOptions = {
   keepOriginal?: boolean
 }
 
-type NativeOperatorResult = {
+interface NativeOperatorResult {
   /**
    * 操作id（也是commander的id）
    */
@@ -135,17 +136,20 @@ export abstract class Operator {
         // 删除新增的文件
         if (fs.existsSync(this.outputPath)) {
           await this.deleteFile(this.outputPath, { useTrash: false })
-        } else {
+        }
+        else {
           throw new Error(i18n.t('core.file_not_exist'))
         }
-      } else if (this.inputBuffer) {
+      }
+      else if (this.inputBuffer) {
         // 如果没有保留原文件，判断新增文件与原文件路径是否一致
         // 路径一致，则直接覆盖文件
         // 否则需要删除新增文件
         if (this.inputPath !== this.outputPath) {
           if (fs.existsSync(this.outputPath)) {
             await this.deleteFile(this.outputPath, { useTrash: false })
-          } else {
+          }
+          else {
             throw new Error(i18n.t('core.file_not_exist'))
           }
         }
@@ -183,7 +187,8 @@ export abstract class Operator {
     let image: ImageType
     try {
       image = res.outputPath ? await this.getImageInfo(res.outputPath) : this.image
-    } catch (e) {
+    }
+    catch (e) {
       logger.error(e)
       image = this.image
     }
@@ -204,7 +209,8 @@ export abstract class Operator {
    */
   mergeOption(option: any) {
     return mergeWith(this.option, option || {}, (_, srcValue) => {
-      if (isArray(srcValue)) return srcValue
+      if (isArray(srcValue))
+        return srcValue
     })
   }
 
@@ -264,7 +270,8 @@ export abstract class Operator {
     try {
       const { useTrash = Config.file_trashAfterProcessing } = options || {}
       await VscodeMessageFactory[CmdToVscode.delete_file]({ filePaths: [filePath], useTrash })
-    } catch (e) {
+    }
+    catch (e) {
       Channel.info(`${i18n.t('core.trash_error')}: ${e}`)
     }
   }

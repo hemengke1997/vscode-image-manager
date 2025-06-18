@@ -1,12 +1,14 @@
-import { type ReactNode } from 'react'
-import { Trans, useTranslation } from 'react-i18next'
-import { VscArrowRight } from 'react-icons/vsc'
+import type { ReactNode } from 'react'
+import type { OperatorResult } from '~/core/operator/operator'
 import { useLockFn, useMemoizedFn } from 'ahooks'
 import { App, Button, Divider, Space, Typography } from 'antd'
 import { isString, lowerCase } from 'es-toolkit'
 import { isObject, toString } from 'es-toolkit/compat'
+import { useAtom, useAtomValue } from 'jotai'
+import { selectAtom } from 'jotai/utils'
+import { Trans, useTranslation } from 'react-i18next'
+import { VscArrowRight } from 'react-icons/vsc'
 import { ConfigKey } from '~/core/config/common'
-import { type OperatorResult } from '~/core/operator/operator'
 import { WorkspaceStateKey } from '~/core/persist/workspace/common'
 import { CmdToVscode } from '~/message/cmd'
 import { slashPath } from '~/utils'
@@ -14,8 +16,9 @@ import logger from '~/utils/logger'
 import { useExtConfigState } from '~/webview/image-manager/hooks/use-ext-config-state'
 import { useWorkspaceState } from '~/webview/image-manager/hooks/use-workspace-state'
 import { vscodeApi } from '~/webview/vscode-api'
-import FileStore, { type FileChangedResType } from '../stores/file-store'
-import GlobalStore from '../stores/global-store'
+import { FileAtoms } from '../stores/file/file-store'
+import { type FileChangedResType, useFileActions } from '../stores/file/hooks'
+import { VscodeAtoms } from '../stores/vscode/vscode-store'
 import { pathUtil } from '../utils'
 import { LOADING_DURATION } from '../utils/duration'
 import useDeleteImage from './use-delete-image/use-delete-image'
@@ -29,13 +32,14 @@ import useRename from './use-rename/use-rename'
 
 const { Text } = Typography
 
-const UndoMessageContent = (props: { list: string[]; title: ReactNode }) => {
+// eslint-disable-next-line react-refresh/only-export-components
+function UndoMessageContent(props: { list: string[], title: ReactNode }) {
   const { title, list } = props
   return (
-    <div className={'flex items-center'}>
+    <div className='flex items-center'>
       <div>{title}</div>
       <Divider type='vertical' />
-      <div className={'flex max-h-80 flex-col items-start gap-0.5 overflow-y-auto'}>
+      <div className='flex max-h-80 flex-col items-start gap-0.5 overflow-y-auto'>
         {list.map((t, index) => (
           <div key={index}>{t}</div>
         ))}
@@ -50,7 +54,6 @@ const UndoMessageContent = (props: { list: string[]; title: ReactNode }) => {
  * 压缩、格式转换、裁剪、查找相似图片、删除、重命名、撤销、拷贝、剪切、粘贴等
  */
 function useImageOperation() {
-  const { extConfig } = GlobalStore.useStore(['extConfig'])
   const { notification, message } = App.useApp()
   const { t } = useTranslation()
 
@@ -126,9 +129,9 @@ function useImageOperation() {
       | string
       | Error
       | {
-          image: ImageType
-          distance: number
-        }[]
+        image: ImageType
+        distance: number
+      }[]
     >((resolve) => {
       vscodeApi.postMessage(
         {
@@ -145,7 +148,12 @@ function useImageOperation() {
     })
   })
 
-  const show_precision_tip = GlobalStore.useStore((ctx) => ctx.workspaceState.show_precision_tip)
+  const show_precision_tip = useAtomValue(
+    selectAtom(
+      VscodeAtoms.workspaceStateAtom,
+      useMemoizedFn(state => state.show_precision_tip),
+    ),
+  )
   const [showPrecisionTip, setShowPrecisionTip] = useWorkspaceState(
     WorkspaceStateKey.show_precision_tip,
     show_precision_tip,
@@ -167,27 +175,33 @@ function useImageOperation() {
     if (isString(res)) {
       // error
       message.error(t('im.format_not_supported', { extname: image.extname }))
-    } else if (res instanceof Error) {
+    }
+    else if (res instanceof Error) {
       message.error(res.message)
-    } else if (res.length) {
+    }
+    else if (res.length) {
       showImageSimilarity({
         image,
         similarImages: res,
       })
-    } else {
+    }
+    else {
       notification.info({
         message: t('im.no_similar_images_title'),
-        description: showPrecisionTip ? (
-          <div>
-            <Trans
-              i18nKey='im.no_similar_images_desc'
-              values={{
-                option: 'image-manager.similarity.precision',
-              }}
-              components={[<Text code></Text>]}
-            ></Trans>
-          </div>
-        ) : null,
+        description: showPrecisionTip
+          ? (
+              <div>
+                <Trans
+                  i18nKey='im.no_similar_images_desc'
+                  values={{
+                    option: 'image-manager.similarity.precision',
+                  }}
+                  components={[<Text code key='precision'></Text>]}
+                >
+                </Trans>
+              </div>
+            )
+          : null,
         duration: LOADING_DURATION.fast,
         onClose() {
           setShowPrecisionTip(false)
@@ -211,7 +225,8 @@ function useImageOperation() {
             if (res) {
               message.success(t('im.delete_success'))
               resolve(true)
-            } else {
+            }
+            else {
               message.error(t('im.delete_failed'))
               resolve(false)
             }
@@ -221,8 +236,15 @@ function useImageOperation() {
     },
   )
 
+  const _confirmDelete = useAtomValue(
+    selectAtom(
+      VscodeAtoms.extConfigAtom,
+      useMemoizedFn(state => state.file.confirmDelete),
+    ),
+  )
+
   // 删除文件
-  const [confirmDelete] = useExtConfigState(ConfigKey.file_confirmDelete, extConfig.file.confirmDelete)
+  const [confirmDelete] = useExtConfigState(ConfigKey.file_confirmDelete, _confirmDelete)
   const { showDeleteImage } = useDeleteImage()
   const beginDeleteProcess = useLockFn(
     async (
@@ -243,17 +265,18 @@ function useImageOperation() {
         recursive?: boolean
       },
     ) => {
-      const filenames = files.map((t) => t.basename).join(', ')
+      const filenames = files.map(t => t.basename).join(', ')
       let success = false
 
       async function handleDelete() {
         try {
           await deleteFile(
-            files.map((t) => t.path),
+            files.map(t => t.path),
             { recursive: option?.recursive },
           )
           success = true
-        } catch {
+        }
+        catch {
           success = false
         }
       }
@@ -263,7 +286,8 @@ function useImageOperation() {
           onConfirm: handleDelete,
           filenames,
         })
-      } else {
+      }
+      else {
         await handleDelete()
       }
 
@@ -274,8 +298,9 @@ function useImageOperation() {
   const { imageManagerEvent } = useImageManagerEvent()
   // 删除图片
   const beginDeleteImageProcess = useMemoizedFn(async (images: ImageType[]) => {
-    if (!images.length) return
-    const success = await beginDeleteProcess(images.map((t) => ({ basename: t.basename, path: t.path })))
+    if (!images.length)
+      return
+    const success = await beginDeleteProcess(images.map(t => ({ basename: t.basename, path: t.path })))
     if (success) {
       imageManagerEvent.emit(IMEvent.delete, images)
     }
@@ -320,21 +345,23 @@ function useImageOperation() {
                 source: item.source,
               }
               if (item.status === 'rejected') {
-                if (lowerCase(item.reason['code']).includes('exists')) {
+                if (lowerCase(item.reason.code).includes('exists')) {
                   // 文件已存在
                   result = {
                     ...result,
                     success: false,
                     message: t('im.file_exsits', { type }),
                   }
-                } else {
+                }
+                else {
                   result = {
                     ...result,
                     success: false,
                     message: t('im.rename_failed'),
                   }
                 }
-              } else {
+              }
+              else {
                 result = {
                   ...result,
                   success: true,
@@ -355,12 +382,58 @@ function useImageOperation() {
   const { showRenameImages } = useRenameImages()
 
   /**
+   * 在图片查看器中打开图片
+   */
+  const beginRevealInViewer = useMemoizedFn((imagePath: string) => {
+    imageManagerEvent.emit(IMEvent.clear_viewer_selected_images)
+    imageManagerEvent.emit(IMEvent.reveal_in_viewer, imagePath)
+    logger.debug('在查看器中打开图片', imagePath)
+  })
+
+  // 重命名、粘贴的提示
+  const notificationForRenameOrPaste = useMemoizedFn((res: FileChangedResType) => {
+    return (
+      <div className='flex flex-col gap-y-1'>
+        {res.map((item, index) => {
+          const source = pathUtil.getFileName(item.source)
+          const target = pathUtil.getFileName(item.target)
+          return (
+            <div key={index} className='flex items-center'>
+              {item.message}
+              {' '}
+              <Divider type='vertical'></Divider>
+              <div className='flex items-center gap-x-2'>
+                {source}
+                {source !== target && (
+                  <>
+                    <VscArrowRight />
+                    {target}
+                  </>
+                )}
+              </div>
+              <Button
+                className='ml-2'
+                onClick={() => {
+                  beginRevealInViewer(item.target)
+                }}
+              >
+                {t('im.view')}
+              </Button>
+            </div>
+          )
+        })}
+      </div>
+    )
+  })
+
+  /**
    * 重命名图片
    * @param selectedImage 当前选中的图片
    * @param images 选中的图片列表
    */
   const beginRenameImageProcess = useMemoizedFn((selectedImage: ImageType, images: ImageType[]) => {
-    if (!images.length) return
+    if (!images.length)
+      return
     if (images.length === 1) {
       const image = images[0]
       showRename({
@@ -379,7 +452,7 @@ function useImageOperation() {
                 type,
               },
             ).then((res) => {
-              if (res?.every((t) => t.success)) {
+              if (res?.every(t => t.success)) {
                 vscodeApi.postMessage(
                   {
                     cmd: CmdToVscode.get_images,
@@ -389,14 +462,16 @@ function useImageOperation() {
                     // 如果相似弹窗打开，则通知 rename 事件
                     if (isSimilarityOpened) {
                       imageManagerEvent.emit(IMEvent.rename, image, newImage[0])
-                    } else {
+                    }
+                    else {
                       // 否则，聚焦到新图片
                       beginRevealInViewer(newImage[0].path)
                     }
                   },
                 )
                 resolve()
-              } else {
+              }
+              else {
                 reject(res?.[0].message)
               }
             })
@@ -407,7 +482,8 @@ function useImageOperation() {
           addonAfter: `.${image.extname}`,
         },
       })
-    } else {
+    }
+    else {
       // 批量重命名
       showRenameImages({
         images,
@@ -417,7 +493,7 @@ function useImageOperation() {
             handleRename(files, {
               type: t('im.file'),
             }).then((res) => {
-              const failed = res?.filter((t) => !t.success)
+              const failed = res?.filter(t => !t.success)
 
               if (failed?.length) {
                 notification.error({
@@ -454,10 +530,11 @@ function useImageOperation() {
             ],
             { type },
           ).then((res) => {
-            if (res?.every((t) => t.success)) {
+            if (res?.every(t => t.success)) {
               imageManagerEvent.emit(IMEvent.rename_directory, dirPath, target)
               resolve()
-            } else {
+            }
+            else {
               reject(res?.[0].message)
             }
           })
@@ -465,15 +542,6 @@ function useImageOperation() {
       },
       type: t('im.folder'),
     })
-  })
-
-  /**
-   * 在图片查看器中打开图片
-   */
-  const beginRevealInViewer = useMemoizedFn((imagePath: string) => {
-    imageManagerEvent.emit(IMEvent.clear_viewer_selected_images)
-    imageManagerEvent.emit(IMEvent.reveal_in_viewer, imagePath)
-    logger.debug('在查看器中打开图片', imagePath)
   })
 
   // 撤销操作
@@ -505,7 +573,8 @@ function useImageOperation() {
         try {
           await undo(id)
           success.push(image.basename)
-        } catch (e: any) {
+        }
+        catch (e: any) {
           errors.push(toString(e))
         }
       }),
@@ -519,62 +588,25 @@ function useImageOperation() {
     })
   })
 
-  const { handleCopy, handlePaste, handleCut, setImageCopied, imageCopied, fileTip, setFileTip } = FileStore.useStore([
-    'handleCopy',
-    'handlePaste',
-    'handleCut',
-    'setImageCopied',
-    'imageCopied',
-    'fileTip',
-    'setFileTip',
-  ])
+  const { handleCopy, handlePaste, handleCut } = useFileActions()
+
+  const [fileTip, setFileTip] = useAtom(FileAtoms.fileTip)
+  const [imageCopied, setImageCopied] = useAtom(FileAtoms.imageCopied)
 
   const beginCopyProcess = useMemoizedFn((images: ImageType[]) => {
-    if (!images.length) return
+    if (!images.length)
+      return
     handleCopy(images)
     logger.debug(images, '复制')
     message.success(t('im.copy_success'))
   })
 
-  // 重命名、粘贴的提示
-  const notificationForRenameOrPaste = useMemoizedFn((res: FileChangedResType) => {
-    return (
-      <div className={'flex flex-col gap-y-1'}>
-        {res.map((item, index) => {
-          const source = pathUtil.getFileName(item.source)
-          const target = pathUtil.getFileName(item.target)
-          return (
-            <div key={index} className={'flex items-center'}>
-              {item.message} <Divider type={'vertical'}></Divider>
-              <div className={'flex items-center gap-x-2'}>
-                {source}
-                {source !== target && (
-                  <>
-                    <VscArrowRight />
-                    {target}
-                  </>
-                )}
-              </div>
-              <Button
-                className={'ml-2'}
-                onClick={() => {
-                  beginRevealInViewer(item.target)
-                }}
-              >
-                {t('im.view')}
-              </Button>
-            </div>
-          )
-        })}
-      </div>
-    )
-  })
-
   const beginPasteProcess = useLockFn(async (targetPath: string) => {
     const res = await handlePaste(targetPath)
-    if (!res) return
+    if (!res)
+      return
 
-    const failed = res?.filter((t) => !t.success)
+    const failed = res?.filter(t => !t.success)
 
     if (failed?.length && imageCopied?.list.length) {
       // 对失败的进行一波提示
@@ -583,27 +615,34 @@ function useImageOperation() {
         description: notificationForRenameOrPaste(failed),
         duration: 0,
       })
-    } else if (!failed?.length) {
+    }
+    else if (!failed?.length) {
       // 全部成功
       message.success(t('im.paste_success'))
     }
 
-    if (res?.filter((t) => t.success).length) {
+    if (res?.filter(t => t.success).length) {
       // 部分粘贴成功后，就清空复制的图片
       setImageCopied(undefined)
     }
   })
 
-  const { workspaceState } = GlobalStore.useStore(['workspaceState'])
-  const [showCutTip, setShowCutTip] = useWorkspaceState(WorkspaceStateKey.show_cut_tip, workspaceState.show_cut_tip)
+  const show_cut_tip = useAtomValue(
+    selectAtom(
+      VscodeAtoms.workspaceStateAtom,
+      useMemoizedFn(state => state.show_cut_tip),
+    ),
+  )
+  const [showCutTip, setShowCutTip] = useWorkspaceState(WorkspaceStateKey.show_cut_tip, show_cut_tip)
 
   // 剪切图片
   const beginCutProcess = useMemoizedFn((images: ImageType[]) => {
-    if (!images.length) return
+    if (!images.length)
+      return
     handleCut(images)
     // 根据工作区缓存和运行时缓存来判断是否需要展示剪切提示
     // 如果工作区允许且运行时允许，则展示
-    if (showCutTip && fileTip.cut) {
+    if (showCutTip && fileTip?.cut) {
       // 运行时只显示一次提示，多了烦躁
       setFileTip({
         cut: false,

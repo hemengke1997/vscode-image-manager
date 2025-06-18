@@ -20,9 +20,9 @@ export function activate(ctx: vscode.ExtensionContext) {
 
   const modules = [commandsModules]
 
-  const disposables = flatten(modules.map((m) => m(ctx)))
+  const disposables = flatten(modules.map(m => m(ctx)))
 
-  disposables.forEach((d) => ctx.subscriptions.push(d))
+  disposables.forEach(d => ctx.subscriptions.push(d))
 }
 
 export function deactivate() {

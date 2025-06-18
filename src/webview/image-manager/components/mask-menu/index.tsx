@@ -1,11 +1,11 @@
 import { memo, useState } from 'react'
 import { Menu, type MenuProps } from 'react-contexify'
-import { classNames } from 'tw-clsx'
-import SettingsStore from '../../stores/settings-store'
+import { classNames } from '~/webview/image-manager/utils/tw-clsx'
+import { useTheme } from '../../stores/settings/hooks'
 import { PreventClickAway, ShouldClickAway } from '../viewer/hooks/use-click-image-away'
 
 function MaskMenu(props: MenuProps) {
-  const { theme } = SettingsStore.useStore(['theme'])
+  const [theme] = useTheme()
 
   const [contextMenuMask, setContextMenuMask] = useState(false)
 
@@ -18,7 +18,8 @@ function MaskMenu(props: MenuProps) {
           ShouldClickAway.Other,
           PreventClickAway.Viewer,
         )}
-      ></div>
+      >
+      </div>
       <Menu
         {...props}
         theme={theme}
@@ -32,12 +33,14 @@ function MaskMenu(props: MenuProps) {
                 setContextMenuMask(v)
               })
             })
-          } else {
+          }
+          else {
             setContextMenuMask(v)
           }
           props.onVisibilityChange?.(v)
         }}
-      ></Menu>
+      >
+      </Menu>
     </>
   )
 }

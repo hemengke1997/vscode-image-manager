@@ -1,5 +1,5 @@
-import { type OutputAsset, type OutputChunk } from 'rollup'
-import { type PluginOption, type ResolvedConfig } from 'vite'
+import type { OutputAsset, OutputChunk } from 'rollup'
+import type { PluginOption, ResolvedConfig } from 'vite'
 
 export function prefetch(options: { exclude: string[] }): PluginOption {
   const { exclude } = options
@@ -30,12 +30,12 @@ export function prefetch(options: { exclude: string[] }): PluginOption {
       })
 
       const prefechBundlesString = prefetchBundles.filter(
-        (bundle) => !html.includes(bundle) && exclude.every((exclusion) => !bundle.includes(exclusion)),
+        bundle => !html.includes(bundle) && exclude.every(exclusion => !bundle.includes(exclusion)),
       )
 
       return {
         html,
-        tags: prefechBundlesString.map((bundle) => ({
+        tags: prefechBundlesString.map(bundle => ({
           tag: 'link',
           attrs: {
             rel: 'prefetch',

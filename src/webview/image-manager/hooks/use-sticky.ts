@@ -1,9 +1,9 @@
-import { type RefObject, useEffect, useRef } from 'react'
 import { useEventListener, useInViewport, useMemoizedFn, useThrottleFn, useUpdateEffect } from 'ahooks'
 import { isUndefined } from 'es-toolkit'
+import { type RefObject, useEffect, useRef } from 'react'
 import { getAppRoot } from '~/webview/utils'
 
-type Props = {
+interface Props {
   /**
    * 需要sticky的元素
    */
@@ -84,7 +84,8 @@ export default function useSticky(props: Props) {
 
         if (top <= topOffset && inView) {
           isSticky = true
-        } else {
+        }
+        else {
           isSticky = false
         }
 

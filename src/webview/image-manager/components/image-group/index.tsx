@@ -1,21 +1,25 @@
-import { type ForwardedRef, forwardRef, memo, type ReactNode, useEffect, useMemo, useRef, useState } from 'react'
-import { toast } from 'react-atom-toast'
-import { FaLock, FaLockOpen } from 'react-icons/fa6'
+import type { AliasToken, ComponentTokenMap } from 'antd/es/theme/interface'
+import type { PreviewGroupPreview } from 'rc-image/es/PreviewGroup'
 import { useDeepCompareEffect, useMemoizedFn } from 'ahooks'
-import { useControlledState } from 'ahooks-x'
 import { Button, ConfigProvider, type GetProps, Image, theme } from 'antd'
-import { type AliasToken, type ComponentTokenMap } from 'antd/es/theme/interface'
 import { range, round } from 'es-toolkit'
-import { type PreviewGroupPreview } from 'rc-image/es/PreviewGroup'
-import { classNames } from 'tw-clsx'
+import { useAtomValue } from 'jotai'
+import { selectAtom } from 'jotai/utils'
+import { type ForwardedRef, forwardRef, memo, type ReactNode, useEffect, useMemo, useRef, useState } from 'react'
+import toast from 'react-hot-toast'
+import { FaLock, FaLockOpen } from 'react-icons/fa6'
 import { isDev } from 'vite-config-preset/isomorph'
 import { DEFAULT_WORKSPACE_STATE, WorkspaceStateKey } from '~/core/persist/workspace/common'
 import logger from '~/utils/logger'
+import { useControlledState } from '~/webview/image-manager/hooks/use-controlled-state'
+import { classNames } from '~/webview/image-manager/utils/tw-clsx'
 import { getAppRoot } from '~/webview/utils'
 import useImageManagerEvent, { IMEvent } from '../../hooks/use-image-manager-event'
 import { useWorkspaceState } from '../../hooks/use-workspace-state'
-import GlobalStore from '../../stores/global-store'
-import SettingsStore from '../../stores/settings-store'
+import { GlobalAtoms } from '../../stores/global/global-store'
+import { useImageWidth } from '../../stores/global/hooks'
+import { useImageBackgroundColor, useIsDarkBackground, useTinyBackgroundColor } from '../../stores/settings/hooks'
+import { VscodeAtoms } from '../../stores/vscode/vscode-store'
 import { clearTimestamp } from '../../utils'
 import useImageContextMenu, {
   type ImageContextMenuType,
@@ -33,7 +37,7 @@ function imageToken(isDarkBackground: boolean): Partial<ComponentTokenMap['Image
   }
 }
 
-type Props = {
+interface Props {
   /**
    * 图片组标识(目录绝对路径)
    */
@@ -110,7 +114,6 @@ function ImageGroup(props: Props, ref: ForwardedRef<HTMLDivElement>) {
     enableContextMenu,
     enableMultipleSelect = false,
     interactive = true,
-    renderer = (c) => c,
     onMultipleSelectContextMenu,
     clearSelectedOnBlankClick,
     onClearImageGroupSelected,
@@ -119,9 +122,13 @@ function ImageGroup(props: Props, ref: ForwardedRef<HTMLDivElement>) {
     inViewer,
   } = props
 
+  const renderer = useMemoizedFn(props.renderer || (c => c))
+
   const { token } = theme.useToken()
   const containerRef = useRef<HTMLDivElement>(null)
-  const { imageWidth, imageReveal } = GlobalStore.useStore(['imageWidth', 'imageReveal'])
+
+  const [imageWidth] = useImageWidth()
+  const imageReveal = useAtomValue(GlobalAtoms.imageRevealAtom)
 
   const [index, setIndex] = useState<number>(-1)
 
@@ -137,7 +144,7 @@ function ImageGroup(props: Props, ref: ForwardedRef<HTMLDivElement>) {
     if (inViewer) {
       if (imageReveal) {
         const cleanPath = clearTimestamp(imageReveal)
-        const index = imagesProp.findIndex((t) => t.path === cleanPath)
+        const index = imagesProp.findIndex(t => t.path === cleanPath)
         logger.debug('Reveal Image Index', index)
         setIndex(index)
       }
@@ -149,12 +156,16 @@ function ImageGroup(props: Props, ref: ForwardedRef<HTMLDivElement>) {
     imagesProp,
   ])
 
-  const preview_scale = GlobalStore.useStore((ctx) => ctx.workspaceState.preview_scale)
-  const { isDarkBackground, backgroundColor, tinyBackgroundColor } = SettingsStore.useStore([
-    'isDarkBackground',
-    'backgroundColor',
-    'tinyBackgroundColor',
-  ])
+  const preview_scale = useAtomValue(
+    selectAtom(
+      VscodeAtoms.workspaceStateAtom,
+      useMemoizedFn(state => state[WorkspaceStateKey.preview_scale]),
+    ),
+  )
+
+  const [isDarkBackground] = useIsDarkBackground()
+  const [backgroundColor] = useImageBackgroundColor()
+  const [tinyBackgroundColor] = useTinyBackgroundColor()
 
   const [previewScale, setPreviewScale] = useWorkspaceState(WorkspaceStateKey.preview_scale, preview_scale)
   const [lockedScale, setLockedScale] = useState(true)
@@ -167,14 +178,22 @@ function ImageGroup(props: Props, ref: ForwardedRef<HTMLDivElement>) {
   })
 
   const setSelectedImages = useMemoizedFn((...args: Parameters<typeof _setSelectedImages>) => {
-    if (!interactive) return
+    if (!interactive)
+      return
     _setSelectedImages(...args)
   })
 
-  const [preview, setPreview] = useState<{ open?: boolean; current?: number }>({ open: false, current: -1 })
+  const [preview, setPreview] = useState<{ open?: boolean, current?: number }>({ open: false, current: -1 })
 
   const { show, hideAll } = useImageContextMenu()
 
+  const onToastClose = useMemoizedFn(() => {
+    if (!lockedScale) {
+      setPreviewScale(DEFAULT_WORKSPACE_STATE.preview_scale)
+    }
+
+    toast.dismiss(ToastKey)
+  })
   useEffect(() => {
     if (!preview.open) {
       onToastClose()
@@ -182,48 +201,44 @@ function ImageGroup(props: Props, ref: ForwardedRef<HTMLDivElement>) {
     }
   }, [preview.open])
 
-  const onToastClose = useMemoizedFn(() => {
-    if (!lockedScale) {
-      setPreviewScale(DEFAULT_WORKSPACE_STATE.preview_scale)
-    }
-
-    toast.close(ToastKey)
-  })
-
   const toastContent = useMemoizedFn((sclalePercent: number, lockedScale: boolean) => {
     const Icon = lockedScale ? FaLock : FaLockOpen
 
     return (
-      <div className={'flex items-center gap-2'}>
-        <span>{sclalePercent}%</span>
+      <div className='flex items-center gap-2'>
+        <span>
+          {sclalePercent}
+          %
+        </span>
         <Button
-          size={'small'}
+          size='small'
           // TODO: 为什么这个icon的parentElement是null
-          icon={<Icon className={'prevent-click-away !text-white'} />}
+          icon={<Icon className='prevent-click-away !text-white' />}
           onClick={() => {
-            setLockedScale((t) => !t)
+            setLockedScale(t => !t)
             if (!lockedScale) {
               setPreviewScale(sclalePercent / 100)
               logger.debug('锁定缩放比例', sclalePercent / 100)
             }
-            toast.update(ToastKey, {
-              content: toastContent(sclalePercent, !lockedScale),
+            toast(toastContent(sclalePercent, !lockedScale), {
+              id: ToastKey,
             })
           }}
           type='text'
-        ></Button>
+        >
+        </Button>
       </div>
     )
   })
 
   const openToast = useMemoizedFn((sclalePercent: number) => {
-    if (!sclalePercent || !preview.open) return
+    if (!sclalePercent || !preview.open)
+      return
 
     setLockedScale(false)
 
-    toast.open({
-      content: toastContent(sclalePercent, lockedScale),
-      key: ToastKey,
+    toast(toastContent(sclalePercent, lockedScale), {
+      id: ToastKey,
     })
   })
 
@@ -253,16 +268,36 @@ function ImageGroup(props: Props, ref: ForwardedRef<HTMLDivElement>) {
     },
   })
 
-  const onContextMenu = useMemoizedFn((e: React.MouseEvent<HTMLDivElement>, image: ImageType) => {
-    let selected: ImageType[] | undefined = undefined
+  /**
+   * 如果已选中，则取消选中，如果未选中，则选中
+   */
+  const toggleImageSelection = useMemoizedFn((previous: ImageType[], image: ImageType, selected: boolean) => {
+    previous = previous.filter(t => t.path !== image.path)
 
-    if (!selectedImages.some((t) => t.path === image.path)) {
+    if (selected) {
+      return [...previous, image]
+    }
+    else {
+      return [...previous]
+    }
+  })
+
+  const handlePreviewClick = useMemoizedFn((image: ImageType) => {
+    const index = images.findIndex(t => t.path === image.path)
+    setPreview({ open: true, current: index })
+  })
+
+  const onContextMenu = useMemoizedFn((e: React.MouseEvent<HTMLDivElement>, image: ImageType) => {
+    let selected: ImageType[] | undefined
+
+    if (!selectedImages.some(t => t.path === image.path)) {
       // 如果之前选中的图片中没有当前图片，则清空选中的图片
       // 并选中当前图片
       onClearImageGroupSelected?.()
       selected = [image]
       setSelectedImages(selected)
-    } else {
+    }
+    else {
       selected = onMultipleSelectContextMenu?.() || selectedImages
     }
 
@@ -294,7 +329,7 @@ function ImageGroup(props: Props, ref: ForwardedRef<HTMLDivElement>) {
       if (e.metaKey || e.ctrlKey) {
         // 点击多选
         setSelectedImages((t) => {
-          const index = t.findIndex((i) => i.path === image.path)
+          const index = t.findIndex(i => i.path === image.path)
           return toggleImageSelection(t, image, index === -1)
         })
         return
@@ -312,11 +347,11 @@ function ImageGroup(props: Props, ref: ForwardedRef<HTMLDivElement>) {
         // start-end 多选
         const start = selectedImages[0]
         const end = image
-        const indexOfStart = images.findIndex((t) => t.path === start.path)
-        const indexOfEnd = images.findIndex((t) => t.path === end.path)
+        const indexOfStart = images.findIndex(t => t.path === start.path)
+        const indexOfEnd = images.findIndex(t => t.path === end.path)
 
         setSelectedImages(
-          [...range(indexOfStart, indexOfEnd, indexOfEnd > indexOfStart ? 1 : -1), indexOfEnd].map((i) => images[i]),
+          [...range(indexOfStart, indexOfEnd, indexOfEnd > indexOfStart ? 1 : -1), indexOfEnd].map(i => images[i]),
         )
         return
       }
@@ -327,23 +362,10 @@ function ImageGroup(props: Props, ref: ForwardedRef<HTMLDivElement>) {
     setSelectedImages([image])
   })
 
-  /**
-   * 如果已选中，则取消选中，如果未选中，则选中
-   */
-  const toggleImageSelection = useMemoizedFn((previous: ImageType[], image: ImageType, selected: boolean) => {
-    previous = previous.filter((t) => t.path !== image.path)
-
-    if (selected) {
-      return [...previous, image]
-    } else {
-      return [...previous]
-    }
-  })
-
   useEffect(() => {
     if (selectedImages.length) {
       // 筛选images中存在的selectedImage
-      setSelectedImages((t) => t.filter((t) => images.some((i) => i.path === t.path)))
+      setSelectedImages(t => t.filter(t => images.some(i => i.path === t.path)))
     }
   }, [images])
 
@@ -362,9 +384,7 @@ function ImageGroup(props: Props, ref: ForwardedRef<HTMLDivElement>) {
   const handleVisibleChange = useMemoizedFn((v: boolean, _, current: number) => {
     if (!v) {
       setPreview({ open: v, current })
-      return
     }
-    if (v) return
   })
 
   const handleImageRender = useMemoizedFn<Exclude<PreviewGroupPreview['imageRender'], undefined>>(
@@ -372,9 +392,7 @@ function ImageGroup(props: Props, ref: ForwardedRef<HTMLDivElement>) {
       return (
         <>
           <div
-            className={
-              'fixed left-[50%] top-16 z-[1] translate-x-[-50%] rounded bg-[rgba(0,0,0,0.1)] px-3 py-1 text-xl text-ant-color-text-light-solid shadow'
-            }
+            className='fixed left-1/2 top-16 z-[1] -translate-x-1/2 rounded bg-[rgba(0,0,0,0.1)] px-3 py-1 text-xl text-ant-color-text-light-solid shadow'
           >
             {images[info.current]?.basename}
           </div>
@@ -404,7 +422,7 @@ function ImageGroup(props: Props, ref: ForwardedRef<HTMLDivElement>) {
                 },
               })
             }}
-            className={'contents'}
+            className='contents'
           >
             {originalNode}
           </div>
@@ -451,7 +469,7 @@ function ImageGroup(props: Props, ref: ForwardedRef<HTMLDivElement>) {
 
   const previewItems = useMemo(
     () =>
-      images.map((t) => ({
+      images.map(t => ({
         src: t.vscodePath,
       })),
     [images],
@@ -474,11 +492,6 @@ function ImageGroup(props: Props, ref: ForwardedRef<HTMLDivElement>) {
     setSelectedImages((t) => {
       return toggleImageSelection(t, image, selected)
     })
-  })
-
-  const handlePreviewClick = useMemoizedFn((image: ImageType) => {
-    const index = images.findIndex((t) => t.path === image.path)
-    setPreview({ open: true, current: index })
   })
 
   return (
@@ -506,17 +519,17 @@ function ImageGroup(props: Props, ref: ForwardedRef<HTMLDivElement>) {
                 },
               }}
             >
-              {images.map((image) => (
+              {images.map(image => (
                 <div
                   key={image.key}
-                  onClick={(e) => onClick(e, image)}
+                  onClick={e => onClick(e, image)}
                   className={classNames(PreventClickAway.Viewer, PreventClickAway.Other)}
                 >
                   {renderer(
                     <LazyImage
                       {...lazyImageProps}
                       image={image}
-                      selected={selectedImages.some((t) => t.path === image.path)}
+                      selected={selectedImages.some(t => t.path === image.path)}
                       isMultipleSelecting={isMultipleSelecting}
                       antdImageProps={antdImageProps}
                       onSelectedChange={handleSelectedChange}

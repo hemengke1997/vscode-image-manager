@@ -1,5 +1,5 @@
-import { useEffect } from 'react'
 import { EventEmitter } from 'eventemitter3'
+import { useEffect } from 'react'
 
 /**
  * singleton
@@ -67,7 +67,7 @@ export enum IMEvent {
   clear_viewer_cut_images = 'clear_viewer_cut_images',
 }
 
-type Events = {
+interface Events {
   [IMEvent.delete]: [images: ImageType[]]
   [IMEvent.rename]: [previosImage: ImageType, newImage: ImageType]
   [IMEvent.reveal_in_viewer]: [imagePath: string]

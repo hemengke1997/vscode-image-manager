@@ -1,17 +1,17 @@
-import { memo } from 'react'
-import { useTranslation } from 'react-i18next'
+import type { ImperativeModalProps } from '~/webview/image-manager/hooks/use-imperative-antd-modal'
 import { useMemoizedFn } from 'ahooks'
-import { type ImperativeModalProps } from 'ahooks-x/use-imperative-antd-modal'
 import { App, Button, ConfigProvider, Divider, Form, InputNumber, Segmented, Select, Space } from 'antd'
 import { isNil } from 'es-toolkit'
+import { memo } from 'react'
+import { useTranslation } from 'react-i18next'
 import { DEFAULT_WORKSPACE_STATE } from '~/core/persist/workspace/common'
 import AlignColumn, { useColumnWidth } from '../../components/align-column'
 import AppearMotion from '../../components/align-column/components/appear-motion'
-import FilterStore from '../../stores/filter-store'
+import { useImageFilter } from '../../stores/action/hooks'
 import DisplayType from './components/display-type'
 import { FilterRadioValue, ImageVisibleFilter } from './const'
 
-export type ImageFilterType = {
+export interface ImageFilterType {
   /**
    * 排除显示图片类型
    */
@@ -41,7 +41,7 @@ function ImageFilter(props: ImperativeModalProps) {
   const { t } = useTranslation()
   const { message } = App.useApp()
 
-  const { imageFilter, setImageFilter } = FilterStore.useStore(['imageFilter', 'setImageFilter'])
+  const [imageFilter, setImageFilter] = useImageFilter()
 
   const [form] = Form.useForm<ImageFilterType>()
 
@@ -58,18 +58,19 @@ function ImageFilter(props: ImperativeModalProps) {
     {
       key: ImageVisibleFilter.size,
       label: (
-        <div className={'flex items-center gap-2'}>
+        <div className='flex items-center gap-2'>
           <div>{t('im.size')}</div>
           <div>
             <Form.Item name={[ImageVisibleFilter.size, 'unit']} noStyle={true}>
               <Select
-                className={'w-20'}
-                options={UnitOptions.map((t) => ({
+                className='w-20'
+                options={UnitOptions.map(t => ({
                   label: t,
                   value: t,
                 }))}
                 variant='filled'
-              ></Select>
+              >
+              </Select>
             </Form.Item>
           </div>
         </div>
@@ -93,7 +94,7 @@ function ImageFilter(props: ImperativeModalProps) {
               name={[ImageVisibleFilter.size, 'min']}
               dependencies={[[ImageVisibleFilter.size, 'max']]}
             >
-              <InputNumber size={'middle'} placeholder={`${t('im.min')}`} min={0} className={'w-40'} />
+              <InputNumber size='middle' placeholder={`${t('im.min')}`} min={0} className='w-40' />
             </Form.Item>
             <Form.Item
               noStyle
@@ -103,7 +104,7 @@ function ImageFilter(props: ImperativeModalProps) {
                   validator(_, value) {
                     const min = getFieldValue([ImageVisibleFilter.size, 'min'])
                     if (!isNil(min) && !isNil(value) && value < min) {
-                      return Promise.reject()
+                      return Promise.reject(new Error(t('im.size_filter_tip')))
                     }
                     return Promise.resolve()
                   },
@@ -111,7 +112,7 @@ function ImageFilter(props: ImperativeModalProps) {
               ]}
               dependencies={[[ImageVisibleFilter.size, 'min']]}
             >
-              <InputNumber size={'middle'} placeholder={`${t('im.max')}`} min={0} className={'w-40'} />
+              <InputNumber size='middle' placeholder={`${t('im.max')}`} min={0} className='w-40' />
             </Form.Item>
           </Space.Compact>
         </Form.Item>
@@ -137,7 +138,8 @@ function ImageFilter(props: ImperativeModalProps) {
                 label: t('im.no'),
               },
             ]}
-          ></Segmented>
+          >
+          </Segmented>
         </Form.Item>
       ),
     },
@@ -165,7 +167,8 @@ function ImageFilter(props: ImperativeModalProps) {
                 label: t('im.unknown'),
               },
             ]}
-          ></Segmented>
+          >
+          </Segmented>
         </Form.Item>
       ),
     },
@@ -191,7 +194,7 @@ function ImageFilter(props: ImperativeModalProps) {
     >
       <Form form={form} onFinish={onFinish} initialValues={imageFilter}>
         <AppearMotion>
-          {filterItems.map((item) => (
+          {filterItems.map(item => (
             <AlignColumn
               key={item.key}
               id={item.key}
@@ -204,9 +207,9 @@ function ImageFilter(props: ImperativeModalProps) {
         </AppearMotion>
       </Form>
 
-      <Divider className={'!my-4'}></Divider>
+      <Divider className='!my-4'></Divider>
 
-      <div className={'flex w-full justify-end gap-x-2'}>
+      <div className='flex w-full justify-end gap-x-2'>
         <Button
           type='default'
           onClick={() => {

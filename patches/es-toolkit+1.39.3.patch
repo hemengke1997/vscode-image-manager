@@ -1,0 +1,12 @@
+diff --git a/node_modules/es-toolkit/dist/predicate/isFunction.d.mts b/node_modules/es-toolkit/dist/predicate/isFunction.d.mts
+index e714e0c..e3cf2d8 100644
+--- a/node_modules/es-toolkit/dist/predicate/isFunction.d.mts
++++ b/node_modules/es-toolkit/dist/predicate/isFunction.d.mts
+@@ -11,6 +11,6 @@
+  * isFunction(Proxy); // true
+  * isFunction(Int8Array); // true
+  */
+-declare function isFunction(value: unknown): value is (...args: unknown[]) => unknown;
++declare function isFunction(value: unknown): value is (...args: any[]) => any;
+ 
+ export { isFunction };

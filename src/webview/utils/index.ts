@@ -1,5 +1,5 @@
+import type { ConfigType } from '~/core/config/common'
 import { produce } from 'immer'
-import { type ConfigType } from '~/core/config/common'
 import { Language, Theme } from '~/meta'
 import { intelligentPick } from '~/utils/'
 

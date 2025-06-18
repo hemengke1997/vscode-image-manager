@@ -1,26 +1,28 @@
-import { memo, useEffect } from 'react'
-import { toast } from 'react-atom-toast'
-import { useTranslation } from 'react-i18next'
-import { GoMoveToTop } from 'react-icons/go'
+import type { WebviewCompressorType, WebviewFormatConverterType } from './stores/global/global-store'
+import type { CmdToWebviewMessage } from '~/message/webview-message-factory'
 import { useEventListener, useMemoizedFn } from 'ahooks'
 import { App, Button, FloatButton } from 'antd'
 import { enableMapSet, setAutoFreeze } from 'immer'
-import { classNames } from 'tw-clsx'
+import { useAtomValue, useSetAtom } from 'jotai'
+import { selectAtom } from 'jotai/utils'
+import { memo, useEffect } from 'react'
+import { useTranslation } from 'react-i18next'
+import { GoMoveToTop } from 'react-icons/go'
 import { CmdToVscode, CmdToWebview } from '~/message/cmd'
-import { type CmdToWebviewMessage } from '~/message/webview-message-factory'
 import logger from '~/utils/logger'
 import { getAppRoot } from '../utils'
 import { vscodeApi } from '../vscode-api'
 import ContextMenus from './components/context-menus'
 import ImageForSize from './components/image-for-size'
 import Layout from './components/layout'
+import { ToasterWithMax } from './components/toaster-with-max'
 import Viewer from './components/viewer'
-import { PreventClickAway } from './components/viewer/hooks/use-click-image-away'
 import useFetchExtension from './hooks/use-fetch-extension'
 import useImageOperation from './hooks/use-image-operation'
 import useUpdateImages from './hooks/use-update-images'
 import useUpdateWebview from './hooks/use-update-webview'
-import GlobalStore, { type WebviewCompressorType, type WebviewFormatConverterType } from './stores/global-store'
+import { GlobalAtoms } from './stores/global/global-store'
+import { VscodeAtoms } from './stores/vscode/vscode-store'
 import { UpdateType } from './utils/tree/const'
 
 vscodeApi.registerEventListener()
@@ -28,37 +30,33 @@ vscodeApi.registerEventListener()
 setAutoFreeze(false)
 enableMapSet()
 
-toast.setDefaultOptions({
-  className: classNames(
-    'flex items-center justify-center rounded-md bg-black bg-opacity-60 px-2 py-1 text-sm shadow-sm text-white',
-    PreventClickAway.Viewer,
-  ),
-  pauseOnHover: true,
-})
-
 function ImageManager() {
   const { notification } = App.useApp()
   const { t } = useTranslation()
 
-  const { setCompressor, setFormatConverter, sharpInstalled, extConfig } = GlobalStore.useStore([
-    'setCompressor',
-    'setFormatConverter',
-    'sharpInstalled',
-    'extConfig',
-  ])
+  const installDependencies = useAtomValue(
+    selectAtom(
+      VscodeAtoms.extConfigAtom,
+      useMemoizedFn(state => state.core.installDependencies),
+    ),
+  )
+
+  const setCompressor = useSetAtom(GlobalAtoms.compressorAtom)
+  const setFormatConverter = useSetAtom(GlobalAtoms.formatConverterAtom)
+  const sharpInstalled = useAtomValue(GlobalAtoms.sharpInstalledAtom)
 
   useFetchExtension()
 
   useEffect(() => {
-    if (extConfig.core.installDependencies && !sharpInstalled) {
+    if (installDependencies && !sharpInstalled) {
       const key = 'deps_not_found'
       notification.warning({
         message: t('im.deps_not_found'),
         key,
         description: (
-          <div className={'flex flex-col gap-y-2'}>
+          <div className='flex flex-col gap-y-2'>
             <div>{t('im.no_sharp')}</div>
-            <div className={'flex w-full justify-end'}>
+            <div className='flex w-full justify-end'>
               <Button
                 type='primary'
                 href={import.meta.env.IM_QA_URL}
@@ -80,8 +78,9 @@ function ImageManager() {
     return new Promise<WebviewCompressorType>((resolve, reject) => {
       vscodeApi.postMessage({ cmd: CmdToVscode.get_compressor }, (data) => {
         if (!data) {
-          reject()
-        } else {
+          reject(new Error('Compressor not found'))
+        }
+        else {
           resolve(data)
         }
       })
@@ -92,8 +91,9 @@ function ImageManager() {
     return new Promise<WebviewFormatConverterType>((resolve, reject) => {
       vscodeApi.postMessage({ cmd: CmdToVscode.get_format_converter }, (data) => {
         if (!data) {
-          reject()
-        } else {
+          reject(new Error('Format converter not found'))
+        }
+        else {
           resolve(data)
         }
       })
@@ -106,7 +106,8 @@ function ImageManager() {
 
       setCompressor(compressor)
       setFormatConverter(formatConverter)
-    } catch (err) {
+    }
+    catch (err) {
       logger.error(t('im.deps_not_found'), err)
     }
   })
@@ -191,6 +192,8 @@ function ImageManager() {
         shape='square'
         visibilityHeight={1000}
       />
+
+      <ToasterWithMax />
     </>
   )
 }

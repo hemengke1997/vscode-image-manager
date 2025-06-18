@@ -1,23 +1,26 @@
+import type { OnEndOptionsType } from '../../use-operation-form-logic'
+import type { OperatorResult } from '~/core/operator/operator'
+import type { ImperativeModalProps } from '~/webview/image-manager/hooks/use-imperative-antd-modal'
+import { useMemoizedFn, useUpdateEffect } from 'ahooks'
+import { App, Collapse, type GetProps, Tooltip } from 'antd'
+import { ceil } from 'es-toolkit/compat'
+import { produce } from 'immer'
+import { useAtomValue } from 'jotai'
+import { selectAtom } from 'jotai/utils'
 import { type Key, memo, type ReactNode, useMemo, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { GoSkip } from 'react-icons/go'
 import { MdErrorOutline } from 'react-icons/md'
 import { TbFileUnknown } from 'react-icons/tb'
 import { VscSmiley, VscWarning } from 'react-icons/vsc'
-import { useMemoizedFn, useUpdateEffect } from 'ahooks'
-import { type ImperativeModalProps } from 'ahooks-x/use-imperative-antd-modal'
-import { App, Collapse, type GetProps, Tooltip } from 'antd'
-import { ceil } from 'es-toolkit/compat'
-import { produce } from 'immer'
 import { ConfigKey } from '~/core/config/common'
-import { type OperatorResult } from '~/core/operator/operator'
 import { CmdToVscode } from '~/message/cmd'
 import ImageGroup from '~/webview/image-manager/components/image-group'
 import { useExtConfigState } from '~/webview/image-manager/hooks/use-ext-config-state'
-import GlobalStore from '~/webview/image-manager/stores/global-store'
+import { useImageWidth } from '~/webview/image-manager/stores/global/hooks'
+import { VscodeAtoms } from '~/webview/image-manager/stores/vscode/vscode-store'
 import { vscodeApi } from '~/webview/vscode-api'
 import useScrollRef from '../../../use-scroll-ref'
-import { type OnEndOptionsType } from '../../use-operation-form-logic'
 import { useOperatorModalLogic } from '../../use-operator-modal-logic/use-operator-modal-logic'
 import CompareAction from './components/compare-action'
 import ImageCard from './components/image-card'
@@ -40,8 +43,16 @@ function OperationResult(props: OperationResultProps & ImperativeModalProps) {
   const { results: resultsProp, onUndoClick, onRedoClick, closeModal, operationMode } = props
 
   const { t } = useTranslation()
-  const { imageWidth } = GlobalStore.useStore(['imageWidth'])
-  const _errorRange = GlobalStore.useStore((ctx) => ctx.extConfig.compression.errorRange)
+
+  const [imageWidth] = useImageWidth()
+
+  const _errorRange = useAtomValue(
+    selectAtom(
+      VscodeAtoms.extConfigAtom,
+      useMemoizedFn(state => state.compression.errorRange),
+    ),
+  )
+
   const [errorRange, setErrorRange] = useExtConfigState(ConfigKey.compression_errorRange, _errorRange, [])
 
   const { message } = App.useApp()
@@ -82,7 +93,7 @@ function OperationResult(props: OperationResultProps & ImperativeModalProps) {
   })
 
   useUpdateEffect(() => {
-    if (Object.keys(groups).every((key) => groups[key].length === 0)) {
+    if (Object.keys(groups).every(key => groups[key].length === 0)) {
       closeModal()
     }
   }, [groups])
@@ -90,20 +101,20 @@ function OperationResult(props: OperationResultProps & ImperativeModalProps) {
   const onUndoAction = useMemoizedFn((items: OperatorResult[]) => {
     onUndoClick(items)
 
-    const ids = items.map((item) => item.id)
+    const ids = items.map(item => item.id)
     vscodeApi.postMessage({ cmd: CmdToVscode.remove_operation_cmd_cache, data: { ids } })
 
-    setResults((prev) => prev.filter((t) => !items.some((item) => item.id === t.id)))
+    setResults(prev => prev.filter(t => !items.some(item => item.id === t.id)))
   })
 
   const onRedoAction = useMemoizedFn((items: OperatorResult[]) => {
-    onRedoClick(items.map((t) => t.image))
-    setResults((prev) => prev.filter((t) => !items.some((item) => item.id === t.id)))
+    onRedoClick(items.map(t => t.image))
+    setResults(prev => prev.filter(t => !items.some(item => item.id === t.id)))
   })
 
   const { showCompareImage } = useCompareImage()
 
-  const [comparisonCache, setComparisonCache] = useState<Map<string, string>>(new Map())
+  const [comparisonCache, setComparisonCache] = useState<Map<string, string>>(() => new Map())
 
   const onCompareAction = useMemoizedFn(async (item: OperatorResult) => {
     const props = {
@@ -116,7 +127,8 @@ function OperationResult(props: OperationResultProps & ImperativeModalProps) {
         oldImage: cachedBase64,
         ...props,
       })
-    } else {
+    }
+    else {
       // 发送命令，将对应commander缓存中的inputBuffer转为base64，并获取结果
       vscodeApi.postMessage(
         {
@@ -125,12 +137,13 @@ function OperationResult(props: OperationResultProps & ImperativeModalProps) {
         },
         (res) => {
           if (res) {
-            setComparisonCache(produce((draft) => draft.set(item.id, res)))
+            setComparisonCache(produce(draft => draft.set(item.id, res)))
             showCompareImage({
               oldImage: res,
               ...props,
             })
-          } else {
+          }
+          else {
             message.error(t('im.get_compare_error'))
           }
         },
@@ -154,7 +167,7 @@ function OperationResult(props: OperationResultProps & ImperativeModalProps) {
   )
 
   const findCorrespondingResult = useMemoizedFn((results: OperatorResult[], image: ImageType) => {
-    return results.find((item) => item.image.path === image.path)!
+    return results.find(item => item.image.path === image.path)!
   })
 
   const items = useMemoizedFn(
@@ -171,7 +184,7 @@ function OperationResult(props: OperationResultProps & ImperativeModalProps) {
         children: (
           <ImageGroup
             {...imageGroupProps}
-            images={groups.decrease.map((t) => t.image)}
+            images={groups.decrease.map(t => t.image)}
             renderer={(imageNode, image) => (
               <ImageCard
                 actions={[
@@ -182,27 +195,28 @@ function OperationResult(props: OperationResultProps & ImperativeModalProps) {
                     }}
                   />,
                   <CompareAction
-                    key={'compare'}
+                    key='compare'
                     onClick={() => onCompareAction(findCorrespondingResult(groups.decrease, image))}
                   />,
                 ]}
                 cover={imageNode}
               >
-                <div className={'flex flex-col items-center'}>
+                <div className='flex flex-col items-center'>
                   <SizeChange
                     inputSize={findCorrespondingResult(groups.decrease, image).inputSize}
                     outputSize={findCorrespondingResult(groups.decrease, image).outputSize}
                   />
-                  <div className={'flex items-center gap-x-2'}>
+                  <div className='flex items-center gap-x-2'>
                     <VscSmiley className='flex items-center text-ant-color-success' />
-                    <div className={'flex-none font-bold text-ant-color-error'}>
+                    <div className='flex-none font-bold text-ant-color-error'>
                       {getPercent(findCorrespondingResult(groups.decrease, image))}
                     </div>
                   </div>
                 </div>
               </ImageCard>
             )}
-          ></ImageGroup>
+          >
+          </ImageGroup>
         ),
       },
       {
@@ -212,38 +226,39 @@ function OperationResult(props: OperationResultProps & ImperativeModalProps) {
         children: (
           <ImageGroup
             {...imageGroupProps}
-            images={groups.increase.map((t) => t.image)}
+            images={groups.increase.map(t => t.image)}
             renderer={(lazyImage, image) => (
               <ImageCard
                 actions={[
                   <UndoAction
-                    key={'undo'}
+                    key='undo'
                     onClick={() => {
                       onUndoAction([findCorrespondingResult(groups.increase, image)])
                     }}
                   />,
                   <CompareAction
-                    key={'compare'}
+                    key='compare'
                     onClick={() => onCompareAction(findCorrespondingResult(groups.increase, image))}
                   />,
                 ]}
                 cover={lazyImage}
               >
-                <div className={'flex flex-col items-center'}>
+                <div className='flex flex-col items-center'>
                   <SizeChange
                     inputSize={findCorrespondingResult(groups.increase, image).inputSize}
                     outputSize={findCorrespondingResult(groups.increase, image).outputSize}
                   />
-                  <div className={'flex items-center gap-x-2'}>
+                  <div className='flex items-center gap-x-2'>
                     <VscWarning className='flex items-center text-ant-color-warning' />
-                    <div className={'flex-none font-bold text-ant-color-error'}>
+                    <div className='flex-none font-bold text-ant-color-error'>
                       {getPercent(findCorrespondingResult(groups.increase, image))}
                     </div>
                   </div>
                 </div>
               </ImageCard>
             )}
-          ></ImageGroup>
+          >
+          </ImageGroup>
         ),
       },
       {
@@ -254,12 +269,13 @@ function OperationResult(props: OperationResultProps & ImperativeModalProps) {
             onClick={() => {
               onRedoAction(groups.error)
             }}
-          ></RedoAction>
+          >
+          </RedoAction>
         ),
         children: (
           <ImageGroup
             {...imageGroupProps}
-            images={groups.error.map((t) => t.image)}
+            images={groups.error.map(t => t.image)}
             renderer={(lazyImage, image) => {
               const current = findCorrespondingResult(groups.error, image)
               const error = String(current.error).includes('UNKNOWN')
@@ -273,20 +289,22 @@ function OperationResult(props: OperationResultProps & ImperativeModalProps) {
                       onClick={() => {
                         onRedoAction([current])
                       }}
-                    ></RedoAction>,
+                    >
+                    </RedoAction>,
                   ]}
                   cover={lazyImage}
                 >
-                  <div className={'flex flex-wrap items-center justify-center gap-1'}>
-                    <MdErrorOutline className={'text-ant-color-error'} />
-                    <Tooltip title={error} placement={'bottom'} arrow={false}>
-                      <div className={'max-w-full truncate text-center text-ant-color-text'}>{error}</div>
+                  <div className='flex flex-wrap items-center justify-center gap-1'>
+                    <MdErrorOutline className='text-ant-color-error' />
+                    <Tooltip title={error} placement='bottom' arrow={false}>
+                      <div className='max-w-full truncate text-center text-ant-color-text'>{error}</div>
                     </Tooltip>
                   </div>
                 </ImageCard>
               )
             }}
-          ></ImageGroup>
+          >
+          </ImageGroup>
         ),
       },
       {
@@ -295,15 +313,16 @@ function OperationResult(props: OperationResultProps & ImperativeModalProps) {
         children: (
           <ImageGroup
             {...imageGroupProps}
-            images={groups.skiped.map((t) => t.image)}
-            renderer={(lazyImage) => (
+            images={groups.skiped.map(t => t.image)}
+            renderer={lazyImage => (
               <ImageCard cover={lazyImage}>
-                <div className={'flex items-center justify-center gap-1'}>
-                  <GoSkip className={'text-ant-color-text'} />
+                <div className='flex items-center justify-center gap-1'>
+                  <GoSkip className='text-ant-color-text' />
                 </div>
               </ImageCard>
             )}
-          ></ImageGroup>
+          >
+          </ImageGroup>
         ),
       },
       {
@@ -312,41 +331,43 @@ function OperationResult(props: OperationResultProps & ImperativeModalProps) {
         children: (
           <ImageGroup
             {...imageGroupProps}
-            images={groups.limited.map((t) => t.image)}
+            images={groups.limited.map(t => t.image)}
             renderer={(lazyImage, image) => (
               <ImageCard cover={lazyImage}>
-                <div className={'flex items-center justify-center gap-x-1'}>
-                  <TbFileUnknown className={'flex-none text-ant-color-warning'} />
+                <div className='flex items-center justify-center gap-x-1'>
+                  <TbFileUnknown className='flex-none text-ant-color-warning' />
                   <Tooltip
                     title={findCorrespondingResult(groups.limited, image).error}
-                    placement={'bottom'}
+                    placement='bottom'
                     arrow={false}
                   >
-                    <div className={'max-w-full truncate text-center text-ant-color-text'}>
+                    <div className='max-w-full truncate text-center text-ant-color-text'>
                       {findCorrespondingResult(groups.limited, image).error}
                     </div>
                   </Tooltip>
                 </div>
               </ImageCard>
             )}
-          ></ImageGroup>
+          >
+          </ImageGroup>
         ),
       },
     ],
   )
 
-  const [activeKeys, setActiveKeys] = useState<Key[]>(items().map((t) => t.key!))
+  const [activeKeys, setActiveKeys] = useState<Key[]>(items().map(t => t.key!))
 
   return (
-    <div className={'max-h-[80vh] w-full overflow-y-auto'} ref={scrollRef}>
+    <div className='max-h-[80vh] w-full overflow-y-auto' ref={scrollRef}>
       <Collapse
-        items={items().filter((item) => groups[item.key].length > 0)}
+        items={items().filter(item => groups[item.key].length > 0)}
         activeKey={activeKeys as string[]}
-        onChange={(key) => setActiveKeys(key as string[])}
-        className={'select-none'}
+        onChange={key => setActiveKeys(key as string[])}
+        className='select-none'
         destroyOnHidden={true}
-        collapsible={'icon'}
-      ></Collapse>
+        collapsible='icon'
+      >
+      </Collapse>
     </div>
   )
 }

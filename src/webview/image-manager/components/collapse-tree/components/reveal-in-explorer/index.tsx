@@ -3,7 +3,8 @@ import { useTranslation } from 'react-i18next'
 import { VscVscodeInsiders } from 'react-icons/vsc'
 import useImageOperation from '~/webview/image-manager/hooks/use-image-operation'
 import RevealButton from '../reveal-button'
-type Props = {
+
+interface Props {
   path: string
 }
 

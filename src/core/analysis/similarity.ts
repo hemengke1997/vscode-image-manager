@@ -17,28 +17,32 @@ export class Similarity {
     const source = image.path
     const ext = this.getFileExt(source)
     if (!this.limit.from.includes(ext)) {
-      return Promise.reject('format not supported')
+      return Promise.reject(new Error('format not supported'))
     }
 
     try {
       sourcehash = await phash(source)
-    } catch (e) {
+    }
+    catch (e) {
       return Promise.reject(e)
     }
 
     const result = await pMap(scope, async (image) => {
       try {
-        if (image.path === source) return pMapSkip
-        if (!this.limit.from.includes(image.extname)) return pMapSkip
+        if (image.path === source)
+          return pMapSkip
+        if (!this.limit.from.includes(image.extname))
+          return pMapSkip
         const hash = await phash(image.path)
         return { image, hash }
-      } catch (e) {
+      }
+      catch (e) {
         logger.error(e)
         return pMapSkip
       }
     })
 
-    const similar: { image: ImageType; distance: number }[] = []
+    const similar: { image: ImageType, distance: number }[] = []
 
     result.forEach((res) => {
       const distance = hammingDistance(sourcehash, res.hash)

@@ -10,7 +10,8 @@ export function base64(): PluginOption {
     async load(id: string) {
       const [path, query] = id.split('?')
 
-      if (query !== 'base64' || !path) return null
+      if (query !== 'base64' || !path)
+        return null
 
       const data = await fs.readFile(path)
       const type = mime.getType(path) || 'application/octet-stream'

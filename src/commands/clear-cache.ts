@@ -1,11 +1,11 @@
+import type { ExtensionModule } from '~/module'
 import { commands, window } from 'vscode'
 import { Global } from '~/core/global'
 import { i18n } from '~/i18n'
-import { type ExtensionModule } from '~/module'
 import { Channel } from '~/utils/node/channel'
 import { Commands } from './commands'
 
-export default <ExtensionModule>function () {
+export default <ExtensionModule> function () {
   async function clearCache() {
     try {
       await Global.installer?.clearCaches()
@@ -14,7 +14,8 @@ export default <ExtensionModule>function () {
       if (r === RESTART) {
         commands.executeCommand('workbench.action.reloadWindow')
       }
-    } catch (e) {
+    }
+    catch (e) {
       Channel.error(e)
     }
   }

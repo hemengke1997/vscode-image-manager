@@ -8,7 +8,6 @@
 
 <p align='center'>Powerful yet easy-to-use Image Mananger<p>
 
-
 [中文文档](./README.zh.md)
 
 ## Document
@@ -29,11 +28,9 @@ There is full introduction video on Bilibili, [click here](https://www.bilibili.
 
 ![overview](./screenshots/overview.png)
 
-
 ### Preview
 
 ![preview](./screenshots/preview.png)
-
 
 ### Batch Compression
 
@@ -50,7 +47,6 @@ There is full introduction video on Bilibili, [click here](https://www.bilibili.
 ### Finding Similarities
 
 ![find-similirity](./screenshots/find-similarity.png)
-
 
 ## Support Me
 
@@ -73,7 +69,6 @@ Please consider leaving a positive review on [Marketplace](https://marketplace.v
 | WeChat                                     | Alipay                                  |
 | ------------------------------------------ | --------------------------------------- |
 | <img src="./screenshots/wechatpay.jpeg" /> | <img src="./screenshots/alipay.jpeg" /> |
-
 
 ## Thanks
 

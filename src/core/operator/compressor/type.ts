@@ -1,5 +1,5 @@
-import { type FormatConverterOptions } from '../format-converter'
-import { type OperatorOptions } from '../operator'
+import type { FormatConverterOptions } from '../format-converter'
+import type { OperatorOptions } from '../operator'
 
 export type CompressionOptions = OperatorOptions & {
   /**
@@ -47,10 +47,10 @@ export type CompressionOptions = OperatorOptions & {
      */
     colors?: number
   }
-} & Omit<FormatConverterOptions, 'icoSize'> &
-  SvgCompressionOptions<CustomSvgCompressionOptions>
+} & Omit<FormatConverterOptions, 'icoSize'>
+& SvgCompressionOptions<CustomSvgCompressionOptions>
 
-export type CustomSvgCompressionOptions = {
+export interface CustomSvgCompressionOptions {
   /**
    * @description 压缩svg后添加自定义属性，用于判断是否已经压缩过
    * 如果设置 null，则禁用功能
@@ -64,6 +64,6 @@ export type CustomSvgCompressionOptions = {
   removeDataAttributes: boolean
 }
 
-export type SvgCompressionOptions<T> = {
+export interface SvgCompressionOptions<T> {
   svg: T
 }

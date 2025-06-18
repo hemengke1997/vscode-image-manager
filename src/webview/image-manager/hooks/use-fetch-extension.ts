@@ -1,7 +1,8 @@
 import { useAsyncEffect } from 'ahooks'
+import { useSetAtom } from 'jotai'
 import { EXT_ID } from '~/meta'
 import logger from '~/utils/logger'
-import GlobalStore from '../stores/global-store'
+import { GlobalAtoms } from '../stores/global/global-store'
 
 async function getExtensionLatestVersion(extensionName: string) {
   const url = 'https://marketplace.visualstudio.com/_apis/public/gallery/extensionquery'
@@ -47,7 +48,7 @@ async function getExtensionLatestVersion(extensionName: string) {
  * 获取插件信息
  */
 export default function useFetchExtension() {
-  const { setExtLastetInfo } = GlobalStore.useStore(['setExtLastetInfo'])
+  const setExtLastetInfo = useSetAtom(GlobalAtoms.extLatestInfoAtom)
   useAsyncEffect(async () => {
     try {
       const ext = await getExtensionLatestVersion(EXT_ID)
@@ -62,6 +63,7 @@ export default function useFetchExtension() {
         author: ext.publisher.publisherName,
         version: ext.versions[0].version,
       })
-    } catch {}
+    }
+    catch {}
   }, [])
 }

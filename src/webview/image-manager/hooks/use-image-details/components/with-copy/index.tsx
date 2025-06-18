@@ -1,10 +1,10 @@
-import { memo, useEffect, useRef, useState } from 'react'
-import { TbCopy, TbCopyCheck } from 'react-icons/tb'
 import { useMemoizedFn } from 'ahooks'
 import { Button } from 'antd'
-import { classNames } from 'tw-clsx'
+import { memo, useEffect, useRef, useState } from 'react'
+import { TbCopy, TbCopyCheck } from 'react-icons/tb'
+import { classNames } from '~/webview/image-manager/utils/tw-clsx'
 
-type Props = {
+interface Props {
   children: string
 }
 
@@ -25,10 +25,10 @@ function WithCopy(props: Props) {
   }, [])
 
   return (
-    <div className={'group flex items-center gap-1'}>
+    <div className='group flex items-center gap-1'>
       {children}
       <Button
-        className={'opacity-0 transition-opacity delay-100 group-hover:opacity-100'}
+        className='opacity-0 transition-opacity delay-100 group-hover:opacity-100'
         classNames={{
           icon: classNames('transition-colors', copied && 'text-ant-color-success'),
         }}
@@ -46,8 +46,9 @@ function WithCopy(props: Props) {
             timeoutRef.current = null
           }, 3000)
         })}
-        type={'text'}
-      ></Button>
+        type='text'
+      >
+      </Button>
     </div>
   )
 }

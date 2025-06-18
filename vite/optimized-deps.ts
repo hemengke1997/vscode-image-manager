@@ -1,6 +1,7 @@
-import fs from 'fs-extra'
+import type { PluginOption } from 'vite'
 import path from 'node:path'
-import { type PluginOption } from 'vite'
+import process from 'node:process'
+import fs from 'fs-extra'
 
 export function initEnv() {
   const filepath = 'vite/optimized-deps.txt'
@@ -13,7 +14,7 @@ export async function readOptimizeDepsFile(filepath: string) {
   const deps = content
     .split('\n')
     .filter(Boolean)
-    .map((dep) => dep.trim())
+    .map(dep => dep.trim())
 
   return deps || []
 }

@@ -1,10 +1,10 @@
-import { type SharpNS } from '~/@types/global'
+import type { SharpNS } from '~/@types/global'
 import { Global } from '~/core/global'
 
 const SAMPLE_SIZE = 32
 
 function initSQRT(N: number) {
-  const c = new Array(N)
+  const c: number[] = Array.from({ length: N })
   for (let i = 1; i < N; i++) {
     c[i] = 1
   }
@@ -15,9 +15,9 @@ function initSQRT(N: number) {
 const SQRT = initSQRT(SAMPLE_SIZE)
 
 function initCOS(N: number) {
-  const cosines = new Array(N)
+  const cosines: number[][] = Array.from({ length: N })
   for (let k = 0; k < N; k++) {
-    cosines[k] = new Array(N)
+    cosines[k] = Array.from({ length: N })
     for (let n = 0; n < N; n++) {
       cosines[k][n] = Math.cos(((2 * k + 1) / (2.0 * N)) * n * Math.PI)
     }
@@ -30,9 +30,9 @@ const COS = initCOS(SAMPLE_SIZE)
 function applyDCT(f: any[], size: number) {
   const N = size
 
-  const F = new Array(N)
+  const F: number[][] = Array.from({ length: N })
   for (let u = 0; u < N; u++) {
-    F[u] = new Array(N)
+    F[u] = Array.from({ length: N })
     for (let v = 0; v < N; v++) {
       let sum = 0
       for (let i = 0; i < N; i++) {
@@ -57,9 +57,9 @@ export async function phash(image: string, options?: SharpNS.SharpOptions) {
     .raw()
     .toBuffer()
   // copy signal
-  const s = new Array(SAMPLE_SIZE)
+  const s: number[][] = Array.from({ length: SAMPLE_SIZE })
   for (let x = 0; x < SAMPLE_SIZE; x++) {
-    s[x] = new Array(SAMPLE_SIZE)
+    s[x] = Array.from({ length: SAMPLE_SIZE })
     for (let y = 0; y < SAMPLE_SIZE; y++) {
       s[x][y] = data[SAMPLE_SIZE * y + x]
     }

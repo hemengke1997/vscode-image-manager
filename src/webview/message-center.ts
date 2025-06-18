@@ -1,9 +1,9 @@
+import type { CmdToWebviewMessage } from '~/message/webview-message-factory'
+import type { ImageManagerPanel } from '~/webview/panel'
 import { i18n } from '~/i18n'
 import { CmdToWebview } from '~/message/cmd'
 import { type MessageType, VscodeMessageFactory } from '~/message/message-factory'
-import { type CmdToWebviewMessage } from '~/message/webview-message-factory'
 import { Channel } from '~/utils/node/channel'
-import { type ImageManagerPanel } from '~/webview/panel'
 
 export class MessageCenter {
   constructor(public imageManagerPanel: ImageManagerPanel) {}
@@ -38,7 +38,8 @@ export class MessageCenter {
 
       // 如果消息有回调id，则返回数据给webview
       this.postMessage({ cmd: CmdToWebview.webview_callback, callbackId: message.callbackId, data })
-    } else {
+    }
+    else {
       Channel.error(i18n.t('core.handler_fn_not_exist', message.cmd))
     }
   }

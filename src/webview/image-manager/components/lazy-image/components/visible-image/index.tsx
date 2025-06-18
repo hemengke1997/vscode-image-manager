@@ -1,3 +1,8 @@
+import type lazyImage from '../..'
+import { useMemoizedFn } from 'ahooks'
+import { type GetProps, Image } from 'antd'
+import { useAtomValue } from 'jotai'
+import { selectAtom } from 'jotai/utils'
 import { memo, useMemo } from 'react'
 import { useTranslation } from 'react-i18next'
 import { FiCheckCircle } from 'react-icons/fi'
@@ -6,16 +11,13 @@ import { MdOutlineRemoveCircle } from 'react-icons/md'
 import { RiErrorWarningLine } from 'react-icons/ri'
 import { RxDimensions } from 'react-icons/rx'
 import { TbResize } from 'react-icons/tb'
-import { useMemoizedFn } from 'ahooks'
-import { type GetProps, Image } from 'antd'
-import { classNames } from 'tw-clsx'
 import { DEFAULT_CONFIG } from '~/core/config/common'
 import { Compressed } from '~/meta'
 import useImageDetails from '~/webview/image-manager/hooks/use-image-details/use-image-details'
-import GlobalStore from '~/webview/image-manager/stores/global-store'
-import SettingsStore from '~/webview/image-manager/stores/settings-store'
+import { useHoverShowImageDetail } from '~/webview/image-manager/stores/settings/hooks'
+import { VscodeAtoms } from '~/webview/image-manager/stores/vscode/vscode-store'
 import { bytesToUnit, formatBytes } from '~/webview/image-manager/utils'
-import type lazyImage from '../..'
+import { classNames } from '~/webview/image-manager/utils/tw-clsx'
 import ImageName from '../../../image-name'
 import Corner from '../corner'
 
@@ -30,22 +32,38 @@ function VisibleImage(props: VisibleImageProps) {
     selected,
     onPreviewClick,
     onRemoveClick,
-    removeRender = (n) => n,
     antdImageProps,
     imageNameProps,
     onContextMenu,
-    isMultipleSelecting = () => false,
     interactive = true,
   } = props
+
+  const removeRender = useMemoizedFn(props.removeRender || (children => children))
+  const isMultipleSelecting = useMemoizedFn(props.isMultipleSelecting || (() => false))
 
   const { t } = useTranslation()
   const { showImageDetails } = useImageDetails()
 
-  const { hoverShowImageDetail } = SettingsStore.useStore(['hoverShowImageDetail'])
+  const [hoverShowImageDetail] = useHoverShowImageDetail()
 
-  const imageWidth = GlobalStore.useStore((ctx) => ctx.extConfig.viewer.imageWidth)
-  const warningSize = GlobalStore.useStore((ctx) => ctx.extConfig.viewer.warningSize)
-  const imageRendering = GlobalStore.useStore((ctx) => ctx.extConfig.viewer.imageRendering)
+  const imageWidth = useAtomValue(
+    selectAtom(
+      VscodeAtoms.extConfigAtom,
+      useMemoizedFn(state => state.viewer.imageWidth),
+    ),
+  )
+  const warningSize = useAtomValue(
+    selectAtom(
+      VscodeAtoms.extConfigAtom,
+      useMemoizedFn(state => state.viewer.warningSize),
+    ),
+  )
+  const imageRendering = useAtomValue(
+    selectAtom(
+      VscodeAtoms.extConfigAtom,
+      useMemoizedFn(state => state.viewer.imageRendering),
+    ),
+  )
 
   const imageStyle = useMemo(
     () => ({
@@ -99,7 +117,7 @@ function VisibleImage(props: VisibleImageProps) {
   const previewMask = useMemoizedFn(() => {
     return (
       <div
-        className={'flex size-full flex-col items-center justify-center'}
+        className='flex size-full flex-col items-center justify-center'
         style={{
           fontSize: `${computedMaskFontSize}rem`,
         }}
@@ -110,7 +128,8 @@ function VisibleImage(props: VisibleImageProps) {
               'flex cursor-pointer items-center space-x-1 truncate transition-opacity hover:opacity-85',
             )}
             onClick={(e) => {
-              if (isMultipleSelecting(e)) return
+              if (isMultipleSelecting(e))
+                return
               onPreviewClick(image)
             }}
             data-disable-dbclick
@@ -119,26 +138,32 @@ function VisibleImage(props: VisibleImageProps) {
             <span>{t('im.preview')}</span>
           </div>
         )}
-        <div className={'flex items-center space-x-1 truncate'}>
+        <div className='flex items-center space-x-1 truncate'>
           <TbResize />
           <span className={classNames(sizeWarning && 'text-ant-color-warning-text')}>
             {formatBytes(image.stats.size)}
           </span>
         </div>
-        {imageMetadata.metadata.width && imageMetadata.metadata.height ? (
-          <div className={'flex items-center space-x-1 truncate'}>
-            <RxDimensions />
-            <span className={'flex items-center'}>
-              {imageMetadata.metadata.width}x{imageMetadata.metadata.height}
-            </span>
-          </div>
-        ) : null}
-        {imageMetadata.compressed === Compressed.yes ? (
-          <div className={'flex items-center space-x-1 truncate'}>
-            <FiCheckCircle />
-            <span>{t('im.compressed')}</span>
-          </div>
-        ) : null}
+        {imageMetadata.metadata.width && imageMetadata.metadata.height
+          ? (
+              <div className='flex items-center space-x-1 truncate'>
+                <RxDimensions />
+                <span className='flex items-center'>
+                  {imageMetadata.metadata.width}
+                  x
+                  {imageMetadata.metadata.height}
+                </span>
+              </div>
+            )
+          : null}
+        {imageMetadata.compressed === Compressed.yes
+          ? (
+              <div className='flex items-center space-x-1 truncate'>
+                <FiCheckCircle />
+                <span>{t('im.compressed')}</span>
+              </div>
+            )
+          : null}
       </div>
     )
   })
@@ -159,7 +184,7 @@ function VisibleImage(props: VisibleImageProps) {
 
   const compressedMap = useMemo(
     () => ({
-      [Compressed.yes]: <FiCheckCircle className={'text-sm text-ant-color-text'} title={t('im.compressed')} />,
+      [Compressed.yes]: <FiCheckCircle className='text-sm text-ant-color-text' title={t('im.compressed')} />,
     }),
     [t],
   )
@@ -174,11 +199,13 @@ function VisibleImage(props: VisibleImageProps) {
         interactive && 'hover:border-ant-color-border',
         interactive && selected && 'border-ant-color-primary-hover hover:border-ant-color-primary-hover',
       )}
-      onContextMenu={(e) => onContextMenu?.(e, image)}
+      onContextMenu={e => onContextMenu?.(e, image)}
       onDoubleClick={(e) => {
-        if (isMultipleSelecting(e)) return
+        if (isMultipleSelecting(e))
+          return
         const el = e.target as HTMLElement
-        if (preventDbClick(el)) return
+        if (preventDbClick(el))
+          return
         showImageDetails({
           image,
           onPreview: onPreviewClick,
@@ -189,7 +216,7 @@ function VisibleImage(props: VisibleImageProps) {
         leftTop={
           onRemoveClick && (
             <div
-              className={'cursor-pointer text-ant-color-error opacity-0 transition-opacity group-hover:opacity-100'}
+              className='cursor-pointer text-ant-color-error opacity-0 transition-opacity group-hover:opacity-100'
               onClick={(e) => {
                 // prevent click away
                 e.stopPropagation()
@@ -203,7 +230,7 @@ function VisibleImage(props: VisibleImageProps) {
         }
         rightTop={
           sizeWarning && (
-            <RiErrorWarningLine className={'text-base'} title={t('im.size_over_warning', { size: warningSize })} />
+            <RiErrorWarningLine className='text-base' title={t('im.size_over_warning', { size: warningSize })} />
           )
         }
         rightBottom={compressedMap[imageMetadata.compressed]}
@@ -215,7 +242,8 @@ function VisibleImage(props: VisibleImageProps) {
           rootClassName={classNames('transition-all', antdImageProps.rootClassName)}
           style={imageStyle}
           src={image.vscodePath}
-        ></Image>
+        >
+        </Image>
       </Corner>
 
       <div className='max-w-full truncate' style={{ maxWidth: antdImageProps.width }}>

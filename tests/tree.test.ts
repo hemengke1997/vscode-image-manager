@@ -176,7 +176,7 @@ const imageUpdates: UpdatePayload[] = [
       },
     } as ImageType,
   },
-].map((item) => ({
+].map(item => ({
   origin: UpdateOrigin.image,
   data: item,
 }))
@@ -1131,7 +1131,7 @@ describe('节点中图片的排序和visible过滤', () => {
       "
     `)
 
-    expect(flatten(treeManager.toArray(nested, (node) => node.data.images)).length).toEqual(
+    expect(flatten(treeManager.toArray(nested, node => node.data.images)).length).toEqual(
       treeManager.getSubnodeImages('project')?.length,
     )
   })

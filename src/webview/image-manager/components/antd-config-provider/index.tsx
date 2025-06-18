@@ -1,10 +1,10 @@
-import { memo, type PropsWithChildren, useEffect } from 'react'
-import { setGlobalConfig } from 'react-transition-preset'
+import type { Theme } from '~/meta'
 import { TinyColor } from '@ctrl/tinycolor'
 import { theme as antdTheme, App, ConfigProvider } from 'antd'
-import { type Theme } from '~/meta'
-import SettingsStore from '~/webview/image-manager/stores/settings-store'
+import { MotionConfig } from 'motion/react'
+import { memo, type PropsWithChildren, useEffect } from 'react'
 import { getCssVar } from '~/webview/image-manager/utils/theme'
+import { usePrimaryColor, useReduceMotion, useTheme } from '../../stores/settings/hooks'
 
 const DURATION_BASE = 0.06
 
@@ -26,7 +26,9 @@ function ligherOrDarker(color: string, theme: Theme) {
 }
 
 function AntdConfigProvider({ children }: PropsWithChildren) {
-  const { primaryColor, theme, reduceMotion } = SettingsStore.useStore(['primaryColor', 'theme', 'reduceMotion'])
+  const [primaryColor] = usePrimaryColor()
+  const [theme] = useTheme()
+  const [reduceMotion] = useReduceMotion()
 
   const vscodeFontSize = getCssVar('--vscode-font-size').split('px')[0]
   const vscodeEditorBackground = getCssVar('--vscode-editor-background')
@@ -50,12 +52,6 @@ function AntdConfigProvider({ children }: PropsWithChildren) {
     document.documentElement.style.setProperty('font-size', `${docFontSize}px`)
   }, [docFontSize])
 
-  useEffect(() => {
-    setGlobalConfig({
-      reduceMotion: reduceMotion === 'on',
-    })
-  }, [])
-
   return (
     <ConfigProvider
       input={{ autoComplete: 'off' }}
@@ -68,7 +64,7 @@ function AntdConfigProvider({ children }: PropsWithChildren) {
         algorithm: [getThemeAlgorithm()],
         token: {
           fontFamily: getCssVar('var(--vscode-font-family)'),
-          motion: reduceMotion === 'on' ? false : true,
+          motion: reduceMotion !== 'on',
           fontSize: docFontSize,
           colorPrimary: primaryColor,
           motionDurationSlow: `${DURATION_BASE * 2}s`,
@@ -85,24 +81,28 @@ function AntdConfigProvider({ children }: PropsWithChildren) {
             controlHeight: 24,
           },
         },
+
       }}
       componentSize='small'
       warning={{ strict: false }}
     >
-      <App
-        className={'bg-ant-color-bg-container'}
-        message={{
-          top: 70,
-          maxCount: 5,
-          duration: 3,
-        }}
-        notification={{
-          showProgress: true,
-          pauseOnHover: true,
-        }}
-      >
-        {children}
-      </App>
+      <MotionConfig reducedMotion={reduceMotion === 'on' ? 'always' : 'user'}>
+        <App
+          className='bg-ant-color-bg-container'
+          message={{
+            top: 70,
+            maxCount: 5,
+            duration: 3,
+          }}
+          notification={{
+            showProgress: true,
+            pauseOnHover: true,
+          }}
+        >
+          {children}
+        </App>
+      </MotionConfig>
+
     </ConfigProvider>
   )
 }

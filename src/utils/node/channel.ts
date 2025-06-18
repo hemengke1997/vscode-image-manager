@@ -15,7 +15,7 @@ export class Channel {
   }
 
   static raw(...values: any[]) {
-    this.outputChannel.appendLine(values.map((i) => i.toString()).join(' '))
+    this.outputChannel.appendLine(values.map(i => i.toString()).join(' '))
   }
 
   static info(message: string, prompt = false, indent = 0) {
@@ -43,7 +43,8 @@ export class Channel {
       const message = typeof err === 'string' ? err : `${EXT_NAME} Error: ${err.toString()}`
 
       const result = await window.showErrorMessage(message, openOutputButton)
-      if (result === openOutputButton) this.show()
+      if (result === openOutputButton)
+        this.show()
     }
   }
 

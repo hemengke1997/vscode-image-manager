@@ -1,14 +1,15 @@
+import type { Buffer } from 'node:buffer'
+import type { CompressionOptions } from './type'
+import type { SharpNS } from '~/@types/global'
+import type { ImageManagerPanel } from '~/webview/panel'
 import { round } from 'es-toolkit'
 import fs from 'fs-extra'
-import { type SharpNS } from '~/@types/global'
 import { SharpOperator } from '~/core/sharp/sharp-operator'
 import { i18n } from '~/i18n'
 import { Compressed } from '~/meta'
-import { type ImageManagerPanel } from '~/webview/panel'
 import { COMPRESSED_META } from '../meta'
 import { SkipError } from '../operator'
 import { Compressor } from './compressor'
-import { type CompressionOptions } from './type'
 
 export class UsualCompressor extends Compressor {
   public extensions = ['png', 'jpg', 'jpeg', 'webp', 'gif', 'tiff', 'tif', 'avif', 'heif']
@@ -26,7 +27,7 @@ export class UsualCompressor extends Compressor {
 
   async core(
     filePath: string,
-  ): Promise<{ inputSize: number; outputSize: number; outputPath: string; inputBuffer: Buffer }> {
+  ): Promise<{ inputSize: number, outputSize: number, outputPath: string, inputBuffer: Buffer }> {
     const { format } = this.option!
 
     const originExt = this.getFileExt(filePath)
@@ -69,10 +70,10 @@ export class UsualCompressor extends Compressor {
               } = info
 
               if (
-                skipCompressed &&
-                compressed === Compressed.yes &&
+                skipCompressed
+                && compressed === Compressed.yes
                 // 格式没变的话跳过压缩
-                originExt === ext
+                && originExt === ext
               ) {
                 return Promise.reject(new SkipError())
               }
@@ -80,10 +81,13 @@ export class UsualCompressor extends Compressor {
               const compressionOption = {
                 quality,
                 compressionLevel,
+
               }
 
               if (ext === 'gif') {
-                compressionOption['colors'] = colors
+                Object.assign(compressionOption, {
+                  colors,
+                })
               }
 
               sharp
@@ -151,13 +155,16 @@ export class UsualCompressor extends Compressor {
           inputSize,
           outputPath,
         }
-      } else {
+      }
+      else {
         return Promise.reject(i18n.t('core.output_path_not_exist'))
       }
-    } catch (e) {
+    }
+    catch (e) {
       return Promise.reject(e)
-    } finally {
-      // @ts-expect-error
+    }
+    finally {
+      // @ts-expect-error Garbage collection
       compressor = null
     }
   }

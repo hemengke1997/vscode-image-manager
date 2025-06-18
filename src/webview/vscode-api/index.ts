@@ -1,14 +1,14 @@
+import type { WebviewApi } from 'vscode-webview'
+import type {
+  KeyofMessage,
+  MessageType,
+  ParameterOfMessage,
+  ReturnOfMessage,
+} from '~/message/message-factory'
 import destr from 'destr'
 import { isFunction } from 'es-toolkit'
 import { nanoid } from 'nanoid'
-import { type WebviewApi } from 'vscode-webview'
 import { CmdToWebview } from '~/message/cmd'
-import {
-  type KeyofMessage,
-  type MessageType,
-  type ParameterOfMessage,
-  type ReturnOfMessage,
-} from '~/message/message-factory'
 import logger from '~/utils/logger'
 
 type MessageCallbackFn<T extends KeyofMessage> = (data: ReturnOfMessage<T>) => void
@@ -36,7 +36,8 @@ class VscodeApi {
     window.addEventListener('message', (event) => {
       const message = event.data as MessageType
       const { callbackId, data } = message
-      if (!callbackId) return
+      if (!callbackId)
+        return
       switch (message.cmd) {
         case CmdToWebview.webview_callback: {
           const callback = this.callbacks[callbackId]
@@ -61,11 +62,9 @@ class VscodeApi {
    * @param message 任意数据（必须是JSON可序列化的）发送到扩展上下文。
    */
   public postMessage<T extends KeyofMessage>(
-    message: ParameterOfMessage<T> extends never
-      ? Omit<Partial<MessageType>, 'cmd'> & {
-          cmd: T
-        }
-      : MessageType<ParameterOfMessage<T>, T>,
+    message: ParameterOfMessage<T> extends never ? Omit<Partial<MessageType>, 'cmd'> & {
+      cmd: T
+    } : MessageType<ParameterOfMessage<T>, T>,
     callback?: MessageCallbackFn<T>,
   ) {
     message.msgId = this.getRandomId()
@@ -78,7 +77,8 @@ class VscodeApi {
     if (this.vsCodeApi) {
       // Post message to vscode listener
       this.vsCodeApi.postMessage(message)
-    } else {
+    }
+    else {
       logger.log(message)
     }
   }
@@ -93,7 +93,8 @@ class VscodeApi {
   public getState(): unknown | undefined {
     if (this.vsCodeApi) {
       return this.vsCodeApi.getState()
-    } else {
+    }
+    else {
       const state = localStorage.getItem('vscodeState')
       return state ? destr<AnyObject>(state) : undefined
     }
@@ -111,7 +112,8 @@ class VscodeApi {
   public setState<T extends unknown | undefined>(newState: T): T {
     if (this.vsCodeApi) {
       return this.vsCodeApi.setState(newState)
-    } else {
+    }
+    else {
       localStorage.setItem('vscodeState', JSON.stringify(newState))
       return newState
     }

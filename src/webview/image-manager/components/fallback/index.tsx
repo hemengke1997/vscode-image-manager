@@ -1,8 +1,8 @@
+import type { FallbackProps } from 'react-error-boundary'
+import { Button, Result, Tooltip, Typography } from 'antd'
 import { memo } from 'react'
-import { type FallbackProps } from 'react-error-boundary'
 import { useTranslation } from 'react-i18next'
 import { MdOutlineError } from 'react-icons/md'
-import { Button, Result, Tooltip, Typography } from 'antd'
 import { CmdToVscode } from '~/message/cmd'
 import { vscodeApi } from '~/webview/vscode-api'
 
@@ -13,14 +13,24 @@ function Fallback(props: FallbackProps) {
   const { t } = useTranslation()
 
   return (
-    <div role='alert' className={'h-screen select-text'}>
-      <Result status='error' title={t('fallback.internal_error')} subTitle={<>{t('fallback.sorry')} 😥</>}>
+    <div role='alert' className='h-screen select-text'>
+      <Result
+        status='error'
+        title={t('fallback.internal_error')}
+        subTitle={(
+          <>
+            {t('fallback.sorry')}
+            {' '}
+            😥
+          </>
+        )}
+      >
         <Paragraph>
-          <Text strong className={'text-lg'}>
+          <Text strong className='text-lg'>
             {t('fallback.error_msg')}
           </Text>
         </Paragraph>
-        <div className={'flex space-x-2'}>
+        <div className='flex space-x-2'>
           <MdOutlineError className='mt-0.5 text-lg text-ant-color-error' />
           <Paragraph
             ellipsis={{
@@ -33,7 +43,7 @@ function Fallback(props: FallbackProps) {
           </Paragraph>
         </div>
 
-        <div className={'flex justify-center space-x-4'}>
+        <div className='flex justify-center space-x-4'>
           <Button
             size='middle'
             type='primary'

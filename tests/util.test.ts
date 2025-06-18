@@ -1,3 +1,5 @@
+/* eslint-disable no-console */
+import { Buffer } from 'node:buffer'
 import delay from 'delay'
 import { mapValues } from 'es-toolkit'
 import { flatten } from 'flat'
@@ -14,7 +16,7 @@ import { isBase64, toBase64 } from '~/utils/node/image-type'
 import { clearTimestamp, formatBytes, pathUtil, triggerOnce } from '~/webview/image-manager/utils'
 import { formatPath } from '~/webview/image-manager/utils/tree/utils'
 
-describe('Util test', () => {
+describe('util test', () => {
   it('should trigger once', () => {
     const fn = vi.fn()
     const trigger = triggerOnce(fn)
@@ -81,7 +83,7 @@ describe('Util test', () => {
 
     const pkgConfig = pkgJson
 
-    const formattedPkgConfig = mapValues(pkgConfig.contributes.configuration.properties, (item) => item.default)
+    const formattedPkgConfig = mapValues(pkgConfig.contributes.configuration.properties, item => item.default)
     expect(defaultConfig).toMatchObject(formattedPkgConfig)
   })
 
@@ -222,7 +224,7 @@ describe('Util test', () => {
   })
 })
 
-describe('Hook Plugin', () => {
+describe('hook Plugin', () => {
   class TestPlugin extends HookPlugin<{
     before: () => Promise<void>
     after: () => Promise<void>
@@ -308,7 +310,7 @@ describe('Hook Plugin', () => {
   })
 })
 
-describe('Cache Commander', () => {
+describe('cache Commander', () => {
   const commandCache = new CommanderCache()
   beforeEach(() => {
     commandCache.clear()

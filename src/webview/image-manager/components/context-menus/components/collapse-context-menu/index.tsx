@@ -1,17 +1,18 @@
+import type { CollapseContextMenuType } from './hooks/use-collapse-context-menu'
+import { useMemoizedFn } from 'ahooks'
+import { App } from 'antd'
+import { defaults } from 'es-toolkit/compat'
+import { useAtomValue } from 'jotai'
 import { memo } from 'react'
 import { Item, type ItemParams, type PredicateParams, RightSlot, Separator, Submenu } from 'react-contexify'
 import { useTranslation } from 'react-i18next'
-import { useMemoizedFn } from 'ahooks'
-import { App } from 'antd'
-import defaults from 'defaults'
-import { os } from 'un-detector'
 import useImageOperation from '~/webview/image-manager/hooks/use-image-operation'
 import { Keybinding } from '~/webview/image-manager/keybinding'
-import FileStore from '~/webview/image-manager/stores/file-store'
-import GlobalStore from '~/webview/image-manager/stores/global-store'
+import { FileAtoms } from '~/webview/image-manager/stores/file/file-store'
+import { GlobalAtoms } from '~/webview/image-manager/stores/global/global-store'
+import { OS } from '~/webview/image-manager/utils/device'
 import MaskMenu from '../../../mask-menu'
 import Arrow from '../arrow'
-import { type CollapseContextMenuType } from './hooks/use-collapse-context-menu'
 
 export const COLLAPSE_CONTEXT_MENU_ID = 'COLLAPSE_CONTEXT_MENU_ID'
 enum COLLAPSE_CONTEXT_MENU {
@@ -87,7 +88,7 @@ function CollapseContextMenu() {
   const { t } = useTranslation()
   const { message } = App.useApp()
 
-  const { sharpInstalled } = GlobalStore.useStore(['sharpInstalled'])
+  const sharpInstalled = useAtomValue(GlobalAtoms.sharpInstalledAtom)
 
   const {
     openInOsExplorer,
@@ -110,7 +111,7 @@ function CollapseContextMenu() {
     }
 
     if (Array.isArray(data)) {
-      return data.every((d) => enabled?.[d] === false)
+      return data.every(d => enabled?.[d] === false)
     }
     return enabled?.[data] === false
   })
@@ -168,13 +169,13 @@ function CollapseContextMenu() {
     })
   })
 
-  const { imageCopied } = FileStore.useStore(['imageCopied'])
+  const imageCopied = useAtomValue(FileAtoms.imageCopied)
 
   return (
     <>
       <MaskMenu id={COLLAPSE_CONTEXT_MENU_ID}>
         <Item hidden={isItemHidden} onClick={handleOpenInOsExplorer} data={COLLAPSE_CONTEXT_MENU.open_in_os_explorer}>
-          {os.isMac() ? t('im.reveal_in_os_mac') : t('im.reveal_in_os_windows')}
+          {OS.isMac ? t('im.reveal_in_os_mac') : t('im.reveal_in_os_windows')}
         </Item>
         <Item
           hidden={isItemHidden}
@@ -198,15 +199,14 @@ function CollapseContextMenu() {
         <Separator hidden={isItemHidden} data={sharpRelated} />
         <Submenu
           label={t('im.compress')}
-          hidden={(e) =>
+          hidden={e =>
             isItemHidden({
               ...e,
               data: [
                 COLLAPSE_CONTEXT_MENU.compress_in_current_directory,
                 COLLAPSE_CONTEXT_MENU.compress_in_recursive_directories,
               ],
-            })
-          }
+            })}
           arrow={<Arrow />}
         >
           <Item
@@ -226,15 +226,14 @@ function CollapseContextMenu() {
         </Submenu>
         <Submenu
           label={t('im.convert_format')}
-          hidden={(e) =>
+          hidden={e =>
             isItemHidden({
               ...e,
               data: [
                 COLLAPSE_CONTEXT_MENU.format_conversion_in_current_directory,
                 COLLAPSE_CONTEXT_MENU.format_conversion_in_recursive_directories,
               ],
-            })
-          }
+            })}
           arrow={<Arrow />}
         >
           <Item
@@ -258,10 +257,14 @@ function CollapseContextMenu() {
           data={[COLLAPSE_CONTEXT_MENU.rename_directory, COLLAPSE_CONTEXT_MENU.delete_directory]}
         />
         <Item hidden={isItemHidden} data={COLLAPSE_CONTEXT_MENU.rename_directory} onClick={handleRenameDir}>
-          {t('im.rename')} <RightSlot>{Keybinding.Rename()}</RightSlot>
+          {t('im.rename')}
+          {' '}
+          <RightSlot>{Keybinding.Rename()}</RightSlot>
         </Item>
         <Item hidden={isItemHidden} data={COLLAPSE_CONTEXT_MENU.delete_directory} onClick={handleDeleteDir}>
-          {t('im.delete')} <RightSlot>{Keybinding.Delete()}</RightSlot>
+          {t('im.delete')}
+          {' '}
+          <RightSlot>{Keybinding.Delete()}</RightSlot>
         </Item>
       </MaskMenu>
     </>

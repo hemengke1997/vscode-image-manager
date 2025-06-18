@@ -1,5 +1,5 @@
+import type { GetProps } from 'antd'
 import { lazy, memo } from 'react'
-import { type GetProps } from 'antd'
 
 const Renderer = lazy(() => import('./renderer'))
 

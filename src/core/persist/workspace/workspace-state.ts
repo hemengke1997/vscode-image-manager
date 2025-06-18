@@ -19,8 +19,8 @@ export class WorkspaceState {
   static usedKeys(): WorkspaceStateKey[] {
     return Global.context.workspaceState
       .keys()
-      .filter((k) => k.startsWith(EXT_NAMESPACE))
-      .map((t) => t.slice(EXT_NAMESPACE.length + 1)) as WorkspaceStateKey[]
+      .filter(k => k.startsWith(EXT_NAMESPACE))
+      .map(t => t.slice(EXT_NAMESPACE.length + 1)) as WorkspaceStateKey[]
   }
 
   /**
@@ -66,7 +66,7 @@ export class WorkspaceState {
 
   static clear_unused() {
     const keys = this.usedKeys()
-    const unused = keys.filter((k) => !this.keys().includes(k))
-    return Promise.all(unused.map((key) => this.update(key, undefined)))
+    const unused = keys.filter(k => !this.keys().includes(k))
+    return Promise.all(unused.map(key => this.update(key, undefined)))
   }
 }

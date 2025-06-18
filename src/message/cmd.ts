@@ -5,7 +5,7 @@
 /**
  * @description Webview listens to these commands
  */
-export const enum CmdToWebview {
+export enum CmdToWebview {
   // webview 发送命令后的回调
   webview_callback = 'webview_callback',
   // 图片更新
@@ -23,7 +23,7 @@ export const enum CmdToWebview {
 /**
  * @description Webview sends these commands
  */
-export const enum CmdToVscode {
+export enum CmdToVscode {
   // 流程：vscode打开webview，webview 调用 on_webview_ready，触发 vscode 发送webview需要的初始化数据
   on_webview_ready = 'on_webview_ready',
   // 重新加载webview（vscode的webview自身没有重新加载的能力）

@@ -1,16 +1,17 @@
-import { memo } from 'react'
-import { useTranslation } from 'react-i18next'
+import type { FormatConverterOptions } from '~/core/operator/format-converter'
+import type { ImperativeModalProps } from '~/webview/image-manager/hooks/use-imperative-antd-modal'
 import { useMemoizedFn } from 'ahooks'
-import { type ImperativeModalProps } from 'ahooks-x/use-imperative-antd-modal'
 import { Checkbox, Form, Tag } from 'antd'
 import { mergeWith } from 'es-toolkit'
 import { isArray, isEmpty, toLower } from 'es-toolkit/compat'
-import { type FormatConverterOptions } from '~/core/operator/format-converter'
+import { useAtomValue } from 'jotai'
+import { memo } from 'react'
+import { useTranslation } from 'react-i18next'
 import { CmdToVscode } from '~/message/cmd'
 import ImageOperator, { type Props as ImageOperatorProps } from '../../components/image-operator'
 import Format from '../../components/image-operator/components/format'
 import KeepOriginal from '../../components/image-operator/components/keep-original'
-import GlobalStore from '../../stores/global-store'
+import { GlobalAtoms } from '../../stores/global/global-store'
 import useImageOperation from '../use-image-operation'
 import useOperationFormLogic, { type FormComponent, OperatorMode } from '../use-operation/use-operation-form-logic'
 
@@ -21,7 +22,8 @@ type FormValue = FormatConverterOptions
 function ImageConverter(props: Props & ImperativeModalProps) {
   const { images: imagesProp, closeModal } = props
   const { t } = useTranslation()
-  const { formatConverter } = GlobalStore.useStore(['formatConverter'])
+
+  const formatConverter = useAtomValue(GlobalAtoms.formatConverterAtom)
   const [form] = Form.useForm()
 
   const { beginFormatConversionProcess } = useImageOperation()
@@ -48,7 +50,8 @@ function ImageConverter(props: Props & ImperativeModalProps) {
 
   const onFinish = useMemoizedFn((value: FormValue) => {
     value = mergeWith(formatConverter?.option || {}, value, (_, srcValue) => {
-      if (isArray(srcValue)) return srcValue
+      if (isArray(srcValue))
+        return srcValue
     })
 
     onOperationFinish(value)
@@ -66,7 +69,8 @@ function ImageConverter(props: Props & ImperativeModalProps) {
           return (
             <Form.Item noStyle dependencies={['format']}>
               {({ getFieldValue }) => {
-                if (toLower(getFieldValue('format')) !== 'ico') return null
+                if (toLower(getFieldValue('format')) !== 'ico')
+                  return null
                 const icoTooltips = [
                   [16, t('im.ico_16')],
                   [32, t('im.ico_32')],
@@ -80,14 +84,16 @@ function ImageConverter(props: Props & ImperativeModalProps) {
                     valuePropName='value'
                     label={t('im.ico_size')}
                     name='icoSize'
-                    tooltip={
-                      <div className={'space-y-2'}>
+                    tooltip={(
+                      <div className='space-y-2'>
                         {icoTooltips.map(([size, text], index) => {
                           return (
                             <div key={index}>
-                              <div className={'flex flex-col'}>
-                                <Tag className={'w-fit'}>
-                                  {size}x{size}
+                              <div className='flex flex-col'>
+                                <Tag className='w-fit'>
+                                  {size}
+                                  x
+                                  {size}
                                 </Tag>
                                 <div>{text}</div>
                               </div>
@@ -95,7 +101,7 @@ function ImageConverter(props: Props & ImperativeModalProps) {
                           )
                         })}
                       </div>
-                    }
+                    )}
                     rules={[
                       ({ getFieldValue }) => ({
                         validator() {
@@ -108,7 +114,7 @@ function ImageConverter(props: Props & ImperativeModalProps) {
                       }),
                     ]}
                   >
-                    <Checkbox.Group options={sizes.map((size) => ({ label: size, value: size }))}></Checkbox.Group>
+                    <Checkbox.Group options={sizes.map(size => ({ label: size, value: size }))}></Checkbox.Group>
                   </Form.Item>
                 )
               }}
@@ -122,7 +128,8 @@ function ImageConverter(props: Props & ImperativeModalProps) {
     } as FormComponent<FormatConverterOptions>,
   }
 
-  if (isEmpty(formatConverter?.option)) return null
+  if (isEmpty(formatConverter?.option))
+    return null
 
   return (
     <ImageOperator
@@ -141,7 +148,7 @@ function ImageConverter(props: Props & ImperativeModalProps) {
         requiredMark={false}
         onFinish={onFinish}
       >
-        <div className={'max-h-[600px] overflow-auto'}>
+        <div className='max-h-[600px] overflow-auto'>
           {Object.keys(tab.componentMap).map((key, index) => {
             return <div key={index}>{tab.componentMap[key]?.el()}</div>
           })}

@@ -1,21 +1,22 @@
+import { Button, Tooltip } from 'antd'
 import { memo } from 'react'
 import { useTranslation } from 'react-i18next'
 import { FaRedoAlt } from 'react-icons/fa'
-import { Button, Tooltip } from 'antd'
 import { triggerOnce } from '~/webview/image-manager/utils'
 
 function RedoAction(props: { onClick: () => void }) {
   const { onClick } = props
   const { t } = useTranslation()
   return (
-    <Tooltip title={t('im.retry')} placement={'bottom'} arrow={false}>
+    <Tooltip title={t('im.retry')} placement='bottom' arrow={false}>
       <Button
         onClick={triggerOnce(() => {
           onClick()
         })}
-        type={'text'}
+        type='text'
         icon={<FaRedoAlt />}
-      ></Button>
+      >
+      </Button>
     </Tooltip>
   )
 }

@@ -1,9 +1,9 @@
-import { memo } from 'react'
-import { useControlledState } from 'ahooks-x'
 import { Segmented } from 'antd'
+import { memo } from 'react'
 import { locales } from '~/meta'
+import { useControlledState } from '~/webview/image-manager/hooks/use-controlled-state'
 
-type Props = {
+interface Props {
   value?: Language
   onChange?: (language: Language) => void
 }
@@ -19,7 +19,7 @@ function LocaleSegmented(props: Props) {
   return (
     <div>
       <Segmented
-        options={locales.map((t) => ({
+        options={locales.map(t => ({
           value: t.key,
           label: t.label,
         }))}

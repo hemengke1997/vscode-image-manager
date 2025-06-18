@@ -1,6 +1,6 @@
-import fs from 'fs-extra'
+import type { PluginOption, ResolvedConfig } from 'vite'
 import path from 'node:path'
-import { type PluginOption, type ResolvedConfig } from 'vite'
+import fs from 'fs-extra'
 
 export function clean(): PluginOption {
   let config: ResolvedConfig

@@ -1,23 +1,25 @@
+import type { EnableCollapseContextMenuType } from '../../../context-menus/components/collapse-context-menu'
+import type { NestedTreeNode, TreeManager } from '~/webview/image-manager/utils/tree/tree-manager'
+import { useMemoizedFn } from 'ahooks'
+import { Card, type CollapseProps, Empty } from 'antd'
+import { useAtomValue } from 'jotai'
+import { selectAtom } from 'jotai/utils'
+import { motion } from 'motion/react'
 import { memo, type ReactNode } from 'react'
 import { useTranslation } from 'react-i18next'
 import { VscFileMedia } from 'react-icons/vsc'
-import { Transition } from 'react-transition-preset'
-import { useMemoizedFn } from 'ahooks'
-import { Card, type CollapseProps, Empty } from 'antd'
-import { classNames } from 'tw-clsx'
 import { DisplayGroupType } from '~/core/persist/workspace/common'
-import ActionStore from '~/webview/image-manager/stores/action-store'
-import ImageStore from '~/webview/image-manager/stores/image-store'
-import SettingsStore from '~/webview/image-manager/stores/settings-store'
+import { ActionAtoms } from '~/webview/image-manager/stores/action/action-store'
+import { imageStateAtom } from '~/webview/image-manager/stores/image/image-store'
+import { useDisplayGroup } from '~/webview/image-manager/stores/settings/hooks'
 import { ANIMATION_DURATION } from '~/webview/image-manager/utils/duration'
 import { NodeType } from '~/webview/image-manager/utils/tree/tree'
-import { type NestedTreeNode, type TreeManager } from '~/webview/image-manager/utils/tree/tree-manager'
-import { type EnableCollapseContextMenuType } from '../../../context-menus/components/collapse-context-menu'
+import { classNames } from '~/webview/image-manager/utils/tw-clsx'
 import ImageCollapse from '../image-collapse'
 import RevealInFolder from '../reveal-in-folder'
 import styles from './index.module.css'
 
-type Props = {
+interface Props {
   tree: NestedTreeNode[]
   treeManager: TreeManager | undefined
   workspaceId: string
@@ -27,18 +29,24 @@ function TreeRenderer(props: Props) {
   const { t } = useTranslation()
   const { tree, treeManager, workspaceFolder, workspaceId } = props
 
-  const workspaceLength = ImageStore.useStore((ctx) => ctx.imageState.workspaces.length)
+  const workspaceLength = useAtomValue(
+    selectAtom(
+      imageStateAtom,
+      useMemoizedFn(state => state.workspaces.length),
+    ),
+  )
 
-  const { displayGroup } = SettingsStore.useStore(['displayGroup'])
+  const [displayGroup] = useDisplayGroup()
 
-  const { collapseIdSet } = ActionStore.useStore(['collapseIdSet'])
+  const collapseIdSet = useAtomValue(ActionAtoms.collapseIdSet)
 
   /**
    * nodeID是以工作区名称开头的，需要去掉工作区名称，然后加上工作区绝对路径
    * @returns 目录的完整路径
    */
   const resolvePath = useMemoizedFn((nodeId: string) => {
-    if (nodeId === workspaceFolder) return workspaceId
+    if (nodeId === workspaceFolder)
+      return workspaceId
 
     return nodeId.replace(new RegExp(`^${workspaceFolder}`), `${workspaceId}`)
   })
@@ -65,7 +73,7 @@ function TreeRenderer(props: Props) {
       }
       case NodeType.ext: {
         return {
-          icon: () => <VscFileMedia className={'mr-1'} />,
+          icon: () => <VscFileMedia className='mr-1' />,
         }
       }
       case NodeType.root: {
@@ -90,19 +98,21 @@ function TreeRenderer(props: Props) {
         root?: boolean
       },
     ) => {
-      if (!tree.length) return null
+      if (!tree.length)
+        return null
 
       const { root } = options || {}
 
       return (
-        <div className={'select-none space-y-2'}>
+        <div className='select-none space-y-2'>
           {tree.map((node) => {
             const { data, id, children } = node
 
             const resolvedId = resolvePath(id)
-            collapseIdSet.current.add(resolvedId)
+            collapseIdSet.add(resolvedId)
 
-            if (!data) return null
+            if (!data)
+              return null
 
             // 非根节点，或者多工作区时，可以折叠
             const collapsible = !root || workspaceLength > 1
@@ -119,19 +129,19 @@ function TreeRenderer(props: Props) {
                 collapsible={collapsible}
                 // 不能折叠时，强制展开
                 forceOpen={!collapsible ? true : undefined}
-                labelRender={(label) => (
-                  <div className={'flex items-center space-x-1'}>
-                    <div className={'flex items-center'}>{fnStrategy(data.nodeType).icon({ path: resolvedId })}</div>
+                labelRender={label => (
+                  <div className='flex items-center space-x-1'>
+                    <div className='flex items-center'>{fnStrategy(data.nodeType).icon({ path: resolvedId })}</div>
                     {label}
                   </div>
                 )}
                 contextMenu={
                   fnStrategy(data.nodeType).contextMenu
-                    ? (id) =>
-                        fnStrategy(data.nodeType).contextMenu!({
-                          rename_directory: id !== workspaceId,
-                          delete_directory: id !== workspaceId,
-                        })
+                    ? id =>
+                      fnStrategy(data.nodeType).contextMenu!({
+                        rename_directory: id !== workspaceId,
+                        delete_directory: id !== workspaceId,
+                      })
                     : undefined
                 }
                 label={data.path!}
@@ -152,19 +162,25 @@ function TreeRenderer(props: Props) {
 
   if (!tree.length) {
     return (
-      <Transition mounted={true} initial={true} enterDelay={ANIMATION_DURATION.fast}>
-        {(style) => (
-          <div style={style}>
-            <Card
-              title={<div className={'text-ant-color-warning'}>{workspaceFolder}</div>}
-              variant={'borderless'}
-              type='inner'
-            >
-              <Empty image={Empty.PRESENTED_IMAGE_SIMPLE} description={t('im.no_image')} />
-            </Card>
-          </div>
-        )}
-      </Transition>
+      <motion.div
+        initial={{
+          opacity: 0,
+          transition: {
+            delay: ANIMATION_DURATION.fast,
+          },
+        }}
+        animate={{
+          opacity: 1,
+        }}
+      >
+        <Card
+          title={<div className='text-ant-color-warning'>{workspaceFolder}</div>}
+          variant='borderless'
+          type='inner'
+        >
+          <Empty image={Empty.PRESENTED_IMAGE_SIMPLE} description={t('im.no_image')} />
+        </Card>
+      </motion.div>
     )
   }
 
@@ -172,9 +188,9 @@ function TreeRenderer(props: Props) {
   return nestedDisplay(tree, { bordered: true }, { root: true })
 }
 
-function RevealGroup(props: { path: string; folderChildren?: ReactNode }) {
+function RevealGroup(props: { path: string, folderChildren?: ReactNode }) {
   return (
-    <div className={'flex items-center gap-x-1'}>
+    <div className='flex items-center gap-x-1'>
       <RevealInFolder {...props}>{props.folderChildren}</RevealInFolder>
     </div>
   )

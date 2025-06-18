@@ -1,3 +1,8 @@
+import type { ImageContextMenuType } from './hooks/use-image-context-menu'
+import { useLockFn, useMemoizedFn } from 'ahooks'
+import { App } from 'antd'
+import { defaults } from 'es-toolkit/compat'
+import { useAtomValue } from 'jotai'
 import { memo } from 'react'
 import {
   type HandlerParams,
@@ -9,22 +14,18 @@ import {
   Submenu,
 } from 'react-contexify'
 import { useTranslation } from 'react-i18next'
-import { useLockFn, useMemoizedFn } from 'ahooks'
-import { App } from 'antd'
-import defaults from 'defaults'
-import { os } from 'un-detector'
 import logger from '~/utils/logger'
 import useImageDetails from '~/webview/image-manager/hooks/use-image-details/use-image-details'
 import useImageOperation from '~/webview/image-manager/hooks/use-image-operation'
 import { Keybinding } from '~/webview/image-manager/keybinding'
-import GlobalStore from '~/webview/image-manager/stores/global-store'
+import { GlobalAtoms } from '~/webview/image-manager/stores/global/global-store'
+import { OS } from '~/webview/image-manager/utils/device'
 import MaskMenu from '../../../mask-menu'
 import Arrow from '../arrow'
-import { type ImageContextMenuType } from './hooks/use-image-context-menu'
 
 export const IMAGE_CONTEXT_MENU_ID = 'IMAGE_CONTEXT_MENU_ID'
 
-export enum IMAGE_CONTEXT_MENU {
+enum IMAGE_CONTEXT_MENU {
   open_in_os_explorer = 'open_in_os_explorer',
   open_in_vscode_explorer = 'open_in_vscode_explorer',
   reveal_in_viewer = 'reveal_in_viewer',
@@ -136,7 +137,7 @@ const sharpRelated = [
 function ImageContextMenu() {
   const { t } = useTranslation()
   const { message } = App.useApp()
-  const { sharpInstalled } = GlobalStore.useStore(['sharpInstalled'])
+  const sharpInstalled = useAtomValue(GlobalAtoms.sharpInstalledAtom)
 
   const {
     openInOsExplorer,
@@ -177,7 +178,7 @@ function ImageContextMenu() {
     }
 
     if (Array.isArray(data)) {
-      return data.every((d) => enabled?.[d] === false)
+      return data.every(d => enabled?.[d] === false)
     }
     return enabled?.[data] === false
   })
@@ -206,7 +207,8 @@ function ImageContextMenu() {
       const image = e.props!.image
       await prettySvg(image!.path)
       message.success(t('im.pretty_success'))
-    } catch (e) {
+    }
+    catch (e) {
       logger.error(e)
     }
   })
@@ -238,7 +240,7 @@ function ImageContextMenu() {
   })
 
   const isSvg = useMemoizedFn((e: HandlerParams<Required<ImageContextMenuType>>) => {
-    return e.props!.images.every((image) => image.extname === 'svg') || false
+    return e.props!.images.every(image => image.extname === 'svg') || false
   })
 
   const { showImageDetails } = useImageDetails()
@@ -247,7 +249,7 @@ function ImageContextMenu() {
     <>
       <MaskMenu id={IMAGE_CONTEXT_MENU_ID}>
         <Item onClick={handleOpenInOsExplorer}>
-          {os.isMac() ? t('im.reveal_in_os_mac') : t('im.reveal_in_os_windows')}
+          {OS.isMac ? t('im.reveal_in_os_mac') : t('im.reveal_in_os_windows')}
         </Item>
         <Item onClick={handleOpenInVscodeExplorer}>{t('im.reveal_in_explorer')}</Item>
         <Item onClick={handleRevealInViewer} hidden={isItemHidden} data={IMAGE_CONTEXT_MENU.reveal_in_viewer}>
@@ -256,7 +258,7 @@ function ImageContextMenu() {
 
         {/* 按照vscode的交互，复制/剪切是单独分组的 */}
         <Separator hidden={isItemHidden} data={[IMAGE_CONTEXT_MENU.copy, IMAGE_CONTEXT_MENU.cut]} />
-        <Item hidden={isItemHidden} data={IMAGE_CONTEXT_MENU.copy} onClick={(e) => beginCopyProcess(e.props!.images)}>
+        <Item hidden={isItemHidden} data={IMAGE_CONTEXT_MENU.copy} onClick={e => beginCopyProcess(e.props!.images)}>
           {(e: ItemParamsContextMenu) => (
             <>
               {t('im.copy')}
@@ -264,7 +266,7 @@ function ImageContextMenu() {
             </>
           )}
         </Item>
-        <Item hidden={isItemHidden} data={IMAGE_CONTEXT_MENU.cut} onClick={(e) => beginCutProcess(e.props!.images)}>
+        <Item hidden={isItemHidden} data={IMAGE_CONTEXT_MENU.cut} onClick={e => beginCutProcess(e.props!.images)}>
           {(e: ItemParamsContextMenu) => (
             <>
               {t('im.cut')}
@@ -274,17 +276,17 @@ function ImageContextMenu() {
         </Item>
 
         <Separator />
-        <Item onClick={(e) => handleCopyString(e.props!.image, { proto: 'name' })}>{t('im.copy_image_name')}</Item>
+        <Item onClick={e => handleCopyString(e.props!.image, { proto: 'name' })}>{t('im.copy_image_name')}</Item>
         <Submenu label={t('im.copy_image_path')} arrow={<Arrow />}>
-          <Item onClick={(e) => handleCopyString(e.props!.image, { proto: 'path' })}>
+          <Item onClick={e => handleCopyString(e.props!.image, { proto: 'path' })}>
             {t('im.copy_image_absolute_path')}
           </Item>
-          <Item onClick={(e) => handleCopyString(e.props!.image, { proto: 'relativePath' })}>
+          <Item onClick={e => handleCopyString(e.props!.image, { proto: 'relativePath' })}>
             {t('im.copy_image_relative_path')}
           </Item>
         </Submenu>
 
-        <Item onClick={(e) => handleCopyString(e.props!.image, { proto: 'path', callback: copyImageAsBase64 })}>
+        <Item onClick={e => handleCopyString(e.props!.image, { proto: 'path', callback: copyImageAsBase64 })}>
           {t('im.copy_image_base64')}
         </Item>
 
@@ -302,12 +304,11 @@ function ImageContextMenu() {
         <Submenu
           label={t('im.find_similar_images')}
           arrow={<Arrow />}
-          hidden={(e) =>
+          hidden={e =>
             isItemHidden({
               ...e,
               data: [IMAGE_CONTEXT_MENU.find_similar_in_same_level, IMAGE_CONTEXT_MENU.find_similar_in_all],
-            }) || isSvg(e)
-          }
+            }) || isSvg(e)}
         >
           <Item
             onClick={handleFindSimilarInSameLevel}
@@ -323,9 +324,11 @@ function ImageContextMenu() {
 
         <Item
           onClick={handlePrettySvg}
-          hidden={(e) => isItemHidden({ ...e, data: [IMAGE_CONTEXT_MENU.pretty_svg] }) || !isSvg(e)}
+          hidden={e => isItemHidden({ ...e, data: [IMAGE_CONTEXT_MENU.pretty_svg] }) || !isSvg(e)}
         >
-          {t('im.pretty')} svg
+          {t('im.pretty')}
+          {' '}
+          svg
         </Item>
 
         {/* file operation menu */}
@@ -333,14 +336,18 @@ function ImageContextMenu() {
         <Item onClick={handleRename} hidden={isItemHidden} data={IMAGE_CONTEXT_MENU.rename}>
           {(e: ItemParamsContextMenu) => (
             <>
-              {t('im.rename')} <RightSlot hidden={!e.props!.shortcutsVisible}>{Keybinding.Rename()}</RightSlot>
+              {t('im.rename')}
+              {' '}
+              <RightSlot hidden={!e.props!.shortcutsVisible}>{Keybinding.Rename()}</RightSlot>
             </>
           )}
         </Item>
         <Item onClick={handleDelete} hidden={isItemHidden} data={IMAGE_CONTEXT_MENU.delete}>
           {(e: ItemParamsContextMenu) => (
             <>
-              {t('im.delete')} <RightSlot hidden={!e.props!.shortcutsVisible}>{Keybinding.Delete()}</RightSlot>
+              {t('im.delete')}
+              {' '}
+              <RightSlot hidden={!e.props!.shortcutsVisible}>{Keybinding.Delete()}</RightSlot>
             </>
           )}
         </Item>

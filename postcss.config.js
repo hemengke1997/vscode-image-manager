@@ -1,5 +1,6 @@
-const { definePlugins } = require('postcss-config-preset')
-
 module.exports = {
-  plugins: [...definePlugins()],
+  plugins: {
+    'tailwindcss/nesting': true,
+    'tailwindcss': true,
+  },
 }

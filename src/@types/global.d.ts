@@ -1,13 +1,13 @@
+import type { Stats } from 'fs-extra'
+import type { ReactElement } from 'react'
 import type SharpNS from 'sharp'
-import { type ReactElement } from 'react'
-import { type Stats } from 'fs-extra'
-import {
-  type Compressed as CompressedEnum,
-  type Language as LanguageEnum,
-  type ReduceMotion as ReduceMotionEnum,
-  type Theme as ThemeEnum,
+import type {
+  Compressed as CompressedEnum,
+  Language as LanguageEnum,
+  ReduceMotion as ReduceMotionEnum,
+  Theme as ThemeEnum,
 } from '~/meta'
-import { type ImageVisibleFilter } from '~/webview/image-manager/hooks/use-image-filter/image-filter'
+import type { ImageVisibleFilter } from '~/webview/image-manager/hooks/use-image-filter/image-filter'
 
 declare global {
   type TSharp = typeof SharpNS

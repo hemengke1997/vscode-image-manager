@@ -5,7 +5,7 @@ export enum ImageVisibleFilter {
   compressed = 'compressed',
 }
 
-export const enum FilterRadioValue {
+export enum FilterRadioValue {
   all = 0,
   yes = 1,
   no = 2,

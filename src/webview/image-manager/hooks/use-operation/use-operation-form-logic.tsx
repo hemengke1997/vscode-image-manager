@@ -1,18 +1,20 @@
+import type { Group } from './use-operation-result/operation-result'
+import type { OperatorResult } from '~/core/operator/operator'
+import { useLockFn, useMemoizedFn } from 'ahooks'
+import { App, Button, Popconfirm } from 'antd'
+import { useAtomValue } from 'jotai'
+import { selectAtom } from 'jotai/utils'
+import { nanoid } from 'nanoid'
 import { type ReactNode, useRef, useState } from 'react'
 import { useTranslation } from 'react-i18next'
-import { useLockFn, useMemoizedFn } from 'ahooks'
-import { useTrackState } from 'ahooks-x'
-import { App, Button, Popconfirm } from 'antd'
-import { nanoid } from 'nanoid'
-import { type OperatorResult } from '~/core/operator/operator'
 import { CmdToVscode } from '~/message/cmd'
 import { AbortError, abortPromise, TimeoutError } from '~/utils/abort-promise'
 import { vscodeApi } from '~/webview/vscode-api'
-import GlobalStore from '../../stores/global-store'
+import { VscodeAtoms } from '../../stores/vscode/vscode-store'
 import { triggerOnce } from '../../utils'
 import useAbortController from '../use-abort-controller'
 import useImageOperation from '../use-image-operation'
-import { type Group } from './use-operation-result/operation-result'
+import { useTrackState } from '../use-track-state'
 import useOperationResult from './use-operation-result/use-operation-result'
 import { useOperatorModalLogic } from './use-operator-modal-logic/use-operator-modal-logic'
 
@@ -30,9 +32,9 @@ export enum OperatorMode {
   conversion = 'conversion',
 }
 
-export type OnOperationType = { onSuccess: () => void; onCancel: () => void; onFinal: () => void }
+export interface OnOperationType { onSuccess: () => void, onCancel: () => void, onFinal: () => void }
 
-export type OnEndOptionsType = {
+export interface OnEndOptionsType {
   onRedoClick: (images: ImageType[]) => void
   onUndoClick: (results: OperatorResult[]) => void
   /**
@@ -67,10 +69,15 @@ export default function useOperationFormLogic<T>({
   const { beginUndoProcess } = useImageOperation()
   const { getGroupsTitle, groupOperatorResults } = useOperatorModalLogic()
 
-  const errorRange = GlobalStore.useStore((ctx) => ctx.extConfig.compression.errorRange)
+  const errorRange = useAtomValue(
+    selectAtom(
+      VscodeAtoms.extConfigAtom,
+      useMemoizedFn(state => state.compression.errorRange),
+    ),
+  )
 
   const clearOperatorCmdCache = useMemoizedFn((results: OperatorResult[]) => {
-    const ids = results.map((result) => result.id)
+    const ids = results.map(result => result.id)
     vscodeApi.postMessage({ cmd: CmdToVscode.remove_operation_cmd_cache, data: { ids } })
   })
 
@@ -117,17 +124,15 @@ export default function useOperationFormLogic<T>({
         duration: 0,
         closable: true,
         onClose() {
-          if (viewed) {
-            return
-          } else {
+          if (!viewed) {
             // 点击关闭按钮，用户不查看结果，清除操作缓存
             clearOperatorCmdCache(results)
           }
         },
         description: (
-          <div className={'flex flex-col gap-2'}>
+          <div className='flex flex-col gap-2'>
             {Object.keys(titles)
-              .filter((t) => titles[t as Group].visible)
+              .filter(t => titles[t as Group].visible)
               .map((item, index) => (
                 <div key={index}>{titles[item as Group].content}</div>
               ))}
@@ -154,7 +159,7 @@ export default function useOperationFormLogic<T>({
       const timer = setTimeout(() => {
         message.loading({
           content: (
-            <div className={'flex items-center space-x-4'}>
+            <div className='flex items-center space-x-4'>
               <div>{t('im.wait')}</div>
               <Popconfirm
                 title={t('im.irreversible_operation')}
@@ -194,17 +199,21 @@ export default function useOperationFormLogic<T>({
             operationMode,
           })
         }
-      } catch (e) {
+      }
+      catch (e) {
         if (e instanceof TimeoutError) {
           // 超时
           message.error(t('im.timeout'))
-        } else if (e instanceof AbortError) {
+        }
+        else if (e instanceof AbortError) {
           // 用户手动取消
           message.error(t('im.canceled'))
-        } else {
+        }
+        else {
           message.error(`${t('im.operation_failed')}: ${e}`)
         }
-      } finally {
+      }
+      finally {
         clearTimeout(timer)
         message.destroy(MessageLoadingKey)
         onFinal()
@@ -218,7 +227,8 @@ export default function useOperationFormLogic<T>({
         vscodeApi.postMessage({ cmd: apiCommand, data: { images, option } }, (data: any) => {
           if (data.error) {
             reject(data.error)
-          } else {
+          }
+          else {
             resolve(data as OperatorResult[])
           }
         })
@@ -235,7 +245,7 @@ export default function useOperationFormLogic<T>({
       ...onOperation,
       onCancel: () => abortController.abort(),
       onFinal: () => setSubmitting(false),
-      onUndoClick: (results) => beginUndoProcess(results),
+      onUndoClick: results => beginUndoProcess(results),
     })
   })
 

@@ -1,23 +1,24 @@
-import { memo, startTransition, useEffect, useRef, useState } from 'react'
+import type { Workspace } from '../../stores/image/image-store'
 import { useMemoizedFn } from 'ahooks'
 import { ConfigProvider } from 'antd'
 import { flatten, isSubset } from 'es-toolkit'
 import { produce } from 'immer'
+import { useSetAtom } from 'jotai'
+import { memo, startTransition, useEffect, useRef, useState } from 'react'
 import { DisplayGroupType, DisplayStyleType } from '~/core/persist/workspace/common'
 import logger from '~/utils/logger'
 import useUpdateDeepEffect from '../../hooks/use-update-deep-effect'
 import useUpdateImages from '../../hooks/use-update-images'
-import ActionStore from '../../stores/action-store'
-import FilterStore from '../../stores/filter-store'
-import GlobalStore from '../../stores/global-store'
-import { type Workspace } from '../../stores/image-store'
-import SettingsStore from '../../stores/settings-store'
+import { ActionAtoms } from '../../stores/action/action-store'
+import { useImageFilter } from '../../stores/action/hooks'
+import { GlobalAtoms } from '../../stores/global/global-store'
+import { useDisplayGroup, useDisplayStyle, useSort } from '../../stores/settings/hooks'
 import { UpdateType } from '../../utils/tree/const'
 import { TreeStyle } from '../../utils/tree/tree'
 import { type NestedTreeNode, TreeManager } from '../../utils/tree/tree-manager'
 import TreeRenderer from './components/tree-renderer'
 
-type Props = {
+interface Props {
   workspace: Workspace
 }
 
@@ -30,11 +31,18 @@ function CollapseTree(props: Props) {
   const { workspace } = props
   const { resetPartialState } = useUpdateImages()
 
-  const { setWorkspaceImages } = GlobalStore.useStore(['setWorkspaceImages'])
-  const { displayGroup, displayStyle, sort } = SettingsStore.useStore(['displayGroup', 'displayStyle', 'sort'])
+  const setWorkspaceImages = useSetAtom(GlobalAtoms.workspaceImagesAtom)
+  const [nestedTree, setNestedTree] = useState<NestedTreeNode[]>([])
 
-  const { imageFilter } = FilterStore.useStore(['imageFilter'])
-  const { notifyCollapseChange } = ActionStore.useStore(['notifyCollapseChange'])
+  const treeManager = useRef<TreeManager>()
+
+  const [displayGroup] = useDisplayGroup()
+  const [displayStyle] = useDisplayStyle()
+  const [sort] = useSort()
+
+  const [imageFilter] = useImageFilter()
+
+  const notifyCollapseChange = useSetAtom(ActionAtoms.notifyCollapseChange)
 
   const afterUpdate = useMemoizedFn(() => {
     const nestedTree = treeManager.current?.toNestedArray()
@@ -43,13 +51,14 @@ function CollapseTree(props: Props) {
 
     // 获取当前工作区的可见图片列表
     startTransition(() => {
-      const images = flatten(treeManager.current!.toArray(nestedTree || [], (node) => node.data.images || []))
+      const images = flatten(treeManager.current!.toArray(nestedTree || [], node => node.data.images || []))
       setWorkspaceImages(
         produce((draft) => {
-          const index = draft.findIndex((t) => t.workspaceFolder === workspace.workspaceFolder)
+          const index = draft.findIndex(t => t.workspaceFolder === workspace.workspaceFolder)
           if (index !== -1) {
             draft[index].images = images
-          } else {
+          }
+          else {
             draft.push({ workspaceFolder: workspace.workspaceFolder, images })
           }
         }),
@@ -57,6 +66,35 @@ function CollapseTree(props: Props) {
       // TODO：不一定生效
       notifyCollapseChange()
     })
+  })
+
+  const displayGroupToTreeStyle = useMemoizedFn((group: DisplayGroupType[]) => {
+    if (isSubset(group, [DisplayGroupType.dir, DisplayGroupType.extname])) {
+      return TreeStyle.dir_extension
+    }
+    if (isSubset(group, [DisplayGroupType.dir])) {
+      return TreeStyle.dir
+    }
+    if (isSubset(group, [DisplayGroupType.extname])) {
+      return TreeStyle.extension
+    }
+    return TreeStyle.flat
+  })
+
+  const generateRenderTree = useMemoizedFn(() => {
+    const treeStyle = displayGroupToTreeStyle(displayGroup)
+
+    const isCompact = displayStyle === DisplayStyleType.compact
+    logger.debug('紧凑模式: ', isCompact)
+
+    treeManager.current = new TreeManager(workspace.workspaceFolder, {
+      compact: isCompact,
+      filter: imageFilter,
+      sort,
+      treeStyle,
+    })
+
+    treeManager.current?.generateTree(workspace.images)
   })
 
   useEffect(() => {
@@ -82,38 +120,6 @@ function CollapseTree(props: Props) {
       afterUpdate()
     }
   }, [displayGroup, displayStyle, imageFilter, sort])
-
-  const displayGroupToTreeStyle = useMemoizedFn((group: DisplayGroupType[]) => {
-    if (isSubset(group, [DisplayGroupType.dir, DisplayGroupType.extname])) {
-      return TreeStyle.dir_extension
-    }
-    if (isSubset(group, [DisplayGroupType.dir])) {
-      return TreeStyle.dir
-    }
-    if (isSubset(group, [DisplayGroupType.extname])) {
-      return TreeStyle.extension
-    }
-    return TreeStyle.flat
-  })
-
-  const [nestedTree, setNestedTree] = useState<NestedTreeNode[]>([])
-  const treeManager = useRef<TreeManager>()
-
-  const generateRenderTree = useMemoizedFn(() => {
-    const treeStyle = displayGroupToTreeStyle(displayGroup)
-
-    const isCompact = displayStyle === DisplayStyleType.compact
-    logger.debug('紧凑模式: ', isCompact)
-
-    treeManager.current = new TreeManager(workspace.workspaceFolder, {
-      compact: isCompact,
-      filter: imageFilter,
-      sort,
-      treeStyle,
-    })
-
-    treeManager.current?.generateTree(workspace.images)
-  })
 
   return (
     <ConfigProvider

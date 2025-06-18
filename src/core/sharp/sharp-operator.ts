@@ -1,6 +1,8 @@
+import type { Buffer } from 'node:buffer'
+import type { SharpNS } from '~/@types/global'
+import process from 'node:process'
 import fs from 'fs-extra'
 import { env, Uri, window } from 'vscode'
-import { type SharpNS } from '~/@types/global'
 import { i18n } from '~/i18n'
 import logger from '~/utils/logger'
 import { Global } from '../global'
@@ -29,7 +31,7 @@ class Context<T extends AnyObject, RuntimeCtx extends AnyObject = T & OperatorIn
   }
 }
 
-type OperatorInput = {
+interface OperatorInput {
   input: Parameters<TSharp>[0]
 }
 
@@ -45,7 +47,8 @@ export class SharpOperator<T extends AnyObject, RuntimeCtx extends AnyObject = T
     try {
       const sharp = Global.sharp
       this.ctx.sharpFactory = sharp
-    } catch {}
+    }
+    catch {}
   }
 
   async run(
@@ -107,7 +110,8 @@ export class SharpOperator<T extends AnyObject, RuntimeCtx extends AnyObject = T
           fileWritableStream.on('finish', async () => {
             try {
               await this.hooks.callHook('on:finish', this.ctx, result)
-            } finally {
+            }
+            finally {
               resolve(result)
             }
           })

@@ -1,12 +1,12 @@
+import type { CustomSvgCompressionOptions } from '../compressor/type'
+import type { SvgoPlugin } from './meta'
+import path from 'node:path'
 import deepMerge from 'deepmerge'
 import { trim } from 'es-toolkit'
 import fs from 'fs-extra'
-import path from 'node:path'
 import { type Config, loadConfig, optimize } from 'svgo'
 import { FileCache } from '~/core/file-cache'
 import { Channel } from '~/utils/node/channel'
-import { type CustomSvgCompressionOptions } from '../compressor/type'
-import { type SvgoPlugin } from './meta'
 
 type AllOptions = SvgoPlugin & CustomSvgCompressionOptions
 

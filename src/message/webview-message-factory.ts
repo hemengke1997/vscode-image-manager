@@ -1,15 +1,15 @@
-import { type UpdateType } from '~/webview/image-manager/utils/tree/const'
-import { type UpdatePayload } from '~/webview/image-manager/utils/tree/tree-manager'
-import { type CmdToWebview } from './cmd'
+import type { CmdToWebview } from './cmd'
+import type { UpdateType } from '~/webview/image-manager/utils/tree/const'
+import type { UpdatePayload } from '~/webview/image-manager/utils/tree/tree-manager'
 
-export type FullUpdate = {
+export interface FullUpdate {
   updateType: UpdateType.full
   payloads: UpdatePayload[]
   id: string
   workspaceFolder: string
   absWorkspaceFolder: string
 }
-export type PatchUpdate = {
+export interface PatchUpdate {
   updateType: UpdateType.patch
   payloads: UpdatePayload[]
   id: string
@@ -17,7 +17,7 @@ export type PatchUpdate = {
   absWorkspaceFolder?: string
 }
 
-export type CmdToWebviewMessage = {
+export interface CmdToWebviewMessage {
   [CmdToWebview.update_images]: FullUpdate | PatchUpdate
   [CmdToWebview.reveal_image_in_viewer]: { imagePath: string }
   [CmdToWebview.program_reload_webview]: undefined

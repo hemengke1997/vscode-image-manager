@@ -1,17 +1,24 @@
+import { motion } from 'motion/react'
 import { memo, type PropsWithChildren } from 'react'
-import { Transition } from 'react-transition-preset'
 
 function AppearMotion(props: PropsWithChildren) {
   const { children } = props
 
   return (
-    <Transition mounted={true} initial={true}>
-      {(style) => (
-        <div style={style} className={'flex flex-col gap-4'}>
-          {children}
-        </div>
-      )}
-    </Transition>
+    <motion.div
+      initial={{
+        opacity: 0,
+      }}
+      animate={{
+        opacity: 1,
+      }}
+      exit={{
+        opacity: 0,
+      }}
+      className='flex flex-col gap-4'
+    >
+      {children}
+    </motion.div>
   )
 }
 

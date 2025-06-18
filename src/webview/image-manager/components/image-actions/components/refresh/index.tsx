@@ -1,10 +1,10 @@
+import { useMemoizedFn } from 'ahooks'
+import { App, Button, Tooltip } from 'antd'
 import { memo, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { TbRefresh } from 'react-icons/tb'
-import { useMemoizedFn } from 'ahooks'
-import { App, Button, Tooltip } from 'antd'
-import { classNames } from 'tw-clsx'
 import useUpdateImages from '~/webview/image-manager/hooks/use-update-images'
+import { classNames } from '~/webview/image-manager/utils/tw-clsx'
 
 function Refresh() {
   const { t } = useTranslation()
@@ -15,7 +15,8 @@ function Refresh() {
   const { getAllImages } = useUpdateImages()
 
   const handleRefresh = useMemoizedFn(async () => {
-    if (loading) return
+    if (loading)
+      return
 
     const messageKey = 'refresh_images'
 
@@ -31,7 +32,8 @@ function Refresh() {
     setLoading(true)
     try {
       await getAllImages()
-    } finally {
+    }
+    finally {
       clearTimeout(timer)
       setLoading(false)
     }
@@ -41,16 +43,17 @@ function Refresh() {
   })
 
   return (
-    <Tooltip title={t('im.refresh')} arrow={false} placement={'bottom'}>
+    <Tooltip title={t('im.refresh')} arrow={false} placement='bottom'>
       <Button
         type='text'
-        icon={
+        icon={(
           <div className={classNames('flex items-center text-xl', loading && 'animate-spin cursor-default')}>
             <TbRefresh />
           </div>
-        }
+        )}
         onClick={handleRefresh}
-      ></Button>
+      >
+      </Button>
     </Tooltip>
   )
 }

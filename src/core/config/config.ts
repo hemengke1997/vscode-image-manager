@@ -1,10 +1,9 @@
-import defaults from 'defaults'
+import type { CompressionOptions } from '../operator/compressor/type'
+import type { FormatConverterOptions } from '../operator/format-converter'
 import { clone } from 'es-toolkit'
-import { get } from 'es-toolkit/compat'
+import { defaults, get } from 'es-toolkit/compat'
 import { type ConfigurationScope, ConfigurationTarget, workspace } from 'vscode'
 import { EXT_NAMESPACE } from '~/meta'
-import { type CompressionOptions } from '../operator/compressor/type'
-import { type FormatConverterOptions } from '../operator/format-converter'
 import { ConfigKey, type ConfigType, DEFAULT_CONFIG } from './common'
 
 export class Config {

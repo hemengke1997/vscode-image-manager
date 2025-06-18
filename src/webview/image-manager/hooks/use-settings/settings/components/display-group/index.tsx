@@ -1,16 +1,16 @@
+import { useMemoizedFn } from 'ahooks'
+import { Checkbox, type CheckboxOptionType } from 'antd'
 import { memo, type ReactNode, useMemo } from 'react'
 import { useTranslation } from 'react-i18next'
-import { useMemoizedFn } from 'ahooks'
-import { useControlledState } from 'ahooks-x'
-import { Checkbox, type CheckboxOptionType } from 'antd'
 import { DisplayGroupType } from '~/core/persist/workspace/common'
+import { useControlledState } from '~/webview/image-manager/hooks/use-controlled-state'
 import Preview from '../preview'
 import Composite from './images/composite.png?base64'
 import Dir from './images/dir.png?base64'
 import FileType from './images/file_type.png?base64'
 import None from './images/none.png?base64'
 
-type DisplayGroupProps<T> = {
+interface DisplayGroupProps<T> {
   value?: T[]
   onChange?: (checked: T[]) => void
 }
@@ -20,7 +20,7 @@ function DisplayGroup<T extends string = DisplayGroupType>(props: DisplayGroupPr
   const { t } = useTranslation()
 
   /* ---------------- image group --------------- */
-  const groupType: { label: ReactNode; value: DisplayGroupType }[] = useMemo(
+  const groupType: { label: ReactNode, value: DisplayGroupType }[] = useMemo(
     () => [
       {
         label: t('im.group_by_dir'),
@@ -63,13 +63,14 @@ function DisplayGroup<T extends string = DisplayGroupType>(props: DisplayGroupPr
   })
 
   return (
-    <div className={'flex items-center'}>
+    <div className='flex items-center'>
       <Checkbox.Group
-        options={groupType.map((item) => ({ label: item.label, value: item.value })) as CheckboxOptionType[]}
+        options={groupType.map(item => ({ label: item.label, value: item.value })) as CheckboxOptionType[]}
         onChange={setGroups}
         value={groups}
-      ></Checkbox.Group>
-      <Preview image={image()} className={'w-[200px]'}></Preview>
+      >
+      </Checkbox.Group>
+      <Preview image={image()} className='w-[200px]'></Preview>
     </div>
   )
 }

@@ -1,15 +1,15 @@
-import { type CSSProperties } from 'react'
+import type { CSSProperties } from 'react'
+import type { CompressionOptions } from '../operator/compressor/type'
+import type { FormatConverterOptions } from '../operator/format-converter'
 import { Language, ReduceMotion, Theme } from '~/meta'
-import { type CompressionOptions } from '../operator/compressor/type'
-import { type FormatConverterOptions } from '../operator/format-converter'
 
-export type VscodeConfigType = {
+export interface VscodeConfigType {
   theme: Theme
   language: Language
   reduceMotion: ReduceMotion
 }
 
-export type ConfigType = {
+export interface ConfigType {
   core: {
     multiplePanels: boolean
     installDependencies: boolean

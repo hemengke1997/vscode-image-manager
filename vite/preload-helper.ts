@@ -1,5 +1,5 @@
+import type { PluginOption } from 'vite'
 import MagicString from 'magic-string'
-import { type PluginOption } from 'vite'
 import { PRELOAD_HELPER } from '../src/meta'
 
 export function matchPreloadHelper(code: string) {
@@ -32,7 +32,8 @@ export function preloadHelper(): PluginOption {
             code: magicString.toString(),
             map: null,
           }
-        } else {
+        }
+        else {
           console.error('preload-helper: Failed to match assetsURL function')
         }
       }

@@ -1,16 +1,17 @@
-import { startTransition } from 'react'
+import type { FullUpdate, PatchUpdate } from '~/message/webview-message-factory'
 import { useMemoizedFn } from 'ahooks'
+import { useSetAtom } from 'jotai'
+import { startTransition } from 'react'
 import { CmdToVscode } from '~/message/cmd'
-import { type FullUpdate, type PatchUpdate } from '~/message/webview-message-factory'
 import logger from '~/utils/logger'
 import { vscodeApi } from '~/webview/vscode-api'
-import ImageStore, { WorkspaceUpdate } from '../stores/image-store'
+import { imageStateAtom, WorkspaceUpdate } from '../stores/image/image-store'
 
 /**
  * 更新图片
  */
 export default function useUpdateImages() {
-  const { dispatchImageState } = ImageStore.useStore(['dispatchImageState'])
+  const dispatchImageState = useSetAtom(imageStateAtom)
 
   /**
    * 全量更新

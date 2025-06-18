@@ -1,9 +1,9 @@
+import type { VscodeConfigType } from '../config/common'
 import { isFunction } from 'es-toolkit'
 import { toLower } from 'es-toolkit/compat'
 import { ColorThemeKind, env, type ExtensionContext, window, workspace } from 'vscode'
 import { FALLBACK_LANGUAGE, Language, Theme } from '~/meta'
 import { Channel } from '~/utils/node/channel'
-import { type VscodeConfigType } from '../config/common'
 
 export class VscodeSettings {
   static reduceMotion: ReduceMotion
@@ -33,9 +33,9 @@ export class VscodeSettings {
 
   static invokeInitMethods() {
     const properties = Object.getOwnPropertyNames(VscodeSettings)
-    const initMethods = properties.filter((name) => name.match(/^init[A-Z].*/) && isFunction(this[name]))
+    const initMethods = properties.filter(name => name.match(/^init[A-Z].*/) && isFunction(this[name]))
     initMethods.forEach((method) => {
-      this[method].call(this)
+      this[method]()
     })
   }
 

@@ -3,6 +3,7 @@
 There is a filter on the right side of the viewer to help you quickly find the images you want.
 
 ## Filter Entry
+
 ![Entry](./images/filter-entry.png)
 
 ## Filter Options

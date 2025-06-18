@@ -6,7 +6,7 @@ import Search from './components/search'
 
 function ImageActions() {
   return (
-    <div className={'flex items-center gap-x-2'}>
+    <div className='flex items-center gap-x-2'>
       {/* Filter */}
       <Filter />
       {/* Refresh images */}

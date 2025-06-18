@@ -32,11 +32,13 @@ export async function abortPromise<P = any, T = any>(
       signal: abortController.signal,
     })
     return res
-  } catch (e) {
+  }
+  catch (e) {
     const message = e instanceof Error ? e.message : ''
     if (message.includes('timed out')) {
       throw new TimeoutError(message)
-    } else if (message.includes('aborted')) {
+    }
+    else if (message.includes('aborted')) {
       throw new AbortError(message)
     }
     throw e

@@ -1,9 +1,10 @@
+import type { SharpNS } from '~/@types/global'
+import type { ImageManagerPanel } from '~/webview/panel'
+import { Buffer } from 'node:buffer'
 import { toNumber } from 'es-toolkit/compat'
 import fs from 'fs-extra'
 import pMap from 'p-map'
-import { type SharpNS } from '~/@types/global'
 import { i18n } from '~/i18n'
-import { type ImageManagerPanel } from '~/webview/panel'
 import { DEFAULT_CONFIG } from '../config/common'
 import { SharpOperator } from '../sharp/sharp-operator'
 import { Operator, type OperatorOptions, type OperatorResult, SkipError } from './operator'
@@ -25,7 +26,7 @@ export type FormatConverterOptions = {
   icoSize: number[]
 } & OperatorOptions
 
-type ConvertorRuntime = {
+interface ConvertorRuntime {
   ext: string
   filePath: string
   option: FormatConverterOptions
@@ -75,7 +76,8 @@ export class FormatConverter extends Operator {
         ...result,
         ...res,
       }
-    } catch (error) {
+    }
+    catch (error) {
       return { ...result, error: error || i18n.t('core.compress_fail_reason_unknown') }
     }
   }
@@ -128,7 +130,7 @@ export class FormatConverter extends Operator {
 
   async core(
     filePath: string,
-  ): Promise<{ inputSize: number; outputSize: number; outputPath: string; inputBuffer: Buffer }> {
+  ): Promise<{ inputSize: number, outputSize: number, outputPath: string, inputBuffer: Buffer }> {
     const { format } = this.option!
 
     const originExt = this.getFileExt(filePath)
@@ -150,9 +152,9 @@ export class FormatConverter extends Operator {
           this.option.icoSize = DEFAULT_CONFIG.conversion.icoSize
         }
         converters = this.option.icoSize
-          .map((size) => toNumber(size))
+          .map(size => toNumber(size))
           .sort((a, b) => b - a)
-          .map((size) => this.createConverter(size)) as SharpOperator<ConvertorRuntime>[]
+          .map(size => this.createConverter(size)) as SharpOperator<ConvertorRuntime>[]
         const len = converters.length
         const res = await pMap(
           converters.map(
@@ -170,16 +172,17 @@ export class FormatConverter extends Operator {
                 },
               ),
           ),
-          (task) => task(),
+          task => task(),
           {
             concurrency: 1,
           },
         )
-        const icoBuffer = this.encodeIco(res.map((r) => r.buffer))
+        const icoBuffer = this.encodeIco(res.map(r => r.buffer))
         // write ico file
         outputPath = res[0].outputPath
         await fs.writeFile(outputPath, icoBuffer)
-      } else {
+      }
+      else {
         converters = this.createConverter()
         const res = await converters.run({
           ext,
@@ -198,10 +201,12 @@ export class FormatConverter extends Operator {
         outputSize,
         outputPath,
       }
-    } catch (e) {
+    }
+    catch (e) {
       return Promise.reject(e)
-    } finally {
-      // @ts-expect-error
+    }
+    finally {
+      // @ts-expect-error Garbage collection
       converters = null
     }
   }
@@ -224,7 +229,7 @@ export class FormatConverter extends Operator {
    */
   private async resizeIco(
     image: SharpNS.Sharp,
-    { size, resizeOptions }: { size: number; resizeOptions?: SharpNS.ResizeOptions },
+    { size, resizeOptions }: { size: number, resizeOptions?: SharpNS.ResizeOptions },
   ) {
     return image.clone().resize({
       fit: 'contain',

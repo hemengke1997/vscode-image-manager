@@ -1,4 +1,4 @@
-import { createHooks, type Hookable, type NestedHooks } from '@minko-fe/hookable'
+import { createHooks, type Hookable, type NestedHooks } from 'hookable'
 import { ensureArray } from '~/utils'
 
 const PluginIndicator = '__plugin_indicator__'
@@ -27,7 +27,8 @@ export class HookPlugin<T extends AnyObject> {
       if (plugins?.length) {
         this.applyPlugins(plugins as ObjectPlugin<T>[])
       }
-    } catch {}
+    }
+    catch {}
   }
 
   applyPlugins(plugins: ObjectPlugin<T>[]) {
@@ -42,7 +43,7 @@ export class HookPlugin<T extends AnyObject> {
   removePlugins(pluginName: string | string[]) {
     const pluginNames = ensureArray(pluginName)
 
-    const pluginHooks = pluginNames.map((hook) => this.pluginMap.get(hook)).filter((t) => !!t)
+    const pluginHooks = pluginNames.map(hook => this.pluginMap.get(hook)).filter(t => !!t)
 
     pluginHooks.forEach((hooks) => {
       this.hooks.removeHooks(hooks)
@@ -73,9 +74,11 @@ export class HookPlugin<T extends AnyObject> {
     plugins.forEach((plugin) => {
       if (plugin.enforce === 'pre') {
         prePlugins.push(plugin)
-      } else if (plugin.enforce === 'post') {
+      }
+      else if (plugin.enforce === 'post') {
         postPlugins.push(plugin)
-      } else {
+      }
+      else {
         normalPlugins.push(plugin)
       }
     })

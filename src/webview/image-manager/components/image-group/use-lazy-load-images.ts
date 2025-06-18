@@ -1,9 +1,10 @@
-import { useEffect, useMemo, useRef, useState } from 'react'
 import { useEventListener, useMemoizedFn, useThrottleFn, useUpdateEffect } from 'ahooks'
 import { ceil } from 'es-toolkit/compat'
+import { useAtomValue } from 'jotai'
+import { useEffect, useMemo, useRef, useState } from 'react'
 import { DEFAULT_CONFIG } from '~/core/config/common'
 import { getAppRoot } from '~/webview/utils'
-import GlobalStore from '../../stores/global-store'
+import { GlobalAtoms } from '../../stores/global/global-store'
 
 interface UseElementBottomStatusProps {
   target: HTMLElement | null
@@ -16,7 +17,8 @@ function useElementBottom({ target, offset, container }: UseElementBottomStatusP
 
   const { run } = useThrottleFn(
     () => {
-      if (!target) return
+      if (!target)
+        return
 
       const containerRect = getAppRoot().getBoundingClientRect()
       const targetRect = target.getBoundingClientRect()
@@ -73,7 +75,8 @@ export default function useLazyLoadImages(props: Props) {
   const isBottomInView = useElementBottom({ target, container, offset: rootVerticalMargin(10) })
 
   const addImages = useMemoizedFn((pageNum: number) => {
-    if (status.current.loading || !status.current.hasMore) return
+    if (status.current.loading || !status.current.hasMore)
+      return
 
     status.current.loading = true
 
@@ -108,7 +111,8 @@ export default function useLazyLoadImages(props: Props) {
     status.current.hasMore = true
     if (loadedImages.images.length) {
       addImages(loadedImages.page)
-    } else {
+    }
+    else {
       addImages(loadedImages.page + 1)
     }
   }, [images])
@@ -123,7 +127,7 @@ export default function useLazyLoadImages(props: Props) {
 }
 
 export function useLazyMargin() {
-  const { imagePlaceholderSize } = GlobalStore.useStore(['imagePlaceholderSize'])
+  const imagePlaceholderSize = useAtomValue(GlobalAtoms.imagePlaceholderSizeAtom)
 
   const rootVerticalMargin = useMemoizedFn(
     (rate: number) => (imagePlaceholderSize?.height || DEFAULT_CONFIG.viewer.imageWidth) * rate,

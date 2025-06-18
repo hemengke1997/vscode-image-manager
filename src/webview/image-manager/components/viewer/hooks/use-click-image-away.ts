@@ -1,5 +1,5 @@
-import { useEffect } from 'react'
 import { useMemoizedFn } from 'ahooks'
+import { useEffect } from 'react'
 import useImageManagerEvent, { IMEvent } from '../../../hooks/use-image-manager-event'
 
 export enum PreventClickAway {
@@ -22,7 +22,7 @@ export default function useClickImageAway() {
       if (parent.tagName === 'body') {
         return false
       }
-      if (classNames.filter(Boolean).some((className) => parent?.classList.contains(className))) {
+      if (classNames.filter(Boolean).some(className => parent?.classList.contains(className))) {
         return true
       }
 
@@ -41,7 +41,7 @@ export default function useClickImageAway() {
   })
 
   const hasClass = useMemoizedFn((el: HTMLElement, classNames: string[]) => {
-    return classNames.some((className) => el.classList.contains(className))
+    return classNames.some(className => el.classList.contains(className))
   })
 
   useEffect(() => {

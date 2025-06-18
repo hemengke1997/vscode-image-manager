@@ -1,13 +1,13 @@
-import { memo, useMemo } from 'react'
-import { useTranslation } from 'react-i18next'
-import { useControlledState } from 'ahooks-x'
-import { type ImperativeModalProps } from 'ahooks-x/use-imperative-antd-modal'
+import type { Props as ImageOperatorProps } from '../../components/image-operator'
+import type { ImperativeModalProps } from '~/webview/image-manager/hooks/use-imperative-antd-modal'
 import { Card, Divider, Empty } from 'antd'
 import { remove } from 'es-toolkit'
 import { produce } from 'immer'
+import { memo, useMemo } from 'react'
+import { useTranslation } from 'react-i18next'
+import { useControlledState } from '~/webview/image-manager/hooks/use-controlled-state'
 import useScrollRef from '~/webview/image-manager/hooks/use-scroll-ref'
 import ImageGroup from '../../components/image-group'
-import { type Props as ImageOperatorProps } from '../../components/image-operator'
 import useImageManagerEvent, { IMEvent } from '../use-image-manager-event'
 
 type Props = Omit<ImageOperatorProps, 'images'> & {
@@ -18,7 +18,7 @@ type Props = Omit<ImageOperatorProps, 'images'> & {
   /**
    * 相似图片
    */
-  similarImages: { image: ImageType; distance: number }[]
+  similarImages: { image: ImageType, distance: number }[]
 }
 
 function ImageSimilarity(props: Props & ImperativeModalProps) {
@@ -35,7 +35,7 @@ function ImageSimilarity(props: Props & ImperativeModalProps) {
         // 图片重命名后，更新相似图片中的图片信息
         setSimilarImages(
           produce((draft) => {
-            const index = draft.findIndex((t) => t.image.path === previosImage.path)
+            const index = draft.findIndex(t => t.image.path === previosImage.path)
             if (index !== -1) {
               draft[index].image = newImage
             }
@@ -47,7 +47,7 @@ function ImageSimilarity(props: Props & ImperativeModalProps) {
           produce((draft) => {
             const removedIndex: number[] = []
             images.forEach((image) => {
-              const index = draft.findIndex((t) => t.image.path === image.path)
+              const index = draft.findIndex(t => t.image.path === image.path)
               if (index !== -1) {
                 removedIndex.push(index)
               }
@@ -61,7 +61,7 @@ function ImageSimilarity(props: Props & ImperativeModalProps) {
 
   const { images } = useMemo(() => {
     const images = similarImages
-      .sort((t) => t.distance)
+      .sort(t => t.distance)
       .map(({ image }) => ({
         ...image,
       }))
@@ -76,7 +76,7 @@ function ImageSimilarity(props: Props & ImperativeModalProps) {
   return (
     <>
       <Card>
-        <div className={'flex justify-center'}>
+        <div className='flex justify-center'>
           <ImageGroup
             images={[image]}
             lazyImageProps={{
@@ -85,28 +85,32 @@ function ImageSimilarity(props: Props & ImperativeModalProps) {
               },
               lazy: false,
             }}
-          ></ImageGroup>
+          >
+          </ImageGroup>
         </div>
       </Card>
-      <Divider plain dashed className={'!my-4'} />
+      <Divider plain dashed className='!my-4' />
       <Card title={t('im.similar_images')}>
-        {images.length ? (
-          <div className={'max-h-[500px] overflow-auto'} ref={scrollRef}>
-            <ImageGroup
-              images={images}
-              lazyImageProps={{
-                imageNameProps: {
-                  tooltipDisplayFullPath: true,
-                },
-                lazy: {
-                  root: scrollRef.current!,
-                },
-              }}
-            ></ImageGroup>
-          </div>
-        ) : (
-          <Empty image={Empty.PRESENTED_IMAGE_SIMPLE} description={t('im.no_image')} />
-        )}
+        {images.length
+          ? (
+              <div className='max-h-[500px] overflow-auto' ref={scrollRef}>
+                <ImageGroup
+                  images={images}
+                  lazyImageProps={{
+                    imageNameProps: {
+                      tooltipDisplayFullPath: true,
+                    },
+                    lazy: {
+                      root: scrollRef.current!,
+                    },
+                  }}
+                >
+                </ImageGroup>
+              </div>
+            )
+          : (
+              <Empty image={Empty.PRESENTED_IMAGE_SIMPLE} description={t('im.no_image')} />
+            )}
       </Card>
     </>
   )

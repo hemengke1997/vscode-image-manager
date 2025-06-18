@@ -1,43 +1,42 @@
-import defaults from 'defaults'
+import type { PartialDeep } from 'type-fest'
+import type { ImageFilterType } from '../../hooks/use-image-filter/image-filter'
 import { uniqBy } from 'es-toolkit'
-import { isObject } from 'es-toolkit/compat'
+import { defaults, isObject } from 'es-toolkit/compat'
 import { produce } from 'immer'
-import { type PartialDeep } from 'type-fest'
 import { DEFAULT_WORKSPACE_STATE, DisplayStyleType, SortByType, type SortType } from '~/core/persist/workspace/common'
 import { Compressed } from '~/meta'
 import logger from '~/utils/logger'
 import { bytesToUnit } from '..'
 import { FilterRadioValue, ImageVisibleFilter } from '../../hooks/use-image-filter/const'
-import { type ImageFilterType } from '../../hooks/use-image-filter/image-filter'
 import { UpdateEvent, UpdateOrigin } from './const'
 import { type NodeID, NodeType, Tree, type TreeNode, TreeStyle } from './tree'
 import { formatPath } from './utils'
 
-export type UpdatePayload =
+export type UpdatePayload
+  = | {
+    origin: UpdateOrigin.image
+    data: ImageUpdateType
+  }
   | {
-      origin: UpdateOrigin.image
-      data: ImageUpdateType
-    }
-  | {
-      origin: UpdateOrigin.dir
-      data: DirUpdateType
-    }
+    origin: UpdateOrigin.dir
+    data: DirUpdateType
+  }
 
-export type ImageUpdateType =
+export type ImageUpdateType
+  = | {
+    type: UpdateEvent.create
+    payload: ImageType
+  }
   | {
-      type: UpdateEvent.create
-      payload: ImageType
-    }
+    type: UpdateEvent.delete
+    payload: ImageType
+  }
   | {
-      type: UpdateEvent.delete
-      payload: ImageType
-    }
-  | {
-      type: UpdateEvent.update
-      payload: ImageType
-    }
+    type: UpdateEvent.update
+    payload: ImageType
+  }
 
-export type DirUpdateType = {
+export interface DirUpdateType {
   type: UpdateEvent.create | UpdateEvent.delete | UpdateEvent.update
   payload: {
     dirPath: string
@@ -46,7 +45,7 @@ export type DirUpdateType = {
   }
 }
 
-type Options = {
+interface Options {
   /**
    * 目录风格
    */
@@ -69,7 +68,7 @@ export type NestedTreeNode = {
   children?: NestedTreeNode[]
 } & TreeNode<TreeData>
 
-export type TreeData = {
+export interface TreeData {
   images: ImageType[] | undefined
   // 树风格，按xx分组
   treeStyle: TreeStyle
@@ -130,7 +129,6 @@ export class TreeManager {
       sort: DEFAULT_WORKSPACE_STATE.display_sort,
       compact: DEFAULT_WORKSPACE_STATE.display_style === DisplayStyleType.compact,
       ...options,
-
       filter: defaults(options?.filter || {}, DEFAULT_WORKSPACE_STATE.image_filter),
     }
   }
@@ -206,7 +204,7 @@ export class TreeManager {
 
       return produce(node as NestedTreeNode, (draft) => {
         draft.data.images = images
-        draft.children = draft.childrenIds.map((childId) => buildNestedTree(childId))
+        draft.children = draft.childrenIds.map(childId => buildNestedTree(childId))
       })
     }
 
@@ -310,7 +308,7 @@ export class TreeManager {
       case UpdateEvent.delete: {
         this.tree.updateNode(id, {
           data: (data) => {
-            const images = data.images?.filter((img) => img.path !== image.path)
+            const images = data.images?.filter(img => img.path !== image.path)
             return produce(data, (draft) => {
               draft.images = images
               draft.changed ||= {}
@@ -384,7 +382,8 @@ export class TreeManager {
 
     const traverse = (nodes: NestedTreeNode[], level: number) => {
       nodes.forEach((node) => {
-        if (!node.children?.length && !node.data.images?.length) return
+        if (!node.children?.length && !node.data.images?.length)
+          return
 
         // 打印当前节点路径
         result += `${indent(level)}|-- ${node.data.path}\n`
@@ -410,7 +409,8 @@ export class TreeManager {
    */
   getNodeImages(nodeId: NodeID): ImageType[] | undefined {
     const node = this.tree.getNode(nodeId)
-    if (!node) return
+    if (!node)
+      return
 
     // 如果节点是紧凑节点，则获取子节点的图片
     if (node.data.compact?.is) {
@@ -428,7 +428,8 @@ export class TreeManager {
     // 从当前节点开始向下递归获取所有子节点的图片
     const traverse = (id: NodeID): ImageType[] => {
       const node = this.tree.getNode(id)
-      if (!node) return []
+      if (!node)
+        return []
 
       // 如果节点是紧凑节点，则获取子节点的图片
       if (node.data.compact?.is) {
@@ -437,9 +438,9 @@ export class TreeManager {
       }
 
       const images = node.data.images || []
-      const childrenImages = node.childrenIds.flatMap((childId) => traverse(childId))
+      const childrenImages = node.childrenIds.flatMap(childId => traverse(childId))
 
-      return uniqBy([...images, ...childrenImages], (item) => item.path)
+      return uniqBy([...images, ...childrenImages], item => item.path)
     }
     return traverse(nodeId)
   }
@@ -494,7 +495,8 @@ export class TreeManager {
 
     const traverseDeleteEmptyDir = (id: NodeID) => {
       const node = this.tree.getNode(id)
-      if (!node) return
+      if (!node)
+        return
 
       // 如果节点没有子节点，且没有图片，则视为空节点，可以删除
       if (!node.childrenIds.length && !node.data.images?.length) {
@@ -513,7 +515,8 @@ export class TreeManager {
    */
   private isCompactNode(nodeId: NodeID) {
     const node = this.tree.getNode(nodeId)
-    if (!node) return false
+    if (!node)
+      return false
 
     if (nodeId === this.tree.rootId) {
       return false
@@ -527,7 +530,7 @@ export class TreeManager {
       if (
         this.tree
           .getChildren(node.id)
-          .some((t) => [TreeStyle.extension, TreeStyle.dir_extension].includes(t.data.treeStyle))
+          .some(t => [TreeStyle.extension, TreeStyle.dir_extension].includes(t.data.treeStyle))
       ) {
         isCompact = false
       }
@@ -584,7 +587,7 @@ export class TreeManager {
         this.options.filter,
       )
 
-      if (isObject(visible) && Object.keys(visible).some((k) => visible?.[k] === false)) {
+      if (isObject(visible) && Object.keys(visible).some(k => visible?.[k] === false)) {
         return false
       }
       return true
@@ -592,7 +595,7 @@ export class TreeManager {
   }
 
   private isImageVisible(image: ImageType, key: ImageVisibleFilter[], imageFilter: ImageFilterType) {
-    type Condition = {
+    interface Condition {
       /**
        * visible的key
        */
@@ -607,14 +610,14 @@ export class TreeManager {
     const builtInConditions: Condition[] = [
       {
         key: ImageVisibleFilter.exclude_types,
-        condition: (image) => (imageFilter.exclude_types.includes(image.extname) ? false : true),
+        condition: image => (!imageFilter.exclude_types.includes(image.extname)),
       },
       {
         key: ImageVisibleFilter.size,
         condition: (image) => {
           return (
-            bytesToUnit(image.stats.size, imageFilter.size.unit) >= (imageFilter.size?.min || 0) &&
-            bytesToUnit(image.stats.size, imageFilter.size.unit) <= (imageFilter.size?.max || Number.POSITIVE_INFINITY)
+            bytesToUnit(image.stats.size, imageFilter.size.unit) >= (imageFilter.size?.min || 0)
+            && bytesToUnit(image.stats.size, imageFilter.size.unit) <= (imageFilter.size?.max || Number.POSITIVE_INFINITY)
           )
         },
       },
@@ -655,7 +658,7 @@ export class TreeManager {
       },
     ]
 
-    const conditions = key.map((k) => builtInConditions.find((c) => c.key === k) as Condition)
+    const conditions = key.map(k => builtInConditions.find(c => c.key === k) as Condition)
 
     image.visible ||= {}
 

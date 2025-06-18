@@ -1,7 +1,9 @@
+import type { Watcher } from '~/core/watcher'
+import type { MessageType } from '~/message/message-factory'
+import path from 'node:path'
+import * as cheerio from 'cheerio'
 import fs from 'fs-extra'
 import { nanoid } from 'nanoid'
-import path from 'node:path'
-import { inject } from 'tag-inject'
 import {
   type ConfigurationChangeEvent,
   Disposable,
@@ -16,10 +18,8 @@ import {
 } from 'vscode'
 import { Config } from '~/core/config/config'
 import { Global } from '~/core/global'
-import { type Watcher } from '~/core/watcher'
 import { i18n } from '~/i18n'
 import { CmdToWebview } from '~/message/cmd'
-import { type MessageType } from '~/message/message-factory'
 import { DEV_PORT, EXT_NAMESPACE, PRELOAD_HELPER } from '~/meta'
 import { Channel } from '~/utils/node/channel'
 import { MessageCenter } from './message-center'
@@ -109,10 +109,11 @@ export class ImageManagerPanel {
         }
       }
 
-      if (!affected) return
+      if (!affected)
+        return
 
       if (reload) {
-        Channel.debug(`Reloading webview`)
+        Channel.debug('Reloading webview')
         this.reloadWebview()
         return
       }
@@ -120,7 +121,7 @@ export class ImageManagerPanel {
         // 如果是编程式修改配置，不需要更新webview
         // 比如 用户缩放图片时，会修改插件配置，这时不需要更新webview，因为webview中有图片缩放的state了
         if (this.isProgrammaticChangeConfig) {
-          Channel.debug(`Programmatic change config, skip update webview`)
+          Channel.debug('Programmatic change config, skip update webview')
           return
         }
         this.messageCenter.postMessage({ cmd: CmdToWebview.update_config, data: undefined })
@@ -178,7 +179,8 @@ export class ImageManagerPanel {
     if (isProd) {
       const { htmlContent, htmlPath } = this.getHtml(['dist-webview', 'index.html'])
       html = this.transformHtml(htmlPath, htmlContent)
-    } else {
+    }
+    else {
       const localServerUrl = `http://localhost:${DEV_PORT}`
 
       const res = await fetch(`${localServerUrl}/src/webview/image-manager/index.html`, {
@@ -189,40 +191,35 @@ export class ImageManagerPanel {
       })
 
       html = await res.text()
-      html = html.replace(/(?<=")(\/).*"/g, (match) => `${localServerUrl}${match}`)
+      html = html.replace(/(?<=")(\/).*"/g, match => `${localServerUrl}${match}`)
 
       content_src = `ws://${localServerUrl.replace(/https?:\/\//, '')} ws://0.0.0.0:${DEV_PORT} ${localServerUrl}`
       script_src = `${localServerUrl} http://0.0.0.0:${DEV_PORT}`
     }
 
-    html = inject(html, [
-      {
-        injectTo: 'head-prepend',
-        tag: 'meta',
-        attrs: {
-          'http-equiv': 'Content-Security-Policy',
-          'content': [
-            `default-src 'none'`,
-            `connect-src 'self' https://\* http://\* wss://\* ${content_src}`,
-            `font-src 'self' vscode-webview://* https://* blob: data:`,
-            `frame-src ${webview.cspSource} vscode-webview://* https://* blob: data:`,
-            `media-src 'self' https://* blob: data:`,
-            `img-src ${webview.cspSource} vscode-webview://* https://* http://* blob: data:`,
-            `worker-src ${script_src} data: vscode-webview://* blob: https://* http://*`,
-            `script-src ${webview.cspSource} vscode-webview://* 'unsafe-inline' 'unsafe-eval' https://\* ${script_src} data:`,
-            `style-src ${webview.cspSource} 'unsafe-inline' https://* blob: data: http://*`,
-          ].join('; '),
-        },
-      },
-      {
-        injectTo: 'head-prepend',
-        tag: 'script',
-        // 让正式环境支持资源异步加载，不然会从 vscode-webview://* 读取资源，这样会导致资源加载失败，因为正式环境的资源是放在 dist-webview 目录下的
-        children: `${PRELOAD_HELPER} = '${this.getUri(['dist-webview']).toString()}'`,
-      },
-    ])
+    const $ = cheerio.load(html)
 
-    return html
+    const meta = $('<meta></meta>')
+    meta.attr('http-equiv', 'Content-Security-Policy')
+    meta.attr('content', [
+      'default-src \'none\'',
+      `connect-src 'self' https://\* http://\* wss://\* ${content_src}`,
+      'font-src \'self\' vscode-webview://* https://* blob: data:',
+      `frame-src ${webview.cspSource} vscode-webview://* https://* blob: data:`,
+      'media-src \'self\' https://* blob: data:',
+      `img-src ${webview.cspSource} vscode-webview://* https://* http://* blob: data:`,
+      `worker-src ${script_src} data: vscode-webview://* blob: https://* http://*`,
+      `script-src ${webview.cspSource} vscode-webview://* 'unsafe-inline' 'unsafe-eval' https://\* ${script_src} data:`,
+      `style-src ${webview.cspSource} 'unsafe-inline' https://* blob: data: http://*`,
+    ].join('; '))
+    $('head').prepend(meta)
+
+    const script = $('<script></script>')
+    // 让正式环境支持资源异步加载，不然会从 vscode-webview://* 读取资源，这样会导致资源加载失败，因为正式环境的资源是放在 dist-webview 目录下的
+    script.text(`${PRELOAD_HELPER} = '${this.getUri(['dist-webview']).toString()}'`)
+    $('head').prepend(script)
+
+    return $.html()
   }
 
   private transformHtml(htmlPath: string, html: string) {

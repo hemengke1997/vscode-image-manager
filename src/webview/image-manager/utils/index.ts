@@ -13,7 +13,8 @@ export function formatBytes(bytes: number, decimals: number = 2): string {
 }
 
 export function bytesToUnit(bytes: number | undefined, unit: 'KB' | 'MB'): number {
-  if (!bytes) return 0
+  if (!bytes)
+    return 0
   const sizes = ['KB', 'MB']
   const i = sizes.indexOf(unit)
   return round(bytes / 1024 ** (i + 1), 2)
@@ -59,12 +60,13 @@ export const pathUtil = {
  * @returns 转化后的列表
  */
 export function uniqSortByThenMap<T>(images: ImageType[], key: keyof ImageType, convert: (image: ImageType) => T): T[] {
-  if (!images.length) return []
+  if (!images.length)
+    return []
 
   return sortBy(
-    uniqBy(images, (item) => item[key]),
+    uniqBy(images, item => item[key]),
     [key],
-  ).map((item) => convert(item))
+  ).map(item => convert(item))
 }
 
 /**
@@ -78,9 +80,11 @@ export function triggerOnce<T extends (...args: any[]) => any>(fn: T) {
  * 清除路径中的时间戳
  */
 export function clearTimestamp(path: string | undefined) {
-  if (!path) return ''
+  if (!path)
+    return ''
   const index = path.lastIndexOf('?')
-  if (index !== -1) return path.slice(0, index)
+  if (index !== -1)
+    return path.slice(0, index)
   return path
 }
 

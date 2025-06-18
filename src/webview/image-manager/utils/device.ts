@@ -1,10 +1,10 @@
-import { os } from 'un-detector'
+import { UAParser } from 'ua-parser-js'
 
-function getUA() {
-  return navigator.userAgent
-}
+const ua = new UAParser()
+
+const isMac = ua.getOS().name === 'macOS'
 
 export const OS = {
-  isMac: os.isMac(getUA()),
-  isWindows: os.isWindows(getUA()),
+  isMac,
+  isWindows: !isMac,
 }

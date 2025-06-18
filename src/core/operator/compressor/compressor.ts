@@ -1,3 +1,4 @@
+import type { Buffer } from 'node:buffer'
 import { toString } from 'es-toolkit/compat'
 import { i18n } from '~/i18n'
 import { Channel } from '~/utils/node/channel'
@@ -10,7 +11,7 @@ export abstract class Compressor extends Operator {
 
   abstract core(
     filePath: string,
-  ): Promise<{ inputSize: number; outputSize: number; outputPath: string; inputBuffer: Buffer }>
+  ): Promise<{ inputSize: number, outputSize: number, outputPath: string, inputBuffer: Buffer }>
 
   async compressImage(filePath: string) {
     const result = {
@@ -24,7 +25,8 @@ export abstract class Compressor extends Operator {
         ...result,
         ...res,
       }
-    } catch (e) {
+    }
+    catch (e) {
       Channel.debug(`core ${i18n.t('core.compress_error')}: ${toString(e)}`)
 
       return {

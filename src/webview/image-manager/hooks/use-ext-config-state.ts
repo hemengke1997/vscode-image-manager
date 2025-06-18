@@ -1,13 +1,14 @@
-import { type DependencyList, useMemo } from 'react'
+import type { DebounceOptions } from 'ahooks/es/useDebounce/debounceOptions'
+import type { ConfigType } from '~/core/config/common'
 import { useDebounceFn, useMemoizedFn } from 'ahooks'
-import { useTrackState } from 'ahooks-x'
-import { type DebounceOptions } from 'ahooks/es/useDebounce/debounceOptions'
 import { set } from 'es-toolkit/compat'
 import { produce } from 'immer'
-import { type ConfigType } from '~/core/config/common'
+import { useSetAtom } from 'jotai'
+import { type DependencyList, useMemo } from 'react'
 import { CmdToVscode } from '~/message/cmd'
 import { vscodeApi } from '../../vscode-api'
-import VscodeStore from '../stores/vscode-store'
+import { VscodeAtoms } from '../stores/vscode/vscode-store'
+import { useTrackState } from './use-track-state'
 
 /**
  * 追踪插件配置中的某个配置
@@ -27,8 +28,8 @@ export function useExtConfigState<T extends Flatten<ConfigType>, U>(
     postValue?: (value: U) => U
   },
 ) {
-  const postValue = options?.postValue || ((value) => value)
-  const { setExtConfig } = VscodeStore.useStore(['setExtConfig'])
+  const postValue = useMemoizedFn(options?.postValue || (value => value))
+  const setExtConfig = useSetAtom(VscodeAtoms.extConfigAtom)
 
   const debounceOptions: DebounceOptions = useMemo(
     () => ({
@@ -43,7 +44,7 @@ export function useExtConfigState<T extends Flatten<ConfigType>, U>(
     // 避免循环更新
     setExtConfig(
       produce((draft) => {
-        set(draft, key, state)
+        set(draft!, key, state)
       }),
     )
 
@@ -56,7 +57,7 @@ export function useExtConfigState<T extends Flatten<ConfigType>, U>(
     })
   }, debounceOptions)
 
-  const onChangeBySet = useMemoizedFn(() => {
+  const onChangeBySet = useMemoizedFn((state: U) => {
     const value = postValue(state)
     debounceUpdate(state, value)
   })

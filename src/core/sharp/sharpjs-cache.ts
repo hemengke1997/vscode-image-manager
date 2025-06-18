@@ -1,5 +1,5 @@
-import fs from 'fs-extra'
 import path from 'node:path'
+import fs from 'fs-extra'
 import { slashPath } from '~/utils'
 import { FileCache } from '../file-cache'
 import { Global } from '../global'
@@ -21,7 +21,7 @@ export class SharpjsCache {
   }
 
   getSharpPath() {
-    const paths = [this.osCacheDir, this.extensionCacheDir].map((t) => path.join(t, 'index.js'))
+    const paths = [this.osCacheDir, this.extensionCacheDir].map(t => path.join(t, 'index.js'))
 
     return paths.find((file) => {
       try {
@@ -30,7 +30,8 @@ export class SharpjsCache {
           return file
         }
         return false
-      } catch {
+      }
+      catch {
         return false
       }
     })

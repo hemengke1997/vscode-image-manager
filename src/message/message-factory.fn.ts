@@ -1,11 +1,11 @@
+import type { GlobEntry } from 'globby'
+import type { SharpNS } from '~/@types/global'
+import path from 'node:path'
 import { isString } from 'antd/es/button'
 import readExif from 'exif-reader'
 import fs from 'fs-extra'
-import { type GlobEntry } from 'globby'
 import { imageSizeFromFile } from 'image-size/fromFile'
-import path from 'node:path'
 import git from 'simple-git'
-import { type SharpNS } from '~/@types/global'
 import { Config } from '~/core/config/config'
 import { Global } from '~/core/global'
 import { COMPRESSED_META } from '~/core/operator/meta'
@@ -14,7 +14,7 @@ import { i18n } from '~/i18n'
 import { Compressed } from '~/meta'
 import { Channel } from '~/utils/node/channel'
 
-const gitStagedCache = new Map<string, { timestamp: number; data: string[] }>()
+const gitStagedCache = new Map<string, { timestamp: number, data: string[] }>()
 const GIT_CACHE_DURATION = 10 * 1000 // 10s
 /**
  * 获取 git staged 中的图片
@@ -41,8 +41,8 @@ export async function getStagedImages(root: string) {
 
     const imageFiles = files
       .split('\n')
-      .filter((file) => Config.file_scan.includes(path.extname(file).slice(1)))
-      .map((file) => path.join(gitRoot, file))
+      .filter(file => Config.file_scan.includes(path.extname(file).slice(1)))
+      .map(file => path.join(gitRoot, file))
 
     gitStagedCache.set(cacheKey, {
       timestamp: Date.now(),
@@ -50,7 +50,8 @@ export async function getStagedImages(root: string) {
     })
 
     return imageFiles
-  } catch (e) {
+  }
+  catch (e) {
     Channel.debug(`${i18n.t('core.get_git_staged_error')}: ${e}`)
     return []
   }
@@ -103,8 +104,10 @@ export async function getImageMetadata(image: string | GlobEntry): Promise<{
     filePath = image
     try {
       stats = await fs.stat(filePath)
-    } catch {}
-  } else {
+    }
+    catch {}
+  }
+  else {
     filePath = image.path
     stats = image.stats
   }
@@ -126,21 +129,25 @@ export async function getImageMetadata(image: string | GlobEntry): Promise<{
     }
 
     metadata = await Global.sharp?.(filePath).metadata()
-  } catch {
+  }
+  catch {
     // sharp 不支持该类型
     sharpFormatSupported = false
 
     try {
       metadata = ((await imageSizeFromFile(filePath).catch(() => {})) || {}) as SharpNS.Metadata
-    } catch (e) {
+    }
+    catch (e) {
       Channel.error(e)
     }
-  } finally {
+  }
+  finally {
     if (metadata.exif) {
       if (readExif(metadata.exif).Image?.ImageDescription?.includes(COMPRESSED_META)) {
         compressed = Compressed.yes
       }
-    } else {
+    }
+    else {
       if (sharpFormatSupported) {
         // 已知支持 exif 的格式
         const exifSupported = ['png', 'webp', 'jpg', 'jpeg', 'avif']
@@ -153,12 +160,14 @@ export async function getImageMetadata(image: string | GlobEntry): Promise<{
 
         if (exifSupported.includes(metadata.format!)) {
           compressed = Compressed.no
-        } else {
+        }
+        else {
           if (exifNotSupported.includes(metadata.format!)) {
             // 不支持 exif
             // 无法判断是否压缩
             compressed = Compressed.unknown
-          } else {
+          }
+          else {
             // 不知道是否支持 exif 的格式
             // 用sharp推断
             // 可能会影响性能
@@ -175,17 +184,20 @@ export async function getImageMetadata(image: string | GlobEntry): Promise<{
                 // 此类型支持 exif
                 // 但是没有压缩标记
                 compressed = Compressed.no
-              } else {
+              }
+              else {
                 // 此类型不支持 exif
                 // 无法判断是否压缩
                 compressed = Compressed.unknown
               }
-            } catch {
+            }
+            catch {
               compressed = Compressed.not_supported
             }
           }
         }
-      } else {
+      }
+      else {
         // sharp 不支持的格式
         compressed = Compressed.not_supported
       }
@@ -195,7 +207,8 @@ export async function getImageMetadata(image: string | GlobEntry): Promise<{
       try {
         const svgString = await fs.readFile(filePath, 'utf-8')
         compressed = Svgo.isCompressed(svgString, Config.compression.svg) ? Compressed.yes : Compressed.no
-      } catch (e) {
+      }
+      catch (e) {
         Channel.error(e)
       }
     }

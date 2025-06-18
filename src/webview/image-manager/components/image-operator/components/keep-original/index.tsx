@@ -1,11 +1,11 @@
+import { Form, Segmented } from 'antd'
 import { memo } from 'react'
 import { useTranslation } from 'react-i18next'
-import { Form, Segmented } from 'antd'
 
 function KeepOriginal() {
   const { t } = useTranslation()
   return (
-    <Form.Item label={t('im.keep')} name={'keepOriginal'} className={'center'}>
+    <Form.Item label={t('im.keep')} name='keepOriginal' className='center'>
       <Segmented
         options={[
           {

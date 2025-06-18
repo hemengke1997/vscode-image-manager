@@ -74,7 +74,7 @@ export class Tree<T extends Record<string, any>> {
     if (this.nodes.has(id)) {
       this.updateNode(id, {
         ...options,
-        data: (data) =>
+        data: data =>
           mergeWith(data, options.data, (objValue, srcValue) => {
             if (Array.isArray(objValue)) {
               return objValue.concat(srcValue)
@@ -104,12 +104,14 @@ export class Tree<T extends Record<string, any>> {
           parentId: null,
           childrenId: id,
         })
-      } else {
+      }
+      else {
         this.updateNode(parentId, {
           childrenId: id,
         })
       }
-    } else if (id !== this.rootId) {
+    }
+    else if (id !== this.rootId) {
       // 递归添加父节点
       const parentId = this.parseParentId(newNode.id)
       this.addNode(parentId, {
@@ -201,7 +203,7 @@ export class Tree<T extends Record<string, any>> {
    */
   getChildren(id: NodeID): TreeNode<T>[] {
     const node = this.nodes.get(id)
-    return node?.childrenIds.map((childId) => this.nodes.get(childId)!) || []
+    return node?.childrenIds.map(childId => this.nodes.get(childId)!) || []
   }
 
   /**
@@ -209,7 +211,8 @@ export class Tree<T extends Record<string, any>> {
    */
   getAllChildren(id: NodeID): TreeNode<T>[] {
     const node = this.nodes.get(id)
-    if (!node) return []
+    if (!node)
+      return []
 
     const allChildren: TreeNode<T>[] = []
 
@@ -231,13 +234,15 @@ export class Tree<T extends Record<string, any>> {
    */
   getSibling(id: NodeID): TreeNode<T>[] {
     const node = this.nodes.get(id)
-    if (!node) return []
+    if (!node)
+      return []
 
     const parent = this.getParent(id)
 
-    if (!parent) return []
+    if (!parent)
+      return []
 
-    return parent.childrenIds.filter((childId) => childId !== id).map((childId) => this.nodes.get(childId)!)
+    return parent.childrenIds.filter(childId => childId !== id).map(childId => this.nodes.get(childId)!)
   }
 
   /**
@@ -248,9 +253,11 @@ export class Tree<T extends Record<string, any>> {
 
     while (queue.length > 0) {
       const currentId = queue.shift()
-      if (!currentId) continue
+      if (!currentId)
+        continue
       const currentNode = this.nodes.get(currentId)
-      if (!currentNode) continue
+      if (!currentNode)
+        continue
       callback(currentNode)
       queue.push(...currentNode.childrenIds)
     }

@@ -1,0 +1,10 @@
+diff --git a/node_modules/ahooks/lib/useMemoizedFn/index.d.ts b/node_modules/ahooks/lib/useMemoizedFn/index.d.ts
+index 17b0b3a..5723d82 100644
+--- a/node_modules/ahooks/lib/useMemoizedFn/index.d.ts
++++ b/node_modules/ahooks/lib/useMemoizedFn/index.d.ts
+@@ -1,4 +1,4 @@
+ type noop = (this: any, ...args: any[]) => any;
+ type PickFunction<T extends noop> = (this: ThisParameterType<T>, ...args: Parameters<T>) => ReturnType<T>;
+-declare function useMemoizedFn<T extends noop>(fn: T): PickFunction<T>;
++declare function useMemoizedFn<T extends noop>(fn: T): T;
+ export default useMemoizedFn;

@@ -1,4 +1,4 @@
-type Option = {
+interface Option {
   label: string
   value: string
   [k in string]: any
@@ -26,8 +26,8 @@ type Flatten<T> = keyof FlattenObject<T>
 // Flatten entity
 type FlattenObject<TValue> = CollapseEntries<CreateObjectEntries<TValue, TValue>>
 
-type Entry = { key: string; value: unknown }
-type EmptyEntry<TValue> = { key: ''; value: TValue }
+interface Entry { key: string, value: unknown }
+interface EmptyEntry<TValue> { key: '', value: TValue }
 type ExcludedTypes = Date | Set<unknown> | Map<unknown, unknown>
 type ArrayEncoder = `[${bigint}]`
 
@@ -60,23 +60,21 @@ type CreateObjectEntries<TValue, TValueInitial> = TValue extends object
   ? {
       // Checks that Key is of type string
       [TKey in keyof TValue]-?: TKey extends string
-        ? // Nested key can be an object, run recursively to the bottom
-          CreateArrayEntry<TValue[TKey], TValueInitial> extends infer TNestedValue
+        ? CreateArrayEntry<TValue[TKey], TValueInitial> extends infer TNestedValue // Nested key can be an object, run recursively to the bottom
           ? TNestedValue extends Entry
             ? TNestedValue['key'] extends ''
               ? {
                   key: TKey
                   value: TNestedValue['value']
                 }
-              :
-                  | {
-                      key: `${TKey}.${TNestedValue['key']}`
-                      value: TNestedValue['value']
-                    }
-                  | {
-                      key: TKey
-                      value: TValue[TKey]
-                    }
+              : | {
+                key: `${TKey}.${TNestedValue['key']}`
+                value: TNestedValue['value']
+              }
+              | {
+                key: TKey
+                value: TValue[TKey]
+              }
             : never
           : never
         : never

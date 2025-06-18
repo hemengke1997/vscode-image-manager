@@ -4,7 +4,6 @@
 
 其中 `svg` 压缩使用 [`svgo`](https://svgo.dev/) 压缩，其他格式使用 [`sharp`](https://sharp.pixelplumbing.com/) 压缩
 
-
 ## 压缩选项
 
 ### 非svg

@@ -1,14 +1,14 @@
+import type { EnableCollapseContextMenuType } from '../../../../../context-menus/components/collapse-context-menu'
 import { memo, type ReactNode } from 'react'
 import { useHotkeys } from 'react-hotkeys-hook'
 import { Key } from 'ts-key-enum'
-import { classNames } from 'tw-clsx'
 import useImageManagerEvent, { IMEvent } from '~/webview/image-manager/hooks/use-image-manager-event'
 import useImageOperation from '~/webview/image-manager/hooks/use-image-operation'
 import { OS } from '~/webview/image-manager/utils/device'
-import { type EnableCollapseContextMenuType } from '../../../../../context-menus/components/collapse-context-menu'
+import { classNames } from '~/webview/image-manager/utils/tw-clsx'
 import useCollapseContextMenu from '../../../../../context-menus/components/collapse-context-menu/hooks/use-collapse-context-menu'
 
-type SingleLabelProps = {
+interface SingleLabelProps {
   children: ReactNode
   contextMenu?: EnableCollapseContextMenuType
   dirPath: string
@@ -39,10 +39,10 @@ function SingleLabel(props: SingleLabelProps) {
   const keybindRef = useHotkeys<HTMLDivElement>(
     [
       ...hotkeys
-        .filter((t) => t.enable)
-        .map((t) => t.keys)
+        .filter(t => t.enable)
+        .map(t => t.keys)
         .flat(),
-      `mod+v`,
+      'mod+v',
     ],
     (e) => {
       switch (e.key) {
@@ -74,10 +74,7 @@ function SingleLabel(props: SingleLabelProps) {
         }
         case 'v': {
           beginPasteProcess(dirPath)
-          return
         }
-        default:
-          break
       }
     },
     {
@@ -95,7 +92,7 @@ function SingleLabel(props: SingleLabelProps) {
 
   return (
     <div
-      onContextMenu={(e) => onContextMenu(e, index)}
+      onContextMenu={e => onContextMenu(e, index)}
       className={classNames('relative w-full transition-all', className)}
       onClick={onClick}
     >
@@ -104,8 +101,8 @@ function SingleLabel(props: SingleLabelProps) {
         data-dir-path={dirPath}
         className={classNames(
           'inline-flex',
-          !!contextMenu &&
-            'cursor-pointer transition-all hover:text-ant-color-primary-text-hover focus:text-ant-color-primary-text-hover focus:underline',
+          !!contextMenu
+          && 'cursor-pointer transition-all hover:text-ant-color-primary-text-hover focus:text-ant-color-primary-text-hover focus:underline',
         )}
         tabIndex={-1}
         onClick={(e) => {

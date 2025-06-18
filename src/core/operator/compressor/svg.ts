@@ -1,12 +1,13 @@
+import type { Buffer } from 'node:buffer'
+import type { CompressionOptions } from './type'
+import type { ImageManagerPanel } from '~/webview/panel'
 import fs from 'fs-extra'
 import { i18n } from '~/i18n'
 import { CmdToVscode } from '~/message/cmd'
 import { VscodeMessageFactory } from '~/message/message-factory'
-import { type ImageManagerPanel } from '~/webview/panel'
 import { SkipError } from '../operator'
 import { Svgo } from '../svgo'
 import { Compressor } from './compressor'
-import { type CompressionOptions } from './type'
 
 export class SvgCompressor extends Compressor {
   public extensions = ['svg']
@@ -42,8 +43,8 @@ export class SvgCompressor extends Compressor {
         // 说明已经压缩过了
         // 直接跳过
         if (
-          this.option.skipCompressed &&
-          Svgo.isCompressed(svgString, { compressedAttribute: this.option.svg.compressedAttribute })
+          this.option.skipCompressed
+          && Svgo.isCompressed(svgString, { compressedAttribute: this.option.svg.compressedAttribute })
         ) {
           return reject(new SkipError())
         }
@@ -78,11 +79,13 @@ export class SvgCompressor extends Compressor {
               ...result,
               outputSize,
             })
-          } catch (e) {
+          }
+          catch (e) {
             reject(e)
           }
         })
-      } catch (e: any) {
+      }
+      catch (e: any) {
         reject(e)
       }
     })

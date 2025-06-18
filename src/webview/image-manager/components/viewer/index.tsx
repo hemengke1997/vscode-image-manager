@@ -1,18 +1,19 @@
+import { useClickAway } from 'ahooks'
+import { Card, Empty, Skeleton } from 'antd'
+import { floor } from 'es-toolkit/compat'
+import { useAtomValue, useSetAtom } from 'jotai'
+import { AnimatePresence, motion } from 'motion/react'
 import { memo, useEffect, useMemo, useRef, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { IoMdImages } from 'react-icons/io'
-import { Transition } from 'react-transition-preset'
-import { styleObjectToString } from '@minko-fe/style-object-to-string'
-import { useClickAway } from 'ahooks'
-import { imperativeModalMap } from 'ahooks-x/use-imperative-antd-modal'
-import { Card, Empty, Skeleton } from 'antd'
-import { floor } from 'es-toolkit/compat'
+import { imperativeModalMap } from '~/webview/image-manager/hooks/use-imperative-antd-modal'
 import useImageHotKeys from '../../hooks/use-image-hot-keys'
 import useImageManagerEvent, { IMEvent } from '../../hooks/use-image-manager-event'
 import useSticky from '../../hooks/use-sticky'
 import useWheelScaleEvent from '../../hooks/use-wheel-scale-event'
-import GlobalStore from '../../stores/global-store'
-import ImageStore from '../../stores/image-store'
+import { GlobalAtoms } from '../../stores/global/global-store'
+import { useImageWidth } from '../../stores/global/hooks'
+import { imageStateAtom } from '../../stores/image/image-store'
 import { ANIMATION_DURATION } from '../../utils/duration'
 import CollapseTree from '../collapse-tree'
 import ImageActions from '../image-actions'
@@ -21,13 +22,12 @@ import useClickImageAway from './hooks/use-click-image-away'
 
 function Viewer() {
   const { t } = useTranslation()
-  const { setViewerHeaderStickyHeight, setImageWidth, setImageReveal } = GlobalStore.useStore([
-    'setViewerHeaderStickyHeight',
-    'setImageWidth',
-    'setImageReveal',
-  ])
 
-  const { imageState } = ImageStore.useStore(['imageState'])
+  const setViewerHeaderStickyHeight = useSetAtom(GlobalAtoms.viewerHeaderStickyHeightAtom)
+  const setImageReveal = useSetAtom(GlobalAtoms.imageRevealAtom)
+  const [, setImageWidth] = useImageWidth()
+
+  const imageState = useAtomValue(imageStateAtom)
 
   /* ---------------- image scale --------------- */
   const [containerRef] = useWheelScaleEvent({
@@ -49,17 +49,17 @@ function Viewer() {
     holder: stickyRef,
     onStickyToogle(sticky, { rawStyle }) {
       if (sticky) {
-        const style =
-          styleObjectToString({
-            position: 'sticky',
-            // 比collapse的sticky层级高就行
-            zIndex: 5,
-            backgroundColor: 'var(--ant-color-bg-container)',
-            top: '0px',
-            borderRadius: '0px',
-          }) || ''
+        const style = [
+          'position: sticky',
+          'z-index: 5', // 比 collapse 的 sticky 层级高就行
+          'background-color: var(--ant-color-bg-container)',
+          'top: 0px',
+          'border-radius: 0px',
+        ].join('; ')
+
         target.setAttribute('style', rawStyle + style)
-      } else {
+      }
+      else {
         target.setAttribute('style', rawStyle)
       }
     },
@@ -79,7 +79,7 @@ function Viewer() {
         setImageReveal(imagePath)
 
         // 关闭所有命令式弹窗
-        imperativeModalMap.forEach((modal) => modal.destroy())
+        imperativeModalMap.forEach(modal => modal.destroy())
       },
       [IMEvent.clear_image_reveal]: () => {
         setImageReveal(undefined)
@@ -96,7 +96,8 @@ function Viewer() {
       timeout = setTimeout(() => {
         setShowSkeleton(true)
       }, 500)
-    } else {
+    }
+    else {
       setShowSkeleton(false)
     }
 
@@ -122,7 +123,7 @@ function Viewer() {
   useClickImageAway()
 
   return (
-    <div ref={containerRef} className={'space-y-4'}>
+    <div ref={containerRef} className='space-y-4'>
       <Card
         styles={{
           header: {
@@ -134,38 +135,61 @@ function Viewer() {
         extra={<ImageActions />}
         ref={stickyRef}
       >
-        {imageState.loading ? (
-          showSkeleton ? (
-            <Transition
-              mounted={true}
-              initial={true}
-              duration={ANIMATION_DURATION.middle}
-              enterDelay={ANIMATION_DURATION.slow}
-              exitDelay={0}
-              key='loading'
-            >
-              {(style) => (
-                <div style={style}>
-                  <Skeleton className={'px-4 py-2'} active paragraph={{ rows: 4 }} />
-                </div>
+        <AnimatePresence>
+          {imageState.loading
+            ? (
+                showSkeleton
+                  ? (
+                      <motion.div
+                        initial={{
+                          opacity: 0,
+                          transition: {
+                            delay: ANIMATION_DURATION.slow,
+                          },
+                        }}
+                        animate={{
+                          opacity: 1,
+                        }}
+                        exit={{
+                          opacity: 0,
+                        }}
+                        transition={{
+                          duration: ANIMATION_DURATION.middle,
+                        }}
+                      >
+                        <Skeleton className='px-4 py-2' active paragraph={{ rows: 4 }} />
+                      </motion.div>
+                    )
+                  : null
+              )
+            : (
+                <motion.div
+                  ref={contentRef}
+                  initial={{
+                    opacity: 0,
+                  }}
+                  animate={{
+                    opacity: 1,
+                  }}
+                  exit={{
+                    opacity: 0,
+                  }}
+                  transition={{
+                    duration: ANIMATION_DURATION.middle,
+                  }}
+                >
+                  <div className='space-y-4' tabIndex={-1} ref={ref}>
+                    {imageState.workspaces.length
+                      ? (
+                          imageState.workspaces.map(item => <CollapseTree key={item.workspaceFolder} workspace={item} />)
+                        )
+                      : (
+                          <Empty image={Empty.PRESENTED_IMAGE_SIMPLE} description={t('im.no_image')} />
+                        )}
+                  </div>
+                </motion.div>
               )}
-            </Transition>
-          ) : null
-        ) : (
-          <Transition mounted={true} initial={true} duration={ANIMATION_DURATION.middle} key='viewer'>
-            {(style) => (
-              <div ref={contentRef} style={style}>
-                <div className={'space-y-4'} tabIndex={-1} ref={ref}>
-                  {imageState.workspaces.length ? (
-                    imageState.workspaces.map((item) => <CollapseTree key={item.workspaceFolder} workspace={item} />)
-                  ) : (
-                    <Empty image={Empty.PRESENTED_IMAGE_SIMPLE} description={t('im.no_image')} />
-                  )}
-                </div>
-              </div>
-            )}
-          </Transition>
-        )}
+        </AnimatePresence>
       </Card>
     </div>
   )

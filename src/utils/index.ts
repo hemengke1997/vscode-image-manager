@@ -26,15 +26,13 @@ export function ensureArray<T>(value: T | T[]): T[] {
 /**
  * 把版本号前面的非数字字符去掉
  * @param version
- * @returns
  */
 export function cleanVersion(version: string) {
-  return version.replace(/^[^0-9]+/, '')
+  return version.replace(/^\D+/, '')
 }
 
 /**
  * 首次立即执行定时器
- * @returns
  */
 export function setImmdiateInterval(callback: () => void, interval: number) {
   callback()
@@ -51,7 +49,7 @@ export async function promiseAllWithFirst<T>(promises: (() => Promise<T>)[]): Pr
 
   const firstResult = await promises[0]()
 
-  const remainingPromises = promises.slice(1).map((p) => p())
+  const remainingPromises = promises.slice(1).map(p => p())
   const remainingResults = await Promise.all(remainingPromises)
 
   return [firstResult, ...remainingResults]

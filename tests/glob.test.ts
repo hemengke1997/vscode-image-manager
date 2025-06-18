@@ -1,5 +1,5 @@
-import fg from 'fast-glob'
 import path from 'node:path'
+import fg from 'fast-glob'
 import { describe, expect, it } from 'vitest'
 import { slashPath } from '~/utils'
 import { convertPatternToGlob, imageGlob } from '~/utils/node/glob'
@@ -17,7 +17,7 @@ async function glob(pattern: string[], cwd?: string) {
   })
 }
 
-describe('Glob images', () => {
+describe('glob images', () => {
   const defaultExclude = [
     '**/node_modules/**',
     '**/.git/**',
@@ -36,7 +36,7 @@ describe('Glob images', () => {
     }
     const { allImagePatterns } = imageGlob(config)
     const images = await glob(allImagePatterns, config.cwds[0])
-    expect(images.every((t) => !t.includes('dist'))).toBe(true)
+    expect(images.every(t => !t.includes('dist'))).toBe(true)
   })
 
   it('should not ignore dist-1', async () => {
@@ -48,7 +48,7 @@ describe('Glob images', () => {
     const { allImagePatterns } = imageGlob(config)
     const images = await glob(allImagePatterns, config.cwds[0])
 
-    expect(images.some((t) => t.includes('dist-1'))).toBe(true)
+    expect(images.some(t => t.includes('dist-1'))).toBe(true)
   })
 
   it('should ignore png by `scan`', async () => {
@@ -60,7 +60,7 @@ describe('Glob images', () => {
     const { allImagePatterns } = imageGlob(config)
     const images = await glob(allImagePatterns, config.cwds[0])
 
-    expect(images.every((t) => !t.includes('.png'))).toBe(true)
+    expect(images.every(t => !t.includes('.png'))).toBe(true)
   })
 
   it('should ignore png by `exclude`', async () => {
@@ -72,7 +72,7 @@ describe('Glob images', () => {
     const { allImagePatterns } = imageGlob(config)
     const images = await glob(allImagePatterns, config.cwds[0])
 
-    expect(images.every((t) => !t.includes('.png'))).toBe(true)
+    expect(images.every(t => !t.includes('.png'))).toBe(true)
   })
 
   it('should convert patterns to valid glob', () => {

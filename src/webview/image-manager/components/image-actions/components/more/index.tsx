@@ -1,14 +1,17 @@
-import { memo, useState } from 'react'
-import { useTranslation } from 'react-i18next'
-import { IoIosMore } from 'react-icons/io'
 import { useMemoizedFn } from 'ahooks'
 import { Button, Popover, Space, Tooltip } from 'antd'
 import { upperFirst } from 'es-toolkit'
-import ActionStore from '~/webview/image-manager/stores/action-store'
+import { useSetAtom } from 'jotai'
+import { memo, useState } from 'react'
+import { useTranslation } from 'react-i18next'
+import { IoIosMore } from 'react-icons/io'
+import { ActionAtoms } from '~/webview/image-manager/stores/action/action-store'
 
 function More() {
   const { t } = useTranslation()
-  const { openAllCollapse, closeAllCollapse } = ActionStore.useStore(['openAllCollapse', 'closeAllCollapse'])
+
+  const openAllCollapse = useSetAtom(ActionAtoms.openAllCollapse)
+  const closeAllCollapse = useSetAtom(ActionAtoms.closeAllCollapse)
 
   const [open, setOpen] = useState(false)
 
@@ -26,10 +29,10 @@ function More() {
         setOpen(open)
       }}
       arrow={false}
-      rootClassName={'select-none'}
-      content={
-        <div className={'flex flex-col gap-2'}>
-          <div className={'flex items-center space-x-2'}>
+      rootClassName='select-none'
+      content={(
+        <div className='flex flex-col gap-2'>
+          <div className='flex items-center space-x-2'>
             <div>{t('im.folder')}</div>
             <Space.Compact>
               <Button
@@ -51,16 +54,16 @@ function More() {
             </Space.Compact>
           </div>
         </div>
-      }
+      )}
     >
-      <Tooltip title={upperFirst(t('im.action'))} arrow={false} placement={'bottom'}>
+      <Tooltip title={upperFirst(t('im.action'))} arrow={false} placement='bottom'>
         <Button
           type='text'
-          icon={
-            <div className={'flex items-center text-xl'}>
+          icon={(
+            <div className='flex items-center text-xl'>
               <IoIosMore />
             </div>
-          }
+          )}
         />
       </Tooltip>
     </Popover>

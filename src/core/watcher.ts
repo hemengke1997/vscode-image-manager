@@ -1,8 +1,10 @@
+import type { UpdatePayload } from '~/webview/image-manager/utils/tree/tree-manager'
+import type { ImageManagerPanel } from '~/webview/panel'
+import path from 'node:path'
 import { max } from 'es-toolkit/compat'
 import { type GlobbyFilterFunction, isGitIgnoredSync } from 'globby'
 import micromatch from 'micromatch'
 import { nanoid } from 'nanoid'
-import path from 'node:path'
 import {
   type ConfigurationChangeEvent,
   Disposable,
@@ -22,8 +24,6 @@ import { resolveDirPath } from '~/utils/node'
 import { Channel } from '~/utils/node/channel'
 import { imageGlob } from '~/utils/node/glob'
 import { UpdateEvent, UpdateOrigin, UpdateType } from '~/webview/image-manager/utils/tree/const'
-import { type UpdatePayload } from '~/webview/image-manager/utils/tree/tree-manager'
-import { type ImageManagerPanel } from '~/webview/panel'
 import { ConfigKey } from './config/common'
 import { Config } from './config/config'
 
@@ -79,7 +79,7 @@ export class Watcher {
     return !micromatch.all(this.fsPath(e), this.glob!.allImagePatterns)
   }
 
-  private eventQueue: { e: Uri; type: UpdateEvent; isDirectory: boolean }[] = []
+  private eventQueue: { e: Uri, type: UpdateEvent, isDirectory: boolean }[] = []
   private eventProcessingTimer: NodeJS.Timeout | null = null
   private abortController: AbortController | null = null
 
@@ -92,7 +92,7 @@ export class Watcher {
         await abortPromise(() => this.processEvents(uniqueEvents), {
           abortController: this.abortController!,
         })
-      ).filter((p) => !!p)
+      ).filter(p => !!p)
 
       this.imageManagerPanel.messageCenter.postMessage({
         cmd: CmdToWebview.update_images,
@@ -104,7 +104,8 @@ export class Watcher {
       })
 
       this.eventQueue = []
-    } catch (e) {
+    }
+    catch (e) {
       if (e instanceof AbortError) {
         logger.debug('Event processing aborted')
       }
@@ -147,7 +148,8 @@ export class Watcher {
               },
             },
           }
-        } else {
+        }
+        else {
           // 1. 如果有新增，则把新增图片查询出来，返回给webview
           // 2. 如果有修改，也需要查询修改后的图片
           // 3. 如果有删除，只需要返回删除的图片路径
@@ -198,7 +200,7 @@ export class Watcher {
   }
 
   private guessCwdFromPath(path: string) {
-    const weight = this.rootpaths.map((r) => r.split(path)[0].length)
+    const weight = this.rootpaths.map(r => r.split(path)[0].length)
     const index = weight.indexOf(max(weight)!)
     return this.rootpaths[index]
   }
@@ -216,7 +218,8 @@ export class Watcher {
   }
 
   private handleEvent(e: Uri, type: UpdateEvent) {
-    if (e.scheme !== 'file') return
+    if (e.scheme !== 'file')
+      return
 
     const isDirectory = !path.extname(this.fsPath(e))
 
@@ -252,9 +255,10 @@ export class Watcher {
   }
 
   private isGitIgnored(e: Uri) {
-    if (!Config.file_gitignore) return false
+    if (!Config.file_gitignore)
+      return false
 
-    const ignored = this.gitignores.some((fn) => fn(this.fsPath(e)))
+    const ignored = this.gitignores.some(fn => fn(this.fsPath(e)))
     if (ignored) {
       logger.debug(`git ignored: ${this.fsPath(e)}`)
     }
@@ -263,7 +267,7 @@ export class Watcher {
 
   private startWatch(rootpaths: string[]) {
     this.rootpaths = rootpaths
-    this.gitignores = rootpaths.map((r) => isGitIgnoredSync({ cwd: r })).filter((t) => !!t)
+    this.gitignores = rootpaths.map(r => isGitIgnoredSync({ cwd: r })).filter(t => !!t)
 
     Channel.info(i18n.t('prompt.watch_root', rootpaths.join(',')))
 
@@ -273,9 +277,9 @@ export class Watcher {
 
     this.watchers = [...watcher]
 
-    this.watchers?.forEach((w) => w.onDidChange(this.onDidChange, this))
-    this.watchers?.forEach((w) => w.onDidCreate(this.onDidCreate, this))
-    this.watchers?.forEach((w) => w.onDidDelete(this.onDidDelete, this))
+    this.watchers?.forEach(w => w.onDidChange(this.onDidChange, this))
+    this.watchers?.forEach(w => w.onDidCreate(this.onDidCreate, this))
+    this.watchers?.forEach(w => w.onDidDelete(this.onDidDelete, this))
   }
 
   public dispose() {

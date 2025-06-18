@@ -1,20 +1,21 @@
-import './index.css'
+import type lazyImage from '../../components/lazy-image'
 
+import type { ImperativeModalProps } from '~/webview/image-manager/hooks/use-imperative-antd-modal'
+import { Button, Descriptions, type DescriptionsProps, type GetProps, Tooltip } from 'antd'
+import dayjs from 'dayjs'
 import { memo, useMemo } from 'react'
 import { useTranslation } from 'react-i18next'
 import { HiOutlineViewfinderCircle } from 'react-icons/hi2'
-import { type ImperativeModalProps } from 'ahooks-x/use-imperative-antd-modal'
-import { Button, Descriptions, type DescriptionsProps, type GetProps, Tooltip } from 'antd'
-import dayjs from 'dayjs'
-import { classNames } from 'tw-clsx'
 import { CmdToVscode } from '~/message/cmd'
 import { Compressed } from '~/meta'
+import { classNames } from '~/webview/image-manager/utils/tw-clsx'
 import { vscodeApi } from '~/webview/vscode-api'
-import type lazyImage from '../../components/lazy-image'
 import { formatBytes } from '../../utils'
 import WithCopy from './components/with-copy'
 
-type Props = {
+import './index.css'
+
+interface Props {
   image: ImageType
   onPreview?: GetProps<typeof lazyImage>['onPreviewClick']
 }
@@ -42,20 +43,21 @@ function ImageDetails(props: Props & ImperativeModalProps) {
     {
       label: t('im.name'),
       children: (
-        <div className={'flex items-center justify-between gap-x-1'}>
-          <div className={'w-0 flex-1 truncate'}>
+        <div className='flex items-center justify-between gap-x-1'>
+          <div className='w-0 flex-1 truncate'>
             <WithCopy>{image.basename}</WithCopy>
           </div>
           {onPreview && (
-            <Tooltip title={t('im.preview')} arrow={false} placement={'bottom'}>
+            <Tooltip title={t('im.preview')} arrow={false} placement='bottom'>
               <Button
-                type={'text'}
-                icon={<HiOutlineViewfinderCircle className={'flex-none text-xl'} />}
+                type='text'
+                icon={<HiOutlineViewfinderCircle className='flex-none text-xl' />}
                 onClick={() => {
                   closeModal()
                   onPreview && onPreview(image)
                 }}
-              ></Button>
+              >
+              </Button>
             </Tooltip>
           )}
         </div>
@@ -86,28 +88,30 @@ function ImageDetails(props: Props & ImperativeModalProps) {
     {
       label: t('im.whether_compressed'),
       children: (
-        <div className={'flex items-center justify-between'}>
+        <div className='flex items-center justify-between'>
           <div>{compressedMap[compressed]}</div>
-          {image.extname === 'svg' ? (
-            <>
-              <Button
-                onClick={() => {
-                  vscodeApi.postMessage({
-                    cmd: CmdToVscode.open_file_in_text_editor,
-                    data: {
-                      filePath: image.path,
-                    },
-                  })
-                }}
-              >
-                {t('im.view_svg')}
-              </Button>
-            </>
-          ) : null}
+          {image.extname === 'svg'
+            ? (
+                <>
+                  <Button
+                    onClick={() => {
+                      vscodeApi.postMessage({
+                        cmd: CmdToVscode.open_file_in_text_editor,
+                        data: {
+                          filePath: image.path,
+                        },
+                      })
+                    }}
+                  >
+                    {t('im.view_svg')}
+                  </Button>
+                </>
+              )
+            : null}
         </div>
       ),
     },
-  ].filter((t) => !!t)
+  ].filter(t => !!t)
 
   return (
     <>

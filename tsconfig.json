@@ -1,12 +1,35 @@
 {
-  "extends": "@minko-fe/tsconfig/tsconfig.app",
   "compilerOptions": {
+    "target": "ESNext",
+    "jsx": "react-jsx",
+    "lib": ["DOM", "DOM.Iterable", "ESNext"],
+    "useDefineForClassFields": true,
     "baseUrl": ".",
+    "module": "ESNext",
+    "moduleResolution": "Bundler",
     "paths": {
       "~/*": ["./src/*"],
       "~root/*": ["./*"]
     },
-    "types": ["vite-config-preset/plugin"]
+    "resolveJsonModule": true,
+    "types": ["vite-config-preset/plugin"],
+    "strict": true,
+    "strictNullChecks": true,
+    "noImplicitAny": false,
+    "noImplicitReturns": false,
+    "noImplicitThis": false,
+    "noUnusedLocals": false,
+    "noUnusedParameters": false,
+    "declaration": false,
+    "noEmit": true,
+    "sourceMap": false,
+    "allowSyntheticDefaultImports": true,
+    "esModuleInterop": true,
+    "forceConsistentCasingInFileNames": true,
+    "isolatedModules": false,
+    "verbatimModuleSyntax": false,
+    "skipLibCheck": true,
+    "noStrictGenericChecks": false
   },
   "exclude": ["temp", "dist", "dist-webview", "node_modules"]
 }

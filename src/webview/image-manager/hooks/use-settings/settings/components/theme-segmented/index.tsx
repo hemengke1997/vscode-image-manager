@@ -1,12 +1,12 @@
+import { Segmented } from 'antd'
 import { memo } from 'react'
 import { useTranslation } from 'react-i18next'
 import { MdOutlineDarkMode, MdOutlineLightMode } from 'react-icons/md'
 import { VscColorMode } from 'react-icons/vsc'
-import { Segmented } from 'antd'
 import { Theme } from '~/meta'
 import styles from './index.module.css'
 
-type Props = {
+interface Props {
   value?: Theme
   onChange?: (theme: Theme) => void
 }
@@ -40,10 +40,10 @@ function ThemeSegmented(props: Props) {
 
   return (
     <Segmented
-      options={themes.map((t) => ({
+      options={themes.map(t => ({
         value: t.value,
         label: t.label,
-        icon: <span className={'inline-flex text-lg'}>{t.icon}</span>,
+        icon: <span className='inline-flex text-lg'>{t.icon}</span>,
       }))}
       value={value}
       className={styles.segmented}

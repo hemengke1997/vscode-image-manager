@@ -1,14 +1,14 @@
+import type { SortType } from '~/core/persist/workspace/common'
+import { useMemoizedFn } from 'ahooks'
+import { Cascader, ConfigProvider } from 'antd'
 import { memo, type PropsWithChildren, type ReactNode, startTransition } from 'react'
 import { useTranslation } from 'react-i18next'
 import { BsSortDown, BsSortUpAlt } from 'react-icons/bs'
 import { MdOutlineKeyboardDoubleArrowRight } from 'react-icons/md'
-import { useMemoizedFn } from 'ahooks'
-import { useControlledState } from 'ahooks-x'
-import { Cascader, ConfigProvider } from 'antd'
-import { type SortType } from '~/core/persist/workspace/common'
+import { useControlledState } from '~/webview/image-manager/hooks/use-controlled-state'
 
-type DisplaySortProps = {
-  options: { label: ReactNode; value: string }[]
+interface DisplaySortProps {
+  options: { label: ReactNode, value: string }[]
   value?: string[] | undefined
   onChange?: (value: string[]) => void
 }
@@ -44,7 +44,7 @@ function DisplaySort(props: DisplaySortProps) {
   }
 
   const sortOptions = useMemoizedFn(() => {
-    return Object.keys(sortMap).map((key) => ({
+    return Object.keys(sortMap).map(key => ({
       label: sortMap[key as SortType].label,
       value: key,
     }))
@@ -69,12 +69,12 @@ function DisplaySort(props: DisplaySortProps) {
           onChange={(value) => {
             startTransition(() => setSort(value as string[]))
           }}
-          options={options.map((item) => ({ ...item, children: sortOptions() }))}
+          options={options.map(item => ({ ...item, children: sortOptions() }))}
           displayRender={(label) => {
             return (
-              <div className={'flex items-center'}>
+              <div className='flex items-center'>
                 <div>{label[0]}</div>
-                <div className={'mx-1 flex items-baseline'}>
+                <div className='mx-1 flex items-baseline'>
                   <MdOutlineKeyboardDoubleArrowRight />
                 </div>
                 {label[1]}
@@ -82,8 +82,9 @@ function DisplaySort(props: DisplaySortProps) {
             )
           }}
           allowClear={false}
-          size={'middle'}
-        ></Cascader>
+          size='middle'
+        >
+        </Cascader>
       </ConfigProvider>
     </>
   )
@@ -92,5 +93,5 @@ function DisplaySort(props: DisplaySortProps) {
 export default memo(DisplaySort) as typeof DisplaySort
 
 function SortLabelUI(props: PropsWithChildren) {
-  return <div className={'flex items-center space-x-2'}>{props.children}</div>
+  return <div className='flex items-center space-x-2'>{props.children}</div>
 }

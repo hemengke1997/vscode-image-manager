@@ -1,16 +1,16 @@
-import { type ReactNode } from 'react'
+import type { ReactNode } from 'react'
+import type { OperatorMode } from '../use-operation-form-logic'
+import type { Group, Groups } from '../use-operation-result/operation-result'
+import type { OperatorResult } from '~/core/operator/operator'
+import { useMemoizedFn } from 'ahooks'
+import { Badge, type BadgeProps, Tag, theme } from 'antd'
+import { gt } from 'es-toolkit/compat'
 import { useTranslation } from 'react-i18next'
 import { GoSkip } from 'react-icons/go'
 import { MdErrorOutline } from 'react-icons/md'
 import { TbFileUnknown } from 'react-icons/tb'
 import { VscSmiley, VscWarning } from 'react-icons/vsc'
-import { useMemoizedFn } from 'ahooks'
-import { Badge, type BadgeProps, Tag, theme } from 'antd'
-import { gt } from 'es-toolkit/compat'
-import { type OperatorResult } from '~/core/operator/operator'
 import { formatBytes } from '../../../utils'
-import { type OperatorMode } from '../use-operation-form-logic'
-import { type Group, type Groups } from '../use-operation-result/operation-result'
 import ErrorRange from './components/error-range'
 
 export function useOperatorModalLogic() {
@@ -40,19 +40,20 @@ export function useOperatorModalLogic() {
 
         if (isSkiped) {
           groups.skiped.push(result)
-          return
-        } else if (isLimited) {
+        }
+        else if (isLimited) {
           groups.limited.push(result)
-
-          return
-        } else if (inputSize && outputSize) {
+        }
+        else if (inputSize && outputSize) {
           const increase = gt(outputSize, inputSize + errorRangeByte)
           if (increase) {
             groups.increase.push(result)
-          } else {
+          }
+          else {
             groups.decrease.push(result)
           }
-        } else if (error) {
+        }
+        else if (error) {
           groups.error.push(result)
         }
       })
@@ -105,7 +106,7 @@ export function useOperatorModalLogic() {
         decrease: {
           content: (
             <div className={contentClassName}>
-              <VscSmiley className={'text-ant-color-success'} />
+              <VscSmiley className='text-ant-color-success' />
               <span>{t('im.process_success')}</span>
 
               {errorRange?.visible && (
@@ -120,13 +121,17 @@ export function useOperatorModalLogic() {
         increase: {
           content: (
             <div className={contentClassName}>
-              <VscWarning className={'text-ant-color-warning'} />
+              <VscWarning className='text-ant-color-warning' />
               <span>{t('im.size_increase')}</span>
-              {errorRange?.visible && errorRange.value > 0 ? (
-                <Tag className={'ml-1'} color={'warning'}>
-                  {t('im.outof_error_range')} {formatBytes(errorRange.value * 1024)}
-                </Tag>
-              ) : null}
+              {errorRange?.visible && errorRange.value > 0
+                ? (
+                    <Tag className='ml-1' color='warning'>
+                      {t('im.outof_error_range')}
+                      {' '}
+                      {formatBytes(errorRange.value * 1024)}
+                    </Tag>
+                  )
+                : null}
               <Badge {...badgeProps} count={increased.length}></Badge>
             </div>
           ),
@@ -135,7 +140,7 @@ export function useOperatorModalLogic() {
         error: {
           content: (
             <div className={contentClassName}>
-              <MdErrorOutline className={'text-ant-color-error'} />
+              <MdErrorOutline className='text-ant-color-error' />
               <span>{t('im.process_fail')}</span>
               <Badge {...badgeProps} count={errors.length}></Badge>
             </div>
@@ -145,7 +150,7 @@ export function useOperatorModalLogic() {
         skiped: {
           content: (
             <div className={contentClassName}>
-              <GoSkip className={'text-ant-color-text'} />
+              <GoSkip className='text-ant-color-text' />
               <span>{skipTip[operationMode]}</span>
               <Badge {...badgeProps} count={skiped.length}></Badge>
             </div>
@@ -155,7 +160,7 @@ export function useOperatorModalLogic() {
         limited: {
           content: (
             <div className={contentClassName}>
-              <TbFileUnknown className={'text-ant-color-warning'} />
+              <TbFileUnknown className='text-ant-color-warning' />
               <span>{t('im.image_type_limit')}</span>
               <Badge {...badgeProps} count={limited.length}></Badge>
             </div>

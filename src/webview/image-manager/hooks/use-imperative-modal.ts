@@ -1,5 +1,5 @@
-import { useImperativeAntdModal } from 'ahooks-x/use-imperative-antd-modal'
-import { type ModalFuncProps } from 'antd'
+import type { ModalFuncProps } from 'antd'
+import { useImperativeAntdModal } from '~/webview/image-manager/hooks/use-imperative-antd-modal'
 
 const Modal_Instance_Props: ModalFuncProps = {
   icon: null,

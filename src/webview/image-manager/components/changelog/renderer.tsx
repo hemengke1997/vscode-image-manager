@@ -1,11 +1,11 @@
-import { memo, useRef, useState } from 'react'
 import { useAsyncEffect } from 'ahooks'
-import { useControlledState } from 'ahooks-x'
 import { Modal, Skeleton } from 'antd'
 import MarkdownIt from 'markdown-it'
+import { memo, useRef, useState } from 'react'
 import { markdown } from '~root/CHANGELOG.md'
+import { useControlledState } from '~/webview/image-manager/hooks/use-controlled-state'
 
-type Props = {
+interface Props {
   open: boolean
   onOpenChange: (open: boolean) => void
 }
@@ -35,18 +35,20 @@ function ChangeLogRenderer(props: Props) {
       }}
       keyboard
       destroyOnHidden
-      width={'70%'}
+      width='70%'
       centered
       footer={null}
     >
-      {loading ? (
-        <Skeleton active paragraph={{ rows: 6 }} />
-      ) : (
-        <div
-          className={'max-h-[60vh] overflow-auto'}
-          dangerouslySetInnerHTML={{ __html: md.current?.render(markdown) || '' }}
-        />
-      )}
+      {loading
+        ? (
+            <Skeleton active paragraph={{ rows: 6 }} />
+          )
+        : (
+            <div
+              className='max-h-[60vh] overflow-auto'
+              dangerouslySetInnerHTML={{ __html: md.current?.render(markdown) || '' }}
+            />
+          )}
     </Modal>
   )
 }

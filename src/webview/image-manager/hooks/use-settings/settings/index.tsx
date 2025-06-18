@@ -1,20 +1,31 @@
+import type { ImperativeModalProps } from '~/webview/image-manager/hooks/use-imperative-antd-modal'
+import { useMemoizedFn, useTrackedEffect } from 'ahooks'
+import { App, Button, Divider, Form, Space, Tabs, type TabsProps, Typography } from 'antd'
+import { isEqual, isNil } from 'es-toolkit'
+import { some } from 'es-toolkit/compat'
+import { useAtomValue } from 'jotai'
 import { memo, useEffect, useRef, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { GoLog } from 'react-icons/go'
 import { MdBrowserUpdated } from 'react-icons/md'
-import { useMemoizedFn, useTrackedEffect } from 'ahooks'
-import { type ImperativeModalProps } from 'ahooks-x/use-imperative-antd-modal'
-import { App, Button, Divider, Form, Space, Tabs, type TabsProps, Typography } from 'antd'
-import { isEqual, isNil } from 'es-toolkit'
-import { some } from 'es-toolkit/compat'
 import { author, version } from '~root/package.json'
 import { WorkspaceStateKey } from '~/core/persist/workspace/common'
 import AlignColumn, { useColumnWidth } from '~/webview/image-manager/components/align-column'
 import AppearMotion from '~/webview/image-manager/components/align-column/components/appear-motion'
 import { useWorkspaceState } from '~/webview/image-manager/hooks/use-workspace-state'
+import { GlobalAtoms } from '~/webview/image-manager/stores/global/global-store'
+import {
+  useDisplayGroup,
+  useDisplayStyle,
+  useHoverShowImageDetail,
+  useImageBackgroundColor,
+  useLanguage,
+  useOriginTheme,
+  usePrimaryColor,
+  useSort,
+} from '~/webview/image-manager/stores/settings/hooks'
+import { VscodeAtoms } from '~/webview/image-manager/stores/vscode/vscode-store'
 import { Colors } from '~/webview/image-manager/utils/color'
-import GlobalStore from '../../../stores/global-store'
-import SettingsStore from '../../../stores/settings-store'
 import useChangelog from '../../use-changelog/use-changelog'
 import DisplayGroup from './components/display-group'
 import DisplaySort from './components/display-sort'
@@ -44,43 +55,18 @@ function Settings(props: ImperativeModalProps) {
 
   const { t, i18n } = useTranslation()
 
-  const { workspaceState, extLastetInfo } = GlobalStore.useStore(['workspaceState', 'extLastetInfo'])
+  const workspaceState = useAtomValue(VscodeAtoms.workspaceStateAtom)
+  const extLastetInfo = useAtomValue(GlobalAtoms.extLatestInfoAtom)
 
-  const {
-    primaryColor,
-    originTheme,
-    setPrimaryColor,
-    setTheme,
-    setLanguage,
-    language,
-    displayGroup,
-    setDisplayGroup,
-    displayStyle,
-    setDisplayStyle,
-    sort,
-    setSort,
-    backgroundColor,
-    setBackgroundColor,
-    hoverShowImageDetail,
-    setHoverShowImageDetail,
-  } = SettingsStore.useStore([
-    'primaryColor',
-    'originTheme',
-    'setPrimaryColor',
-    'setTheme',
-    'setLanguage',
-    'language',
-    'displayGroup',
-    'setDisplayGroup',
-    'displayStyle',
-    'setDisplayStyle',
-    'sort',
-    'setSort',
-    'backgroundColor',
-    'setBackgroundColor',
-    'hoverShowImageDetail',
-    'setHoverShowImageDetail',
-  ])
+  const [primaryColor, setPrimaryColor] = usePrimaryColor()
+  const [originTheme] = useOriginTheme()
+  const [, setTheme] = useOriginTheme()
+  const [language, setLanguage] = useLanguage()
+  const [displayGroup, setDisplayGroup] = useDisplayGroup()
+  const [displayStyle, setDisplayStyle] = useDisplayStyle()
+  const [sort, setSort] = useSort()
+  const [backgroundColor, setBackgroundColor] = useImageBackgroundColor()
+  const [hoverShowImageDetail, setHoverShowImageDetail] = useHoverShowImageDetail()
 
   // 最近使用的主色
   const [recentPrimaryColors, setRecentPrimaryColors] = useWorkspaceState(
@@ -122,7 +108,7 @@ function Settings(props: ImperativeModalProps) {
       label: t('im.group'),
       children: (
         <Form.Item noStyle={true} name={SettingsKey.displayGroup}>
-          <DisplayGroup></DisplayGroup>
+          <DisplayGroup />
         </Form.Item>
       ),
     },
@@ -197,7 +183,7 @@ function Settings(props: ImperativeModalProps) {
             ref={primaryColorRef}
             recentColors={recentPrimaryColors}
             onRecentColorsChange={setRecentPrimaryColors}
-          ></PrimaryColorPicker>
+          />
         </Form.Item>
       ),
     },
@@ -213,7 +199,7 @@ function Settings(props: ImperativeModalProps) {
           {extLastetInfo?.version && extLastetInfo.version !== version && (
             <Button
               icon={<MdBrowserUpdated />}
-              href={'https://marketplace.visualstudio.com/items?itemName=minko.image-manager'}
+              href='https://marketplace.visualstudio.com/items?itemName=minko.image-manager'
             >
               {t('im.upgrade')}
             </Button>
@@ -224,12 +210,12 @@ function Settings(props: ImperativeModalProps) {
     {
       key: 'github',
       label: t('im.source_code'),
-      children: <Typography.Link href={'https://github.com/hemengke1997/vscode-image-manager'}>Github</Typography.Link>,
+      children: <Typography.Link href='https://github.com/hemengke1997/vscode-image-manager'>Github</Typography.Link>,
     },
     {
       key: 'author',
       label: t('im.author'),
-      children: <Typography.Link href={'https://github.com/hemengke1997'}>{author}</Typography.Link>,
+      children: <Typography.Link href='https://github.com/hemengke1997'>{author}</Typography.Link>,
     },
     {
       key: 'changelog',
@@ -283,6 +269,8 @@ function Settings(props: ImperativeModalProps) {
     },
   }
 
+  const [form] = Form.useForm()
+
   useTrackedEffect(
     (changes) => {
       changes?.forEach((index) => {
@@ -292,7 +280,7 @@ function Settings(props: ImperativeModalProps) {
         })
       })
     },
-    [...Object.values(formStrategy).map((t) => t.value)],
+    [...Object.values(formStrategy).map(t => t.value)],
   )
 
   const resolveInitialValues = useMemoizedFn(() => {
@@ -317,7 +305,7 @@ function Settings(props: ImperativeModalProps) {
       label: t('im.viewer'),
       children: (
         <AppearMotion>
-          {viewerItems.map((item) => (
+          {viewerItems.map(item => (
             <AlignColumn
               key={item.key}
               id={item.key}
@@ -335,7 +323,7 @@ function Settings(props: ImperativeModalProps) {
       label: t('im.general'),
       children: (
         <AppearMotion>
-          {generalItems.map((item) => (
+          {generalItems.map(item => (
             <AlignColumn
               key={item.key}
               id={item.key}
@@ -354,7 +342,7 @@ function Settings(props: ImperativeModalProps) {
       form: false,
       children: (
         <AppearMotion>
-          {aboutItems.map((item) => (
+          {aboutItems.map(item => (
             <AlignColumn
               key={item.key}
               id={item.key}
@@ -371,8 +359,11 @@ function Settings(props: ImperativeModalProps) {
 
   const shouldShowMessage = useRef(false)
 
-  const [form] = Form.useForm()
   const { message } = App.useApp()
+  const onModifySuccess = useMemoizedFn(() => {
+    message.success(t('im.modify_success'))
+  })
+
   const onFinish = useMemoizedFn((values) => {
     closeModal()
     const changed: {
@@ -390,11 +381,12 @@ function Settings(props: ImperativeModalProps) {
         }
       }
     }
-    if (some(changed, (t) => !!t)) {
+    if (some(changed, t => !!t)) {
       if (changed[SettingsKey.language]) {
         // 在语言变化后在提示修改成功
         shouldShowMessage.current = true
-      } else {
+      }
+      else {
         // 直接提示
         onModifySuccess()
       }
@@ -415,28 +407,26 @@ function Settings(props: ImperativeModalProps) {
     }
   }, [i18n])
 
-  const onModifySuccess = useMemoizedFn(() => {
-    message.success(t('im.modify_success'))
-  })
-
   const [activeKey, setActiveKey] = useState<string>()
 
   return (
-    <div className={'select-none'}>
+    <div className='select-none'>
       <Form form={form} onFinish={onFinish} initialValues={resolveInitialValues()}>
         <Tabs items={tabsItems} className={styles.tabs} activeKey={activeKey} onChange={setActiveKey}></Tabs>
       </Form>
 
-      {tabsItems.find((t) => t.key === activeKey)?.form === false ? null : (
-        <>
-          <Divider className={'!my-4'} />
-          <div className={'flex justify-end'}>
-            <Button type={'primary'} onClick={form.submit}>
-              {t('im.confirm')}
-            </Button>
-          </div>
-        </>
-      )}
+      {tabsItems.find(t => t.key === activeKey)?.form === false
+        ? null
+        : (
+            <>
+              <Divider className='!my-4' />
+              <div className='flex justify-end'>
+                <Button type='primary' onClick={form.submit}>
+                  {t('im.confirm')}
+                </Button>
+              </div>
+            </>
+          )}
     </div>
   )
 }

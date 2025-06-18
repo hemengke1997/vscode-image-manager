@@ -1,13 +1,13 @@
-import { type ForwardedRef, forwardRef, memo, type ReactNode, useEffect, useImperativeHandle, useMemo } from 'react'
-import { useTranslation } from 'react-i18next'
 import { TinyColor } from '@ctrl/tinycolor'
 import { useMemoizedFn } from 'ahooks'
-import { useControlledState } from 'ahooks-x'
 import { ColorPicker, type ColorPickerProps } from 'antd'
 import { uniq } from 'es-toolkit'
+import { type ForwardedRef, forwardRef, memo, type ReactNode, useEffect, useImperativeHandle, useMemo } from 'react'
+import { useTranslation } from 'react-i18next'
+import { useControlledState } from '~/webview/image-manager/hooks/use-controlled-state'
 import { builtInColors, vscodeColors } from '~/webview/image-manager/utils/theme'
 
-type Props = {
+interface Props {
   value?: string
   onChange?: (color: string) => void
   extraColors?: string[]
@@ -17,7 +17,7 @@ type Props = {
   colorPickerProps?: ColorPickerProps
 }
 
-export type PrimaryColorPickerRef = {
+export interface PrimaryColorPickerRef {
   updateRecentColors: (color: string) => void
 }
 
@@ -40,7 +40,8 @@ function PrimaryColorPicker(props: Props, ref: ForwardedRef<PrimaryColorPickerRe
   }, [recentColorsQueue])
 
   const updateRecentColors = useMemoizedFn((color: string) => {
-    if (color === recentColorsQueue?.[0]) return
+    if (color === recentColorsQueue?.[0])
+      return
     let newRecentColorsQueue = [...(recentColorsQueue || [])]
     newRecentColorsQueue.unshift(color)
     newRecentColorsQueue = uniq(newRecentColorsQueue)
@@ -56,7 +57,7 @@ function PrimaryColorPicker(props: Props, ref: ForwardedRef<PrimaryColorPickerRe
     updateRecentColors,
   }))
 
-  const formattedExtraColors = useMemo(() => extraColors?.map((t) => new TinyColor(t).toHexString()), [extraColors])
+  const formattedExtraColors = useMemo(() => extraColors?.map(t => new TinyColor(t).toHexString()), [extraColors])
 
   const [selectedColor, setSelectedColor] = useControlledState({
     defaultValue: color,
@@ -78,7 +79,7 @@ function PrimaryColorPicker(props: Props, ref: ForwardedRef<PrimaryColorPickerRe
         },
         {
           label: t('im.bulit_in'),
-          colors: uniq([...(formattedExtraColors || []), ...builtInColors.map((t) => t.primary)]),
+          colors: uniq([...(formattedExtraColors || []), ...builtInColors.map(t => t.primary)]),
         },
         {
           label: t('im.recent'),
@@ -90,7 +91,8 @@ function PrimaryColorPicker(props: Props, ref: ForwardedRef<PrimaryColorPickerRe
       placement='right'
       showText={true}
       {...colorPickerProps}
-    ></ColorPicker>
+    >
+    </ColorPicker>
   )
 }
 

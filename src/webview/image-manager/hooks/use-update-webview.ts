@@ -1,7 +1,8 @@
 import { useMemoizedFn } from 'ahooks'
+import { useSetAtom } from 'jotai'
 import { CmdToVscode } from '~/message/cmd'
 import { vscodeApi } from '../../vscode-api'
-import VscodeStore from '../stores/vscode-store'
+import { VscodeAtoms } from '../stores/vscode/vscode-store'
 
 /**
  * 手动更新webview从vscode中获取的配置
@@ -12,11 +13,9 @@ import VscodeStore from '../stores/vscode-store'
  * 3. workspace state
  */
 export default function useUpdateWebview() {
-  const { setExtConfig, setVscodeConfig, setWorkspaceState } = VscodeStore.useStore([
-    'setExtConfig',
-    'setVscodeConfig',
-    'setWorkspaceState',
-  ])
+  const setExtConfig = useSetAtom(VscodeAtoms.extConfigAtom)
+  const setVscodeConfig = useSetAtom(VscodeAtoms.vscodeConfigAtom)
+  const setWorkspaceState = useSetAtom(VscodeAtoms.workspaceStateAtom)
 
   const updateConfig = useMemoizedFn(() => {
     vscodeApi.postMessage({ cmd: CmdToVscode.get_extension_config }, (data) => {

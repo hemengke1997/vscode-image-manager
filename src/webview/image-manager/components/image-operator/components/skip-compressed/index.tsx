@@ -1,12 +1,12 @@
+import { Form, Segmented } from 'antd'
 import { memo } from 'react'
 import { useTranslation } from 'react-i18next'
-import { Form, Segmented } from 'antd'
 
 function SkipCompressed() {
   const { t } = useTranslation()
 
   return (
-    <Form.Item label={t('im.skip_compressed')} name={'skipCompressed'} className={'center'}>
+    <Form.Item label={t('im.skip_compressed')} name='skipCompressed' className='center'>
       <Segmented
         options={[
           {

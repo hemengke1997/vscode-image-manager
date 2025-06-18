@@ -1,9 +1,9 @@
+import type { ExtensionModule } from '~/module'
 import { commands } from 'vscode'
-import { type ExtensionModule } from '~/module'
 import { Channel } from '~/utils/node/channel'
 import { Commands } from '.'
 
-export default <ExtensionModule>function () {
+export default <ExtensionModule> function () {
   async function showChannel() {
     Channel.show()
   }

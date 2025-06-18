@@ -1,8 +1,8 @@
 // Source from react-cropper
 // Support hmr for better DX
 
-import React, { memo, useEffect, useRef } from 'react'
 import Cropper from 'cropperjs'
+import React, { memo, useEffect, useRef } from 'react'
 import { cleanImageProps } from './utils'
 
 const REQUIRED_IMAGE_STYLES = { opacity: 0, maxWidth: '100%' }
@@ -11,10 +11,10 @@ interface ReactCropperElement extends HTMLImageElement {
   cropper: Cropper
 }
 
-type ReactCropperRef =
-  | ((instance: HTMLImageElement | ReactCropperElement | null) => void)
-  | React.MutableRefObject<HTMLImageElement | ReactCropperElement | null>
-  | null
+type ReactCropperRef
+  = | ((instance: HTMLImageElement | ReactCropperElement | null) => void)
+    | React.MutableRefObject<HTMLImageElement | ReactCropperElement | null>
+    | null
 
 interface ReactCropperDefaultOptions {
   scaleX?: number
@@ -26,15 +26,15 @@ interface ReactCropperDefaultOptions {
 
 interface ReactCropperProps
   extends ReactCropperDefaultOptions,
-    Cropper.Options<HTMLImageElement>,
-    Omit<React.HTMLProps<HTMLImageElement>, 'data' | 'ref' | 'crossOrigin'> {
+  Cropper.Options<HTMLImageElement>,
+  Omit<React.HTMLProps<HTMLImageElement>, 'data' | 'ref' | 'crossOrigin'> {
   crossOrigin?: '' | 'anonymous' | 'use-credentials' | undefined
   on?: (eventName: string, callback: () => void | Promise<void>) => void | Promise<void>
   onInitialized?: (instance: Cropper) => void | Promise<void>
   forceRender?: number | string
 }
 
-const applyDefaultOptions = (cropper: Cropper, options: ReactCropperDefaultOptions = {}): void => {
+function applyDefaultOptions(cropper: Cropper, options: ReactCropperDefaultOptions = {}): void {
   const { enable = true, scaleX = 1, scaleY = 1, zoomTo = 0, rotateTo } = options
   enable ? cropper.enable() : cropper.disable()
   cropper.scaleX(scaleX)
@@ -46,16 +46,18 @@ const applyDefaultOptions = (cropper: Cropper, options: ReactCropperDefaultOptio
 /**
  * sourced from: https://itnext.io/reusing-the-ref-from-forwardref-with-react-hooks-4ce9df693dd
  */
-const useCombinedRefs = (...refs: ReactCropperRef[]): React.RefObject<ReactCropperElement> => {
+function useCombinedRefs(...refs: ReactCropperRef[]): React.RefObject<ReactCropperElement> {
   const targetRef = useRef<ReactCropperElement>(null)
 
   React.useEffect(() => {
     refs.forEach((ref) => {
-      if (!ref) return
+      if (!ref)
+        return
 
       if (typeof ref === 'function') {
         ref(targetRef.current)
-      } else {
+      }
+      else {
         ref.current = targetRef.current
       }
     })

@@ -1,10 +1,10 @@
-import { type ShowContextMenuParams, useContextMenu } from 'react-contexify'
-import { useMemoizedFn } from 'ahooks'
-import { type GetProps } from 'antd'
+import type { GetProps } from 'antd'
 import type lazyImage from '~/webview/image-manager/components/lazy-image'
+import { useMemoizedFn } from 'ahooks'
+import { type ShowContextMenuParams, useContextMenu } from 'react-contexify'
 import { type EnableImageContextMenuType, IMAGE_CONTEXT_MENU_ID } from '..'
 
-export type ImageContextMenuType = {
+export interface ImageContextMenuType {
   /**
    * 右键选择的图片
    */

@@ -1,10 +1,10 @@
-import './hmr'
+import i18next from 'i18next'
 
+import { Provider } from 'jotai'
 import { startTransition, Suspense } from 'react'
 import ReactDOM from 'react-dom/client'
 import { ErrorBoundary } from 'react-error-boundary'
 import { initReactI18next } from 'react-i18next'
-import i18next from 'i18next'
 import { I18nAllyClient } from 'vite-plugin-i18n-ally/client'
 import { CmdToVscode } from '~/message/cmd'
 import { FALLBACK_LANGUAGE } from '~/meta'
@@ -14,14 +14,9 @@ import { vscodeApi } from '~/webview/vscode-api'
 import ImageManager from '.'
 import AntdConfigProvider from './components/antd-config-provider'
 import Fallback from './components/fallback'
-import ActionStore from './stores/action-store'
-import FileStore from './stores/file-store'
-import FilterStore from './stores/filter-store'
-import GlobalStore from './stores/global-store'
-import ImageStore from './stores/image-store'
-import SettingsStore from './stores/settings-store'
-import VscodeStore from './stores/vscode-store'
+import { VscodeAtomsHydrator } from './stores/vscode/vscode-store'
 import './styles/index.css'
+import './hmr'
 
 let key = 0
 
@@ -80,11 +75,13 @@ function registerApp(children: JSX.Element, reload = false) {
 
           startTransition(() => {
             reactRoot().render(
-              <div onContextMenu={(e) => e.preventDefault()} key={key}>
-                <VscodeStore.Provider extConfig={ext} vscodeConfig={vscode} workspaceState={workspaceState}>
-                  {children}
-                </VscodeStore.Provider>
-              </div>,
+              <Provider>
+                <div onContextMenu={e => e.preventDefault()} key={key}>
+                  <VscodeAtomsHydrator extConfig={ext} vscodeConfig={vscode} workspaceState={workspaceState}>
+                    {children}
+                  </VscodeAtomsHydrator>
+                </div>
+              </Provider>,
             )
           })
         },
@@ -109,26 +106,14 @@ function registerApp(children: JSX.Element, reload = false) {
 
 function mount(reload?: boolean) {
   registerApp(
-    <GlobalStore.Provider>
-      <ImageStore.Provider>
-        <SettingsStore.Provider>
-          <FilterStore.Provider>
-            <ActionStore.Provider>
-              <FileStore.Provider>
-                <AntdConfigProvider>
-                  {/* Fallback依赖了antd provider */}
-                  <ErrorBoundary FallbackComponent={Fallback}>
-                    <Suspense fallback={<div />}>
-                      <ImageManager />
-                    </Suspense>
-                  </ErrorBoundary>
-                </AntdConfigProvider>
-              </FileStore.Provider>
-            </ActionStore.Provider>
-          </FilterStore.Provider>
-        </SettingsStore.Provider>
-      </ImageStore.Provider>
-    </GlobalStore.Provider>,
+    <AntdConfigProvider>
+      {/* Fallback依赖了antd provider */}
+      <ErrorBoundary FallbackComponent={Fallback}>
+        <Suspense fallback={<div />}>
+          <ImageManager />
+        </Suspense>
+      </ErrorBoundary>
+    </AntdConfigProvider>,
     reload,
   )
 }

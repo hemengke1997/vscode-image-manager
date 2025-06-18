@@ -1,27 +1,26 @@
-import './index.css'
-
-import { memo, type ReactNode, useCallback, useEffect, useMemo, useRef, useState } from 'react'
-import { Element, scroller } from 'react-scroll'
-import { styleObjectToString } from '@minko-fe/style-object-to-string'
+import type { EnableCollapseContextMenuType } from '../../../context-menus/components/collapse-context-menu'
+import type imageName from '../../../image-name'
 import { useMemoizedFn, useUpdateEffect } from 'ahooks'
-import { useControlledState } from 'ahooks-x'
 import { Collapse, type CollapseProps, type GetProps } from 'antd'
 import { isUndefined } from 'es-toolkit'
 import { produce } from 'immer'
-import { classNames } from 'tw-clsx'
-import type imageName from '../../../image-name'
+import { useAtom, useAtomValue } from 'jotai'
+import { memo, type ReactNode, useCallback, useEffect, useMemo, useRef, useState } from 'react'
+import { Element, scroller } from 'react-scroll'
+import { useControlledState } from '~/webview/image-manager/hooks/use-controlled-state'
+import { ActionAtoms } from '~/webview/image-manager/stores/action/action-store'
+import { CopyType, FileAtoms } from '~/webview/image-manager/stores/file/file-store'
+import { GlobalAtoms } from '~/webview/image-manager/stores/global/global-store'
+import { clearTimestamp } from '~/webview/image-manager/utils'
+import { classNames } from '~/webview/image-manager/utils/tw-clsx'
 import useImageManagerEvent, { IMEvent } from '../../../../hooks/use-image-manager-event'
 import useSticky from '../../../../hooks/use-sticky'
-import ActionStore from '../../../../stores/action-store'
-import FileStore, { CopyType } from '../../../../stores/file-store'
-import GlobalStore from '../../../../stores/global-store'
-import { clearTimestamp } from '../../../../utils'
-import { type EnableCollapseContextMenuType } from '../../../context-menus/components/collapse-context-menu'
 import useCollapseContextMenu from '../../../context-menus/components/collapse-context-menu/hooks/use-collapse-context-menu'
 import ImageGroup from '../../../image-group'
 import SingleLabel from './components/single-label'
+import './index.css'
 
-type ImageCollapseProps = {
+interface ImageCollapseProps {
   workspaceFolder: string
   /**
    * 透传给 antd collapse 的 props
@@ -93,21 +92,33 @@ function ImageCollapse(props: ImageCollapseProps) {
     tooltipDisplayFullPath,
   } = props
 
-  const { activeCollapseIdSet, setActiveCollapseIdSet } = ActionStore.useStore([
-    'activeCollapseIdSet',
-    'setActiveCollapseIdSet',
-  ])
+  const [activeCollapseIdSet, setActiveCollapseIdSet] = useAtom(ActionAtoms.activeCollapseIdSet)
 
-  const { imageReveal, viewerHeaderStickyHeight, dirReveal, setDirReveal, workspaceImages } = GlobalStore.useStore([
-    'imageReveal',
-    'viewerHeaderStickyHeight',
-    'dirReveal',
-    'setDirReveal',
-    'workspaceImages',
-  ])
+  const onOpenChange = useMemoizedFn((open: boolean) => {
+    setActiveCollapseIdSet(
+      produce((draft) => {
+        if (open) {
+          draft.add(id)
+        }
+        else {
+          draft.delete(id)
+        }
+      }),
+    )
+  })
+
+  const [open, setOpen] = useControlledState<boolean>({
+    value: forceOpen || activeCollapseIdSet.has(id),
+    onChange: onOpenChange,
+  })
+
+  const imageReveal = useAtomValue(GlobalAtoms.imageRevealAtom)
+  const viewerHeaderStickyHeight = useAtomValue(GlobalAtoms.viewerHeaderStickyHeightAtom)
+  const [dirReveal, setDirReveal] = useAtom(GlobalAtoms.dirRevealAtom)
+  const workspaceImages = useAtomValue(GlobalAtoms.workspaceImagesAtom)
 
   const sameWorkspaceImages = useMemo(() => {
-    return workspaceImages.find((item) => item.workspaceFolder === workspaceFolder)?.images
+    return workspaceImages.find(item => item.workspaceFolder === workspaceFolder)?.images
   }, [workspaceImages])
 
   const stickyRef = useRef<HTMLDivElement>(null)
@@ -133,7 +144,8 @@ function ImageCollapse(props: ImageCollapseProps) {
   }, [stickyRef])
 
   const onCollapseChange = useMemoizedFn((keys: string[]) => {
-    if (!collapsible) return
+    if (!collapsible)
+      return
 
     setOpen(!!keys.length)
     if (!keys.length) {
@@ -155,26 +167,9 @@ function ImageCollapse(props: ImageCollapseProps) {
   const basePath = useMemo(() => id.slice(0, id.lastIndexOf(label)), [id, label])
   const labels = useMemo(() => label.split('/').filter(Boolean), [label])
 
-  const onOpenChange = useMemoizedFn((open: boolean) => {
-    setActiveCollapseIdSet(
-      produce((draft) => {
-        if (open) {
-          draft.value.add(id)
-        } else {
-          draft.value.delete(id)
-        }
-      }),
-    )
-  })
-
-  const [open, setOpen] = useControlledState<boolean>({
-    value: forceOpen || activeCollapseIdSet.value.has(id),
-    onChange: onOpenChange,
-  })
-
   const onActive = useMemoizedFn((imagePaths: string[]) => {
     // 判断当前collapse是否active
-    if (imagePaths.length && subfolderImages?.find((image) => imagePaths.includes(image.path))) {
+    if (imagePaths.length && subfolderImages?.find(image => imagePaths.includes(image.path))) {
       setOpen(true)
     }
   })
@@ -213,12 +208,14 @@ function ImageCollapse(props: ImageCollapseProps) {
   })
 
   const getCurrentPath = useMemoizedFn((index: number | undefined) => {
-    if (isUndefined(index)) return basePath
+    if (isUndefined(index))
+      return basePath
     return basePath + labels.slice(0, index + 1).join('/')
   })
 
   const onContextMenu = useMemoizedFn((e: React.MouseEvent<HTMLDivElement>, index: number) => {
-    if (!contextMenu) return
+    if (!contextMenu)
+      return
 
     const path = getCurrentPath(index) || ''
 
@@ -226,7 +223,7 @@ function ImageCollapse(props: ImageCollapseProps) {
       event: e,
       props: {
         path,
-        images: [images, folderImages].find((arr) => arr?.length) || [],
+        images: [images, folderImages].find(arr => arr?.length) || [],
         subfolderImages: subfolderImages || [],
         enableContextMenu: contextMenu(path),
         onPaste: hideAll,
@@ -235,20 +232,21 @@ function ImageCollapse(props: ImageCollapseProps) {
   })
 
   const onClick = useMemoizedFn(() => {
-    if (!collapsible) return
-    setOpen((t) => !t)
+    if (!collapsible)
+      return
+    setOpen(t => !t)
   })
 
   const generateLabel = useMemoizedFn((labels: string[]) => {
     if (labels.length > 1) {
       return (
-        <div className={'flex w-full items-center'}>
+        <div className='flex w-full items-center'>
           {labels.map((item, i) => (
             <div key={i} className={classNames('flex items-center', i === labels.length - 1 && 'flex-1')}>
               <SingleLabel
                 index={i}
                 contextMenu={contextMenu?.(getCurrentPath(i))}
-                onContextMenu={(e) => onContextMenu(e, i)}
+                onContextMenu={e => onContextMenu(e, i)}
                 onClick={onClick}
                 dirPath={getCurrentPath(i)}
                 className={classNames(collapsible && 'cursor-pointer')}
@@ -260,13 +258,14 @@ function ImageCollapse(props: ImageCollapseProps) {
           ))}
         </div>
       )
-    } else {
+    }
+    else {
       return (
         <SingleLabel
           onClick={onClick}
           index={0}
           contextMenu={contextMenu?.(id)}
-          onContextMenu={(e) => onContextMenu(e, 0)}
+          onContextMenu={e => onContextMenu(e, 0)}
           dirPath={id}
           className={classNames(collapsible && 'cursor-pointer')}
         >
@@ -282,15 +281,15 @@ function ImageCollapse(props: ImageCollapseProps) {
     onStickyToogle(sticky, { rawStyle }) {
       isSticky.current = sticky
       if (sticky) {
-        const style =
-          styleObjectToString({
-            zIndex: 4,
-            top: `${viewerHeaderStickyHeight}px`,
-            position: 'sticky',
-            backgroundColor: 'var(--sticky-collapse-header-bgColor)',
-            backdropFilter: 'blur(30px)',
-            boxShadow: 'var(--ant-box-shadow)',
-          }) || ''
+        const style = [
+          'z-index: 4',
+          `top: ${viewerHeaderStickyHeight}px`,
+          'position: sticky',
+          'background-color: var(--sticky-collapse-header-bgColor)',
+          'backdrop-filter: blur(30px)',
+          'box-shadow: var(--ant-box-shadow)',
+        ].join('; ')
+
         rawStyle += style
       }
 
@@ -307,23 +306,21 @@ function ImageCollapse(props: ImageCollapseProps) {
   const [, update] = useState(0)
   useUpdateEffect(() => {
     if (open) {
-      update((t) => ~t)
+      update(t => ~t)
     }
   }, [open])
 
-  // 全局的文件选择
-  const { imageSelectedMap, setImageSelectedMap, imageSelected, imageCopied } = FileStore.useStore([
-    'imageSelectedMap',
-    'setImageSelectedMap',
-    'imageSelected',
-    'imageCopied',
-  ])
+  const [imageSelectedMap, setImageSelectedMap] = useAtom(FileAtoms.imageSelectedMap)
+
+  const imageSelected = useAtomValue(FileAtoms.imageSelected)
+  const imageCopied = useAtomValue(FileAtoms.imageCopied)
 
   const onSelectedImagesChange = useMemoizedFn((images: ImageType[]) => {
     setImageSelectedMap(
       produce((draft) => {
         // 优化渲染
-        if (!images.length && !draft.get(id)?.length) return
+        if (!images.length && !draft.get(id)?.length)
+          return
         draft.set(id, images)
       }),
     )
@@ -333,7 +330,7 @@ function ImageCollapse(props: ImageCollapseProps) {
   const isCutImage = useCallback(
     (image: ImageType) => {
       if (imageCopied?.type === CopyType.MOVE && imageCopied.list.length) {
-        return imageCopied.list.some((item) => item.path === image.path)
+        return imageCopied.list.some(item => item.path === image.path)
       }
     },
     [imageCopied],
@@ -346,7 +343,7 @@ function ImageCollapse(props: ImageCollapseProps) {
   const lazyImageProps: GetProps<typeof ImageGroup>['lazyImageProps'] = useMemo(() => {
     return {
       // 剪切的图片添加透明度
-      className: (image) => (isCutImage(image) ? classNames('opacity-50') : ''),
+      className: image => (isCutImage(image) ? classNames('opacity-50') : ''),
       inViewer: true,
       imageNameProps: {
         tooltipDisplayFullPath,
@@ -373,7 +370,8 @@ function ImageCollapse(props: ImageCollapseProps) {
     return imageSelected
   })
 
-  if (!images?.length && !children) return null
+  if (!images?.length && !children)
+    return null
 
   return (
     <Element name={id}>
@@ -386,37 +384,40 @@ function ImageCollapse(props: ImageCollapseProps) {
         destroyOnHidden
         ref={stickyRef}
         activeKey={open ? [id] : []}
-        onChange={(keys) => onCollapseChange(keys as string[])}
+        onChange={keys => onCollapseChange(keys as string[])}
         items={[
           {
             forceRender: open,
             key: id,
             label: labelRender(generateLabel(labels)),
-            children: images?.length ? (
-              <div className={classNames('space-y-2')}>
-                <ImageGroup
-                  ref={holderRef}
-                  id={id}
-                  selectedImages={imageSelectedMap.get(id) || []}
-                  onSelectedImagesChange={onSelectedImagesChange}
-                  enableMultipleSelect={true}
-                  onMultipleSelectContextMenu={onMultipleSelectContextMenu}
-                  enableContextMenu={enableContextMenu}
-                  lazyImageProps={lazyImageProps}
-                  images={images}
-                  workspaceImages={sameWorkspaceImages}
-                  onClearImageGroupSelected={onClearImageGroupSelected}
-                  clearSelectedOnBlankClick={true}
-                  inViewer={true}
-                />
-                {children}
-              </div>
-            ) : (
-              children
-            ),
+            children: images?.length
+              ? (
+                  <div className={classNames('space-y-2')}>
+                    <ImageGroup
+                      ref={holderRef}
+                      id={id}
+                      selectedImages={imageSelectedMap.get(id) || []}
+                      onSelectedImagesChange={onSelectedImagesChange}
+                      enableMultipleSelect={true}
+                      onMultipleSelectContextMenu={onMultipleSelectContextMenu}
+                      enableContextMenu={enableContextMenu}
+                      lazyImageProps={lazyImageProps}
+                      images={images}
+                      workspaceImages={sameWorkspaceImages}
+                      onClearImageGroupSelected={onClearImageGroupSelected}
+                      clearSelectedOnBlankClick={true}
+                      inViewer={true}
+                    />
+                    {children}
+                  </div>
+                )
+              : (
+                  children
+                ),
           },
         ]}
-      ></Collapse>
+      >
+      </Collapse>
     </Element>
   )
 }

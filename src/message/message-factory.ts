@@ -1,3 +1,12 @@
+import type { SharpNS } from '~/@types/global'
+import type { ConfigType } from '~/core/config/common'
+import type { CompressionOptions } from '~/core/operator/compressor/type'
+import type { OperatorResult } from '~/core/operator/operator'
+import type { WorkspaceStateKey } from '~/core/persist/workspace/common'
+import type { ImageManagerPanel } from '~/webview/panel'
+import { Buffer } from 'node:buffer'
+import os from 'node:os'
+import path from 'node:path'
 import { flatten, pick } from 'es-toolkit'
 import { toString } from 'es-toolkit/compat'
 import fs from 'fs-extra'
@@ -5,24 +14,17 @@ import { convertPathToPattern, globby, type GlobEntry } from 'globby'
 import micromatch from 'micromatch'
 import mime from 'mime/lite'
 import { nanoid } from 'nanoid'
-import os from 'node:os'
-import path from 'node:path'
 import pMap from 'p-map'
 import { commands, type ConfigurationTarget, Uri, ViewColumn, window, workspace } from 'vscode'
-import { type SharpNS } from '~/@types/global'
 import { Commands } from '~/commands'
 import { Similarity } from '~/core/analysis/similarity'
 import { commandCache } from '~/core/commander'
-import { type ConfigType } from '~/core/config/common'
 import { Config } from '~/core/config/config'
 import { Global } from '~/core/global'
 import { SvgCompressor } from '~/core/operator/compressor/svg'
-import { type CompressionOptions } from '~/core/operator/compressor/type'
 import { UsualCompressor } from '~/core/operator/compressor/usual'
 import { FormatConverter, type FormatConverterOptions } from '~/core/operator/format-converter'
-import { type OperatorResult } from '~/core/operator/operator'
 import { Svgo } from '~/core/operator/svgo'
-import { type WorkspaceStateKey } from '~/core/persist/workspace/common'
 import { WorkspaceState } from '~/core/persist/workspace/workspace-state'
 import { SharpOperator } from '~/core/sharp/sharp-operator'
 import { i18n } from '~/i18n'
@@ -39,7 +41,6 @@ import {
   isBase64,
 } from '~/utils/node/image-type'
 import { UpdateEvent, UpdateOrigin, UpdateType } from '~/webview/image-manager/utils/tree/const'
-import { type ImageManagerPanel } from '~/webview/panel'
 import { CmdToVscode, CmdToWebview } from './cmd'
 import { getImageMetadata, getStagedImages } from './message-factory.fn'
 
@@ -47,7 +48,7 @@ type MessageFactoryType = typeof VscodeMessageFactory
 type MessageMethodType<K extends KeyofMessage> = MessageFactoryType[K]
 
 export type KeyofMessage = keyof MessageFactoryType
-export type MessageType<D extends Record<string, any> | undefined = Record<string, any>, C extends string = any> = {
+export interface MessageType<D extends Record<string, any> | undefined = Record<string, any>, C extends string = any> {
   cmd: C
   data: D
   msgId?: string
@@ -57,8 +58,8 @@ export type MessageType<D extends Record<string, any> | undefined = Record<strin
 
 export type ReturnOfMessage<K extends KeyofMessage> = Awaited<ReturnType<MessageMethodType<K>>>
 
-export type ParameterOfMessage<K extends KeyofMessage> =
-  FirstParameter<MessageMethodType<K>> extends Record<string, any> ? FirstParameter<MessageMethodType<K>> : never
+export type ParameterOfMessage<K extends KeyofMessage>
+  = FirstParameter<MessageMethodType<K>> extends Record<string, any> ? FirstParameter<MessageMethodType<K>> : never
 
 /**
  * @name MessageFactory
@@ -139,14 +140,15 @@ export const VscodeMessageFactory = {
       // Browser doesn't support some exts, convert to png base64
       try {
         vscodePath = (await convertToBase64IfBrowserNotSupport(image.path, Global.sharp)) || vscodePath
-      } catch (e) {
+      }
+      catch (e) {
         Channel.error(`${i18n.t('core.covert_base64_error')}: ${e}`)
       }
 
       const dirPath = resolveDirPath(image.path, cwd)
       const absDirPath = slashPath(path.dirname(image.path))
-      const relativePath =
-        imageManagerPanel.initialData.rootpaths.length > 1
+      const relativePath
+        = imageManagerPanel.initialData.rootpaths.length > 1
           ? slashPath(path.relative(projectPath, image.path)) // 多工作区，相对于项目
           : slashPath(path.relative(absWorkspaceFolder, image.path)) // 单工作区，相对于工作区
 
@@ -217,7 +219,7 @@ export const VscodeMessageFactory = {
 
     const { glob } = data
 
-    const abortKey = imageManagerPanel.id + (glob ? glob : '-')
+    const abortKey = imageManagerPanel.id + (glob || '-')
 
     const disposable = imageManagerPanel.onDidChange((e) => {
       if (!e) {
@@ -253,7 +255,7 @@ export const VscodeMessageFactory = {
                 cmd: CmdToWebview.update_images,
                 data: {
                   updateType: glob ? UpdateType.patch : UpdateType.full,
-                  payloads: images.map((image) => ({
+                  payloads: images.map(image => ({
                     data: {
                       payload: image,
                       type: UpdateEvent.create,
@@ -275,10 +277,12 @@ export const VscodeMessageFactory = {
 
       Channel.debug(`Get all images cost: ${performance.now() - start}ms`)
       return true
-    } catch (e) {
+    }
+    catch (e) {
       logger.error(e)
       return false
-    } finally {
+    }
+    finally {
       disposable.dispose()
     }
   },
@@ -295,7 +299,7 @@ export const VscodeMessageFactory = {
 
     const images = await VscodeMessageFactory[CmdToVscode.get_image_info](
       {
-        glob: filePaths.map((t) => convertPathToPattern(t)),
+        glob: filePaths.map(t => convertPathToPattern(t)),
         cwd,
       },
       imageManagerPanel,
@@ -324,7 +328,7 @@ export const VscodeMessageFactory = {
   [CmdToVscode.get_compressor]: async (_, imageManagerPanel: ImageManagerPanel) => {
     let compressor = new UsualCompressor(Config.compression, imageManagerPanel)
     const { option, limit } = compressor
-    // @ts-expect-error
+    // @ts-expect-error Garbage collection
     compressor = null
     return {
       option,
@@ -336,7 +340,7 @@ export const VscodeMessageFactory = {
   [CmdToVscode.get_format_converter]: async (_, imageManagerPanel: ImageManagerPanel) => {
     let converter = new FormatConverter(Config.conversion, imageManagerPanel)
     const { option, limit } = converter
-    // @ts-expect-error
+    // @ts-expect-error Garbage collection
     converter = null
     return {
       option,
@@ -358,7 +362,8 @@ export const VscodeMessageFactory = {
       try {
         const files = fs.readdirSync(revealPath)
         revealPath = path.join(revealPath, files[0])
-      } catch {}
+      }
+      catch {}
     }
 
     const res = await commands.executeCommand('revealFileInOS', Uri.file(revealPath))
@@ -371,7 +376,8 @@ export const VscodeMessageFactory = {
 
     try {
       return await convertImageToBase64(filePath, Global.sharp)
-    } catch (e) {
+    }
+    catch (e) {
       Channel.error(`${i18n.t('core.copy_base64_error')}: ${toString(e)}`)
       return ''
     }
@@ -387,8 +393,8 @@ export const VscodeMessageFactory = {
   ): Promise<
     | OperatorResult[]
     | {
-        error: string
-      }
+      error: string
+    }
   > => {
     try {
       const { images, option } = data
@@ -400,37 +406,41 @@ export const VscodeMessageFactory = {
         const filePath = item.path
         if (path.extname(filePath) === '.svg') {
           svgs.push(item)
-        } else {
+        }
+        else {
           usuals.push(item)
         }
       })
 
       const res = await pMap(
         [
-          ...usuals.map((image) => () => {
+          ...usuals.map(image => () => {
             let compressor = new UsualCompressor(option, imageManagerPanel)
             try {
               return compressor.run(image, option)
-            } finally {
-              // @ts-expect-error
+            }
+            finally {
+              // @ts-expect-error Garbage collection
               compressor = null
             }
           }),
-          ...svgs.map((image) => () => {
+          ...svgs.map(image => () => {
             let compressor = new SvgCompressor(option, imageManagerPanel)
             try {
               return compressor.run(image, option)
-            } finally {
-              // @ts-expect-error
+            }
+            finally {
+              // @ts-expect-error Garbage collection
               compressor = null
             }
           }),
         ],
-        (task) => task(),
+        task => task(),
       )
 
       return res
-    } catch (e: any) {
+    }
+    catch (e: any) {
       logger.error(`${i18n.t('core.compress_error')}`, e)
       return {
         error: e instanceof Error ? e.message : toString(e),
@@ -448,26 +458,28 @@ export const VscodeMessageFactory = {
   ): Promise<
     | OperatorResult[]
     | {
-        error: string
-      }
+      error: string
+    }
   > => {
     try {
       const { images, option } = data
       const res = await pMap(
-        images.map((image) => () => {
+        images.map(image => () => {
           let converter = new FormatConverter(Config.conversion, imageManagerPanel)
           try {
             return converter.run(image, option)
-          } finally {
-            // @ts-expect-error
+          }
+          finally {
+            // @ts-expect-error Garbage collection
             converter = null
           }
         }),
-        (task) => task(),
+        task => task(),
       )
 
       return res
-    } catch (e: any) {
+    }
+    catch (e: any) {
       logger.error('Convert Error', e)
       return {
         error: e instanceof Error ? e.message : toString(e),
@@ -486,7 +498,8 @@ export const VscodeMessageFactory = {
     try {
       await commandCache.executeUndo(id)
       return true
-    } catch (e: any) {
+    }
+    catch (e: any) {
       return {
         error: e instanceof Error ? e.message : toString(e),
       }
@@ -508,7 +521,7 @@ export const VscodeMessageFactory = {
   /* ---------------- 获取操作缓存 ---------------- */
   [CmdToVscode.get_operation_cmd_cache]: (data: { ids: string[] }) => {
     const { ids } = data
-    return ids.map((id) => commandCache.get(id))
+    return ids.map(id => commandCache.get(id))
   },
 
   /* --------- 把缓存中的inputBuffer转为base64 --------- */
@@ -522,7 +535,7 @@ export const VscodeMessageFactory = {
   },
 
   /* -------- match glob with micromatch -------- */
-  [CmdToVscode.micromatch_ismatch]: (data: { filePaths: string[]; globs: string[]; not?: boolean }) => {
+  [CmdToVscode.micromatch_ismatch]: (data: { filePaths: string[], globs: string[], not?: boolean }) => {
     let { filePaths, globs, not } = data
 
     globs = convertPatternToGlob(globs)
@@ -573,18 +586,22 @@ export const VscodeMessageFactory = {
       })
       try {
         await formatter.run({ filePath: image.path, ext: outputFileType || image.extname, input: imageBuffer })
-      } catch (e) {
+      }
+      catch (e) {
         Channel.error(`${i18n.t('core.save_cropper_image_error')} ${e}`)
         return null
-      } finally {
-        // @ts-expect-error
+      }
+      finally {
+        // @ts-expect-error Garbage collection
         formatter = null
       }
-    } else {
+    }
+    else {
       // Write image output directly
       try {
         await fs.writeFile(outputPath, imageBuffer)
-      } catch (e) {
+      }
+      catch (e) {
         Channel.error(`${i18n.t('core.save_cropper_image_error')} ${e}`)
         return null
       }
@@ -598,11 +615,12 @@ export const VscodeMessageFactory = {
   },
 
   /* --------- find similar images -------- */
-  [CmdToVscode.find_similar_images]: async (data: { image: ImageType; scope: ImageType[] }) => {
+  [CmdToVscode.find_similar_images]: async (data: { image: ImageType, scope: ImageType[] }) => {
     const { image, scope } = data
     try {
       return await Similarity.findSimilar(image, scope)
-    } catch (e) {
+    }
+    catch (e) {
       return e instanceof Error ? e : toString(e)
     }
   },
@@ -614,8 +632,8 @@ export const VscodeMessageFactory = {
     const { images } = data
 
     const results = await pMap(
-      images.map((image) => () => getImageMetadata(image)),
-      (task) => task(),
+      images.map(image => () => getImageMetadata(image)),
+      task => task(),
       {
         concurrency: os.cpus().length,
       },
@@ -629,7 +647,7 @@ export const VscodeMessageFactory = {
   [CmdToVscode.get_git_staged_images]: async (_, imageManagerPanel: ImageManagerPanel) => {
     const start = performance.now()
 
-    const images = await Promise.all(imageManagerPanel.initialData.rootpaths.map((root) => getStagedImages(root)))
+    const images = await Promise.all(imageManagerPanel.initialData.rootpaths.map(root => getStagedImages(root)))
 
     Channel.debug(`Get git staged images cost: ${performance.now() - start}ms`)
 
@@ -652,7 +670,8 @@ export const VscodeMessageFactory = {
         imageManagerPanel.isProgrammaticChangeConfig = true
         try {
           await Config.updateConfig(key, value, target)
-        } finally {
+        }
+        finally {
           imageManagerPanel.isProgrammaticChangeConfig = false
         }
       },
@@ -711,19 +730,20 @@ export const VscodeMessageFactory = {
     return true
   },
   /* ---------------- delete file/dir --------------- */
-  [CmdToVscode.delete_file]: async (data: { filePaths: string[]; recursive?: boolean; useTrash?: boolean }) => {
+  [CmdToVscode.delete_file]: async (data: { filePaths: string[], recursive?: boolean, useTrash?: boolean }) => {
     const { filePaths, recursive, useTrash = true } = data
     try {
-      await Promise.all(filePaths.map((filePath) => workspace.fs.delete(Uri.file(filePath), { useTrash, recursive })))
+      await Promise.all(filePaths.map(filePath => workspace.fs.delete(Uri.file(filePath), { useTrash, recursive })))
       return true
-    } catch {
+    }
+    catch {
       return false
     }
   },
   /* --------------- 获取路径下的同级文件(夹)列表 --------------- */
   [CmdToVscode.get_sibling_resource]: async (data: { source: string[] }) => {
     const { source } = data
-    const res = await Promise.all(source.map((p) => fs.readdir(path.dirname(p))))
+    const res = await Promise.all(source.map(p => fs.readdir(path.dirname(p))))
     return res.flat()
   },
   /* ---------------- 打开svgo配置文件 ---------------- */
@@ -732,7 +752,7 @@ export const VscodeMessageFactory = {
     return true
   },
   /* ---------------- 重命名文件/目录 --------------- */
-  [CmdToVscode.rename_file]: async (data: { files: { source: string; target: string }[]; overwrite?: boolean }) => {
+  [CmdToVscode.rename_file]: async (data: { files: { source: string, target: string }[], overwrite?: boolean }) => {
     const { files, overwrite = false } = data
     const res = await Promise.allSettled(
       files.map(({ source, target }) =>

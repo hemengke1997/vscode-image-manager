@@ -1,11 +1,11 @@
-import { memo, type PropsWithChildren } from 'react'
 import { Card, type GetProps } from 'antd'
-import { classNames } from 'tw-clsx'
-import GlobalStore from '~/webview/image-manager/stores/global-store'
+import { memo, type PropsWithChildren } from 'react'
+import { useImageWidth } from '~/webview/image-manager/stores/global/hooks'
+import { classNames } from '~/webview/image-manager/utils/tw-clsx'
 import styles from './index.module.css'
 
 function ImageCard(props: PropsWithChildren<GetProps<typeof Card>>) {
-  const { imageWidth } = GlobalStore.useStore(['imageWidth'])
+  const [imageWidth] = useImageWidth()
   const { children, ...rest } = props
   return (
     <Card {...rest} className={classNames('w-fit', styles.card)} style={{ width: imageWidth + 16 }}>

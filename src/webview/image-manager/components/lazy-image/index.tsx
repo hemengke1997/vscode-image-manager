@@ -1,20 +1,21 @@
+import type { GetProps, ImageProps } from 'antd'
+import type ImageName from '../image-name'
+import { useInViewport, useMemoizedFn } from 'ahooks'
+import { trim } from 'es-toolkit'
+import { useAtomValue } from 'jotai'
 import { memo, type ReactNode, useEffect, useRef } from 'react'
 import { animateScroll } from 'react-scroll'
-import { useInViewport, useMemoizedFn } from 'ahooks'
-import { useControlledState } from 'ahooks-x'
-import { type GetProps, type ImageProps } from 'antd'
-import { trim } from 'es-toolkit'
-import { classNames } from 'tw-clsx'
 import logger from '~/utils/logger'
+import { useControlledState } from '~/webview/image-manager/hooks/use-controlled-state'
+import { classNames } from '~/webview/image-manager/utils/tw-clsx'
 import { getAppRoot } from '~/webview/utils'
-import type ImageName from '../image-name'
 import useImageManagerEvent, { IMEvent } from '../../hooks/use-image-manager-event'
-import GlobalStore from '../../stores/global-store'
+import { GlobalAtoms } from '../../stores/global/global-store'
 import { clearTimestamp, isElInViewport } from '../../utils'
 import { useLazyMargin } from '../image-group/use-lazy-load-images'
 import VisibleImage from './components/visible-image'
 
-type Props = {
+interface Props {
   /**
    * 图片信息
    */
@@ -34,12 +35,12 @@ type Props = {
   lazy?:
     | false
     | {
-        /**
-         * 懒加载根节点
-         * 必传
-         */
-        root: HTMLElement
-      }
+      /**
+       * 懒加载根节点
+       * 必传
+       */
+      root: HTMLElement
+    }
   /**
    * 点击remove icon回调
    * 如果不传此参数，则不会显示remove icon
@@ -91,15 +92,13 @@ type Props = {
 function LazyImage(props: Props) {
   const {
     image,
-    lazy = {
-      root: getAppRoot(),
-    },
+    lazy,
     className,
     inViewer,
     ...rest
   } = props
 
-  const root = lazy ? lazy.root : null
+  const root = lazy ? (lazy.root || getAppRoot()) : null
 
   const [selected, setSelected] = useControlledState<boolean>({
     value: props.selected,
@@ -108,7 +107,8 @@ function LazyImage(props: Props) {
     },
   })
 
-  const { imagePlaceholderSize, imageReveal } = GlobalStore.useStore(['imagePlaceholderSize', 'imageReveal'])
+  const imagePlaceholderSize = useAtomValue(GlobalAtoms.imagePlaceholderSizeAtom)
+  const imageReveal = useAtomValue(GlobalAtoms.imageRevealAtom)
 
   const { rootVerticalMargin } = useLazyMargin()
   const elRef = useRef<HTMLDivElement>(null)
@@ -169,7 +169,8 @@ function LazyImage(props: Props) {
             )
             scrolled = true
           }
-        } finally {
+        }
+        finally {
           setSelected(true)
         }
       }
@@ -198,19 +199,21 @@ function LazyImage(props: Props) {
 
   return (
     <div ref={elRef} className={classNames('select-none transition-opacity', className?.(image))}>
-      {elInView || !lazy ? (
-        // 拆出去为了更好的渲染性能
-        <VisibleImage {...rest} selected={selected} image={image} />
-      ) : (
-        <div
-          style={{
-            width: imagePlaceholderSize?.width,
-            height: imagePlaceholderSize?.height,
-          }}
-        >
-          {imageInView && <img src={image.vscodePath} hidden={true} className={'h-0 w-0'} />}
-        </div>
-      )}
+      {elInView || !lazy
+        ? (
+            // 拆出去为了更好的渲染性能
+            <VisibleImage {...rest} selected={selected} image={image} />
+          )
+        : (
+            <div
+              style={{
+                width: imagePlaceholderSize?.width,
+                height: imagePlaceholderSize?.height,
+              }}
+            >
+              {imageInView && <img src={image.vscodePath} hidden={true} className='size-0' />}
+            </div>
+          )}
     </div>
   )
 }

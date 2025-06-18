@@ -1,4 +1,4 @@
-import { type i18n } from 'i18next'
+import type { i18n } from 'i18next'
 
 export function getViewmodes(i18next: i18n) {
   return [

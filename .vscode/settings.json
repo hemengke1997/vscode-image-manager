@@ -12,5 +12,6 @@
     "**/__snapshots__/**": true,
     "CHANGELOG-CODE.md": true,
     "patches/**": true
-  }
+  },
+  "prettier.enable": false
 }

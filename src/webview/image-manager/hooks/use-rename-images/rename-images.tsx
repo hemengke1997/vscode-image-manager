@@ -1,13 +1,13 @@
+import type { SegmentedOptions } from 'antd/es/segmented'
+import type { ImperativeModalProps } from '~/webview/image-manager/hooks/use-imperative-antd-modal'
+import { useMemoizedFn } from 'ahooks'
+import { Button, Divider, Form, Input, Segmented, Space } from 'antd'
 import { memo, useState } from 'react'
 import { useTranslation } from 'react-i18next'
-import { useMemoizedFn } from 'ahooks'
-import { type ImperativeModalProps } from 'ahooks-x/use-imperative-antd-modal'
-import { Button, Divider, Form, Input, Segmented, Space } from 'antd'
-import { type SegmentedOptions } from 'antd/es/segmented'
 import { slashPath } from '~/utils'
 import AutoFocusInput from '../../components/auto-focus-input'
 
-type Props = {
+interface Props {
   /**
    * 图片列表
    */
@@ -19,7 +19,7 @@ type Props = {
   /**
    * 表单提交回调
    */
-  onSubmit: (files: { source: string; target: string }[]) => Promise<void>
+  onSubmit: (files: { source: string, target: string }[]) => Promise<void>
 }
 
 enum RenameKey {
@@ -46,7 +46,7 @@ enum ModeOption {
   add = 'add',
 }
 
-type FormValues = {
+interface FormValues {
   [RenameKey.mode]: ModeOption
   [ModeOption.replace]: {
     [RenameKey.find]: string
@@ -80,17 +80,6 @@ function RenameImages(props: Props & ImperativeModalProps) {
 
   // 示例值
   const [eg, setEg] = useState(selectedImageName)
-
-  const onValuesChangeNextTick = () => {
-    // 到下一次微任务执行时才能获取到最新的form值
-    Promise.resolve().then(() => {
-      const values = form.getFieldsValue()
-
-      const current = strategy[values[RenameKey.mode]](values)
-      current.updateEg()
-      current.updateSubmitDisabled()
-    })
-  }
 
   const [submitStatus, setSubmitStatus] = useState<{
     disabled?: boolean
@@ -147,7 +136,8 @@ function RenameImages(props: Props & ImperativeModalProps) {
           try {
             await onSubmit(files)
             closeModal()
-          } finally {
+          }
+          finally {
             setSubmitStatus({
               loading: false,
             })
@@ -182,7 +172,8 @@ function RenameImages(props: Props & ImperativeModalProps) {
           try {
             await onSubmit(files)
             closeModal()
-          } finally {
+          }
+          finally {
             setSubmitStatus({
               loading: false,
             })
@@ -192,9 +183,20 @@ function RenameImages(props: Props & ImperativeModalProps) {
     },
   }
 
+  const onValuesChangeNextTick = useMemoizedFn(() => {
+    // 到下一次微任务执行时才能获取到最新的form值
+    Promise.resolve().then(() => {
+      const values = form.getFieldsValue()
+
+      const current = strategy[values[RenameKey.mode]](values)
+      current.updateEg()
+      current.updateSubmitDisabled()
+    })
+  })
+
   return (
     <Form
-      name={'rename-images'}
+      name='rename-images'
       initialValues={{
         [RenameKey.mode]: ModeOption.replace,
         [RenameKey.add]: {
@@ -203,15 +205,13 @@ function RenameImages(props: Props & ImperativeModalProps) {
       }}
       preserve={true}
       form={form}
-      onValuesChange={() => {
-        onValuesChangeNextTick()
-      }}
+      onValuesChange={onValuesChangeNextTick}
       onFinish={async (values) => {
         await strategy[values[RenameKey.mode]](values).onSubmit()
       }}
     >
       <Form.Item name={RenameKey.mode} noStyle={true}>
-        <Segmented options={options} className={'my-4'}></Segmented>
+        <Segmented options={options} className='my-4'></Segmented>
       </Form.Item>
       <Form.Item noStyle={true} shouldUpdate={(prev, cur) => prev[RenameKey.mode] !== cur[RenameKey.mode]}>
         {({ getFieldValue }) => {
@@ -219,24 +219,24 @@ function RenameImages(props: Props & ImperativeModalProps) {
           switch (mode) {
             case ModeOption.replace:
               return (
-                <div className={'flex w-full justify-between'}>
+                <div className='flex w-full justify-between'>
                   <Form.Item label={t('im.search')} name={[ModeOption.replace, RenameKey.find]}>
-                    <AutoFocusInput className={'w-56'}></AutoFocusInput>
+                    <AutoFocusInput className='w-56'></AutoFocusInput>
                   </Form.Item>
                   <Form.Item label={t('im.replace_to')} name={[ModeOption.replace, RenameKey.replace]}>
-                    <Input className={'w-56'}></Input>
+                    <Input className='w-56'></Input>
                   </Form.Item>
                 </div>
               )
             case ModeOption.add:
               return (
-                <div className={'flex items-center justify-between'}>
-                  <Form.Item name={[ModeOption.add, RenameKey.add]} className={'mr-4 flex-1'}>
-                    <AutoFocusInput className={'w-full'} />
+                <div className='flex items-center justify-between'>
+                  <Form.Item name={[ModeOption.add, RenameKey.add]} className='mr-4 flex-1'>
+                    <AutoFocusInput className='w-full' />
                   </Form.Item>
                   <Form.Item name={[ModeOption.add, RenameKey.position]}>
                     <Segmented
-                      size={'small'}
+                      size='small'
                       options={[
                         {
                           label: t('im.before_filename'),
@@ -247,7 +247,8 @@ function RenameImages(props: Props & ImperativeModalProps) {
                           value: RenameKey.position_after,
                         },
                       ]}
-                    ></Segmented>
+                    >
+                    </Segmented>
                   </Form.Item>
                 </div>
               )
@@ -256,8 +257,8 @@ function RenameImages(props: Props & ImperativeModalProps) {
           }
         }}
       </Form.Item>
-      <Divider className={'mb-6 mt-2'} />
-      <div className={'flex justify-between'}>
+      <Divider className='mb-6 mt-2' />
+      <div className='flex justify-between'>
         <div>
           {t('im.eg')}
           {eg}
@@ -270,7 +271,7 @@ function RenameImages(props: Props & ImperativeModalProps) {
           >
             {t('im.cancel')}
           </Button>
-          <Button type={'primary'} {...submitStatus} htmlType={'submit'}>
+          <Button type='primary' {...submitStatus} htmlType='submit'>
             {t('im.rename')}
           </Button>
         </Space>

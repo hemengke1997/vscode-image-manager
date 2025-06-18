@@ -1,18 +1,20 @@
+import { Button, Tooltip } from 'antd'
+import { motion } from 'motion/react'
 import { memo } from 'react'
 import { BsQuestionCircleFill } from 'react-icons/bs'
-import { Button, Tooltip } from 'antd'
-import { classNames } from 'tw-clsx'
+import { classNames } from '~/webview/image-manager/utils/tw-clsx'
 
-type Props = {
+interface Props {
   image: string
   className?: string
 }
 
 function Preview(props: Props) {
   const { image, className } = props
+
   return (
     <Tooltip
-      title={
+      title={(
         <img
           src={image}
           className={classNames(
@@ -20,7 +22,7 @@ function Preview(props: Props) {
             className,
           )}
         />
-      }
+      )}
       styles={{
         body: {
           padding: 0,
@@ -28,9 +30,28 @@ function Preview(props: Props) {
         },
       }}
       arrow={false}
-      placement={'right'}
+      placement='right'
     >
-      <Button type='text' icon={<BsQuestionCircleFill />}></Button>
+      <Button
+        type='text'
+        icon={(
+          <motion.div
+            className='flex items-center'
+            initial={false}
+            animate={{
+              scale: [1, 1.2, 1],
+            }}
+            transition={{
+              repeat: 1,
+              duration: 0.2,
+            }}
+            key={image}
+          >
+            <BsQuestionCircleFill />
+          </motion.div>
+        )}
+      >
+      </Button>
     </Tooltip>
   )
 }

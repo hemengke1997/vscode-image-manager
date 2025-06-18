@@ -1,18 +1,18 @@
-import { isEqual, once, trim } from 'es-toolkit'
+import type { ExtensionModule } from '~/module'
 import path from 'node:path'
+import { isEqual, once, trim } from 'es-toolkit'
 import { commands, FileType, type Uri, workspace } from 'vscode'
 import { Config } from '~/core/config/config'
 import { Global } from '~/core/global'
 import { Svgo } from '~/core/operator/svgo'
 import { WorkspaceState } from '~/core/persist/workspace/workspace-state'
 import { Watcher } from '~/core/watcher'
-import { type ExtensionModule } from '~/module'
 import { slashPath } from '~/utils'
 import logger from '~/utils/logger'
 import { ImageManagerPanel } from '~/webview/panel'
 import { Commands } from './commands'
 
-export default <ExtensionModule>function (ctx) {
+export default <ExtensionModule> function (ctx) {
   let rootpaths = Global.resolveRootPath()
   let previousRoot: string[] = []
   let sharpInstalled: boolean
@@ -26,7 +26,8 @@ export default <ExtensionModule>function (ctx) {
   async function openWebview(uri: Uri | undefined) {
     init()
 
-    if (isLoading) return
+    if (isLoading)
+      return
 
     isLoading = true
 
@@ -38,7 +39,8 @@ export default <ExtensionModule>function (ctx) {
       if (stat.type !== FileType.Directory) {
         rootPath = path.dirname(fsPath)
         imagePath = fsPath
-      } else {
+      }
+      else {
         rootPath = fsPath
       }
 
@@ -54,10 +56,12 @@ export default <ExtensionModule>function (ctx) {
           sharpInstalled = true
         }
       }
-    } catch (e) {
+    }
+    catch (e) {
       logger.error(e)
       sharpInstalled = false
-    } finally {
+    }
+    finally {
       isLoading = false
 
       const imageReveal = trim(imagePath).length ? `${trim(imagePath)}?t=${Date.now()}` : ''
@@ -74,14 +78,15 @@ export default <ExtensionModule>function (ctx) {
 
         imageManagerPanel.onDidChange((e) => {
           if (!e) {
-            Global.imageManagerPanels = Global.imageManagerPanels.filter((p) => p.id !== imageManagerPanel.id)
+            Global.imageManagerPanels = Global.imageManagerPanels.filter(p => p.id !== imageManagerPanel.id)
           }
         })
       }
 
       if (Config.core_multiplePanels) {
         createPanel(rootpaths)
-      } else {
+      }
+      else {
         if (Global.imageManagerPanels.length) {
           const reload = !isEqual(previousRoot, rootpaths)
 
@@ -89,7 +94,8 @@ export default <ExtensionModule>function (ctx) {
             // 如果前后的 rootpaths 不一样，则reload webview
             if (reload) {
               panel.reloadWebview()
-            } else if (imageReveal) {
+            }
+            else if (imageReveal) {
               panel.revealImageInViewer(imageReveal)
             }
           }
@@ -107,7 +113,8 @@ export default <ExtensionModule>function (ctx) {
           if (reload) {
             imageManagerPanel.watcher?.restart(rootpaths)
           }
-        } else {
+        }
+        else {
           createPanel(rootpaths)
         }
       }

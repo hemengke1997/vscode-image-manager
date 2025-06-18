@@ -1,7 +1,7 @@
+import { Button, Tooltip } from 'antd'
 import { memo } from 'react'
 import { useTranslation } from 'react-i18next'
 import { MdCompare } from 'react-icons/md'
-import { Button, Tooltip } from 'antd'
 import { triggerOnce } from '~/webview/image-manager/utils'
 
 function CompareAction(props: { onClick: () => void }) {
@@ -10,14 +10,15 @@ function CompareAction(props: { onClick: () => void }) {
   const { t } = useTranslation()
 
   return (
-    <Tooltip title={t('im.compare')} placement={'bottom'} arrow={false}>
+    <Tooltip title={t('im.compare')} placement='bottom' arrow={false}>
       <Button
         onClick={triggerOnce(() => {
           onClick()
         })}
-        type={'text'}
+        type='text'
         icon={<MdCompare />}
-      ></Button>
+      >
+      </Button>
     </Tooltip>
   )
 }

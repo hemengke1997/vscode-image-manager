@@ -1,6 +1,6 @@
+import type { ModalFuncProps } from 'antd'
 import { lazy } from 'react'
 import { useTranslation } from 'react-i18next'
-import { type ModalFuncProps } from 'antd'
 import useImperativeModal from '../../use-imperative-modal'
 
 const OperationResult = lazy(() => import('./operation-result'))

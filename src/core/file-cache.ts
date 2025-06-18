@@ -5,7 +5,7 @@ import { Global } from './global'
 
 export class FileCache {
   private static osDirs = [os.homedir(), os.tmpdir()]
-  static osCachable = this.osDirs.find((dir) => isFsWritable(dir))
+  static osCachable = this.osDirs.find(dir => isFsWritable(dir))
 
   /**
    * @returns
@@ -20,7 +20,8 @@ export class FileCache {
     if (this.osCachable) {
       // 可以写到系统临时盘中
       cacheDir = path.resolve(this.osCachable, '.vscode-image-manager-cache')
-    } else {
+    }
+    else {
       // 否则写到扩展根目录下的 dist 目录中
       cacheDir = path.join(Global.context.extensionUri.fsPath, 'dist')
     }

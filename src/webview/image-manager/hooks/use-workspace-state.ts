@@ -1,12 +1,13 @@
-import { type DependencyList } from 'react'
+import type { DependencyList } from 'react'
+import type { WorkspaceStateKey } from '~/core/persist/workspace/common'
 import { useMemoizedFn } from 'ahooks'
-import { useTrackState } from 'ahooks-x'
 import { set } from 'es-toolkit/compat'
 import { produce } from 'immer'
-import { type WorkspaceStateKey } from '~/core/persist/workspace/common'
+import { useSetAtom } from 'jotai'
 import { CmdToVscode } from '~/message/cmd'
 import { vscodeApi } from '../../vscode-api'
-import VscodeStore from '../stores/vscode-store'
+import { VscodeAtoms } from '../stores/vscode/vscode-store'
+import { useTrackState } from './use-track-state'
 
 /**
  *
@@ -18,7 +19,10 @@ import VscodeStore from '../stores/vscode-store'
  *
  * @param key workspaceState 的 key
  * @param trackedState 追踪的 workspaceState
- * @param deps 依赖项，当依赖项变化时，会重新获取 workspaceState
+ *
+ * @param options
+ * @param options.deps 依赖项，当依赖项变化时，会重新获取 workspaceState
+ * @param options.defaultValue 默认值，当 workspaceState 中没有该 key 时，使用默认值
  */
 export function useWorkspaceState<T extends WorkspaceStateKey, U>(
   key: T,
@@ -29,7 +33,8 @@ export function useWorkspaceState<T extends WorkspaceStateKey, U>(
   },
 ) {
   const { deps, defaultValue } = options || {}
-  const { setWorkspaceState } = VscodeStore.useStore(['setWorkspaceState'])
+
+  const setWorkspaceState = useSetAtom(VscodeAtoms.workspaceStateAtom)
 
   const updateWorkspaceState = useMemoizedFn((state: U) => {
     vscodeApi.postMessage({
@@ -41,10 +46,10 @@ export function useWorkspaceState<T extends WorkspaceStateKey, U>(
     })
   })
 
-  const onChangeBySet = useMemoizedFn(() => {
+  const onChangeBySet = useMemoizedFn((state: U) => {
     setWorkspaceState(
       produce((draft) => {
-        set(draft, key, state)
+        set(draft!, key, state)
       }),
     )
 

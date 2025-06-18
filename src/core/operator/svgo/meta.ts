@@ -1,9 +1,9 @@
-import { flatten } from 'es-toolkit'
-import {
-  type BuiltinsWithOptionalParams,
-  type BuiltinsWithRequiredParams,
-  type DefaultPlugins,
+import type {
+  BuiltinsWithOptionalParams,
+  BuiltinsWithRequiredParams,
+  DefaultPlugins,
 } from 'svgo/plugins/plugins-types'
+import { flatten } from 'es-toolkit'
 
 export const svgoDefaultPlugins: Array<keyof DefaultPlugins> = [
   'removeDoctype',

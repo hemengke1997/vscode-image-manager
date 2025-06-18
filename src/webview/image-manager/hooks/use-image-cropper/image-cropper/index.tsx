@@ -1,24 +1,24 @@
 import type Cropperjs from 'cropperjs'
+import type { ImperativeModalProps } from '~/webview/image-manager/hooks/use-imperative-antd-modal'
+import { useMemoizedFn, useSetState, useThrottleFn, useUpdateEffect } from 'ahooks'
+import { App, Button, Card, Checkbox, Divider, InputNumber, Modal, Popover, Segmented, Skeleton, Space } from 'antd'
+import { isNil, round } from 'es-toolkit'
+import { produce } from 'immer'
+import mime from 'mime/lite'
 import { memo, startTransition, useReducer, useRef, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { IoIosArrowDropup } from 'react-icons/io'
 import { LuArrowRightLeft, LuArrowUpDown } from 'react-icons/lu'
 import { RxReset } from 'react-icons/rx'
-import { useMemoizedFn, useSetState, useThrottleFn, useUpdateEffect } from 'ahooks'
-import { useControlledState } from 'ahooks-x'
-import { type ImperativeModalProps } from 'ahooks-x/use-imperative-antd-modal'
-import { App, Button, Card, Checkbox, Divider, InputNumber, Modal, Popover, Segmented, Skeleton, Space } from 'antd'
-import { isNil, round } from 'es-toolkit'
-import { produce } from 'immer'
-import mime from 'mime/lite'
-import { classNames } from 'tw-clsx'
 import { CmdToVscode } from '~/message/cmd'
+import { useControlledState } from '~/webview/image-manager/hooks/use-controlled-state'
+import { classNames } from '~/webview/image-manager/utils/tw-clsx'
 import { vscodeApi } from '~/webview/vscode-api'
 import { LOADING_DURATION } from '../../../utils/duration'
 import ReactCropper, { type ReactCropperElement } from './components/cropper'
+import styles from './index.module.css'
 import { DETAIL_MAP, getAspectRatios, getViewmodes } from './utils'
 import 'cropperjs/dist/cropper.css'
-import styles from './index.module.css'
 
 type Props = {
   image: ImageType | undefined
@@ -30,11 +30,19 @@ function ImageCropper(props: Props) {
   const { t, i18n } = useTranslation()
   const { message, notification } = App.useApp()
   const cropperRef = useRef<ReactCropperElement>(null)
-  const _onCrop = (e: Cropperjs.CropEvent) => {
+
+  // from cropper
+  const [details, setDetails] = useState<Partial<Cropperjs.Data>>()
+
+  const allTruly = useMemoizedFn((obj: Record<string, any>) => {
+    return Object.values(obj).every(item => !isNil(item))
+  })
+
+  const _onCrop = useMemoizedFn((e: Cropperjs.CropEvent) => {
     if (allTruly(e.detail)) {
       startTransition(() => setDetails(e.detail))
     }
-  }
+  })
 
   const onCrop = useThrottleFn(_onCrop, {
     wait: 100,
@@ -45,10 +53,6 @@ function ImageCropper(props: Props) {
 
   const [loading, setLoading] = useState(true)
 
-  const allTruly = useMemoizedFn((obj: Record<string, any>) => {
-    return Object.values(obj).every((item) => !isNil(item))
-  })
-
   const [cropperOptions, setCropperOptions] = useSetState<Cropperjs.Options>({
     aspectRatio: getAspectRatios(i18n)[0].value,
     viewMode: getViewmodes(i18n)[0].value as Cropperjs.ViewMode,
@@ -56,13 +60,6 @@ function ImageCropper(props: Props) {
     highlight: false,
     background: false,
   })
-
-  useUpdateEffect(() => {
-    updateCropper()
-  }, [cropperOptions])
-
-  // from cropper
-  const [details, setDetails] = useState<Partial<Cropperjs.Data>>()
 
   const [controlledDetails, setControlledDetails] = useControlledState<Partial<Cropperjs.Data>>({
     defaultValue: details,
@@ -82,6 +79,10 @@ function ImageCropper(props: Props) {
       cropperRef.current?.cropper.reset()
     }
   }, [cropperRef.current])
+
+  useUpdateEffect(() => {
+    updateCropper()
+  }, [cropperOptions])
 
   const previewRef = useRef<HTMLDivElement>(null)
   const [saveModalOpen, setSaveModalOpen] = useState(false)
@@ -120,9 +121,10 @@ function ImageCropper(props: Props) {
               notification.success({
                 duration: LOADING_DURATION.slow,
                 message: data.filename,
-                description: <div className={'flex flex-col space-y-1'}>{t('im.save_success')}</div>,
+                description: <div className='flex flex-col space-y-1'>{t('im.save_success')}</div>,
               })
-            } else {
+            }
+            else {
               message.error({
                 key: MESSAGE_KEY,
                 content: t('im.save_fail'),
@@ -133,7 +135,8 @@ function ImageCropper(props: Props) {
         setSaveModalOpen(false)
         closeModal()
       }
-    } finally {
+    }
+    finally {
       setSaveLoading(false)
     }
   })
@@ -154,7 +157,7 @@ function ImageCropper(props: Props) {
     }
   })
 
-  const moveToCenter = useMemoizedFn((options?: { centerCrop?: boolean; centerX?: boolean; centerY?: boolean }) => {
+  const moveToCenter = useMemoizedFn((options?: { centerCrop?: boolean, centerX?: boolean, centerY?: boolean }) => {
     const { centerCrop = false, centerX = true, centerY = true } = options || {}
     if (centerCrop) {
       // move crop box to container center
@@ -173,8 +176,8 @@ function ImageCropper(props: Props) {
 
   return (
     <>
-      <div className={'flex items-stretch space-x-2 overflow-auto'}>
-        <div className={'h-full w-[70%] flex-none'}>
+      <div className='flex items-stretch space-x-2 overflow-auto'>
+        <div className='h-full w-[70%] flex-none'>
           <Card>
             <ReactCropper
               src={image?.vscodePath}
@@ -196,23 +199,23 @@ function ImageCropper(props: Props) {
             <Skeleton loading={loading} active paragraph={{ rows: 7 }} />
           </Card>
         </div>
-        <div className={'flex-1'}>
+        <div className='flex-1'>
           <Card
-            rootClassName={'h-full'}
+            rootClassName='h-full'
             styles={{
               body: {
                 height: '100%',
               },
             }}
           >
-            <div className={'flex h-full flex-col justify-between'}>
-              <div className={'flex flex-col space-y-1'}>
+            <div className='flex h-full flex-col justify-between'>
+              <div className='flex flex-col space-y-1'>
                 <Popover
                   trigger={['hover', 'click']}
-                  content={
-                    <div className={'flex w-full flex-col flex-wrap gap-x-1'}>
+                  content={(
+                    <div className='flex w-full flex-col flex-wrap gap-x-1'>
                       <Checkbox
-                        value={'highlight'}
+                        value='highlight'
                         checked={cropperOptions.highlight}
                         onChange={(e) => {
                           setCropperOptions({
@@ -223,7 +226,7 @@ function ImageCropper(props: Props) {
                         {t('im.highlight')}
                       </Checkbox>
                       <Checkbox
-                        value={'guides'}
+                        value='guides'
                         checked={cropperOptions.guides}
                         onChange={(e) => {
                           setCropperOptions({
@@ -234,7 +237,7 @@ function ImageCropper(props: Props) {
                         {t('im.guides')}
                       </Checkbox>
                       <Checkbox
-                        value={'background'}
+                        value='background'
                         checked={cropperOptions.background}
                         onChange={(e) => {
                           setCropperOptions({
@@ -245,7 +248,7 @@ function ImageCropper(props: Props) {
                         {t('im.background')}
                       </Checkbox>
                     </div>
-                  }
+                  )}
                   arrow={false}
                 >
                   <Button type='default' icon={<IoIosArrowDropup />}>
@@ -253,7 +256,7 @@ function ImageCropper(props: Props) {
                   </Button>
                 </Popover>
 
-                <div className={'w-full'}>
+                <div className='w-full'>
                   <Segmented
                     value={cropperOptions.viewMode}
                     onChange={(e) => {
@@ -261,17 +264,18 @@ function ImageCropper(props: Props) {
                         viewMode: e as Cropperjs.ViewMode,
                       })
                     }}
-                    options={getViewmodes(i18n).map((item) => ({
+                    options={getViewmodes(i18n).map(item => ({
                       label: item.label,
                       value: item.value,
                     }))}
-                    className={'flex'}
+                    className='flex'
                     block
                     size='small'
-                  ></Segmented>
+                  >
+                  </Segmented>
                 </div>
 
-                <div className={'w-full'}>
+                <div className='w-full'>
                   <Segmented
                     value={cropperOptions.aspectRatio}
                     onChange={(e) => {
@@ -279,69 +283,68 @@ function ImageCropper(props: Props) {
                         aspectRatio: e as number,
                       })
                     }}
-                    className={'flex'}
+                    className='flex'
                     block
                     size='small'
-                    options={getAspectRatios(i18n).map((item) => ({
+                    options={getAspectRatios(i18n).map(item => ({
                       label: item.label,
                       value: item.value,
                     }))}
-                  ></Segmented>
+                  >
+                  </Segmented>
                 </div>
-                <div className={'flex flex-col space-y-1'}>
-                  {Object.keys(details || {}).map((key) => (
+                <div className='flex flex-col space-y-1'>
+                  {Object.keys(details || {}).map(key => (
                     <InputNumber
-                      addonBefore={
-                        <div title={DETAIL_MAP[key].label} className={'flex w-14 items-center'}>
+                      addonBefore={(
+                        <div title={DETAIL_MAP[key].label} className='flex w-14 items-center'>
                           {DETAIL_MAP[key].label}
                         </div>
-                      }
+                      )}
                       addonAfter={DETAIL_MAP[key].unit}
                       value={round(controlledDetails[key], 2)}
-                      onChange={(value) =>
+                      onChange={value =>
                         setControlledDetails(
                           produce((draft) => {
                             draft[key] = value
                           }),
-                        )
-                      }
+                        )}
                       key={key}
-                    ></InputNumber>
+                    >
+                    </InputNumber>
                   ))}
                   <Divider dashed plain>
                     {t('im.operation')}
                   </Divider>
-                  <div className={'flex flex-col gap-y-3'}>
-                    <Space.Compact className={'flex w-full items-center'}>
-                      <Button className={'flex-1'} onClick={() => moveToCenter({ centerCrop: true })}>
+                  <div className='flex flex-col gap-y-3'>
+                    <Space.Compact className='flex w-full items-center'>
+                      <Button className='flex-1' onClick={() => moveToCenter({ centerCrop: true })}>
                         {t('im.center')}
                       </Button>
                       <Button
-                        className={'flex-1'}
+                        className='flex-1'
                         onClick={() =>
                           moveToCenter({
                             centerX: true,
                             centerY: false,
-                          })
-                        }
+                          })}
                       >
                         {t('im.center_x')}
                       </Button>
                       <Button
-                        className={'flex-1'}
+                        className='flex-1'
                         onClick={() =>
                           moveToCenter({
                             centerY: true,
                             centerX: false,
-                          })
-                        }
+                          })}
                       >
                         {t('im.center_y')}
                       </Button>
                     </Space.Compact>
-                    <Space.Compact className={'flex w-full items-center'}>
+                    <Space.Compact className='flex w-full items-center'>
                       <Button
-                        className={'flex-1'}
+                        className='flex-1'
                         onClick={() => {
                           cropperRef.current?.cropper.scaleX((controlledDetails.scaleX || 0) >= 0 ? -1 : 1)
                         }}
@@ -350,7 +353,7 @@ function ImageCropper(props: Props) {
                         {t('im.scale_x')}
                       </Button>
                       <Button
-                        className={'flex-1'}
+                        className='flex-1'
                         onClick={() => {
                           cropperRef.current?.cropper.scaleY((controlledDetails.scaleY || 0) >= 0 ? -1 : 1)
                         }}
@@ -359,9 +362,9 @@ function ImageCropper(props: Props) {
                         {t('im.scale_y')}
                       </Button>
                     </Space.Compact>
-                    <Space.Compact className={'flex w-full items-center'}>
+                    <Space.Compact className='flex w-full items-center'>
                       <Button
-                        className={'flex-1'}
+                        className='flex-1'
                         icon={<RxReset />}
                         onClick={() => cropperRef.current?.cropper.reset()}
                       >
@@ -371,8 +374,8 @@ function ImageCropper(props: Props) {
                   </div>
                 </div>
               </div>
-              <div className={'flex w-full justify-center'}>
-                <Button type='primary' className={'w-full'} size='middle' onClick={handlePreview}>
+              <div className='flex w-full justify-center'>
+                <Button type='primary' className='w-full' size='middle' onClick={handlePreview}>
                   {t('im.preview')}
                 </Button>
               </div>
@@ -385,13 +388,13 @@ function ImageCropper(props: Props) {
         forceRender
         destroyOnHidden
         open={saveModalOpen}
-        footer={
+        footer={(
           <div>
             <Button type='primary' onClick={handleSave} loading={saveLoading}>
               {t('im.save')}
             </Button>
           </div>
-        }
+        )}
         onCancel={() => {
           setSaveModalOpen(false)
         }}
