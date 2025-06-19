@@ -1,5 +1,15 @@
 # CHANGELOG
 
+## [3.3.5] - 2025-06-19
+
+### Performance
+
+- 提升图片操作效率
+
+### Update
+
+- 使用社区高star组件库
+
 ## [3.3.4] - 2025-06-13
 
 ### Performance

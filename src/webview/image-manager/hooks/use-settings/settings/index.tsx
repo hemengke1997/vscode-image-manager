@@ -19,7 +19,7 @@ import {
   useDisplayStyle,
   useHoverShowImageDetail,
   useImageBackgroundColor,
-  useLanguage,
+  useOriginLanguage,
   useOriginTheme,
   usePrimaryColor,
   useSort,
@@ -61,7 +61,7 @@ function Settings(props: ImperativeModalProps) {
   const [primaryColor, setPrimaryColor] = usePrimaryColor()
   const [originTheme] = useOriginTheme()
   const [, setTheme] = useOriginTheme()
-  const [language, setLanguage] = useLanguage()
+  const [language, setLanguage] = useOriginLanguage()
   const [displayGroup, setDisplayGroup] = useDisplayGroup()
   const [displayStyle, setDisplayStyle] = useDisplayStyle()
   const [sort, setSort] = useSort()

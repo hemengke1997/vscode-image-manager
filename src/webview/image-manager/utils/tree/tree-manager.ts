@@ -178,17 +178,16 @@ export class TreeManager {
    * tree map 转成 tree array
    * 方便react渲染
    */
-  toNestedArray(_hooks?: { postNode?: (node: TreeNode<TreeData>) => TreeNode<TreeData> }): NestedTreeNode[] {
+  async toNestedArray(_hooks?: { postNode?: (node: TreeNode<TreeData>) => TreeNode<TreeData> }): Promise<NestedTreeNode[]> {
     logger.time('toNestedArray')
     const result: NestedTreeNode[] = []
 
-    const buildNestedTree = (nodeId: NodeID): NestedTreeNode => {
+    const buildNestedTree = async (nodeId: NodeID): Promise<NestedTreeNode> => {
       const node = this.tree.nodes.get(nodeId)!
 
-      // 如果节点是 compact，将其与子节点合并
       if (node.data.compact?.is) {
-        return this.compactChildren(node, (childNode) => {
-          return buildNestedTree(childNode.id)
+        return this.compactChildren(node, async (childNode) => {
+          return await buildNestedTree(childNode.id)
         })
       }
 
@@ -196,20 +195,21 @@ export class TreeManager {
       let images: ImageType[] = node.data.images || []
       if (node.data.changed.images) {
         images = this.processImages(node.data.images || [])
-
         node.data = produce(node.data, (draft) => {
           draft.changed!.images = false
         })
       }
 
+      const children = await Promise.all(node.childrenIds.map(childId => buildNestedTree(childId)))
       return produce(node as NestedTreeNode, (draft) => {
         draft.data.images = images
-        draft.children = draft.childrenIds.map(childId => buildNestedTree(childId))
+        draft.children = children
       })
     }
 
     if (this.tree.nodes.size) {
-      result.push(buildNestedTree(this.rootId))
+      logger.debug(this.tree, 'this.tree')
+      result.push(await buildNestedTree(this.rootId))
     }
     logger.timeEnd('toNestedArray')
     return result
@@ -374,8 +374,8 @@ export class TreeManager {
   /**
    * 打印目录tree
    */
-  printTree(): string {
-    const nestedArray = this.toNestedArray()
+  async printTree() {
+    const nestedArray = await this.toNestedArray()
 
     const indent = (level: number) => '  '.repeat(level) // 缩进函数
     let result = ''

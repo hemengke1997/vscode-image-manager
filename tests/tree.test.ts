@@ -182,12 +182,12 @@ const imageUpdates: UpdatePayload[] = [
 }))
 
 describe('目录树展示', () => {
-  it('按目录分组', () => {
+  it('按目录分组', async () => {
     const treeManager = new TreeManager(images[0].workspaceFolder, {
       compact: false,
       treeStyle: TreeStyle.dir,
     }).generateTree(images)
-    expect(treeManager.printTree()).toMatchInlineSnapshot(`
+    expect(await treeManager.printTree()).toMatchInlineSnapshot(`
       "|-- project
         |-- d3.png
         |-- root.svg
@@ -205,12 +205,12 @@ describe('目录树展示', () => {
     `)
   })
 
-  it('按图片类型分组', () => {
+  it('按图片类型分组', async () => {
     const treeManager = new TreeManager(images[0].workspaceFolder, {
       compact: false,
       treeStyle: TreeStyle.extension,
     }).generateTree(images)
-    expect(treeManager.printTree()).toMatchInlineSnapshot(`
+    expect(await treeManager.printTree()).toMatchInlineSnapshot(`
       "|-- project
         |-- png
           |-- app.png
@@ -225,12 +225,12 @@ describe('目录树展示', () => {
     `)
   })
 
-  it('按目录和图片类型分组', () => {
+  it('按目录和图片类型分组', async () => {
     const treeManager = new TreeManager(images[0].workspaceFolder, {
       compact: false,
       treeStyle: TreeStyle.dir_extension,
     }).generateTree(images)
-    expect(treeManager.printTree()).toMatchInlineSnapshot(`
+    expect(await treeManager.printTree()).toMatchInlineSnapshot(`
       "|-- project
         |-- png
           |-- d3.png
@@ -253,12 +253,12 @@ describe('目录树展示', () => {
     `)
   })
 
-  it('不分组，平铺展示', () => {
+  it('不分组，平铺展示', async () => {
     const treeManager = new TreeManager(images[0].workspaceFolder, {
       compact: false,
       treeStyle: TreeStyle.flat,
     }).generateTree(images)
-    expect(treeManager.printTree()).toMatchInlineSnapshot(`
+    expect(await treeManager.printTree()).toMatchInlineSnapshot(`
       "|-- project
         |-- app.png
         |-- blender.png
@@ -273,7 +273,7 @@ describe('目录树展示', () => {
 })
 
 describe('增量更新', () => {
-  it('按目录分组', () => {
+  it('按目录分组', async () => {
     const treeManager = new TreeManager(images[0].workspaceFolder, {
       compact: false,
       treeStyle: TreeStyle.dir,
@@ -281,7 +281,7 @@ describe('增量更新', () => {
     treeManager.generateTree(images)
     treeManager.updateTree(imageUpdates)
 
-    expect(treeManager.printTree()).toMatchInlineSnapshot(`
+    expect(await treeManager.printTree()).toMatchInlineSnapshot(`
       "|-- project
         |-- d3.png
         |-- root.svg
@@ -328,7 +328,7 @@ describe('增量更新', () => {
       },
     ])
 
-    expect(treeManager.printTree()).toMatchInlineSnapshot(`
+    expect(await treeManager.printTree()).toMatchInlineSnapshot(`
       "|-- project
         |-- d3.png
         |-- root.svg
@@ -367,7 +367,7 @@ describe('增量更新', () => {
       },
     ])
 
-    expect(treeManager.printTree()).toMatchInlineSnapshot(`
+    expect(await treeManager.printTree()).toMatchInlineSnapshot(`
       "|-- project
         |-- d3.png
         |-- root.svg
@@ -381,7 +381,7 @@ describe('增量更新', () => {
     `)
   })
 
-  it('按图片类型分组', () => {
+  it('按图片类型分组', async () => {
     const treeManager = new TreeManager(images[0].workspaceFolder, {
       compact: false,
       treeStyle: TreeStyle.extension,
@@ -389,7 +389,7 @@ describe('增量更新', () => {
     treeManager.generateTree(images)
     treeManager.updateTree(imageUpdates)
 
-    expect(treeManager.printTree()).toMatchInlineSnapshot(`
+    expect(await treeManager.printTree()).toMatchInlineSnapshot(`
       "|-- project
         |-- png
           |-- app.png
@@ -406,7 +406,7 @@ describe('增量更新', () => {
     `)
   })
 
-  it('按目录和图片类型分组', () => {
+  it('按目录和图片类型分组', async () => {
     const treeManager = new TreeManager(images[0].workspaceFolder, {
       compact: false,
       treeStyle: TreeStyle.dir_extension,
@@ -414,7 +414,7 @@ describe('增量更新', () => {
     treeManager.generateTree(images)
     treeManager.updateTree(imageUpdates)
 
-    expect(treeManager.printTree()).toMatchInlineSnapshot(`
+    expect(await treeManager.printTree()).toMatchInlineSnapshot(`
       "|-- project
         |-- path
           |-- to
@@ -443,7 +443,7 @@ describe('增量更新', () => {
     `)
   })
 
-  it('不分组，平铺展示', () => {
+  it('不分组，平铺展示', async () => {
     const treeManager = new TreeManager(images[0].workspaceFolder, {
       compact: false,
       treeStyle: TreeStyle.flat,
@@ -451,7 +451,7 @@ describe('增量更新', () => {
     treeManager.generateTree(images)
     treeManager.updateTree(imageUpdates)
 
-    expect(treeManager.printTree()).toMatchInlineSnapshot(`
+    expect(await treeManager.printTree()).toMatchInlineSnapshot(`
       "|-- project
         |-- app.png
         |-- blender.png
@@ -468,14 +468,14 @@ describe('增量更新', () => {
 })
 
 describe('compact 紧凑模式', () => {
-  it('按目录分组', () => {
+  it('按目录分组', async () => {
     const treeManager = new TreeManager(images[0].workspaceFolder, {
       compact: true,
       treeStyle: TreeStyle.dir,
     })
     treeManager.generateTree(images)
 
-    expect(treeManager.printTree()).toMatchInlineSnapshot(`
+    expect(await treeManager.printTree()).toMatchInlineSnapshot(`
       "|-- project
         |-- d3.png
         |-- root.svg
@@ -492,14 +492,14 @@ describe('compact 紧凑模式', () => {
     `)
   })
 
-  it('按图片类型分组', () => {
+  it('按图片类型分组', async () => {
     const treeManager = new TreeManager(images[0].workspaceFolder, {
       compact: true,
       treeStyle: TreeStyle.extension,
     })
     treeManager.generateTree(images)
 
-    expect(treeManager.printTree()).toMatchInlineSnapshot(`
+    expect(await treeManager.printTree()).toMatchInlineSnapshot(`
       "|-- project
         |-- png
           |-- app.png
@@ -514,14 +514,14 @@ describe('compact 紧凑模式', () => {
     `)
   })
 
-  it('按目录和图片类型分组', () => {
+  it('按目录和图片类型分组', async () => {
     const treeManager = new TreeManager(images[0].workspaceFolder, {
       compact: true,
       treeStyle: TreeStyle.dir_extension,
     })
     treeManager.generateTree(images)
 
-    expect(treeManager.printTree()).toMatchInlineSnapshot(`
+    expect(await treeManager.printTree()).toMatchInlineSnapshot(`
       "|-- project
         |-- png
           |-- d3.png
@@ -543,14 +543,14 @@ describe('compact 紧凑模式', () => {
     `)
   })
 
-  it('不分组，平铺展示', () => {
+  it('不分组，平铺展示', async () => {
     const treeManager = new TreeManager(images[0].workspaceFolder, {
       compact: true,
       treeStyle: TreeStyle.flat,
     })
     treeManager.generateTree(images)
 
-    expect(treeManager.printTree()).toMatchInlineSnapshot(`
+    expect(await treeManager.printTree()).toMatchInlineSnapshot(`
       "|-- project
         |-- app.png
         |-- blender.png
@@ -565,14 +565,14 @@ describe('compact 紧凑模式', () => {
 })
 
 describe('compact 紧凑模式 - 增量更新', () => {
-  it('按目录分组', () => {
+  it('按目录分组', async () => {
     const treeManager = new TreeManager(images[0].workspaceFolder, {
       compact: true,
       treeStyle: TreeStyle.dir,
     })
     treeManager.generateTree(images)
 
-    expect(treeManager.printTree()).toMatchInlineSnapshot(`
+    expect(await treeManager.printTree()).toMatchInlineSnapshot(`
       "|-- project
         |-- d3.png
         |-- root.svg
@@ -590,7 +590,7 @@ describe('compact 紧凑模式 - 增量更新', () => {
 
     treeManager.updateTree(imageUpdates)
 
-    expect(treeManager.printTree()).toMatchInlineSnapshot(`
+    expect(await treeManager.printTree()).toMatchInlineSnapshot(`
       "|-- project
         |-- d3.png
         |-- root.svg
@@ -610,14 +610,14 @@ describe('compact 紧凑模式 - 增量更新', () => {
     `)
   })
 
-  it('紧凑情况下，增删图片，目录紧凑正确', () => {
+  it('紧凑情况下，增删图片，目录紧凑正确', async () => {
     const treeManager = new TreeManager(images[0].workspaceFolder, {
       compact: true,
       treeStyle: TreeStyle.dir,
     })
     treeManager.generateTree(images)
 
-    expect(treeManager.printTree()).toMatchInlineSnapshot(`
+    expect(await treeManager.printTree()).toMatchInlineSnapshot(`
       "|-- project
         |-- d3.png
         |-- root.svg
@@ -635,7 +635,7 @@ describe('compact 紧凑模式 - 增量更新', () => {
 
     treeManager.updateTree(imageUpdates)
 
-    expect(treeManager.printTree()).toMatchInlineSnapshot(`
+    expect(await treeManager.printTree()).toMatchInlineSnapshot(`
       "|-- project
         |-- d3.png
         |-- root.svg
@@ -675,7 +675,7 @@ describe('compact 紧凑模式 - 增量更新', () => {
       },
     ])
 
-    expect(treeManager.printTree()).toMatchInlineSnapshot(`
+    expect(await treeManager.printTree()).toMatchInlineSnapshot(`
       "|-- project
         |-- d3.png
         |-- root.svg
@@ -717,7 +717,7 @@ describe('compact 紧凑模式 - 增量更新', () => {
       },
     ])
 
-    expect(treeManager.printTree()).toMatchInlineSnapshot(`
+    expect(await treeManager.printTree()).toMatchInlineSnapshot(`
       "|-- project
         |-- d3.png
         |-- root.svg
@@ -757,7 +757,7 @@ describe('compact 紧凑模式 - 增量更新', () => {
       },
     ])
 
-    expect(treeManager.printTree()).toMatchInlineSnapshot(`
+    expect(await treeManager.printTree()).toMatchInlineSnapshot(`
       "|-- project
         |-- d3.png
         |-- root.svg
@@ -798,7 +798,7 @@ describe('compact 紧凑模式 - 增量更新', () => {
       },
     ])
 
-    expect(treeManager.printTree()).toMatchInlineSnapshot(`
+    expect(await treeManager.printTree()).toMatchInlineSnapshot(`
       "|-- project
         |-- d3.png
         |-- root.svg
@@ -822,7 +822,7 @@ describe('compact 紧凑模式 - 增量更新', () => {
     `)
   })
 
-  it('按图片类型分组', () => {
+  it('按图片类型分组', async () => {
     const treeManager = new TreeManager(images[0].workspaceFolder, {
       compact: true,
       treeStyle: TreeStyle.extension,
@@ -830,7 +830,7 @@ describe('compact 紧凑模式 - 增量更新', () => {
     treeManager.generateTree(images)
     treeManager.updateTree(imageUpdates)
 
-    expect(treeManager.printTree()).toMatchInlineSnapshot(`
+    expect(await treeManager.printTree()).toMatchInlineSnapshot(`
       "|-- project
         |-- png
           |-- app.png
@@ -847,7 +847,7 @@ describe('compact 紧凑模式 - 增量更新', () => {
     `)
   })
 
-  it('按目录和图片类型分组', () => {
+  it('按目录和图片类型分组', async () => {
     const treeManager = new TreeManager(images[0].workspaceFolder, {
       compact: true,
       treeStyle: TreeStyle.dir_extension,
@@ -855,7 +855,7 @@ describe('compact 紧凑模式 - 增量更新', () => {
     treeManager.generateTree(images)
     treeManager.updateTree(imageUpdates)
 
-    expect(treeManager.printTree()).toMatchInlineSnapshot(`
+    expect(await treeManager.printTree()).toMatchInlineSnapshot(`
       "|-- project
         |-- path/to
           |-- png
@@ -882,7 +882,7 @@ describe('compact 紧凑模式 - 增量更新', () => {
     `)
   })
 
-  it('不分组，平铺展示', () => {
+  it('不分组，平铺展示', async () => {
     const treeManager = new TreeManager(images[0].workspaceFolder, {
       compact: true,
       treeStyle: TreeStyle.flat,
@@ -890,7 +890,7 @@ describe('compact 紧凑模式 - 增量更新', () => {
     treeManager.generateTree(images)
     treeManager.updateTree(imageUpdates)
 
-    expect(treeManager.printTree()).toMatchInlineSnapshot(`
+    expect(await treeManager.printTree()).toMatchInlineSnapshot(`
       "|-- project
         |-- app.png
         |-- blender.png
@@ -905,14 +905,14 @@ describe('compact 紧凑模式 - 增量更新', () => {
     `)
   })
 
-  it('修改目录', () => {
+  it('修改目录', async () => {
     const treeManager = new TreeManager(images[0].workspaceFolder, {
       compact: true,
       treeStyle: TreeStyle.dir,
     })
     treeManager.generateTree(images)
 
-    expect(treeManager.printTree()).toMatchInlineSnapshot(`
+    expect(await treeManager.printTree()).toMatchInlineSnapshot(`
       "|-- project
         |-- d3.png
         |-- root.svg
@@ -977,7 +977,7 @@ describe('compact 紧凑模式 - 增量更新', () => {
       },
     ])
 
-    expect(treeManager.printTree()).toMatchInlineSnapshot(`
+    expect(await treeManager.printTree()).toMatchInlineSnapshot(`
       "|-- project
         |-- d3.png
         |-- root.svg
@@ -1010,12 +1010,12 @@ describe('tree manager 方法测试', () => {
 })
 
 describe('节点中图片的排序和visible过滤', () => {
-  it('按名称排序 - 升序', () => {
+  it('按名称排序 - 升序', async () => {
     const treeManager = new TreeManager(images[0].workspaceFolder, {
       treeStyle: TreeStyle.dir,
     }).generateTree(images)
 
-    expect(treeManager.printTree()).toMatchInlineSnapshot(`
+    expect(await treeManager.printTree()).toMatchInlineSnapshot(`
       "|-- project
         |-- d3.png
         |-- root.svg
@@ -1033,7 +1033,7 @@ describe('节点中图片的排序和visible过滤', () => {
 
     treeManager.toNestedArray()
 
-    expect(treeManager.printTree()).toMatchInlineSnapshot(`
+    expect(await treeManager.printTree()).toMatchInlineSnapshot(`
       "|-- project
         |-- d3.png
         |-- root.svg
@@ -1050,13 +1050,13 @@ describe('节点中图片的排序和visible过滤', () => {
     `)
   })
 
-  it('按名称排序 - 降序', () => {
+  it('按名称排序 - 降序', async () => {
     const treeManager = new TreeManager(images[0].workspaceFolder, {
       sort: [SortByType.basename, SortType.desc],
       treeStyle: TreeStyle.dir,
     }).generateTree(images)
 
-    expect(treeManager.printTree()).toMatchInlineSnapshot(`
+    expect(await treeManager.printTree()).toMatchInlineSnapshot(`
       "|-- project
         |-- root.svg
         |-- d3.png
@@ -1074,7 +1074,7 @@ describe('节点中图片的排序和visible过滤', () => {
 
     treeManager.toNestedArray()
 
-    expect(treeManager.printTree()).toMatchInlineSnapshot(`
+    expect(await treeManager.printTree()).toMatchInlineSnapshot(`
       "|-- project
         |-- root.svg
         |-- d3.png
@@ -1091,13 +1091,13 @@ describe('节点中图片的排序和visible过滤', () => {
     `)
   })
 
-  it('按修改时间排序 - 升序', () => {
+  it('按修改时间排序 - 升序', async () => {
     const treeManager = new TreeManager(images[0].workspaceFolder, {
       sort: [SortByType.mtime, SortType.asc],
       treeStyle: TreeStyle.dir,
     }).generateTree(images)
 
-    expect(treeManager.printTree()).toMatchInlineSnapshot(`
+    expect(await treeManager.printTree()).toMatchInlineSnapshot(`
       "|-- project
         |-- d3.png
         |-- root.svg
@@ -1113,9 +1113,9 @@ describe('节点中图片的排序和visible过滤', () => {
       "
     `)
 
-    const nested = treeManager.toNestedArray()
+    const nested = await treeManager.toNestedArray()
 
-    expect(treeManager.printTree()).toMatchInlineSnapshot(`
+    expect(await treeManager.printTree()).toMatchInlineSnapshot(`
       "|-- project
         |-- d3.png
         |-- root.svg
@@ -1136,7 +1136,7 @@ describe('节点中图片的排序和visible过滤', () => {
     )
   })
 
-  it('过滤', () => {
+  it('过滤', async () => {
     const treeManager = new TreeManager(images[0].workspaceFolder, {
       filter: {
         exclude_types: ['png'],
@@ -1146,7 +1146,7 @@ describe('节点中图片的排序和visible过滤', () => {
 
     expect(treeManager.tree.nodes).matchSnapshot()
 
-    expect(treeManager.printTree()).toMatchInlineSnapshot(`
+    expect(await treeManager.printTree()).toMatchInlineSnapshot(`
       "|-- project
         |-- root.svg
       "

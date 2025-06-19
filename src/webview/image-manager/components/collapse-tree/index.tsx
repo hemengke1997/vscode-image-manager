@@ -44,26 +44,26 @@ function CollapseTree(props: Props) {
 
   const notifyCollapseChange = useSetAtom(ActionAtoms.notifyCollapseChange)
 
-  const afterUpdate = useMemoizedFn(() => {
-    const nestedTree = treeManager.current?.toNestedArray()
+  const afterUpdate = useMemoizedFn(async () => {
+    const nestedTree = await treeManager.current?.toNestedArray()
     resetPartialState()
     setNestedTree(nestedTree || [])
 
     // 获取当前工作区的可见图片列表
+    const images = flatten(treeManager.current!.toArray(nestedTree || [], node => node.data.images || []))
+    setWorkspaceImages(
+      produce((draft) => {
+        const index = draft.findIndex(t => t.workspaceFolder === workspace.workspaceFolder)
+        if (index !== -1) {
+          draft[index].images = images
+        }
+        else {
+          draft.push({ workspaceFolder: workspace.workspaceFolder, images })
+        }
+      }),
+    )
     startTransition(() => {
-      const images = flatten(treeManager.current!.toArray(nestedTree || [], node => node.data.images || []))
-      setWorkspaceImages(
-        produce((draft) => {
-          const index = draft.findIndex(t => t.workspaceFolder === workspace.workspaceFolder)
-          if (index !== -1) {
-            draft[index].images = images
-          }
-          else {
-            draft.push({ workspaceFolder: workspace.workspaceFolder, images })
-          }
-        }),
-      )
-      // TODO：不一定生效
+    // TODO：不一定生效
       notifyCollapseChange()
     })
   })

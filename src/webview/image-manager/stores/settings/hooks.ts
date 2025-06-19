@@ -73,13 +73,15 @@ export function useTheme() {
 
 // 源语言
 export function useOriginLanguage() {
-  const originLanguage = useAtomValue(
+  const _originLanguage = useAtomValue(
     selectAtom(
       VscodeAtoms.extConfigAtom,
       useMemoizedFn(state => state.appearance.language),
     ),
   )
-  return [originLanguage] as const
+  const [originLanguage, setOriginLanguage] = useExtConfigState(ConfigKey.appearance_language, _originLanguage)
+
+  return [originLanguage, setOriginLanguage] as const
 }
 
 // 语言
