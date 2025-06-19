@@ -33,7 +33,7 @@ export function ToasterWithMax({
       style={{
         zIndex: 9999,
       }}
-      className='fixed left-1/2 top-1/2 -translate-y-1/2 '
+      className='pointer-events-none fixed left-1/2 top-1/2 -translate-y-1/2 shadow'
       onMouseEnter={handlers.startPause}
       onMouseLeave={handlers.endPause}
     >
@@ -59,7 +59,7 @@ export function ToasterWithMax({
               }}
               key={t.id}
               className={classNames(
-                'flex items-center justify-center px-2 py-1 text-sm shadow-sm text-white rounded-md bg-black/60',
+                'flex items-center justify-center px-2 py-1 text-sm text-white rounded-ant-border-radius bg-black/60 pointer-events-auto',
                 PreventClickAway.Viewer,
               )}
             >

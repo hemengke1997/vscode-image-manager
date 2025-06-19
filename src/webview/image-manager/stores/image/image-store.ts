@@ -25,7 +25,7 @@ export enum WorkspaceUpdate {
 
 export const imageStateAtom = atomWithReducer(
   {
-    loading: false,
+    loading: true,
     workspaces: [] as Workspace[],
   },
   (

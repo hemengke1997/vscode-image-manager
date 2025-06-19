@@ -31,10 +31,10 @@ function CollapseTree(props: Props) {
   const { workspace } = props
   const { resetPartialState } = useUpdateImages()
 
-  const setWorkspaceImages = useSetAtom(GlobalAtoms.workspaceImagesAtom)
-  const [nestedTree, setNestedTree] = useState<NestedTreeNode[]>([])
-
   const treeManager = useRef<TreeManager>()
+
+  const setWorkspaceImages = useSetAtom(GlobalAtoms.workspaceImagesAtom)
+  const [nestedTree, setNestedTree] = useState<NestedTreeNode[]>()
 
   const [displayGroup] = useDisplayGroup()
   const [displayStyle] = useDisplayStyle()

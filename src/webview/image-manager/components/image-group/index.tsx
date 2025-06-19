@@ -192,7 +192,7 @@ function ImageGroup(props: Props, ref: ForwardedRef<HTMLDivElement>) {
       setPreviewScale(DEFAULT_WORKSPACE_STATE.preview_scale)
     }
 
-    toast.dismiss(ToastKey)
+    toast.remove(ToastKey)
   })
   useEffect(() => {
     if (!preview.open) {

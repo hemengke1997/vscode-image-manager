@@ -2,6 +2,7 @@ import type { EnableCollapseContextMenuType } from '../../../context-menus/compo
 import type { NestedTreeNode, TreeManager } from '~/webview/image-manager/utils/tree/tree-manager'
 import { useMemoizedFn } from 'ahooks'
 import { Card, type CollapseProps, Empty } from 'antd'
+import { isUndefined } from 'es-toolkit'
 import { useAtomValue } from 'jotai'
 import { selectAtom } from 'jotai/utils'
 import { motion } from 'motion/react'
@@ -20,7 +21,7 @@ import RevealInFolder from '../reveal-in-folder'
 import styles from './index.module.css'
 
 interface Props {
-  tree: NestedTreeNode[]
+  tree: NestedTreeNode[] | undefined
   treeManager: TreeManager | undefined
   workspaceId: string
   workspaceFolder: string
@@ -159,6 +160,10 @@ function TreeRenderer(props: Props) {
       )
     },
   )
+
+  if (isUndefined(tree)) {
+    return null
+  }
 
   if (!tree.length) {
     return (

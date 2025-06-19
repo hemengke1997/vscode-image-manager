@@ -1,5 +1,4 @@
 import i18next from 'i18next'
-
 import { Provider } from 'jotai'
 import { startTransition, Suspense } from 'react'
 import ReactDOM from 'react-dom/client'
@@ -109,7 +108,7 @@ function mount(reload?: boolean) {
     <AntdConfigProvider>
       {/* Fallback依赖了antd provider */}
       <ErrorBoundary FallbackComponent={Fallback}>
-        <Suspense fallback={<div />}>
+        <Suspense fallback={null}>
           <ImageManager />
         </Suspense>
       </ErrorBoundary>

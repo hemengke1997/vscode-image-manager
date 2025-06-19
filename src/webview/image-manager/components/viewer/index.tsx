@@ -3,7 +3,7 @@ import { Card, Empty, Skeleton } from 'antd'
 import { floor } from 'es-toolkit/compat'
 import { useAtomValue, useSetAtom } from 'jotai'
 import { AnimatePresence, motion } from 'motion/react'
-import { memo, useEffect, useMemo, useRef, useState } from 'react'
+import { memo, useEffect, useMemo, useRef } from 'react'
 import { useTranslation } from 'react-i18next'
 import { IoMdImages } from 'react-icons/io'
 import { imperativeModalMap } from '~/webview/image-manager/hooks/use-imperative-antd-modal'
@@ -87,27 +87,6 @@ function Viewer() {
     },
   })
 
-  const [showSkeleton, setShowSkeleton] = useState(false)
-
-  useEffect(() => {
-    let timeout: ReturnType<typeof setTimeout> | null = null
-
-    if (imageState.loading) {
-      timeout = setTimeout(() => {
-        setShowSkeleton(true)
-      }, 500)
-    }
-    else {
-      setShowSkeleton(false)
-    }
-
-    return () => {
-      if (timeout) {
-        clearTimeout(timeout)
-      }
-    }
-  }, [imageState.loading])
-
   const { ref } = useImageHotKeys()
 
   const contentRef = useRef<HTMLDivElement>(null)
@@ -121,6 +100,21 @@ function Viewer() {
   )
 
   useClickImageAway()
+
+  const motions = useMemo(() => ({
+    initial: {
+      opacity: 0,
+    },
+    animate: {
+      opacity: 1,
+    },
+    exit: {
+      opacity: 0,
+    },
+    transition: {
+      duration: ANIMATION_DURATION.middle,
+    },
+  }), [])
 
   return (
     <div ref={containerRef} className='space-y-4'>
@@ -138,45 +132,14 @@ function Viewer() {
         <AnimatePresence>
           {imageState.loading
             ? (
-                showSkeleton
-                  ? (
-                      <motion.div
-                        initial={{
-                          opacity: 0,
-                          transition: {
-                            delay: ANIMATION_DURATION.slow,
-                          },
-                        }}
-                        animate={{
-                          opacity: 1,
-                        }}
-                        exit={{
-                          opacity: 0,
-                        }}
-                        transition={{
-                          duration: ANIMATION_DURATION.middle,
-                        }}
-                      >
-                        <Skeleton className='px-4 py-2' active paragraph={{ rows: 4 }} />
-                      </motion.div>
-                    )
-                  : null
+                <motion.div {...motions}>
+                  <Skeleton className='px-4 py-2' active paragraph={{ rows: 4 }} />
+                </motion.div>
               )
             : (
                 <motion.div
                   ref={contentRef}
-                  initial={{
-                    opacity: 0,
-                  }}
-                  animate={{
-                    opacity: 1,
-                  }}
-                  exit={{
-                    opacity: 0,
-                  }}
-                  transition={{
-                    duration: ANIMATION_DURATION.middle,
-                  }}
+                  {...motions}
                 >
                   <div className='space-y-4' tabIndex={-1} ref={ref}>
                     {imageState.workspaces.length
