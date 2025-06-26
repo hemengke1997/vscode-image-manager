@@ -4,7 +4,7 @@ import { ConfigProvider } from 'antd'
 import { flatten, isSubset } from 'es-toolkit'
 import { produce } from 'immer'
 import { useSetAtom } from 'jotai'
-import { memo, startTransition, useEffect, useRef, useState } from 'react'
+import { memo, startTransition, useDeferredValue, useEffect, useRef, useState } from 'react'
 import { DisplayGroupType, DisplayStyleType } from '~/core/persist/workspace/common'
 import logger from '~/utils/logger'
 import useUpdateDeepEffect from '../../hooks/use-update-deep-effect'
@@ -35,6 +35,7 @@ function CollapseTree(props: Props) {
 
   const setWorkspaceImages = useSetAtom(GlobalAtoms.workspaceImagesAtom)
   const [nestedTree, setNestedTree] = useState<NestedTreeNode[]>()
+  const deferredNestedTree = useDeferredValue(nestedTree)
 
   const [displayGroup] = useDisplayGroup()
   const [displayStyle] = useDisplayStyle()
@@ -132,7 +133,7 @@ function CollapseTree(props: Props) {
       }}
     >
       <TreeRenderer
-        tree={nestedTree}
+        tree={deferredNestedTree}
         treeManager={treeManager.current}
         workspaceFolder={workspace.workspaceFolder}
         workspaceId={workspace.absWorkspaceFolder}

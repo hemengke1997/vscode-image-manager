@@ -1,9 +1,9 @@
-import { useClickAway } from 'ahooks'
+import { useClickAway, useMemoizedFn } from 'ahooks'
 import { Card, Empty, Skeleton } from 'antd'
 import { floor } from 'es-toolkit/compat'
 import { useAtomValue, useSetAtom } from 'jotai'
 import { AnimatePresence, motion } from 'motion/react'
-import { memo, useEffect, useMemo, useRef } from 'react'
+import { memo, useEffect, useMemo, useRef, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { IoMdImages } from 'react-icons/io'
 import { imperativeModalMap } from '~/webview/image-manager/hooks/use-imperative-antd-modal'
@@ -43,7 +43,10 @@ function Viewer() {
 
   /* --------------- header sticky -------------- */
   const stickyRef = useRef<HTMLDivElement>(null)
-  const target = useMemo(() => stickyRef.current?.querySelector('.ant-card-head') as HTMLElement, [stickyRef.current])
+  const getTarget = useMemoizedFn(() => stickyRef.current?.querySelector('.ant-card-head') as HTMLElement)
+
+  const [target, setTarget] = useState(() => getTarget())
+
   useSticky({
     target,
     holder: stickyRef,
@@ -64,12 +67,18 @@ function Viewer() {
       }
     },
   })
+
   useEffect(() => {
-    if (target) {
-      // Windows PC 上可能会高度计算不准确
-      setViewerHeaderStickyHeight(floor(target.getBoundingClientRect().height) - 0.5)
-    }
-  }, [target])
+    requestIdleCallback(() => {
+      const target = getTarget()
+      setTarget(target)
+
+      if (target) {
+        // Windows PC 上可能会高度计算不准确
+        setViewerHeaderStickyHeight(floor(target.getBoundingClientRect().height) - 0.5)
+      }
+    })
+  }, [stickyRef.current])
 
   const { imageManagerEvent } = useImageManagerEvent({
     on: {

@@ -406,7 +406,7 @@
     "@types/vscode": "^1.70.0",
     "@types/vscode-webview": "^1.57.5",
     "@vitejs/plugin-react": "^4.5.2",
-    "@vscode/vsce": "^3.5.0",
+    "@vscode/vsce": "^3.6.0",
     "ahooks": "^3.8.5",
     "antd": "^5.26.1",
     "bumpp": "^10.2.0",
