@@ -1,3 +1,4 @@
+import type { HandlerParams, ItemParams, PredicateParams } from 'react-contexify'
 import type { ImageContextMenuType } from './hooks/use-image-context-menu'
 import { useLockFn, useMemoizedFn } from 'ahooks'
 import { App } from 'antd'
@@ -5,10 +6,9 @@ import { defaults } from 'es-toolkit/compat'
 import { useAtomValue } from 'jotai'
 import { memo } from 'react'
 import {
-  type HandlerParams,
+
   Item,
-  type ItemParams,
-  type PredicateParams,
+
   RightSlot,
   Separator,
   Submenu,

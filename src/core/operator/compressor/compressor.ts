@@ -1,8 +1,9 @@
 import type { Buffer } from 'node:buffer'
+import type { OperatorOptions, OperatorResult } from '../operator'
 import { toString } from 'es-toolkit/compat'
 import { i18n } from '~/i18n'
 import { Channel } from '~/utils/node/channel'
-import { Operator, type OperatorOptions, type OperatorResult } from '../operator'
+import { Operator } from '../operator'
 
 export abstract class Compressor extends Operator {
   public inputPath: string = ''

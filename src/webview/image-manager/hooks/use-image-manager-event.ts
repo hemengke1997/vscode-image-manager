@@ -67,7 +67,7 @@ export enum IMEvent {
   clear_viewer_cut_images = 'clear_viewer_cut_images',
 }
 
-interface Events {
+type Events = {
   [IMEvent.delete]: [images: ImageType[]]
   [IMEvent.rename]: [previosImage: ImageType, newImage: ImageType]
   [IMEvent.reveal_in_viewer]: [imagePath: string]

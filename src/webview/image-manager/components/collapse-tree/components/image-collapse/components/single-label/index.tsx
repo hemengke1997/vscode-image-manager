@@ -1,5 +1,6 @@
+import type { ReactNode } from 'react'
 import type { EnableCollapseContextMenuType } from '../../../../../context-menus/components/collapse-context-menu'
-import { memo, type ReactNode } from 'react'
+import { memo } from 'react'
 import { useHotkeys } from 'react-hotkeys-hook'
 import { Key } from 'ts-key-enum'
 import useImageManagerEvent, { IMEvent } from '~/webview/image-manager/hooks/use-image-manager-event'
@@ -8,7 +9,7 @@ import { OS } from '~/webview/image-manager/utils/device'
 import { classNames } from '~/webview/image-manager/utils/tw-clsx'
 import useCollapseContextMenu from '../../../../../context-menus/components/collapse-context-menu/hooks/use-collapse-context-menu'
 
-interface SingleLabelProps {
+type SingleLabelProps = {
   children: ReactNode
   contextMenu?: EnableCollapseContextMenuType
   dirPath: string

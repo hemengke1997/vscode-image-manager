@@ -1,4 +1,5 @@
-import { type ConsolaInstance, createConsola, LogLevels } from 'consola'
+import type { ConsolaInstance } from 'consola'
+import { createConsola, LogLevels } from 'consola'
 import { isNode } from 'es-toolkit'
 
 type LoggerInstance = ConsolaInstance & {

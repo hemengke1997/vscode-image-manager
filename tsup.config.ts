@@ -1,8 +1,9 @@
+import type { Options } from 'tsup'
 import path from 'node:path'
 import process from 'node:process'
 import { fileURLToPath } from 'node:url'
 import { execa } from 'execa'
-import { defineConfig, type Options } from 'tsup'
+import { defineConfig } from 'tsup'
 import { loadEnv } from 'vite'
 import logger from '~/utils/logger'
 

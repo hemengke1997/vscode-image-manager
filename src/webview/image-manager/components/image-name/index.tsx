@@ -1,5 +1,6 @@
+import type { TooltipProps } from 'antd'
 import { useMemoizedFn } from 'ahooks'
-import { Tooltip, type TooltipProps } from 'antd'
+import { Tooltip } from 'antd'
 import { memo } from 'react'
 
 const tooltipProps: TooltipProps = {
@@ -11,7 +12,7 @@ const tooltipProps: TooltipProps = {
   },
 }
 
-interface Props {
+type Props = {
   children?: string
   image?: ImageType
   /**

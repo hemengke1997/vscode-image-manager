@@ -4,7 +4,7 @@ import { memo } from 'react'
 import { BsQuestionCircleFill } from 'react-icons/bs'
 import { classNames } from '~/webview/image-manager/utils/tw-clsx'
 
-interface Props {
+type Props = {
   image: string
   className?: string
 }

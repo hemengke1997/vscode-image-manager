@@ -7,7 +7,7 @@ import { atomWithReducer } from 'jotai/utils'
 import logger from '~/utils/logger'
 import { UpdateEvent, UpdateOrigin, UpdateType } from '../../utils/tree/const'
 
-export interface Workspace {
+export type Workspace = {
   images: ImageType[] // 图片
   workspaceFolder: string // 工作区名称
   absWorkspaceFolder: string // 工作区绝对路径

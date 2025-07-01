@@ -1,9 +1,10 @@
+import type { RefObject } from 'react'
 import { useEventListener, useInViewport, useMemoizedFn, useThrottleFn, useUpdateEffect } from 'ahooks'
 import { isUndefined } from 'es-toolkit'
-import { type RefObject, useEffect, useRef } from 'react'
+import { useEffect, useRef } from 'react'
 import { getAppRoot } from '~/webview/utils'
 
-interface Props {
+type Props = {
   /**
    * 需要sticky的元素
    */

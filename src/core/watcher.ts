@@ -1,16 +1,18 @@
+import type { GlobbyFilterFunction } from 'globby'
+import type { ConfigurationChangeEvent, FileSystemWatcher, Uri } from 'vscode'
 import type { UpdatePayload } from '~/webview/image-manager/utils/tree/tree-manager'
 import type { ImageManagerPanel } from '~/webview/panel'
 import path from 'node:path'
 import { max } from 'es-toolkit/compat'
-import { type GlobbyFilterFunction, isGitIgnoredSync } from 'globby'
+import { isGitIgnoredSync } from 'globby'
 import micromatch from 'micromatch'
 import { nanoid } from 'nanoid'
 import {
-  type ConfigurationChangeEvent,
+
   Disposable,
-  type FileSystemWatcher,
+
   RelativePattern,
-  type Uri,
+
   workspace,
 } from 'vscode'
 import { i18n } from '~/i18n'

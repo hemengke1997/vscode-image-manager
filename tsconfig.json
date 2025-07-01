@@ -12,7 +12,6 @@
       "~root/*": ["./*"]
     },
     "resolveJsonModule": true,
-    "types": ["vite-config-preset/plugin"],
     "strict": true,
     "strictNullChecks": true,
     "noImplicitAny": false,

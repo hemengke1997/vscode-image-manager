@@ -1,4 +1,5 @@
 import type { Buffer } from 'node:buffer'
+import type { ObjectPlugin } from '../hook-plugin'
 import type { SharpNS } from '~/@types/global'
 import process from 'node:process'
 import fs from 'fs-extra'
@@ -6,11 +7,11 @@ import { env, Uri, window } from 'vscode'
 import { i18n } from '~/i18n'
 import logger from '~/utils/logger'
 import { Global } from '../global'
-import { HookPlugin, type ObjectPlugin } from '../hook-plugin'
+import { HookPlugin } from '../hook-plugin'
 
 type HookResult<T = void> = Promise<T> | T
 
-interface RuntimeHooks<T extends AnyObject, RuntimeCtx extends AnyObject = T & OperatorInput> {
+type RuntimeHooks<T extends AnyObject, RuntimeCtx extends AnyObject = T & OperatorInput> = {
   'on:configuration': (ctx: Context<RuntimeCtx>) => HookResult<SharpNS.SharpOptions | undefined>
   'before:run': (ctx: Context<RuntimeCtx>) => HookResult
   'after:run': (ctx: Context<RuntimeCtx>, res: { outputPath: string }) => HookResult
@@ -31,7 +32,7 @@ class Context<T extends AnyObject, RuntimeCtx extends AnyObject = T & OperatorIn
   }
 }
 
-interface OperatorInput {
+type OperatorInput = {
   input: Parameters<TSharp>[0]
 }
 

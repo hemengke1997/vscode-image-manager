@@ -3,7 +3,7 @@ import { memo } from 'react'
 import { locales } from '~/meta'
 import { useControlledState } from '~/webview/image-manager/hooks/use-controlled-state'
 
-interface Props {
+type Props = {
   value?: Language
   onChange?: (language: Language) => void
 }

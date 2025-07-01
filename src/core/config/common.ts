@@ -3,13 +3,13 @@ import type { CompressionOptions } from '../operator/compressor/type'
 import type { FormatConverterOptions } from '../operator/format-converter'
 import { Language, ReduceMotion, Theme } from '~/meta'
 
-export interface VscodeConfigType {
+export type VscodeConfigType = {
   theme: Theme
   language: Language
   reduceMotion: ReduceMotion
 }
 
-export interface ConfigType {
+export type ConfigType = {
   core: {
     multiplePanels: boolean
     installDependencies: boolean

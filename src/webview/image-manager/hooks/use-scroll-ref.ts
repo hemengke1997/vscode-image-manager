@@ -1,7 +1,7 @@
 import { useUpdate } from 'ahooks'
 import { useEffect, useRef } from 'react'
 
-interface Props {
+type Props = {
   onChanage?: () => void
 }
 

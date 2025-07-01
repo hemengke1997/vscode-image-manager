@@ -5,7 +5,7 @@ import Preview from '../preview'
 import With from './images/with.png?base64'
 import Without from './images/without.png?base64'
 
-interface Props {
+type Props = {
   value?: boolean
   onChange?: (value: boolean) => void
 }

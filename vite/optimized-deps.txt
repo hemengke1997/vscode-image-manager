@@ -25,7 +25,6 @@ react-contexify
 react-scroll
 react-hotkeys-hook
 ts-key-enum
-vite-config-preset/isomorph
 delay
 immer
 es-toolkit/compat
@@ -33,3 +32,10 @@ es-toolkit
 consola
 debounce
 react-hot-toast
+jotai
+jotai/utils
+motion/react
+slash
+clsx
+tailwind-merge
+ua-parser-js

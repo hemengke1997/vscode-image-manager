@@ -1,5 +1,5 @@
 import type { Disposable, ExtensionContext } from 'vscode'
 
-export interface ExtensionModule {
+export type ExtensionModule = {
   (ctx: ExtensionContext): Disposable | Disposable[]
 }

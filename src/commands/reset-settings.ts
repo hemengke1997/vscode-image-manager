@@ -1,5 +1,6 @@
+import type { QuickPickItem } from 'vscode'
 import type { ExtensionModule } from '~/module'
-import { commands, type QuickPickItem, window } from 'vscode'
+import { commands, window } from 'vscode'
 import { Config } from '~/core/config/config'
 import { Global } from '~/core/global'
 import { WorkspaceState } from '~/core/persist/workspace/workspace-state'

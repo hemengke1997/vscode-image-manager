@@ -1,6 +1,7 @@
+import type { GetProps } from 'antd'
 import type lazyImage from '../..'
 import { useMemoizedFn } from 'ahooks'
-import { type GetProps, Image } from 'antd'
+import { Image } from 'antd'
 import { useAtomValue } from 'jotai'
 import { selectAtom } from 'jotai/utils'
 import { memo, useMemo } from 'react'

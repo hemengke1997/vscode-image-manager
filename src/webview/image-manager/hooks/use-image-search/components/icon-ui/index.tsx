@@ -1,4 +1,5 @@
-import { type HTMLAttributes, memo } from 'react'
+import type { HTMLAttributes } from 'react'
+import { memo } from 'react'
 import { classNames } from '~/webview/image-manager/utils/tw-clsx'
 
 function IconUI(

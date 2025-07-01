@@ -1,3 +1,4 @@
+import type { OperatorOptions, OperatorResult } from './operator'
 import type { SharpNS } from '~/@types/global'
 import type { ImageManagerPanel } from '~/webview/panel'
 import { Buffer } from 'node:buffer'
@@ -7,7 +8,7 @@ import pMap from 'p-map'
 import { i18n } from '~/i18n'
 import { DEFAULT_CONFIG } from '../config/common'
 import { SharpOperator } from '../sharp/sharp-operator'
-import { Operator, type OperatorOptions, type OperatorResult, SkipError } from './operator'
+import { Operator, SkipError } from './operator'
 
 export type FormatConverterOptions = {
   /**
@@ -26,7 +27,7 @@ export type FormatConverterOptions = {
   icoSize: number[]
 } & OperatorOptions
 
-interface ConvertorRuntime {
+type ConvertorRuntime = {
   ext: string
   filePath: string
   option: FormatConverterOptions

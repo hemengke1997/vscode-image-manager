@@ -9,7 +9,7 @@ import Nest from './images/nest.png?base64'
 
 export type DisplayStyleType = 'compact' | 'nested'
 
-interface DisplayStyleProps {
+type DisplayStyleProps = {
   value?: DisplayStyleType
   onChange?: (style: DisplayStyleType) => void
 }

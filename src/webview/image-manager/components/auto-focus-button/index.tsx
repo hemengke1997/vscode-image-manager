@@ -1,4 +1,5 @@
-import { Button, type ButtonProps } from 'antd'
+import type { ButtonProps } from 'antd'
+import { Button } from 'antd'
 import { memo, useLayoutEffect, useRef } from 'react'
 
 function AutoFocusButton(props: ButtonProps) {

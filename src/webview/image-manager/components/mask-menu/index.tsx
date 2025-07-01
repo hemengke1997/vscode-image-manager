@@ -1,5 +1,6 @@
+import type { MenuProps } from 'react-contexify'
 import { memo, useState } from 'react'
-import { Menu, type MenuProps } from 'react-contexify'
+import { Menu } from 'react-contexify'
 import { classNames } from '~/webview/image-manager/utils/tw-clsx'
 import { useTheme } from '../../stores/settings/hooks'
 import { PreventClickAway, ShouldClickAway } from '../viewer/hooks/use-click-image-away'

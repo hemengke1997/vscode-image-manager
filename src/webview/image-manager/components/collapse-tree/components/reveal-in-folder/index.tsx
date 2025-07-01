@@ -1,11 +1,12 @@
-import { memo, type PropsWithChildren } from 'react'
+import type { PropsWithChildren } from 'react'
+import { memo } from 'react'
 import { useTranslation } from 'react-i18next'
 import { IoMdFolderOpen } from 'react-icons/io'
 import useImageOperation from '~/webview/image-manager/hooks/use-image-operation'
 import { OS } from '~/webview/image-manager/utils/device'
 import RevealButton from '../reveal-button'
 
-interface Props {
+type Props = {
   path: string
 }
 

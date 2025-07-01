@@ -3,7 +3,7 @@ import { App, Button, InputNumber, Popconfirm } from 'antd'
 import { memo, useRef, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 
-interface Props {
+type Props = {
   errorRange: number
   onErrorRangeChange: (errorRange: number) => void
 }

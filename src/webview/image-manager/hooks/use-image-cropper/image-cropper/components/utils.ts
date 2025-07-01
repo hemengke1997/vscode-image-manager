@@ -1,6 +1,6 @@
-interface CropperImageOptions extends Cropper.Options<HTMLImageElement> {
+type CropperImageOptions = {
   [key: string]: unknown
-}
+} & Cropper.Options<HTMLImageElement>
 
 type CropperKeys = keyof Cropper.Options
 

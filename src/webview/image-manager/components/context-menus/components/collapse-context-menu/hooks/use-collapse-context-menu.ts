@@ -1,8 +1,10 @@
+import type { ShowContextMenuParams } from 'react-contexify'
+import type { EnableCollapseContextMenuType } from '..'
 import { useMemoizedFn } from 'ahooks'
-import { type ShowContextMenuParams, useContextMenu } from 'react-contexify'
-import { COLLAPSE_CONTEXT_MENU_ID, type EnableCollapseContextMenuType } from '..'
+import { useContextMenu } from 'react-contexify'
+import { COLLAPSE_CONTEXT_MENU_ID } from '..'
 
-export interface CollapseContextMenuType {
+export type CollapseContextMenuType = {
   /**
    * 当前文件夹下的图片
    */

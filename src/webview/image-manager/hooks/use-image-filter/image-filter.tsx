@@ -11,7 +11,7 @@ import { useImageFilter } from '../../stores/action/hooks'
 import DisplayType from './components/display-type'
 import { FilterRadioValue, ImageVisibleFilter } from './const'
 
-export interface ImageFilterType {
+export type ImageFilterType = {
   /**
    * 排除显示图片类型
    */

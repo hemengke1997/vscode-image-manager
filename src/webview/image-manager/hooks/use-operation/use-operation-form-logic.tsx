@@ -1,3 +1,4 @@
+import type { ReactNode } from 'react'
 import type { Group } from './use-operation-result/operation-result'
 import type { OperatorResult } from '~/core/operator/operator'
 import { useLockFn, useMemoizedFn } from 'ahooks'
@@ -5,7 +6,7 @@ import { App, Button, Popconfirm } from 'antd'
 import { useAtomValue } from 'jotai'
 import { selectAtom } from 'jotai/utils'
 import { nanoid } from 'nanoid'
-import { type ReactNode, useRef, useState } from 'react'
+import { useRef, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { CmdToVscode } from '~/message/cmd'
 import { AbortError, abortPromise, TimeoutError } from '~/utils/abort-promise'
@@ -32,9 +33,9 @@ export enum OperatorMode {
   conversion = 'conversion',
 }
 
-export interface OnOperationType { onSuccess: () => void, onCancel: () => void, onFinal: () => void }
+export type OnOperationType = { onSuccess: () => void, onCancel: () => void, onFinal: () => void }
 
-export interface OnEndOptionsType {
+export type OnEndOptionsType = {
   onRedoClick: (images: ImageType[]) => void
   onUndoClick: (results: OperatorResult[]) => void
   /**

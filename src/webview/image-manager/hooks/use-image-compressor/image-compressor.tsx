@@ -1,3 +1,4 @@
+import type { FormComponent } from '../use-operation/use-operation-form-logic'
 import type { CompressionOptions } from '~/core/operator/compressor/type'
 import type { ImperativeModalProps } from '~/webview/image-manager/hooks/use-imperative-antd-modal'
 import { useMemoizedFn } from 'ahooks'
@@ -19,14 +20,14 @@ import SkipCompressed from '../../components/image-operator/components/skip-comp
 import { GlobalAtoms } from '../../stores/global/global-store'
 import { ANIMATION_DURATION } from '../../utils/duration'
 import useImageOperation from '../use-image-operation'
-import useOperationFormLogic, { type FormComponent, OperatorMode } from '../use-operation/use-operation-form-logic'
+import useOperationFormLogic, { OperatorMode } from '../use-operation/use-operation-form-logic'
 import styles from './index.module.css'
 
 type FormValue = CompressionOptions & {
   customResize?: number
 }
 
-interface Props {
+type Props = {
   images: ImageType[]
   /**
    * 上层控制渲染表单字段

@@ -1,5 +1,6 @@
+import type { PropsWithChildren } from 'react'
 import { motion } from 'motion/react'
-import { memo, type PropsWithChildren } from 'react'
+import { memo } from 'react'
 
 function AppearMotion(props: PropsWithChildren) {
   const { children } = props

@@ -1,9 +1,10 @@
 import type { GetProps, ImageProps } from 'antd'
+import type { ReactNode } from 'react'
 import type ImageName from '../image-name'
 import { useInViewport, useMemoizedFn } from 'ahooks'
 import { trim } from 'es-toolkit'
 import { useAtomValue } from 'jotai'
-import { memo, type ReactNode, useEffect, useRef } from 'react'
+import { memo, useEffect, useRef } from 'react'
 import { animateScroll } from 'react-scroll'
 import logger from '~/utils/logger'
 import { useControlledState } from '~/webview/image-manager/hooks/use-controlled-state'
@@ -15,7 +16,7 @@ import { clearTimestamp, isElInViewport } from '../../utils'
 import { useLazyMargin } from '../image-group/use-lazy-load-images'
 import VisibleImage from './components/visible-image'
 
-interface Props {
+type Props = {
   /**
    * 图片信息
    */

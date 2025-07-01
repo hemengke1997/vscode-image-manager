@@ -1,6 +1,8 @@
+import type { CheckboxOptionType } from 'antd'
+import type { ReactNode } from 'react'
 import { useMemoizedFn } from 'ahooks'
-import { Checkbox, type CheckboxOptionType } from 'antd'
-import { memo, type ReactNode, useMemo } from 'react'
+import { Checkbox } from 'antd'
+import { memo, useMemo } from 'react'
 import { useTranslation } from 'react-i18next'
 import { DisplayGroupType } from '~/core/persist/workspace/common'
 import { useControlledState } from '~/webview/image-manager/hooks/use-controlled-state'
@@ -10,7 +12,7 @@ import Dir from './images/dir.png?base64'
 import FileType from './images/file_type.png?base64'
 import None from './images/none.png?base64'
 
-interface DisplayGroupProps<T> {
+type DisplayGroupProps<T> = {
   value?: T[]
   onChange?: (checked: T[]) => void
 }

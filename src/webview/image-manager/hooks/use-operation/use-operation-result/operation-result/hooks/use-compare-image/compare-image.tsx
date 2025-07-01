@@ -11,7 +11,7 @@ import { classNames } from '~/webview/image-manager/utils/tw-clsx'
 import { getAppRoot } from '~/webview/utils'
 import styles from './index.module.css'
 
-interface Props {
+type Props = {
   oldImage: string
   newImage: string
   imageWidth: number

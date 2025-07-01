@@ -1,11 +1,13 @@
+import type { ExtensionContext } from 'vscode'
+import type { VscodeConfigType } from './config/common'
 import type { ImageManagerPanel } from '~/webview/panel'
-import { type ExtensionContext, ExtensionMode, window, workspace } from 'vscode'
+import { ExtensionMode, window, workspace } from 'vscode'
 import { i18n } from '~/i18n'
 import { EXT_NAMESPACE } from '~/meta'
 import { slashPath } from '~/utils'
 import { AbortError, TimeoutError } from '~/utils/abort-promise'
 import { Channel } from '~/utils/node/channel'
-import { ConfigKey, type VscodeConfigType } from './config/common'
+import { ConfigKey } from './config/common'
 import { Installer, InstallEvent } from './sharp/installer'
 
 export class Global {

@@ -1,9 +1,10 @@
+import type { Dispatch, SetStateAction } from 'react'
 import { useEventListener, useKeyPress, useMemoizedFn, useThrottleFn } from 'ahooks'
 import { clamp } from 'es-toolkit'
-import { type Dispatch, type SetStateAction, useRef } from 'react'
+import { useRef } from 'react'
 import { Key } from 'ts-key-enum'
 
-interface Props {
+type Props = {
   setImageWidth: Dispatch<SetStateAction<number>>
   beforeScale?: (container: HTMLDivElement | null) => boolean
   /**
@@ -40,7 +41,7 @@ export default function useWheelScaleEvent(props: Props) {
   })
 
   const { run: throttleSetImageWidth } = useThrottleFn(setImageWidth, {
-    wait: 60,
+    wait: 16,
   })
 
   const isKeyboardEvent = useMemoizedFn((event: WheelEvent | KeyboardEvent) => {

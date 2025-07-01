@@ -1,11 +1,13 @@
+import type { CollapseProps, GetProps } from 'antd'
+import type { ReactNode } from 'react'
 import type { EnableCollapseContextMenuType } from '../../../context-menus/components/collapse-context-menu'
 import type imageName from '../../../image-name'
 import { useMemoizedFn, useUpdateEffect } from 'ahooks'
-import { Collapse, type CollapseProps, type GetProps } from 'antd'
+import { Collapse } from 'antd'
 import { isUndefined } from 'es-toolkit'
 import { produce } from 'immer'
 import { useAtom, useAtomValue } from 'jotai'
-import { memo, type ReactNode, useCallback, useEffect, useMemo, useRef, useState } from 'react'
+import { memo, useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { Element, scroller } from 'react-scroll'
 import { useControlledState } from '~/webview/image-manager/hooks/use-controlled-state'
 import { ActionAtoms } from '~/webview/image-manager/stores/action/action-store'
@@ -20,7 +22,7 @@ import ImageGroup from '../../../image-group'
 import SingleLabel from './components/single-label'
 import './index.css'
 
-interface ImageCollapseProps {
+type ImageCollapseProps = {
   workspaceFolder: string
   /**
    * 透传给 antd collapse 的 props

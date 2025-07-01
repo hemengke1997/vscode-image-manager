@@ -1,10 +1,11 @@
+import type { UpdatePayload } from '~/webview/image-manager/utils/tree/tree-manager'
 import { flatten } from 'es-toolkit'
 import { setAutoFreeze } from 'immer'
 import { describe, expect, it } from 'vitest'
 import { SortByType, SortType } from '~/core/persist/workspace/common'
 import { UpdateEvent, UpdateOrigin } from '~/webview/image-manager/utils/tree/const'
 import { TreeStyle } from '~/webview/image-manager/utils/tree/tree'
-import { TreeManager, type UpdatePayload } from '~/webview/image-manager/utils/tree/tree-manager'
+import { TreeManager } from '~/webview/image-manager/utils/tree/tree-manager'
 
 setAutoFreeze(false)
 

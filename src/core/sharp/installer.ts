@@ -1,14 +1,16 @@
+import type { StatusBarItem } from 'vscode'
 import type { BaseDownloader } from './downloader/base'
+import type { AbortError, TimeoutError } from '~/utils/abort-promise'
 import path from 'node:path'
 import destr from 'destr'
 import { isString } from 'es-toolkit'
 import { EventEmitter } from 'eventemitter3'
 import fs from 'fs-extra'
-import { commands, StatusBarAlignment, type StatusBarItem, window } from 'vscode'
+import { commands, StatusBarAlignment, window } from 'vscode'
 import { version } from '~root/package.json'
 import { i18n } from '~/i18n'
 import { setImmdiateInterval, slashPath } from '~/utils'
-import { type AbortError, abortPromise, type TimeoutError } from '~/utils/abort-promise'
+import { abortPromise } from '~/utils/abort-promise'
 import logger from '~/utils/logger'
 import { Channel } from '~/utils/node/channel'
 import { Config } from '../config/config'
@@ -23,7 +25,7 @@ export enum InstallEvent {
   fail = 'install-fail',
 }
 
-interface Events {
+type Events = {
   [InstallEvent.success]: [TSharp]
   [InstallEvent.fail]: [TimeoutError | AbortError | Error]
 }

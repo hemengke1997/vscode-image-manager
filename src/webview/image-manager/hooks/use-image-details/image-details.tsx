@@ -1,7 +1,8 @@
-import type lazyImage from '../../components/lazy-image'
+import type { DescriptionsProps, GetProps } from 'antd'
 
+import type lazyImage from '../../components/lazy-image'
 import type { ImperativeModalProps } from '~/webview/image-manager/hooks/use-imperative-antd-modal'
-import { Button, Descriptions, type DescriptionsProps, type GetProps, Tooltip } from 'antd'
+import { Button, Descriptions, Tooltip } from 'antd'
 import dayjs from 'dayjs'
 import { memo, useMemo } from 'react'
 import { useTranslation } from 'react-i18next'
@@ -15,7 +16,7 @@ import WithCopy from './components/with-copy'
 
 import './index.css'
 
-interface Props {
+type Props = {
   image: ImageType
   onPreview?: GetProps<typeof lazyImage>['onPreviewClick']
 }

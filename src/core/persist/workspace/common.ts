@@ -27,7 +27,7 @@ export enum DisplayStyleType {
   nested = 'nested',
 }
 
-export interface WorkspaceStateType {
+export type WorkspaceStateType = {
   image_filter: ImageFilterType
   display_sort: [SortByType, SortType]
   display_group: DisplayGroupType[]

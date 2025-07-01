@@ -1,15 +1,17 @@
 import type { PartialDeep } from 'type-fest'
 import type { ImageFilterType } from '../../hooks/use-image-filter/image-filter'
+import type { NodeID, TreeNode } from './tree'
+import type { SortType } from '~/core/persist/workspace/common'
 import { uniqBy } from 'es-toolkit'
 import { defaults, isObject } from 'es-toolkit/compat'
 import { produce } from 'immer'
-import { DEFAULT_WORKSPACE_STATE, DisplayStyleType, SortByType, type SortType } from '~/core/persist/workspace/common'
+import { DEFAULT_WORKSPACE_STATE, DisplayStyleType, SortByType } from '~/core/persist/workspace/common'
 import { Compressed } from '~/meta'
 import logger from '~/utils/logger'
 import { bytesToUnit } from '..'
 import { FilterRadioValue, ImageVisibleFilter } from '../../hooks/use-image-filter/const'
 import { UpdateEvent, UpdateOrigin } from './const'
-import { type NodeID, NodeType, Tree, type TreeNode, TreeStyle } from './tree'
+import { NodeType, Tree, TreeStyle } from './tree'
 import { formatPath } from './utils'
 
 export type UpdatePayload
@@ -36,7 +38,7 @@ export type ImageUpdateType
     payload: ImageType
   }
 
-export interface DirUpdateType {
+export type DirUpdateType = {
   type: UpdateEvent.create | UpdateEvent.delete | UpdateEvent.update
   payload: {
     dirPath: string
@@ -45,7 +47,7 @@ export interface DirUpdateType {
   }
 }
 
-interface Options {
+type Options = {
   /**
    * 目录风格
    */
@@ -68,7 +70,7 @@ export type NestedTreeNode = {
   children?: NestedTreeNode[]
 } & TreeNode<TreeData>
 
-export interface TreeData {
+export type TreeData = {
   images: ImageType[] | undefined
   // 树风格，按xx分组
   treeStyle: TreeStyle
@@ -595,7 +597,7 @@ export class TreeManager {
   }
 
   private isImageVisible(image: ImageType, key: ImageVisibleFilter[], imageFilter: ImageFilterType) {
-    interface Condition {
+    type Condition = {
       /**
        * visible的key
        */

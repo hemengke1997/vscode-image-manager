@@ -5,7 +5,7 @@ import { memo, useRef, useState } from 'react'
 import { markdown } from '~root/CHANGELOG.md'
 import { useControlledState } from '~/webview/image-manager/hooks/use-controlled-state'
 
-interface Props {
+type Props = {
   open: boolean
   onOpenChange: (open: boolean) => void
 }

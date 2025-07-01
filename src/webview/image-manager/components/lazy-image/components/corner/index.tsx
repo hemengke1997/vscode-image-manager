@@ -1,7 +1,8 @@
-import { memo, type ReactNode, useMemo } from 'react'
+import type { ReactNode } from 'react'
+import { memo, useMemo } from 'react'
 import { classNames } from '~/webview/image-manager/utils/tw-clsx'
 
-interface Props {
+type Props = {
   children: ReactNode
   leftTop?: ReactNode
   rightTop?: ReactNode

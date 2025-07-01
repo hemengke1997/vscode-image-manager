@@ -6,7 +6,7 @@ import { VscColorMode } from 'react-icons/vsc'
 import { Theme } from '~/meta'
 import styles from './index.module.css'
 
-interface Props {
+type Props = {
   value?: Theme
   onChange?: (theme: Theme) => void
 }

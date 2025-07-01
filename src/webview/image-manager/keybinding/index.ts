@@ -2,7 +2,7 @@
 
 import { OS } from '../utils/device'
 
-interface SymbolTypes {
+type SymbolTypes = {
   mod: string
   shift: string
   delete_str: string

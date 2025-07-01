@@ -1,12 +1,14 @@
+import type { CollapseProps } from 'antd'
+import type { ReactNode } from 'react'
 import type { EnableCollapseContextMenuType } from '../../../context-menus/components/collapse-context-menu'
 import type { NestedTreeNode, TreeManager } from '~/webview/image-manager/utils/tree/tree-manager'
 import { useMemoizedFn } from 'ahooks'
-import { Card, type CollapseProps, Empty } from 'antd'
+import { Card, Empty } from 'antd'
 import { isUndefined } from 'es-toolkit'
 import { useAtomValue } from 'jotai'
 import { selectAtom } from 'jotai/utils'
 import { motion } from 'motion/react'
-import { memo, type ReactNode } from 'react'
+import { memo } from 'react'
 import { useTranslation } from 'react-i18next'
 import { VscFileMedia } from 'react-icons/vsc'
 import { DisplayGroupType } from '~/core/persist/workspace/common'
@@ -20,7 +22,7 @@ import ImageCollapse from '../image-collapse'
 import RevealInFolder from '../reveal-in-folder'
 import styles from './index.module.css'
 
-interface Props {
+type Props = {
   tree: NestedTreeNode[] | undefined
   treeManager: TreeManager | undefined
   workspaceId: string

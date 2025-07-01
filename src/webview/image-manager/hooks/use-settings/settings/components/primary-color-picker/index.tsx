@@ -1,13 +1,15 @@
+import type { ColorPickerProps } from 'antd'
+import type { ForwardedRef, ReactNode } from 'react'
 import { TinyColor } from '@ctrl/tinycolor'
 import { useMemoizedFn } from 'ahooks'
-import { ColorPicker, type ColorPickerProps } from 'antd'
+import { ColorPicker } from 'antd'
 import { uniq } from 'es-toolkit'
-import { type ForwardedRef, forwardRef, memo, type ReactNode, useEffect, useImperativeHandle, useMemo } from 'react'
+import { forwardRef, memo, useEffect, useImperativeHandle, useMemo } from 'react'
 import { useTranslation } from 'react-i18next'
 import { useControlledState } from '~/webview/image-manager/hooks/use-controlled-state'
 import { builtInColors, vscodeColors } from '~/webview/image-manager/utils/theme'
 
-interface Props {
+type Props = {
   value?: string
   onChange?: (color: string) => void
   extraColors?: string[]
@@ -17,7 +19,7 @@ interface Props {
   colorPickerProps?: ColorPickerProps
 }
 
-export interface PrimaryColorPickerRef {
+export type PrimaryColorPickerRef = {
   updateRecentColors: (color: string) => void
 }
 

@@ -1,8 +1,10 @@
+import type { FormInstance } from 'antd'
+import type { ReactNode } from 'react'
 import { useHistoryTravel, useMemoizedFn, useUpdateEffect } from 'ahooks'
-import { Alert, App, Button, Card, ConfigProvider, type FormInstance, theme, Tooltip } from 'antd'
+import { Alert, App, Button, Card, ConfigProvider, theme, Tooltip } from 'antd'
 import { useAtomValue } from 'jotai'
 import { selectAtom } from 'jotai/utils'
-import { memo, type ReactNode, useEffect, useState } from 'react'
+import { memo, useEffect, useState } from 'react'
 import { useHotkeys } from 'react-hotkeys-hook'
 import { useTranslation } from 'react-i18next'
 import { VscChromeClose } from 'react-icons/vsc'
@@ -15,11 +17,11 @@ import { VscodeAtoms } from '../../stores/vscode/vscode-store'
 import ImageGroup from '../image-group'
 import './index.css'
 
-export interface Props {
+export type Props = {
   images: ImageType[]
 }
 
-interface ImageOperatorStaticProps {
+type ImageOperatorStaticProps = {
   form: FormInstance
   children: ReactNode
   submitting: boolean

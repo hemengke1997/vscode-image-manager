@@ -12,7 +12,7 @@ import AutoFocusButton from '../../components/auto-focus-button'
 import { VscodeAtoms } from '../../stores/vscode/vscode-store'
 import { OS } from '../../utils/device'
 
-interface Props {
+type Props = {
   filenames: string
   onConfirm: () => Promise<void>
 }

@@ -1,3 +1,4 @@
+import type { ConfigurationChangeEvent, ExtensionContext, Webview, WebviewPanel } from 'vscode'
 import type { Watcher } from '~/core/watcher'
 import type { MessageType } from '~/message/message-factory'
 import path from 'node:path'
@@ -5,14 +6,13 @@ import * as cheerio from 'cheerio'
 import fs from 'fs-extra'
 import { nanoid } from 'nanoid'
 import {
-  type ConfigurationChangeEvent,
+
   Disposable,
   EventEmitter,
-  type ExtensionContext,
+
   Uri,
   ViewColumn,
-  type Webview,
-  type WebviewPanel,
+
   window,
   workspace,
 } from 'vscode'

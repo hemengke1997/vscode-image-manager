@@ -54,9 +54,6 @@ function registerApp(children: JSX.Element, reload = false) {
         onBeforeInit() {
           i18next.use(initReactI18next).init({
             returnNull: false,
-            react: {
-              useSuspense: true,
-            },
             debug: false,
             resources: {},
             nsSeparator: '.',

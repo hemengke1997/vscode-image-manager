@@ -7,16 +7,16 @@ import { cleanImageProps } from './utils'
 
 const REQUIRED_IMAGE_STYLES = { opacity: 0, maxWidth: '100%' }
 
-interface ReactCropperElement extends HTMLImageElement {
+type ReactCropperElement = {
   cropper: Cropper
-}
+} & HTMLImageElement
 
 type ReactCropperRef
   = | ((instance: HTMLImageElement | ReactCropperElement | null) => void)
     | React.MutableRefObject<HTMLImageElement | ReactCropperElement | null>
     | null
 
-interface ReactCropperDefaultOptions {
+type ReactCropperDefaultOptions = {
   scaleX?: number
   scaleY?: number
   enable?: boolean
@@ -24,15 +24,12 @@ interface ReactCropperDefaultOptions {
   rotateTo?: number
 }
 
-interface ReactCropperProps
-  extends ReactCropperDefaultOptions,
-  Cropper.Options<HTMLImageElement>,
-  Omit<React.HTMLProps<HTMLImageElement>, 'data' | 'ref' | 'crossOrigin'> {
+type ReactCropperProps = {
   crossOrigin?: '' | 'anonymous' | 'use-credentials' | undefined
   on?: (eventName: string, callback: () => void | Promise<void>) => void | Promise<void>
   onInitialized?: (instance: Cropper) => void | Promise<void>
   forceRender?: number | string
-}
+} & ReactCropperDefaultOptions & Cropper.Options<HTMLImageElement> & Omit<React.HTMLProps<HTMLImageElement>, 'data' | 'ref' | 'crossOrigin'>
 
 function applyDefaultOptions(cropper: Cropper, options: ReactCropperDefaultOptions = {}): void {
   const { enable = true, scaleX = 1, scaleY = 1, zoomTo = 0, rotateTo } = options

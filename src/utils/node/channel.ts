@@ -1,4 +1,5 @@
-import { type OutputChannel, window } from 'vscode'
+import type { OutputChannel } from 'vscode'
+import { window } from 'vscode'
 import { Config } from '~/core/config/config'
 import { Global } from '~/core/global'
 import { i18n } from '~/i18n'

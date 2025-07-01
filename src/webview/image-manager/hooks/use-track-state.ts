@@ -1,6 +1,7 @@
+import type { DependencyList, Dispatch, SetStateAction } from 'react'
 import { useMemoizedFn, useUpdateEffect } from 'ahooks'
 import { isFunction } from 'es-toolkit'
-import { type DependencyList, type Dispatch, type SetStateAction, useState } from 'react'
+import { useState } from 'react'
 
 export enum Trigger {
   track = 'track',

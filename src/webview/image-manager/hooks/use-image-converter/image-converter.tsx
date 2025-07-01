@@ -1,3 +1,5 @@
+import type { Props as ImageOperatorProps } from '../../components/image-operator'
+import type { FormComponent } from '../use-operation/use-operation-form-logic'
 import type { FormatConverterOptions } from '~/core/operator/format-converter'
 import type { ImperativeModalProps } from '~/webview/image-manager/hooks/use-imperative-antd-modal'
 import { useMemoizedFn } from 'ahooks'
@@ -8,12 +10,12 @@ import { useAtomValue } from 'jotai'
 import { memo } from 'react'
 import { useTranslation } from 'react-i18next'
 import { CmdToVscode } from '~/message/cmd'
-import ImageOperator, { type Props as ImageOperatorProps } from '../../components/image-operator'
+import ImageOperator from '../../components/image-operator'
 import Format from '../../components/image-operator/components/format'
 import KeepOriginal from '../../components/image-operator/components/keep-original'
 import { GlobalAtoms } from '../../stores/global/global-store'
 import useImageOperation from '../use-image-operation'
-import useOperationFormLogic, { type FormComponent, OperatorMode } from '../use-operation/use-operation-form-logic'
+import useOperationFormLogic, { OperatorMode } from '../use-operation/use-operation-form-logic'
 
 type Props = {} & ImageOperatorProps
 

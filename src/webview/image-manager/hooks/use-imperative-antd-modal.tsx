@@ -1,14 +1,17 @@
+import type { ModalFuncProps } from 'antd'
 import type { HookAPI } from 'antd/es/modal/useModal'
+import type { ComponentType, DependencyList } from 'react'
 import { useDeepCompareEffect, useMemoizedFn } from 'ahooks'
-import { App, type ModalFuncProps } from 'antd'
-import { type ComponentType, createElement, type DependencyList, lazy, startTransition, useMemo, useRef } from 'react'
+import { App, Spin } from 'antd'
+import { motion } from 'motion/react'
+import { createElement, lazy, startTransition, Suspense, useMemo, useRef } from 'react'
 
 function isLazyComponent(component: any) {
   // @ts-expect-error typeof detection
   return component?.$$typeof === lazy(() => null).$$typeof
 }
 
-export interface ImperativeModalProps {
+export type ImperativeModalProps = {
   closeModal: () => void
 }
 
@@ -18,7 +21,7 @@ function randomId() {
   return Math.random().toString(36).substring(2) + Date.now().toString(36).slice(-2)
 }
 
-export interface Props {
+export type Props = {
   id?: string
   modalProps?: ModalFuncProps
   /**
@@ -96,12 +99,33 @@ export function useImperativeAntdModal<T extends object>(
 
             modalDetails.current = initialModalDetails
           },
-          content: createElement(FC, {
-            ...modalDetails.current.componentProps,
-            closeModal: () => {
-              onClose(id)
-            },
-          } as T),
+          content: (
+            <motion.div
+              initial={{
+                opacity: 0,
+              }}
+              animate={{
+                opacity: 1,
+              }}
+            >
+              {createElement(FC, {
+                ...modalDetails.current.componentProps,
+                closeModal: () => {
+                  onClose(id)
+                },
+              } as T)}
+            </motion.div>
+          ),
+          modalRender(node) {
+            return (
+              <Suspense fallback={(
+                <Spin spinning={true} delay={500} className='flex size-full items-center justify-center py-12' />
+              )}
+              >
+                {node}
+              </Suspense>
+            )
+          },
         }
       }
 

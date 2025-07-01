@@ -6,7 +6,7 @@ import { RxViewNone } from 'react-icons/rx'
 import { useControlledState } from '~/webview/image-manager/hooks/use-controlled-state'
 import { imageStateAtom } from '~/webview/image-manager/stores/image/image-store'
 
-interface Props {
+type Props = {
   /**
    * 接收的参数是未选中的值
    */

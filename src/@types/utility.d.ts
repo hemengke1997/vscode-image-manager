@@ -1,4 +1,4 @@
-interface Option {
+type Option = {
   label: string
   value: string
   [k in string]: any
@@ -26,8 +26,8 @@ type Flatten<T> = keyof FlattenObject<T>
 // Flatten entity
 type FlattenObject<TValue> = CollapseEntries<CreateObjectEntries<TValue, TValue>>
 
-interface Entry { key: string, value: unknown }
-interface EmptyEntry<TValue> { key: '', value: TValue }
+type Entry = { key: string, value: unknown }
+type EmptyEntry<TValue> = { key: '', value: TValue }
 type ExcludedTypes = Date | Set<unknown> | Map<unknown, unknown>
 type ArrayEncoder = `[${bigint}]`
 

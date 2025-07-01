@@ -1,7 +1,8 @@
+import type { PropsWithChildren } from 'react'
 import { Button, Tooltip } from 'antd'
-import { memo, type PropsWithChildren } from 'react'
+import { memo } from 'react'
 
-interface RevealButtonProps {
+type RevealButtonProps = {
   title: string
   onClick: () => void
 }

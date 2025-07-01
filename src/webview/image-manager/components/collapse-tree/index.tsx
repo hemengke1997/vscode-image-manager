@@ -1,4 +1,5 @@
 import type { Workspace } from '../../stores/image/image-store'
+import type { NestedTreeNode } from '../../utils/tree/tree-manager'
 import { useMemoizedFn } from 'ahooks'
 import { ConfigProvider } from 'antd'
 import { flatten, isSubset } from 'es-toolkit'
@@ -15,10 +16,10 @@ import { GlobalAtoms } from '../../stores/global/global-store'
 import { useDisplayGroup, useDisplayStyle, useSort } from '../../stores/settings/hooks'
 import { UpdateType } from '../../utils/tree/const'
 import { TreeStyle } from '../../utils/tree/tree'
-import { type NestedTreeNode, TreeManager } from '../../utils/tree/tree-manager'
+import { TreeManager } from '../../utils/tree/tree-manager'
 import TreeRenderer from './components/tree-renderer'
 
-interface Props {
+type Props = {
   workspace: Workspace
 }
 

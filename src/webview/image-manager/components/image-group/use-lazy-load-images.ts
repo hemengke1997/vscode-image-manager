@@ -6,7 +6,7 @@ import { DEFAULT_CONFIG } from '~/core/config/common'
 import { getAppRoot } from '~/webview/utils'
 import { GlobalAtoms } from '../../stores/global/global-store'
 
-interface UseElementBottomStatusProps {
+type UseElementBottomStatusProps = {
   target: HTMLElement | null
   container: HTMLElement
   offset: number // 距离底部的偏移量

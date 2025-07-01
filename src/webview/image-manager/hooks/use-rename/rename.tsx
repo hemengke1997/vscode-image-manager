@@ -1,11 +1,12 @@
+import type { InputProps } from 'antd'
 import type { ImperativeModalProps } from '~/webview/image-manager/hooks/use-imperative-antd-modal'
-import { Button, Form, type InputProps, Space } from 'antd'
+import { Button, Form, Space } from 'antd'
 import { isString } from 'es-toolkit'
 import { memo, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import AutoFocusInput from '../../components/auto-focus-input'
 
-interface Props {
+type Props = {
   /**
    * 当前名称
    */

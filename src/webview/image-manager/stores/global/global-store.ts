@@ -2,7 +2,7 @@ import type { CompressionOptions } from '~/core/operator/compressor/type'
 import type { FormatConverterOptions } from '~/core/operator/format-converter'
 import { atom } from 'jotai'
 
-export interface WebviewCompressorType {
+export type WebviewCompressorType = {
   option: CompressionOptions
   limit: {
     from: string[]
@@ -10,7 +10,7 @@ export interface WebviewCompressorType {
   }
 }
 
-export interface WebviewFormatConverterType {
+export type WebviewFormatConverterType = {
   option: FormatConverterOptions
   limit: {
     from: string[]

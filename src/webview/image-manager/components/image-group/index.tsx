@@ -1,14 +1,16 @@
+import type { GetProps } from 'antd'
 import type { AliasToken, ComponentTokenMap } from 'antd/es/theme/interface'
 import type { PreviewGroupPreview } from 'rc-image/es/PreviewGroup'
+import type { ForwardedRef, ReactNode } from 'react'
+import type { ImageContextMenuType } from '../context-menus/components/image-context-menu/hooks/use-image-context-menu'
 import { useDeepCompareEffect, useMemoizedFn } from 'ahooks'
-import { Button, ConfigProvider, type GetProps, Image, theme } from 'antd'
+import { Button, ConfigProvider, Image, theme } from 'antd'
 import { range, round } from 'es-toolkit'
 import { useAtomValue } from 'jotai'
 import { selectAtom } from 'jotai/utils'
-import { type ForwardedRef, forwardRef, memo, type ReactNode, useEffect, useMemo, useRef, useState } from 'react'
+import { forwardRef, memo, useEffect, useMemo, useRef, useState } from 'react'
 import toast from 'react-hot-toast'
 import { FaLock, FaLockOpen } from 'react-icons/fa6'
-import { isDev } from 'vite-config-preset/isomorph'
 import { DEFAULT_WORKSPACE_STATE, WorkspaceStateKey } from '~/core/persist/workspace/common'
 import logger from '~/utils/logger'
 import { useControlledState } from '~/webview/image-manager/hooks/use-controlled-state'
@@ -21,9 +23,8 @@ import { useImageWidth } from '../../stores/global/hooks'
 import { useImageBackgroundColor, useIsDarkBackground, useTinyBackgroundColor } from '../../stores/settings/hooks'
 import { VscodeAtoms } from '../../stores/vscode/vscode-store'
 import { clearTimestamp } from '../../utils'
-import useImageContextMenu, {
-  type ImageContextMenuType,
-} from '../context-menus/components/image-context-menu/hooks/use-image-context-menu'
+import { isDev } from '../../utils/env'
+import useImageContextMenu from '../context-menus/components/image-context-menu/hooks/use-image-context-menu'
 import LazyImage from '../lazy-image'
 import { PreventClickAway, ShouldClickAway } from '../viewer/hooks/use-click-image-away'
 import useLazyLoadImages from './use-lazy-load-images'
@@ -37,7 +38,7 @@ function imageToken(isDarkBackground: boolean): Partial<ComponentTokenMap['Image
   }
 }
 
-interface Props {
+type Props = {
   /**
    * 图片组标识(目录绝对路径)
    */

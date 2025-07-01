@@ -1,13 +1,14 @@
+import type { PropsWithChildren, ReactNode } from 'react'
 import type { SortType } from '~/core/persist/workspace/common'
 import { useMemoizedFn } from 'ahooks'
 import { Cascader, ConfigProvider } from 'antd'
-import { memo, type PropsWithChildren, type ReactNode, startTransition } from 'react'
+import { memo, startTransition } from 'react'
 import { useTranslation } from 'react-i18next'
 import { BsSortDown, BsSortUpAlt } from 'react-icons/bs'
 import { MdOutlineKeyboardDoubleArrowRight } from 'react-icons/md'
 import { useControlledState } from '~/webview/image-manager/hooks/use-controlled-state'
 
-interface DisplaySortProps {
+type DisplaySortProps = {
   options: { label: ReactNode, value: string }[]
   value?: string[] | undefined
   onChange?: (value: string[]) => void

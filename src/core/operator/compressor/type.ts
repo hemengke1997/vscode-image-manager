@@ -50,7 +50,7 @@ export type CompressionOptions = OperatorOptions & {
 } & Omit<FormatConverterOptions, 'icoSize'>
 & SvgCompressionOptions<CustomSvgCompressionOptions>
 
-export interface CustomSvgCompressionOptions {
+export type CustomSvgCompressionOptions = {
   /**
    * @description 压缩svg后添加自定义属性，用于判断是否已经压缩过
    * 如果设置 null，则禁用功能
@@ -64,6 +64,6 @@ export interface CustomSvgCompressionOptions {
   removeDataAttributes: boolean
 }
 
-export interface SvgCompressionOptions<T> {
+export type SvgCompressionOptions<T> = {
   svg: T
 }

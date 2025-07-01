@@ -15,7 +15,7 @@ import { Channel } from '~/utils/node/channel'
 import { commandCache } from '../commander'
 import { Config } from '../config/config'
 
-export interface OperatorOptions {
+export type OperatorOptions = {
   /**
    * @description whether keep original image file
    * @default false
@@ -23,7 +23,7 @@ export interface OperatorOptions {
   keepOriginal?: boolean
 }
 
-interface NativeOperatorResult {
+type NativeOperatorResult = {
   /**
    * 操作id（也是commander的id）
    */

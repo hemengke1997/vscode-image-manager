@@ -7,7 +7,7 @@ import { useTranslation } from 'react-i18next'
 import { slashPath } from '~/utils'
 import AutoFocusInput from '../../components/auto-focus-input'
 
-interface Props {
+type Props = {
   /**
    * 图片列表
    */
@@ -46,7 +46,7 @@ enum ModeOption {
   add = 'add',
 }
 
-interface FormValues {
+type FormValues = {
   [RenameKey.mode]: ModeOption
   [ModeOption.replace]: {
     [RenameKey.find]: string

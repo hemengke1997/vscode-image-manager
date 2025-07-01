@@ -4,7 +4,7 @@ import { memo, useEffect, useRef, useState } from 'react'
 import { TbCopy, TbCopyCheck } from 'react-icons/tb'
 import { classNames } from '~/webview/image-manager/utils/tw-clsx'
 
-interface Props {
+type Props = {
   children: string
 }
 

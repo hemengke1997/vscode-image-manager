@@ -1,16 +1,17 @@
-import { createHooks, type Hookable, type NestedHooks } from 'hookable'
+import type { Hookable, NestedHooks } from 'hookable'
+import { createHooks } from 'hookable'
 import { ensureArray } from '~/utils'
 
 const PluginIndicator = '__plugin_indicator__'
 
-interface PluginMeta {
+type PluginMeta = {
   name: string
   enforce?: 'pre' | 'default' | 'post'
 }
 
-export interface ObjectPlugin<T extends AnyObject = AnyObject> extends PluginMeta {
+export type ObjectPlugin<T extends AnyObject = AnyObject> = {
   hooks: NestedHooks<T>
-}
+} & PluginMeta
 
 export function defineOperatorPlugin(plugin: ObjectPlugin): ObjectPlugin {
   return Object.assign(plugin, { [PluginIndicator]: true } as const)

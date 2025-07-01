@@ -5,7 +5,7 @@ declare module 'react-contexify' {
     show: (params: ShowContextMenuParams<TProps>) => void
     hideAll: () => void
   }
-  interface HandlerParams<Props = any, Data = any> {
+  type HandlerParams<Props = any, Data = any> = {
     /**
      * The id of the item when provided
      */
@@ -23,14 +23,14 @@ declare module 'react-contexify' {
      */
     data?: Data
   }
-  interface ItemParams<Props = any, Data = any> extends HandlerParams<Props, Data> {
+  type ItemParams<Props = any, Data = any> = {
     event:
       | React.MouseEvent<HTMLElement>
       | React.TouchEvent<HTMLElement>
       | React.KeyboardEvent<HTMLElement>
       | KeyboardEvent
-  }
-  interface ItemProps {
+  } & HandlerParams<Props, Data>
+  type ItemProps = {
     children: ReactNode | ((params: ItemParams) => ReactNode)
   }
 }

@@ -40,7 +40,7 @@ export function prefetch(options: { exclude: string[] }): PluginOption {
           attrs: {
             rel: 'prefetch',
             href: `${config.base}${bundle}`,
-            fetchpriority: 'low',
+            fetchpriority: 'high',
             as: (() => {
               const ext = bundle.split('.').pop()
               switch (ext) {

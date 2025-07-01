@@ -1,6 +1,9 @@
+import type { GlobEntry } from 'globby'
+import type { ConfigurationTarget } from 'vscode'
 import type { SharpNS } from '~/@types/global'
 import type { ConfigType } from '~/core/config/common'
 import type { CompressionOptions } from '~/core/operator/compressor/type'
+import type { FormatConverterOptions } from '~/core/operator/format-converter'
 import type { OperatorResult } from '~/core/operator/operator'
 import type { WorkspaceStateKey } from '~/core/persist/workspace/common'
 import type { ImageManagerPanel } from '~/webview/panel'
@@ -10,12 +13,12 @@ import path from 'node:path'
 import { flatten, pick } from 'es-toolkit'
 import { toString } from 'es-toolkit/compat'
 import fs from 'fs-extra'
-import { convertPathToPattern, globby, type GlobEntry } from 'globby'
+import { convertPathToPattern, globby } from 'globby'
 import micromatch from 'micromatch'
 import mime from 'mime/lite'
 import { nanoid } from 'nanoid'
 import pMap from 'p-map'
-import { commands, type ConfigurationTarget, Uri, ViewColumn, window, workspace } from 'vscode'
+import { commands, Uri, ViewColumn, window, workspace } from 'vscode'
 import { Commands } from '~/commands'
 import { Similarity } from '~/core/analysis/similarity'
 import { commandCache } from '~/core/commander'
@@ -23,7 +26,7 @@ import { Config } from '~/core/config/config'
 import { Global } from '~/core/global'
 import { SvgCompressor } from '~/core/operator/compressor/svg'
 import { UsualCompressor } from '~/core/operator/compressor/usual'
-import { FormatConverter, type FormatConverterOptions } from '~/core/operator/format-converter'
+import { FormatConverter } from '~/core/operator/format-converter'
 import { Svgo } from '~/core/operator/svgo'
 import { WorkspaceState } from '~/core/persist/workspace/workspace-state'
 import { SharpOperator } from '~/core/sharp/sharp-operator'
@@ -48,7 +51,7 @@ type MessageFactoryType = typeof VscodeMessageFactory
 type MessageMethodType<K extends KeyofMessage> = MessageFactoryType[K]
 
 export type KeyofMessage = keyof MessageFactoryType
-export interface MessageType<D extends Record<string, any> | undefined = Record<string, any>, C extends string = any> {
+export type MessageType<D extends Record<string, any> | undefined = Record<string, any>, C extends string = any> = {
   cmd: C
   data: D
   msgId?: string

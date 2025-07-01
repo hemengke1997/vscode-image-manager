@@ -4,7 +4,7 @@ import { formatPath } from './utils'
 
 export type NodeID = string
 
-export interface TreeNode<T extends Record<string, any>> {
+export type TreeNode<T extends Record<string, any>> = {
   // 节点ID，使用节点路径作为ID
   id: NodeID
   // 父节点ID

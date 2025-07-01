@@ -1,4 +1,5 @@
-import { type GetProps, Input, type InputRef } from 'antd'
+import type { GetProps, InputRef } from 'antd'
+import { Input } from 'antd'
 import { memo, useLayoutEffect, useRef } from 'react'
 
 function AutoFocusInput(props: GetProps<typeof Input>) {

@@ -1,10 +1,12 @@
+import type { ConfigurationScope } from 'vscode'
 import type { CompressionOptions } from '../operator/compressor/type'
 import type { FormatConverterOptions } from '../operator/format-converter'
+import type { ConfigType } from './common'
 import { clone } from 'es-toolkit'
 import { defaults, get } from 'es-toolkit/compat'
-import { type ConfigurationScope, ConfigurationTarget, workspace } from 'vscode'
+import { ConfigurationTarget, workspace } from 'vscode'
 import { EXT_NAMESPACE } from '~/meta'
-import { ConfigKey, type ConfigType, DEFAULT_CONFIG } from './common'
+import { ConfigKey, DEFAULT_CONFIG } from './common'
 
 export class Config {
   static readonly reloadConfigs = [
