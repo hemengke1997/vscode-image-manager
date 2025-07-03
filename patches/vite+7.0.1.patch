@@ -1,8 +1,8 @@
-diff --git a/node_modules/vite/dist/node/chunks/dep-Bsx9IwL8.js b/node_modules/vite/dist/node/chunks/dep-Bsx9IwL8.js
-index 0583030..656e006 100644
---- a/node_modules/vite/dist/node/chunks/dep-Bsx9IwL8.js
-+++ b/node_modules/vite/dist/node/chunks/dep-Bsx9IwL8.js
-@@ -34608,6 +34608,22 @@ function createDepsOptimizer(environment) {
+diff --git a/node_modules/vite/dist/node/chunks/dep-DJGyAxkV.js b/node_modules/vite/dist/node/chunks/dep-DJGyAxkV.js
+index c1900f3..682c542 100644
+--- a/node_modules/vite/dist/node/chunks/dep-DJGyAxkV.js
++++ b/node_modules/vite/dist/node/chunks/dep-DJGyAxkV.js
+@@ -34587,6 +34587,22 @@ function createDepsOptimizer(environment) {
  	const logNewlyDiscoveredDeps = () => {
  		if (newDepsToLog.length) {
  			logger.info(import_picocolors$3.default.green(`✨ new dependencies optimized: ${depsLogString(newDepsToLog)}`), { timestamp: true });
