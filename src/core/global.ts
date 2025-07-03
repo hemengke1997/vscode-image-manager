@@ -37,12 +37,8 @@ export class Global {
    */
   static installer: Installer | undefined
 
-  static init(context: ExtensionContext, settings: VscodeConfigType) {
+  static init(context: ExtensionContext) {
     Channel.debug('Global init')
-
-    this.vscodeTheme = settings.theme
-    this.vscodeLanguage = settings.language
-    this.vscodeReduceMotion = settings.reduceMotion
 
     Global.installer = new Installer({
       timeout: 30 * 1000, // 30s
@@ -60,6 +56,19 @@ export class Global {
         }
       }),
     )
+  }
+
+  /**
+   * 初始化 vscode 基础设置
+   */
+  static initVscodeSettings(settings: VscodeConfigType) {
+    this.vscodeTheme = settings.theme
+    this.vscodeLanguage = settings.language
+    this.vscodeReduceMotion = settings.reduceMotion
+
+    this.imageManagerPanels.forEach((panel) => {
+      panel.updateVscodeSettings(settings)
+    })
   }
 
   static resolveRootPath(rootpaths?: string[]) {

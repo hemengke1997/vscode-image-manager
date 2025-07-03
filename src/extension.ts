@@ -12,11 +12,12 @@ export function activate(ctx: vscode.ExtensionContext) {
 
   Global.context = ctx
 
-  const settings = VscodeSettings.init(ctx)
+  VscodeSettings.init(ctx, (settings) => {
+    i18n.init(ctx, settings.language)
+    Global.initVscodeSettings(settings)
+  })
 
-  i18n.init(ctx, settings.language)
-
-  Global.init(ctx, settings)
+  Global.init(ctx)
 
   const modules = [commandsModules]
 

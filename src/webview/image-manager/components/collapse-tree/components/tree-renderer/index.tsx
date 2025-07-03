@@ -22,6 +22,14 @@ import ImageCollapse from '../image-collapse'
 import RevealInFolder from '../reveal-in-folder'
 import styles from './index.module.css'
 
+const RevealGroup = memo((props: { path: string, folderChildren?: ReactNode }) => {
+  return (
+    <div className='flex items-center gap-x-1'>
+      <RevealInFolder {...props}>{props.folderChildren}</RevealInFolder>
+    </div>
+  )
+})
+
 type Props = {
   tree: NestedTreeNode[] | undefined
   treeManager: TreeManager | undefined
@@ -193,14 +201,6 @@ function TreeRenderer(props: Props) {
 
   // render tree
   return nestedDisplay(tree, { bordered: true }, { root: true })
-}
-
-function RevealGroup(props: { path: string, folderChildren?: ReactNode }) {
-  return (
-    <div className='flex items-center gap-x-1'>
-      <RevealInFolder {...props}>{props.folderChildren}</RevealInFolder>
-    </div>
-  )
 }
 
 export default memo(TreeRenderer)

@@ -108,11 +108,11 @@ function ImageSearch() {
     }
   })
 
-  const onSearch = (value: string) => {
+  const onSearch = useMemoizedFn((value: string) => {
     const newHistory = without(searchHistory, value).concat(value)
     setSearchHistory(newHistory.filter(t => t.trim().length))
     setCurrentIndex(newHistory.length - 1)
-  }
+  })
 
   const [searchResult, setSearchResult] = useState<{
     items: FuseResult<ImageType>[]

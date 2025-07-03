@@ -41,6 +41,8 @@ function ImageManager() {
     ),
   )
 
+  const setVscodeSettings = useSetAtom(VscodeAtoms.vscodeConfigAtom)
+
   const setCompressor = useSetAtom(GlobalAtoms.compressorAtom)
   const setFormatConverter = useSetAtom(GlobalAtoms.formatConverterAtom)
   const sharpInstalled = useAtomValue(GlobalAtoms.sharpInstalledAtom)
@@ -165,6 +167,11 @@ function ImageManager() {
         data = data as CmdToWebviewData<CmdToWebview.reveal_image_in_viewer>
         logger.debug(CmdToWebview.reveal_image_in_viewer, data.imagePath)
         beginRevealInViewer(data.imagePath)
+        break
+      }
+      case CmdToWebview.update_vscode_settings: {
+        data = data as CmdToWebviewData<CmdToWebview.update_vscode_settings>
+        setVscodeSettings(data)
         break
       }
       default:

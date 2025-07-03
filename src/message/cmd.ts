@@ -18,6 +18,8 @@ export enum CmdToWebview {
   update_workspaceState = 'update_workspaceState',
   // 在viewer中打开指定图片
   reveal_image_in_viewer = 'reveal_image_in_viewer',
+  // 更新vscode设置
+  update_vscode_settings = 'update_vscode_settings',
 }
 
 /**

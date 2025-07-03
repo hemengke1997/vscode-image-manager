@@ -127,7 +127,7 @@ function ImageCollapse(props: ImageCollapseProps) {
   const holderRef = useRef<HTMLDivElement>(null)
 
   // 获取collapse的header dom
-  const getCollpaseHeader = () => stickyRef.current?.querySelector('.ant-collapse-header') as HTMLElement | null
+  const getCollpaseHeader = useMemoizedFn(() => stickyRef.current?.querySelector('.ant-collapse-header') as HTMLElement | null)
   const isSticky = useRef(false)
 
   useEffect(() => {

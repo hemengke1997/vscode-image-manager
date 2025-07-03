@@ -1,5 +1,6 @@
 import antfu from '@antfu/eslint-config'
 import tailwind from 'eslint-plugin-tailwindcss'
+import memoFnPlugin from './eslint/eslint-plugin-memo-fn'
 
 export default antfu(
   {
@@ -30,6 +31,14 @@ export default antfu(
     {
       rules: {
         'tailwindcss/no-custom-classname': 'off',
+      },
+    },
+    {
+      plugins: {
+        'memo-fn': memoFnPlugin,
+      },
+      rules: {
+        'memo-fn/use-memoized-fn': 'error',
       },
     },
   ],

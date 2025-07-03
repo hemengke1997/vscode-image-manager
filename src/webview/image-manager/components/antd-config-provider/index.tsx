@@ -1,9 +1,10 @@
 import type { PropsWithChildren } from 'react'
 import type { Theme } from '~/meta'
 import { TinyColor } from '@ctrl/tinycolor'
+import { useMemoizedFn } from 'ahooks'
 import { theme as antdTheme, App, ConfigProvider } from 'antd'
 import { MotionConfig } from 'motion/react'
-import { memo, useEffect } from 'react'
+import { memo, useEffect, useMemo } from 'react'
 import { getCssVar } from '~/webview/image-manager/utils/theme'
 import { usePrimaryColor, useReduceMotion, useTheme } from '../../stores/settings/hooks'
 
@@ -36,7 +37,7 @@ function AntdConfigProvider({ children }: PropsWithChildren) {
 
   const token = antdTheme.useToken()
 
-  const getThemeAlgorithm = () => {
+  const getThemeAlgorithm = useMemoizedFn(() => {
     switch (theme) {
       case 'dark':
         return antdTheme.darkAlgorithm
@@ -45,9 +46,9 @@ function AntdConfigProvider({ children }: PropsWithChildren) {
       default:
         return antdTheme.darkAlgorithm
     }
-  }
+  })
 
-  const docFontSize = Number(vscodeFontSize) - 1 || 12
+  const docFontSize = useMemo(() => Number(vscodeFontSize) - 1 || 12, [vscodeFontSize])
 
   useEffect(() => {
     document.documentElement.style.setProperty('font-size', `${docFontSize}px`)

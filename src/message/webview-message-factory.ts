@@ -1,4 +1,5 @@
 import type { CmdToWebview } from './cmd'
+import type { VscodeConfigType } from '~/core/config/common'
 import type { UpdateType } from '~/webview/image-manager/utils/tree/const'
 import type { UpdatePayload } from '~/webview/image-manager/utils/tree/tree-manager'
 
@@ -24,4 +25,5 @@ export type CmdToWebviewMessage = {
   [CmdToWebview.update_config]: undefined
   [CmdToWebview.update_workspaceState]: undefined
   [CmdToWebview.webview_callback]: undefined
+  [CmdToWebview.update_vscode_settings]: VscodeConfigType
 }

@@ -10,9 +10,15 @@ import { intelligentPick } from './utils/'
 import { Channel } from './utils/node/channel'
 
 export class i18n {
+  private static currentLanguage: string
+
   static messages: Record<string, string> = {}
 
   static init(ctx: ExtensionContext, vscodeLanguage: Language) {
+    // 如果当前语言与 vscode 语言相同，避免重复初始化
+    if (this.currentLanguage === vscodeLanguage)
+      return
+
     Channel.debug('i18n init')
 
     const extensionPath = ctx.extensionUri.fsPath
@@ -27,6 +33,8 @@ export class i18n {
     }
 
     this.messages = destr<AnyObject>(fs.readFileSync(path.join(extensionPath, name), 'utf-8'))
+
+    this.currentLanguage = language
   }
 
   static format(str: string, args: any[]) {

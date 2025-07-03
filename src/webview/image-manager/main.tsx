@@ -1,5 +1,5 @@
 import i18next from 'i18next'
-import { Provider } from 'jotai'
+import { Provider as JotaiProvider } from 'jotai'
 import { startTransition, Suspense } from 'react'
 import ReactDOM from 'react-dom/client'
 import { ErrorBoundary } from 'react-error-boundary'
@@ -71,13 +71,13 @@ function registerApp(children: JSX.Element, reload = false) {
 
           startTransition(() => {
             reactRoot().render(
-              <Provider>
+              <JotaiProvider>
                 <div onContextMenu={e => e.preventDefault()} key={key}>
                   <VscodeAtomsHydrator extConfig={ext} vscodeConfig={vscode} workspaceState={workspaceState}>
                     {children}
                   </VscodeAtomsHydrator>
                 </div>
-              </Provider>,
+              </JotaiProvider>,
             )
           })
         },

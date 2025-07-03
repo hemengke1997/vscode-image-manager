@@ -7,23 +7,38 @@ import { FALLBACK_LANGUAGE, Language, Theme } from '~/meta'
 import { Channel } from '~/utils/node/channel'
 
 export class VscodeSettings {
-  static reduceMotion: ReduceMotion
-  static language: Language
-  static theme: Theme
+  private static reduceMotion: ReduceMotion
+  private static language: Language
+  private static theme: Theme
 
-  static init(ctx: ExtensionContext): VscodeConfigType {
+  static init(ctx: ExtensionContext, callback: (settings: VscodeConfigType) => void): VscodeConfigType {
     Channel.debug('VscodeSettings init')
 
-    ctx.subscriptions.push(window.onDidChangeActiveColorTheme(() => this.initTheme()))
+    const callbackSettings = () => {
+      callback({
+        theme: this.theme,
+        language: this.language,
+        reduceMotion: this.reduceMotion,
+      })
+    }
+
+    ctx.subscriptions.push(window.onDidChangeActiveColorTheme(() => {
+      Channel.debug('VscodeSettings onDidChangeActiveColorTheme')
+      this.initTheme()
+      callbackSettings()
+    }))
     ctx.subscriptions.push(
       workspace.onDidChangeConfiguration((e) => {
         if (e.affectsConfiguration('workbench.reduceMotion')) {
+          Channel.debug('VscodeSettings onDidChangeConfiguration')
           this.initReduceMotion()
+          callbackSettings()
         }
       }),
     )
 
     this.invokeInitMethods()
+    callbackSettings()
 
     return {
       language: this.language,
@@ -77,5 +92,7 @@ export class VscodeSettings {
         this.theme = Theme.dark
         break
     }
+
+    return this.theme
   }
 }
