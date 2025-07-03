@@ -3,7 +3,7 @@
   "name": "image-manager",
   "displayName": "Image Manager",
   "type": "commonjs",
-  "version": "3.3.6",
+  "version": "3.3.7",
   "private": true,
   "packageManager": "npm@10.9.3",
   "description": "Powerful yet easy-to-use VSCode image manager",
