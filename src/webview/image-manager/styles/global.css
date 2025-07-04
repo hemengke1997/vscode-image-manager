@@ -64,11 +64,11 @@ body {
 }
 
 ::-webkit-scrollbar-thumb {
-  @apply rounded bg-vscode-scrollbarSlider-background;
+  @apply rounded bg-[var(--vscode-scrollbarSlider-background)];
 }
 
 ::-webkit-scrollbar-thumb:hover {
-  @apply bg-vscode-scrollbarSlider-hoverBackground;
+  @apply bg-[var(--vscode-scrollbarSlider-hoverBackground)];
 }
 
 ::-webkit-scrollbar-track {
@@ -76,5 +76,5 @@ body {
 }
 
 ::-webkit-scrollbar-corner {
-  @apply bg-vscode-editor-background;
+  @apply bg-[var(--vscode-editor-background)];
 }

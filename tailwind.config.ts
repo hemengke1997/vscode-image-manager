@@ -12,8 +12,6 @@ export default {
   },
   presets: [require('tailwind-antd-preset')],
   plugins: [
-    require('./tailwind.config.vscode.js'),
-    require('tailwindcss-animate'),
     plugin(({ addUtilities }) => {
       addUtilities({
         '.text-xxs': {
