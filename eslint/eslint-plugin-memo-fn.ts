@@ -21,6 +21,225 @@ type FunctionExpressionWithParent = TSESTree.FunctionExpression & { parent?: Nod
 type ArrowFunctionExpressionWithParent = TSESTree.ArrowFunctionExpression & { parent?: NodeWithParent }
 type FunctionWithParent = FunctionDeclarationWithParent | FunctionExpressionWithParent | ArrowFunctionExpressionWithParent
 
+// 工具类：节点检查器
+class NodeChecker {
+  /**
+   * 检查是否是React Hook
+   */
+  static isHook(name: string): boolean {
+    return name.startsWith('use') && name.length > 3 && name[3] === name[3].toUpperCase()
+  }
+
+  /**
+   * 检查是否是React组件名（以大写字母开头）
+   */
+  static isReactComponent(name: string): boolean {
+    return name[0] === name[0].toUpperCase()
+  }
+
+  /**
+   * 获取函数名称
+   */
+  static getFunctionName(node: FunctionWithParent): string | null {
+    return 'id' in node && node.id?.name ? node.id.name : null
+  }
+
+  /**
+   * 向上遍历AST树查找符合条件的父节点
+   */
+  static findParentByCondition(
+    node: NodeWithParent,
+    condition: (node: NodeWithParent) => boolean,
+  ): NodeWithParent | null {
+    let current: NodeWithParent | undefined = node
+    while (current?.parent) {
+      if (condition(current)) {
+        return current
+      }
+      current = current.parent
+    }
+    return null
+  }
+
+  /**
+   * 检查是否在React组件中（不包括hook）
+   */
+  static isInReactComponent(node: NodeWithParent): boolean {
+    return this.findParentByCondition(node, (current) => {
+      if (this.isFunctionNode(current)) {
+        const name = this.getFunctionName(current as FunctionWithParent)
+        return name ? this.isReactComponent(name) : false
+      }
+      return false
+    }) !== null
+  }
+
+  /**
+   * 检查是否在hook中
+   */
+  static isInHook(node: NodeWithParent): boolean {
+    return this.findParentByCondition(node, (current) => {
+      if (this.isFunctionNode(current)) {
+        const name = this.getFunctionName(current as FunctionWithParent)
+        return name ? this.isHook(name) : false
+      }
+      return false
+    }) !== null
+  }
+
+  /**
+   * 检查是否在hook内部（作为hook的参数）
+   */
+  static isInsideHook(node: NodeWithParent): boolean {
+    return this.findParentByCondition(node, (current) => {
+      if (current.type === 'CallExpression') {
+        const callExpr = current as CallExpressionNode & { parent?: NodeWithParent }
+        if (callExpr.callee.type === 'Identifier') {
+          return this.isHook(callExpr.callee.name)
+        }
+      }
+      return false
+    }) !== null
+  }
+
+  /**
+   * 检查函数是否已经被useMemoizedFn包裹
+   */
+  static isWrappedWithUseMemoizedFn(node: NodeWithParent): boolean {
+    if (node.parent?.type === 'CallExpression') {
+      const callExpr = node.parent as CallExpressionNode & { parent?: NodeWithParent }
+      return callExpr.callee.type === 'Identifier' && callExpr.callee.name === 'useMemoizedFn'
+    }
+    return false
+  }
+
+  /**
+   * 检查是否是React函数组件
+   */
+  static isReactFunctionComponent(node: FunctionWithParent): boolean {
+    const name = this.getFunctionName(node)
+    return name ? this.isReactComponent(name) : false
+  }
+
+  /**
+   * 检查是否是hook函数
+   */
+  static isHookFunction(node: FunctionWithParent): boolean {
+    const name = this.getFunctionName(node)
+    return name ? this.isHook(name) : false
+  }
+
+  /**
+   * 检查是否是内联函数（在JSX中直接定义的函数）
+   */
+  static isInlineFunction(node: NodeWithParent): boolean {
+    return this.findParentByCondition(node, (current) => {
+      return current.type === 'JSXElement' || current.type === 'JSXFragment'
+    }) !== null
+  }
+
+  /**
+   * 检查是否是函数节点
+   */
+  private static isFunctionNode(node: NodeWithParent): boolean {
+    return node.type === 'FunctionDeclaration'
+      || node.type === 'FunctionExpression'
+      || node.type === 'ArrowFunctionExpression'
+  }
+}
+
+// 工具类：函数处理器
+class FunctionProcessor {
+  /**
+   * 创建自动修复
+   */
+  static createFix(node: FunctionWithParent, sourceCode: any) {
+    const functionText = sourceCode.getText(node)
+
+    // 如果是函数声明，需要转换为const声明格式
+    if (node.type === 'FunctionDeclaration') {
+      const functionName = NodeChecker.getFunctionName(node)
+      if (functionName) {
+        // 如果函数有参数，不进行自动修复（避免类型丢失）
+        if (node.params.length > 0) {
+          return null
+        }
+
+        // 提取函数体
+        const bodyText = sourceCode.getText(node.body)
+
+        // 构造箭头函数
+        const arrowFunction = `() => ${bodyText}`
+
+        return {
+          range: node.range,
+          text: `const ${functionName} = useMemoizedFn(${arrowFunction})`,
+        }
+      }
+    }
+
+    // 对于箭头函数和函数表达式，直接包裹
+    return {
+      range: node.range,
+      text: `useMemoizedFn(${functionText})`,
+    }
+  }
+
+  /**
+   * 检查函数是否需要使用useMemoizedFn
+   */
+  static shouldUseMemoizedFn(node: FunctionWithParent, context: any): boolean {
+    // 如果在hook内部（作为hook的参数），跳过检查
+    if (NodeChecker.isInsideHook(node)) {
+      return false
+    }
+
+    // 检查是否在React组件或自定义hook中
+    const isInReactComponent = NodeChecker.isInReactComponent(node)
+    const isInHook = NodeChecker.isInHook(node)
+
+    // 如果既不在React组件中，也不在自定义hook中，跳过检查
+    if (!isInReactComponent && !isInHook) {
+      return false
+    }
+
+    // 跳过React函数组件本身
+    if (NodeChecker.isReactFunctionComponent(node)) {
+      return false
+    }
+
+    // 跳过hook函数本身
+    if (NodeChecker.isHookFunction(node)) {
+      return false
+    }
+
+    // 跳过已经被包裹的函数
+    if (NodeChecker.isWrappedWithUseMemoizedFn(node)) {
+      return false
+    }
+
+    // 跳过内联函数
+    if (NodeChecker.isInlineFunction(node)) {
+      return false
+    }
+
+    return true
+  }
+
+  /**
+   * 报告缺少useMemoizedFn的函数
+   */
+  static reportMissingUseMemoizedFn(node: FunctionWithParent, context: any) {
+    const fix = this.createFix(node, context.getSourceCode())
+
+    context.report({
+      node,
+      messageId: 'missingUseMemoizedFn',
+      ...(fix && { fix: (fixer: any) => fixer.replaceTextRange(fix.range, fix.text) }),
+    })
+  }
+}
+
 const rule: Rule.RuleModule = {
   meta: {
     type: 'suggestion',
@@ -37,236 +256,23 @@ const rule: Rule.RuleModule = {
   },
   // @ts-expect-error Eslint
   create(context) {
-    // 检查是否在React组件中（不包括hook）
-    function isInReactComponent(node: NodeWithParent): boolean {
-      let current: NodeWithParent | undefined = node
-      while (current?.parent) {
-        if (current.type === 'FunctionDeclaration' || current.type === 'FunctionExpression' || current.type === 'ArrowFunctionExpression') {
-          // 检查函数名是否以大写字母开头（React组件）
-          if ('id' in current && current.id?.name) {
-            const name = current.id.name
-            if (name[0] === name[0].toUpperCase()) {
-              return true
-            }
-          }
-        }
-        current = current.parent
-      }
-      return false
-    }
-
-    // 检查是否在hook中（需要跳过）
-    function isInHook(node: NodeWithParent): boolean {
-      let current: NodeWithParent | undefined = node
-      while (current?.parent) {
-        if (current.type === 'FunctionDeclaration' || current.type === 'FunctionExpression' || current.type === 'ArrowFunctionExpression') {
-          // 检查函数名是否以use开头（hook）
-          if ('id' in current && current.id?.name) {
-            const name = current.id.name
-            if (name.startsWith('use')) {
-              return true
-            }
-          }
-        }
-        current = current.parent
-      }
-      return false
-    }
-
-    // 检查是否在hook内部
-    function isInsideHook(node: NodeWithParent): boolean {
-      let current: NodeWithParent | undefined = node
-      while (current?.parent) {
-        if (current.parent.type === 'CallExpression') {
-          const callExpr = current.parent as CallExpressionNode & { parent?: NodeWithParent }
-          if (callExpr.callee.type === 'Identifier') {
-            const hookName = callExpr.callee.name
-            // 检查是否是React hook：以use开头且下一个字母是大写
-            if (hookName.startsWith('use') && hookName.length > 3 && hookName[3] === hookName[3].toUpperCase()) {
-              return true
-            }
-          }
-        }
-        current = current.parent
-      }
-      return false
-    }
-
-    // 检查函数是否已经被useMemoizedFn包裹
-    function isWrappedWithUseMemoizedFn(node: NodeWithParent): boolean {
-      if (node.parent?.type === 'CallExpression') {
-        const callExpr = node.parent as CallExpressionNode & { parent?: NodeWithParent }
-        if (callExpr.callee.type === 'Identifier' && callExpr.callee.name === 'useMemoizedFn') {
-          return true
-        }
-      }
-      return false
-    }
-
-    // 检查是否是React函数组件（需要跳过）
-    function isReactFunctionComponent(node: FunctionWithParent): boolean {
-      if ('id' in node && node.id?.name) {
-        const name = node.id.name
-        // React组件以大写字母开头
-        return name[0] === name[0].toUpperCase()
-      }
-      return false
-    }
-
-    // 检查是否是hook函数（需要跳过）
-    function isHookFunction(node: FunctionWithParent): boolean {
-      if ('id' in node && node.id?.name) {
-        const name = node.id.name
-        // Hook函数以use开头
-        return name.startsWith('use')
-      }
-      return false
-    }
-
-    // 检查是否是内联函数（在JSX中直接定义的函数，需要跳过）
-    function isInlineFunction(node: NodeWithParent): boolean {
-      let current: NodeWithParent | undefined = node
-      while (current?.parent) {
-        if (current.type === 'JSXElement' || current.type === 'JSXFragment') {
-          return true
-        }
-        current = current.parent
-      }
-      return false
-    }
-
-    // 检查是否是useEffect、useCallback等hook的依赖（需要跳过）
-    function isHookDependency(node: NodeWithParent): boolean {
-      let current: NodeWithParent | undefined = node
-      while (current?.parent) {
-        if (current.parent.type === 'CallExpression') {
-          const callExpr = current.parent as CallExpressionNode & { parent?: NodeWithParent }
-          if (callExpr.callee.type === 'Identifier') {
-            const hookName = callExpr.callee.name
-            if (['useEffect', 'useCallback', 'useMemo', 'useLayoutEffect'].includes(hookName)) {
-              // 检查是否在依赖数组中
-              const args = callExpr.arguments
-              if (args.length > 1 && args[1] === current) {
-                return true
-              }
-            }
-          }
-        }
-        current = current.parent
-      }
-      return false
-    }
-
-    // 创建自动修复
-    function createFix(node: FunctionWithParent, sourceCode: any) {
-      const functionText = sourceCode.getText(node)
-      return {
-        range: node.range,
-        text: `useMemoizedFn(${functionText})`,
-      }
-    }
-
     return {
       // 检查变量声明中的箭头函数
       VariableDeclarator(node: VariableDeclaratorWithParent) {
-        // 如果在hook内部，跳过检查
-        if (isInsideHook(node)) {
-          return
-        }
-
-        // 只检查React组件中的函数，跳过hook中的函数
-        if (!isInReactComponent(node) || isInHook(node)) {
-          return
-        }
-
         if (node.init && (node.init.type === 'ArrowFunctionExpression' || node.init.type === 'FunctionExpression')) {
           const funcNode = node.init as FunctionWithParent
 
-          // 跳过React函数组件
-          if (isReactFunctionComponent(funcNode)) {
-            return
+          if (FunctionProcessor.shouldUseMemoizedFn(funcNode, context)) {
+            FunctionProcessor.reportMissingUseMemoizedFn(funcNode, context)
           }
-
-          // 跳过hook函数
-          if (isHookFunction(funcNode)) {
-            return
-          }
-
-          // 跳过已经被包裹的函数
-          if (isWrappedWithUseMemoizedFn(funcNode)) {
-            return
-          }
-
-          // 跳过hook依赖
-          if (isHookDependency(funcNode)) {
-            return
-          }
-
-          // 跳过内联函数
-          if (isInlineFunction(funcNode)) {
-            return
-          }
-
-          // 检查所有其他函数
-          context.report({
-            node: funcNode,
-            messageId: 'missingUseMemoizedFn',
-            fix: (fixer) => {
-              const sourceCode = context.getSourceCode()
-              const fix = createFix(funcNode, sourceCode)
-              return fixer.replaceTextRange(fix.range, fix.text)
-            },
-          })
         }
       },
 
       // 检查函数声明
       FunctionDeclaration(node: FunctionDeclarationWithParent) {
-        // 如果在hook内部，跳过检查
-        if (isInsideHook(node)) {
-          return
+        if (FunctionProcessor.shouldUseMemoizedFn(node, context)) {
+          FunctionProcessor.reportMissingUseMemoizedFn(node, context)
         }
-
-        // 只检查React组件中的函数，跳过hook中的函数
-        if (!isInReactComponent(node) || isInHook(node)) {
-          return
-        }
-
-        // 跳过React函数组件
-        if (isReactFunctionComponent(node)) {
-          return
-        }
-
-        // 跳过hook函数
-        if (isHookFunction(node)) {
-          return
-        }
-
-        // 跳过已经被包裹的函数
-        if (isWrappedWithUseMemoizedFn(node)) {
-          return
-        }
-
-        // 跳过hook依赖
-        if (isHookDependency(node)) {
-          return
-        }
-
-        // 跳过内联函数
-        if (isInlineFunction(node)) {
-          return
-        }
-
-        // 检查所有其他函数
-        context.report({
-          node,
-          messageId: 'missingUseMemoizedFn',
-          fix: (fixer) => {
-            const sourceCode = context.getSourceCode()
-            const fix = createFix(node, sourceCode)
-            return fixer.replaceTextRange(fix.range, fix.text)
-          },
-        })
       },
     }
   },

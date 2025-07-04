@@ -2,7 +2,7 @@ import { useMemoizedFn, usePrevious, useUpdate } from 'ahooks'
 import { isFunction } from 'es-toolkit'
 import { useEffect, useMemo, useRef } from 'react'
 
-function useControlledState<T>(option: {
+export function useControlledState<T>(option: {
   defaultValue?: T | (() => T)
   value?: T
   onChange?: (value: T, prevValue: T) => void
@@ -39,7 +39,7 @@ function useControlledState<T>(option: {
 
   const update = useUpdate()
 
-  function triggerChange(newValue: T | ((prevState: T) => T)) {
+  const triggerChange = useMemoizedFn((newValue: T | ((prevState: T) => T)) => {
     let r = isFunction(newValue) ? newValue(stateRef.current as T) : newValue
 
     if (beforeValue) {
@@ -64,9 +64,7 @@ function useControlledState<T>(option: {
       stateRef.current = r
       update()
     }
-  }
+  })
 
-  return [stateRef.current as T, useMemoizedFn(triggerChange), previousState as T]
+  return [stateRef.current as T, triggerChange, previousState as T]
 }
-
-export { useControlledState }

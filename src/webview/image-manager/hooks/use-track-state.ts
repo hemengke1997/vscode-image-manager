@@ -30,7 +30,7 @@ export function useTrackState<S>(
 ) {
   const { deps, defaultValue, onChangeBySet, onChangeByTrack } = options || {}
 
-  const execIfFn = (fn: S | (() => S) | undefined) => (isFunction(fn) ? fn() : fn)
+  const execIfFn = useMemoizedFn((fn: S | (() => S) | undefined) => (isFunction(fn) ? fn() : fn))
 
   const [trackedState, setTrackState] = useState<{
     state: S
