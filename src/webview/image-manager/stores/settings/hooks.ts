@@ -93,7 +93,7 @@ export function useLanguage() {
     ),
   )
   const [originLanguage] = useOriginLanguage()
-  return useMemo(() => intelligentPick(originLanguage, language, Language.auto), [originLanguage, language])
+  return [useMemo(() => intelligentPick(originLanguage, language, Language.auto), [originLanguage, language])]
 }
 
 // 源动画
@@ -115,10 +115,10 @@ export function useReduceMotion() {
       useMemoizedFn(state => state.reduceMotion),
     ),
   )
-  return useMemo(
+  return [useMemo(
     () => intelligentPick(originReduceMotion, reduceMotion, ReduceMotion.auto),
     [originReduceMotion, reduceMotion],
-  )
+  )]
 }
 
 // display sort

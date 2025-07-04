@@ -10,7 +10,6 @@ react-dom/client
 react-error-boundary
 react-i18next
 i18next
-vite-plugin-i18n-ally/client
 ahooks
 antd
 @ctrl/tinycolor
@@ -39,3 +38,4 @@ slash
 clsx
 tailwind-merge
 ua-parser-js
+i18next-resources-to-backend

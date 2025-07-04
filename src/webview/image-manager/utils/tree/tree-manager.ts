@@ -210,7 +210,6 @@ export class TreeManager {
     }
 
     if (this.tree.nodes.size) {
-      logger.debug(this.tree, 'this.tree')
       result.push(await buildNestedTree(this.rootId))
     }
     logger.timeEnd('toNestedArray')

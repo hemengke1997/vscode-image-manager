@@ -1,8 +1,8 @@
 import type { OutputAsset, OutputChunk } from 'rollup'
 import type { PluginOption, ResolvedConfig } from 'vite'
 
-export function prefetch(options: { exclude: string[] }): PluginOption {
-  const { exclude } = options
+export function prefetch(options?: { exclude: string[] }): PluginOption {
+  const { exclude = [] } = options || {}
   let config: ResolvedConfig
   return {
     name: 'vite-plugin-bundle-prefetch',

@@ -3,7 +3,7 @@
   "i18n-ally.enabledFrameworks": ["react-i18next", "i18next", "vscode"],
   "i18n-ally.enabledParsers": ["json5"],
   "i18n-ally.keystyle": "nested",
-  "i18n-ally.localesPaths": ["locales", "src/webview/image-manager/locales"],
+  "i18n-ally.localesPaths": ["locales", "src/webview/image-manager/i18n/locales"],
   "i18n-ally.namespace": false,
   "i18n-ally.pathMatcher": "{locale}.json5",
   "i18n-ally.sourceLanguage": "zh-CN",

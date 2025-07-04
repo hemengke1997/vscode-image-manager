@@ -5,7 +5,6 @@ import jotaiDebugLabel from 'jotai/babel/plugin-debug-label'
 import jotaiReactRefresh from 'jotai/babel/plugin-react-refresh'
 import { defineConfig } from 'vite'
 import { createHtmlPlugin } from 'vite-plugin-html'
-import { i18nAlly } from 'vite-plugin-i18n-ally'
 import json5 from 'vite-plugin-json5'
 import { plugin as markdown, Mode } from 'vite-plugin-markdown'
 import svgr from 'vite-plugin-svgr'
@@ -55,10 +54,6 @@ export default defineConfig((env) => {
         template: './src/webview/image-manager/index.html',
         minify: env.command === 'build',
       }),
-      i18nAlly({
-        root: __dirname,
-        localesPaths: [path.resolve(__dirname, './src/webview/image-manager/locales')],
-      }),
       markdown({ mode: [Mode.MARKDOWN] }),
       svgr({ svgrOptions: { icon: true } }),
       visualizer(),
@@ -68,7 +63,7 @@ export default defineConfig((env) => {
       optimizeDeps(),
       base64(),
       clean(),
-      prefetch({ exclude: ['virtual_i18n-ally'] }),
+      prefetch(),
       chunkReadable(),
       logBuildTime(env),
       restrictImages(),
