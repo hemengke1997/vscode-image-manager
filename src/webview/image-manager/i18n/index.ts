@@ -3,7 +3,12 @@ import resourcesToBackend from 'i18next-resources-to-backend'
 import { initReactI18next } from 'react-i18next'
 import { FALLBACK_LANGUAGE } from '~/meta'
 
+let inited = false
+
 export async function initI18n({ lng }: { lng: string }) {
+  if (inited)
+    return
+
   await i18next.use(initReactI18next)
     .use(
       resourcesToBackend(async (language: string) => {
@@ -23,4 +28,5 @@ export async function initI18n({ lng }: { lng: string }) {
         escapeValue: false,
       },
     })
+  inited = true
 }

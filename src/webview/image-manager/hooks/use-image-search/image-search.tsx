@@ -1,7 +1,7 @@
 import type { InputRef } from 'antd/es/input'
 import type { FuseResult } from 'fuse.js'
 import { useDebounceFn, useMemoizedFn, useUpdateEffect } from 'ahooks'
-import { Empty, Input, Tooltip } from 'antd'
+import { Input, Tooltip } from 'antd'
 import { without } from 'es-toolkit'
 import Fuse from 'fuse.js'
 import { useAtomValue } from 'jotai'
@@ -14,6 +14,7 @@ import { CmdToVscode } from '~/message/cmd'
 import useScrollRef from '~/webview/image-manager/hooks/use-scroll-ref'
 import { classNames } from '~/webview/image-manager/utils/tw-clsx'
 import { vscodeApi } from '~/webview/vscode-api'
+import EmptyImage from '../../components/empty'
 import ImageGroup from '../../components/image-group'
 import { GlobalAtoms } from '../../stores/global/global-store'
 import { formatPath } from '../../utils/tree/utils'
@@ -290,11 +291,10 @@ function ImageSearch() {
         {!searchResult.items.length
           ? (
               <div className='my-6'>
-                <Empty
-                  image={Empty.PRESENTED_IMAGE_SIMPLE}
-                  description={(
+                <EmptyImage
+                  render={description => (
                     <div className='inline-flex items-center gap-x-1'>
-                      <span>{t('im.no_image')}</span>
+                      <span>{description}</span>
                       <>
                         {searchResult.searchValue && !loading
                           ? (

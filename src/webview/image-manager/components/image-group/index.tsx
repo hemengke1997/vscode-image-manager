@@ -4,11 +4,12 @@ import type { PreviewGroupPreview } from 'rc-image/es/PreviewGroup'
 import type { ForwardedRef, ReactNode } from 'react'
 import type { ImageContextMenuType } from '../context-menus/components/image-context-menu/hooks/use-image-context-menu'
 import { useDeepCompareEffect, useMemoizedFn } from 'ahooks'
-import { Button, ConfigProvider, Image, theme } from 'antd'
+import { Button, ConfigProvider, Image, Spin, theme } from 'antd'
 import { range, round } from 'es-toolkit'
+import { isObject } from 'es-toolkit/compat'
 import { useAtomValue } from 'jotai'
 import { selectAtom } from 'jotai/utils'
-import { forwardRef, memo, useEffect, useMemo, useRef, useState } from 'react'
+import { forwardRef, memo, useDeferredValue, useEffect, useMemo, useRef, useState } from 'react'
 import toast from 'react-hot-toast'
 import { FaLock, FaLockOpen } from 'react-icons/fa6'
 import { DEFAULT_WORKSPACE_STATE, WorkspaceStateKey } from '~/core/persist/workspace/common'
@@ -17,6 +18,7 @@ import { useControlledState } from '~/webview/image-manager/hooks/use-controlled
 import { classNames } from '~/webview/image-manager/utils/tw-clsx'
 import { getAppRoot } from '~/webview/utils'
 import useImageManagerEvent, { IMEvent } from '../../hooks/use-image-manager-event'
+import { useWhyUpdateDebug } from '../../hooks/use-why-update-debug'
 import { useWorkspaceState } from '../../hooks/use-workspace-state'
 import { GlobalAtoms } from '../../stores/global/global-store'
 import { useImageWidth } from '../../stores/global/hooks'
@@ -99,9 +101,6 @@ type Props = {
 
 const ToastKey = 'image-preview-scale'
 
-// 每次加载200张图片
-const PageSize = 200
-
 /**
  * 图片组
  * 展示一组图片列表，并支持预览、多选等功能
@@ -123,6 +122,8 @@ function ImageGroup(props: Props, ref: ForwardedRef<HTMLDivElement>) {
     inViewer,
   } = props
 
+  useWhyUpdateDebug('ImageGroup', props)
+
   const renderer = useMemoizedFn(props.renderer || (c => c))
 
   const { token } = theme.useToken()
@@ -133,11 +134,13 @@ function ImageGroup(props: Props, ref: ForwardedRef<HTMLDivElement>) {
 
   const [index, setIndex] = useState<number>(-1)
 
-  const [images] = useLazyLoadImages({
+  const viewerPageSize = useAtomValue(GlobalAtoms.viewerPageSizeAtom)
+
+  const [images, imageStatus, actions] = useLazyLoadImages({
     images: imagesProp,
-    pageSize: PageSize,
+    pageSize: viewerPageSize,
     target: containerRef?.current,
-    container: lazyImageProps?.lazy ? lazyImageProps.lazy.root : getAppRoot(),
+    container: isObject(lazyImageProps?.lazy) ? lazyImageProps.lazy.root : getAppRoot(),
     index,
   })
 
@@ -468,13 +471,14 @@ function ImageGroup(props: Props, ref: ForwardedRef<HTMLDivElement>) {
     } satisfies PreviewGroupPreview
   }, [preview, previewScale, handlePreviewChange, handleVisibleChange, handleImageRender, handleTransform])
 
-  const previewItems = useMemo(
+  const _previewItems = useMemo(
     () =>
       images.map(t => ({
         src: t.vscodePath,
       })),
     [images],
   )
+  const previewItems = useDeferredValue(_previewItems)
 
   const antdImageProps = useMemo(
     () => ({
@@ -496,7 +500,7 @@ function ImageGroup(props: Props, ref: ForwardedRef<HTMLDivElement>) {
   })
 
   return (
-    <div ref={containerRef}>
+    <div ref={containerRef} className='flex flex-col gap-2'>
       <div
         className={classNames('flex flex-wrap gap-1.5', clearSelectedOnBlankClick && ShouldClickAway.Viewer)}
         ref={ref}
@@ -546,6 +550,7 @@ function ImageGroup(props: Props, ref: ForwardedRef<HTMLDivElement>) {
           </Image.PreviewGroup>
         </ConfigProvider>
       </div>
+      {imageStatus.hasMore && <div onClick={actions.append} className='mx-auto my-4 cursor-pointer'><Spin spinning={true} /></div>}
     </div>
   )
 }

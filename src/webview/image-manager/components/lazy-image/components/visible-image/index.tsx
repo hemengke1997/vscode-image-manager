@@ -15,12 +15,14 @@ import { TbResize } from 'react-icons/tb'
 import { DEFAULT_CONFIG } from '~/core/config/common'
 import { Compressed } from '~/meta'
 import useImageDetails from '~/webview/image-manager/hooks/use-image-details/use-image-details'
+import { useImageWidth } from '~/webview/image-manager/stores/global/hooks'
 import { useHoverShowImageDetail } from '~/webview/image-manager/stores/settings/hooks'
 import { VscodeAtoms } from '~/webview/image-manager/stores/vscode/vscode-store'
 import { bytesToUnit, formatBytes } from '~/webview/image-manager/utils'
 import { classNames } from '~/webview/image-manager/utils/tw-clsx'
 import ImageName from '../../../image-name'
 import Corner from '../corner'
+import styles from './index.module.css'
 
 type VisibleImageProps = {} & Omit<
   GetProps<typeof lazyImage>,
@@ -47,12 +49,7 @@ function VisibleImage(props: VisibleImageProps) {
 
   const [hoverShowImageDetail] = useHoverShowImageDetail()
 
-  const imageWidth = useAtomValue(
-    selectAtom(
-      VscodeAtoms.extConfigAtom,
-      useMemoizedFn(state => state.viewer.imageWidth),
-    ),
-  )
+  const [imageWidth] = useImageWidth()
   const warningSize = useAtomValue(
     selectAtom(
       VscodeAtoms.extConfigAtom,
@@ -196,9 +193,10 @@ function VisibleImage(props: VisibleImageProps) {
       tabIndex={-1}
       className={classNames(
         'group relative flex flex-none flex-col items-center space-y-1 p-2',
-        'overflow-hidden rounded-lg border-[2px] border-solid border-transparent',
+        'overflow-hidden rounded-lg border-[2px] border-solid border-transparent opacity-0',
         interactive && 'hover:border-ant-color-border',
         interactive && selected && 'border-ant-color-primary-hover hover:border-ant-color-primary-hover',
+        styles['animate-fade-in'],
       )}
       onContextMenu={e => onContextMenu?.(e, image)}
       onDoubleClick={(e) => {

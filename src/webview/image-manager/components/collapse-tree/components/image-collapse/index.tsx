@@ -2,18 +2,20 @@ import type { CollapseProps, GetProps } from 'antd'
 import type { ReactNode } from 'react'
 import type { EnableCollapseContextMenuType } from '../../../context-menus/components/collapse-context-menu'
 import type imageName from '../../../image-name'
-import { useMemoizedFn, useUpdateEffect } from 'ahooks'
+import { useMemoizedFn } from 'ahooks'
 import { Collapse } from 'antd'
 import { isUndefined } from 'es-toolkit'
 import { produce } from 'immer'
-import { useAtom, useAtomValue } from 'jotai'
-import { memo, useCallback, useEffect, useMemo, useRef, useState } from 'react'
+import { useAtom, useAtomValue, useSetAtom } from 'jotai'
+import { selectAtom } from 'jotai/utils'
+import { memo, useDeferredValue, useEffect, useMemo, useRef, useState } from 'react'
 import { Element, scroller } from 'react-scroll'
 import { useControlledState } from '~/webview/image-manager/hooks/use-controlled-state'
+import { useWhyUpdateDebug } from '~/webview/image-manager/hooks/use-why-update-debug'
 import { ActionAtoms } from '~/webview/image-manager/stores/action/action-store'
 import { CopyType, FileAtoms } from '~/webview/image-manager/stores/file/file-store'
 import { GlobalAtoms } from '~/webview/image-manager/stores/global/global-store'
-import { clearTimestamp } from '~/webview/image-manager/utils'
+import { clearTimestamp, nextTick } from '~/webview/image-manager/utils'
 import { classNames } from '~/webview/image-manager/utils/tw-clsx'
 import useImageManagerEvent, { IMEvent } from '../../../../hooks/use-image-manager-event'
 import useSticky from '../../../../hooks/use-sticky'
@@ -94,7 +96,11 @@ function ImageCollapse(props: ImageCollapseProps) {
     tooltipDisplayFullPath,
   } = props
 
-  const [activeCollapseIdSet, setActiveCollapseIdSet] = useAtom(ActionAtoms.activeCollapseIdSet)
+  useWhyUpdateDebug('ImageCollapse', props)
+
+  const isActive = useAtomValue(selectAtom(ActionAtoms.activeCollapseIdSet, useMemoizedFn(state => state.has(id))))
+
+  const setActiveCollapseIdSet = useSetAtom(ActionAtoms.activeCollapseIdSet)
 
   const onOpenChange = useMemoizedFn((open: boolean) => {
     setActiveCollapseIdSet(
@@ -109,10 +115,21 @@ function ImageCollapse(props: ImageCollapseProps) {
     )
   })
 
-  const [open, setOpen] = useControlledState<boolean>({
-    value: forceOpen || activeCollapseIdSet.has(id),
+  const [_open, setOpen] = useControlledState<boolean>({
+    value: forceOpen || isActive,
     onChange: onOpenChange,
   })
+
+  const open = useDeferredValue(_open)
+
+  const [forceRender, setForceRender] = useState(false)
+  const deferredForceRender = useDeferredValue(forceRender)
+
+  useEffect(() => {
+    nextTick(() => {
+      setForceRender(true)
+    })
+  }, [])
 
   const imageReveal = useAtomValue(GlobalAtoms.imageRevealAtom)
   const viewerHeaderStickyHeight = useAtomValue(GlobalAtoms.viewerHeaderStickyHeightAtom)
@@ -301,18 +318,10 @@ function ImageCollapse(props: ImageCollapseProps) {
     enable: open,
   })
 
-  /**
-   * hack
-   * 解决非手动打开collapse时，sticky失效的问题
-   */
-  const [, update] = useState(0)
-  useUpdateEffect(() => {
-    if (open) {
-      update(t => ~t)
-    }
-  }, [open])
-
-  const [imageSelectedMap, setImageSelectedMap] = useAtom(FileAtoms.imageSelectedMap)
+  const memoArr = useMemo(() => [], [])
+  // atom中，map引用每次都会改变
+  const selectedImages = useAtomValue(selectAtom(FileAtoms.imageSelectedMap, useMemoizedFn(state => state.get(id) || memoArr)))
+  const setImageSelectedMap = useSetAtom(FileAtoms.imageSelectedMap)
 
   const imageSelected = useAtomValue(FileAtoms.imageSelected)
   const imageCopied = useAtomValue(FileAtoms.imageCopied)
@@ -328,16 +337,6 @@ function ImageCollapse(props: ImageCollapseProps) {
     )
   })
 
-  // 这是使用useCallback是为了能够在imageCopied改变时，触发lazyImageProps的渲染
-  const isCutImage = useCallback(
-    (image: ImageType) => {
-      if (imageCopied?.type === CopyType.MOVE && imageCopied.list.length) {
-        return imageCopied.list.some(item => item.path === image.path)
-      }
-    },
-    [imageCopied],
-  )
-
   const onClearImageGroupSelected = useMemoizedFn(() => {
     imageManagerEvent.emit(IMEvent.clear_viewer_selected_images)
   })
@@ -345,13 +344,18 @@ function ImageCollapse(props: ImageCollapseProps) {
   const lazyImageProps: GetProps<typeof ImageGroup>['lazyImageProps'] = useMemo(() => {
     return {
       // 剪切的图片添加透明度
-      className: image => (isCutImage(image) ? classNames('opacity-50') : ''),
+      className: (image) => {
+        if (imageCopied?.type === CopyType.MOVE && imageCopied.list.length) {
+          return imageCopied.list.some(item => item.path === image.path) ? classNames('opacity-50') : ''
+        }
+        return ''
+      },
       inViewer: true,
       imageNameProps: {
         tooltipDisplayFullPath,
       },
     }
-  }, [tooltipDisplayFullPath, isCutImage])
+  }, [tooltipDisplayFullPath, imageCopied])
 
   const enableContextMenu: GetProps<typeof ImageGroup>['enableContextMenu'] = useMemo(() => {
     return {
@@ -372,7 +376,12 @@ function ImageCollapse(props: ImageCollapseProps) {
     return imageSelected
   })
 
+  const viewerPageSize = useAtomValue(GlobalAtoms.viewerPageSizeAtom)
+
   if (!images?.length && !children)
+    return null
+
+  if (!viewerPageSize)
     return null
 
   return (
@@ -382,14 +391,16 @@ function ImageCollapse(props: ImageCollapseProps) {
         /**
          * 由于图片数量可能很多，如果打开了collapse之后，即使关闭了也会一直渲染
          * 所以需要在关闭的时候销毁inactive的panel
+         *
+         * UPDATE: 摧毁组件会导致每次打开都耗费性能，可能会有交互延迟
          */
-        destroyOnHidden
+        destroyOnHidden={false}
         ref={stickyRef}
         activeKey={open ? [id] : []}
-        onChange={keys => onCollapseChange(keys as string[])}
+        onChange={onCollapseChange}
         items={[
           {
-            forceRender: open,
+            forceRender: open || deferredForceRender,
             key: id,
             label: labelRender(generateLabel(labels)),
             children: images?.length
@@ -398,7 +409,7 @@ function ImageCollapse(props: ImageCollapseProps) {
                     <ImageGroup
                       ref={holderRef}
                       id={id}
-                      selectedImages={imageSelectedMap.get(id) || []}
+                      selectedImages={selectedImages}
                       onSelectedImagesChange={onSelectedImagesChange}
                       enableMultipleSelect={true}
                       onMultipleSelectContextMenu={onMultipleSelectContextMenu}

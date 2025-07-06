@@ -1,5 +1,5 @@
 import { useClickAway, useMemoizedFn } from 'ahooks'
-import { Card, Empty, Skeleton } from 'antd'
+import { Card, Skeleton } from 'antd'
 import { floor } from 'es-toolkit/compat'
 import { useAtomValue, useSetAtom } from 'jotai'
 import { AnimatePresence, motion } from 'motion/react'
@@ -16,6 +16,7 @@ import { useImageWidth } from '../../stores/global/hooks'
 import { imageStateAtom } from '../../stores/image/image-store'
 import { ANIMATION_DURATION } from '../../utils/duration'
 import CollapseTree from '../collapse-tree'
+import EmptyImage from '../empty'
 import ImageActions from '../image-actions'
 import TitleIconUI from './components/title-icon-UI'
 import useClickImageAway from './hooks/use-click-image-away'
@@ -155,9 +156,7 @@ function Viewer() {
                       ? (
                           imageState.workspaces.map(item => <CollapseTree key={item.workspaceFolder} workspace={item} />)
                         )
-                      : (
-                          <Empty image={Empty.PRESENTED_IMAGE_SIMPLE} description={t('im.no_image')} />
-                        )}
+                      : <EmptyImage />}
                   </div>
                 </motion.div>
               )}

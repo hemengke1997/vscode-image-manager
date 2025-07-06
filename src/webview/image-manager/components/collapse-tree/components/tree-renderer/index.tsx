@@ -1,34 +1,14 @@
 import type { CollapseProps } from 'antd'
-import type { ReactNode } from 'react'
-import type { EnableCollapseContextMenuType } from '../../../context-menus/components/collapse-context-menu'
 import type { NestedTreeNode, TreeManager } from '~/webview/image-manager/utils/tree/tree-manager'
 import { useMemoizedFn } from 'ahooks'
-import { Card, Empty } from 'antd'
+import { Card } from 'antd'
 import { isUndefined } from 'es-toolkit'
-import { useAtomValue } from 'jotai'
-import { selectAtom } from 'jotai/utils'
 import { motion } from 'motion/react'
-import { memo } from 'react'
-import { useTranslation } from 'react-i18next'
-import { VscFileMedia } from 'react-icons/vsc'
-import { DisplayGroupType } from '~/core/persist/workspace/common'
-import { ActionAtoms } from '~/webview/image-manager/stores/action/action-store'
-import { imageStateAtom } from '~/webview/image-manager/stores/image/image-store'
-import { useDisplayGroup } from '~/webview/image-manager/stores/settings/hooks'
+import { memo, useDeferredValue } from 'react'
+import EmptyImage from '~/webview/image-manager/components/empty'
+import { useWhyUpdateDebug } from '~/webview/image-manager/hooks/use-why-update-debug'
 import { ANIMATION_DURATION } from '~/webview/image-manager/utils/duration'
-import { NodeType } from '~/webview/image-manager/utils/tree/tree'
-import { classNames } from '~/webview/image-manager/utils/tw-clsx'
-import ImageCollapse from '../image-collapse'
-import RevealInFolder from '../reveal-in-folder'
-import styles from './index.module.css'
-
-const RevealGroup = memo((props: { path: string, folderChildren?: ReactNode }) => {
-  return (
-    <div className='flex items-center gap-x-1'>
-      <RevealInFolder {...props}>{props.folderChildren}</RevealInFolder>
-    </div>
-  )
-})
+import MemoCollapse from './components/memo-collapse'
 
 type Props = {
   tree: NestedTreeNode[] | undefined
@@ -36,20 +16,14 @@ type Props = {
   workspaceId: string
   workspaceFolder: string
 }
+
 function TreeRenderer(props: Props) {
-  const { t } = useTranslation()
-  const { tree, treeManager, workspaceFolder, workspaceId } = props
+  const { tree: _tree, treeManager, workspaceFolder, workspaceId } = props
 
-  const workspaceLength = useAtomValue(
-    selectAtom(
-      imageStateAtom,
-      useMemoizedFn(state => state.workspaces.length),
-    ),
-  )
+  useWhyUpdateDebug('TreeRenderer', props)
 
-  const [displayGroup] = useDisplayGroup()
-
-  const collapseIdSet = useAtomValue(ActionAtoms.collapseIdSet)
+  // 使用 useDeferredValue 延迟更新，避免阻塞主线程
+  const tree = useDeferredValue(_tree)
 
   /**
    * nodeID是以工作区名称开头的，需要去掉工作区名称，然后加上工作区绝对路径
@@ -62,46 +36,7 @@ function TreeRenderer(props: Props) {
     return nodeId.replace(new RegExp(`^${workspaceFolder}`), `${workspaceId}`)
   })
 
-  const getContextMenu = useMemoizedFn((contextMenu: EnableCollapseContextMenuType): EnableCollapseContextMenuType => {
-    return {
-      compress_in_current_directory: true,
-      compress_in_recursive_directories: true,
-      format_conversion_in_current_directory: true,
-      format_conversion_in_recursive_directories: true,
-      open_in_os_explorer: true,
-      open_in_vscode_explorer: true,
-      ...contextMenu,
-    }
-  })
-
-  const fnStrategy = useMemoizedFn((nodeType: NodeType) => {
-    switch (nodeType) {
-      case NodeType.dir: {
-        return {
-          icon: (props: { path: string }) => <RevealGroup {...props} />,
-          contextMenu: getContextMenu,
-        }
-      }
-      case NodeType.ext: {
-        return {
-          icon: () => <VscFileMedia className='mr-1' />,
-        }
-      }
-      case NodeType.root: {
-        return {
-          icon: (props: { path: string }) => <RevealGroup {...props} />,
-          contextMenu: getContextMenu,
-        }
-      }
-      default:
-        return {
-          icon: (props: { path: string }) => <RevealGroup {...props} />,
-          contextMenu: getContextMenu,
-        }
-    }
-  })
-
-  const nestedDisplay = useMemoizedFn(
+  const renderNestedTree = useMemoizedFn(
     (
       tree: NestedTreeNode[],
       collapseProps?: CollapseProps,
@@ -120,50 +55,21 @@ function TreeRenderer(props: Props) {
             const { data, id, children } = node
 
             const resolvedId = resolvePath(id)
-            collapseIdSet.add(resolvedId)
-
-            if (!data)
-              return null
-
-            // 非根节点，或者多工作区时，可以折叠
-            const collapsible = !root || workspaceLength > 1
 
             return (
-              <ImageCollapse
+              <MemoCollapse
                 key={resolvedId}
-                id={resolvedId}
-                collapseProps={{
-                  bordered: false,
-                  className: classNames(styles.collapse),
-                  ...collapseProps,
-                }}
-                collapsible={collapsible}
-                // 不能折叠时，强制展开
-                forceOpen={!collapsible ? true : undefined}
-                labelRender={label => (
-                  <div className='flex items-center space-x-1'>
-                    <div className='flex items-center'>{fnStrategy(data.nodeType).icon({ path: resolvedId })}</div>
-                    {label}
-                  </div>
-                )}
-                contextMenu={
-                  fnStrategy(data.nodeType).contextMenu
-                    ? id =>
-                      fnStrategy(data.nodeType).contextMenu!({
-                        rename_directory: id !== workspaceId,
-                        delete_directory: id !== workspaceId,
-                      })
-                    : undefined
-                }
-                label={data.path!}
-                images={data.images}
+                resolvedId={resolvedId}
+                data={data}
+                id={id}
+                tree={children}
+                renderTree={renderNestedTree}
+                treeManager={treeManager}
+                workspaceId={workspaceId}
                 workspaceFolder={workspaceFolder}
-                folderImages={treeManager?.getNodeImages(id)}
-                subfolderImages={treeManager?.getSubnodeImages(id)}
-                tooltipDisplayFullPath={!displayGroup.includes(DisplayGroupType.dir)}
-              >
-                {data.path && children ? nestedDisplay(children) : null}
-              </ImageCollapse>
+                collapseProps={collapseProps}
+                isRoot={root}
+              />
             )
           })}
         </div>
@@ -193,14 +99,14 @@ function TreeRenderer(props: Props) {
           variant='borderless'
           type='inner'
         >
-          <Empty image={Empty.PRESENTED_IMAGE_SIMPLE} description={t('im.no_image')} />
+          <EmptyImage />
         </Card>
       </motion.div>
     )
   }
 
   // render tree
-  return nestedDisplay(tree, { bordered: true }, { root: true })
+  return renderNestedTree(tree, { bordered: true }, { root: true })
 }
 
 export default memo(TreeRenderer)

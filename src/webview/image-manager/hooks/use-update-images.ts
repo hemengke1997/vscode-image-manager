@@ -26,9 +26,8 @@ export default function useUpdateImages() {
    * 增量更新
    */
   const patchUpdate = useMemoizedFn((data: PatchUpdate) => {
-    dispatchImageState(data)
     startTransition(() => {
-      //
+      dispatchImageState(data)
     })
   })
 

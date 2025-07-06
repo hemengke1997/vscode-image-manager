@@ -29,7 +29,7 @@ function registerApp(children: JSX.Element, reload = false) {
       cmd: CmdToVscode.on_webview_ready,
     },
     async (data) => {
-      logger.debug(CmdToVscode.on_webview_ready, data)
+      logger.debug(CmdToVscode.on_webview_ready, { data, reload })
       const {
         config: { ext, vscode },
         workspaceState,
@@ -50,13 +50,13 @@ function registerApp(children: JSX.Element, reload = false) {
 
       startTransition(() => {
         reactRoot().render(
-          <JotaiProvider>
-            <div onContextMenu={e => e.preventDefault()} key={key}>
+          <div onContextMenu={e => e.preventDefault()} key={key}>
+            <JotaiProvider>
               <VscodeAtomsHydrator extConfig={ext} vscodeConfig={vscode} workspaceState={workspaceState}>
                 {children}
               </VscodeAtomsHydrator>
-            </div>
-          </JotaiProvider>,
+            </JotaiProvider>
+          </div>,
         )
       })
     },

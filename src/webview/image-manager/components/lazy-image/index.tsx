@@ -3,8 +3,9 @@ import type { ReactNode } from 'react'
 import type ImageName from '../image-name'
 import { useInViewport, useMemoizedFn } from 'ahooks'
 import { trim } from 'es-toolkit'
+import { isObject } from 'es-toolkit/compat'
 import { useAtomValue } from 'jotai'
-import { memo, useEffect, useRef } from 'react'
+import { memo, useEffect, useMemo, useRef } from 'react'
 import { animateScroll } from 'react-scroll'
 import logger from '~/utils/logger'
 import { useControlledState } from '~/webview/image-manager/hooks/use-controlled-state'
@@ -28,13 +29,10 @@ type Props = {
   onPreviewClick?: (image: ImageType) => void
   /**
    * 是否懒加载
-   * @default
-   * {
-   *    root: getAppRoot()
-   * }
+   * @default true
    */
   lazy?:
-    | false
+    | boolean
     | {
       /**
        * 懒加载根节点
@@ -93,13 +91,21 @@ type Props = {
 function LazyImage(props: Props) {
   const {
     image,
-    lazy,
+    lazy = true,
     className,
     inViewer,
     ...rest
   } = props
 
-  const root = lazy ? (lazy.root || getAppRoot()) : null
+  const root = useMemo(() => {
+    if (isObject(lazy)) {
+      return lazy.root
+    }
+    if (lazy) {
+      return getAppRoot()
+    }
+    return null
+  }, [lazy])
 
   const [selected, setSelected] = useControlledState<boolean>({
     value: props.selected,
@@ -116,15 +122,32 @@ function LazyImage(props: Props) {
 
   const [elInView] = useInViewport(elRef, {
     root,
-    rootMargin: `${rootVerticalMargin(4.5)}px 0px`,
+    rootMargin: `${rootVerticalMargin(5)}px 0px`,
   })
 
-  // 懒加载图片
+  // 懒加载图片资源
   // 比 VisibleImage 的加载更多，为了更快读取图片
-  const [imageInView] = useInViewport(elRef, {
+  const [_imageInView] = useInViewport(elRef, {
     root,
-    rootMargin: `${rootVerticalMargin(10)}px 0px`,
+    rootMargin: `${rootVerticalMargin(7)}px 0px`,
   })
+
+  const imageWasInView = useRef(false)
+  /**
+   * 加载过的图片不再卸载原生img，是为了不再重复请求图片
+   */
+  const imageInView = useMemo(() => {
+    if (imageWasInView.current) {
+      return true
+    }
+
+    if (_imageInView) {
+      imageWasInView.current = true
+      return true
+    }
+
+    return false
+  }, [_imageInView, imageWasInView.current])
 
   const isTargetImage = useMemoizedFn(() => {
     // 在 viewer 中的图片才会被reveal
@@ -193,11 +216,6 @@ function LazyImage(props: Props) {
     }
   }, [imageReveal, image.path])
 
-  // 渲染优化
-  if (lazy && !lazy.root) {
-    return null
-  }
-
   return (
     <div ref={elRef} className={classNames('select-none transition-opacity', className?.(image))}>
       {elInView || !lazy
@@ -212,7 +230,7 @@ function LazyImage(props: Props) {
                 height: imagePlaceholderSize?.height,
               }}
             >
-              {imageInView && <img src={image.vscodePath} hidden={true} className='size-0' />}
+              {imageInView && <img src={image.vscodePath} hidden={true} className='hidden size-0' />}
             </div>
           )}
     </div>

@@ -1,12 +1,13 @@
 import type { Props as ImageOperatorProps } from '../../components/image-operator'
 import type { ImperativeModalProps } from '~/webview/image-manager/hooks/use-imperative-antd-modal'
-import { Card, Divider, Empty } from 'antd'
+import { Card, Divider } from 'antd'
 import { remove } from 'es-toolkit'
 import { produce } from 'immer'
 import { memo, useMemo } from 'react'
 import { useTranslation } from 'react-i18next'
 import { useControlledState } from '~/webview/image-manager/hooks/use-controlled-state'
 import useScrollRef from '~/webview/image-manager/hooks/use-scroll-ref'
+import EmptyImage from '../../components/empty'
 import ImageGroup from '../../components/image-group'
 import useImageManagerEvent, { IMEvent } from '../use-image-manager-event'
 
@@ -109,7 +110,7 @@ function ImageSimilarity(props: Props & ImperativeModalProps) {
               </div>
             )
           : (
-              <Empty image={Empty.PRESENTED_IMAGE_SIMPLE} description={t('im.no_image')} />
+              <EmptyImage />
             )}
       </Card>
     </>

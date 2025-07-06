@@ -1,10 +1,8 @@
-import { useEventListener, useMemoizedFn, useThrottleFn, useUpdateEffect } from 'ahooks'
+import { useEventListener, useLatest, useMemoizedFn, useSize, useThrottleFn, useUpdateEffect } from 'ahooks'
 import { ceil } from 'es-toolkit/compat'
-import { useAtomValue } from 'jotai'
 import { useEffect, useMemo, useRef, useState } from 'react'
-import { DEFAULT_CONFIG } from '~/core/config/common'
 import { getAppRoot } from '~/webview/utils'
-import { GlobalAtoms } from '../../stores/global/global-store'
+import { nextTick } from '../../utils'
 
 type UseElementBottomStatusProps = {
   target: HTMLElement | null
@@ -15,20 +13,37 @@ type UseElementBottomStatusProps = {
 function useElementBottom({ target, offset, container }: UseElementBottomStatusProps) {
   const [isBottomInView, setIsBottomInView] = useState(false)
 
+  const latestIsBottomInView = useLatest(isBottomInView)
+
+  const containerRect = useMemo(() => container.getBoundingClientRect(), [container])
+
+  const timer = useRef<NodeJS.Timeout | null>(null)
+
   const { run } = useThrottleFn(
     () => {
       if (!target)
         return
 
-      const containerRect = getAppRoot().getBoundingClientRect()
+      timer.current && clearTimeout(timer.current)
+
       const targetRect = target.getBoundingClientRect()
 
+      // offset 大意味着提前触发底部检测
       const isBottom = targetRect.bottom - offset <= containerRect.bottom
 
       setIsBottomInView(isBottom)
+
+      timer.current = setTimeout(() => {
+        if (latestIsBottomInView.current) {
+          setIsBottomInView(false)
+          nextTick(() => {
+            setIsBottomInView(true)
+          })
+        }
+      }, 100)
     },
     {
-      wait: 60,
+      wait: 16,
     },
   )
 
@@ -36,7 +51,7 @@ function useElementBottom({ target, offset, container }: UseElementBottomStatusP
     target: container,
   })
 
-  return isBottomInView
+  return [isBottomInView, setIsBottomInView] as const
 }
 
 type Props = {
@@ -65,20 +80,16 @@ export default function useLazyLoadImages(props: Props) {
   })
 
   const status = useRef<{
-    loading: boolean
     hasMore: boolean
   }>({
-    loading: false,
     hasMore: hasMore(loadedImages.images),
   })
 
-  const isBottomInView = useElementBottom({ target, container, offset: rootVerticalMargin(10) })
+  const [isBottomInView, setIsBottomInView] = useElementBottom({ target, container, offset: rootVerticalMargin(7) })
 
   const addImages = useMemoizedFn((pageNum: number) => {
-    if (status.current.loading || !status.current.hasMore)
+    if (!status.current.hasMore)
       return
-
-    status.current.loading = true
 
     setLoadedImages(() => {
       const nextImages = images.slice(0, pageSize * pageNum)
@@ -94,7 +105,14 @@ export default function useLazyLoadImages(props: Props) {
       }
     })
 
-    status.current.loading = false
+    setIsBottomInView(false)
+  })
+
+  /**
+   * 追加下一页图片
+   */
+  const append = useMemoizedFn(() => {
+    addImages(loadedImages.page + 1)
   })
 
   useEffect(() => {
@@ -113,24 +131,31 @@ export default function useLazyLoadImages(props: Props) {
       addImages(loadedImages.page)
     }
     else {
-      addImages(loadedImages.page + 1)
+      append()
     }
   }, [images])
 
   useUpdateEffect(() => {
     if (isBottomInView) {
-      addImages(loadedImages.page + 1)
+      append()
     }
   }, [isBottomInView])
 
-  return [useMemo(() => loadedImages.images, [loadedImages.images])]
+  return [useMemo(() => loadedImages.images, [loadedImages.images]), status.current, useMemo(() => ({ append }), [])] as const
 }
 
 export function useLazyMargin() {
-  const imagePlaceholderSize = useAtomValue(GlobalAtoms.imagePlaceholderSizeAtom)
+  const screenHeight = useMemo(() => {
+    return getAppRoot().getBoundingClientRect().height
+  }, [])
+
+  const { height } = useSize(getAppRoot()) || {}
 
   const rootVerticalMargin = useMemoizedFn(
-    (rate: number) => (imagePlaceholderSize?.height || DEFAULT_CONFIG.viewer.imageWidth) * rate,
+    (rate: number) => {
+      const r = height || screenHeight
+      return r * rate
+    },
   )
 
   return {

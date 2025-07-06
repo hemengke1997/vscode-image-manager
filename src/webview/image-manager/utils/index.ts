@@ -102,3 +102,12 @@ export function isElInViewport(el: HTMLElement | null) {
 
   return false
 }
+
+export function nextTick(fn?: () => void) {
+  return new Promise((resolve) => {
+    setTimeout(() => {
+      fn?.()
+      resolve(true)
+    }, 0)
+  })
+}

@@ -18,7 +18,7 @@ import { Config } from '~/core/config/config'
 import { Global } from '~/core/global'
 import { i18n } from '~/i18n'
 import { CmdToWebview } from '~/message/cmd'
-import { DEV_PORT, EXT_NAMESPACE, PRELOAD_HELPER } from '~/meta'
+import { DEV_PORT, EXT_NAMESPACE, PRELOAD_HELPER, REACT_DEVTOOLS_PORT } from '~/meta'
 import { Channel } from '~/utils/node/channel'
 import { MessageCenter } from './message-center'
 
@@ -190,6 +190,7 @@ export class ImageManagerPanel {
     }
     else {
       const localServerUrl = `http://localhost:${DEV_PORT}`
+      // const reactDevToolsUrl = `http://localhost:${REACT_DEVTOOLS_PORT}`
 
       const res = await fetch(`${localServerUrl}/src/webview/image-manager/index.html`, {
         headers: {
@@ -201,27 +202,32 @@ export class ImageManagerPanel {
       html = await res.text()
       html = html.replace(/(?<=")(\/).*"/g, match => `${localServerUrl}${match}`)
 
-      content_src = `ws://${localServerUrl.replace(/https?:\/\//, '')} ws://0.0.0.0:${DEV_PORT} ${localServerUrl}`
-      script_src = `${localServerUrl} http://0.0.0.0:${DEV_PORT}`
+      content_src = `ws://${localServerUrl.replace(/https?:\/\//, '')} ws://localhost:${REACT_DEVTOOLS_PORT}`
+      script_src = `${localServerUrl}`
+      // if(reactDevToolsUrl) {
+      //   script_src += ` ${reactDevToolsUrl}`
+      // }
     }
 
     const $ = cheerio.load(html)
 
+    // 添加 CSP meta 标签
     const meta = $('<meta></meta>')
     meta.attr('http-equiv', 'Content-Security-Policy')
     meta.attr('content', [
-      'default-src \'none\'',
+      `default-src 'none'`,
       `connect-src 'self' https://\* http://\* wss://\* ${content_src}`,
-      'font-src \'self\' vscode-webview://* https://* blob: data:',
+      `font-src 'self' vscode-webview://* https://* blob: data:`,
       `frame-src ${webview.cspSource} vscode-webview://* https://* blob: data:`,
-      'media-src \'self\' https://* blob: data:',
+      `media-src 'self' https://* blob: data:`,
+      `script-src ${webview.cspSource} vscode-webview://* 'unsafe-inline' 'unsafe-eval' https://\* ${script_src}`,
       `img-src ${webview.cspSource} vscode-webview://* https://* http://* blob: data:`,
-      `worker-src ${script_src} data: vscode-webview://* blob: https://* http://*`,
-      `script-src ${webview.cspSource} vscode-webview://* 'unsafe-inline' 'unsafe-eval' https://\* ${script_src} data:`,
-      `style-src ${webview.cspSource} 'unsafe-inline' https://* blob: data: http://*`,
+      `style-src ${webview.cspSource} 'unsafe-inline' https://* http://*`,
     ].join('; '))
+
     $('head').prepend(meta)
 
+    // 添加预加载脚本
     const script = $('<script></script>')
     // 让正式环境支持资源异步加载，不然会从 vscode-webview://* 读取资源，这样会导致资源加载失败，因为正式环境的资源是放在 dist-webview 目录下的
     script.text(`${PRELOAD_HELPER} = '${this.getUri(['dist-webview']).toString()}'`)

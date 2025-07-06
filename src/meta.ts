@@ -32,6 +32,7 @@ export const EXT_NAME = 'Image Manager'
 
 export const FALLBACK_LANGUAGE = Language.en
 export const DEV_PORT = 4433
+export const REACT_DEVTOOLS_PORT = 8097
 
 // webview/locales/*.json
 export const locales = [

@@ -25,6 +25,8 @@ export const GlobalAtoms = {
   formatConverterAtom: atom<WebviewFormatConverterType>(),
   /* ---------- image placeholder size ---------- */
   imagePlaceholderSizeAtom: atom<{ width: number, height: number }>(),
+  /* ---------- viewer page size ---------- */
+  viewerPageSizeAtom: atom<number>(0),
   /* ---------- reveal image path ---------- */
   /**
    * @note imageReveal 是带t query参数的，用于处理同一张图片的情况

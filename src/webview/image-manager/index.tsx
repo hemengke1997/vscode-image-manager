@@ -13,6 +13,7 @@ import logger from '~/utils/logger'
 import { getAppRoot } from '../utils'
 import { vscodeApi } from '../vscode-api'
 import ContextMenus from './components/context-menus'
+import Debug from './components/debug'
 import ImageForSize from './components/image-for-size'
 import Layout from './components/layout'
 import { ToasterWithMax } from './components/toaster-with-max'
@@ -201,6 +202,8 @@ function ImageManager() {
       />
 
       <ToasterWithMax />
+
+      <Debug />
     </>
   )
 }

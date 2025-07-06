@@ -3,6 +3,7 @@ import { useEventListener, useInViewport, useMemoizedFn, useThrottleFn, useUpdat
 import { isUndefined } from 'es-toolkit'
 import { useEffect, useRef } from 'react'
 import { getAppRoot } from '~/webview/utils'
+import { nextTick } from '../utils'
 
 type Props = {
   /**
@@ -60,11 +61,12 @@ export default function useSticky(props: Props) {
     rootMargin: `-${topOffset * 2}px 0px`,
   })
 
-  const toogleSticky = useMemoizedFn((sticky: boolean) => {
+  const toogleSticky = useMemoizedFn(async (sticky: boolean) => {
     const args = {
       rawStyle: targetStyle.current || '',
     }
     previousSticky.current = sticky
+    await nextTick()
     onStickyToogle(sticky, args)
   })
 

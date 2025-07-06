@@ -67,6 +67,7 @@ export default defineConfig((env) => {
       chunkReadable(),
       logBuildTime(env),
       restrictImages(),
+      // reactDevTools(),
     ],
     build: {
       outDir: path.resolve(__dirname, './dist-webview/'),

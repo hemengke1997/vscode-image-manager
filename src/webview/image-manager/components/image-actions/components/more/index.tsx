@@ -16,7 +16,9 @@ function More() {
   const [open, setOpen] = useState(false)
 
   const toggleAllCollapse = useMemoizedFn((open: boolean) => {
-    open ? openAllCollapse() : closeAllCollapse()
+    open
+      ? openAllCollapse()
+      : closeAllCollapse()
   })
 
   return (
@@ -37,16 +39,18 @@ function More() {
             <Space.Compact>
               <Button
                 onClick={() => {
-                  toggleAllCollapse(true)
                   setOpen(false)
+
+                  toggleAllCollapse(true)
                 }}
               >
                 {t('im.expand')}
               </Button>
               <Button
                 onClick={() => {
-                  toggleAllCollapse(false)
                   setOpen(false)
+
+                  toggleAllCollapse(false)
                 }}
               >
                 {t('im.collapse')}
