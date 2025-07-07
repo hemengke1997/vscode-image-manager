@@ -122,32 +122,8 @@ function LazyImage(props: Props) {
 
   const [elInView] = useInViewport(elRef, {
     root,
-    rootMargin: `${rootVerticalMargin(5)}px 0px`,
+    rootMargin: `${rootVerticalMargin()}px 0px`,
   })
-
-  // 懒加载图片资源
-  // 比 VisibleImage 的加载更多，为了更快读取图片
-  const [_imageInView] = useInViewport(elRef, {
-    root,
-    rootMargin: `${rootVerticalMargin(7)}px 0px`,
-  })
-
-  const imageWasInView = useRef(false)
-  /**
-   * 加载过的图片不再卸载原生img，是为了不再重复请求图片
-   */
-  const imageInView = useMemo(() => {
-    if (imageWasInView.current) {
-      return true
-    }
-
-    if (_imageInView) {
-      imageWasInView.current = true
-      return true
-    }
-
-    return false
-  }, [_imageInView, imageWasInView.current])
 
   const isTargetImage = useMemoizedFn(() => {
     // 在 viewer 中的图片才会被reveal
@@ -220,7 +196,6 @@ function LazyImage(props: Props) {
     <div ref={elRef} className={classNames('select-none transition-opacity', className?.(image))}>
       {elInView || !lazy
         ? (
-            // 拆出去为了更好的渲染性能
             <VisibleImage {...rest} selected={selected} image={image} />
           )
         : (
@@ -230,7 +205,6 @@ function LazyImage(props: Props) {
                 height: imagePlaceholderSize?.height,
               }}
             >
-              {imageInView && <img src={image.vscodePath} hidden={true} className='hidden size-0' />}
             </div>
           )}
     </div>

@@ -103,11 +103,36 @@ export function isElInViewport(el: HTMLElement | null) {
   return false
 }
 
-export function nextTick(fn?: () => void) {
-  return new Promise((resolve) => {
-    setTimeout(() => {
-      fn?.()
-      resolve(true)
+/**
+ * 异步执行函数，返回一个包含 promise 和 cancel 方法的对象
+ * 用于释放主线程，把任务延迟到下一次事件循环
+ * @param task 异步执行的函数
+ * @returns 包含 promise 和 cancel 方法的对象
+ */
+export function nextTick(task: () => void) {
+  let timeoutId: NodeJS.Timeout | null = null
+
+  const promise = new Promise<boolean>((resolve, reject) => {
+    timeoutId = setTimeout(() => {
+      try {
+        task()
+        resolve(true)
+      }
+      catch (error) {
+        reject(error)
+      }
     }, 0)
   })
+
+  const cancel = () => {
+    if (timeoutId) {
+      clearTimeout(timeoutId)
+      timeoutId = null
+    }
+  }
+
+  return {
+    promise,
+    cancel,
+  }
 }

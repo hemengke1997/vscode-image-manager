@@ -2,9 +2,9 @@ import type { ModalFuncProps } from 'antd'
 import type { HookAPI } from 'antd/es/modal/useModal'
 import type { ComponentType, DependencyList } from 'react'
 import { useDeepCompareEffect, useMemoizedFn } from 'ahooks'
-import { App, Spin } from 'antd'
+import { App } from 'antd'
 import { motion } from 'motion/react'
-import { createElement, lazy, startTransition, Suspense, useMemo, useRef } from 'react'
+import { createElement, lazy, startTransition, useMemo, useRef } from 'react'
 
 function isLazyComponent(component: any) {
   // @ts-expect-error typeof detection
@@ -116,16 +116,6 @@ export function useImperativeAntdModal<T extends object>(
               } as T)}
             </motion.div>
           ),
-          modalRender(node) {
-            return (
-              <Suspense fallback={(
-                <Spin spinning={true} delay={500} className='flex size-full items-center justify-center py-12' />
-              )}
-              >
-                {node}
-              </Suspense>
-            )
-          },
         }
       }
 

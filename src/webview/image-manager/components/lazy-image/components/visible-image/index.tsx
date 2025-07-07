@@ -112,7 +112,7 @@ function VisibleImage(props: VisibleImageProps) {
     return base + (imageWidth - DEFAULT_CONFIG.viewer.imageWidth) * factor
   }, [imageWidth])
 
-  const previewMask = useMemoizedFn(() => {
+  const previewMask = useMemo(() => {
     return (
       <div
         className='flex size-full flex-col items-center justify-center'
@@ -164,12 +164,12 @@ function VisibleImage(props: VisibleImageProps) {
           : null}
       </div>
     )
-  })
+  }, [computedMaskFontSize, image, imageMetadata, t])
 
-  const imagePreivew = useMemoizedFn(() => {
+  const imagePreivew = useMemo(() => {
     if (hoverShowImageDetail) {
       return {
-        mask: previewMask(),
+        mask: previewMask,
         maskClassName: 'rounded-md !cursor-default !transition-none',
         className: 'min-w-24',
         src: antdImageProps.src,
@@ -178,7 +178,7 @@ function VisibleImage(props: VisibleImageProps) {
     }
 
     return false
-  })
+  }, [hoverShowImageDetail, previewMask, antdImageProps.src])
 
   const compressedMap = useMemo(
     () => ({
@@ -237,7 +237,7 @@ function VisibleImage(props: VisibleImageProps) {
         <Image
           {...antdImageProps}
           className={classNames('rounded-md object-contain p-1 will-change-auto', antdImageProps.className)}
-          preview={imagePreivew()}
+          preview={imagePreivew}
           rootClassName={classNames('transition-all', antdImageProps.rootClassName)}
           style={imageStyle}
           src={image.vscodePath}

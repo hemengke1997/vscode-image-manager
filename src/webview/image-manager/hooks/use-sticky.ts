@@ -61,13 +61,17 @@ export default function useSticky(props: Props) {
     rootMargin: `-${topOffset * 2}px 0px`,
   })
 
-  const toogleSticky = useMemoizedFn(async (sticky: boolean) => {
+  const cancelRef = useRef<() => void>()
+  const toogleSticky = useMemoizedFn((sticky: boolean) => {
+    cancelRef.current?.()
     const args = {
       rawStyle: targetStyle.current || '',
     }
     previousSticky.current = sticky
-    await nextTick()
-    onStickyToogle(sticky, args)
+    const { cancel } = nextTick(() => {
+      onStickyToogle(sticky, args)
+    })
+    cancelRef.current = cancel
   })
 
   useUpdateEffect(() => {

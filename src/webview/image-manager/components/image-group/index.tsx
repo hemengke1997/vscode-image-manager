@@ -140,7 +140,7 @@ function ImageGroup(props: Props, ref: ForwardedRef<HTMLDivElement>) {
     images: imagesProp,
     pageSize: viewerPageSize,
     target: containerRef?.current,
-    container: isObject(lazyImageProps?.lazy) ? lazyImageProps.lazy.root : getAppRoot(),
+    container: isObject(lazyImageProps?.lazy) ? lazyImageProps.lazy.root || getAppRoot() : getAppRoot(),
     index,
   })
 

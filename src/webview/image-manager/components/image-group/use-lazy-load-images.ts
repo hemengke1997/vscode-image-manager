@@ -3,6 +3,7 @@ import { ceil } from 'es-toolkit/compat'
 import { useEffect, useMemo, useRef, useState } from 'react'
 import { getAppRoot } from '~/webview/utils'
 import { nextTick } from '../../utils'
+import { imageForSizeRootMargin } from '../image-for-size'
 
 type UseElementBottomStatusProps = {
   target: HTMLElement | null
@@ -10,7 +11,7 @@ type UseElementBottomStatusProps = {
   offset: number // 距离底部的偏移量
 }
 
-function useElementBottom({ target, offset, container }: UseElementBottomStatusProps) {
+function useElementBottom({ target, offset, container = getAppRoot() }: UseElementBottomStatusProps) {
   const [isBottomInView, setIsBottomInView] = useState(false)
 
   const latestIsBottomInView = useLatest(isBottomInView)
@@ -63,7 +64,7 @@ type Props = {
   index: number
 } & Pick<UseElementBottomStatusProps, 'target' | 'container'>
 export default function useLazyLoadImages(props: Props) {
-  const { images, pageSize, index, target, container } = props
+  const { images, pageSize, index, target, container = getAppRoot() } = props
 
   const { rootVerticalMargin } = useLazyMargin()
 
@@ -85,7 +86,7 @@ export default function useLazyLoadImages(props: Props) {
     hasMore: hasMore(loadedImages.images),
   })
 
-  const [isBottomInView, setIsBottomInView] = useElementBottom({ target, container, offset: rootVerticalMargin(7) })
+  const [isBottomInView, setIsBottomInView] = useElementBottom({ target, container, offset: rootVerticalMargin() })
 
   const addImages = useMemoizedFn((pageNum: number) => {
     if (!status.current.hasMore)
@@ -152,7 +153,7 @@ export function useLazyMargin() {
   const { height } = useSize(getAppRoot()) || {}
 
   const rootVerticalMargin = useMemoizedFn(
-    (rate: number) => {
+    (rate: number = imageForSizeRootMargin) => {
       const r = height || screenHeight
       return r * rate
     },
