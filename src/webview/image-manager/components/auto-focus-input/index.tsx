@@ -1,20 +1,14 @@
 import type { GetProps, InputRef } from 'antd'
+import { useTimeout } from 'ahooks'
 import { Input } from 'antd'
-import { memo, useLayoutEffect, useRef } from 'react'
+import { memo, useRef } from 'react'
 
 function AutoFocusInput(props: GetProps<typeof Input>) {
   const ref = useRef<InputRef>(null)
-  useLayoutEffect(() => {
-    let timeoutId: ReturnType<typeof setTimeout> | null = null
-    timeoutId = setTimeout(() => {
-      ref.current?.focus({ cursor: 'all' })
-    })
-    return () => {
-      if (timeoutId) {
-        clearTimeout(timeoutId)
-      }
-    }
-  }, [])
+
+  useTimeout(() => {
+    ref.current?.focus({ cursor: 'all' })
+  }, 16)
 
   return <Input ref={ref} {...props}></Input>
 }

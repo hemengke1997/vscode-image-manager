@@ -190,7 +190,7 @@ export class ImageManagerPanel {
     }
     else {
       const localServerUrl = `http://localhost:${DEV_PORT}`
-      // const reactDevToolsUrl = `http://localhost:${REACT_DEVTOOLS_PORT}`
+      const reactDevToolsUrl = `http://localhost:${REACT_DEVTOOLS_PORT}`
 
       const res = await fetch(`${localServerUrl}/src/webview/image-manager/index.html`, {
         headers: {
@@ -204,9 +204,9 @@ export class ImageManagerPanel {
 
       content_src = `ws://${localServerUrl.replace(/https?:\/\//, '')} ws://localhost:${REACT_DEVTOOLS_PORT}`
       script_src = `${localServerUrl}`
-      // if(reactDevToolsUrl) {
-      //   script_src += ` ${reactDevToolsUrl}`
-      // }
+      if (reactDevToolsUrl) {
+        script_src += ` ${reactDevToolsUrl}`
+      }
     }
 
     const $ = cheerio.load(html)

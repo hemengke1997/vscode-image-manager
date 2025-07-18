@@ -6,9 +6,8 @@ import { getAppRoot } from '~/webview/utils'
 import { GlobalAtoms } from '../../stores/global/global-store'
 import { useImageWidth } from '../../stores/global/hooks'
 import { imageStateAtom } from '../../stores/image/image-store'
+import { LazyMarginScreenFactor } from '../../utils/meta'
 import LazyImage from '../lazy-image'
-
-export const imageForSizeRootMargin = 3
 
 function ImageForSize() {
   const image = useAtomValue(
@@ -45,7 +44,7 @@ function ImageForSize() {
 
     // 系数越大，图片数分块越大
     // 意味着假设一屏可以展示 100 张图片，如果 rate 为5，那么每次一页图片 500 张
-    const rate = imageForSizeRootMargin
+    const rate = LazyMarginScreenFactor
     setViewerPageSize(Math.floor(pageSize * rate))
   }, [size])
 

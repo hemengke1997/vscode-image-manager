@@ -3,7 +3,7 @@ import { ceil } from 'es-toolkit/compat'
 import { useEffect, useMemo, useRef, useState } from 'react'
 import { getAppRoot } from '~/webview/utils'
 import { nextTick } from '../../utils'
-import { imageForSizeRootMargin } from '../image-for-size'
+import { LazyMarginScreenFactor } from '../../utils/meta'
 
 type UseElementBottomStatusProps = {
   target: HTMLElement | null
@@ -153,7 +153,7 @@ export function useLazyMargin() {
   const { height } = useSize(getAppRoot()) || {}
 
   const rootVerticalMargin = useMemoizedFn(
-    (rate: number = imageForSizeRootMargin) => {
+    (rate: number = LazyMarginScreenFactor) => {
       const r = height || screenHeight
       return r * rate
     },
