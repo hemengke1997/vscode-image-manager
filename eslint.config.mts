@@ -17,6 +17,7 @@ export default antfu(
       'ts/no-require-imports': 'off',
       'ts/consistent-type-definitions': 'off',
       'unused-imports/no-unused-vars': 'off',
+      'no-console': 'off',
     },
     stylistic: {
       quotes: 'single',
