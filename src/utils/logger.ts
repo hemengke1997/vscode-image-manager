@@ -24,14 +24,12 @@ const logger = createConsola({
 
 logger.time = (label: string) => {
   if (logger.level === LogLevels.debug) {
-    // eslint-disable-next-line no-console
     console.time(label)
   }
 }
 
 logger.timeEnd = (label: string) => {
   if (logger.level === LogLevels.debug) {
-    // eslint-disable-next-line no-console
     console.timeEnd(label)
   }
 }

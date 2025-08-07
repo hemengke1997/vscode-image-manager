@@ -1,4 +1,3 @@
-/* eslint-disable no-console */
 import type { ConfigType } from '~/core/config/common'
 import type { WorkspaceStateType } from '~/core/persist/workspace/common'
 import { Buffer } from 'node:buffer'
