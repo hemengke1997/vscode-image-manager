@@ -8,11 +8,8 @@ import { isGitIgnoredSync } from 'globby'
 import micromatch from 'micromatch'
 import { nanoid } from 'nanoid'
 import {
-
   Disposable,
-
   RelativePattern,
-
   workspace,
 } from 'vscode'
 import { i18n } from '~/i18n'

@@ -194,6 +194,20 @@ function LazyImage(props: Props) {
 
   return (
     <div ref={elRef} className={classNames('select-none transition-opacity', className?.(image))}>
+      {/* <OffScreen
+        mode={elInView || !lazy ? 'visible' : 'hidden'}
+        fallback={(
+          <div
+            style={{
+              width: imagePlaceholderSize?.width,
+              height: imagePlaceholderSize?.height,
+            }}
+          >
+          </div>
+        )}
+      >
+        <VisibleImage {...rest} selected={selected} image={image} />
+      </OffScreen> */}
       {elInView || !lazy
         ? (
             <VisibleImage {...rest} selected={selected} image={image} />
@@ -203,6 +217,7 @@ function LazyImage(props: Props) {
               style={{
                 width: imagePlaceholderSize?.width,
                 height: imagePlaceholderSize?.height,
+                containIntrinsicSize: `${imagePlaceholderSize?.width}px ${imagePlaceholderSize?.height}px`,
               }}
             >
             </div>

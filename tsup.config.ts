@@ -12,22 +12,26 @@ const __dirname = path.dirname(fileURLToPath(import.meta.url))
 function buildExternals(option: Options): Options[] {
   return [
     {
-      entry: ['lib/sharp/index.ts'],
-      outDir: 'dist/lib/sharp',
+      entry: {
+        'lib/sharp/index': 'lib/sharp/index.ts',
+      },
       format: ['cjs'],
       target: 'node18',
       minify: !option.watch,
+      dts: false,
+      clean: false,
     },
   ]
 }
 
 export default defineConfig(option => [
   {
-    entry: ['src/extension.ts'],
+    entry: {
+      'extension': 'src/extension.ts',
+    },
     format: 'cjs',
     external: ['vscode', 'sharp'],
     noExternal: ['sharp/package.json', /sharp\/lib\/libvips/],
-    clean: !option.watch,
     dts: false,
     target: 'node18',
     minify: !option.watch,
@@ -43,6 +47,7 @@ export default defineConfig(option => [
       logger.success('i18n build success')
       return Promise.resolve()
     },
+    clean: false,
   },
   ...buildExternals(option),
 ])
