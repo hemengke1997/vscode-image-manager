@@ -22,6 +22,7 @@ function Debug() {
             onClick={() => {
               window.mountApp(true)
             }}
+            tooltip='Reload'
           />
           <FloatButton
             icon={<VscDebugConsole />}
@@ -29,6 +30,7 @@ function Debug() {
             onClick={() => {
               setIsDebugMode(!isDebugMode)
             }}
+            tooltip={`${isDebugMode ? 'Disable' : 'Enable'} Debug Mode`}
           />
         </FloatButton.Group>
       </>

@@ -72,7 +72,7 @@ function useImageOperation() {
       image: ImageType,
       options: {
         // 取图片的属性
-        proto: 'name' | 'path' | 'relativePath'
+        proto: 'basename' | 'path' | 'relativePath'
         silent?: boolean
         callback?: (s: string) => Promise<string | undefined>
       },

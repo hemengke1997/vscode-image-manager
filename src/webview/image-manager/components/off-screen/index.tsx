@@ -10,7 +10,7 @@ type OffScreenInProps = {
 export default function OffScreen(props: OffScreenInProps & {
   fallback: ReactNode
 }) {
-  const { fallback, ...rest } = props
+  const { fallback } = props
 
   return (
     <Suspense fallback={fallback}>

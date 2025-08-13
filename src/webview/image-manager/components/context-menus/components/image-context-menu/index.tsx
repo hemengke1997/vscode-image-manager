@@ -276,7 +276,7 @@ function ImageContextMenu() {
         </Item>
 
         <Separator />
-        <Item onClick={e => handleCopyString(e.props!.image, { proto: 'name' })}>{t('im.copy_image_name')}</Item>
+        <Item onClick={e => handleCopyString(e.props!.image, { proto: 'basename' })}>{t('im.copy_image_name')}</Item>
         <Submenu label={t('im.copy_image_path')} arrow={<Arrow />}>
           <Item onClick={e => handleCopyString(e.props!.image, { proto: 'path' })}>
             {t('im.copy_image_absolute_path')}
